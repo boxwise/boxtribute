@@ -1,19 +1,23 @@
 import { useContext, useState } from "react";
-import { Icon, ChevronDownIcon } from "@chakra-ui/icons";
+import { HamburgerIcon } from "@chakra-ui/icons";
 import {
   Stack,
   useDisclosure,
   Flex,
-  Collapse,
   Text,
   Box,
   Button,
   IconButton,
   Image,
-  Img,
-  Divider,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Portal,
+  MenuGroup,
 } from "@chakra-ui/react";
-import { AiFillCloseCircle, AiFillWindows, AiOutlineMenu, AiOutlineQrcode } from "react-icons/ai";
+import { AiFillCloseCircle, AiOutlineMenu } from "react-icons/ai";
+import { RiQrCodeLine } from "react-icons/ri";
 import { Link, NavLink, useParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
@@ -25,12 +29,13 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { QrReaderButton } from "components/QrReader/QrReaderButton";
-import { generateDropappUrl, redirectToExternalUrl } from "utils/helpers";
+import { generateDropappUrl } from "utils/helpers";
+import { useHandleLogout } from "hooks/hooks";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
+  onClickScanQrCode: () => void;
 };
 
 const MenuToggle = ({ toggle, isOpen, ...props }) => (
@@ -41,7 +46,7 @@ const MenuToggle = ({ toggle, isOpen, ...props }) => (
   />
 );
 
-const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
+const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} mb={1} />;
 
 const LoginOrUserMenuButtonMobile = ({
   isAuthenticated,
@@ -53,68 +58,27 @@ const LoginOrUserMenuButtonMobile = ({
   setIsMenuOpen,
 }: LoginOrUserMenuButtonProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
+  const handleLogout = useHandleLogout();
 
   return isAuthenticated ? (
-    <Stack spacing={4} onClick={onToggle}>
-      <Flex
-        px={4}
-        border="1px"
-        w="100%"
-        py={2}
-        justify={"space-between"}
-        align={"center"}
-        _hover={{
-          textDecoration: "none",
-          backgroundColor: "gray.100",
-        }}
-        as={Button}
-        borderRadius="0px"
-        backgroundColor={isOpen ? "gray.100" : "transparent"}
-      >
-        <Flex maxW="85%" align={"center"}>
-          {user?.picture ? <Img src={user?.picture} width={8} height={8} mr={2} /> : null}
-          <Text fontWeight={600} isTruncated>
-            {user?.email}
-          </Text>
-        </Flex>
-        <Icon
-          as={ChevronDownIcon}
-          transition={"all .25s ease-in-out"}
-          transform={isOpen ? "rotate(180deg)" : ""}
-          w={6}
-          h={6}
-        />
-      </Flex>
-
-      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
-        <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          {/* <BaseSwitcher
-            currentActiveBaseId={currentActiveBaseId}
-            availableBases={availableBases}
-            setIsMenuOpen={setIsMenuOpen}
-          /> */}
-          <Divider orientation="horizontal" />
-          {/* <Box py={1} px={4}>
-            Profile
-          </Box> */}
-          <Box py={1} px={4} w="100%" onClick={() => logout()}>
-            Logout
-          </Box>
-        </Stack>
-      </Collapse>
-    </Stack>
+    <MenuItem onClick={handleLogout} key="logout-menu">
+      <Text fontWeight="bold">Logout {user?.email}</Text>
+    </MenuItem>
   ) : (
-    <Button
-      py={2}
-      colorScheme="gray"
-      borderRadius="0px"
-      flex="1"
-      border="1px"
-      w="250px"
-      onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}
-    >
-      Login
-    </Button>
+    <MenuItem as="button" key="login-menu">
+      <Button
+        as="div"
+        py={2}
+        colorScheme="gray"
+        borderRadius="0px"
+        flex="1"
+        border="1px"
+        w="250px"
+        onClick={() => (isAuthenticated ? logout() : loginWithRedirect())}
+      >
+        Login
+      </Button>
+    </MenuItem>
   );
 };
 
@@ -142,14 +106,54 @@ const BaseSwitcher = ({
 const MenuItemsGroupsMobile = ({
   isMenuOpen,
   setIsMenuOpen,
+  onClickScanQrCode,
   ...props
 }: MenuItemsGroupsMobileProps) => {
   return (
-    <Flex w="100%" flexBasis={{ base: "100%", md: "auto" }} display={isMenuOpen ? "block" : "none"}>
-      <Stack alignItems="start-end" direction="column">
+    <>
+      <MenuList>
+        <MenuItem as="div" key="qr-code-menu">
+          <Flex
+            px={4}
+            border="1px"
+            w="100%"
+            py={2}
+            justify={"space-between"}
+            align={"center"}
+            onClick={() => {
+              setIsMenuOpen(false);
+              onClickScanQrCode();
+            }}
+            as="button"
+            borderRadius="0px"
+            aria-label="Scan QR code"
+            data-testid="qr-code-button"
+          >
+            <Flex maxW="100%" align={"center"}>
+              <IconButton
+                as="div"
+                h={19}
+                w={19}
+                fontSize="45px"
+                backgroundColor="transparent"
+                aria-label="Scan QR Label"
+                icon={<RiQrCodeLine />}
+              />
+              <Text fontWeight={600} isTruncated>
+                Scan QR Label
+              </Text>
+            </Flex>
+          </Flex>
+        </MenuItem>
+
         {props.menuItemsGroups.map((item, i) => (
-          <MenuItemsGroupMobile key={i} {...item} setIsMenuOpen={setIsMenuOpen} />
+          <MenuItemsGroupMobile
+            key={`menu-${i.toString()}`}
+            {...item}
+            setIsMenuOpen={setIsMenuOpen}
+          />
         ))}
+
         <LoginOrUserMenuButtonMobile
           isAuthenticated={props.isAuthenticated}
           logout={props.logout}
@@ -159,8 +163,8 @@ const MenuItemsGroupsMobile = ({
           availableBases={props.availableBases}
           setIsMenuOpen={setIsMenuOpen}
         />
-      </Stack>
-    </Flex>
+      </MenuList>
+    </>
   );
 };
 
@@ -173,70 +177,42 @@ const MenuItemsGroupMobile = ({
   const { isOpen, onToggle } = useDisclosure();
 
   function renderLinkBoxes(link: MenuItemData, i: number) {
-    const baseId = globalPreferences.selectedBaseId;
+    const baseId = globalPreferences.selectedBase?.id;
     let { qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
       // Since we are forwarding to an external url we need to use the a tag
       return (
-        <Box
-          as="a"
-          href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
-          key={i}
-          py={1}
-          px={4}
-          w="100%"
-        >
-          {link.name}
-        </Box>
+        <MenuItem key={link.name}>
+          <Box
+            as="a"
+            href={generateDropappUrl(link.link, baseId, qrCode, labelIdentifier)}
+            key={i}
+            py={2}
+            px={4}
+            w="100%"
+          >
+            {link.name}
+          </Box>
+        </MenuItem>
       );
     } else {
       return (
-        <Box
-          as={NavLink}
-          to={link.link}
-          key={i}
-          py={1}
-          px={4}
-          w="100%"
-        >
-          {link.name}
-        </Box>
+        <MenuItem key={link.name}>
+          <Box as={NavLink} to={link.link} key={i} py={1} px={4} w="100%">
+            {link.name}
+          </Box>
+        </MenuItem>
       );
     }
   }
 
   return (
-    <Stack spacing={4} onClick={onToggle}>
-      <Flex
-        py={2}
-        justify={"space-between"}
-        align={"center"}
-        _hover={{
-          textDecoration: "none",
-          backgroundColor: "gray.100",
-        }}
-        px={4}
-        border="1px"
-        as={Button}
-        borderRadius="0px"
-        backgroundColor={isOpen ? "gray.100" : "transparent"}
-      >
-        <Text fontWeight={600}>{text}</Text>
-        <Icon
-          as={ChevronDownIcon}
-          transition={"all .25s ease-in-out"}
-          transform={isOpen ? "rotate(180deg)" : ""}
-          w={6}
-          h={6}
-        />
-      </Flex>
-      <Collapse in={isOpen} animateOpacity style={{ marginTop: "10px" }}>
-        <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
-          {links.map((link, i) => renderLinkBoxes(link, i))}
-        </Stack>
-      </Collapse>
-    </Stack>
+    <MenuGroup title={text}>
+      <Stack pl={4} borderLeft={1} borderStyle={"solid"} align={"start"}>
+        {links.map((link, i) => renderLinkBoxes(link, i))}
+      </Stack>
+    </MenuGroup>
   );
 };
 
@@ -255,24 +231,29 @@ const HeaderMenuMobile = (props: HeaderMenuProps) => {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        <QrReaderButton onClick={props.onClickScanQrCode} />
-        <MenuToggle
-          toggle={toggle}
-          isOpen={isMenuOpen}
-          display={{ base: "inline flex", md: "none" }}
-        />
+        <Menu matchWidth strategy="fixed" computePositionOnMount closeOnBlur>
+          <MenuButton
+            as={IconButton}
+            aria-label="Options"
+            icon={<HamburgerIcon />}
+            variant="outline"
+          />
+          <Portal>
+            <MenuItemsGroupsMobile
+              isMenuOpen={isMenuOpen}
+              setIsMenuOpen={setIsMenuOpen}
+              logout={props.logout}
+              loginWithRedirect={props.loginWithRedirect}
+              user={props.user}
+              onClickScanQrCode={props.onClickScanQrCode}
+              isAuthenticated={props.isAuthenticated}
+              menuItemsGroups={props.menuItemsGroups}
+              currentActiveBaseId={props.currentActiveBaseId}
+              availableBases={props.availableBases}
+            />
+          </Portal>
+        </Menu>
       </Flex>
-      <MenuItemsGroupsMobile
-        isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-        logout={props.logout}
-        loginWithRedirect={props.loginWithRedirect}
-        user={props.user}
-        isAuthenticated={props.isAuthenticated}
-        menuItemsGroups={props.menuItemsGroups}
-        currentActiveBaseId={props.currentActiveBaseId}
-        availableBases={props.availableBases}
-      />
     </HeaderMenuMobileContainer>
   );
 };

@@ -1,27 +1,29 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
+import TimelineBullet from "./TimelineBullet";
 
 export interface ITimelineEntryProps {
-  date: string;
-  title: string | undefined;
   content: string | undefined;
+  time: string | undefined;
 }
 
-function TimelineEntry({ date, title, content }: ITimelineEntryProps) {
+function TimelineEntry({ content, time }: ITimelineEntryProps) {
   return (
-    <Box display="flex" flexDirection="row" alignItems="flex-start" mb={4}>
-      <Box mr={4} w="80px" display="flex" flexDirection="column" alignItems="center">
-        <Text fontWeight="bold">{title}</Text>
-      </Box>
-      <Box>
-        <Text fontWeight="bold">
-          {new Date(date).toLocaleTimeString("en-GB", {
-            hour: "numeric",
-            minute: "numeric",
-          })}
-        </Text>
-        <Text mt={1}>{content}</Text>
-      </Box>
-    </Box>
+    <Flex flexDirection="column">
+      <Flex>
+        <Flex direction="row" w="100%">
+          <TimelineBullet />
+          <Flex w="100%" backgroundColor="gray.100" boxShadow="sm" margin={2} rounded={4}>
+            <Text mt={1} ml={1} flex={1} padding={1}>
+              {content}
+            </Text>
+            <Text mt={1} mr={1} padding={1}>
+              {time}
+            </Text>
+          </Flex>
+        </Flex>
+      </Flex>
+    </Flex>
   );
 }
+
 export default TimelineEntry;

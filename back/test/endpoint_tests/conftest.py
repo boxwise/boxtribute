@@ -1,5 +1,5 @@
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
@@ -19,10 +19,10 @@ def auth_service(module_mocker):
         "boxtribute_server.auth.get_auth_string_from_header"
     ).return_value = "Bearer Some.Token"
     module_mocker.patch("boxtribute_server.auth.get_public_key").return_value = None
-    module_mocker.patch("jose.jwt.decode").return_value = create_jwt_payload()
+    mock_user_for_request(module_mocker)
 
 
 @pytest.fixture
 def unauthorized(mocker):
     """Effectively remove any permissions from current client."""
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(permissions=[])
+    mock_user_for_request(mocker, permissions=[])

@@ -1,19 +1,21 @@
 import { useCallback, useState } from "react";
-import { useApolloClient } from "@apollo/client";
+import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import {
   GetBoxLabelIdentifierForQrCodeQuery,
   GetBoxLabelIdentifierForQrCodeQueryVariables,
 } from "types/generated/graphql";
+import { useErrorHandling } from "./useErrorHandling";
 
 // eslint-disable-next-line no-shadow
 export enum IQrResolverResultKind {
   SUCCESS = "success",
-  FAIL = "fail",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
-  NOT_FOUND = "notFound",
   NOT_AUTHORIZED = "notAuthorized",
   NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
+  NOT_FOUND = "notFound",
+  FAIL = "fail",
   // TODO: implement the following two edge cases
   DELETED_BOX = "deletedBox",
   LEGACY_BOX = "legacyBox",
@@ -36,33 +38,43 @@ export const extractQrCodeFromUrl = (url): string | undefined => {
 };
 
 export const useQrResolver = () => {
+  const { triggerError } = useErrorHandling();
   const [loading, setLoading] = useState(false);
   const apolloClient = useApolloClient();
 
-  const checkQrHash = useCallback(
-    async (hash: string): Promise<IQrResolvedValue> => {
+  const resolveQrHash = useCallback(
+    async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
       const qrResolvedValue: IQrResolvedValue = await apolloClient
         .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: hash },
-          fetchPolicy: "network-only",
+          fetchPolicy,
         })
         .then(({ data, errors }) => {
           if ((errors?.length || 0) > 0) {
             const errorCode = errors ? errors[0].extensions.code : undefined;
             if (errorCode === "FORBIDDEN") {
+              triggerError({
+                message: "You don't have permission to access this box!",
+              });
               return {
                 kind: IQrResolverResultKind.NOT_AUTHORIZED,
                 qrHash: hash,
               } as IQrResolvedValue;
             }
             if (errorCode === "BAD_USER_INPUT") {
+              triggerError({
+                message: "No box found for this QR code!",
+              });
               return {
                 kind: IQrResolverResultKind.NOT_FOUND,
                 qrHash: hash,
               } as IQrResolvedValue;
             }
+            triggerError({
+              message: "QR code lookup failed. Please wait a bit and try again.",
+            });
             return {
               kind: IQrResolverResultKind.FAIL,
               qrHash: hash,
@@ -80,35 +92,58 @@ export const useQrResolver = () => {
             box: data?.qrCode?.box,
           } as IQrResolvedValue;
         })
-        .catch(
-          (err) =>
-            ({
-              kind: IQrResolverResultKind.FAIL,
-              qrHash: hash,
-              error: err,
-            } as IQrResolvedValue),
-        );
+        .catch((err) => {
+          triggerError({
+            message: "QR code lookup failed. Please wait a bit and try again.",
+          });
+          return {
+            kind: IQrResolverResultKind.FAIL,
+            qrHash: hash,
+            error: err,
+          } as IQrResolvedValue;
+        });
+
+      if (qrResolvedValue.kind === IQrResolverResultKind.SUCCESS) {
+        const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box.labelIdentifier}"}`;
+        // add a scannedOn parameter in the cache if Box was scanned
+        await apolloClient.writeFragment({
+          id: boxCacheRef,
+          fragment: BOX_SCANNED_ON_FRAGMENT,
+          data: {
+            scannedOn: new Date(),
+          },
+        });
+      }
       setLoading(false);
       return qrResolvedValue;
     },
-    [apolloClient],
+    [apolloClient, triggerError],
   );
 
-  const checkQrCode = useCallback(
-    async (qrCodeUrl: string): Promise<IQrResolvedValue> => {
+  const resolveQrCode = useCallback(
+    async (qrCodeUrl: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
+      setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
       if (extractedQrHashFromUrl == null) {
+        triggerError({
+          message: "This is not a Boxtribute QR code!",
+        });
+        setLoading(false);
         return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
-      const qrResolvedValue: IQrResolvedValue = await checkQrHash(extractedQrHashFromUrl);
+      const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
+        extractedQrHashFromUrl,
+        fetchPolicy,
+      );
+      setLoading(false);
       return qrResolvedValue;
     },
-    [checkQrHash],
+    [resolveQrHash, triggerError],
   );
 
   return {
     loading,
-    checkQrHash,
-    checkQrCode,
+    resolveQrHash,
+    resolveQrCode,
   };
 };

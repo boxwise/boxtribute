@@ -8,10 +8,11 @@ import {
   Box,
   Spacer,
   Stack,
+  Flex,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useMemo } from "react";
-import { Product, Box as BoxType } from "types/generated/graphql";
+import { useCallback, useMemo } from "react";
+import { Product, Box as BoxType, BoxState, ShipmentState } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
@@ -20,11 +21,13 @@ import { RemoveBoxCell } from "./ShipmentTableCells";
 export interface IShipmentContent {
   product: Product;
   totalItems: number;
+  totalLosts: number;
   totalBoxes: number;
   boxes: BoxType[];
 }
 
 interface IShipmentContentProps {
+  shipmentState: ShipmentState | undefined;
   items: IShipmentContent[];
   showRemoveIcon: Boolean;
   isLoadingMutation: boolean | undefined;
@@ -33,21 +36,37 @@ interface IShipmentContentProps {
 }
 
 function ShipmentContent({
+  shipmentState,
   items,
   onRemoveBox,
   onBulkRemoveBox,
   isLoadingMutation,
   showRemoveIcon,
 }: IShipmentContentProps) {
-  const boxesToTableTransformer = (boxes: BoxType[]) =>
-    _.map(boxes, (box) => ({
-      id: box?.product?.id,
-      labelIdentifier: box.labelIdentifier,
-      product: `${box?.size?.label} ${
-        (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
-      } ${box?.product?.name || "Unassigned"}`,
-      items: box?.numberOfItems || 0,
-    }));
+  const boxesToTableTransformer = useCallback(
+    (boxes: BoxType[]) =>
+      _.map(boxes, (box) => ({
+        id: box?.product?.id,
+        labelIdentifier: box.labelIdentifier,
+        shipmentState,
+        isLost: box.state === BoxState.Lost,
+        product: `${box?.size?.label} ${
+          (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
+        } ${box?.product?.name || "Unassigned"}`,
+        items: box?.numberOfItems || 0,
+      })),
+    [shipmentState],
+  );
+
+  const renderCell = (cell) => {
+    const value = cell?.value;
+    const isStrikethrough = cell.row.original.isLost;
+    const style =
+      isStrikethrough && cell.row.original.shipmentState === ShipmentState.Completed
+        ? { textDecoration: "line-through", textDecorationColor: "red", color: "red" }
+        : {};
+    return <div style={style}>{value}</div>;
+  };
 
   // Define columns
   const columns = useMemo(
@@ -56,17 +75,20 @@ function ShipmentContent({
         id: "labelIdentifier",
         Header: "BOX #",
         accessor: "labelIdentifier",
+        Cell: renderCell,
       },
       {
         id: "product",
         Header: "PRODUCT",
         accessor: "product",
         style: { overflowWrap: "break-word" },
+        Cell: renderCell,
       },
       {
         id: "items",
         Header: "ITEMS",
         accessor: "items",
+        Cell: renderCell,
       },
       {
         id: "id",
@@ -88,12 +110,12 @@ function ShipmentContent({
   return (
     <Accordion allowToggle w="full">
       {items.map((item, index) => (
-        <AccordionItem key={item?.product?.id || index}>
+        <AccordionItem key={item?.product?.id || index} alignItems="center">
           {({ isExpanded }) => (
             <>
-              <Stack bg={isExpanded ? "#F4E6A0" : ""} p="2" direction="row" alignItems="flex-start">
+              <Stack bg={isExpanded ? "#F4E6A0" : ""} p="1" direction="row" alignItems="center">
                 {showRemoveIcon && (
-                  <Box alignContent="center" padding={1}>
+                  <Box alignContent="center" alignItems="center" padding={1}>
                     <AiFillMinusCircle
                       size={20}
                       style={{
@@ -109,13 +131,13 @@ function ShipmentContent({
                     />
                   </Box>
                 )}
-                <Box>
+                <Box alignItems="center">
                   <h2>
                     <Box>
-                      <Text>
+                      <Text data-testid="shipment-grouped-item-name">
                         {" "}
-                        {item?.product?.name || "Unassigned"}{" "}
-                        {(item?.product?.gender && item?.product?.gender) !== "none"
+                        {item?.product?.name}{" "}
+                        {item?.product?.gender && item?.product?.gender !== "none"
                           ? item?.product?.gender
                           : ""}{" "}
                         ({item.totalItems}x)
@@ -124,16 +146,24 @@ function ShipmentContent({
                   </h2>
                 </Box>
                 <Spacer />
-                <Box>
-                  <Text>{item.totalBoxes} boxes</Text>
-                </Box>
+                <Flex direction="row" alignItems="center">
+                  <Text>{item.totalBoxes}</Text>
+                  <Spacer />
+                  <Box pl={1}>box{item.totalBoxes > 1 && "es"}</Box>
+                  {item.totalLosts > 0 && shipmentState === ShipmentState.Completed && (
+                    <Box pl={1} color="red.500">
+                      (-{item.totalLosts})
+                    </Box>
+                  )}
+                </Flex>
                 <AccordionButton
+                  data-testid={`shipment-accordion-button-${item?.product?.id}`}
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
                   _hover={{ bgColor: "white" }}
                 >
                   <AccordionIcon
-                    mr={2}
+                    mr={1}
                     _focus={{
                       boxShadow: "none",
                     }}

@@ -1,25 +1,17 @@
 /* eslint-disable indent */
 import { useContext, useMemo } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { ShipmentsQuery } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
-
-export const ALL_SHIPMENTS_QUERY = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  query Shipments {
-    shipments {
-      ...ShipmentFields
-    }
-  }
-`;
 
 function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
@@ -27,7 +19,10 @@ function ShipmentsOverviewView() {
   const location = useLocation();
 
   // fetch shipments data
-  const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
+  const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY, {
+    // returns cache first, but syncs with server in background
+    fetchPolicy: "cache-and-network",
+  });
 
   // transform shipments data for UI
   const graphqlToTableTransformer = (shipmentQueryResult: ShipmentsQuery | undefined) =>
@@ -69,8 +64,10 @@ function ShipmentsOverviewView() {
 
         // counting of boxes from details
         const uniqueBoxIds = element.details.reduce((accumulator, detail) => {
-          const boxId = detail.box.labelIdentifier;
-          accumulator[boxId] = (accumulator[boxId] || 0) + 1;
+          if (detail.removedOn == null) {
+            const boxId = detail.box.labelIdentifier;
+            accumulator[boxId] = (accumulator[boxId] || 0) + 1;
+          }
           return accumulator;
         }, {});
         shipmentRow.boxes = Object.keys(uniqueBoxIds).length;
@@ -87,7 +84,7 @@ function ShipmentsOverviewView() {
           element.details
             .reduce(
               (accumulator, detail) =>
-                accumulator.concat(detail.createdOn).concat(detail.deletedOn),
+                accumulator.concat(detail.createdOn).concat(detail.removedOn),
               [],
             )
             .filter((date) => Boolean(date)),
@@ -176,6 +173,12 @@ function ShipmentsOverviewView() {
 
   return (
     <>
+      <BreadcrumbNavigation
+        items={[
+          { label: "Aid Transfers", linkPath: "/transfers/agreements" },
+          { label: "Manage Shipments" },
+        ]}
+      />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Shipments
       </Heading>

@@ -68,6 +68,13 @@ export const CREATE_BOX_MUTATION = gql`
       }
     ) {
       labelIdentifier
+      # update Qr-Code in cache to be associated to this Box
+      qrCode {
+        code
+        box {
+          labelIdentifier
+        }
+      }
     }
   }
 `;
@@ -80,7 +87,7 @@ function BoxCreateView() {
 
   // variables in URL
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code

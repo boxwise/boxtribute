@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { formatDateKey } from "utils/helpers";
 import {
   Box,
   Center,
@@ -11,8 +12,8 @@ import {
   Skeleton,
   useDisclosure,
 } from "@chakra-ui/react";
-import _, { groupBy } from "lodash";
-import { useCallback, useContext, useState } from "react";
+import _ from "lodash";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   CancelShipmentMutation,
@@ -32,16 +33,24 @@ import {
   RemoveBoxFromShipmentMutationVariables,
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
+  BoxState,
+  User,
 } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
+import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
+import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
+import { boxReconciliationOverlayVar } from "queries/cache";
+import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import ShipmentCard from "./components/ShipmentCard";
-import ShipmentTabs from "./components/ShipmentTabs";
+import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
 import ShipmentActionButtons from "./components/ShipmentActionButtons";
+import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
+import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 
 // graphql query and mutations
 export const SHIPMENT_BY_ID_QUERY = gql`
@@ -61,25 +70,6 @@ export const REMOVE_BOX_FROM_SHIPMENT = gql`
         id: $id
         preparedBoxLabelIdentifiers: []
         removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
-      }
-    ) {
-      ...ShipmentFields
-    }
-  }
-`;
-
-export const UPDATE_SHIPMENT_WHEN_RECEIVING = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation UpdateShipmentWhenReceiving(
-    $id: ID!
-    $receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
-    $lostBoxLabelIdentifiers: [String!]
-  ) {
-    updateShipmentWhenReceiving(
-      updateInput: {
-        id: $id
-        receivedShipmentDetailUpdateInputs: $receivedShipmentDetailUpdateInputs
-        lostBoxLabelIdentifiers: $lostBoxLabelIdentifiers
       }
     ) {
       ...ShipmentFields
@@ -127,9 +117,16 @@ function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
-  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const {
+    isOpen: isShipmentOverlayOpen,
+    onClose: onShipmentOverlayClose,
+    onOpen: onShipmentOverlayOpen,
+  } = useDisclosure();
+
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
+  const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
 
@@ -143,8 +140,17 @@ function ShipmentView() {
       variables: {
         id: shipmentId,
       },
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
     },
   );
+
+  useEffect(() => {
+    setShipmentState(data?.shipment?.state || undefined);
+    return () => {
+      setShipmentState(undefined);
+    };
+  }, [data]);
 
   // Mutations for shipment actions
   const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
@@ -167,12 +173,10 @@ function ShipmentView() {
     SendShipmentMutationVariables
   >(SEND_SHIPMENT);
 
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
     StartReceivingShipmentMutation,
     StartReceivingShipmentMutationVariables
   >(START_RECEIVING_SHIPMENT);
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
     UpdateShipmentWhenReceivingMutationVariables
@@ -189,7 +193,7 @@ function ShipmentView() {
         })
           .then((res) => {
             if (!res?.errors) {
-              onClose();
+              onShipmentOverlayClose();
               createToast({
                 type: "success",
                 message:
@@ -207,7 +211,7 @@ function ShipmentView() {
             });
           });
       },
-    [onClose, createToast, triggerError, shipmentId],
+    [onShipmentOverlayClose, createToast, triggerError, shipmentId],
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
@@ -228,10 +232,60 @@ function ShipmentView() {
       sourceOrg: data?.shipment?.sourceBase.organisation.name,
       targetOrg: data?.shipment?.targetBase.organisation.name,
     } as IShipmentOverlayData);
-    onOpen();
-  }, [setShipmentOverlayData, onOpen, data]);
+    onShipmentOverlayOpen();
+  }, [setShipmentOverlayData, onShipmentOverlayOpen, data]);
+
+  const openBoxReconciliationOverlay = useCallback(
+    (labelIdentifier: string) => {
+      boxReconciliationOverlayVar({
+        labelIdentifier,
+        isOpen: true,
+        shipmentId,
+      });
+    },
+    [shipmentId],
+  );
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
+
+  const onRemainingBoxesUndelivered = useCallback(() => {
+    const lostBoxLabelIdentifiers = data?.shipment?.details
+      .filter((shipmentDetail) => shipmentDetail.box.state === BoxState.Receiving)
+      .map((shipmentDetail) => shipmentDetail.box.labelIdentifier) as string[];
+
+    updateShipmentWhenReceiving({
+      variables: {
+        id: shipmentId,
+        lostBoxLabelIdentifiers,
+      },
+    })
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Could not change state of remaining boxes.",
+          });
+        } else {
+          onShipmentOverlayClose();
+          createToast({
+            title: `Box ${lostBoxLabelIdentifiers}`,
+            type: "success",
+            message: "Changed the state of remaining boxes to undelivered",
+          });
+        }
+      })
+      .catch(() => {
+        triggerError({
+          message: "Could not remove the box from the shipment.",
+        });
+      });
+  }, [
+    triggerError,
+    createToast,
+    updateShipmentWhenReceiving,
+    data,
+    shipmentId,
+    onShipmentOverlayClose,
+  ]);
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
@@ -303,36 +357,109 @@ function ShipmentView() {
     lostShipmentStatus.loading;
 
   // transform shipment data for UI
-  const shipmentState = data?.shipment?.state;
-  const shipmentContents = (data?.shipment?.details ?? []) as ShipmentDetail[];
+  const shipmentData = data?.shipment! as Shipment;
 
-  // map over each ShipmentDetail to compile its history records
-  const historyEntries = shipmentContents?.flatMap((detail) => ({
-    ...detail,
-    labelIdentifier: detail.box?.labelIdentifier,
-  }));
+  const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
+    []) as ShipmentDetail[];
 
-  // group the history entries by their createdOn property
-  const groupedHistoryEntries = groupBy(historyEntries, (entry) => {
-    const date = new Date(entry?.createdOn);
-    return `${date.toLocaleString("default", { month: "short" })}
-     ${date.getDate()}, ${date.getFullYear()}`;
+  const generateShipmentHistory = (
+    entry: Partial<Record<ShipmentActionEvent, { createdOn: string; createdBy: User }>>,
+  ): IShipmentHistory[] => {
+    const shipmentHistory: IShipmentHistory[] = [];
+
+    Object.entries(entry).forEach(([action, shipmentObj]) => {
+      if (shipmentObj.createdOn) {
+        shipmentHistory.push({
+          action: action as ShipmentActionEvent,
+          createdBy: shipmentObj.createdBy! as User,
+          createdOn: new Date(shipmentObj.createdOn),
+        });
+      }
+    });
+
+    return shipmentHistory;
+  };
+
+  const shipmentLogs: IShipmentHistory[] = generateShipmentHistory({
+    [ShipmentActionEvent.ShipmentStarted]: {
+      createdOn: shipmentData?.startedOn,
+      createdBy: shipmentData?.startedBy! as User,
+    },
+    [ShipmentActionEvent.ShipmentCanceled]: {
+      createdOn: shipmentData?.canceledOn,
+      createdBy: shipmentData?.canceledBy! as User,
+    },
+    [ShipmentActionEvent.ShipmentSent]: {
+      createdOn: shipmentData?.sentOn,
+      createdBy: shipmentData?.sentBy! as User,
+    },
+    [ShipmentActionEvent.ShipmentStartReceiving]: {
+      createdOn: shipmentData?.receivingStartedOn,
+      createdBy: shipmentData?.receivingStartedBy! as User,
+    },
+    [ShipmentActionEvent.ShipmentCompleted]: {
+      createdOn: shipmentData?.completedOn,
+      createdBy: shipmentData?.completedBy! as User,
+    },
   });
 
+  // map over each ShipmentDetail to compile its history records
+  const shipmentDetailLogs: IShipmentHistory[] = (
+    data?.shipment?.details! as ShipmentDetail[]
+  )?.flatMap((detail) =>
+    _.compact([
+      detail?.createdBy && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxAdded,
+        createdBy: detail?.createdBy as User,
+        createdOn: new Date(detail?.createdOn),
+      },
+      detail?.removedOn && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxRemoved,
+        createdBy: detail?.removedBy! as User,
+        createdOn: new Date(detail?.removedOn),
+      },
+      detail?.lostOn && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxLost,
+        createdBy: detail?.lostBy! as User,
+        createdOn: new Date(detail?.lostOn),
+      },
+      detail?.receivedOn && {
+        box: detail.box.labelIdentifier,
+        action: ShipmentActionEvent.BoxReceived,
+        createdBy: detail?.receivedBy! as User,
+        createdOn: new Date(detail?.receivedOn),
+      },
+    ]),
+  ) as unknown as IShipmentHistory[];
+
+  const allLogs = _.orderBy(
+    _.sortBy(_.concat([...(shipmentLogs || []), ...(shipmentDetailLogs || [])]), "createdOn"),
+    ["createdOn"],
+    ["asc", "desc"],
+  );
+  const groupedHistoryEntries: _.Dictionary<IShipmentHistory[]> = _.groupBy(
+    allLogs,
+    (log) => `${formatDateKey(log?.createdOn)}`,
+  );
+
   // sort each array of history entries in descending order
-  const sortedGroupedHistoryEntries = _.chain(groupedHistoryEntries)
+  const sortedGroupedHistoryEntries = _(groupedHistoryEntries)
     .toPairs()
     .map(([date, entries]) => ({
       date,
       entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc"),
     }))
-    .orderBy("date", "desc")
+    .orderBy((entry) => new Date(entry.date), "desc")
     .value();
 
   // variables for loading dynamic components
   let shipmentTitle = <Heading>View Shipment</Heading>;
   let shipmentTab;
   let shipmentCard;
+  let isSender;
   let canUpdateShipment = false;
   let canCancelShipment = false;
   let canLooseShipment = false;
@@ -352,7 +479,7 @@ function ShipmentView() {
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
-    const isSender =
+    isSender =
       typeof globalPreferences.availableBases?.find(
         (b) => b.id === data?.shipment?.sourceBase?.id,
       ) !== "undefined";
@@ -371,7 +498,9 @@ function ShipmentView() {
       canLooseShipment = true;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLooseShipment = true;
-      shipmentTitle = <Heading>Receive Shipment</Heading>;
+      shipmentTitle = <Heading>Receiving Shipment</Heading>;
+    } else if (ShipmentState.Preparing === shipmentState && !isSender) {
+      canCancelShipment = true;
     }
 
     shipmentActionButtons = (
@@ -380,15 +509,17 @@ function ShipmentView() {
         shipmentState={shipmentState}
         shipmentContents={shipmentContents}
         onLost={onLost}
-        onCancel={onCancel}
+        onCancel={openShipmentOverlay}
         onReceive={onReceive}
         onSend={onSend}
+        openShipmentOverlay={openShipmentOverlay}
         isSender={isSender}
       />
     );
 
     shipmentTab = (
       <ShipmentTabs
+        shipmentState={shipmentState}
         detail={shipmentContents}
         histories={sortedGroupedHistoryEntries}
         isLoadingMutation={isLoadingFromMutation}
@@ -406,13 +537,31 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
+        onLost={openShipmentOverlay}
         shipment={data?.shipment! as Shipment}
       />
     );
   }
 
-  return (
-    <>
+  let shipmentViewComponents;
+
+  if (shipmentState === ShipmentState.Receiving && !isSender) {
+    shipmentViewComponents = (
+      <>
+        <Flex direction="column" gap={2}>
+          <Heading>Receiving Shipment</Heading>
+          <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
+          <ShipmentReceivingContent
+            items={shipmentContents}
+            onReconciliationBox={openBoxReconciliationOverlay}
+          />
+          {shipmentActionButtons}
+        </Flex>
+        <BoxReconciliationOverlay />
+      </>
+    );
+  } else {
+    shipmentViewComponents = (
       <Flex direction="column" gap={2}>
         <Center>
           <VStack>
@@ -422,16 +571,23 @@ function ShipmentView() {
         </Center>
         <Spacer />
         <Box>{shipmentTab}</Box>
-
         {shipmentActionButtons}
       </Flex>
+    );
+  }
 
+  return (
+    <>
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      {shipmentViewComponents}
       <ShipmentOverlay
-        isOpen={isOpen}
+        isOpen={isShipmentOverlayOpen}
         isLoading={isLoadingFromMutation}
         shipmentOverlayData={shipmentOverlayData}
-        onClose={onClose}
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+        onClose={onShipmentOverlayClose}
         onCancel={onCancel}
+        onLost={onLost}
       />
     </>
   );

@@ -74,15 +74,7 @@ Install the dependencies of the app in the activated virtual environment
 
     pip install -U -e back -r back/requirements-dev.txt
 
-For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variables.
-
-We're subject to a rate limit for tokens from Auth0. In order to avoid fetching tokens over and over again for every test run, do the following once before you start your development session:
-
-1. Activate the virtual environment
-1. Run `./fetch_token --test`
-1. Paste the displayed token as `TEST_AUTH0_JWT=` into the `.env` file
-
-After 24h the token expires, so you have to repeat the procedure.
+For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variable.
 
 Furthermore Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-dev tenant run
 
@@ -133,7 +125,7 @@ Mind the following perks of peewee:
 1. When creating a model instance referencing another model via a foreign key, use the ID of the FK model instance instead of a model instance, e.g. `Location(base=1)`.
 1. If you want to retrieve only the ID of a foreign key field, access it with the "magic" suffix `_id`, e.g. `location.base_id`. This avoids overhead of an additional select query issued by peewee when using `location.base.id`.
 1. You can activate peewee's logging to gain insight into the generated SQL queries:
-```
+```python
 import logging
 logger = logging.getLogger("peewee")
 if len(logger.handlers) == 1:
@@ -220,7 +212,7 @@ If you persistently want these variables to be set for your environment, export 
 
 You can also run the tests via `docker-compose`:
 
-    docker-compose up --build -d db webapp  # only once
+    docker-compose up --build -d webapp  # only once
     docker-compose exec webapp pytest
 
 ### Test plan
@@ -318,15 +310,16 @@ and inspect the reported output. Open the HTML report via `back/htmlcov/index.ht
 
 The following diagram shows the responsibilities of and the relationships between the back-end components.
 
-![C4 back-end components](docs/c4-backend-components.jpg)
+![C4 back-end components](../docs/c4-backend-components.jpg)
 
 ## GraphQL API
 
 The back-end exposes the GraphQL API in two variants.
-1. The full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
-1. The 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
+1. The auth-protected, full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
+1. The auth-protected, 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
+1. The public statistics API is used by our partners at `/public` (for data retrieval; it is deployed on the `api*` subdomains).
 
-Starting the back-end in the former case is achieved via `main.py`, in the latter case via `api_main.py`.
+Starting the back-end in the first case is achieved via `main.py`, in the latter case via `api_main.py`. For development, it is handy to start both with `dev_main.py`.
 
 ### Schema documentation
 
@@ -339,8 +332,8 @@ For the production schema, documentation can be found online at `api.boxtribute.
 You can experiment with the API in the GraphQL playground.
 
 1. Activate the virtual environment
-1. Start the required services by `docker-compose up webapp db`
-1. Open `localhost:5005/graphql` (or `/` for the query-only API)
+1. Start the required services by `docker-compose up webapp`
+1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statistics API, then the next steps can be skipped)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
 1. Copy the displayed token
 1. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.

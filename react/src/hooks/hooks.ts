@@ -1,4 +1,5 @@
 import { useState, useCallback, useContext } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
@@ -10,9 +11,26 @@ export interface INotificationProps extends UseToastOptions {
   position?: ToastPositionWithLogical;
 }
 
+// logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
+export const useHandleLogout = () => {
+  const { logout } = useAuth0();
+
+  const handleLogout = () => {
+    // only redirect in staging and production environments
+    if (process.env.REACT_APP_ENVIRONMENT !== "development") {
+      // eslint-disable-next-line max-len
+      window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
+    } else {
+      logout();
+    }
+    return null;
+  };
+  return handleLogout;
+};
+
 export const useGetUrlForResourceHelpers = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId;
+  const baseId = globalPreferences.selectedBase?.id;
   if (baseId == null) {
     throw new Error("Could not extract baseId from URL");
   }
@@ -47,7 +65,7 @@ export const useToggle = (initialValue = false) => {
 
 export const useGlobalSiteState = () => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBaseId!;
+  const currentBaseId = globalPreferences.selectedBase?.id!;
   const navigate = useNavigate();
 
   return {

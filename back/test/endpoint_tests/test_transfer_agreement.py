@@ -1,7 +1,7 @@
 from datetime import date
 
 import pytest
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
 from utils import (
     assert_bad_user_input,
@@ -149,7 +149,6 @@ def test_transfer_agreement_mutations(
         validFrom: "{valid_from}",
         validUntil: "{valid_until}",
         comment: "{comment}",
-        timezone: "Europe/London",
         initiatingOrganisationBaseIds: [1],
         partnerOrganisationBaseIds: [3, 4]"""
     agreement = assert_successful_request(client, _create_mutation(creation_input))
@@ -188,9 +187,36 @@ def test_transfer_agreement_mutations(
         "shipments": [],
     }
 
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        base_ids=[3, 4], organisation_id=2, user_id=2
-    )
+    # Test case 2.2.22
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1]
+        partnerOrganisationBaseIds: [3]
+        type: {TransferAgreementType.Bidirectional.name}"""
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
+    valid_until = "2022-06-25"
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [1]
+        partnerOrganisationBaseIds: [3]
+        type: {TransferAgreementType.Bidirectional.name}
+        validUntil: "{valid_until}" """
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
+    mock_user_for_request(mocker, base_ids=[2], organisation_id=1, user_id=3)
+    valid_from = "2021-12-20"
+    valid_until = "2022-06-20"
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [2]
+        partnerOrganisationBaseIds: [4]
+        type: {TransferAgreementType.Bidirectional.name}
+        validFrom: "{valid_from}"
+        validUntil: "{valid_until}" """
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
+    mock_user_for_request(mocker, base_ids=[3, 4], organisation_id=2, user_id=2)
     # Test case 2.2.3
     mutation = f"""mutation {{ acceptTransferAgreement(id: {first_agreement_id}) {{
                     state
@@ -252,7 +278,8 @@ def test_transfer_agreement_mutations_invalid_state(
     read_only_client, mocker, expired_transfer_agreement, action
 ):
     # The client has to be permitted to perform the action in general
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
+    mock_user_for_request(
+        mocker,
         organisation_id=expired_transfer_agreement["target_organisation"],
         user_id=2,
         base_ids=[3],
@@ -286,9 +313,7 @@ def test_transfer_agreement_mutations_as_member_of_receiving_org(
 def test_transfer_agreement_mutations_cancel_as_member_of_neither_org(
     read_only_client, mocker, default_transfer_agreement
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        organisation_id=1, user_id=2, base_ids=[2]
-    )
+    mock_user_for_request(mocker, organisation_id=1, user_id=2, base_ids=[2])
     # Test case 2.2.20
     agreement_id = default_transfer_agreement["id"]
     mutation = f"mutation {{ cancelTransferAgreement(id: {agreement_id}) {{ id }} }}"
@@ -312,7 +337,7 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
 def test_transfer_agreement_mutations_create_invalid_source_base(
     read_only_client, mocker, base_ids
 ):
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(base_ids=[1, 3])
+    mock_user_for_request(mocker, base_ids=[1, 3])
     # Test cases 2.2.18, 2.2.19
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     initiatingOrganisationId: 1

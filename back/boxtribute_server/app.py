@@ -57,6 +57,7 @@ def main(*blueprints):
         integrations=[FlaskIntegration()],
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.0)),
         before_send=before_sentry_send,
+        profiles_sample_rate=float(os.getenv("SENTRY_PROFILES_SAMPLE_RATE", 0)),
     )
 
     app = create_app()

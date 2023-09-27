@@ -39,10 +39,7 @@ import {
   DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
   SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
 } from "../../queries";
-import {
-  DistributionEventDetails,
-  DistributionEventDetailsSchema,
-} from "../../types";
+import { DistributionEventDetails, DistributionEventDetailsSchema } from "../../types";
 
 interface ITrackingEntryForSize {
   sizeId: string;
@@ -58,8 +55,7 @@ interface ITrackingEntriesByProduct {
   trackingEntriesBySize: ITrackingEntryForSize[];
 }
 
-type ITrackingEntriesByProductAndSizeAndFlowDirection =
-  ITrackingEntriesByProduct[];
+type ITrackingEntriesByProductAndSizeAndFlowDirection = ITrackingEntriesByProduct[];
 
 interface IDistributionReturnTrackingSummary {
   distributionEvents: DistributionEventDetails[];
@@ -68,14 +64,12 @@ interface IDistributionReturnTrackingSummary {
 }
 
 const graphqlToDistributionEventStockSummary = (
-  queryResult: DistributionEventsTrackingGroupQuery
+  queryResult: DistributionEventsTrackingGroupQuery,
 ): IDistributionReturnTrackingSummary => {
-  const distributionEvents =
-    queryResult?.distributionEventsTrackingGroup?.distributionEvents || [];
+  const distributionEvents = queryResult?.distributionEventsTrackingGroup?.distributionEvents || [];
 
   const distributionEventTrackingEntries =
-    queryResult?.distributionEventsTrackingGroup
-      ?.distributionEventsTrackingEntries || [];
+    queryResult?.distributionEventsTrackingGroup?.distributionEventsTrackingEntries || [];
 
   // TODO: consider to track/handle this as an error here
   // if (queryResult.distributionEventsTrackingGroup?.distributionEvents.length === 0) {
@@ -96,18 +90,11 @@ const graphqlToDistributionEventStockSummary = (
             sizeId,
             sizeLabel: sizeGroup[0]?.size.label,
             numberOfItemsWentOut: _(sizeGroup)
-              .filter(
-                (el) =>
-                  el.flowDirection ===
-                  DistributionEventTrackingFlowDirection.Out
-              )
+              .filter((el) => el.flowDirection === DistributionEventTrackingFlowDirection.Out)
               .map((el) => el.numberOfItems)
               .sum(),
             numberOfItemsReturned: _(sizeGroup)
-              .filter(
-                (el) =>
-                  el.flowDirection === DistributionEventTrackingFlowDirection.In
-              )
+              .filter((el) => el.flowDirection === DistributionEventTrackingFlowDirection.In)
               .map((el) => el.numberOfItems)
               .sum(),
             // _(sizeGroup)
@@ -127,9 +114,7 @@ const graphqlToDistributionEventStockSummary = (
     // squashedItemCollectionsAccrossAllEvents: queryResult.distributionEventsTrackingGroup?.distributionEventsTrackingEntries
     // squashedItemCollectionsAccrossAllEventsGroupedByProduct,
 
-    distributionEvents: distributionEvents.map((el) =>
-      DistributionEventDetailsSchema.parse(el)
-    ),
+    distributionEvents: distributionEvents.map((el) => DistributionEventDetailsSchema.parse(el)),
     trackingEntriesByProductAndSizeAndFlowDirection,
     // itemCollectionDataForReturnTracking:
   };
@@ -140,28 +125,16 @@ const DistributionEventList = ({
 }: {
   distributionEvents: DistributionEventDetails[];
 }) => {
-  console.log("distributionEvents", distributionEvents);
   return (
     <VStack>
-      <Heading size="md">
-        You are tracking returns for the following Distribution Events
-      </Heading>
+      <Heading size="md">You are tracking returns for the following Distribution Events</Heading>
       {/* <Heading as={"h3"} size="md">
         Summary of Distribution Events
       </Heading> */}
       {distributionEvents.map((distroEvent) => (
-        <Box
-          key={distroEvent.id}
-          maxW="sm"
-          p="5"
-          borderWidth="1px"
-          rounded="md"
-        >
+        <Box key={distroEvent.id} maxW="sm" p="5" borderWidth="1px" rounded="md">
           {/* <Box>Id: {distroEvent.id}</Box> */}
-          <Box
-            as="time"
-            dateTime={distroEvent.plannedStartDateTime.toUTCString()}
-          >
+          <Box as="time" dateTime={distroEvent.plannedStartDateTime.toUTCString()}>
             <DistributionEventTimeRangeDisplay
               plannedStartDateTime={distroEvent.plannedStartDateTime}
               plannedEndDateTime={distroEvent.plannedEndDateTime}
@@ -187,20 +160,15 @@ const TrackingEntry = ({
   onChangeHandlerForTrackingEntry: (
     productId: string,
     sizeId: string,
-    numberOfItemsReturn: number
+    numberOfItemsReturn: number,
   ) => void;
 }) => {
   const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(
-    trackingEntryForSize.numberOfItemsReturned
+    trackingEntryForSize.numberOfItemsReturned,
   );
 
   return (
-    <ListItem
-      mb={3}
-      backgroundColor="gray.50"
-      p={3}
-      key={trackingEntryForSize.sizeId}
-    >
+    <ListItem mb={3} backgroundColor="gray.50" p={3} key={trackingEntryForSize.sizeId}>
       <Box>
         <b>Size:</b> {trackingEntryForSize.sizeLabel}
       </Box>
@@ -219,25 +187,19 @@ const TrackingEntry = ({
           value={numberOfItemsFormValue.toString()}
           onChange={(newVal) => {
             const newValAsNumber = parseInt(newVal);
-            if (
-              newValAsNumber < 0 ||
-              newValAsNumber > trackingEntryForSize.numberOfItemsWentOut
-            ) {
+            if (newValAsNumber < 0 || newValAsNumber > trackingEntryForSize.numberOfItemsWentOut) {
               return;
             }
             setNumberOfItemsFormValue(newValAsNumber);
           }}
           onSubmit={() => {
-            if (
-              trackingEntryForSize.numberOfItemsReturned ===
-              numberOfItemsFormValue
-            ) {
+            if (trackingEntryForSize.numberOfItemsReturned === numberOfItemsFormValue) {
               return;
             } else {
               onChangeHandlerForTrackingEntry(
                 productId,
                 trackingEntryForSize.sizeId,
-                numberOfItemsFormValue
+                numberOfItemsFormValue,
               );
             }
           }}
@@ -278,23 +240,20 @@ const SummaryOfItemsInDistributionEvents = ({
   const [updateReturnedNumberOfItemsTrackingEntryMutation] = useMutation<
     SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
     SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables
-  >(
-    SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
-    {
-      refetchQueries: [
-        {
-          query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
-          variables: {
-            trackingGroupId,
-          },
+  >(SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
+    refetchQueries: [
+      {
+        query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
+        variables: {
+          trackingGroupId,
         },
-      ],
-    }
-  );
+      },
+    ],
+  });
   const onChangeHandlerForTrackingEntry = (
     productId: string,
     sizeId: string,
-    numberOfReturnedItems: number
+    numberOfReturnedItems: number,
   ) => {
     updateReturnedNumberOfItemsTrackingEntryMutation({
       variables: {
@@ -329,8 +288,8 @@ const SummaryOfItemsInDistributionEvents = ({
                   p={3}
                   my={2}
                 >
-                  <b>Product:</b>{" "}
-                  {squashedItemsCollectionsGroupForProduct.productName} ({squashedItemsCollectionsGroupForProduct.genderName})
+                  <b>Product:</b> {squashedItemsCollectionsGroupForProduct.productName} (
+                  {squashedItemsCollectionsGroupForProduct.genderName})
                 </Heading>
                 <List>
                   {squashedItemsCollectionsGroupForProduct.trackingEntriesBySize.map(
@@ -339,21 +298,17 @@ const SummaryOfItemsInDistributionEvents = ({
                       return (
                         <TrackingEntry
                           key={sizeId}
-                          trackingEntryForSize={
-                            productSizeWithNumberOfItemsTuple
-                          }
+                          trackingEntryForSize={productSizeWithNumberOfItemsTuple}
                           productId={productId}
-                          onChangeHandlerForTrackingEntry={
-                            onChangeHandlerForTrackingEntry
-                          }
+                          onChangeHandlerForTrackingEntry={onChangeHandlerForTrackingEntry}
                         />
                       );
-                    }
+                    },
                   )}
                 </List>
               </ListItem>
             );
-          }
+          },
         )}
       </List>
       <Button my={2} colorScheme="blue" onClick={onDoneWithCountingClick}>
@@ -412,22 +367,15 @@ const DistrosReturnTrackingGroupView = () => {
     return <Center>Error!</Center>;
   }
   if (data?.distributionEventsTrackingGroup == null) {
-    console.error(
-      "Problem in DistrosReturnTrackingView: distributionEvents is undefined|null"
-    );
+    console.error("Problem in DistrosReturnTrackingView: distributionEvents is undefined|null");
     return <Center>Error!</Center>;
   }
 
-  const distributionEventsSummary =
-    graphqlToDistributionEventStockSummary(data);
-
-  console.log("data", data);
+  const distributionEventsSummary = graphqlToDistributionEventStockSummary(data);
 
   return (
     <VStack>
-      <DistributionEventList
-        distributionEvents={distributionEventsSummary.distributionEvents}
-      />
+      <DistributionEventList distributionEvents={distributionEventsSummary.distributionEvents} />
       <SummaryOfItemsInDistributionEvents
         trackingEntriesByProductAndSizeAndFlowDirection={
           distributionEventsSummary.trackingEntriesByProductAndSizeAndFlowDirection
@@ -435,9 +383,7 @@ const DistrosReturnTrackingGroupView = () => {
         trackingGroupId={trackingGroupId!}
         onDoneWithCountingClick={onDoneWithCountingClick}
       />
-      <Text size="small">
-        * This will track all left over number of items as "Distributed".
-      </Text>
+      <Text size="small">* This will track all left over number of items as "Distributed".</Text>
 
       <AlertDialog
         isOpen={confirmFinishingReturnTrackingAlertState.isOpen}
@@ -451,12 +397,11 @@ const DistrosReturnTrackingGroupView = () => {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you tracked all returned items properly? It will end
-              up in setting all Boxes assigned to the Distribution Events to
-              zero. The system will then also calculate the number of
-              distributed items for each Product/Size combination involved in
-              the Distributions. This data will be used for Monitoring and
-              Evaluation purposes. You can't undo this action afterwards.
+              Are you sure you tracked all returned items properly? It will end up in setting all
+              Boxes assigned to the Distribution Events to zero. The system will then also calculate
+              the number of distributed items for each Product/Size combination involved in the
+              Distributions. This data will be used for Monitoring and Evaluation purposes. You
+              can't undo this action afterwards.
             </AlertDialogBody>
 
             <AlertDialogFooter>
@@ -466,11 +411,7 @@ const DistrosReturnTrackingGroupView = () => {
               >
                 Cancel
               </Button>
-              <Button
-                colorScheme="red"
-                onClick={onConfirmToMarkEventAsCompleted}
-                ml={3}
-              >
+              <Button colorScheme="red" onClick={onConfirmToMarkEventAsCompleted} ml={3}>
                 Mark Event as Completed
               </Button>
             </AlertDialogFooter>

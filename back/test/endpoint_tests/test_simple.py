@@ -5,7 +5,7 @@ import pytest
 def test_private_endpoint(read_only_client, endpoint):
     response = read_only_client.get(f"/{endpoint}")
     assert response.status_code == 200
-    assert "GraphQL Playground" in response.data.decode()
+    assert "boxtribute API" in response.data.decode()
 
 
 def test_public_endpoint(read_only_client):

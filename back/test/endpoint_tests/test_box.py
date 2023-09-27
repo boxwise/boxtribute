@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from auth import mock_user_for_request
 from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
@@ -8,12 +9,15 @@ from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
+    assert_forbidden_request,
     assert_internal_server_error,
     assert_successful_request,
 )
 
 
-def test_box_query_by_label_identifier(read_only_client, default_box, tags):
+def test_box_query_by_label_identifier(
+    read_only_client, default_box, tags, in_transit_box, default_shipment_detail
+):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
     query = f"""query {{
@@ -33,6 +37,7 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                         name
                         color
                     }}
+                    shipmentDetail {{ id }}
                 }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)
@@ -54,7 +59,16 @@ def test_box_query_by_label_identifier(read_only_client, default_box, tags):
                 "color": tags[1]["color"],
             }
         ],
+        "shipmentDetail": None,
     }
+
+    label_identifier = in_transit_box["label_identifier"]
+    query = f"""query {{
+                box(labelIdentifier: "{label_identifier}") {{
+                    shipmentDetail {{ id }}
+                }} }}"""
+    queried_box = assert_successful_request(read_only_client, query)
+    assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
@@ -259,7 +273,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[1:] == [
+    assert history[17:] == [
         {
             "changes": "Record created",
             "from_int": None,
@@ -362,6 +376,27 @@ def test_update_box_tag_ids(client, default_box, tags):
     updated_box = assert_successful_request(client, mutation)
     assert updated_box == {"tags": []}
 
+    # Add tag ID 2
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}]}
+
+    # Add the same tag again without an error being thrown
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}]}
+
+    # Add tag ID 3. Both tags are assigned to the box
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+
 
 def _format(parameter):
     try:
@@ -377,18 +412,19 @@ def _format(parameter):
         [[{"states": "[InStock]"}], 1],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
-        [[{"states": "[Received]"}], 0],
+        [[{"states": "[InTransit]"}], 2],
+        [[{"states": "[Receiving]"}], 0],
         [[{"states": "[InStock,Lost]"}], 2],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 5],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 10],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 5],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 3],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 10],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 8],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 5],
+        [[{"productGender": "Women"}], 10],
         [[{"productGender": "Men"}], 0],
-        [[{"productCategoryId": "1"}], 5],
+        [[{"productCategoryId": "1"}], 10],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
@@ -570,3 +606,22 @@ def test_create_box_with_used_qr_code(
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_access_in_transit_box(read_only_client, mocker, in_transit_box):
+    label_identifier = in_transit_box["label_identifier"]
+    box_id = str(in_transit_box["id"])
+    query = f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
+
+    # Default user is in the shipment source base (ID 1) and able to view the box
+    box = assert_successful_request(read_only_client, query)
+    assert box == {"id": box_id}
+
+    # user is in the shipment target base (ID 3) and able to view the box
+    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
+    box = assert_successful_request(read_only_client, query)
+    assert box == {"id": box_id}
+
+    # user is in unrelated base (ID 2) and NOT permitted to view the box
+    mock_user_for_request(mocker, base_ids=[2], organisation_id=2, user_id=3)
+    assert_forbidden_request(read_only_client, query)

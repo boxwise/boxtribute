@@ -66,9 +66,10 @@ class BoxState(enum.IntEnum):
     InStock = 1
     Lost = enum.auto()
     MarkedForShipment = enum.auto()
-    Received = enum.auto()
+    Receiving = enum.auto()
     Donated = enum.auto()
     Scrap = enum.auto()
+    InTransit = enum.auto()
 
 
 class ProductGender(enum.IntEnum):

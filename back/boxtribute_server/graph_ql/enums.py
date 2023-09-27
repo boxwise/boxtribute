@@ -17,24 +17,18 @@ from ..enums import (
 )
 
 enum_types = [
-    EnumType("ProductGender", ProductGender),
-    EnumType("BoxState", BoxState),
-    EnumType("HumanGender", HumanGender),
-    EnumType("Language", Language),
-    EnumType("PackingListEntryState", PackingListEntryState),
-    EnumType("ShipmentState", ShipmentState),
-    EnumType("TagType", TagType),
+    ProductGender,
+    BoxState,
+    HumanGender,
+    Language,
+    PackingListEntryState,
+    ShipmentState,
+    TagType,
     EnumType("TaggableResourceType", TaggableObjectType),
-    EnumType("TransferAgreementState", TransferAgreementState),
-    EnumType("TransferAgreementType", TransferAgreementType),
-    EnumType("DistributionEventState", DistributionEventState),
-    EnumType(
-        "DistributionEventsTrackingGroupState", DistributionEventsTrackingGroupState
-    ),
-    EnumType(
-        "DistributionEventTrackingFlowDirection", DistributionEventTrackingFlowDirection
-    ),
-    EnumType(
-        "DistributionEventTrackingFlowDirection", DistributionEventTrackingFlowDirection
-    ),
+    TransferAgreementState,
+    TransferAgreementType,
+    DistributionEventState,
+    DistributionEventsTrackingGroupState,
+    DistributionEventTrackingFlowDirection,
+    DistributionEventTrackingFlowDirection,
 ]

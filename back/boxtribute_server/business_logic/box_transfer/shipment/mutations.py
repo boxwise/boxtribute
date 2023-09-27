@@ -1,4 +1,4 @@
-from ariadne import MutationType, convert_kwargs_to_snake_case
+from ariadne import MutationType
 from flask import g
 
 from ....authz import authorize
@@ -17,14 +17,12 @@ mutation = MutationType()
 
 
 @mutation.field("createShipment")
-@convert_kwargs_to_snake_case
 def resolve_create_shipment(*_, creation_input):
     authorize(permission="shipment:create", base_id=creation_input["source_base_id"])
     return create_shipment(**creation_input, user=g.user)
 
 
 @mutation.field("updateShipmentWhenPreparing")
-@convert_kwargs_to_snake_case
 def resolve_update_shipment_when_preparing(*_, update_input):
     shipment = Shipment.get_by_id(update_input["id"])
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
@@ -33,7 +31,6 @@ def resolve_update_shipment_when_preparing(*_, update_input):
 
 
 @mutation.field("updateShipmentWhenReceiving")
-@convert_kwargs_to_snake_case
 def resolve_update_shipment_when_receiving(*_, update_input):
     shipment = Shipment.get_by_id(update_input["id"])
     authorize(permission="shipment:edit", base_id=shipment.target_base_id)

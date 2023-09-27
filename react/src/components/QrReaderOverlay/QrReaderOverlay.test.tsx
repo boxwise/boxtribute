@@ -55,7 +55,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Find Box
@@ -69,7 +69,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
-});
+}, 10000);
 
 const queryFindBox = {
   request: {
@@ -97,7 +97,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Find Box
@@ -107,7 +107,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
-}, 10000);
+}, 20000);
 
 const queryFindBoxFromOtherOrg = {
   request: {
@@ -137,7 +137,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Find Box
@@ -163,6 +163,7 @@ const queryNoBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        code: "NoBoxAssociatedWithQrCode",
         box: null,
       },
     },
@@ -182,15 +183,16 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
+  const scanButton = await screen.findByTestId("ReturnScannedQr");
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
-  await user.click(screen.getByTestId("ReturnScannedQr"));
+  await user.click(scanButton);
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode" }),
   ).toBeInTheDocument();
-});
+}, 20000);
 
 const queryBoxAssociatedWithQrCode = {
   request: {
@@ -202,6 +204,7 @@ const queryBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        code: "BoxAssociatedWithQrCode",
         box: generateMockBox({}),
       },
     },
@@ -220,13 +223,13 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   await user.click(screen.getByTestId("ReturnScannedQr"));
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
-});
+}, 20000);
 
 const queryBoxFromOtherOrganisation = {
   request: {
@@ -238,6 +241,7 @@ const queryBoxFromOtherOrganisation = {
   result: {
     data: {
       qrCode: {
+        code: "BoxFromOtherOrganisation",
         box: null,
       },
     },
@@ -256,7 +260,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -268,7 +272,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-});
+}, 10000);
 
 it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   const user = userEvent.setup();
@@ -281,14 +285,14 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/This is not a Boxtribute QR-Code/i)).toBeInTheDocument();
+  expect(await screen.findByText(/This is not a Boxtribute QR code/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 10000);
@@ -301,11 +305,7 @@ const queryHashNotInDb = {
     },
   },
   result: {
-    data: {
-      qrCode: {
-        box: null,
-      },
-    },
+    data: null,
     errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
   },
 };
@@ -321,7 +321,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
@@ -329,11 +329,11 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
 
   // error message appears
   expect(
-    (await screen.findAllByText(/No box found for this QR-Code/i)).length,
+    (await screen.findAllByText(/No box found for this QR code/i)).length,
   ).toBeGreaterThanOrEqual(1);
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-}, 10000);
+}, 20000);
 
 const queryInternalServerError = {
   request: {
@@ -343,11 +343,7 @@ const queryInternalServerError = {
     },
   },
   result: {
-    data: {
-      qrCode: {
-        box: null,
-      },
-    },
+    data: null,
     errors: [new GraphQLError("Error!", { extensions: { code: "INTERNAL_SERVER_ERROR" } })],
   },
 };
@@ -363,14 +359,14 @@ it("3.4.2.5c - Internal Server Error", async () => {
   });
 
   // 3.4.1.1 - Open QROverlay
-  const qrButton = await screen.findByRole("button", { name: /scan qr code/i });
+  const qrButton = await screen.findByTestId("qr-code-button");
   await user.click(qrButton);
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/The search for this QR-Code failed/i)).toBeInTheDocument();
+  expect(await screen.findByText(/QR code lookup failed/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-}, 10000);
+}, 20000);

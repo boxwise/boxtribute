@@ -29,6 +29,7 @@ import {
   UserMenuProps,
 } from "./HeaderMenu";
 import { generateDropappUrl } from "utils/helpers";
+import { useHandleLogout } from "hooks/hooks";
 
 const Logo = () => <Image src={BoxtributeLogo} maxH={"3.5em"} />;
 
@@ -50,6 +51,7 @@ const BaseSwitcher = ({ currentActiveBaseId, availableBases }: BaseSwitcherProps
 };
 
 const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMenuProps) => {
+  const handleLogout = useHandleLogout();
   return (
     <Menu>
       <MenuButton as={IconButton} icon={<Img src={user?.picture} width={10} height={10} />} />
@@ -60,7 +62,7 @@ const UserMenu = ({ logout, user, currentActiveBaseId, availableBases }: UserMen
         <MenuDivider /> */}
         <MenuGroup>
           {/* <MenuItem py={2}>Profile ({user?.email})</MenuItem> */}
-          <MenuItem py={2} onClick={() => logout()}>
+          <MenuItem py={2} onClick={() => handleLogout()}>
             Logout
           </MenuItem>
         </MenuGroup>
@@ -99,7 +101,7 @@ const MenuItemsGroupDesktop = ({ ...props }: MenuItemsGroupProps) => {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   function renderMenuItem(link: MenuItemData, i: number) {
-    const baseId = globalPreferences.selectedBaseId;
+    const baseId = globalPreferences.selectedBase?.id;
     let { qrCode, labelIdentifier } = useParams();
 
     if (link.link.includes(`${process.env.REACT_APP_OLD_APP_BASE_URL}`)) {
@@ -183,7 +185,7 @@ const HeaderMenuDesktopContainer = ({ children, ...props }) => {
   );
 };
 
-const HeaderMenuDeskop = (props: HeaderMenuProps) => {
+const HeaderMenuDesktop = (props: HeaderMenuProps) => {
   return (
     <HeaderMenuDesktopContainer>
       <Flex w="100%" justifyContent="space-between" alignItems="center">
@@ -205,4 +207,4 @@ const HeaderMenuDeskop = (props: HeaderMenuProps) => {
   );
 };
 
-export default HeaderMenuDeskop;
+export default HeaderMenuDesktop;

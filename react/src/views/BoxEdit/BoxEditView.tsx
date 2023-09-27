@@ -15,10 +15,10 @@ import {
   PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
 // TODO: move to global queries file
-import { BOX_BY_LABEL_IDENTIFIER_QUERY } from "views/Box/BoxView";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import BoxEdit, { IBoxEditFormData } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
@@ -93,7 +93,7 @@ function BoxEditView() {
   // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   // Query Data for the Form
   const allBoxAndFormData = useQuery<
@@ -107,7 +107,7 @@ function BoxEditView() {
   });
 
   const refetchBoxByLabelIdentifierQueryConfig = () => ({
-    query: BOX_BY_LABEL_IDENTIFIER_QUERY,
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
     variables: {
       labelIdentifier,
     },

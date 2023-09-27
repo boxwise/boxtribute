@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from boxtribute_server.enums import TransferAgreementState, TransferAgreementType
 from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
@@ -20,6 +22,7 @@ def data():
             "requested_by": default_user_data()["id"],
             "requested_on": TIME,
             "valid_from": TIME,
+            "valid_until": None,
             "comment": "looks good to me",
         },
         {
@@ -53,6 +56,16 @@ def data():
             "state": TransferAgreementState.UnderReview,
             "type": TransferAgreementType.ReceivingFrom,
             "requested_by": default_user_data()["id"],
+        },
+        {
+            "id": 6,
+            "source_organisation": organisation_data()[0]["id"],
+            "target_organisation": organisation_data()[1]["id"],
+            "state": TransferAgreementState.Accepted,
+            "type": TransferAgreementType.Bidirectional,
+            "requested_by": default_user_data()["id"],
+            "valid_from": datetime(2021, 1, 1),
+            "valid_until": datetime(2024, 12, 31),
         },
     ]
 

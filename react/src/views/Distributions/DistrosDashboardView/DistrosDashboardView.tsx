@@ -25,10 +25,7 @@ import {
 } from "types/generated/graphql";
 import { z } from "zod";
 import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
-import {
-  DistributionEventDetails,
-  DistributionEventDetailsSchema,
-} from "../types";
+import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";
 import DistroEventsStatistics from "./components/DistroEventsStatistics";
 import DistributionList from "./components/DistributionList";
@@ -68,9 +65,8 @@ const DistrosDashboardView = () => {
   });
 
   const onGoToDistroEventViewHandler = useCallback(
-    (distroEventId: string) =>
-      navigate(`/bases/${baseId}/distributions/events/${distroEventId}`),
-    [baseId, navigate]
+    (distroEventId: string) => navigate(`/bases/${baseId}/distributions/events/${distroEventId}`),
+    [baseId, navigate],
   );
 
   const onNewDirectDistroEvent = (baseId: string) => {
@@ -78,9 +74,7 @@ const DistrosDashboardView = () => {
   };
 
   const calendarEventDetailsModalState = useDisclosure();
-  const [selectedEvent, setSelectedEvent] = useState<
-    DistributionEventDetails | undefined
-  >();
+  const [selectedEvent, setSelectedEvent] = useState<DistributionEventDetails | undefined>();
 
   if (loading) return <APILoadingIndicator />;
   // TODO: add error logging here
@@ -91,9 +85,6 @@ const DistrosDashboardView = () => {
   const parsedDistributionEventsData = z
     .array(DistributionEventDetailsSchema)
     .parse(data?.base?.distributionEvents);
-
-  console.log("baseId", baseId);
-  console.log("data", data);
 
   return (
     <Box>
@@ -125,9 +116,7 @@ const DistrosDashboardView = () => {
                   <ModalHeader>
                     <>
                       {selectedEvent.distributionSpot.name} -{" "}
-                      {new Date(
-                        selectedEvent.plannedStartDateTime
-                      ).toLocaleDateString("en-US")}
+                      {new Date(selectedEvent.plannedStartDateTime).toLocaleDateString("en-US")}
                     </>
                   </ModalHeader>
                   <ModalCloseButton />
@@ -139,9 +128,7 @@ const DistrosDashboardView = () => {
                   <ModalFooter>
                     <Button
                       variant="ghost"
-                      onClick={() =>
-                        onGoToDistroEventViewHandler(selectedEvent.id)
-                      }
+                      onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}
                     >
                       Go to Event Details
                     </Button>
@@ -154,8 +141,8 @@ const DistrosDashboardView = () => {
               onClickOnDistroEvent={function (distroEventId: string): void {
                 setSelectedEvent(
                   parsedDistributionEventsData.find(
-                    (distroEvent) => distroEvent.id === distroEventId
-                  )
+                    (distroEvent) => distroEvent.id === distroEventId,
+                  ),
                 );
                 calendarEventDetailsModalState.onOpen();
               }}

@@ -1,15 +1,16 @@
 import { useContext, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
-import { useDisclosure } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
+import { qrReaderOverlayVar } from "queries/cache";
+import { useReactiveVar } from "@apollo/client";
 
 const HeaderMenuContainer = () => {
   const auth0 = useAuth0();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBaseId!;
-  const qrReaderOverlayState = useDisclosure({ defaultIsOpen: false });
+  const baseId = globalPreferences.selectedBase?.id!;
+  const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   const menuItems: MenuItemsGroupData[] = useMemo(
     () => [
@@ -20,7 +21,24 @@ const HeaderMenuContainer = () => {
             link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/mobile.php`,
             name: "Go to classic mobile",
           },
-          { link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`, name: "Go to classic desktop" },
+          {
+            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`,
+            name: "Go to classic desktop",
+          },
+        ],
+      },
+      {
+        text: "Transfers",
+        minBeta: 2,
+        links: [
+          {
+            link: "/transfers/shipments",
+            name: "Manage Shipments",
+          },
+          {
+            link: "/transfers/agreements",
+            name: "Manage Agreements",
+          },
         ],
       },
       // {
@@ -85,18 +103,39 @@ const HeaderMenuContainer = () => {
     [baseId],
   );
 
+  const authorizedMenuItems: MenuItemsGroupData[] = useMemo(() => {
+    return menuItems.filter((menuItem) => {
+      // If no minimum beta requirement exists for the menu item, it should be included.
+      if (!menuItem.minBeta) {
+        return true;
+      }
+
+      // Ensure that auth0.user is defined and parse the beta_user value.
+      if (auth0.user) {
+        const userBetaValue = parseInt(
+          auth0.user["https://www.boxtribute.com/beta_user"] ?? "0",
+          10,
+        );
+        return userBetaValue >= menuItem.minBeta;
+      }
+
+      // If auth0.user is not defined, then don't show items that have a beta requirement.
+      return false;
+    });
+  }, [menuItems, auth0.user]);
+
   return (
     <>
       <HeaderMenu
         {...auth0}
-        menuItemsGroups={menuItems}
+        menuItemsGroups={authorizedMenuItems}
         currentActiveBaseId={baseId}
         availableBases={globalPreferences.availableBases}
-        onClickScanQrCode={() => qrReaderOverlayState.onOpen()}
+        onClickScanQrCode={() => qrReaderOverlayVar({ isOpen: true })}
       />
       <QrReaderOverlay
         isOpen={qrReaderOverlayState.isOpen}
-        onClose={qrReaderOverlayState.onClose}
+        onClose={() => qrReaderOverlayVar({ isOpen: false })}
       />
     </>
   );

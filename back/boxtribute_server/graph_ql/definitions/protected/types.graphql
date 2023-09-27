@@ -43,6 +43,8 @@ type Box implements ItemsCollection {
   comment: String
   tags: [Tag!]
   history: [HistoryEntry!]
+  " Returns null if box is not part of an active shipment "
+  shipmentDetail: ShipmentDetail
 }
 
 type HistoryEntry {
@@ -128,56 +130,11 @@ type Tag {
 }
 
 """
-Classificators for [`Product`]({{Types.Product}}) gender.
-"""
-enum ProductGender {
-  Men
-  Women
-  UnisexAdult
-  UnisexKid
-  UnisexBaby
-  TeenGirl
-  TeenBoy
-  Girl
-  Boy
-  none
-}
-
-"""
-Classificators for [`Box`]({{Types.Box}}) state.
-"""
-enum BoxState {
-  InStock
-  Lost
-  MarkedForShipment
-  Received
-  Donated
-  Scrap
-}
-
-"""
-Classificators for [`Tag`]({{Types.Tag}}) type.
-"""
-enum TagType {
-  Box
-  Beneficiary
-  All
-}
-
-"""
 Representation of product size.
 """
 type Size {
   id: ID!
   label: String!
-}
-
-"""
-Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})).
-"""
-enum TaggableResourceType {
-  Box
-  Beneficiary
 }
 
 """
@@ -281,18 +238,6 @@ type Organisation {
 """
 TODO: Add description here once specs are final/confirmed
 """
-enum DistributionEventState {
-  Planning
-  Packing
-  OnDistro
-  ReturnedFromDistribution
-  ReturnTrackingInProgress
-  Completed
-}
-
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEvent {
   id: ID!
   distributionSpot: DistributionSpot
@@ -310,19 +255,6 @@ type DistributionEvent {
 
   distributionEventsTrackingGroup: DistributionEventsTrackingGroup
 }
-
-enum DistributionEventTrackingFlowDirection {
-  In
-  Out
-  # Internal
-  BackToBox
-}
-
-enum DistributionEventsTrackingGroupState {
-  InProgress
-  Completed
-}
-
 
 """
 TODO: Add description here once specs are final/confirmed
@@ -346,15 +278,6 @@ type DistributionEventsTrackingGroup {
   distributionEvents: [DistributionEvent!]!
   distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
   createdOn: Datetime!
-}
-
-"""
-TODO: Add description here once specs are final/confirmed
-"""
-enum PackingListEntryState {
-  NotStarted
-  PackingInProgress
-  Packed
 }
 
 """
@@ -532,27 +455,6 @@ input PaginationInput {
   last: Int
 }
 
-enum HumanGender {
-  Male
-  Female
-  Diverse
-}
-
-"""
-Language codes.
-"""
-enum Language {
-  nl
-  en
-  fr
-  de
-  ar
-  ckb
-}
-
-scalar Datetime
-scalar Date
-
 type TransferAgreement {
   id: ID!
   sourceOrganisation: Organisation!
@@ -600,35 +502,20 @@ type ShipmentDetail {
   targetProduct: Product
   sourceLocation: ClassicLocation
   targetLocation: ClassicLocation
+  sourceSize: Size
+  targetSize: Size
+  sourceQuantity: Int
+  targetQuantity: Int
   box: Box!
   shipment: Shipment!
   createdBy: User!
   createdOn: Datetime!
-  deletedBy: User
-  deletedOn: Datetime
-}
-
-enum TransferAgreementState {
-  UnderReview
-  Accepted
-  Rejected
-  Canceled
-  Expired
-}
-
-enum TransferAgreementType {
-  SendingTo
-  ReceivingFrom
-  Bidirectional
-}
-
-enum ShipmentState {
-  Preparing
-  Sent
-  Receiving
-  Completed
-  Canceled
-  Lost
+  removedBy: User
+  removedOn: Datetime
+  lostBy: User
+  lostOn: Datetime
+  receivedBy: User
+  receivedOn: Datetime
 }
 
 type Metrics {

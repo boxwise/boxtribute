@@ -35,15 +35,20 @@ export async function assertOptionsInSelectField(
 
 export async function selectOptionInSelectField(
   user: UserEvent,
-  label: RegExp | string,
+  label: RegExp | string | undefined,
   option: RegExp | string,
+  placeholderText: RegExp | string = "",
+  isMulti: boolean = false,
 ) {
-  const fieldControlInput = screen.getByLabelText(label);
+  const fieldControlInput =
+    label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
   await user.click(fieldControlInput);
   const optionButton = screen.getByRole("button", { name: option });
   expect(optionButton).toBeInTheDocument();
   await user.click(optionButton);
-  expect(screen.queryByRole("button", { name: option })).not.toBeInTheDocument();
+  if (isMulti) {
+    expect(screen.queryByRole("button", { name: option })).not.toBeInTheDocument();
+  }
   expect(screen.getByText(option)).toBeInTheDocument();
 }
 // Returns text content of given element

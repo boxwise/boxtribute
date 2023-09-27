@@ -4,7 +4,8 @@ import { screen, render } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
-import ShipmentsOverviewView, { ALL_SHIPMENTS_QUERY } from "./ShipmentsOverviewView";
+import { ALL_SHIPMENTS_QUERY } from "queries/queries";
+import ShipmentsOverviewView from "./ShipmentsOverviewView";
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,
@@ -68,4 +69,15 @@ it("4.4.1.4 - Initial Load of Page", async () => {
   expect(screen.getByRole("cell", { name: /preparing/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2\/1\/2023/i })).toBeInTheDocument();
+  // Breadcrumbs are there
+  expect(
+    screen.getByRole("link", {
+      name: /aid transfers/i,
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", {
+      name: /manage shipments/i,
+    }),
+  ).toBeInTheDocument();
 });

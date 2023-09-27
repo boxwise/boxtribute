@@ -49,6 +49,7 @@ function render(
   ui,
   {
     mocks = [],
+    cache = undefined,
     routePath,
     initialUrl,
     additionalRoute = undefined,
@@ -57,6 +58,7 @@ function render(
     ...renderOptions
   }: {
     mocks?: Array<MockedResponse>;
+    cache?: InMemoryCache;
     routePath: string;
     initialUrl: string;
     additionalRoute?: string;
@@ -83,8 +85,8 @@ function render(
   const globalPreferencesMock: IGlobalPreferencesContext = {
     dispatch: jest.fn(),
     globalPreferences: {
-      selectedBaseId: base1.id,
-      selectedOrganisationId: organisation1.id,
+      selectedBase: { id: base1.id, name: base1.name },
+      organisation: { id: organisation1.id, name: organisation1.name },
       availableBases: organisation1.bases,
     },
   };
@@ -97,6 +99,7 @@ function render(
           addTypename={addTypename}
           link={link}
           defaultOptions={defaultOptions}
+          cache={cache}
         >
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>

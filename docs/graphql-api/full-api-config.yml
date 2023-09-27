@@ -36,10 +36,8 @@ introspection:
   #   - path/to/schema/part1.gql
   #   - path/to/schema/part2.gql
   schemaFile:
-      - ../../back/boxtribute_server/graph_ql/types.graphql
-      - ../../back/boxtribute_server/graph_ql/queries.graphql
-      - ../../back/boxtribute_server/graph_ql/mutations.graphql
-      - ../../back/boxtribute_server/graph_ql/inputs.graphql
+      - ../../back/boxtribute_server/graph_ql/definitions/protected/*.graphql
+      - ../../back/boxtribute_server/graph_ql/definitions/basic/*.graphql
 
   # File containing Introspection Query response in JS module export, or JSON format
   # introspectionFile: path/to/introspection.js[on]

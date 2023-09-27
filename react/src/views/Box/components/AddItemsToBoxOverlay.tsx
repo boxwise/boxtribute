@@ -17,6 +17,7 @@ import { IChangeNumberOfItemsBoxData } from "../BoxView";
 interface IPropsAddItemsToBoxOverlay {
   isOpen: boolean;
   onClose: () => void;
+  isLoading: boolean;
   onSubmitAddItemstoBox: (data: IChangeNumberOfItemsBoxData) => void;
 }
 
@@ -24,6 +25,7 @@ function AddItemsToBoxOverlay({
   isOpen,
   onClose,
   onSubmitAddItemstoBox,
+  isLoading,
 }: IPropsAddItemsToBoxOverlay) {
   const {
     register,
@@ -57,7 +59,7 @@ function AddItemsToBoxOverlay({
               />
               <Spacer />
 
-              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting}>
+              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting || isLoading}>
                 Submit
               </Button>
             </Flex>

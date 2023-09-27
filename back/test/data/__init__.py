@@ -13,11 +13,13 @@ from .beneficiary import (
 )
 from .box import (
     another_box,
+    another_in_transit_box,
     another_marked_for_shipment_box,
     box_without_qr_code,
     default_box,
     default_boxes,
     default_location_boxes,
+    in_transit_box,
     lost_box,
     marked_for_shipment_box,
 )
@@ -49,7 +51,7 @@ from .product import (
     default_product,
     products,
 )
-from .product_category import default_product_category
+from .product_category import default_product_category, product_categories
 from .product_gender import default_product_gender
 from .qr_code import another_qr_code_with_box, default_qr_code, qr_code_without_box
 from .shipment import (
@@ -63,11 +65,12 @@ from .shipment_detail import (
     another_shipment_detail,
     default_shipment_detail,
     prepared_shipment_detail,
+    removed_shipment_detail,
 )
 from .size import another_size, default_size
 from .size_range import default_size_range
 from .tag import base1_active_tags, tags
-from .transaction import default_transaction, relative_transaction
+from .transaction import another_transaction, default_transaction, relative_transaction
 from .transfer_agreement import (
     default_transfer_agreement,
     expired_transfer_agreement,
@@ -81,6 +84,7 @@ from .user import another_user, default_user, default_users, god_user
 __all__ = [
     "another_beneficiary",
     "another_box",
+    "another_in_transit_box",
     "another_location",
     "another_marked_for_shipment_box",
     "another_organisation",
@@ -89,6 +93,7 @@ __all__ = [
     "another_shipment",
     "another_shipment_detail",
     "another_size",
+    "another_transaction",
     "another_user",
     "base1_active_tags",
     "base1_classic_locations",
@@ -129,6 +134,7 @@ __all__ = [
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
     "god_user",
+    "in_transit_box",
     "lost_box",
     "marked_for_shipment_box",
     "non_default_box_state_location",
@@ -136,11 +142,13 @@ __all__ = [
     "organisations",
     "packing_list_entry",
     "prepared_shipment_detail",
+    "product_categories",
     "products",
     "qr_code_without_box",
     "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",
+    "removed_shipment_detail",
     "reviewed_transfer_agreement",
     "sent_shipment",
     "shipments",

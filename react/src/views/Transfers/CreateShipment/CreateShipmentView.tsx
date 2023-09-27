@@ -17,6 +17,7 @@ import {
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
 } from "queries/fragments";
+import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateShipment, {
   IOrganisationBaseData,
   ICreateShipmentFormData,
@@ -63,7 +64,7 @@ function CreateShipmentView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = globalPreferences.selectedBaseId!;
+  const baseId = globalPreferences.selectedBase?.id!;
 
   // Query Data for the Form
   const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
@@ -81,28 +82,30 @@ function CreateShipmentView() {
     CreateShipmentMutationVariables
   >(CREATE_SHIPMENT_MUTATION, {
     update(cache, { data: returnedShipment }) {
-      cache.modify({
-        fields: {
-          shipments(existingShipments = []) {
-            const newShipmentRef = cache.writeFragment({
-              data: returnedShipment?.createShipment,
-              fragment: gql`
-                fragment NewShipment on Shipment {
-                  id
-                }
-              `,
-            });
-            return existingShipments.concat(newShipmentRef);
+      if (returnedShipment?.createShipment) {
+        cache.modify({
+          fields: {
+            shipments(existingShipments = []) {
+              const newShipmentRef = cache.writeFragment({
+                data: returnedShipment.createShipment,
+                fragment: gql`
+                  fragment NewShipment on Shipment {
+                    id
+                  }
+                `,
+              });
+              return existingShipments.concat(newShipmentRef);
+            },
           },
-        },
-      });
+        });
+      }
     },
   });
 
   // Prep data for Form
   const currentBase = allAcceptedTransferAgreements?.data?.base;
   const currentOrganisationLabel = `${currentBase?.organisation?.name} - ${currentBase?.name}`;
-  const currentOrganisationId = globalPreferences.selectedOrganisationId?.toString();
+  const currentOrganisationId = globalPreferences.organisation?.id;
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
       ?.filter(
@@ -188,13 +191,14 @@ function CreateShipmentView() {
                 message: "Error while trying to create a new shipment!",
               });
             } else {
+              const shipmentId = mutationResult.data?.createShipment?.id;
               createToast({
-                title: `Transfer Shipment ${mutationResult.data?.createShipment?.id}`,
+                title: `Transfer Shipment ${shipmentId}`,
                 type: "success",
                 message: "Successfully created a new shipment",
               });
 
-              navigate(`/bases/${baseId}/transfers/shipments`);
+              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
             }
           })
           .catch((err) => {
@@ -236,14 +240,17 @@ function CreateShipmentView() {
   }
 
   return (
-    <Center>
-      <CreateShipment
-        isLoading={createShipmentMutationState.loading}
-        currentOrganisationLabel={currentOrganisationLabel}
-        organisationBaseData={partnerOrganisationBaseData}
-        onSubmit={onSubmitCreateShipmentForm}
-      />
-    </Center>
+    <>
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      <Center>
+        <CreateShipment
+          isLoading={createShipmentMutationState.loading}
+          currentOrganisationLabel={currentOrganisationLabel}
+          organisationBaseData={partnerOrganisationBaseData}
+          onSubmit={onSubmitCreateShipmentForm}
+        />
+      </Center>
+    </>
   );
 }
 

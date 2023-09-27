@@ -45,8 +45,8 @@
       { "ignoreComments": true, "ignorePattern": "^import .*", "code": 100, "tabWidth": 2 }
     ],
     "react/jsx-one-expression-per-line": "off",
-    "quotes": ["error", "double"],
-    "semi": ["error", "always"],
+    "quotes": "off", // handled by prettier
+    "semi": "off", // handled by prettier
     "camelcase": ["error"],
     "react/jsx-indent": ["error", 2],
     "react/jsx-indent-props": ["error", 2],
@@ -66,15 +66,7 @@
       }
     ],
     "no-loop-func": "error",
-    "indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "ignoredNodes": ["ConditionalExpression"]
-      }
-    ],
-
+    "indent": "off", // handled by prettier
     "no-tabs": 0,
     "@typescript-eslint/no-unused-vars": "warn",
     "no-unused-vars": "warn",

@@ -40,7 +40,7 @@ const successfulMutation = {
     variables: {
       initiatingOrganisationId: 1,
       partnerOrganisationId: 2,
-      type: TransferAgreementType.SendingTo,
+      type: TransferAgreementType.Bidirectional,
       validFrom: new Date().toISOString().substring(0, 10),
       validUntil: undefined,
       initiatingOrganisationBaseIds: [1],
@@ -74,6 +74,33 @@ const mutationNetworkError = {
   error: new Error(),
 };
 
+const mutationIdenticalAgreementError = {
+  request: {
+    query: CREATE_AGREEMENT_MUTATION,
+    variables: {
+      initiatingOrganisationId: 1,
+      partnerOrganisationId: 2,
+      type: TransferAgreementType.Bidirectional,
+      validFrom: new Date().toISOString().substring(0, 10),
+      validUntil: undefined,
+      initiatingOrganisationBaseIds: [1],
+      partnerOrganisationBaseIds: undefined,
+      comment: "",
+    },
+  },
+  result: {
+    data: { createTransferAgreement: null },
+    errors: [
+      new GraphQLError("Error!", {
+        extensions: {
+          code: "BAD_USER_INPUT",
+          description: "An identical agreement already exists: ID 1",
+        },
+      }),
+    ],
+  },
+};
+
 // Test case 4.1.1
 it("4.1.1 - Initial load of Page", async () => {
   const user = userEvent.setup();
@@ -85,9 +112,9 @@ it("4.1.1 - Initial load of Page", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -96,6 +123,8 @@ it("4.1.1 - Initial load of Page", async () => {
 
   const title = await screen.findByRole("heading", { name: "New Transfer Agreement" });
   expect(title).toBeInTheDocument();
+  // Breadcrumbs are there
+  expect(screen.getByRole("link", { name: /back to manage agreements/i })).toBeInTheDocument();
   // Test case 4.1.1.1 -  Content: Displays Source Bases Select Options
   const selectSourceBaseDropDown = screen.getByRole("combobox", { name: /boxaid bases/i });
   expect(selectSourceBaseDropDown).toBeInTheDocument();
@@ -129,9 +158,9 @@ it("4.1.2 - Input Validations", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -147,8 +176,6 @@ it("4.1.2 - Input Validations", async () => {
   expect(screen.getByText(/please select at least one base/i)).toBeInTheDocument();
   // Test case 4.1.2.2 - Partner Organisation SELECT field cannot be empty
   expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
-  // Test case 4.1.2.3 - Transfer type Radio Button cannot be empty
-  expect(screen.getByText(/please choose a transfer type/i)).toBeInTheDocument();
   // Test case 4.1.2.4 - The "Valid from" field is optional, but only valid date formats should be entered
   const validFrom = screen.getByLabelText(/valid until/i) as HTMLInputElement;
   const testValueForValidFrom = new Date().toJSON().split("T")[0];
@@ -157,11 +184,6 @@ it("4.1.2 - Input Validations", async () => {
 
   // Test case 4.1.2.5 - The "Valid until" field is optional, but only valid date formats should be entered
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToLabel = screen.getByLabelText("Sending to");
-  expect(transferTypeSendingToLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToLabel);
-  expect(transferTypeSendingToLabel).toBeChecked();
-
   const validUntil = screen.getByLabelText(/valid until/i) as HTMLInputElement;
   const testInvalidValueForValidUntil = addDays(new Date(), -2).toJSON().split("T")[0];
   await user.type(validUntil, testInvalidValueForValidUntil);
@@ -185,9 +207,9 @@ it("4.1.3 - Click on Submit Button", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -197,10 +219,6 @@ it("4.1.3 - Click on Submit Button", async () => {
 
   // Test case 4.1.3.1 - Form data was valid and mutation was successful
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToLabel = screen.getByLabelText("Sending to");
-  expect(transferTypeSendingToLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToLabel);
-  expect(transferTypeSendingToLabel).toBeChecked();
   await user.click(submitButton);
   expect(await screen.findByText(/successfully created a transfer agreement/i)).toBeInTheDocument();
   // Test case 4.1.3.2 - Redirect to Transfers Agreements Page
@@ -218,9 +236,9 @@ it("4.1.3 - Click on Submit Button", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -228,12 +246,6 @@ it("4.1.3 - Click on Submit Button", async () => {
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
-  const transferTypeSendingToAndReceivingFromLabel = screen.getByLabelText(
-    "Sending to AND Receiving from",
-  );
-  expect(transferTypeSendingToAndReceivingFromLabel).not.toBeChecked();
-  await user.click(transferTypeSendingToAndReceivingFromLabel);
-  expect(transferTypeSendingToAndReceivingFromLabel).toBeChecked();
   await user.click(rerenderedSubmitButton);
   expect(await screen.findByText(/your changes could not be saved!/i)).toBeInTheDocument();
 });
@@ -249,9 +261,9 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -261,5 +273,38 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     await screen.findByText(
       /could not fetch Organisation and Base data! Please try reloading the page./i,
     ),
+  ).toBeInTheDocument();
+});
+
+// Test case 4.1.5
+it("4.1.5 - Failed due to the identical agreement", async () => {
+  cleanup();
+  const user = userEvent.setup();
+  cleanup();
+  render(<CreateTransferAgreementView />, {
+    routePath: "/bases/:baseId/transfers/agreements/create",
+    initialUrl: "/bases/1/transfers/agreements/create",
+    mocks: [initialQuery, mutationIdenticalAgreementError],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+        selectedBase: { id: base1.id, name: base1.name },
+      },
+    },
+  });
+
+  const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
+  expect(rerenderedSubmitButton).toBeInTheDocument();
+  await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
+
+  await user.click(rerenderedSubmitButton);
+  expect(
+    await screen.findByText(/error while trying to create transfer agreement/i),
+  ).toBeInTheDocument();
+  expect(
+    await screen.findByText(/Can’t create agreement, an active identical agreement exists/i),
   ).toBeInTheDocument();
 });

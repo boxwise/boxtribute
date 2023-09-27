@@ -13,7 +13,7 @@ export function RemoveBoxCell({ row, onRemoveIconClick, isLoadingMutation }: IRe
     <VStack align="start">
       <AiFillMinusCircle
         onClick={
-          isLoadingMutation ? () => onRemoveIconClick(row?.original.labelIdentifier) : undefined
+          !isLoadingMutation ? () => onRemoveIconClick(row?.original.labelIdentifier) : undefined
         }
         type="solid"
         size={20}

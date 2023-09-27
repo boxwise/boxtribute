@@ -1,4 +1,5 @@
 import { BoxState } from "types/generated/graphql";
+import { organisation1 } from "./organisations";
 
 export const location1 = {
   id: "1",
@@ -27,6 +28,7 @@ export const generateMockLocationWithBase = ({
     __typename: "Base",
     id: "1",
     name: "Lesvos",
+    organisation: organisation1,
     distributionEventsBeforeReturnedFromDistributionState: [],
     locations: [
       {

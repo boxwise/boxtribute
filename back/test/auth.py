@@ -31,10 +31,6 @@ def memoize(function):
 @memoize
 def fetch_token(username):
     """Grabs a test user access token for Auth0."""
-    token = os.getenv("TEST_AUTH0_JWT")
-    if token is not None:
-        return token
-
     success, response = request_jwt(
         client_id=os.getenv("TEST_AUTH0_CLIENT_ID"),
         client_secret=os.getenv("TEST_AUTH0_CLIENT_SECRET"),
@@ -50,7 +46,15 @@ def get_authorization_header(username):
     return "Bearer " + fetch_token(username)
 
 
-def create_jwt_payload(
+def mock_user_for_request(mocker, **attributes):
+    """Imitate the user of the upcoming HTTP requests in the context of testing: create
+    a JWT payload according to the given attributes, and mock the result of the internal
+    JWT decoding library to return this payload.
+    """
+    mocker.patch("jose.jwt.decode").return_value = _create_jwt_payload(**attributes)
+
+
+def _create_jwt_payload(
     *,
     email="dev_coordinator@boxaid.org",
     base_ids=(1,),
@@ -58,12 +62,12 @@ def create_jwt_payload(
     roles=("Coordinator",),
     user_id=8,
     permissions=None,
+    timezone="Europe/London",
 ):
-    """Create payload containing authorization information of the user requesting from
-    the app in the context of testing. The payload field names are identical to the
-    actual ones in the JWT returned by Auth0 (taking the prefix for custom claims into
-    account). Irrelevant fields (issues, audience, issue time, expiration time, client
-    ID, grant type) are skipped.
+    """Create payload containing arbitrary authorization information of a user.
+    The payload field names are identical to the actual ones in the JWT returned by
+    Auth0 (taking the prefix for custom claims into account). Irrelevant fields (issues,
+    audience, issue time, expiration time, client ID, grant type) are skipped.
 
     If no arguments are passed, the payload for the default user is returned. Any
     argument specified overrides the corresponding field of the default payload.
@@ -76,6 +80,7 @@ def create_jwt_payload(
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
         f"{JWT_CLAIM_PREFIX}/roles": roles,
+        f"{JWT_CLAIM_PREFIX}/timezone": timezone,
         "sub": f"auth0|{user_id}",
     }
 

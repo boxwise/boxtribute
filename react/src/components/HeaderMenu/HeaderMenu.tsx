@@ -1,5 +1,5 @@
 import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
-import HeaderMenuDeskop from "./HeaderMenuDeskop";
+import HeaderMenuDesktop from "./HeaderMenuDesktop";
 import HeaderMenuMobile from "./HeaderMenuMobile";
 
 export interface MenuItemData {
@@ -10,6 +10,7 @@ export interface MenuItemData {
 export interface MenuItemsGroupData {
   text: string;
   links: MenuItemData[];
+  minBeta?: number;
 }
 
 export interface BaseData {
@@ -37,9 +38,7 @@ export interface LoginOrUserMenuButtonProps extends UserMenuProps {
 
 export interface MenuItemsGroupProps extends MenuItemsGroupData {}
 
-export interface MenuItemsGroupsProps
-  extends LoginOrUserMenuButtonProps,
-    LayoutProps {
+export interface MenuItemsGroupsProps extends LoginOrUserMenuButtonProps, LayoutProps {
   menuItemsGroups: MenuItemsGroupData[];
 }
 
@@ -53,7 +52,7 @@ const HeaderMenu = (props: HeaderMenuProps) => {
   if (isSmallScreen) {
     return <HeaderMenuMobile {...props} />;
   } else {
-    return <HeaderMenuDeskop {...props} />;
+    return <HeaderMenuDesktop {...props} />;
   }
 };
 export default HeaderMenu;

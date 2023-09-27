@@ -1,4 +1,4 @@
-from auth import create_jwt_payload
+from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
@@ -42,9 +42,7 @@ def test_user_query(read_only_client, default_user, another_user, default_organi
 
 def test_user_query_for_god_user(read_only_client, mocker, god_user):
     user_id = god_user["id"]
-    mocker.patch("jose.jwt.decode").return_value = create_jwt_payload(
-        permissions=["*"], user_id=user_id, base_ids=[]
-    )
+    mock_user_for_request(mocker, permissions=["*"], user_id=user_id, base_ids=[])
     query = f"query {{ user (id: {user_id}) {{ organisation {{ id }} }} }}"
     user = assert_successful_request(read_only_client, query)
     assert user == {"organisation": None}

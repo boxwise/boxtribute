@@ -6,12 +6,24 @@ import userEvent from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { GraphQLError } from "graphql";
 import { base1 } from "mocks/bases";
+import { ShipmentState } from "types/generated/graphql";
+import { generateMockShipment } from "mocks/shipments";
+import { cache } from "queries/cache";
+import { gql } from "@apollo/client";
 import CreateShipmentView, {
   ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
   CREATE_SHIPMENT_MUTATION,
 } from "./CreateShipmentView";
+import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
+
+// extracting a cacheObject to reset the cache correctly later
+const emptyCache = cache.extract();
 
 jest.setTimeout(12000);
+
+afterEach(() => {
+  cache.restore(emptyCache);
+});
 
 const initialQuery = {
   request: {
@@ -33,6 +45,19 @@ const initialQuery = {
         },
       },
       transferAgreements: [acceptedTransferAgreement],
+    },
+  },
+};
+const initialWithoutBoxQuery = {
+  request: {
+    query: SHIPMENT_BY_ID_QUERY,
+    variables: {
+      id: "1",
+    },
+  },
+  result: {
+    data: {
+      shipment: generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
     },
   },
 };
@@ -61,7 +86,7 @@ const successfulMutation = {
   result: {
     data: {
       createShipment: {
-        id: 1,
+        ...generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
       },
     },
   },
@@ -104,9 +129,9 @@ it("4.3.1 - Initial load of Page", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -124,6 +149,9 @@ it("4.3.1 - Initial load of Page", async () => {
   // Test case 4.3.1.3 - Content: Displays Partner Bases Select Options When Partner Organisation Selected
   await assertOptionsInSelectField(user, /base/i, [/samos/i, /thessaloniki/i, /athens/i], title);
   await selectOptionInSelectField(user, /base/i, "Samos");
+
+  // Breadcrumbs are there
+  expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
 });
 
 // Test case 4.3.2
@@ -137,9 +165,9 @@ it("4.3.2 - Input Validations", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -160,21 +188,41 @@ it("4.3.2 - Input Validations", async () => {
 // Test case 4.3.3
 it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
   const user = userEvent.setup();
-  render(<CreateShipmentView />, {
-    routePath: "/bases/:baseId/transfers/shipments/create",
-    initialUrl: "/bases/1/transfers/shipments/create",
-    additionalRoute: "/bases/1/transfers/shipments",
-    mocks: [initialQuery, successfulMutation],
-    addTypename: true,
-    globalPreferences: {
-      dispatch: jest.fn(),
-      globalPreferences: {
-        selectedOrganisationId: organisation1.id,
-        availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+
+  // modify the cache
+  cache.modify({
+    fields: {
+      shipments(existingShipments = []) {
+        const newShipmentRef = cache.writeFragment({
+          data: successfulMutation.result.data,
+          fragment: gql`
+            fragment NewShipment on Shipment {
+              id
+            }
+          `,
+        });
+        return existingShipments.concat(newShipmentRef);
       },
     },
   });
+
+  render(<CreateShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/create",
+    initialUrl: "/bases/1/transfers/shipments/create",
+    additionalRoute: "/bases/1/transfers/shipments/1",
+    mocks: [initialQuery, successfulMutation, initialWithoutBoxQuery],
+    addTypename: true,
+    cache,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+        selectedBase: { id: base1.id, name: base1.name },
+      },
+    },
+  });
+
   const title = await screen.findByRole("heading", { name: "Start New Shipment" });
   expect(title).toBeInTheDocument();
 
@@ -191,14 +239,10 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
 
   await user.click(submitButton);
   expect(await screen.findByText(/successfully created a new shipment/i)).toBeInTheDocument();
-  // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
-  expect(
-    await screen.findByRole("heading", { name: "/bases/1/transfers/shipments" }),
-  ).toBeInTheDocument();
 
   // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
   expect(
-    await screen.findByRole("heading", { name: "/bases/1/transfers/shipments" }),
+    await screen.findByRole("heading", { name: "/bases/1/transfers/shipments/1" }),
   ).toBeInTheDocument();
 });
 
@@ -213,9 +257,9 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -249,9 +293,9 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });
@@ -285,9 +329,9 @@ it("4.3.4 - Failed to Fetch Initial Data", async () => {
     globalPreferences: {
       dispatch: jest.fn(),
       globalPreferences: {
-        selectedOrganisationId: organisation1.id,
+        organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
-        selectedBaseId: base1.id,
+        selectedBase: { id: base1.id, name: base1.name },
       },
     },
   });

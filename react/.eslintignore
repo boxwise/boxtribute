@@ -4,9 +4,8 @@ coverage
 node_modules
 # temporarily disable eslint on the current code
 src/types
-src/components/BTBreadcrumbNavigation.tsx
 src/components/HeaderMenu
-!src/components/HeaderMenu/HeaderMenuDeskop.tsx
+!src/components/HeaderMenu/HeaderMenuDesktop.tsx
 !src/components/HeaderMenu/HeaderMenuMobile.tsx
 !src/components/HeaderMenu/HeaderMenuContainer.tsx
 !src/components/QrReader
@@ -14,7 +13,6 @@ src/components/HeaderMenu
 !src/components/Form
 !src/components/Layout.tsx
 !src/mocks
-src/providers/GlobalPreferencesProvider.tsx
 src/utils
 src/views/BaseDashboard
 *.stories.*

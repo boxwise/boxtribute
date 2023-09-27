@@ -1,6 +1,10 @@
 overwrite: true
-schema: "../back/boxtribute_server/graph_ql/*"
-documents: './src/**/*.{ts,tsx}'
+schema:
+  - "../back/boxtribute_server/graph_ql/definitions/basic/*.graphql"
+  - "../back/boxtribute_server/graph_ql/definitions/protected/*.graphql"
+documents:
+  - "./src/**/*.{ts,tsx}"
+  - "!./src/queries/local-only.ts"
 
 generates:
   ./src/types/generated/graphql.ts:

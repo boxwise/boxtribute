@@ -12,13 +12,14 @@ from ....exceptions import (
     InvalidTransferAgreementState,
 )
 from ....models.definitions.box import Box
+from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.transfer_agreement import TransferAgreement
-from ....models.utils import utcnow
+from ....models.utils import create_history_entries, utcnow
 from ..agreement.crud import retrieve_transfer_agreement_bases
 
 
@@ -90,16 +91,39 @@ def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
     """Retrieve details of shipment with given ID, taking optional conditions for
     selecting, and an additional model to select and join with into account.
     """
-    condition = ShipmentDetail.shipment == shipment_id
-    for cond in conditions:
-        condition &= cond
-    return ShipmentDetail.select(ShipmentDetail, model).join(model).where(condition)
+    return (
+        ShipmentDetail.select(ShipmentDetail, model)
+        .join(model)
+        .where(ShipmentDetail.shipment == shipment_id, *conditions)
+    )
+
+
+def _bulk_update_box_state(*, boxes, state):
+    """Update state of given boxes, and track these changes in the history table.
+    Must be placed inside a `with db.database.atomic()` context.
+    """
+    if not boxes:
+        return
+
+    history_entries = []
+    for box in boxes:
+        history_entries.extend(
+            create_history_entries(
+                old_resource=box,
+                # Create a dummy box objects as new resource (won't be saved)
+                new_resource=Box(id=box.id, state=state),
+                fields=[Box.state],
+            )
+        )
+        box.state = state
+    Box.bulk_update(boxes, [Box.state])
+    DbChangeHistory.bulk_create(history_entries)
 
 
 def cancel_shipment(*, id, user):
     """Transition state of specified shipment to 'Canceled'.
     Move any boxes marked for shipment back into stock, and soft-delete the
-    corresponding shipment details.
+    corresponding shipment details by setting the removed_on/by fields.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
@@ -114,18 +138,17 @@ def cancel_shipment(*, id, user):
     shipment.canceled_by = user.id
     shipment.canceled_on = now
 
-    details = []
-    for detail in _retrieve_shipment_details(id):
-        detail.deleted_by = user.id
-        detail.deleted_on = now
-        detail.box.state = BoxState.InStock
-        details.append(detail)
+    # Only remove details that have not been removed yet
+    details = _retrieve_shipment_details(id, ShipmentDetail.removed_on.is_null())
+    for detail in details:
+        detail.removed_by = user.id
+        detail.removed_on = now
 
     with db.database.atomic():
+        _bulk_update_box_state(boxes=[d.box for d in details], state=BoxState.InStock)
         if details:
-            Box.bulk_update([d.box for d in details], [Box.state])
             ShipmentDetail.bulk_update(
-                details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
+                details, [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
             )
         shipment.save()
     return shipment
@@ -133,6 +156,7 @@ def cancel_shipment(*, id, user):
 
 def send_shipment(*, id, user):
     """Transition state of specified shipment to 'Sent'.
+    Transition states of all contained MarkedForShipment boxes to 'InTransit'.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
@@ -144,12 +168,25 @@ def send_shipment(*, id, user):
     shipment.state = ShipmentState.Sent
     shipment.sent_by = user.id
     shipment.sent_on = utcnow()
-    shipment.save()
+
+    boxes = [
+        detail.box
+        for detail in _retrieve_shipment_details(
+            id,
+            Box.state == BoxState.MarkedForShipment,
+            ShipmentDetail.removed_on.is_null(),
+        )
+    ]
+
+    with db.database.atomic():
+        shipment.save()
+        _bulk_update_box_state(boxes=boxes, state=BoxState.InTransit)
     return shipment
 
 
 def start_receiving_shipment(*, id, user):
     """Transition state of specified shipment to 'Receiving'.
+    Transition states of all contained InTransit boxes to 'Receiving'.
     Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     """
     shipment = Shipment.get_by_id(id)
@@ -160,7 +197,19 @@ def start_receiving_shipment(*, id, user):
     shipment.state = ShipmentState.Receiving
     shipment.receiving_started_by = user.id
     shipment.receiving_started_on = utcnow()
-    shipment.save()
+
+    boxes = [
+        detail.box
+        for detail in _retrieve_shipment_details(
+            id,
+            Box.state == BoxState.InTransit,
+            ShipmentDetail.removed_on.is_null(),
+        )
+    ]
+
+    with db.database.atomic():
+        shipment.save()
+        _bulk_update_box_state(boxes=boxes, state=BoxState.Receiving)
     return shipment
 
 
@@ -170,34 +219,32 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     base, or have a state different from InStock, they are silently discarded (i.e. not
     added to the ShipmentDetail model).
     """
-    boxes = []
-    details = []
-    box_label_identifiers = box_label_identifiers or []
+    if not box_label_identifiers:
+        return
 
-    for box in (
+    boxes = (
         Box.select(Box, Location)
         .join(Location)
-        .where(Box.label_identifier << box_label_identifiers)
-    ):
-        if box.location.base_id != shipment.source_base_id:
-            continue
-        if box.state_id != BoxState.InStock:
-            continue
-
-        box.state = BoxState.MarkedForShipment
-        boxes.append(box)
-        details.append(
-            {
-                "shipment": shipment.id,
-                "box": box.id,
-                "source_product": box.product_id,
-                "source_location": box.location_id,
-                "created_by": user_id,
-            }
+        .where(
+            Box.label_identifier << box_label_identifiers,
+            Box.state == BoxState.InStock,
+            Location.base_id == shipment.source_base,
         )
+    )
+    details = [
+        {
+            "shipment": shipment.id,
+            "box": box.id,
+            "source_product": box.product_id,
+            "source_location": box.location_id,
+            "source_size": box.size_id,
+            "source_quantity": box.number_of_items,
+            "created_by": user_id,
+        }
+        for box in boxes
+    ]
 
-    if boxes:
-        Box.bulk_update(boxes, fields=[Box.state])
+    _bulk_update_box_state(boxes=boxes, state=BoxState.MarkedForShipment)
     ShipmentDetail.insert_many(details).execute()
 
 
@@ -207,47 +254,64 @@ def _remove_boxes_from_shipment(
     """With `box_state=InStock`, return boxes to stock; with `box_state=Lost`, mark
     boxes as lost. Soft-delete corresponding shipment details.
     If boxes are requested to be removed that are not contained in the given shipment,
-    or have a state different from MarkedForShipment, they are silently discarded.
+    they are silently discarded.
     """
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
         return
 
+    now = utcnow()
     details = []
     for detail in _retrieve_shipment_details(
         shipment_id, (Box.label_identifier << box_label_identifiers)
     ):
-        detail.deleted_by = user_id
-        detail.deleted_on = utcnow()
-        # Logically the box is in state MarkedForShipment since part of a shipment
-        detail.box.state = box_state
+        if box_state == BoxState.InStock:
+            detail.removed_on = now
+            detail.removed_by = user_id
+            fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
+        elif box_state == BoxState.Lost:
+            detail.lost_on = now
+            detail.lost_by = user_id
+            fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
         details.append(detail)
 
     if details:
-        Box.bulk_update([d.box for d in details], fields=[Box.state])
-        ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
-        )
+        _bulk_update_box_state(boxes=[d.box for d in details], state=box_state)
+        ShipmentDetail.bulk_update(details, fields=fields)
 
 
 def _update_shipment_with_received_boxes(
     *, shipment, user_id, shipment_detail_update_inputs
 ):
-    """Check in all given boxes by updating shipment details (target product and
-    location). Transition the corresponding box's state to 'Received'.
+    """Move boxes from the shipment into stock of the target base.
+    Update shipment details (target product, size and location). Transition the
+    corresponding box's state to 'InStock' and assign target product, size and location.
+    Remove all assigned tags from received boxes.
     If boxes are requested to be checked-in with a location or a product that is not
-    registered in the target base, they are silently discarded.
+    registered in the target base, or with a state other than 'Receiving', they are
+    silently discarded.
     """
     # Transform input list into dict for easy look-up
     update_inputs = {
         int(i["id"]): {
             "target_product_id": i["target_product_id"],
             "target_location_id": i["target_location_id"],
+            "target_size_id": i["target_size_id"],
+            "target_quantity": i["target_quantity"],
         }
         for i in shipment_detail_update_inputs or []
     }
 
+    now = utcnow()
+    updated_box_fields = [
+        Box.product,
+        Box.location,
+        Box.size,
+        Box.number_of_items,
+        Box.state,
+    ]
     details = []
+    history_entries = []
     detail_ids = tuple(update_inputs)
     for detail in _retrieve_shipment_details(
         shipment.id, (ShipmentDetail.id << detail_ids), model=Shipment
@@ -255,59 +319,94 @@ def _update_shipment_with_received_boxes(
         update_input = update_inputs[detail.id]
         target_product_id = update_input["target_product_id"]
         target_location_id = update_input["target_location_id"]
+        target_size_id = update_input["target_size_id"]
+        target_quantity = update_input["target_quantity"]
 
-        if not _validate_base_as_part_of_shipment(
-            target_location_id, detail=detail, model=Location
-        ) or not _validate_base_as_part_of_shipment(
-            target_product_id, detail=detail, model=Product
+        if (
+            not _validate_base_as_part_of_shipment(
+                target_location_id, detail=detail, model=Location
+            )
+            or not _validate_base_as_part_of_shipment(
+                target_product_id, detail=detail, model=Product
+            )
+            or detail.box.state_id != BoxState.Receiving
         ):
             continue
 
         detail.target_product = target_product_id
         detail.target_location = target_location_id
-        detail.box.state = BoxState.Received
+        detail.target_size = target_size_id
+        detail.target_quantity = target_quantity
+        detail.received_on = now
+        detail.received_by = user_id
+        detail.box.product = target_product_id
+        detail.box.location = target_location_id
+        detail.box.size = target_size_id
+        detail.box.number_of_items = target_quantity
+        detail.box.state = BoxState.InStock
         details.append(detail)
+        history_entries.extend(
+            create_history_entries(
+                # Create a dummy box objects as old resource (won't be saved)
+                old_resource=Box(
+                    product=detail.source_product_id,
+                    location=detail.source_location_id,
+                    size=detail.source_size_id,
+                    number_of_items=detail.source_quantity,
+                    state=BoxState.Receiving,
+                ),
+                new_resource=detail.box,
+                fields=updated_box_fields,
+            )
+        )
 
     if details:
-        Box.bulk_update([d.box for d in details], [Box.state])
-        ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.target_product, ShipmentDetail.target_location]
+        checked_in_boxes = [d.box for d in details]
+        Box.bulk_update(
+            checked_in_boxes,
+            [Box.state, Box.product, Box.location, Box.size, Box.number_of_items],
         )
+        ShipmentDetail.bulk_update(
+            details,
+            [
+                ShipmentDetail.target_product,
+                ShipmentDetail.target_location,
+                ShipmentDetail.target_size,
+                ShipmentDetail.target_quantity,
+                ShipmentDetail.received_on,
+                ShipmentDetail.received_by,
+            ],
+        )
+        TagsRelation.delete().where(
+            (TagsRelation.object_type == TaggableObjectType.Box),
+            TagsRelation.object_id << [box.id for box in checked_in_boxes],
+        ).execute()
+        DbChangeHistory.bulk_create(history_entries)
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id):
-    """If all boxes of the shipment are marked as Received or Lost, transition the
-    shipment state to 'Completed', soft-delete the corresponding shipment details,
-    assign target product and location to boxes, and transition received boxes to
-    'InStock'.
-    Remove all assigned tags from Received boxes.
+    """If all boxes of the shipment that were being sent
+    - are marked as Lost, transition the shipment state to 'Lost',
+    - are marked as InStock or Lost, transition the shipment state to 'Completed', and
+    soft-delete the corresponding shipment details by setting the received_on/by fields.
     """
-    details = _retrieve_shipment_details(shipment.id)
-    if all(d.box.state_id in [BoxState.Received, BoxState.Lost] for d in details):
-        now = utcnow()
-        shipment.state = ShipmentState.Completed
+    details = _retrieve_shipment_details(
+        shipment.id,
+        ShipmentDetail.removed_on.is_null(),
+    )
+    now = utcnow()
+
+    if all(d.box.state_id == BoxState.Lost for d in details):
+        shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
 
-        received_boxes = []
-        for detail in details:
-            detail.deleted_by = user_id
-            detail.deleted_on = now
-            detail.box.product = detail.target_product
-            detail.box.location = detail.target_location
-            if detail.box.state_id == BoxState.Received:
-                detail.box.state = BoxState.InStock
-                received_boxes.append(detail.box)
-
-        Box.bulk_update(received_boxes, [Box.product, Box.location, Box.state])
-        ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.deleted_on, ShipmentDetail.deleted_by]
-        )
-        TagsRelation.delete().where(
-            (TagsRelation.object_type == TaggableObjectType.Box),
-            TagsRelation.object_id << [box.id for box in received_boxes],
-        ).execute()
+    elif all(d.box.state_id in [BoxState.InStock, BoxState.Lost] for d in details):
+        shipment.state = ShipmentState.Completed
+        shipment.completed_by = user_id
+        shipment.completed_on = now
+        shipment.save()
 
 
 def update_shipment_when_preparing(
@@ -404,8 +503,9 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
 
 
 def mark_shipment_as_lost(*, id, user):
-    """Change shipment state to 'Lost'. Update states of all contained boxes to 'Lost'
-    and soft-delete all shipment details.
+    """Change shipment state to 'Lost'. Update states of all contained
+    'InTransit' boxes to 'Lost' and soft-delete all shipment details by setting the
+    lost_on/by fields.
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     """
     shipment = Shipment.get_by_id(id)
@@ -419,7 +519,8 @@ def mark_shipment_as_lost(*, id, user):
         shipment.completed_on = utcnow()
         shipment.completed_by = user.id
         box_label_identifiers = [
-            d.box.label_identifier for d in _retrieve_shipment_details(id)
+            d.box.label_identifier
+            for d in _retrieve_shipment_details(id, Box.state == BoxState.InTransit)
         ]
         _remove_boxes_from_shipment(
             shipment_id=id,

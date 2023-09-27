@@ -82,11 +82,12 @@ def create_box(
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
             prefix = "Duplicate entry"
-            if f"{prefix} '{qr_id}' for key 'stock.qr_id_unique'" in str(e):
+            error = str(e)
+            if f"{prefix} '{qr_id}'" in error and "qr_id_unique" in error:
                 raise QrCodeAlreadyAssignedToBox()
             if (
-                f"{prefix} '{new_box.label_identifier}' for key 'stock.box_id_unique'"
-                not in str(e)
+                f"{prefix} '{new_box.label_identifier}'" not in error
+                and "box_id_unique" not in error
             ):
                 raise
     raise BoxCreationFailed()
@@ -114,6 +115,7 @@ def update_box(
     size_id=None,
     state=None,
     tag_ids=None,
+    tag_ids_to_be_added=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
@@ -161,6 +163,25 @@ def update_box(
         # Assign all tags that are part of the updated set of tags but were previously
         # not assigned to the box
         for tag_id in updated_tag_ids.difference(assigned_tag_ids):
+            assign_tag(
+                user_id=user_id,
+                id=tag_id,
+                resource_id=box.id,
+                resource_type=TaggableObjectType.Box,
+            )
+
+    if tag_ids_to_be_added is not None:
+        # Find all tag IDs that are currently assigned to the box
+        assigned_tag_ids = set(
+            r.tag_id
+            for r in TagsRelation.select(TagsRelation.tag_id).where(
+                TagsRelation.object_type == TaggableObjectType.Box,
+                TagsRelation.object_id == box.id,
+            )
+        )
+        # Assign all tags that are part of the set of tags requested to be added but
+        # were previously not assigned to the box
+        for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids):
             assign_tag(
                 user_id=user_id,
                 id=tag_id,

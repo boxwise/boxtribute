@@ -19,6 +19,7 @@ export function mockImplementationOfQrReader(
   mockedQrReader: jest.MockedFunctionDeep<any>,
   hash: string,
   isBoxtributeQr: boolean = true,
+  multiScan: boolean = false,
 ) {
   mockedQrReader.mockImplementation((props) => (
     <button
@@ -26,6 +27,7 @@ export function mockImplementationOfQrReader(
       data-testid="ReturnScannedQr"
       onClick={() =>
         props.onResult(
+          multiScan,
           new Result(
             isBoxtributeQr ? `barcode=${hash}` : "nonBoxtributeQr",
             new Uint8Array([0]),
