@@ -302,6 +302,7 @@ def _update_shipment_with_received_boxes(
         for i in shipment_detail_update_inputs or []
     }
 
+    now = utcnow()
     updated_box_fields = [
         Box.product,
         Box.location,
@@ -336,6 +337,8 @@ def _update_shipment_with_received_boxes(
         detail.target_location = target_location_id
         detail.target_size = target_size_id
         detail.target_quantity = target_quantity
+        detail.received_on = now
+        detail.received_by = user_id
         detail.box.product = target_product_id
         detail.box.location = target_location_id
         detail.box.size = target_size_id
@@ -370,6 +373,8 @@ def _update_shipment_with_received_boxes(
                 ShipmentDetail.target_location,
                 ShipmentDetail.target_size,
                 ShipmentDetail.target_quantity,
+                ShipmentDetail.received_on,
+                ShipmentDetail.received_by,
             ],
         )
         TagsRelation.delete().where(
@@ -402,17 +407,6 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
-
-        for detail in details:
-            if detail.box.state_id == BoxState.Lost:
-                # Lost boxes must not be marked as received
-                continue
-            detail.received_by = user_id
-            detail.received_on = now
-
-        ShipmentDetail.bulk_update(
-            details, [ShipmentDetail.received_on, ShipmentDetail.received_by]
-        )
 
 
 def update_shipment_when_preparing(
