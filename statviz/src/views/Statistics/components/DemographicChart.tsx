@@ -77,7 +77,10 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
   return (
     <>
       <Heading size="md">Demographic Chart</Heading>
-      <div id="chart-container" style={{ width: "100%", height: "100%" }}>
+      <div
+        id="chart-container"
+        style={{ width: "100%", height: "100%", marginTop: "25px" }}
+      >
         <BarChartCenterAxis fields={chart} />
       </div>
     </>

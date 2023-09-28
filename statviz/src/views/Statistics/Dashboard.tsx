@@ -11,13 +11,17 @@ import {
 } from "@chakra-ui/react";
 import BoxView from "./BoxView";
 import DemographicView from "./DemographicView";
-import ProductRankView from "./ProductRankView";
+import TopProductsPieChart from "./components/TopProductsPieChart";
 
 export default function Dashboard() {
   return (
     <div style={{ width: "80%", margin: "25px auto auto auto" }}>
       <Heading>Dashboard</Heading>
-      <Accordion defaultIndex={[0]} allowMultiple style={{ marginTop: "10px" }}>
+      <Accordion
+        defaultIndex={[0, 1]}
+        allowMultiple
+        style={{ marginTop: "10px" }}
+      >
         <AccordionItem>
           <AccordionButton>
             <Box as="span" flex="1" textAlign="left">
@@ -31,7 +35,12 @@ export default function Dashboard() {
                 <BoxView />
               </GridItem>
               <GridItem>
-                <p>(WIP) Pie Chart</p>
+                <TopProductsPieChart />
+              </GridItem>
+              <GridItem>
+                <Heading size="md" style={{ marginBottom: "50px" }}>
+                  (WIP) Sankey Product Flow
+                </Heading>
               </GridItem>
             </Grid>
           </AccordionPanel>

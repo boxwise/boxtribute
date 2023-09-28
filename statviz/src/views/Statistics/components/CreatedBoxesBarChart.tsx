@@ -8,7 +8,7 @@ import {
   QueryCreatedBoxesArgs,
 } from "../../../types/generated/graphql";
 import BarChart from "../../../components/nivo-graphs/BarChart";
-import { table } from "../../../utils/table";
+import { Sort, table } from "../../../utils/table";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -60,7 +60,7 @@ export default function CreatedBoxesBarChart() {
         indexBy="createdOn"
         keys={["boxesCount"]}
         width="900px"
-        height="500px"
+        height="400px"
       />
     </div>
   );
