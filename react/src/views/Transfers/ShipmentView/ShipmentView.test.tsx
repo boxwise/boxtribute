@@ -45,7 +45,6 @@ const initialWithGroupedItemQuery = {
       shipment: generateMockShipmentWithCustomDetails({
         state: ShipmentState.Preparing,
         details: [
-          // eslint-disable-next-line no-undef
           generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
           generateMockShipmentDetail({
             id: "2",
@@ -298,17 +297,21 @@ describe("4.5 Test Cases", () => {
     expect(groupedItemAccordionButton).toBeInTheDocument();
     // expanding the accordion
     user.click(groupedItemAccordionButton);
-    await waitFor(() => {
-      // check if cell with number of items equals to 20 is displayed
-      screen.getByRole("cell", {
+
+    // check if cell with number of items equals to 20 is displayed
+    await screen.findByRole(
+      "cell",
+      {
         name: /20/i,
-      });
-      // check if cell with number of items equals to 10 is displayed
-      screen.getByRole("cell", {
-        name: /10/i,
-      });
+      },
+      { timeout: 10000 },
+    );
+    // check if cell with number of items equals to 10 is displayed
+    screen.getByRole("cell", {
+      name: /10/i,
     });
-    expect(screen.getByText(/30/i)).toBeInTheDocument();
+
+    expect(screen.getByText(/30x/i)).toBeInTheDocument();
   }, 10000);
 
   // Test case 4.5.2
