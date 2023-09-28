@@ -178,7 +178,7 @@ def _clone_products(*, source_base_id, target_base_id):
 
     source_base_products = list(
         Product.select(*[getattr(Product, column) for column in PRODUCT_COLUMN_NAMES])
-        .where((Product.base == source_base_id) & (Product.deleted.is_null()))
+        .where((Product.base == source_base_id) & (Product.deleted_on.is_null()))
         .dicts()
     )
     for product in source_base_products:

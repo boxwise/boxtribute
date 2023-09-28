@@ -216,7 +216,7 @@ See the [LICENSE file](./LICENSE.md) for license rights and limitations (Apache 
 
 ## Sponsors
 
-This project is funded by the German Federal Ministry of Education and Research (BMBF). Read more here (German only):
+This project was funded 3x by the German Federal Ministry of Education and Research (BMBF) via the [Prototype Fund](https://prototypefund.de/). Read more here (German only):
 
 - [API für Datenbankzugriff und optimerten Austausch von Hilfsgütern](https://prototypefund.de/project/boxtribute-api-fuer-datenbankzugriff-und-optimierten-austausch-von-hilfsguetern/)
 - [Erweiterung zur Unterstützung von Transient Refugees](https://prototypefund.de/project/erweiterung-von-boxtribute-zur-unterstuetzung-von-transient-refugees/)
