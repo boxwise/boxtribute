@@ -10,6 +10,7 @@ export const product1 = {
     __typename: "ProductCategory",
   },
   sizeRange: sizeRange1,
+  deletedOn: null,
   __typename: "Product",
 };
 
@@ -17,6 +18,7 @@ export const productBasic1 = {
   id: "1",
   name: "Snow trousers",
   gender: ProductGender.Boy,
+  deletedOn: null,
   __typename: "Product",
 };
 
@@ -29,6 +31,7 @@ export const product3 = {
     __typename: "ProductCategory",
   },
   sizeRange: sizeRange2,
+  deletedOn: null,
   __typename: "Product",
 };
 
@@ -43,6 +46,7 @@ export const products = [
       __typename: "ProductCategory",
     },
     sizeRange: sizeRange2,
+    deletedOn: null,
     __typename: "Product",
   },
 ];
