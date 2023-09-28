@@ -59,7 +59,6 @@ export default function TopProductsPieChart() {
     .innerJoin(products, "productId", "id");
 
   const productCount = createdBoxes.sumColumn("itemsCount");
-  console.log(createdBoxes);
 
   createdBoxes = createdBoxes.limit(5);
 

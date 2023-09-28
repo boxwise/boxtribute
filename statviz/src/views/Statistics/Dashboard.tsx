@@ -12,6 +12,7 @@ import {
 import BoxView from "./BoxView";
 import DemographicView from "./DemographicView";
 import TopProductsPieChart from "./components/TopProductsPieChart";
+import ProductFlowSankeyChart from "./components/ProductFlowSankeyChart";
 
 export default function Dashboard() {
   return (
@@ -38,9 +39,7 @@ export default function Dashboard() {
                 <TopProductsPieChart />
               </GridItem>
               <GridItem>
-                <Heading size="md" style={{ marginBottom: "50px" }}>
-                  (WIP) Sankey Product Flow
-                </Heading>
+                <ProductFlowSankeyChart />
               </GridItem>
             </Grid>
           </AccordionPanel>
