@@ -4,6 +4,7 @@ from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType
+from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
@@ -47,6 +48,20 @@ def _generate_dimensions(*names, facts):
         dimensions["size"] = (
             Size.select(Size.id, Size.label.alias("name"))
             .where(Size.id << size_ids)
+            .dicts()
+        )
+
+    if "base" in names:
+        base_ids = {f["base_id"] for f in facts}
+        dimensions["base"] = (
+            Base.select(Base.id, Base.name).where(Base.id << base_ids).dicts()
+        )
+
+    if "location" in names:
+        location_ids = {f["location_id"] for f in facts}
+        dimensions["location"] = (
+            Location.select(Location.id, Location.name)
+            .where(Location.id << location_ids)
             .dicts()
         )
 
@@ -209,4 +224,54 @@ def compute_top_products_donated(base_id):
         row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_moved_boxes(base_id):
+    """Count all boxes moved to locations in the given base, grouped by date of
+    movement, location, base, product category, and box state.
+    """
+    # TODO: use more precise query with box versions
+    selection = (
+        DbChangeHistory.select(
+            fn.MAX(DbChangeHistory.change_date).alias("moved_on"),
+            Box.location.alias("location_id"),
+            Box.state.alias("box_state"),
+            Location.base.alias("base_id"),
+            Product.category.alias("category_id"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+        )
+        .join(
+            Box,
+            on=(
+                (DbChangeHistory.record_id == Box.id)
+                & (DbChangeHistory.table_name == Box._meta.table_name)
+                & (
+                    DbChangeHistory.changes
+                    << [Box.location.column_name, Box.state.column_name]
+                )
+            ),
+        )
+        .join(
+            Product,
+            on=((Box.product == Product.id) & (Product.base == base_id)),
+        )
+        .join(
+            Location,
+            src=Box,
+            on=((Box.location == Location.id) & (Location.base == base_id)),
+        )
+    )
+    facts = selection.group_by(
+        SQL("box_state"),
+        SQL("location_id"),
+        SQL("base_id"),
+        SQL("category_id"),
+    ).dicts()
+
+    # Conversions for GraphQL interface
+    for row in facts:
+        row["moved_on"] = row["moved_on"].date()
+
+    dimensions = _generate_dimensions("category", "base", "location", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
