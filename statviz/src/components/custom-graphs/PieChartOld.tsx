@@ -21,7 +21,7 @@ export interface IPieChart {
   };
 }
 
-export default function PieChart(chart: IPieChart) {
+export default function PieChartOld(chart: IPieChart) {
   const fields = { ...chart.fields };
 
   const {

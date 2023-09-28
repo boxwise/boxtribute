@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import DemographicView from "./views/Statistics/DemographicView";
 import BoxView from "./views/Statistics/BoxView";
 import ProductRankView from "./views/Statistics/ProductRankView";
+import Dashboard from "./views/Statistics/Dashboard";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Route path="demographic" element={<DemographicView />} />
       <Route path="boxes" element={<BoxView />} />
       <Route path="product-rank" element={<ProductRankView />} />
+      <Route path="dashboard" element={<Dashboard />} />
     </Routes>
   );
 }

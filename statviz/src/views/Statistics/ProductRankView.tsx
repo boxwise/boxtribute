@@ -1,4 +1,4 @@
-import PieChart from "../../components/graphs/PieChart";
+import PieChart from "../../components/custom-graphs/PieChartOld";
 
 export default function ProductRankView() {
   const chart = {
@@ -13,5 +13,5 @@ export default function ProductRankView() {
     background: "#ffffff",
   };
 
-  return <PieChart fields={chart} />;
+  return <Pie fields={chart} />;
 }
