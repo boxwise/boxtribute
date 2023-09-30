@@ -8,7 +8,8 @@ import {
   QueryCreatedBoxesArgs,
 } from "../../../types/generated/graphql";
 import BarChart from "../../../components/nivo-graphs/BarChart";
-import { Sort, table } from "../../../utils/table";
+import { table } from "../../../utils/table";
+import { useMemo } from "react";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -41,6 +42,18 @@ export default function CreatedBoxesBarChart() {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: 1 } });
 
+  const getChartData = () => {
+    if (data === undefined) return [];
+
+    const createdBoxesPerDay = table(
+      data.createdBoxes.facts as CreatedBoxesResult[]
+    ).groupBySum("createdOn", ["boxesCount"]);
+
+    return createdBoxesPerDay.data;
+  };
+
+  const createdBoxesPerDay = useMemo(getChartData, [data]);
+
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;
   }
@@ -48,15 +61,11 @@ export default function CreatedBoxesBarChart() {
     return <p>loading...</p>;
   }
 
-  let f = table(data.createdBoxes.facts as CreatedBoxesResult[]);
-
-  f = f.groupBySum("createdOn", ["boxesCount"]);
-
   return (
     <div>
       <Heading size="md">Created Boxes</Heading>
       <BarChart
-        data={f.data}
+        data={createdBoxesPerDay}
         indexBy="createdOn"
         keys={["boxesCount"]}
         width="900px"

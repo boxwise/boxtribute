@@ -9,6 +9,7 @@ import {
 import { ApolloError, useQuery, gql } from "@apollo/client";
 import { Heading } from "@chakra-ui/react";
 import { round } from "lodash";
+import { useMemo } from "react";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -41,6 +42,36 @@ export default function TopProductsPieChart() {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: 1 } });
 
+  const getChartData = () => {
+    if (data === undefined) {
+      return [];
+    }
+    const createdBoxes = table(data.createdBoxes.facts as CreatedBoxesResult[]);
+    const products = table(
+      data.createdBoxes.dimensions.product as ProductDimensionInfo
+    );
+
+    const productCount = createdBoxes.sumColumn("itemsCount");
+
+    const top5Products = createdBoxes
+      .groupBySum("productId", ["itemsCount", "boxesCount"])
+      .orderBy("itemsCount", Sort.desc)
+      .innerJoin(products, "productId", "id")
+      .limit(5);
+
+    return top5Products.data.map((row) => {
+      let percent: number = (row.itemsCount * 100) / productCount;
+      percent = round(percent, 2);
+      return {
+        id: row.name,
+        value: row.itemsCount,
+        label: `${row.itemsCount} (${percent}%)`,
+      };
+    });
+  };
+
+  const chartData = useMemo(getChartData, [data]);
+
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;
   }
@@ -48,35 +79,10 @@ export default function TopProductsPieChart() {
     return <p>loading...</p>;
   }
 
-  let createdBoxes = table(data.createdBoxes.facts as CreatedBoxesResult[]);
-  const products = table(
-    data.createdBoxes.dimensions.product as ProductDimensionInfo
-  );
-
-  createdBoxes = createdBoxes
-    .groupBySum("productId", ["itemsCount", "boxesCount"])
-    .orderBy("itemsCount", Sort.desc)
-    .innerJoin(products, "productId", "id");
-
-  const productCount = createdBoxes.sumColumn("itemsCount");
-  console.log(createdBoxes);
-
-  createdBoxes = createdBoxes.limit(5);
-
-  const chart = createdBoxes.data.map((row) => {
-    let percent: number = (row.itemsCount * 100) / productCount;
-    percent = round(percent, 2);
-    return {
-      id: row.name,
-      value: row.itemsCount,
-      label: `${row.itemsCount} (${percent}%)`,
-    };
-  });
-
   return (
     <div>
       <Heading size="md">Top Products</Heading>
-      <PieChart data={chart} width="500px" height="400px" />
+      <PieChart data={chartData} width="500px" height="400px" />
     </div>
   );
 }
