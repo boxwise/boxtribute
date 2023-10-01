@@ -100,18 +100,14 @@ A box can be moved in various ways:
 """
 type MovedBoxesResult {
   movedOn: Date!
-  boxState: BoxState!
-  locationId: Int
-  baseId: Int
+  targetId: ID!
   categoryId: Int!
   boxesCount: Int!
 }
 
 type MovedBoxDataDimensions {
   category: [DimensionInfo]
-  tag: [TagDimensionInfo]
-  location: [DimensionInfo]
-  base: [DimensionInfo]
+  target: [TargetDimensionInfo]
 }
 
 interface BasicDimensionInfo {
@@ -135,4 +131,15 @@ type ProductDimensionInfo implements BasicDimensionInfo {
   id: ID
   name: String
   gender: ProductGender
+}
+
+type TargetDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  type: TargetType
+}
+
+enum TargetType {
+  Shipment
+  OutgoingLocation
 }

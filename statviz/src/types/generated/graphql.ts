@@ -128,10 +128,8 @@ export enum Language {
 
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
-  base?: Maybe<Array<Maybe<DimensionInfo>>>;
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
-  location?: Maybe<Array<Maybe<DimensionInfo>>>;
-  tag?: Maybe<Array<Maybe<TagDimensionInfo>>>;
+  target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
 };
 
 export type MovedBoxesData = DataCube & {
@@ -150,12 +148,10 @@ export type MovedBoxesData = DataCube & {
  */
 export type MovedBoxesResult = {
   __typename?: 'MovedBoxesResult';
-  baseId?: Maybe<Scalars['Int']['output']>;
-  boxState: BoxState;
   boxesCount: Scalars['Int']['output'];
   categoryId: Scalars['Int']['output'];
-  locationId?: Maybe<Scalars['Int']['output']>;
   movedOn: Scalars['Date']['output'];
+  targetId: Scalars['ID']['output'];
 };
 
 export enum PackingListEntryState {
@@ -249,6 +245,18 @@ export enum TagType {
 export enum TaggableResourceType {
   Beneficiary = 'Beneficiary',
   Box = 'Box'
+}
+
+export type TargetDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'TargetDimensionInfo';
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<TargetType>;
+};
+
+export enum TargetType {
+  OutgoingLocation = 'OutgoingLocation',
+  Shipment = 'Shipment'
 }
 
 export type TopProductsCheckedOutData = DataCube & {

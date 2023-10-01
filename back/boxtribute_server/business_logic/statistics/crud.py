@@ -3,7 +3,7 @@ from datetime import date
 from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import BoxState, HumanGender, TaggableObjectType
+from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -51,19 +51,13 @@ def _generate_dimensions(*names, facts):
             .dicts()
         )
 
-    if "base" in names:
-        base_ids = {f["base_id"] for f in facts}
-        dimensions["base"] = (
-            Base.select(Base.id, Base.name).where(Base.id << base_ids).dicts()
-        )
-
-    if "location" in names:
-        location_ids = {f["location_id"] for f in facts}
-        dimensions["location"] = (
-            Location.select(Location.id, Location.name)
-            .where(Location.id << location_ids)
-            .dicts()
-        )
+    if "target" in names:
+        target_ids = {f["target_id"] for f in facts}
+        # Target ID and name are identical for now
+        dimensions["target"] = [
+            {"id": i, "name": i, "type": TargetType.OutgoingLocation}
+            for i in target_ids
+        ]
 
     return dimensions
 
@@ -223,17 +217,19 @@ def compute_top_products_donated(base_id):
     return {"facts": facts, "dimensions": dimensions}
 
 
+TARGET_ID_SEPARATOR = "---"
+
+
 def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, location, base, product category, and box state.
     """
     # TODO: use more precise query with box versions
+    # This selects only information of boxes moved from InStock to Donated state
     selection = (
         DbChangeHistory.select(
             fn.MAX(DbChangeHistory.change_date).alias("moved_on"),
-            Box.location.alias("location_id"),
-            Box.state.alias("box_state"),
-            Location.base.alias("base_id"),
+            fn.CONCAT(Base.name, TARGET_ID_SEPARATOR, Location.name).alias("target_id"),
             Product.category.alias("category_id"),
             fn.COUNT(Box.id).alias("boxes_count"),
         )
@@ -242,10 +238,9 @@ def compute_moved_boxes(base_id):
             on=(
                 (DbChangeHistory.record_id == Box.id)
                 & (DbChangeHistory.table_name == Box._meta.table_name)
-                & (
-                    DbChangeHistory.changes
-                    << [Box.location.column_name, Box.state.column_name]
-                )
+                & (DbChangeHistory.changes == Box.state.column_name)
+                & (DbChangeHistory.from_int == BoxState.InStock)
+                & (DbChangeHistory.to_int == BoxState.Donated)
             ),
         )
         .join(
@@ -257,11 +252,10 @@ def compute_moved_boxes(base_id):
             src=Box,
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
+        .join(Base)
     )
     facts = selection.group_by(
-        SQL("box_state"),
-        SQL("location_id"),
-        SQL("base_id"),
+        SQL("target_id"),
         SQL("category_id"),
     ).dicts()
 
@@ -269,5 +263,5 @@ def compute_moved_boxes(base_id):
     for row in facts:
         row["moved_on"] = row["moved_on"].date()
 
-    dimensions = _generate_dimensions("category", "base", "location", facts=facts)
+    dimensions = _generate_dimensions("category", "target", facts=facts)
     return {"facts": facts, "dimensions": dimensions}

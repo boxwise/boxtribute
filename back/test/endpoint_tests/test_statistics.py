@@ -1,4 +1,5 @@
-from boxtribute_server.enums import ProductGender
+from boxtribute_server.business_logic.statistics.crud import TARGET_ID_SEPARATOR
+from boxtribute_server.enums import ProductGender, TargetType
 from utils import assert_successful_request
 
 
@@ -144,35 +145,27 @@ def test_query_top_products(
 
 def test_query_moved_boxes(read_only_client, default_location, default_base):
     query = """query { movedBoxes(baseId: 1) {
-        facts { movedOn boxState locationId baseId categoryId boxesCount }
-        dimensions {
-            location { id name }
-            base { id name }
-        } } }"""
+        facts { movedOn targetId categoryId boxesCount }
+        dimensions { target { id name type } }
+        } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
+    target_id = f"{default_base['name']}{TARGET_ID_SEPARATOR}{default_location['name']}"
     assert data == {
         "facts": [
             {
-                "baseId": 1,
-                "boxState": "MarkedForShipment",
-                "boxesCount": 1,
-                "categoryId": 1,
-                "locationId": 1,
-                "movedOn": "2023-06-21",
-            },
-            {
-                "baseId": 1,
-                "boxState": "Donated",
                 "boxesCount": 3,
                 "categoryId": 1,
-                "locationId": 1,
+                "targetId": target_id,
                 "movedOn": "2022-12-05",
             },
         ],
         "dimensions": {
-            "location": [
-                {"id": str(default_location["id"]), "name": default_location["name"]}
+            "target": [
+                {
+                    "id": target_id,
+                    "name": target_id,
+                    "type": TargetType.OutgoingLocation.name,
+                }
             ],
-            "base": [{"id": str(default_base["id"]), "name": default_base["name"]}],
         },
     }
