@@ -1,12 +1,15 @@
+from datetime import date
+
 from boxtribute_server.enums import ProductGender, TargetType
 from utils import assert_successful_request
 
 
-def test_query_beneficiary_demographics(read_only_client, tags):
+def test_query_beneficiary_demographics(read_only_client, tags, default_beneficiary):
     query = """query { beneficiaryDemographics(baseIds: [1]) {
         facts { gender age createdOn count tagIds }
         dimensions { tag { id name color } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
+    age = date.today().year - default_beneficiary["date_of_birth"].year
     assert response["facts"] == [
         {
             "age": None,
@@ -16,7 +19,7 @@ def test_query_beneficiary_demographics(read_only_client, tags):
             "tagIds": [],
         },
         {
-            "age": 5,
+            "age": age,
             "count": 1,
             "createdOn": "2020-06-30",
             "gender": "Male",
