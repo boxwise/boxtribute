@@ -9,13 +9,6 @@ def test_query_beneficiary_demographics(read_only_client, tags):
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert response["facts"] == [
         {
-            "age": None,
-            "count": 1,
-            "createdOn": "2022-01-30",
-            "gender": "Female",
-            "tagIds": [],
-        },
-        {
             "age": 5,
             "count": 1,
             "createdOn": "2020-06-30",
@@ -33,7 +26,7 @@ def test_query_beneficiary_demographics(read_only_client, tags):
     query = """query { beneficiaryDemographics {
         facts { gender age createdOn count tagIds } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert len(response["facts"]) == 3
+    assert len(response["facts"]) == 1
 
 
 def test_query_created_boxes(read_only_client, products, product_categories):

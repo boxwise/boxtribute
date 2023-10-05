@@ -65,7 +65,7 @@ def compute_beneficiary_demographics(base_ids=None):
     age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
-    conditions = [Beneficiary.deleted.is_null()]
+    conditions = [Beneficiary.deleted.is_null(), Beneficiary.date_of_birth > 0]
     if base_ids is not None:
         conditions.append(Beneficiary.base << base_ids)
 
