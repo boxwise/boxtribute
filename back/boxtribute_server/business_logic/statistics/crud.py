@@ -222,10 +222,12 @@ TARGET_ID_SEPARATOR = "---"
 
 def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
-    movement, location, base, product category, and box state.
+    movement, product category, and box state.
     """
-    # TODO: use more precise query with box versions
-    # This selects only information of boxes moved from InStock to Donated state
+    # This selects only information of boxes that were moved from InStock to Donated
+    # state, and are now in the base of given base ID. It is NOT taken into account that
+    # boxes can be moved back from Donated to InStock, nor that the product or other
+    # attributes of the box change after having been donated
     selection = (
         DbChangeHistory.select(
             fn.MAX(DbChangeHistory.change_date).alias("moved_on"),
