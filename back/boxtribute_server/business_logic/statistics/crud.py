@@ -59,10 +59,11 @@ def compute_beneficiary_demographics(base_ids=None):
     results as list.
     The 'age' dimensions actually represents a range of ages (e.g. 0-5, 5-10, etc.)
     """
-    bin_width = 5
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
-    age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
+    # Age calculation is an approximation (if the current time is June, anyone born in a
+    # later month will have an age a year older than they actually are)
+    age = date.today().year - Beneficiary.date_of_birth.year
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null(), Beneficiary.date_of_birth > 0]
