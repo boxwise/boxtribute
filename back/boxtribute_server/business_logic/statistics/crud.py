@@ -101,7 +101,8 @@ def compute_beneficiary_demographics(base_ids=None):
     # Conversions for GraphQL interface
     for row in demographics:
         row["gender"] = HumanGender(row["gender"])
-        row["created_on"] = row["created_on"].date()
+        if row["created_on"] is not None:
+            row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
