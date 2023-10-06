@@ -5,8 +5,11 @@ from flask import g
 from peewee import Model
 
 from .auth import CurrentUser
+from .enums import BoxState
 from .exceptions import Forbidden
 from .models.definitions.base import Base
+from .models.definitions.shipment import Shipment
+from .models.definitions.shipment_detail import ShipmentDetail
 from .utils import (
     convert_pascal_to_snake_case,
     in_ci_environment,
@@ -144,6 +147,30 @@ def authorize_for_organisation_bases() -> None:
     enforcement.
     """
     _authorize(permission="base:read", ignore_missing_base_info=True)
+
+
+def authorize_for_reading_box(box) -> None:
+    """Authorize current user for accessing the given box.
+    For a box in InTransit, Receiving, or NotDelivered state, users of both source and
+    target base of the underlying shipment are allowed to view it.
+    Otherwise the user must be permitted to access the base of the box location.
+    """
+    if box.state_id in [BoxState.InTransit, BoxState.Receiving, BoxState.NotDelivered]:
+        detail = (
+            ShipmentDetail.select(Shipment)
+            .join(Shipment)
+            .where(
+                ShipmentDetail.box_id == box.id,
+                ShipmentDetail.removed_on.is_null(),
+                ShipmentDetail.received_on.is_null(),
+            )
+        ).get()
+        authz_kwargs = {
+            "base_ids": [detail.shipment.source_base_id, detail.shipment.target_base_id]
+        }
+    else:
+        authz_kwargs = {"base_id": box.location.base_id}
+    authorize(permission="stock:read", **authz_kwargs)
 
 
 ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
