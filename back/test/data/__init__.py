@@ -55,7 +55,13 @@ from .product import (
 )
 from .product_category import default_product_category, product_categories
 from .product_gender import default_product_gender
-from .qr_code import another_qr_code_with_box, default_qr_code, qr_code_without_box
+from .qr_code import (
+    another_qr_code_with_box,
+    default_qr_code,
+    qr_code_for_in_transit_box,
+    qr_code_for_not_delivered_box,
+    qr_code_without_box,
+)
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -151,6 +157,8 @@ __all__ = [
     "prepared_shipment_detail",
     "product_categories",
     "products",
+    "qr_code_for_in_transit_box",
+    "qr_code_for_not_delivered_box",
     "qr_code_without_box",
     "receiving_shipment",
     "receiving_transfer_agreement",
