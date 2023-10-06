@@ -6,7 +6,6 @@ import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
 import { CaptureConsole } from "@sentry/integrations";
 import App from "./App";
 import { theme } from "./utils/theme";
@@ -29,7 +28,7 @@ if (sentryDsn) {
       new CaptureConsole({
         levels: ["error"],
       }),
-      new BrowserTracing(),
+      new Sentry.BrowserTracing(),
     ],
     tracesSampleRate: parseFloat(process.env.REACT_APP_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
     environment: process.env.REACT_APP_SENTRY_ENVIRONMENT,
