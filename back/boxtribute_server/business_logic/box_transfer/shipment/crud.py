@@ -594,8 +594,22 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
                 fields=[Box.state],
             )
         )
+
     with db.database.atomic():
-        DbChangeHistory.bulk_create(history_entries)
+        shipment.save()
+
+        if details:
+            Box.bulk_update([d.box for d in details], [Box.state])
+            ShipmentDetail.bulk_update(
+                details,
+                [
+                    ShipmentDetail.lost_on,
+                    ShipmentDetail.lost_by,
+                    ShipmentDetail.removed_on,
+                    ShipmentDetail.removed_by,
+                ],
+            )
+            DbChangeHistory.bulk_create(history_entries)
 
     if shipment.state != ShipmentState.Completed:
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
@@ -622,14 +636,6 @@ def _move_not_delivered_box_instock_in_target_base(shipment, details):
         detail.lost_by = None
         detail.box.state = BoxState.Receiving
 
-    with db.database.atomic():
-        if details:
-            Box.bulk_update([d.box for d in details], [Box.state])
-            ShipmentDetail.bulk_update(
-                details, [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
-            )
-        shipment.save()
-
 
 def _move_not_delivered_box_instock_in_source_base(user_id, details):
     """Relevant in the following scenario:
@@ -649,16 +655,3 @@ def _move_not_delivered_box_instock_in_source_base(user_id, details):
         detail.lost_on = None
         detail.lost_by = None
         detail.box.state = BoxState.InStock
-
-    with db.database.atomic():
-        if details:
-            Box.bulk_update([d.box for d in details], [Box.state])
-            ShipmentDetail.bulk_update(
-                details,
-                [
-                    ShipmentDetail.lost_on,
-                    ShipmentDetail.lost_by,
-                    ShipmentDetail.removed_on,
-                    ShipmentDetail.removed_by,
-                ],
-            )
