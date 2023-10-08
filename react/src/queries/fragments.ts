@@ -370,6 +370,7 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
   ${SHIPMENT_DETAIL_FIELDS_FRAGMENT}
   fragment ShipmentFields on Shipment {
     id
+    labelIdentifier
     state
     details {
       ...ShipmentDetailFields
