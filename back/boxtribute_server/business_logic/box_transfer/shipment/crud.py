@@ -552,6 +552,15 @@ def mark_shipment_as_lost(*, id, user):
 
 
 def move_not_delivered_boxes_in_stock(*, box_ids, user):
+    """Move boxes that were accidentally marked as NotDelivered back to InStock.
+    First find all shipment details corresponding to the box IDs. Any boxes in state
+    other than NotDelivered are silently filtered out.
+    It is assumed that all given boxes belong to the same shipment.
+    If the current user does not have permission to access the shipment's source or
+    target base, raise a Forbidden error.
+    The result depends on whether the user is part of the shipment source or target
+    base.
+    """
     details = (
         ShipmentDetail.select(ShipmentDetail, Box, Shipment)
         .join(Box)
@@ -562,9 +571,6 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
             Box.state == BoxState.NotDelivered,
         )
     )
-    # FE validation already? Throw bad-user-input?
-    shipment_ids = {d.shipment_id for d in details}
-    assert len(shipment_ids) == 1
 
     shipment = details[0].shipment
     authorize(
@@ -585,6 +591,15 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
 
 
 def _move_not_delivered_box_instock_in_target_base(shipment, details):
+    """Relevant in the following scenario:
+    - the target side is in the process of receiving a shipment
+    - person A takes a box from the shipment without using the reconciliation procedure
+    - person B reconciles the shipment and since they can't find the box in the
+      shipment, they mark it as NotDelivered. The shipment might become Completed
+    - later the box is found in the warehouse
+    - with the mutation, they can change the box state and shipment state back to
+      Receiving, and reconcile the box as intended
+    """
     shipment.state = ShipmentState.Receiving
     shipment.completed_on = None
     shipment.completed_by = None
@@ -604,6 +619,17 @@ def _move_not_delivered_box_instock_in_target_base(shipment, details):
 
 
 def _move_not_delivered_box_instock_in_source_base(user_id, details):
+    """Relevant in the following scenario:
+    - the source side had physically removed a box from the shipment before sending,
+      without digitally removing it
+    - the target side marks the box as NotDelivered when receiving since it's not part
+      of the shipment
+    - the target side might have completed the shipment (or it's still in Receiving
+      state)
+    - now the source side finds the previous box in their stock (state NotDelivered)
+    - with the mutation, they can change the box state to InStock, and update the
+      corresponding shipment detail.
+    """
     for detail in details:
         detail.removed_on = utcnow()
         detail.removed_by = user_id
