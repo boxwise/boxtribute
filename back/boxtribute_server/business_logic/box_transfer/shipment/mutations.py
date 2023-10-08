@@ -77,5 +77,5 @@ def resolve_mark_shipment_as_lost(*_, id):
 
 @mutation.field("moveNotDeliveredBoxesInStock")
 def resolve_move_not_delivered_boxes_in_stock(*_, box_ids):
-    # authorize
+    # Authorization is complex and hence takes place in the inner function
     return move_not_delivered_boxes_in_stock(box_ids=box_ids, user=g.user)

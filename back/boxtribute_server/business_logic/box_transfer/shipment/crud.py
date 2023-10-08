@@ -1,3 +1,4 @@
+from ....authz import authorize
 from ....db import db
 from ....enums import (
     BoxState,
@@ -566,7 +567,11 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
     assert len(shipment_ids) == 1
 
     shipment = details[0].shipment
-    # authz must take place in resolver already
+    authorize(
+        permission="shipment:edit",
+        base_ids=[shipment.source_base_id, shipment.target_base_id],
+    )
+
     authorized_base_ids_of_user = user.authorized_base_ids("shipment:edit")
     if shipment.source_base_id in authorized_base_ids_of_user:
         _move_not_delivered_box_instock_in_source_base(user.id, details)

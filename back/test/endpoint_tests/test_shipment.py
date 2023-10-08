@@ -1447,3 +1447,14 @@ def test_move_not_delivered_box_instock_in_target_base(
             },
         ],
     }
+
+
+def test_move_not_delivered_box_as_member_of_neither_org(
+    read_only_client,
+    mocker,
+    not_delivered_box,
+):
+    mock_user_for_request(mocker, base_ids=[4], organisation_id=2, user_id=3)
+    box_id = str(not_delivered_box["id"])
+    mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
+    assert_forbidden_request(read_only_client, mutation)
