@@ -584,6 +584,19 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
     elif shipment.target_base_id in authorized_base_ids_of_user:
         _move_not_delivered_box_instock_in_target_base(shipment, details)
 
+    history_entries = []
+    for detail in details:
+        history_entries.extend(
+            create_history_entries(
+                # Create a dummy box object as old resource (won't be saved)
+                old_resource=Box(state=BoxState.NotDelivered),
+                new_resource=detail.box,
+                fields=[Box.state],
+            )
+        )
+    with db.database.atomic():
+        DbChangeHistory.bulk_create(history_entries)
+
     if shipment.state != ShipmentState.Completed:
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
 

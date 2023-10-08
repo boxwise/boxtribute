@@ -1372,6 +1372,17 @@ def test_move_not_delivered_box_instock_in_source_base(
         ],
     }
 
+    label_identifier = not_delivered_box["label_identifier"]
+    query = f"""query {{ box(labelIdentifier: "{label_identifier}") {{
+            history {{ changes }} }} }}"""
+    box = assert_successful_request(client, query)
+    assert box == {
+        "history": [
+            {"changes": f"{change_prefix} NotDelivered to InStock"},
+            {"changes": "created record"},
+        ]
+    }
+
 
 def test_move_not_delivered_box_instock_in_target_base(
     client,
