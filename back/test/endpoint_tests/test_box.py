@@ -57,7 +57,12 @@ def test_box_query_by_label_identifier(
                 "id": str(tags[1]["id"]),
                 "name": tags[1]["name"],
                 "color": tags[1]["color"],
-            }
+            },
+            {
+                "id": str(tags[2]["id"]),
+                "name": tags[2]["name"],
+                "color": tags[2]["color"],
+            },
         ],
         "shipmentDetail": None,
     }

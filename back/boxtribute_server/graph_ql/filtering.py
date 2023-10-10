@@ -104,7 +104,7 @@ def derive_box_filter(filter_input, selection=None):
                 & (TagsRelation.object_id == Box.id)
                 & (TagsRelation.tag << tag_ids)
             ),
-        )
+        ).distinct()
 
     if join_with_product_required:
         selection = selection.join(Product, src=Box)
