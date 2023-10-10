@@ -15,6 +15,7 @@ type Query {
   " Return all [`Users`]({{Types.User}}) that the client is authorized to view. "
   users: [User!]!
   box(labelIdentifier: String!): Box
+  boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
   location(id: ID!): ClassicLocation

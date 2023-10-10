@@ -84,6 +84,28 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
+def test_boxes_query(read_only_client, default_location_boxes):
+    base_id = 1
+    query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": len(default_location_boxes)}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{productGender: Men}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 0}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2]}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 1}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2, 3]}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 2}
+
+
 def test_box_mutations(
     client,
     qr_code_without_box,
@@ -424,6 +446,10 @@ def _format(parameter):
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
         [[{"productGender": "Women"}], 10],
         [[{"productGender": "Men"}], 0],
+        [[{"productId": "1"}], 9],
+        [[{"productId": "2"}], 0],
+        [[{"sizeId": "1"}], 9],
+        [[{"sizeId": "2"}], 1],
         [[{"productCategoryId": "1"}], 10],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
