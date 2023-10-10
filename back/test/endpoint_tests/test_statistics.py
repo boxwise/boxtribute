@@ -1,4 +1,3 @@
-from boxtribute_server.business_logic.statistics.crud import TARGET_ID_SEPARATOR
 from boxtribute_server.enums import ProductGender, TargetType
 from utils import assert_successful_request
 
@@ -143,13 +142,13 @@ def test_query_top_products(
     }
 
 
-def test_query_moved_boxes(read_only_client, default_location, default_base):
+def test_query_moved_boxes(read_only_client, default_location):
     query = """query { movedBoxes(baseId: 1) {
         facts { movedOn targetId categoryId boxesCount }
         dimensions { target { id name type } }
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
-    target_id = f"{default_base['name']}{TARGET_ID_SEPARATOR}{default_location['name']}"
+    target_id = default_location["name"]
     assert data == {
         "facts": [
             {

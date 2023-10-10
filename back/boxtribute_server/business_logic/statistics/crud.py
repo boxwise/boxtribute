@@ -4,7 +4,6 @@ from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
-from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
@@ -217,9 +216,6 @@ def compute_top_products_donated(base_id):
     return {"facts": facts, "dimensions": dimensions}
 
 
-TARGET_ID_SEPARATOR = "---"
-
-
 def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, product category, and box state.
@@ -231,7 +227,7 @@ def compute_moved_boxes(base_id):
     selection = (
         DbChangeHistory.select(
             fn.MAX(DbChangeHistory.change_date).alias("moved_on"),
-            fn.CONCAT(Base.name, TARGET_ID_SEPARATOR, Location.name).alias("target_id"),
+            Location.name.alias("target_id"),
             Product.category.alias("category_id"),
             fn.COUNT(Box.id).alias("boxes_count"),
         )
@@ -254,7 +250,6 @@ def compute_moved_boxes(base_id):
             src=Box,
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
-        .join(Base)
     )
     facts = selection.group_by(
         SQL("target_id"),
