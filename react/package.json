@@ -18,7 +18,7 @@
     "@sentry/integrations": "^7.72.0",
     "@sentry/react": "^7.72.0",
     "@zxing/browser": "^0.1.1",
-    "@zxing/library": "^0.19.1",
+    "@zxing/library": "^0.20.0",
     "chakra-react-select": "^4.4.3",
     "date-fns": "^2.29.3",
     "framer-motion": "^6.3.10",
