@@ -13,7 +13,7 @@ export enum ShipmentActionEvent {
   ShipmentCompleted = "Shipment Completed",
   BoxAdded = "Box Added",
   BoxRemoved = "Box Removed",
-  BoxLost = "Box Marked Lost",
+  BoxLost = "Box Marked Not Delivered",
   BoxReceived = "Box Received",
 }
 
