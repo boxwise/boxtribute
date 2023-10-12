@@ -221,7 +221,7 @@ function ShipmentView() {
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
-  const onSend = handleShipment(sendShipment, "send");
+  const onSend = handleShipment(sendShipment, "send", "Shipment was Sent Successfully");
   const onLost = handleShipment(
     lostShipment,
     "lost",
@@ -377,13 +377,12 @@ function ShipmentView() {
         ShipmentActionEvent.ShipmentStarted,
       ].includes(history.action)
     ) {
-      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${
-        history.createdBy?.name
-      }`;
+      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${history
+        .createdBy?.name}`;
     } else {
-      changes = `Box ${history.box}  is ${history.action.toLowerCase().replace("box", "")} by ${
-        history.createdBy?.name
-      }`;
+      changes = `Box ${history.box}  is ${history.action
+        .toLowerCase()
+        .replace("box", "")} by ${history.createdBy?.name}`;
     }
 
     return changes;

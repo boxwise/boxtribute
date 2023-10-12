@@ -58,7 +58,7 @@ function BoxCard({
 }: IBoxCardProps) {
   const statusColor = (value) => {
     let color;
-    if (value === "Lost" || value === "Scrap") {
+    if (value === "Lost" || value === "Scrap" || value === "NotDelivered") {
       color = "#EB404A";
     } else {
       color = "#0CA789";
@@ -108,6 +108,7 @@ function BoxCard({
         <WrapItem>
           {(BoxState.Lost === boxData?.state ||
             BoxState.Scrap === boxData?.state ||
+            BoxState.NotDelivered === boxData?.state ||
             boxInTransit) && (
             <IconButton
               aria-label="Edit box"
@@ -120,6 +121,7 @@ function BoxCard({
           {!(
             BoxState.Lost === boxData?.state ||
             BoxState.Scrap === boxData?.state ||
+            BoxState.NotDelivered === boxData?.state ||
             boxInTransit
           ) && (
             <NavLink to="edit">
@@ -185,6 +187,7 @@ function BoxCard({
                   disabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
+                    BoxState.NotDelivered === boxData?.state ||
                     boxInTransit
                   }
                   size="sm"
@@ -213,6 +216,7 @@ function BoxCard({
                   disabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
+                    BoxState.NotDelivered === boxData?.state ||
                     boxInTransit
                   }
                   borderRadius="0"
@@ -275,6 +279,7 @@ function BoxCard({
                 id="scrap"
                 isDisabled={
                   boxInTransit ||
+                  boxData?.state === BoxState.NotDelivered ||
                   (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
                 }
                 isReadOnly={isLoading}
@@ -304,6 +309,7 @@ function BoxCard({
                 data-testid="box-lost-btn"
                 isDisabled={
                   boxInTransit ||
+                  boxData?.state === BoxState.NotDelivered ||
                   (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
                 }
                 onChange={() =>

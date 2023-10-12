@@ -204,6 +204,7 @@ export enum BoxState {
   InTransit = 'InTransit',
   Lost = 'Lost',
   MarkedForShipment = 'MarkedForShipment',
+  NotDelivered = 'NotDelivered',
   Receiving = 'Receiving',
   Scrap = 'Scrap'
 }
@@ -391,8 +392,12 @@ export type FilterBoxInput = {
   lastModifiedUntil?: InputMaybe<Scalars['Date']>;
   productCategoryId?: InputMaybe<Scalars['Int']>;
   productGender?: InputMaybe<ProductGender>;
+  productId?: InputMaybe<Scalars['Int']>;
+  sizeId?: InputMaybe<Scalars['Int']>;
   /**  Filter for all boxes that have *one* of the specified states.  */
   states?: InputMaybe<Array<BoxState>>;
+  /**  Filter for all boxes that have *at least one* of the specified tags.  */
+  tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 export type HistoryEntry = {
@@ -517,6 +522,7 @@ export type Mutation = {
   markShipmentAsLost?: Maybe<Shipment>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
+  moveNotDeliveredBoxesInStock?: Maybe<Shipment>;
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
@@ -742,6 +748,16 @@ export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
   productId: Scalars['ID'];
   sizeId: Scalars['ID'];
   targetBoxLabelIdentifier: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationMoveNotDeliveredBoxesInStockArgs = {
+  boxIds: Array<Scalars['String']>;
 };
 
 
@@ -1067,6 +1083,7 @@ export type Query = {
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
   box?: Maybe<Box>;
+  boxes: BoxPage;
   distributionEvent?: Maybe<DistributionEvent>;
   distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
@@ -1126,6 +1143,13 @@ export type QueryBeneficiaryArgs = {
 
 export type QueryBoxArgs = {
   labelIdentifier: Scalars['String'];
+};
+
+
+export type QueryBoxesArgs = {
+  baseId: Scalars['ID'];
+  filterInput?: InputMaybe<FilterBoxInput>;
+  paginationInput?: InputMaybe<PaginationInput>;
 };
 
 

@@ -20,6 +20,14 @@ def data():
             "state": ShipmentState.Preparing,
             "started_by": default_user_data()["id"],
             "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": None,
+            "sent_on": None,
+            "receiving_started_by": None,
+            "receiving_started_on": None,
+            "completed_by": None,
+            "completed_on": None,
         },
         {
             "id": 2,
@@ -29,6 +37,14 @@ def data():
             "state": ShipmentState.Canceled,
             "started_by": default_user_data()["id"],
             "started_on": TIME,
+            "canceled_by": default_user_data()["id"],
+            "canceled_on": TIME,
+            "sent_by": None,
+            "sent_on": None,
+            "receiving_started_by": None,
+            "receiving_started_on": None,
+            "completed_by": None,
+            "completed_on": None,
         },
         {
             "id": 3,
@@ -38,6 +54,14 @@ def data():
             "state": ShipmentState.Preparing,
             "started_by": default_user_data()["id"],
             "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": None,
+            "sent_on": None,
+            "receiving_started_by": None,
+            "receiving_started_on": None,
+            "completed_by": None,
+            "completed_on": None,
         },
         {
             "id": 4,
@@ -47,6 +71,14 @@ def data():
             "state": ShipmentState.Sent,
             "started_by": default_user_data()["id"],
             "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": default_user_data()["id"],
+            "sent_on": TIME,
+            "receiving_started_by": None,
+            "receiving_started_on": None,
+            "completed_by": None,
+            "completed_on": None,
         },
         {
             "id": 5,
@@ -56,6 +88,48 @@ def data():
             "state": ShipmentState.Preparing,
             "started_by": default_user_data()["id"],
             "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": None,
+            "sent_on": None,
+            "receiving_started_by": None,
+            "receiving_started_on": None,
+            "completed_by": None,
+            "completed_on": None,
+        },
+        {
+            "id": 6,
+            "source_base": base_data()[0]["id"],
+            "target_base": base_data()[2]["id"],
+            "transfer_agreement": transfer_agreement_data()[0]["id"],
+            "state": ShipmentState.Receiving,
+            "started_by": default_user_data()["id"],
+            "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": default_user_data()["id"],
+            "sent_on": TIME,
+            "receiving_started_by": default_user_data()["id"],
+            "receiving_started_on": TIME,
+            "completed_by": None,
+            "completed_on": None,
+        },
+        {
+            "id": 7,
+            "source_base": base_data()[0]["id"],
+            "target_base": base_data()[2]["id"],
+            "transfer_agreement": transfer_agreement_data()[0]["id"],
+            "state": ShipmentState.Completed,
+            "started_by": default_user_data()["id"],
+            "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": default_user_data()["id"],
+            "sent_on": TIME,
+            "receiving_started_by": default_user_data()["id"],
+            "receiving_started_on": TIME,
+            "completed_by": default_user_data()["id"],
+            "completed_on": TIME,
         },
     ]
 
@@ -78,6 +152,16 @@ def another_shipment():
 @pytest.fixture
 def sent_shipment():
     return data()[3]
+
+
+@pytest.fixture
+def receiving_shipment():
+    return data()[5]
+
+
+@pytest.fixture
+def completed_shipment():
+    return data()[6]
 
 
 @pytest.fixture

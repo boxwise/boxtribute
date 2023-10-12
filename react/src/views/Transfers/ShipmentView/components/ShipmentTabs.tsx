@@ -1,8 +1,33 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import ShipmentHistory, { IGroupedRecordEntry } from "components/Timeline/TimelineContainer";
 import _ from "lodash";
-import { Box, ShipmentDetail, ShipmentState } from "types/generated/graphql";
+import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
+
+// eslint-disable-next-line no-shadow
+export enum ShipmentActionEvent {
+  ShipmentStarted = "Shipment Started",
+  ShipmentCanceled = "Shipment Canceled",
+  ShipmentSent = "Shipment Sent",
+  ShipmentStartReceiving = "Shipment Being Received",
+  ShipmentCompleted = "Shipment Completed",
+  BoxAdded = "Box Added",
+  BoxRemoved = "Box Removed",
+  BoxLost = "Box Marked Not Delivered",
+  BoxReceived = "Box Received",
+}
+
+export interface IShipmentHistory {
+  box?: string | undefined;
+  action: ShipmentActionEvent;
+  createdOn: Date;
+  createdBy: User;
+}
+
+export interface IGroupedHistoryEntry {
+  date: string;
+  entries: (IShipmentHistory | null | undefined)[];
+}
 
 export interface IShipmentTabsProps {
   shipmentState: ShipmentState | undefined;

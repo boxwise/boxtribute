@@ -434,6 +434,10 @@ input FilterBoxInput {
   lastModifiedUntil: Date
   productGender: ProductGender
   productCategoryId: Int
+  productId: Int
+  sizeId: Int
+  " Filter for all boxes that have *at least one* of the specified tags. "
+  tagIds: [Int!]
 }
 
 """
