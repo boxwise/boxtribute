@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../../../components/custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
@@ -38,10 +37,7 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
     return [dataXr, dataXl];
   };
 
-  const [a, b] = prepareFacts(facts);
-
-  const [dataXr, SetDataXr] = useState(a);
-  const [dataXl, SetDataXl] = useState(b);
+  const [dataXr, dataXl] = prepareFacts(facts);
 
   const maxAge: number = facts.reduce((acc: number, current) => {
     if (current.age > acc) return current.age;
@@ -66,12 +62,6 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
     settings: {
       hideZeroY: false,
     },
-  };
-
-  const onFilterChange = (facts: IDemographicFact[]) => {
-    const [a, b] = prepareFacts(facts);
-    SetDataXr(a);
-    SetDataXl(b);
   };
 
   return (

@@ -1,17 +1,27 @@
 import { Route, Routes } from "react-router-dom";
 import DemographicView from "./views/Statistics/DemographicView";
-import BoxView from "./views/Statistics/BoxView";
-import ProductRankView from "./views/Statistics/TopProductsView";
 import Dashboard from "./views/Statistics/Dashboard";
+import CreatedBoxes from "./views/Statistics/components/CreatedBoxes";
+import TopProducts from "./views/Statistics/components/TopProducts";
 
 function App() {
   return (
     <Routes>
       <Route index />
-      <Route path="demographic" element={<DemographicView />} />
-      <Route path="boxes" element={<BoxView />} />
-      <Route path="product-rank" element={<ProductRankView />} />
-      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="bases">
+        <Route path=":baseId">
+          <Route index element={<Dashboard />} />
+          <Route
+            path="created-boxes"
+            element={<CreatedBoxes width="800px" height="800px" />}
+          />
+          <Route
+            path="product-rank"
+            element={<TopProducts width="800px" height="800px" />}
+          />
+          <Route path="demographic" element={<DemographicView />} />
+        </Route>
+      </Route>
     </Routes>
   );
 }

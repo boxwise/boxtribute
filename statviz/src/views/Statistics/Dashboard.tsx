@@ -5,18 +5,56 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
+  FormLabel,
   Grid,
   GridItem,
+  HStack,
   Heading,
+  Input,
+  Select,
+  SimpleGrid,
+  background,
 } from "@chakra-ui/react";
-import BoxView from "./BoxView";
 import DemographicView from "./DemographicView";
-import TopProductsPieChart from "./components/TopProductsPieChart";
+import TopProductsPieChart from "./components/TopProducts";
+import CreatedBoxesBarChart from "./components/CreatedBoxes";
+import TimeRangeSelect from "./components/filter/TimeRangeSelect";
 
 export default function Dashboard() {
+  const onTimeRangeChange = (from: Date, to: Date) => {
+    console.log("Time range changed:", from, to);
+  };
+
   return (
     <div style={{ width: "80%", margin: "25px auto auto auto" }}>
-      <Heading>Dashboard</Heading>
+      <Heading
+        borderBottom="1px"
+        borderColor="gray.200"
+        style={{ marginBottom: "25px" }}
+      >
+        Dashboard
+      </Heading>
+
+      <HStack spacing="10px" style={{ padding: "20px" }} shadow="md">
+        <Box width="400px">
+          <TimeRangeSelect onChange={onTimeRangeChange} />
+        </Box>
+        <Box width="250px">
+          <FormLabel>Label</FormLabel>
+          <Select>
+            <option>option1</option>
+            <option>option2</option>
+          </Select>
+        </Box>
+        <Box width="250px">
+          <FormLabel>Label</FormLabel>
+          <Select>
+            <option>option1</option>
+            <option>option2</option>
+          </Select>
+        </Box>
+      </HStack>
+
       <Accordion
         defaultIndex={[0, 1]}
         allowMultiple
@@ -30,12 +68,21 @@ export default function Dashboard() {
             <AccordionIcon />
           </AccordionButton>
           <AccordionPanel>
+            <Grid>
+              <GridItem>
+                <FormLabel htmlFor="box-item-select">Display by</FormLabel>
+                <Select name="box-item-select">
+                  <option value="boxes">Boxes</option>
+                  <option value="items">Items</option>
+                </Select>
+              </GridItem>
+            </Grid>
             <Grid templateColumns="repeat(2, 1fr)" gap={6}>
               <GridItem>
-                <BoxView />
+                <CreatedBoxesBarChart width="750px" height="500px" />
               </GridItem>
               <GridItem>
-                <TopProductsPieChart />
+                <TopProductsPieChart width="600px" height="400px" />
               </GridItem>
               <GridItem>
                 <Heading size="md" style={{ marginBottom: "50px" }}>
