@@ -28,6 +28,11 @@ def data():
             "object_type": TaggableObjectType.Box,
             "tag": tag_data()[2]["id"],
         },
+        {
+            "object_id": default_box_data()["id"],
+            "object_type": TaggableObjectType.Box,
+            "tag": tag_data()[2]["id"],
+        },
     ]
 
 

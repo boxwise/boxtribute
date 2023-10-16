@@ -1,6 +1,6 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import _ from "lodash";
-import { Box, BoxState, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
+import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 import ShipmentHistory from "./ShipmentHistory";
 
@@ -13,7 +13,7 @@ export enum ShipmentActionEvent {
   ShipmentCompleted = "Shipment Completed",
   BoxAdded = "Box Added",
   BoxRemoved = "Box Removed",
-  BoxLost = "Box Marked Lost",
+  BoxLost = "Box Marked Not Delivered",
   BoxReceived = "Box Received",
 }
 
@@ -54,7 +54,7 @@ function ShipmentTabs({
         product: group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
         totalBoxes: group.length,
-        totalLosts: group.filter((shipment) => shipment?.box?.state === BoxState.Lost).length,
+        totalLosts: group.filter((shipment) => shipment?.lostOn !== null).length,
         boxes: group.map(
           (shipment) =>
             ({
@@ -65,6 +65,7 @@ function ShipmentTabs({
             } as Box),
         ),
       }))
+      .orderBy((value) => value.totalLosts, "asc")
       .mapKeys(
         (value) =>
           // eslint-disable-next-line max-len

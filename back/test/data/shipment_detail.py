@@ -6,8 +6,10 @@ from .box import (
     another_box_data,
     another_in_transit_box_data,
     another_marked_for_shipment_box_data,
+    another_not_delivered_box_data,
     default_box_data,
     in_transit_box_data,
+    not_delivered_box_data,
 )
 from .shipment import data as shipment_data
 from .user import default_user_data, second_user_data
@@ -21,7 +23,10 @@ def data():
     box_in_another_location = another_box_data()
     in_transit_box = in_transit_box_data()
     another_in_transit_box = another_in_transit_box_data()
+    not_delivered_box = not_delivered_box_data()
+    another_not_delivered_box = another_not_delivered_box_data()
     shippable_box = another_marked_for_shipment_box_data()
+    another_box = another_box_data()
     return [
         {
             "id": 1,
@@ -35,6 +40,10 @@ def data():
             "created_by": default_user_data()["id"],
             "removed_on": None,
             "removed_by": None,
+            "lost_on": None,
+            "lost_by": None,
+            "received_on": None,
+            "received_by": None,
         },
         {
             "id": 2,
@@ -48,6 +57,10 @@ def data():
             "created_by": default_user_data()["id"],
             "removed_on": None,
             "removed_by": None,
+            "lost_on": None,
+            "lost_by": None,
+            "received_on": None,
+            "received_by": None,
         },
         {
             "id": 3,
@@ -61,6 +74,10 @@ def data():
             "created_by": default_user_data()["id"],
             "removed_on": None,
             "removed_by": None,
+            "lost_on": None,
+            "lost_by": None,
+            "received_on": None,
+            "received_by": None,
         },
         {
             "id": 4,
@@ -74,6 +91,10 @@ def data():
             "created_by": default_user_data()["id"],
             "removed_on": TIME,
             "removed_by": second_user_data()["id"],
+            "lost_on": None,
+            "lost_by": None,
+            "received_on": None,
+            "received_by": None,
         },
         {
             "id": 5,
@@ -87,6 +108,61 @@ def data():
             "created_by": default_user_data()["id"],
             "removed_on": None,
             "removed_by": None,
+            "lost_on": None,
+            "lost_by": None,
+            "received_on": None,
+            "received_by": None,
+        },
+        {
+            "id": 6,
+            "shipment": shipments[5]["id"],  # receiving shipment
+            "box": not_delivered_box["id"],
+            "source_product": not_delivered_box["product"],
+            "source_location": not_delivered_box["location"],
+            "source_size": not_delivered_box["size"],
+            "source_quantity": not_delivered_box["number_of_items"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+            "removed_on": None,
+            "removed_by": None,
+            "lost_on": TIME,
+            "lost_by": default_user_data()["id"],
+            "received_on": None,
+            "received_by": None,
+        },
+        {
+            "id": 7,
+            "shipment": shipments[6]["id"],  # completed shipment
+            "box": another_not_delivered_box["id"],
+            "source_product": another_not_delivered_box["product"],
+            "source_location": another_not_delivered_box["location"],
+            "source_size": another_not_delivered_box["size"],
+            "source_quantity": another_not_delivered_box["number_of_items"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+            "removed_on": None,
+            "removed_by": None,
+            "lost_on": TIME,
+            "lost_by": default_user_data()["id"],
+            "received_on": None,
+            "received_by": None,
+        },
+        {
+            "id": 8,
+            "shipment": shipments[6]["id"],  # completed shipment
+            "box": another_box["id"],
+            "source_product": another_box["product"],
+            "source_location": another_box["location"],
+            "source_size": another_box["size"],
+            "source_quantity": another_box["number_of_items"],
+            "created_on": TIME,
+            "created_by": default_user_data()["id"],
+            "removed_on": None,
+            "removed_by": None,
+            "lost_on": None,
+            "lost_by": None,
+            "received_on": None,
+            "received_by": default_user_data()["id"],
         },
     ]
 

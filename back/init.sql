@@ -168,7 +168,7 @@ CREATE TABLE `box_state` (
 
 LOCK TABLES `box_state` WRITE;
 /*!40000 ALTER TABLE `box_state` DISABLE KEYS */;
-INSERT INTO `box_state` VALUES (5,'Donated'),(1,'Instock'),(2,'Lost'),(3,'MarkedForShipment'),(4,'Receiving'),(6,'Scrap'),(7,'InTransit');
+INSERT INTO `box_state` VALUES (5,'Donated'),(1,'Instock'),(2,'Lost'),(3,'MarkedForShipment'),(4,'Receiving'),(6,'Scrap'),(7,'InTransit'),(8,'NotDelivered');
 /*!40000 ALTER TABLE `box_state` ENABLE KEYS */;
 UNLOCK TABLES;
 
