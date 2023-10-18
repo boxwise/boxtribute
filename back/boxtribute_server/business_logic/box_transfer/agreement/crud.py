@@ -3,6 +3,7 @@ from datetime import datetime, time
 from datetime import timezone as dtimezone
 
 from peewee import fn
+from sentry_sdk import capture_message as emit_sentry_message
 
 from ....db import db
 from ....enums import TransferAgreementState, TransferAgreementType
@@ -221,6 +222,18 @@ def create_transfer_agreement(
             for t in target_base_ids
         ]
         TransferAgreementDetail.insert_many(details_data).execute()
+
+        if len(source_base_ids) > 1 or len(target_base_ids) > 1:
+            emit_sentry_message(
+                "Created multi-base agreement",
+                level="warning",
+                extras={
+                    "transfer_agreement_id": transfer_agreement.id,
+                    "source_base_ids": list(source_base_ids),
+                    "target_base_ids": list(target_base_ids),
+                },
+            )
+
         return transfer_agreement
 
 
