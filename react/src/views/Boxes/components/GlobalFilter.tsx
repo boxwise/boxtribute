@@ -6,7 +6,6 @@ import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 export function GlobalFilter({ globalFilter, setGlobalFilter }) {
   const [value, setValue] = useState(globalFilter);
   const onChange = useAsyncDebounce((value) => {
-    // debugger;
     setGlobalFilter(value || undefined);
   }, 200);
 

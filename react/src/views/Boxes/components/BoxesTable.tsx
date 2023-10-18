@@ -5,6 +5,7 @@ import {
   Tr,
   Tbody,
   Td,
+  Spacer,
   Flex,
   Text,
   IconButton,
@@ -37,11 +38,9 @@ import { IUseMoveBoxesReturnType, useMoveBoxes } from "hooks/useMoveBoxes";
 import { SelectButton } from "./ActionButtons";
 import { TableSkeleton } from "components/Skeletons";
 import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
-
 import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
-
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
@@ -95,7 +94,7 @@ const ColumnSelector = ({
   const selectedColumnOptions = mapColumnsToColumnOptionCollection(selectedColumns);
 
   return (
-    <Box maxW="400px" minW="250px" paddingBottom={4}>
+    <Box maxW="400px" minW="250px">
       <Popover>
         <PopoverTrigger>
           <Button>Columns shown</Button>
@@ -221,18 +220,20 @@ const BoxesTable = ({
 
   return (
     <>
-      <ColumnSelector
-        availableColumns={availableColumns}
-        selectedColumns={selectedColumns}
-        setSelectedColumns={setSelectedColumns}
-      />
-      <ButtonGroup>
-        <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />
-      </ButtonGroup>
       {moveBoxesAction.isLoading ? (
         <TableSkeleton />
       ) : (
         <ActualTable
+          tableActions={
+            <ButtonGroup>
+              <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />
+              <ColumnSelector
+                availableColumns={availableColumns}
+                selectedColumns={selectedColumns}
+                setSelectedColumns={setSelectedColumns}
+              />
+            </ButtonGroup>
+          }
           tableConfigKey={tableConfigKey}
           columns={orderedSelectedColumns}
           tableData={tableData}
@@ -244,6 +245,7 @@ const BoxesTable = ({
 };
 
 interface IActualTableProps {
+  tableActions: React.ReactNode;
   columns: Column<BoxRow>[];
   show?: boolean;
   tableData: BoxRow[];
@@ -252,6 +254,7 @@ interface IActualTableProps {
 }
 
 const ActualTable = ({
+  tableActions,
   tableConfigKey,
   show = true,
   columns,
@@ -339,6 +342,8 @@ const ActualTable = ({
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
+        {tableActions}
+        <Spacer />
         <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
