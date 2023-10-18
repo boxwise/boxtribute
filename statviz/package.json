@@ -26,15 +26,19 @@
     "@visx/scale": "^3.3.0",
     "@visx/shape": "^3.3.0",
     "@visx/tooltip": "^3.3.0",
+    "@nivo/core": "0.83.0",
+    "@nivo/bar": "0.83.0",
+    "@nivo/sankey": "0.83.0",
+    "@nivo/pie": "0.83.0",
     "date-fns": "^2.29.3",
     "framer-motion": "^10.15.1",
-    "graphql": "^16.7.1",
+    "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.1",
     "react-router-dom": "^6.15.0",
-    "zod": "^3.19.1"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",

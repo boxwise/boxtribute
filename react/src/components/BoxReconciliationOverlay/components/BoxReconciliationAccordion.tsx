@@ -40,7 +40,7 @@ export function BoxReconcilationAccordion({
   onBoxUndelivered,
   onBoxDelivered,
 }: IBoxReconcilationAccordionProps) {
-  const [accordionIndex, setAccordionIndex] = useState(-1);
+  const [accordionIndex, setAccordionIndex] = useState(0);
   const [productMatched, setProductMatched] = useState<boolean>(false);
   const [locationSpecified, setLocationSpecified] = useState<boolean>(false);
   const [productFormData, setProductFormData] = useState<IProductFormData>({

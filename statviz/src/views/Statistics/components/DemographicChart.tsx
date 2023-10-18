@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Heading } from "@chakra-ui/react";
-import BarChartCenterAxis from "../../../components/graphs/BarChartCenterAxis";
+import BarChartCenterAxis from "../../../components/custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
-import FilterCreatedOn from "./filter/FilterCreatedOn";
 import { HumanGender } from "../../../types/generated/graphql";
 
 export interface IDemographicFact {
@@ -13,22 +12,21 @@ export interface IDemographicFact {
 }
 
 export interface ITag {
-  id: string,
-  name: string
+  id: string;
+  name: string;
 }
 
 export interface IDemographicCube {
   facts: IDemographicFact[];
   dimensions: {
-    tag: ITag[]
-  }
+    tag: ITag[];
+  };
 }
 
 export default function DemographicChart(props: { cube: IDemographicCube }) {
-  const facts = [ ...props.cube.facts ]
+  const facts = [...props.cube.facts];
 
   const prepareFacts = (facts: IDemographicFact[]) => {
-
     const dataXr = facts
       .filter((value) => value.gender === HumanGender.Male)
       .map((e) => ({ x: e.count, y: e.age }));
@@ -50,7 +48,7 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
     return acc;
   }, 0);
 
-  const height = 500;
+  const height = 400;
   const width = 700;
 
   const chart = {
@@ -78,9 +76,11 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
 
   return (
     <>
-      <Heading>Demographic Chart</Heading>
-      <FilterCreatedOn onSubmit={onFilterChange} facts={facts} />
-      <div id="chart-container" style={{ width: "100%", height: "100%" }}>
+      <Heading size="md">Demographic Chart</Heading>
+      <div
+        id="chart-container"
+        style={{ width: "100%", height: "100%", marginTop: "25px" }}
+      >
         <BarChartCenterAxis fields={chart} />
       </div>
     </>

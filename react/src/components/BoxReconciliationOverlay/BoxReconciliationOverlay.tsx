@@ -98,18 +98,7 @@ export function BoxReconciliationOverlay({
   const allLocations = useMemo(
     () =>
       data?.base?.locations
-        .filter(
-          (location) =>
-            location?.defaultBoxState !== BoxState.Lost &&
-            location?.defaultBoxState !== BoxState.Scrap,
-        )
-        .map((location) => ({
-          ...location,
-          name:
-            (location.defaultBoxState !== BoxState.InStock
-              ? `${location.name} - Boxes are ${location.defaultBoxState}`
-              : location.name) ?? "",
-        }))
+        .filter((location) => location?.defaultBoxState === BoxState.InStock)
         .sort((a, b) => Number(a?.seq) - Number(b?.seq)),
     [data],
   );
@@ -238,15 +227,19 @@ export function BoxReconciliationOverlay({
         title="Box Not Delivered?"
         body={
           "Confirming this means that this box never arrived as part of this shipment." +
+          " " +
           "We’ll record this as NotDelivered and remove it from the shipment receive list."
         }
+        rightButtonProps={{
+          colorScheme: "red",
+        }}
         isOpen={boxUndeliveredAYSState !== ""}
         isLoading={loading}
-        leftButtonText="Yes"
-        rightButtonText="No"
+        leftButtonText="Nevermind"
+        rightButtonText="Confirm"
         onClose={() => setBoxUndeliveredAYSState("")}
-        onLeftButtonClick={() => onBoxUndelivered(boxUndeliveredAYSState)}
-        onRightButtonClick={() => setBoxUndeliveredAYSState("")}
+        onLeftButtonClick={() => setBoxUndeliveredAYSState("")}
+        onRightButtonClick={() => onBoxUndelivered(boxUndeliveredAYSState)}
       />
     </>
   );

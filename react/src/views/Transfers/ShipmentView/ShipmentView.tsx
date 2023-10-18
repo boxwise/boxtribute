@@ -140,6 +140,8 @@ function ShipmentView() {
       variables: {
         id: shipmentId,
       },
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
     },
   );
 
@@ -213,7 +215,7 @@ function ShipmentView() {
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
-  const onSend = handleShipment(sendShipment, "send");
+  const onSend = handleShipment(sendShipment, "send", "Shipment was Sent Successfully");
   const onLost = handleShipment(
     lostShipment,
     "lost",

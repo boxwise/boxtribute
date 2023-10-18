@@ -28,7 +28,7 @@ const DEMOGRAPHIC_QUERY = gql`
   }
 `;
 
-export default function StatisticsView() {
+export default function DemographicView() {
   const { data, loading, error } = useQuery<
     BeneficiaryDemographicsQuery,
     BeneficiaryDemographicsQueryVariables

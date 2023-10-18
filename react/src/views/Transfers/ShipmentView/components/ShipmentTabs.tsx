@@ -9,11 +9,11 @@ export enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
   ShipmentCanceled = "Shipment Canceled",
   ShipmentSent = "Shipment Sent",
-  ShipmentStartReceiving = "Shipment BeingReceived",
+  ShipmentStartReceiving = "Shipment Being Received",
   ShipmentCompleted = "Shipment Completed",
   BoxAdded = "Box Added",
   BoxRemoved = "Box Removed",
-  BoxLost = "Box Lost",
+  BoxLost = "Box Marked Not Delivered",
   BoxReceived = "Box Received",
 }
 
@@ -54,16 +54,18 @@ function ShipmentTabs({
         product: group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
         totalBoxes: group.length,
+        totalLosts: group.filter((shipment) => shipment?.lostOn !== null).length,
         boxes: group.map(
           (shipment) =>
             ({
               ...shipment.box,
               size: group[0]?.sourceSize,
-              numberOfItems: group[0]?.sourceQuantity,
+              numberOfItems: shipment.sourceQuantity,
               product: group[0]?.sourceProduct,
             } as Box),
         ),
       }))
+      .orderBy((value) => value.totalLosts, "asc")
       .mapKeys(
         (value) =>
           // eslint-disable-next-line max-len

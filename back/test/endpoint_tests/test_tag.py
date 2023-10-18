@@ -68,6 +68,10 @@ def test_tags_query(
                 },
                 {
                     "__typename": "Box",
+                    "id": str(default_box["id"]),
+                },
+                {
+                    "__typename": "Box",
                     "id": str(box_without_qr_code["id"]),
                 },
             ],
@@ -225,7 +229,7 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     [
         [1, TagType.Box.name, [], "Box"],
         [2, TagType.Beneficiary.name, [], "Beneficiary"],
-        [3, TagType.Box.name, [3], "Box"],
+        [3, TagType.Box.name, [2, 3], "Box"],
         [3, TagType.Beneficiary.name, [1], "Beneficiary"],
         [1, TagType.All.name, [1], "Beneficiary"],
     ],

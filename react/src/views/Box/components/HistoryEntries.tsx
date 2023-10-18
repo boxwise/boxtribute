@@ -18,8 +18,14 @@ function getHistoryIcon(changes: string): IconType {
   return MdHistory;
 }
 
-function fixTrailingSemicolon(text: string): string {
-  return text?.endsWith(";") ? text?.slice(0, -1) : text;
+function prepareHistoryEntryText(text: string): string {
+  // Remove the last character if it is a semicolon
+  const trimmedText = text?.endsWith(";") ? text?.slice(0, -1) : text;
+
+  // Replace "box state" with "box status" (ref. trello card https://trello.com/c/ClAikFIk)
+  const updatedText = trimmedText?.replace("box state", "box status");
+
+  return updatedText;
 }
 
 function formatDate(date: Date): string {
@@ -61,7 +67,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
                   <b>{historyEntry?.user?.name}</b>
                   {" on "}
                   <b>{formatDate(historyEntry?.changeDate)}</b>{" "}
-                  {fixTrailingSemicolon(historyEntry?.changes)}
+                  {prepareHistoryEntryText(historyEntry?.changes)}
                 </Text>
               </Box>
             </ListItem>

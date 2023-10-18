@@ -14,6 +14,14 @@ def another_qr_code_with_box_data():
     return {"id": 3, "code": "111"}
 
 
+def qr_code_for_not_delivered_box_data():
+    return {"id": 4, "code": "123"}
+
+
+def qr_code_for_in_transit_box_data():
+    return {"id": 5, "code": "222"}
+
+
 @pytest.fixture
 def default_qr_code():
     return default_qr_code_data()
@@ -29,11 +37,23 @@ def another_qr_code_with_box():
     return another_qr_code_with_box_data()
 
 
+@pytest.fixture
+def qr_code_for_not_delivered_box():
+    return qr_code_for_not_delivered_box_data()
+
+
+@pytest.fixture
+def qr_code_for_in_transit_box():
+    return qr_code_for_in_transit_box_data()
+
+
 def create():
     QrCode.insert_many(
         [
             default_qr_code_data(),
             qr_code_without_box_data(),
             another_qr_code_with_box_data(),
+            qr_code_for_not_delivered_box_data(),
+            qr_code_for_in_transit_box_data(),
         ]
     ).execute()

@@ -105,14 +105,18 @@ def compute_created_boxes(base_id=None):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    selection = Box.select(
-        Box.created_on.alias("created_on"),
-        Product.id.alias("product_id"),
-        Product.gender.alias("gender"),
-        Product.category.alias("category_id"),
-        fn.COUNT(Box.id).alias("boxes_count"),
-        fn.SUM(Box.number_of_items).alias("items_count"),
-    ).join(Product)
+    selection = (
+        Box.select(
+            Box.created_on.alias("created_on"),
+            Product.id.alias("product_id"),
+            Product.gender.alias("gender"),
+            Product.category.alias("category_id"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
+        )
+        .join(Product)
+        .order_by(Box.created_on.asc())
+    )
 
     if base_id is not None:
         selection = selection.join(Location, src=Box).where(Location.base == base_id)
