@@ -45,7 +45,7 @@ import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/Bo
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
-import { ITimelineEntry } from "components/Timeline/TimelineContainer";
+import { ITimelineEntry } from "components/Timeline/Timeline";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";

@@ -17,7 +17,7 @@ export interface ITimelineProps {
   records: IGroupedRecordEntry[];
 }
 
-function TimelineContainer({ records }: ITimelineProps) {
+function Timeline({ records }: ITimelineProps) {
   return (
     <Box position="relative">
       {records.map(({ date, entries }, index) => (
@@ -52,4 +52,4 @@ function TimelineContainer({ records }: ITimelineProps) {
   );
 }
 
-export default TimelineContainer;
+export default Timeline;

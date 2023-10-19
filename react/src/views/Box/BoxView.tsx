@@ -56,7 +56,7 @@ import { BoxViewSkeleton } from "components/Skeletons";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import HistoryOverlay from "components/HistoryOverlay/HistoryOverlay";
-import { ITimelineEntry } from "components/Timeline/TimelineContainer";
+import { ITimelineEntry } from "components/Timeline/Timeline";
 import _ from "lodash";
 import { formatDateKey, prepareBoxHistoryEntryText } from "utils/helpers";
 import BoxDetails from "./components/BoxDetails";

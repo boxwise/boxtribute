@@ -7,7 +7,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-import TimelineContainer, { IGroupedRecordEntry } from "../Timeline/TimelineContainer";
+import Timeline, { IGroupedRecordEntry } from "../Timeline/Timeline";
 
 interface IHistoryOverlay {
   data: IGroupedRecordEntry[];
@@ -29,7 +29,7 @@ function HistoryOverlay({ data, isOpen, onClose }: IHistoryOverlay) {
         <ModalHeader>Box History</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <TimelineContainer records={data as unknown as IGroupedRecordEntry[]} />
+          <Timeline records={data as unknown as IGroupedRecordEntry[]} />
         </ModalBody>
         <ModalFooter />
       </ModalContent>
