@@ -144,6 +144,7 @@ export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
 
       return createdBoxesTable(result);
     },
+    fillMissingDaysNew: () => {},
     groupByWeek: () => {
       const interval: Interval = {
         start: new Date(dataTable.data[0].createdOn),

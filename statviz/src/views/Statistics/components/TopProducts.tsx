@@ -7,10 +7,13 @@ import {
   QueryCreatedBoxesArgs,
 } from "../../../types/generated/graphql";
 import { ApolloError, useQuery, gql } from "@apollo/client";
-import { Heading } from "@chakra-ui/react";
+import { Card, CardBody } from "@chakra-ui/react";
 import { round } from "lodash";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
+import { getSelectionBackground } from "../../../utils/theme";
+import VisHeader from "./VisHeader";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -37,17 +40,18 @@ const CREATED_BOXES_QUERY = gql`
   }
 `;
 
-type TopProductsBy = "boxesCount" | "itemsCount";
-
-export default function TopProducts(params: { width: string; height: string }) {
+export default function TopProducts(params: {
+  width: string;
+  height: string;
+  boxesOrItems: BoxesOrItemsCount;
+}) {
+  const boxesOrItems = params.boxesOrItems;
   const { baseId } = useParams();
   const { data, loading, error } = useQuery<
     CreatedBoxesData,
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
-
-  // TODO: move to URI parameter
-  const topProductsBy: TopProductsBy = "itemsCount"; // or "itemsCount"
+  const [selected, setSelected] = useState<boolean>(false);
 
   const getChartData = () => {
     if (data === undefined) {
@@ -58,27 +62,27 @@ export default function TopProducts(params: { width: string; height: string }) {
       data.createdBoxes.dimensions.product as ProductDimensionInfo
     );
 
-    const productCount = createdBoxes.sumColumn(topProductsBy);
+    const productCount = createdBoxes.sumColumn(boxesOrItems);
 
     const top5Products = createdBoxes
       .groupBySum("productId", ["itemsCount", "boxesCount"], ["gender"])
-      .orderBy(topProductsBy, Sort.desc)
+      .orderBy(boxesOrItems, Sort.desc)
       .innerJoin(products, "productId", "id")
       .limit(5);
 
     return top5Products.data.map((row) => {
-      let percent: number = (row[topProductsBy] * 100) / productCount;
+      let percent: number = (row[boxesOrItems] * 100) / productCount;
       percent = round(percent, 2);
 
       return {
         id: `${row.name} (${row.gender})`,
-        value: row[topProductsBy],
-        label: `${row[topProductsBy]} (${percent}%)`,
+        value: row[boxesOrItems],
+        label: `${row[boxesOrItems]} (${percent}%)`,
       };
     });
   };
 
-  const chartData = useMemo(getChartData, [data]);
+  const chartData = useMemo(getChartData, [data, boxesOrItems]);
 
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;
@@ -87,12 +91,23 @@ export default function TopProducts(params: { width: string; height: string }) {
     return <p>loading...</p>;
   }
 
-  const topProductsHeading = topProductsBy === "boxesCount" ? "boxes" : "items";
+  const topProductsHeading = boxesOrItems === "boxesCount" ? "boxes" : "items";
 
   return (
-    <div>
-      <Heading size="md">Top Products by {topProductsHeading}</Heading>
-      <BarChart data={chartData} width={params.width} height={params.height} />
-    </div>
+    <Card backgroundColor={getSelectionBackground(selected)}>
+      <VisHeader
+        heading={"Top Products by " + topProductsHeading}
+        visId="tp"
+        onSelect={() => setSelected(true)}
+        onDeselect={() => setSelected(false)}
+      ></VisHeader>
+      <CardBody>
+        <BarChart
+          data={chartData}
+          width={params.width}
+          height={params.height}
+        />
+      </CardBody>
+    </Card>
   );
 }

@@ -7,10 +7,9 @@ export interface IXY {
 
 export const tooltipStyles = {
   ...defaultStyles,
-  backgroundColor: "#000000",
-  color: "white",
+  backgroundColor: "white",
   width: 152,
-  height: 42,
+  height: 32,
   padding: 6,
   fontSize: 14,
 };

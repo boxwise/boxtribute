@@ -1,7 +1,10 @@
-import { Heading } from "@chakra-ui/react";
+import { Card, CardBody, Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../../../components/custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { HumanGender } from "../../../types/generated/graphql";
+import { getSelectionBackground } from "../../../utils/theme";
+import { useState } from "react";
+import VisHeader from "./VisHeader";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -23,6 +26,7 @@ export interface IDemographicCube {
 }
 
 export default function DemographicChart(props: { cube: IDemographicCube }) {
+  const [selected, setSelected] = useState<boolean>(false);
   const facts = [...props.cube.facts];
 
   const prepareFacts = (facts: IDemographicFact[]) => {
@@ -44,7 +48,7 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
     return acc;
   }, 0);
 
-  const height = 400;
+  const height = 650;
   const width = 700;
 
   const chart = {
@@ -65,14 +69,16 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
   };
 
   return (
-    <>
-      <Heading size="md">Demographic Chart</Heading>
-      <div
-        id="chart-container"
-        style={{ width: "100%", height: "100%", marginTop: "25px" }}
-      >
+    <Card backgroundColor={getSelectionBackground(selected)}>
+      <VisHeader
+        heading="Demographics"
+        visId="dc"
+        onSelect={() => setSelected(true)}
+        onDeselect={() => setSelected(false)}
+      ></VisHeader>
+      <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
         <BarChartCenterAxis fields={chart} />
-      </div>
-    </>
+      </CardBody>
+    </Card>
   );
 }
