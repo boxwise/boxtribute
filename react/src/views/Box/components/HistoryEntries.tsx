@@ -2,6 +2,7 @@ import { ListItem, ListIcon, List, Stack, Flex, Text, Box } from "@chakra-ui/rea
 import { IconType } from "react-icons";
 import { MdCheckCircle, MdSettings, MdHistory } from "react-icons/md";
 import { HistoryEntry } from "types/generated/graphql";
+import { prepareBoxHistoryEntryText } from "utils/helpers";
 
 interface IHistoryEntriesProps {
   data: HistoryEntry[];
@@ -16,16 +17,6 @@ function getHistoryIcon(changes: string): IconType {
     return MdCheckCircle;
   }
   return MdHistory;
-}
-
-function prepareHistoryEntryText(text: string): string {
-  // Remove the last character if it is a semicolon
-  const trimmedText = text?.endsWith(";") ? text?.slice(0, -1) : text;
-
-  // Replace "box state" with "box status" (ref. trello card https://trello.com/c/ClAikFIk)
-  const updatedText = trimmedText?.replace("box state", "box status");
-
-  return updatedText;
 }
 
 function formatDate(date: Date): string {
@@ -67,7 +58,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
                   <b>{historyEntry?.user?.name}</b>
                   {" on "}
                   <b>{formatDate(historyEntry?.changeDate)}</b>{" "}
-                  {prepareHistoryEntryText(historyEntry?.changes)}
+                  {prepareBoxHistoryEntryText(historyEntry?.changes)}
                 </Text>
               </Box>
             </ListItem>

@@ -21,8 +21,7 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
           <VStack align="start">
             <Heading>
               <Wrap fontSize="xl" fontWeight="extrabold">
-                <WrapItem>Shipment</WrapItem>
-                <WrapItem>{shipment?.id}</WrapItem>
+                <WrapItem>{shipment?.labelIdentifier}</WrapItem>
               </Wrap>
             </Heading>
             <Heading>

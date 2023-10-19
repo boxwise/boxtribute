@@ -144,7 +144,7 @@ function CreateShipmentView() {
           id: agreement.id,
           name: agreement.name,
           bases: agreement.bases,
-        } as IOrganisationBaseData),
+        }) as IOrganisationBaseData,
     )
     .reduce((accumulator, currentOrg) => {
       // Merge options. If there are multiple transfer agreements this step is necessary

@@ -12,7 +12,7 @@
     "@emotion/styled": "^11.10.5",
     "@fontsource/open-sans": "^4.5.14",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
-    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@hookform/resolvers": "^2.9.11",
     "@sentry/integrations": "^7.72.0",
@@ -34,7 +34,7 @@
     "react-scripts": "^5.0.1",
     "react-table": "^7.8.0",
     "victory": "^36.6.8",
-    "zod": "^3.19.1"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^4.0.16",
@@ -46,10 +46,10 @@
     "@sentry/types": "^7.72.0",
     "@storybook/addon-actions": "^7.3.2",
     "@storybook/addon-essentials": "^7.2.3",
-    "@storybook/addon-interactions": "^7.3.2",
+    "@storybook/addon-interactions": "^7.5.0",
     "@storybook/addon-links": "^7.2.3",
     "@storybook/builder-webpack5": "^6.5.16",
-    "@storybook/jest": "^0.1.0",
+    "@storybook/jest": "^0.2.3",
     "@storybook/manager-webpack5": "^6.5.16",
     "@storybook/node-logger": "^6.5.16",
     "@storybook/preset-create-react-app": "^4.1.2",

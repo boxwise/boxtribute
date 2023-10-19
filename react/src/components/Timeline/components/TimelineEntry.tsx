@@ -1,9 +1,10 @@
 import { Flex, Text } from "@chakra-ui/react";
+import { formatTime } from "utils/helpers";
 import TimelineBullet from "./TimelineBullet";
 
 export interface ITimelineEntryProps {
   content: string | undefined;
-  time: string | undefined;
+  time: string | Date | undefined;
 }
 
 function TimelineEntry({ content, time }: ITimelineEntryProps) {
@@ -17,7 +18,7 @@ function TimelineEntry({ content, time }: ITimelineEntryProps) {
               {content}
             </Text>
             <Text mt={1} mr={1} padding={1}>
-              {time}
+              {time ? formatTime(time) : ""}
             </Text>
           </Flex>
         </Flex>

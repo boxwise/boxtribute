@@ -1,8 +1,8 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
+import ShipmentHistory, { IGroupedRecordEntry } from "components/Timeline/Timeline";
 import _ from "lodash";
 import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
-import ShipmentHistory from "./ShipmentHistory";
 
 // eslint-disable-next-line no-shadow
 export enum ShipmentActionEvent {
@@ -32,7 +32,7 @@ export interface IGroupedHistoryEntry {
 export interface IShipmentTabsProps {
   shipmentState: ShipmentState | undefined;
   detail: ShipmentDetail[];
-  histories: IGroupedHistoryEntry[];
+  histories: IGroupedRecordEntry[];
   isLoadingMutation: boolean | undefined;
   showRemoveIcon: Boolean;
   onRemoveBox: (id: string) => void;
@@ -62,7 +62,7 @@ function ShipmentTabs({
               size: group[0]?.sourceSize,
               numberOfItems: shipment.sourceQuantity,
               product: group[0]?.sourceProduct,
-            } as Box),
+            }) as Box,
         ),
       }))
       .orderBy((value) => value.totalLosts, "asc")
@@ -95,7 +95,7 @@ function ShipmentTabs({
           />
         </TabPanel>
         <TabPanel>
-          <ShipmentHistory histories={histories} />
+          <ShipmentHistory records={histories} />
         </TabPanel>
       </TabPanels>
     </Tabs>

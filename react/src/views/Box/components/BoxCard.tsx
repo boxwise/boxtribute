@@ -22,7 +22,9 @@ import {
   SkeletonCircle,
   Skeleton,
   SkeletonText,
+  Icon,
 } from "@chakra-ui/react";
+import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -38,6 +40,7 @@ import HistoryEntries from "./HistoryEntries";
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
   boxInTransit: boolean;
+  onHistoryOpen: () => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onStateChange: (boxState: BoxState) => void;
@@ -47,6 +50,7 @@ export interface IBoxCardProps {
 function BoxCard({
   boxData,
   boxInTransit,
+  onHistoryOpen,
   onPlusOpen,
   onMinusOpen,
   onStateChange,
@@ -333,12 +337,28 @@ function BoxCard({
                 History: &nbsp;
               </Text>
               <Spacer />
-              {!isLoading && (
-                <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
-              )}
-              {isLoading && (
-                <SkeletonText noOfLines={3} width="100%" py={2} px={2} alignContent="center" />
-              )}
+              <Flex py={0} px={0} alignContent="space-between" verticalAlign="center">
+                {!isLoading && (
+                  <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
+                )}
+                {isLoading && (
+                  <SkeletonText noOfLines={3} width="100%" py={2} px={2} alignContent="center" />
+                )}
+                {boxData?.history && boxData?.history?.length > 1 && (
+                  <>
+                    <Spacer />
+                    <IconButton
+                      onClick={onHistoryOpen}
+                      border="2px"
+                      size="sm"
+                      borderRadius="0"
+                      isRound
+                      aria-label="Show detail history"
+                      icon={<Icon as={MdHistory} h={6} w={6} />}
+                    />
+                  </>
+                )}
+              </Flex>
             </Flex>
           </Stack>
         </>

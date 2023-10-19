@@ -71,8 +71,7 @@ function ShipmentCard({
           <VStack alignItems="flex-start">
             <Heading>
               <Wrap fontSize={21} fontWeight="extrabold">
-                <WrapItem>Shipment</WrapItem>
-                <WrapItem>{shipment?.id}</WrapItem>
+                <WrapItem>{shipment?.labelIdentifier}</WrapItem>
               </Wrap>
             </Heading>
             <ShipmentColoredStatus state={shipment?.state} />

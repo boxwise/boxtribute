@@ -72,7 +72,7 @@ export const useScannedBoxesActions = () => {
       (data: IScannedBoxesData) =>
         ({
           scannedBoxes: data.scannedBoxes.slice(0, -1),
-        } as IScannedBoxesData),
+        }) as IScannedBoxesData,
     );
   }, [apolloClient]);
 
@@ -84,7 +84,7 @@ export const useScannedBoxesActions = () => {
       (data: IScannedBoxesData) =>
         ({
           scannedBoxes: data.scannedBoxes.filter((box) => box.state === BoxState.InStock),
-        } as IScannedBoxesData),
+        }) as IScannedBoxesData,
     );
   }, [apolloClient]);
 
@@ -99,7 +99,7 @@ export const useScannedBoxesActions = () => {
             scannedBoxes: data.scannedBoxes.filter(
               (box) => !labelIdentifiers.includes(box.labelIdentifier),
             ),
-          } as IScannedBoxesData),
+          }) as IScannedBoxesData,
       );
     },
     [apolloClient],
