@@ -1,6 +1,5 @@
-from datetime import date
-
 from boxtribute_server.enums import ProductGender, TargetType
+from boxtribute_server.models.utils import compute_age
 from utils import assert_successful_request
 
 
@@ -9,7 +8,7 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
         facts { gender age createdOn count tagIds }
         dimensions { tag { id name color } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    age = date.today().year - default_beneficiary["date_of_birth"].year
+    age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
             "age": None,
