@@ -1,13 +1,24 @@
+from datetime import date
+
 from boxtribute_server.enums import ProductGender
 from utils import assert_successful_request
 
 
-def test_query_beneficiary_demographics(read_only_client, tags):
+def test_query_beneficiary_demographics(read_only_client, tags, default_beneficiary):
     query = """query { beneficiaryDemographics(baseIds: [1]) {
         facts { gender age createdOn count tagIds }
         dimensions { tag { id name color } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert len(response["facts"]) == 2
+    age = date.today().year - default_beneficiary["date_of_birth"].year
+    assert response["facts"] == [
+        {
+            "age": age,
+            "count": 1,
+            "createdOn": "2020-06-30",
+            "gender": "Male",
+            "tagIds": [1, 3],
+        },
+    ]
     assert response["dimensions"] == {
         "tag": [
             {"id": str(tag["id"]), "name": tag["name"], "color": tag["color"]}
@@ -18,7 +29,7 @@ def test_query_beneficiary_demographics(read_only_client, tags):
     query = """query { beneficiaryDemographics {
         facts { gender age createdOn count tagIds } } }"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert len(response["facts"]) == 3
+    assert len(response["facts"]) == 1
 
 
 def test_query_created_boxes(read_only_client, products, product_categories):
