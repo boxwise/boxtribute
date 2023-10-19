@@ -185,7 +185,7 @@ function BTBox() {
           createdOn: new Date(histories.changeDate),
         },
       ]),
-  ) as unknown as ITimelineEntry[];
+  ) as ITimelineEntry[];
 
   const allLogs = _.orderBy(
     _.sortBy(_.concat([...(boxLogs || [])]), "createdOn"),

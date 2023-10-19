@@ -3,7 +3,7 @@ import { User } from "types/generated/graphql";
 import TimelineEntry from "./components/TimelineEntry";
 
 export interface ITimelineEntry {
-  action: string | undefined;
+  action: string;
   createdOn: Date;
   createdBy: User;
 }

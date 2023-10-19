@@ -29,7 +29,7 @@ function HistoryOverlay({ data, isOpen, onClose }: IHistoryOverlay) {
         <ModalHeader>Box History</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Timeline records={data as unknown as IGroupedRecordEntry[]} />
+          <Timeline records={data as IGroupedRecordEntry[]} />
         </ModalBody>
         <ModalFooter />
       </ModalContent>
