@@ -13,7 +13,7 @@ shipment_detail = ObjectType("ShipmentDetail")
 
 def first_letters_of_base_name(base_id):
     base = Base.get_by_id(base_id)
-    return base.name[:2].upper()
+    return base.name.upper()[:2]
 
 
 @shipment.field("labelIdentifier")

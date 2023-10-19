@@ -41,7 +41,7 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
     start_timestamp = datetime.strftime(default_shipment["started_on"], "%y%m%d")
     assert shipment == {
         "id": shipment_id,
-        "labelIdentifier": f"S001-{start_timestamp}-THxHA",
+        "labelIdentifier": f"S001-{start_timestamp}-THxWÜ",
         "sourceBase": {"id": str(default_shipment["source_base"])},
         "targetBase": {"id": str(default_shipment["target_base"])},
         "state": default_shipment["state"].name,
