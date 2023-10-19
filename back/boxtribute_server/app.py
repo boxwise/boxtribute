@@ -4,6 +4,7 @@ import os
 import sentry_sdk
 from flask import Flask
 from graphql.error import GraphQLError
+from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
@@ -54,7 +55,7 @@ def main(*blueprints):
 
     # dsn/environment/release: reading SENTRY_* environment variables set in CircleCI
     sentry_sdk.init(
-        integrations=[FlaskIntegration()],
+        integrations=[FlaskIntegration(), AriadneIntegration()],
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.0)),
         before_send=before_sentry_send,
         profiles_sample_rate=float(os.getenv("SENTRY_PROFILES_SAMPLE_RATE", 0)),
