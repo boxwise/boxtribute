@@ -81,3 +81,21 @@ export const prepareBoxHistoryEntryText = (text: string): string => {
 
   return updatedText;
 };
+
+/**
+ * Formats a given date or string into a string representation of the time.
+ *
+ * @param {Date | string} date - The date or string to be formatted.
+ * @return {string} The formatted time as a string in the format "HH:MM".
+ */
+export const formatTime = (date: Date | string): string => {
+  const formattedDate = typeof date === "string" && date !== "" ? new Date(date) : date;
+
+  if (formattedDate instanceof Date) {
+    const hours = formattedDate.getHours().toString().padStart(2, "0");
+    const minutes = formattedDate.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+
+  return "";
+};
