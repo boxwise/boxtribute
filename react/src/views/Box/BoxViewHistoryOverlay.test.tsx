@@ -1,6 +1,6 @@
 /* eslint-disable */
 import "@testing-library/jest-dom";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { cache } from "queries/cache";
 
@@ -72,17 +72,14 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       },
     });
 
-    await waitFor(async () => {
-      expect(await screen.getByRole("heading", { name: /box 123/i })).toBeInTheDocument();
+    const heading = await screen.findByRole("heading", { name: /box 123/i });
+    expect(heading).toBeInTheDocument();
+
+    const showHistoryButton = await screen.findByRole("button", {
+      name: /show detail history/i,
     });
 
-    await waitFor(async () => {
-      expect(
-        await screen.getByRole("button", {
-          name: /show detail history/i,
-        }),
-      ).toBeInTheDocument();
-    });
+    expect(showHistoryButton).toBeInTheDocument();
   }, 10000);
 
   // Test case 3.1.12.2
@@ -106,28 +103,25 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       },
     });
 
-    await waitFor(async () => {
-      expect(await screen.getByRole("heading", { name: /box 123/i })).toBeInTheDocument();
-    });
+    const heading = await screen.findByRole("heading", { name: /box 123/i });
+    expect(heading).toBeInTheDocument();
 
-    const historyButton = await screen.getByRole("button", {
+    const historyButton = await screen.findByRole("button", {
       name: /show detail history/i,
     });
 
-    await waitFor(async () => {
-      expect(historyButton).toBeInTheDocument();
-    });
+    expect(historyButton).toBeInTheDocument();
 
     await user.click(historyButton);
 
-    await waitFor(async () => {
-      expect(await screen.getByRole("banner")).toBeInTheDocument();
-      expect(screen.getByText(/jan 14, 2023/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/dev coordinator changed box location from wh men to wh women/i),
-      ).toBeInTheDocument();
-      expect(screen.getByText(/jan 12, 2023/i)).toBeInTheDocument();
-      expect(screen.getByText(/dev coordinator created record/i)).toBeInTheDocument();
-    });
+    const banner = await screen.findByRole("banner");
+
+    expect(banner).toBeInTheDocument();
+    expect(screen.getByText(/jan 14, 2023/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/dev coordinator changed box location from wh men to wh women/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/jan 12, 2023/i)).toBeInTheDocument();
+    expect(screen.getByText(/dev coordinator created record/i)).toBeInTheDocument();
   }, 10000);
 });
