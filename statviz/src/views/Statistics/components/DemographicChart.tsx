@@ -5,6 +5,7 @@ import { HumanGender } from "../../../types/generated/graphql";
 import { getSelectionBackground } from "../../../utils/theme";
 import { useState } from "react";
 import VisHeader from "./VisHeader";
+import { table } from "../../../utils/table";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -29,14 +30,20 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
   const [selected, setSelected] = useState<boolean>(false);
   const facts = [...props.cube.facts];
 
-  const prepareFacts = (facts: IDemographicFact[]) => {
-    const dataXr = facts
-      .filter((value) => value.gender === HumanGender.Male)
-      .map((e) => ({ x: e.count, y: e.age }));
+  console.log(facts);
 
-    const dataXl = facts
-      .filter((value) => value.gender === HumanGender.Female)
-      .map((e) => ({ x: e.count, y: e.age }));
+  const prepareFacts = (facts: IDemographicFact[]) => {
+    const dataXr = table(
+      facts
+        .filter((value) => value.gender === HumanGender.Male)
+        .map((e) => ({ x: e.count, y: e.age }))
+    ).groupBySum("y", ["x"]).data;
+
+    const dataXl = table(
+      facts
+        .filter((value) => value.gender === HumanGender.Female)
+        .map((e) => ({ x: e.count, y: e.age }))
+    ).groupBySum("y", ["x"]).data;
 
     return [dataXr, dataXl];
   };

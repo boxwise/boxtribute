@@ -2,10 +2,14 @@ import { ApolloError, gql, useQuery } from "@apollo/client";
 import {
   BeneficiaryDemographicsQuery,
   BeneficiaryDemographicsQueryVariables,
+  BeneficiaryDemographicsResult,
 } from "../../types/generated/graphql";
 import DemographicChart, {
   IDemographicCube,
 } from "./components/DemographicChart";
+import { table } from "../../utils/table";
+import { beneficiaryDemographicsMock } from "../../mocks/demographic";
+import _ from "lodash";
 
 const DEMOGRAPHIC_QUERY = gql`
   query BeneficiaryDemographics {
@@ -39,17 +43,5 @@ export default function DemographicView() {
     return <p>loading...</p>;
   }
 
-  console.log(data);
-
-  const cube: IDemographicCube = {
-    ...data.beneficiaryDemographics,
-    facts: data.beneficiaryDemographics.facts
-      .map((e) => ({
-        ...e,
-        createdOn: new Date(e.createdOn),
-      }))
-      .filter((e) => e.age < 120),
-  };
-
-  return <DemographicChart cube={cube} />;
+  return <DemographicChart cube={data.beneficiaryDemographics} />;
 }

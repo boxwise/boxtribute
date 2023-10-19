@@ -1,8 +1,6 @@
-import _, { create } from "lodash";
+import _ from "lodash";
 import { CreatedBoxesResult } from "../types/generated/graphql";
-import areIntervalsOverlapping from "date-fns/areIntervalsOverlapping";
 import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
-import { GridRows } from "@visx/grid";
 
 export enum Sort {
   asc = "asc",
