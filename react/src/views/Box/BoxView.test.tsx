@@ -20,7 +20,7 @@ import { tags } from "mocks/tags";
 import { selectOptionInSelectField, textContentMatcher } from "tests/helpers";
 import BoxDetails from "./components/BoxDetails";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
-import { mockGraphQLError, mockNetworkError } from "mocks/functions";
+import { mockGraphQLError, mockMatchMediaQuery, mockNetworkError } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
 import { generateMockShipment, shipment1 } from "mocks/shipments";
@@ -307,21 +307,8 @@ const moveLocationOfBoxNetworkFailedMutation = {
 };
 
 beforeEach(() => {
-  // we need to mock matchmedia
-  // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // Deprecated
-      removeListener: jest.fn(), // Deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
+  // setting the screensize to
+  mockMatchMediaQuery(true);
   const mockedUseErrorHandling = jest.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
   const mockedUseNotification = jest.mocked(useNotification);
@@ -777,6 +764,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
     <BoxDetails
       boxData={undefined}
       boxInTransit={false}
+      onHistoryOpen={mockFunction}
       onMoveToLocationClick={mockFunction}
       onPlusOpen={mockFunction}
       onMinusOpen={mockFunction}
