@@ -14,6 +14,7 @@ import BTBox from "./BoxView";
 import { BoxState } from "types/generated/graphql";
 import { history1, history2 } from "mocks/histories";
 import { generateMockBox } from "mocks/boxes";
+import { mockMatchMediaQuery } from "mocks/functions";
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
@@ -44,21 +45,8 @@ const initialQueryForBoxWithHistory = {
 // Test case 3.1.12
 describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
   beforeEach(() => {
-    // we need to mock matchmedia
-    // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: jest.fn().mockImplementation((query) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: jest.fn(), // Deprecated
-        removeListener: jest.fn(), // Deprecated
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-      })),
-    });
+    // setting the screensize to
+    mockMatchMediaQuery(true);
     const mockedUseErrorHandling = jest.mocked(useErrorHandling);
     mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
     const mockedUseNotification = jest.mocked(useNotification);

@@ -18,6 +18,7 @@ import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
+import { mockMatchMediaQuery } from "mocks/functions";
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
@@ -126,21 +127,8 @@ const queryShipmentDetailForBoxReconciliation = {
 };
 
 beforeEach(() => {
-  // we need to mock matchmedia
-  // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // Deprecated
-      removeListener: jest.fn(), // Deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
+  // setting the screensize to
+  mockMatchMediaQuery(true);
   const mockedUseErrorHandling = jest.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
   const mockedUseNotification = jest.mocked(useNotification);
