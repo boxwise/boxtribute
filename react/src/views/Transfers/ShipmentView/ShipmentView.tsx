@@ -66,6 +66,7 @@ enum ShipmentActionEvent {
   BoxReceived = "Box Received",
 }
 
+// graphql query and mutations
 export const SHIPMENT_BY_ID_QUERY = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
   query ShipmentById($id: ID!) {
@@ -136,19 +137,23 @@ function ShipmentView() {
     onClose: onShipmentOverlayClose,
     onOpen: onShipmentOverlayOpen,
   } = useDisclosure();
-
+  // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
   const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
+  // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
 
+  // variables in URL
   const shipmentId = useParams<{ id: string }>().id!;
 
+  // fetch shipment data
   const { loading, error, data } = useQuery<ShipmentByIdQuery, ShipmentByIdQueryVariables>(
     SHIPMENT_BY_ID_QUERY,
     {
       variables: {
         id: shipmentId,
       },
+      // returns cache first, but syncs with server in background
       fetchPolicy: "cache-and-network",
     },
   );
@@ -160,6 +165,7 @@ function ShipmentView() {
     };
   }, [data]);
 
+  // Mutations for shipment actions
   const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
     RemoveBoxFromShipmentMutation,
     RemoveBoxFromShipmentMutationVariables
@@ -189,6 +195,7 @@ function ShipmentView() {
     UpdateShipmentWhenReceivingMutationVariables
   >(UPDATE_SHIPMENT_WHEN_RECEIVING);
 
+  // shipment actions in the modal
   const handleShipment = useCallback(
     (mutation, kind, successMessage = "", failedMessage = "") =>
       () => {
@@ -230,6 +237,7 @@ function ShipmentView() {
   );
   const onReceive = handleShipment(startReceivingShipment, "receive");
 
+  // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(() => {
     setShipmentOverlayData({
       id: data?.shipment?.id,
@@ -361,6 +369,7 @@ function ShipmentView() {
     updateShipmentWhenReceivingStatus.loading ||
     lostShipmentStatus.loading;
 
+  // transform shipment data for UI
   const shipmentData = data?.shipment! as Shipment;
 
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
