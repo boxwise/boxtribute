@@ -11,12 +11,13 @@ shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
 
 
+def first_letters_of_base_name(base_id):
+    base = Base.get_by_id(base_id)
+    return base.name[:2].upper()
+
+
 @shipment.field("labelIdentifier")
 def resolve_shipment_label_identifier(shipment_obj, _):
-    def first_letters_of_base_name(base_id):
-        base = Base.get_by_id(base_id)
-        return base.name[:2].upper()
-
     # Shipment ID left-padded with zeroes; three characters
     id_part = f"{shipment_obj.id:03}"[-3:]
     # Shipment start date in format YYMMDD
