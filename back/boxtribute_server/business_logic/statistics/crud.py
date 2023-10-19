@@ -220,16 +220,35 @@ def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, product category, and box state.
     """
+    # Similar to example from
+    # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
+    LatestMoved = DbChangeHistory.alias()
+    LatestMovedSubQuery = (
+        LatestMoved.select(
+            LatestMoved.record_id,
+            fn.MAX(LatestMoved.change_date).alias("max_change_date"),
+        )
+        .group_by(LatestMoved.record_id)
+        .alias("sq")
+    )
+
     # This selects only information of boxes that were moved from InStock to Donated
     # state, and are now in the base of given base ID. It is NOT taken into account that
     # boxes can be moved back from Donated to InStock, nor that the product or other
     # attributes of the box change after having been donated
     selection = (
         DbChangeHistory.select(
-            fn.MAX(DbChangeHistory.change_date).alias("moved_on"),
+            DbChangeHistory.change_date.alias("moved_on"),
             Location.name.alias("target_id"),
             Product.category.alias("category_id"),
             fn.COUNT(Box.id).alias("boxes_count"),
+        )
+        .join(
+            LatestMovedSubQuery,
+            on=(
+                (DbChangeHistory.record_id == LatestMovedSubQuery.c.record_id)
+                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.max_change_date)
+            ),
         )
         .join(
             Box,
@@ -240,6 +259,7 @@ def compute_moved_boxes(base_id):
                 & (DbChangeHistory.from_int == BoxState.InStock)
                 & (DbChangeHistory.to_int == BoxState.Donated)
             ),
+            src=DbChangeHistory,
         )
         .join(
             Product,
@@ -252,6 +272,7 @@ def compute_moved_boxes(base_id):
         )
     )
     facts = selection.group_by(
+        SQL("moved_on"),
         SQL("target_id"),
         SQL("category_id"),
     ).dicts()
