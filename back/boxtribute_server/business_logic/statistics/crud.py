@@ -1,5 +1,3 @@
-from datetime import date
-
 from peewee import JOIN, SQL, fn
 
 from ...db import db
@@ -14,7 +12,7 @@ from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import convert_ids
+from ...models.utils import compute_age, convert_ids
 
 
 def _generate_dimensions(*names, facts):
@@ -61,9 +59,7 @@ def compute_beneficiary_demographics(base_ids=None):
     """
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
-    # Age calculation is an approximation (if the current time is June, anyone born in a
-    # later month will have an age a year older than they actually are)
-    age = date.today().year - Beneficiary.date_of_birth.year
+    age = compute_age(Beneficiary.date_of_birth)
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null(), Beneficiary.date_of_birth > 0]
