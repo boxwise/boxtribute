@@ -52,7 +52,7 @@ export function SelectColumnFilter({
         ({
           label,
           value: optionValues[label],
-        } as ISelectOption),
+        }) as ISelectOption,
     );
   }, [id, preFilteredRows]);
 
