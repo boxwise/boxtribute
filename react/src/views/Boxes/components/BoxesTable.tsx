@@ -37,7 +37,7 @@ import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { IUseMoveBoxesReturnType, useMoveBoxes } from "hooks/useMoveBoxes";
 import { SelectButton } from "./ActionButtons";
 import { TableSkeleton } from "components/Skeletons";
-import { BOXES_FOR_BASE_QUERY } from "../BoxesView";
+import { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "../BoxesView";
 import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";

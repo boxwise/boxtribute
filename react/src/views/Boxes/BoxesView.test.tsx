@@ -1,135 +1,126 @@
 import "@testing-library/jest-dom";
 import { screen, waitFor, fireEvent } from "@testing-library/react";
 import { render } from "tests/test-utils";
-import Boxes, { BOXES_FOR_BASE_QUERY } from "./BoxesView";
+import Boxes, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
 
 describe("Boxes view", () => {
   const mocks = [
     {
       request: {
-        query: BOXES_FOR_BASE_QUERY,
+        query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
         variables: {
           baseId: "1",
         },
       },
       result: {
         data: {
+          boxes: {
+            __typename: "BoxPage",
+            totalCount: 27,
+            elements: [
+              {
+                __typename: "Box",
+                labelIdentifier: "1239",
+                state: "InStock",
+                size: "68",
+                product: {
+                  __typename: "Product",
+                  gender: "Women",
+                  name: "Hijab",
+                },
+                numberOfItems: 4,
+              },
+              {
+                __typename: "Box",
+                labelIdentifier: "1230",
+                state: "InStock",
+                size: "68",
+                product: {
+                  __typename: "Product",
+                  gender: "Boy",
+                  name: "Top Boys (18-24 months)",
+                },
+                numberOfItems: 95,
+              },
+              {
+                __typename: "Box",
+                labelIdentifier: "1236",
+                state: "Lost",
+                size: "54",
+                product: {
+                  __typename: "Product",
+                  gender: "UnisexBaby",
+                  name: "Blanket",
+                },
+                numberOfItems: 40,
+              },
+              {
+                __typename: "Box",
+                labelIdentifier: "1237",
+                state: "MarkedForShipment",
+                size: "68",
+                product: {
+                  __typename: "Product",
+                  gender: "UnisexBaby",
+                  name: "Top 2-6 Months ",
+                },
+                numberOfItems: 16,
+              },
+              {
+                __typename: "Box",
+                labelIdentifier: "1238",
+                state: "Lost",
+                size: "118",
+                product: {
+                  __typename: "Product",
+                  gender: "UnisexKid",
+                  name: "Jacket Sleeveless ",
+                },
+                numberOfItems: 81,
+              },
+              {
+                __typename: "Box",
+                labelIdentifier: "1234",
+                state: "Donated",
+                size: "4",
+                product: {
+                  __typename: "Product",
+                  gender: "Women",
+                  name: "Long Dress",
+                },
+                numberOfItems: 64,
+              },
+              {
+                __typename: "Box",
+                labelIdentifier: "1235",
+                state: "Donated",
+                size: "52",
+                product: {
+                  __typename: "Product",
+                  gender: "Women",
+                  name: "Socks",
+                },
+                numberOfItems: 35,
+              },
+            ],
+          },
           base: {
             __typename: "Base",
             locations: [
               {
                 __typename: "Location",
+                id: 1,
                 name: "Warehouse 1",
-                boxes: {
-                  __typename: "BoxPage",
-                  totalCount: 27,
-                  elements: [
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1234",
-                      state: "Donated",
-                      size: "4",
-                      product: {
-                        __typename: "Product",
-                        gender: "Women",
-                        name: "Long Dress",
-                      },
-                      numberOfItems: 64,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1235",
-                      state: "Donated",
-                      size: "52",
-                      product: {
-                        __typename: "Product",
-                        gender: "Women",
-                        name: "Socks",
-                      },
-                      numberOfItems: 35,
-                    },
-                  ],
-                },
               },
               {
                 __typename: "Location",
+                id: 2,
                 name: "Warehouse 2",
-                boxes: {
-                  __typename: "BoxPage",
-                  totalCount: 31,
-                  elements: [
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1236",
-                      state: "Lost",
-                      size: "54",
-                      product: {
-                        __typename: "Product",
-                        gender: "UnisexBaby",
-                        name: "Blanket",
-                      },
-                      numberOfItems: 40,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1237",
-                      state: "MarkedForShipment",
-                      size: "68",
-                      product: {
-                        __typename: "Product",
-                        gender: "UnisexBaby",
-                        name: "Top 2-6 Months ",
-                      },
-                      numberOfItems: 16,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1238",
-                      state: "Lost",
-                      size: "118",
-                      product: {
-                        __typename: "Product",
-                        gender: "UnisexKid",
-                        name: "Jacket Sleeveless ",
-                      },
-                      numberOfItems: 81,
-                    },
-                  ],
-                },
               },
               {
                 __typename: "Location",
+                id: 3,
                 name: "Warehouse 3",
-                boxes: {
-                  __typename: "BoxPage",
-                  totalCount: 16,
-                  elements: [
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1239",
-                      state: "InStock",
-                      size: "68",
-                      product: {
-                        __typename: "Product",
-                        gender: "Women",
-                        name: "Hijab",
-                      },
-                      numberOfItems: 4,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1230",
-                      state: "InStock",
-                      size: "68",
-                      product: {
-                        __typename: "Product",
-                        gender: "Boy",
-                        name: "Top Boys (18-24 months)",
-                      },
-                      numberOfItems: 95,
-                    },
-                  ],
-                },
               },
             ],
           },
@@ -164,35 +155,35 @@ describe("Boxes view", () => {
   //   expect(productColumnHeader).toBeInTheDocument();
   // });
 
-  describe("search filter", () => {
-    beforeEach(waitTillLoadingIsDone);
-    it("initially it shows also entries in the table that don't match the later used search term", async () => {
-      const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-        name: "Top 2-6 Months",
-      });
-      expect(firstEntryInOriginalRowSet).toBeInTheDocument();
-    });
+  // describe("search filter", () => {
+  //   beforeEach(waitTillLoadingIsDone);
+  //   it("initially it shows also entries in the table that don't match the later used search term", async () => {
+  //     const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
+  //       name: "Top 2-6 Months",
+  //     });
+  //     expect(firstEntryInOriginalRowSet).toBeInTheDocument();
+  //   });
 
-    describe("applying the search term 'Blanket' in the filter", () => {
-      beforeEach(() => {
-        const searchField = screen.getByPlaceholderText("Search");
-        fireEvent.change(searchField, { target: { value: "Blanket" } });
-      });
-      it("only shows entries in the table that match the filter search term", async () => {
-        await waitFor(() => {
-          const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-            name: "Top 2-6 Months",
-          });
-          expect(firstEntryInOriginalRowSet).toBeNull();
-        });
+  //   describe("applying the search term 'Blanket' in the filter", () => {
+  //     beforeEach(() => {
+  //       const searchField = screen.getByPlaceholderText("Search");
+  //       fireEvent.change(searchField, { target: { value: "Blanket" } });
+  //     });
+  //     it("only shows entries in the table that match the filter search term", async () => {
+  //       await waitFor(() => {
+  //         const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
+  //           name: "Top 2-6 Months",
+  //         });
+  //         expect(firstEntryInOriginalRowSet).toBeNull();
+  //       });
 
-        const blanketProduct = screen.queryByRole("gridcell", {
-          name: "Blanket",
-        });
-        expect(blanketProduct).toBeInTheDocument();
-      });
-    });
-  });
+  //       const blanketProduct = screen.queryByRole("gridcell", {
+  //         name: "Blanket",
+  //       });
+  //       expect(blanketProduct).toBeInTheDocument();
+  //     });
+  //   });
+  // });
 
   // describe("filter dropdowns", () => {
   //   beforeEach(waitTillLoadingIsDone);

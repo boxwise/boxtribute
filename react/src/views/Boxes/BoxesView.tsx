@@ -6,7 +6,7 @@ import { useMoveBoxes } from "hooks/useMoveBoxes";
 import BoxesTable from "./components/BoxesTable";
 import { BoxRow } from "./components/types";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { BoxesForBaseQuery } from "types/generated/graphql";
+import { BoxesLocationsTagsShipmentsForBaseQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
@@ -15,23 +15,27 @@ import {
 } from "queries/fragments";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
 
-export const BOXES_FOR_BASE_QUERY = gql`
+// TODO: Implement Pagination and Filtering
+export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
   ${LOCATION_BASIC_FIELDS_FRAGMENT}
   ${TAG_BASIC_FIELDS_FRAGMENT}
   ${BASE_ORG_FIELDS_FRAGMENT}
   ${BOX_FIELDS_FRAGMENT}
-  query BoxesForBase($baseId: ID!) {
+  query BoxesLocationsTagsShipmentsForBase($baseId: ID!) {
+    boxes(baseId: $baseId, paginationInput: { first: 100000 }) {
+      totalCount
+      pageInfo {
+        hasNextPage
+      }
+      elements {
+        ...BoxFields
+      }
+    }
     base(id: $baseId) {
       locations {
         id
         seq
         name
-        boxes {
-          totalCount
-          elements {
-            ...BoxFields
-          }
-        }
         ... on ClassicLocation {
           defaultBoxState
         }
@@ -53,59 +57,63 @@ export const BOXES_FOR_BASE_QUERY = gql`
   }
 `;
 
-const graphqlToTableTransformer = (boxesQueryResult: BoxesForBaseQuery | undefined) =>
-  boxesQueryResult?.base?.locations?.flatMap(
-    (location) =>
-      location?.boxes?.elements.map(
-        (element) =>
-          ({
-            productName: element.product?.name,
-            labelIdentifier: element.labelIdentifier,
-            gender: element.product?.gender,
-            numberOfItems: element.numberOfItems,
-            size: element.size.label,
-            state: element.state,
-            place: location.name,
-            tags: element.tags?.map((tag) => tag.name),
-          } as BoxRow),
-      ) || [],
-  ) || [];
+// TODO: What additional columns do we want? (Age, Shipment, ...) Which are the default ones?
+const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipmentsForBaseQuery) =>
+  boxesQueryResult.boxes.elements.map(
+    (element) =>
+      ({
+        productName: element.product?.name,
+        labelIdentifier: element.labelIdentifier,
+        gender: element.product?.gender,
+        numberOfItems: element.numberOfItems,
+        size: element.size.label,
+        state: element.state,
+        place: element.location?.name,
+        tags: element.tags?.map((tag) => tag.name),
+      } as BoxRow),
+  );
 
 const Boxes = () => {
   const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
 
+  // REFACTORING TODO: move box actions one level down
   const onBoxesRowClick = (labelIdentifier: string) =>
     navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
-  const { loading, error, data } = useQuery<BoxesForBaseQuery>(BOXES_FOR_BASE_QUERY, {
-    variables: {
-      baseId,
+  const { loading, error, data } = useQuery<BoxesLocationsTagsShipmentsForBaseQuery>(
+    BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    {
+      variables: {
+        baseId,
+      },
+      fetchPolicy: "cache-and-network",
     },
-    fetchPolicy: "cache-and-network",
-  });
+  );
 
+  // REFACTORING TODO: move box actions one level down
   const moveBoxesAction = useMoveBoxes([
     {
-      query: BOXES_FOR_BASE_QUERY,
+      query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
       variables: {
         baseId,
       },
     },
   ]);
 
+  // TODO: implement error handling and tests
   if (loading) {
     return <APILoadingIndicator />;
   }
-  if (error) {
+  if (error || !data) {
     console.error(error);
     return <div>Error!</div>;
   }
 
+  // Data preparation
   const tableData = graphqlToTableTransformer(data);
-
-  const locationOptions = locationToDropdownOptionTransformer(data?.base?.locations ?? []);
+  const locationOptions = locationToDropdownOptionTransformer(data.base?.locations ?? []);
 
   return (
     <BoxesTable
