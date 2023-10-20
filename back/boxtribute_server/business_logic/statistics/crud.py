@@ -222,11 +222,19 @@ def compute_moved_boxes(base_id):
     """
     # Similar to example from
     # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
+    # Subquery to select record IDs and latest dates when box state was changed from
+    # InStock to Donated.
     LatestMoved = DbChangeHistory.alias()
     LatestMovedSubQuery = (
         LatestMoved.select(
             LatestMoved.record_id,
-            fn.MAX(LatestMoved.change_date).alias("max_change_date"),
+            fn.MAX(LatestMoved.change_date).alias("move_date"),
+        )
+        .where(
+            (LatestMoved.table_name == Box._meta.table_name),
+            (LatestMoved.changes == Box.state.column_name),
+            (LatestMoved.from_int == BoxState.InStock),
+            (LatestMoved.to_int == BoxState.Donated),
         )
         .group_by(LatestMoved.record_id)
         .alias("sq")
@@ -247,18 +255,12 @@ def compute_moved_boxes(base_id):
             LatestMovedSubQuery,
             on=(
                 (DbChangeHistory.record_id == LatestMovedSubQuery.c.record_id)
-                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.max_change_date)
+                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.move_date)
             ),
         )
         .join(
             Box,
-            on=(
-                (DbChangeHistory.record_id == Box.id)
-                & (DbChangeHistory.table_name == Box._meta.table_name)
-                & (DbChangeHistory.changes == Box.state.column_name)
-                & (DbChangeHistory.from_int == BoxState.InStock)
-                & (DbChangeHistory.to_int == BoxState.Donated)
-            ),
+            on=((DbChangeHistory.record_id == Box.id)),
             src=DbChangeHistory,
         )
         .join(
