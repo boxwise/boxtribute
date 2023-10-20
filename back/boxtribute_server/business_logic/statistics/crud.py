@@ -3,7 +3,7 @@ from datetime import date
 from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import BoxState, HumanGender, TaggableObjectType
+from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
@@ -49,6 +49,14 @@ def _generate_dimensions(*names, facts):
             .where(Size.id << size_ids)
             .dicts()
         )
+
+    if "target" in names:
+        target_ids = {f["target_id"] for f in facts}
+        # Target ID and name are identical for now
+        dimensions["target"] = [
+            {"id": i, "name": i, "type": TargetType.OutgoingLocation}
+            for i in target_ids
+        ]
 
     return dimensions
 
@@ -209,4 +217,75 @@ def compute_top_products_donated(base_id):
         row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_moved_boxes(base_id):
+    """Count all boxes moved to locations in the given base, grouped by date of
+    movement, product category, and box state.
+    """
+    # Similar to example from
+    # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
+    # Subquery to select record IDs and latest dates when box state was changed from
+    # InStock to Donated.
+    LatestMoved = DbChangeHistory.alias()
+    LatestMovedSubQuery = (
+        LatestMoved.select(
+            LatestMoved.record_id,
+            fn.MAX(LatestMoved.change_date).alias("move_date"),
+        )
+        .where(
+            (LatestMoved.table_name == Box._meta.table_name),
+            (LatestMoved.changes == Box.state.column_name),
+            (LatestMoved.from_int == BoxState.InStock),
+            (LatestMoved.to_int == BoxState.Donated),
+        )
+        .group_by(LatestMoved.record_id)
+        .alias("sq")
+    )
+
+    # This selects only information of boxes that were moved from InStock to Donated
+    # state, and are now in the base of given base ID. It is NOT taken into account that
+    # boxes can be moved back from Donated to InStock, nor that the product or other
+    # attributes of the box change after having been donated
+    selection = (
+        DbChangeHistory.select(
+            DbChangeHistory.change_date.alias("moved_on"),
+            Location.name.alias("target_id"),
+            Product.category.alias("category_id"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+        )
+        .join(
+            LatestMovedSubQuery,
+            on=(
+                (DbChangeHistory.record_id == LatestMovedSubQuery.c.record_id)
+                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.move_date)
+            ),
+        )
+        .join(
+            Box,
+            on=((DbChangeHistory.record_id == Box.id)),
+            src=DbChangeHistory,
+        )
+        .join(
+            Product,
+            on=((Box.product == Product.id) & (Product.base == base_id)),
+        )
+        .join(
+            Location,
+            src=Box,
+            on=((Box.location == Location.id) & (Location.base == base_id)),
+        )
+    )
+    facts = selection.group_by(
+        SQL("moved_on"),
+        SQL("target_id"),
+        SQL("category_id"),
+    ).dicts()
+
+    # Conversions for GraphQL interface
+    for row in facts:
+        row["moved_on"] = row["moved_on"].date()
+
+    dimensions = _generate_dimensions("category", "target", facts=facts)
     return {"facts": facts, "dimensions": dimensions}

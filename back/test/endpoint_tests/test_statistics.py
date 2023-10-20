@@ -1,4 +1,4 @@
-from boxtribute_server.enums import ProductGender
+from boxtribute_server.enums import ProductGender, TargetType
 from utils import assert_successful_request
 
 
@@ -137,6 +137,34 @@ def test_query_top_products(
             "size": [
                 {"id": str(s["id"]), "name": s["label"]}
                 for s in [default_size, another_size]
+            ],
+        },
+    }
+
+
+def test_query_moved_boxes(read_only_client, default_location):
+    query = """query { movedBoxes(baseId: 1) {
+        facts { movedOn targetId categoryId boxesCount }
+        dimensions { target { id name type } }
+        } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="public")
+    target_id = default_location["name"]
+    assert data == {
+        "facts": [
+            {
+                "boxesCount": 3,
+                "categoryId": 1,
+                "targetId": target_id,
+                "movedOn": "2022-12-05",
+            },
+        ],
+        "dimensions": {
+            "target": [
+                {
+                    "id": target_id,
+                    "name": target_id,
+                    "type": TargetType.OutgoingLocation.name,
+                }
             ],
         },
     }

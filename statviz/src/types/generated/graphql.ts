@@ -87,7 +87,7 @@ export type DimensionInfo = BasicDimensionInfo & {
   name?: Maybe<Scalars['String']['output']>;
 };
 
-export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions;
+export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | MovedBoxDataDimensions | TopProductsDimensions;
 
 /** TODO: Add description here once specs are final/confirmed */
 export enum DistributionEventState {
@@ -126,6 +126,34 @@ export enum Language {
   Nl = 'nl'
 }
 
+export type MovedBoxDataDimensions = {
+  __typename?: 'MovedBoxDataDimensions';
+  category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
+};
+
+export type MovedBoxesData = DataCube & {
+  __typename?: 'MovedBoxesData';
+  dimensions?: Maybe<MovedBoxDataDimensions>;
+  facts?: Maybe<Array<Maybe<MovedBoxesResult>>>;
+};
+
+/**
+ * A box can be moved in various ways:
+ * - within a base (location ID with InStock/Donated)
+ * - because it's lost (Lost)
+ * - because it becomes scrap (Scrap)
+ * - because it's about to be shipped (target base ID with MarkedForShipment)
+ * - because it's being shipped (target base ID with InTransit/Receiving)
+ */
+export type MovedBoxesResult = {
+  __typename?: 'MovedBoxesResult';
+  boxesCount: Scalars['Int']['output'];
+  categoryId: Scalars['Int']['output'];
+  movedOn: Scalars['Date']['output'];
+  targetId: Scalars['ID']['output'];
+};
+
 export enum PackingListEntryState {
   NotStarted = 'NotStarted',
   Packed = 'Packed',
@@ -157,6 +185,7 @@ export type Query = {
   __typename?: 'Query';
   beneficiaryDemographics?: Maybe<BeneficiaryDemographicsData>;
   createdBoxes?: Maybe<CreatedBoxesData>;
+  movedBoxes?: Maybe<MovedBoxesData>;
   topProductsCheckedOut?: Maybe<TopProductsCheckedOutData>;
   topProductsDonated?: Maybe<TopProductsDonatedData>;
 };
@@ -172,6 +201,11 @@ export type QueryCreatedBoxesArgs = {
 };
 
 
+export type QueryMovedBoxesArgs = {
+  baseId: Scalars['Int']['input'];
+};
+
+
 export type QueryTopProductsCheckedOutArgs = {
   baseId: Scalars['Int']['input'];
 };
@@ -181,7 +215,7 @@ export type QueryTopProductsDonatedArgs = {
   baseId: Scalars['Int']['input'];
 };
 
-export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
+export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | MovedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
 
 export enum ShipmentState {
   Canceled = 'Canceled',
@@ -211,6 +245,18 @@ export enum TagType {
 export enum TaggableResourceType {
   Beneficiary = 'Beneficiary',
   Box = 'Box'
+}
+
+export type TargetDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'TargetDimensionInfo';
+  id?: Maybe<Scalars['ID']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<TargetType>;
+};
+
+export enum TargetType {
+  OutgoingLocation = 'OutgoingLocation',
+  Shipment = 'Shipment'
 }
 
 export type TopProductsCheckedOutData = DataCube & {
