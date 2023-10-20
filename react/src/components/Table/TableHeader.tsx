@@ -14,6 +14,7 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
         <Tr {...headerGroup.getHeaderGroupProps()}>
           {headerGroup.headers.map((column) => (
             <Th {...column.getHeaderProps()}>
+              {/* TODO: Use stack instead of Flex to ensure that the space between icons and title the same */}
               <Flex alignItems="center">
                 <chakra.span pl="1">
                   {column.isSorted && column.isSortedDesc && (

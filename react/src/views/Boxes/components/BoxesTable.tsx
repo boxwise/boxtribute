@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Table,
@@ -9,14 +9,6 @@ import {
   Flex,
   Text,
   IconButton,
-  Box,
-  Checkbox,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  Button,
   ButtonGroup,
 } from "@chakra-ui/react";
 import {
@@ -27,240 +19,31 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
-  Row,
 } from "react-table";
-import { BoxRow } from "./types";
-import { GlobalFilter } from "./GlobalFilter";
-import { SelectColumnFilter } from "components/Table/Filter";
-import IndeterminateCheckbox from "./Checkbox";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { IUseMoveBoxesReturnType, useMoveBoxes } from "hooks/useMoveBoxes";
-import { SelectButton } from "./ActionButtons";
-import { TableSkeleton } from "components/Skeletons";
-import { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "../BoxesView";
-import { PopoverTrigger as OrigPopoverTrigger } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import IndeterminateCheckbox from "./Checkbox";
+import { GlobalFilter } from "./GlobalFilter";
+import { BoxRow } from "./types";
 
-export const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
-
-export type BoxesTableProps = {
-  tableData: BoxRow[];
-  locationOptions: { label: string; value: string }[];
-  moveBoxesAction: IUseMoveBoxesReturnType;
-  onBoxRowClick: (labelIdentified: string) => void;
-};
-
-interface ColumnSelectorProps {
-  availableColumns: Column<BoxRow>[];
-  setSelectedColumns: (columns: Column<BoxRow>[]) => void;
-  selectedColumns: Column<BoxRow>[];
-}
-
-const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
-  columns
-    .map((column) => ({
-      label: column.Header?.toString() || "",
-      value: column.accessor?.toString() || "",
-    }))
-    .filter((value) => value !== undefined);
-
-const ColumnSelector = ({
-  availableColumns,
-  setSelectedColumns,
-  selectedColumns,
-}: ColumnSelectorProps) => {
-  const allAvailableColumnOptions = useMemo(
-    () => mapColumnsToColumnOptionCollection(availableColumns),
-    [availableColumns],
-  );
-
-  const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    const columnId = e.target.value;
-    const column = availableColumns.find((column) => column.id === columnId);
-    if (column != null) {
-      if (checked) {
-        setSelectedColumns(
-          selectedColumns.includes(column) ? selectedColumns : [...selectedColumns, column],
-        );
-      } else {
-        setSelectedColumns(selectedColumns.filter((c) => c !== column));
-      }
-    }
-  };
-
-  const selectedColumnOptions = mapColumnsToColumnOptionCollection(selectedColumns);
-
-  return (
-    <Box maxW="400px" minW="250px">
-      <Popover>
-        <PopoverTrigger>
-          <Button>Columns shown</Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverCloseButton />
-          <PopoverBody textStyle="h1">
-            <Flex flexWrap="wrap">
-              {allAvailableColumnOptions.map((columnOption) => (
-                <Checkbox
-                  m={1}
-                  py={1}
-                  px={2}
-                  border="1px"
-                  colorScheme="gray"
-                  borderColor="gray.200"
-                  onChange={onCheckboxChange}
-                  key={columnOption.value}
-                  defaultChecked={selectedColumnOptions
-                    .map((c) => c.value)
-                    .includes(columnOption.value)}
-                  value={columnOption.value}
-                >
-                  {columnOption.label}
-                </Checkbox>
-              ))}
-            </Flex>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
-    </Box>
-  );
-};
-
-const BoxesTable = ({
-  tableData,
-  locationOptions,
-  moveBoxesAction,
-  onBoxRowClick,
-}: BoxesTableProps) => {
-  const availableColumns: Column<BoxRow>[] = React.useMemo(
-    () => [
-      {
-        Header: "Product",
-        accessor: "productName",
-        id: "productName",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Box Number",
-        accessor: "labelIdentifier",
-        id: "labelIdentifier",
-        disableFilters: true,
-      },
-      {
-        Header: "Gender",
-        accessor: "gender",
-        id: "gender",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Size",
-        accessor: "size",
-        id: "size",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Items",
-        accessor: "numberOfItems",
-        id: "numberOfItems",
-        disableFilters: true,
-      },
-      {
-        Header: "State",
-        accessor: "state",
-        id: "state",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Place",
-        accessor: "place",
-        id: "place",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Tags",
-        accessor: "tags",
-        id: "tags",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-    ],
-    [],
-  );
-
-  const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(availableColumns);
-  const orderedSelectedColumns = useMemo(
-    () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
-    [selectedColumns, availableColumns],
-  );
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-
-  const baseId = globalPreferences.selectedBase?.id!;
-  const tableConfigKey = `boxes-view--base-id-${baseId}`;
-
-  // Actions on Selected Boxes
-  const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
-  // Move Boxes
-  const onMoveBoxes = useCallback(
-    (locationId: string) =>
-      moveBoxesAction.moveBoxes(
-        selectedBoxes.map((box) => box.values.labelIdentifier),
-        parseInt(locationId, 10),
-      ),
-    [moveBoxesAction.moveBoxes, selectedBoxes],
-  );
-
-  return (
-    <>
-      {moveBoxesAction.isLoading ? (
-        <TableSkeleton />
-      ) : (
-        <ActualTable
-          tableActions={
-            <ButtonGroup>
-              <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />
-              <ColumnSelector
-                availableColumns={availableColumns}
-                selectedColumns={selectedColumns}
-                setSelectedColumns={setSelectedColumns}
-              />
-            </ButtonGroup>
-          }
-          tableConfigKey={tableConfigKey}
-          columns={orderedSelectedColumns}
-          tableData={tableData}
-          onBoxRowClick={onBoxRowClick}
-        />
-      )}
-    </>
-  );
-};
-
-interface IActualTableProps {
-  tableActions: React.ReactNode;
-  columns: Column<BoxRow>[];
-  show?: boolean;
-  tableData: BoxRow[];
+interface IBoxesTableProps {
   tableConfigKey: string;
+  tableData: BoxRow[];
+  columns: Column<BoxRow>[];
+  actionButtons: React.ReactNode[];
+  columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
 }
 
-const ActualTable = ({
-  tableActions,
+function BoxesTable({
   tableConfigKey,
-  show = true,
-  columns,
   tableData,
+  columns,
+  actionButtons,
+  columnSelector,
   onBoxRowClick,
-}: IActualTableProps) => {
+}: IBoxesTableProps) {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
   const tableConfig = tableConfigsState?.get(tableConfigKey);
@@ -283,6 +66,7 @@ const ActualTable = ({
     pageOptions,
     nextPage,
     previousPage,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     selectedFlatRows,
   } = useTable(
     // TODO: remove this ts-ignore again and try to fix the type error properly
@@ -308,19 +92,16 @@ const ActualTable = ({
     usePagination,
     useRowSelect,
     (hooks) => {
+      // eslint-disable-next-line no-shadow
       hooks.visibleColumns.push((columns) => [
         {
           id: "selection",
+          // eslint-disable-next-line react/no-unstable-nested-components
           Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
+            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
           ),
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
+          // eslint-disable-next-line react/no-unstable-nested-components
+          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
         ...columns,
       ]);
@@ -333,35 +114,34 @@ const ActualTable = ({
       columnFilters: filters,
     });
     tableConfigsVar(tableConfigsState);
-  }, [globalFilter, filters, tableConfig]);
-
-  if (!show) {
-    return <></>;
-  }
+  }, [globalFilter, filters, tableConfig, tableConfigsState, tableConfigKey]);
 
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
-        {tableActions}
+        <ButtonGroup>{actionButtons}</ButtonGroup>
         <Spacer />
+        {columnSelector}
         <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
       <Table>
         <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
-          {page.map((row, i) => {
+          {page.map((row) => {
             prepareRow(row);
             return (
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original["labelIdentifier"])}
-                key={i}
+                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                key={row.original.labelIdentifier}
               >
-                {row.cells.map((cell, i) => {
-                  return <Td key={i}>{cell.render("Cell")}</Td>;
-                })}
+                {row.cells.map((cell) => (
+                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                    {cell.render("Cell")}
+                  </Td>
+                ))}
               </Tr>
             );
           })}
@@ -401,6 +181,6 @@ const ActualTable = ({
       </Flex>
     </>
   );
-};
+}
 
 export default BoxesTable;

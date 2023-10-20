@@ -1,11 +1,6 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useMoveBoxes } from "hooks/useMoveBoxes";
-import BoxesTable from "./components/BoxesTable";
-import { BoxRow } from "./components/types";
-import APILoadingIndicator from "components/APILoadingIndicator";
 import { BoxesLocationsTagsShipmentsForBaseQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
@@ -14,6 +9,11 @@ import {
   TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
+import { SelectColumnFilter } from "components/Table/Filter";
+import { Column } from "react-table";
+import { TableSkeleton } from "components/Skeletons";
+import { BoxRow } from "./components/types";
+import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
@@ -57,7 +57,6 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
   }
 `;
 
-// TODO: What additional columns do we want? (Age, Shipment, ...) Which are the default ones?
 const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipmentsForBaseQuery) =>
   boxesQueryResult.boxes.elements.map(
     (element) =>
@@ -73,14 +72,9 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
       } as BoxRow),
   );
 
-const Boxes = () => {
-  const navigate = useNavigate();
+function Boxes() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
-
-  // REFACTORING TODO: move box actions one level down
-  const onBoxesRowClick = (labelIdentifier: string) =>
-    navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
   const { loading, error, data } = useQuery<BoxesLocationsTagsShipmentsForBaseQuery>(
     BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
@@ -92,22 +86,73 @@ const Boxes = () => {
     },
   );
 
-  // REFACTORING TODO: move box actions one level down
-  const moveBoxesAction = useMoveBoxes([
-    {
-      query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
-      variables: {
-        baseId,
+  // TODO: What additional columns do we want? (Age, Shipment, ...) Which are the default ones?
+  const availableColumns: Column<BoxRow>[] = useMemo(
+    () => [
+      {
+        Header: "Product",
+        accessor: "productName",
+        id: "productName",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
       },
-    },
-  ]);
+      {
+        Header: "Box Number",
+        accessor: "labelIdentifier",
+        id: "labelIdentifier",
+        disableFilters: true,
+      },
+      {
+        Header: "Gender",
+        accessor: "gender",
+        id: "gender",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
+      },
+      {
+        Header: "Size",
+        accessor: "size",
+        id: "size",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
+      },
+      {
+        Header: "Items",
+        accessor: "numberOfItems",
+        id: "numberOfItems",
+        disableFilters: true,
+      },
+      {
+        Header: "State",
+        accessor: "state",
+        id: "state",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
+      },
+      {
+        Header: "Place",
+        accessor: "place",
+        id: "place",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
+      },
+      {
+        Header: "Tags",
+        accessor: "tags",
+        id: "tags",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
+      },
+    ],
+    [],
+  );
 
   // TODO: implement error handling and tests
   if (loading) {
-    return <APILoadingIndicator />;
+    return <TableSkeleton />;
   }
+  // TODO: change to Alert
   if (error || !data) {
-    console.error(error);
     return <div>Error!</div>;
   }
 
@@ -115,14 +160,14 @@ const Boxes = () => {
   const tableData = graphqlToTableTransformer(data);
   const locationOptions = locationToDropdownOptionTransformer(data.base?.locations ?? []);
 
+  // TODO: pass shipment and tag options to BoxesActionsAndTable
   return (
-    <BoxesTable
+    <BoxesActionsAndTable
       tableData={tableData}
+      availableColumns={availableColumns}
       locationOptions={locationOptions}
-      moveBoxesAction={moveBoxesAction}
-      onBoxRowClick={onBoxesRowClick}
     />
   );
-};
+}
 
 export default Boxes;
