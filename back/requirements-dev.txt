@@ -6,7 +6,7 @@ pytest>=5.4.3
 pytest-mock==3.11.1
 pytest-cov==4.1.0
 pytest-clarity==1.0.1
-mypy==1.6.0
+mypy==1.6.1
 types-Flask-Cors==4.0.0.1
 types-peewee==3.16.0.2
 types-python-jose==3.3.4.8
