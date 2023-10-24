@@ -8,5 +8,5 @@ pytest-cov==4.1.0
 pytest-clarity==1.0.1
 mypy==1.6.1
 types-Flask-Cors==4.0.0.1
-types-peewee==3.16.0.2
+types-peewee==3.17.0.0
 types-python-jose==3.3.4.8
