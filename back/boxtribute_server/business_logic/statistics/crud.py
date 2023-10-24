@@ -66,7 +66,9 @@ def compute_beneficiary_demographics(base_ids=None):
     """
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
-    age = compute_age(Beneficiary.date_of_birth)
+    age = fn.IF(
+        Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
+    )
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null()]
