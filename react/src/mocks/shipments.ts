@@ -188,6 +188,13 @@ export const generateMockShipmentMinimal = ({
   const shipment = {
     id: "1",
     state,
+    labelIdentifier: iAmSource
+      ? `001-123123-${base1.name.substring(0, 2).toUpperCase()}x${base2.name
+          .substring(0, 2)
+          .toUpperCase()}`
+      : `001-123123-${base2.name.substring(0, 2).toUpperCase()}x${base1.name
+          .substring(0, 2)
+          .toUpperCase()}`,
     sourceBase: iAmSource ? base1 : base2,
     targetBase: iAmSource ? base2 : base1,
   };
@@ -201,6 +208,13 @@ export const generateMockShipmentWithCustomDetails = ({
   details = [generateMockShipmentDetail({})],
 }) => ({
   id: "1",
+  labelIdentifier: iAmSource
+    ? `001-123123-${base1.name.substring(0, 2).toUpperCase()}x${base2.name
+        .substring(0, 2)
+        .toUpperCase()}`
+    : `001-123123-${base2.name.substring(0, 2).toUpperCase()}x${base1.name
+        .substring(0, 2)
+        .toUpperCase()}`,
   state,
   details,
   sourceBase: iAmSource ? base1 : base2,
