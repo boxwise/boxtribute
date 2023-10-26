@@ -79,7 +79,7 @@ export default function CreatedBoxes(params: {
   if (loading) {
     return <p>loading...</p>;
   }
-  if (createdBoxesPerDay.length < 1) {
+  if (createdBoxesPerDay.length === 0) {
     return (
       <Card h={params.height} w={params.width}>
         <CardHeader>
@@ -90,10 +90,13 @@ export default function CreatedBoxes(params: {
     );
   }
 
+  const getHeading = () =>
+    params.boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
+
   return (
     <Card backgroundColor={getSelectionBackground(selected)}>
       <VisHeader
-        heading="Created Boxes"
+        heading={getHeading()}
         visId="cb"
         onSelect={() => setSelected(true)}
         onDeselect={() => setSelected(false)}
@@ -102,7 +105,7 @@ export default function CreatedBoxes(params: {
         <BarChart
           data={createdBoxesPerDay}
           indexBy="createdOn"
-          keys={["boxesCount"]}
+          keys={[params.boxesOrItems]}
           width={params.width}
           height={params.height}
         />

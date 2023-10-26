@@ -86,15 +86,6 @@ export default function ItemsAndBoxes() {
               </Select>
             </Box>
           </WrapItem>
-          <WrapItem>
-            <Box width="250px">
-              <FormLabel htmlFor="box-item-select">Tags</FormLabel>
-              <Select name="box-item-select">
-                <option value="boxes">tag1</option>
-                <option value="items">tag2</option>
-              </Select>
-            </Box>
-          </WrapItem>
         </Wrap>
         <Wrap gap={6}>
           <WrapItem overflow="auto" padding="5px">

@@ -14,6 +14,7 @@ import { useParams } from "react-router-dom";
 import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
 import { getSelectionBackground } from "../../../utils/theme";
 import VisHeader from "./VisHeader";
+import useCreatedBoxes from "../../../utils/hooks/useCreatedBoxes";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -52,12 +53,13 @@ export default function TopProducts(params: {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
   const [selected, setSelected] = useState<boolean>(false);
+  const createdBoxes = useCreatedBoxes(data);
 
   const getChartData = () => {
     if (data === undefined) {
       return [];
     }
-    const createdBoxes = table(data.createdBoxes.facts as CreatedBoxesResult[]);
+
     const products = table(
       data.createdBoxes.dimensions.product as ProductDimensionInfo
     );
@@ -82,7 +84,7 @@ export default function TopProducts(params: {
     });
   };
 
-  const chartData = useMemo(getChartData, [data, boxesOrItems]);
+  const chartData = useMemo(getChartData, [data, createdBoxes, boxesOrItems]);
 
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;

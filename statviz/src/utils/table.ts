@@ -103,7 +103,7 @@ export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
   const dataTable = table(createdBoxes);
 
   return {
-    data: createdBoxes,
+    ...dataTable,
     filterCreatedOn: (interval: Interval) => {
       return createdBoxesTable(
         dataTable.filterFromTo(interval, "createdOn").data
@@ -111,7 +111,7 @@ export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
     },
     groupByCreatedOn: () => {
       return createdBoxesTable(
-        dataTable.groupBySum("createdOn", ["boxesCount"]).data
+        dataTable.groupBySum("createdOn", ["boxesCount", "itemsCount"]).data
       );
     },
     removeMissingCreatedOn: () => {

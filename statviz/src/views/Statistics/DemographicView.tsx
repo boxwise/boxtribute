@@ -2,18 +2,14 @@ import { ApolloError, gql, useQuery } from "@apollo/client";
 import {
   BeneficiaryDemographicsQuery,
   BeneficiaryDemographicsQueryVariables,
-  BeneficiaryDemographicsResult,
 } from "../../types/generated/graphql";
-import DemographicChart, {
-  IDemographicCube,
-} from "./components/DemographicChart";
-import { table } from "../../utils/table";
-import { beneficiaryDemographicsMock } from "../../mocks/demographic";
-import _ from "lodash";
+import DemographicChart from "./components/DemographicChart";
+import { useParams } from "react-router-dom";
+import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 
 const DEMOGRAPHIC_QUERY = gql`
-  query BeneficiaryDemographics {
-    beneficiaryDemographics(baseIds: [11]) {
+  query BeneficiaryDemographics($baseIds: [Int!]!) {
+    beneficiaryDemographics(baseIds: $baseIds) {
       facts {
         count
         createdOn
@@ -30,11 +26,15 @@ const DEMOGRAPHIC_QUERY = gql`
   }
 `;
 
-export default function DemographicView() {
+export default function DemographicView(params: {
+  width: number;
+  height: number;
+}) {
+  const { baseId } = useParams();
   const { data, loading, error } = useQuery<
     BeneficiaryDemographicsQuery,
     BeneficiaryDemographicsQueryVariables
-  >(DEMOGRAPHIC_QUERY);
+  >(DEMOGRAPHIC_QUERY, { variables: { baseIds: [parseInt(baseId)] } });
 
   if (error instanceof ApolloError) {
     return <p>ApolloError: {error.message}</p>;
@@ -43,5 +43,11 @@ export default function DemographicView() {
     return <p>loading...</p>;
   }
 
-  return <DemographicChart cube={data.beneficiaryDemographics} />;
+  return (
+    <DemographicChart
+      cube={data.beneficiaryDemographics}
+      width={params.width}
+      height={params.height}
+    />
+  );
 }

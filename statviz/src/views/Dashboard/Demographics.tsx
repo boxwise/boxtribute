@@ -22,7 +22,7 @@ export default function Demographics() {
       <AccordionPanel>
         <Wrap gap={6}>
           <WrapItem overflow="auto" padding="5px">
-            <DemographicView />
+            <DemographicView width={600} height={700} />
           </WrapItem>
         </Wrap>
       </AccordionPanel>

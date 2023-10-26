@@ -42,20 +42,9 @@ export default function Dashboard() {
             <TimeRangeSelect onChange={onTimeRangeChange} />
           </Center>
         </WrapItem>
-        <WrapItem>
-          <Center>
-            <Box w="200px">
-              <FormLabel>Label</FormLabel>
-              <Select>
-                <option>option1</option>
-                <option>option2</option>
-              </Select>
-            </Box>
-          </Center>
-        </WrapItem>
       </Wrap>
 
-      <Accordion defaultIndex={[0, 1]} allowMultiple>
+      <Accordion defaultIndex={[0, 1]} allowMultiple marginBottom="100px">
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />

@@ -8,6 +8,7 @@ import {
   WrapItem,
   Box,
 } from "@chakra-ui/react";
+import BoxFlowSankey from "../Statistics/components/BoxFlowSankey";
 
 export default function MovedBoxes() {
   return (
@@ -21,7 +22,7 @@ export default function MovedBoxes() {
       <AccordionPanel>
         <Wrap gap={6}>
           <WrapItem overflow="auto" padding="5px">
-            <Heading size="md">Box Flow</Heading>
+            <BoxFlowSankey />
           </WrapItem>
         </Wrap>
       </AccordionPanel>

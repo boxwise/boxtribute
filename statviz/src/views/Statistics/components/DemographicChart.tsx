@@ -1,4 +1,4 @@
-import { Card, CardBody, Heading } from "@chakra-ui/react";
+import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../../../components/custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { HumanGender } from "../../../types/generated/graphql";
@@ -26,11 +26,30 @@ export interface IDemographicCube {
   };
 }
 
-export default function DemographicChart(props: { cube: IDemographicCube }) {
+export default function DemographicChart(props: {
+  cube: IDemographicCube;
+  width: number;
+  height: number;
+}) {
   const [selected, setSelected] = useState<boolean>(false);
   const facts = [...props.cube.facts];
 
-  console.log(facts);
+  if (facts.length === 0) {
+    return (
+      <Card w={props.width}>
+        <CardHeader>
+          <Heading size="md">Created Boxes</Heading>
+        </CardHeader>
+        <CardBody>
+          <p>
+            No demographic data available for your base. Either you are a
+            sending base which is not registering people or the birth rate is
+            not registered.
+          </p>
+        </CardBody>
+      </Card>
+    );
+  }
 
   const prepareFacts = (facts: IDemographicFact[]) => {
     const dataXr = table(
