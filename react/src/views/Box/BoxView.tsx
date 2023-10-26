@@ -586,7 +586,8 @@ function BTBox() {
         )
         ?.map((shipment) => ({
           // eslint-disable-next-line max-len
-          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name} (Shipment ${shipment.id})`,
+          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+          subTitle: shipment.labelIdentifier,
           value: shipment.id,
         })) ?? [],
     [currentBaseId, shipmentsQueryResult],
