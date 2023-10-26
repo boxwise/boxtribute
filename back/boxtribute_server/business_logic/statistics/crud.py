@@ -1,5 +1,3 @@
-from datetime import date
-
 from peewee import JOIN, SQL, fn
 
 from ...db import db
@@ -14,7 +12,7 @@ from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import convert_ids
+from ...models.utils import compute_age, convert_ids
 
 
 def _generate_dimensions(*names, facts):
@@ -65,12 +63,12 @@ def compute_beneficiary_demographics(base_ids=None):
     """For each combination of age, gender, and day-truncated date count the number of
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
-    The 'age' dimensions actually represents a range of ages (e.g. 0-5, 5-10, etc.)
     """
-    bin_width = 5
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
-    age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
+    age = fn.IF(
+        Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
+    )
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null()]
@@ -101,7 +99,8 @@ def compute_beneficiary_demographics(base_ids=None):
     # Conversions for GraphQL interface
     for row in demographics:
         row["gender"] = HumanGender(row["gender"])
-        row["created_on"] = row["created_on"].date()
+        if row["created_on"] is not None:
+            row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
