@@ -36,6 +36,7 @@ function ShipmentsOverviewView() {
 
         const shipmentRow = {
           id: element.id,
+          labelIdentifier: element.labelIdentifier,
           direction: "To",
           partnerBaseOrg: {
             base: element.targetBase.name,
@@ -127,6 +128,11 @@ function ShipmentsOverviewView() {
         Cell: BaseOrgCell,
         Filter: SelectColumnFilter,
         filter: "includesSomeObject",
+      },
+      {
+        Header: "ID",
+        accessor: "labelIdentifier",
+        disableFilters: true,
       },
       {
         Header: "Status",
