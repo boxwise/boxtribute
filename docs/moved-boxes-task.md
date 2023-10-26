@@ -1,9 +1,16 @@
 ## Goal
-Obtain correct count of boxes (and, ideally, their contained items count) that had their state changed from InStock to Donated in a certain timeframe.
-
-The boxes are registered in a specific base.
-
+Write the most time-efficient query to obtain correct count of boxes (and, ideally, their contained items count) that had their state changed from InStock to Donated in a certain timeframe in a single base.
 The results shall group counts by box product (that's a simplification, actually it's product category), and target location ID.
+
+## Context
+
+We are building a statistics visualization that shows the boxes that have been moved otu of a warehouse (indicated by state change).
+
+A box is a collection of items of the same product which is registered in a warehouse location.
+
+Each location is part of one base. A base is an operational location of an aid organisation.
+
+Boxes can move between locations of different bases (also of other organisations).
 
 ## Example data
 ### history table
@@ -66,9 +73,9 @@ id | base_id | default_box_state_id
  5 |       2 |                    5
 ```
 
-## Problem statement
+## Expected results
 
-**What is the best data format to answer the following questions in a straightforward and correct way?**
+For the example data above, the following questions should return the results listed.
 
 1. How many boxes (and items), grouped by product and target location, have been moved in base 1 in January 2023?
     - product ID 1, location ID 2: 1 box (99 items)
