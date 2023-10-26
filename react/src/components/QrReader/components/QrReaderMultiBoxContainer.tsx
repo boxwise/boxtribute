@@ -208,6 +208,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           value: shipment.id,
+          subTitle: shipment?.labelIdentifier,
         })) ?? [],
     [currentBaseId, optionsQueryResult.data?.shipments],
   );
