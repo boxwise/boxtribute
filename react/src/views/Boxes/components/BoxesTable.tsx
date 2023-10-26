@@ -1,29 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect } from "react";
+import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
-  TriangleDownIcon,
-  TriangleUpIcon,
-  ChevronRightIcon,
-  ChevronLeftIcon,
-} from "@chakra-ui/icons";
-import {
-  Button,
   Table,
-  Thead,
   Tr,
-  Th,
-  chakra,
   Tbody,
   Td,
+  Spacer,
   Flex,
   Text,
   IconButton,
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Checkbox,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -34,220 +20,70 @@ import {
   useRowSelect,
   usePagination,
 } from "react-table";
-import { BoxRow } from "./types";
-import { GlobalFilter } from "./GlobalFilter";
-import { SelectColumnFilter } from "./SelectColumnFilter";
+import { FilteringSortingTableHeader } from "components/Table/TableHeader";
+import { tableConfigsVar } from "queries/cache";
+import { useReactiveVar } from "@apollo/client";
 import IndeterminateCheckbox from "./Checkbox";
+import { GlobalFilter } from "./GlobalFilter";
+import { BoxRow } from "./types";
 
-export type BoxesTableProps = {
+interface IBoxesTableProps {
+  tableConfigKey: string;
   tableData: BoxRow[];
-  onBoxRowClick: (labelIdentified: string) => void;
-};
-
-interface ColumnSelectorProps {
-  availableColumns: Column<BoxRow>[];
-  setSelectedColumns: (columns: Column<BoxRow>[]) => void;
-  selectedColumns: Column<BoxRow>[];
-}
-
-const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
-  columns
-    .map((column) => ({
-      label: column.Header?.toString() || "",
-      value: column.accessor?.toString() || "",
-    }))
-    .filter((value) => value !== undefined);
-
-const ColumnSelector = ({
-  availableColumns,
-  setSelectedColumns,
-  selectedColumns,
-}: ColumnSelectorProps) => {
-  const allAvailableColumnOptions = useMemo(
-    () => mapColumnsToColumnOptionCollection(availableColumns),
-    [availableColumns]
-  );
-
-  const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    const columnId = e.target.value;
-    const column = availableColumns.find((column) => column.id === columnId);
-    if (column != null) {
-      if (checked) {
-        setSelectedColumns(
-          selectedColumns.includes(column)
-            ? selectedColumns
-            : [...selectedColumns, column]
-        );
-      } else {
-        setSelectedColumns(selectedColumns.filter((c) => c !== column));
-      }
-    }
-  };
-
-  const selectedColumnOptions =
-    mapColumnsToColumnOptionCollection(selectedColumns);
-
-  return (
-    <Box maxW="400px" minW="250px">
-      <Accordion allowToggle>
-        <AccordionItem>
-          <h2>
-            <AccordionButton>
-              <Box flex="1" textAlign="left">
-                Columns
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-          </h2>
-          <AccordionPanel pb={4}>
-            <Flex flexWrap="wrap">
-              {allAvailableColumnOptions.map((columnOption) => (
-                <Checkbox
-                  m={1}
-                  py={1}
-                  px={2}
-                  border="1px"
-                  colorScheme="gray"
-                  borderColor="gray.200"
-                  onChange={onCheckboxChange}
-                  key={columnOption.value}
-                  defaultChecked={selectedColumnOptions
-                    .map((c) => c.value)
-                    .includes(columnOption.value)}
-                  value={columnOption.value}
-                >
-                  {columnOption.label}
-                </Checkbox>
-              ))}
-            </Flex>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
-    </Box>
-  );
-};
-
-const BoxesTable = ({ tableData, onBoxRowClick }: BoxesTableProps) => {
-  const availableColumns: Column<BoxRow>[] = React.useMemo(
-    () => [
-      {
-        Header: "Product",
-        accessor: "productName",
-        id: "productName",
-        Filter: SelectColumnFilter,
-        show: false,
-      },
-      {
-        Header: "Box Number",
-        accessor: "labelIdentifier",
-        id: "labelIdentifier",
-      },
-      {
-        Header: "Gender",
-        accessor: "gender",
-        id: "gender",
-        Filter: SelectColumnFilter,
-        filter: "equals",
-      },
-      {
-        Header: "Size",
-        accessor: "size",
-        id: "size",
-      },
-      {
-        Header: "Items",
-        accessor: "numberOfItems",
-        id: "numberOfItems",
-      },
-      {
-        Header: "State",
-        accessor: "state",
-        id: "state",
-        Filter: SelectColumnFilter,
-        filter: "equals",
-      },
-      {
-        Header: "Place",
-        accessor: "place",
-        id: "place",
-        Filter: SelectColumnFilter,
-        filter: "equals",
-      },
-      {
-        Header: "Tags",
-        accessor: "tags",
-        id: "tags",
-        Filter: SelectColumnFilter,
-        filter: "equals",
-      },
-    ],
-    []
-  );
-
-  const [selectedColumns, setSelectedColumns] =
-    useState<Column<BoxRow>[]>(availableColumns);
-  const orderedSelectedColumns = useMemo(
-    () =>
-      selectedColumns.sort(
-        (a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)
-      ),
-    [selectedColumns, availableColumns]
-  );
-
-  return (
-    <>
-      <ColumnSelector
-        availableColumns={availableColumns}
-        selectedColumns={selectedColumns}
-        setSelectedColumns={setSelectedColumns}
-      />
-      <ActualTable
-        columns={orderedSelectedColumns}
-        tableData={tableData}
-        onBoxRowClick={onBoxRowClick}
-      />
-      ;
-    </>
-  );
-};
-
-interface ActualTableProps {
   columns: Column<BoxRow>[];
-  show?: boolean;
-  tableData: BoxRow[];
+  actionButtons: React.ReactNode[];
+  columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
 }
-const ActualTable = ({
-  show = true,
-  columns,
+
+function BoxesTable({
+  tableConfigKey,
   tableData,
+  columns,
+  actionButtons,
+  columnSelector,
   onBoxRowClick,
-}: ActualTableProps) => {
+}: IBoxesTableProps) {
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
+
+  const tableConfig = tableConfigsState?.get(tableConfigKey);
+  if (tableConfig == null) {
+    tableConfigsState.set(tableConfigKey, {
+      globalFilter: undefined,
+      columnFilters: [],
+    });
+    tableConfigsVar(tableConfigsState);
+  }
+
   const {
     headerGroups,
     prepareRow,
-    state: { globalFilter, pageIndex },
+    state: { globalFilter, pageIndex, filters },
     setGlobalFilter,
     page,
     canPreviousPage,
     canNextPage,
     pageOptions,
-
     nextPage,
     previousPage,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+    selectedFlatRows,
   } = useTable(
-  // TODO: remove this ts-ignore again and try to fix the type error properly
-  // was most likely caused by setting one of the following flags in .tsconfig:
-  // "strictNullChecks": true
-  // "strictFunctionTypes": false
+    // TODO: remove this ts-ignore again and try to fix the type error properly
+    // was most likely caused by setting one of the following flags in .tsconfig:
+    // "strictNullChecks": true
+    // "strictFunctionTypes": false
     {
-  // @ts-ignore
+      // @ts-ignore
       columns,
       data: tableData,
       initialState: {
         pageIndex: 0,
         pageSize: 20,
+        filters: tableConfig?.columnFilters ?? [],
+        ...(tableConfig?.globalFilter != null
+          ? { globalFilter: tableConfig?.globalFilter }
+          : undefined),
       },
     },
     useFilters,
@@ -256,83 +92,56 @@ const ActualTable = ({
     usePagination,
     useRowSelect,
     (hooks) => {
+      // eslint-disable-next-line no-shadow
       hooks.visibleColumns.push((columns) => [
         {
           id: "selection",
+          // eslint-disable-next-line react/no-unstable-nested-components
           Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
+            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
           ),
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
+          // eslint-disable-next-line react/no-unstable-nested-components
+          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
         ...columns,
       ]);
-    }
+    },
   );
 
-  if (!show) {
-    return <></>;
-  }
+  useEffect(() => {
+    tableConfigsState.set(tableConfigKey, {
+      globalFilter,
+      columnFilters: filters,
+    });
+    tableConfigsVar(tableConfigsState);
+  }, [globalFilter, filters, tableConfig, tableConfigsState, tableConfigKey]);
 
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap">
-        <GlobalFilter
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-        />
-
-        {headerGroups.map((headerGroup) => {
-          return headerGroup.headers.map((column) =>
-            column.Filter ? (
-              <Button m={2} key={column.id} borderRadius='0px'>
-                <label htmlFor={column.id}>{column.render("Header")}</label>
-                {column.render("Filter")}
-              </Button>
-            ) : null
-          );
-        })}
+        <ButtonGroup>{actionButtons}</ButtonGroup>
+        <Spacer />
+        {columnSelector}
+        <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
       <Table>
-        <Thead>
-          {headerGroups.map((headerGroup, i) => (
-            <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps(column.getSortByToggleProps())} title={`Toggle SortBy for '${column.render("Header")}'`}>
-                  {column.render("Header")}
-                  <chakra.span pl="4">
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon aria-label="sorted descending" />
-                      ) : (
-                        <TriangleUpIcon aria-label="sorted ascending" />
-                      )
-                    ) : null}
-                  </chakra.span>
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
+        <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
-          {page.map((row, i) => {
+          {page.map((row) => {
             prepareRow(row);
             return (
               <Tr
                 cursor="pointer"
                 {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original['labelIdentifier'])}
-                key={i}
+                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                key={row.original.labelIdentifier}
               >
-                {row.cells.map((cell, i) => {
-                  return <Td key={i}>{cell.render("Cell")}</Td>;
-                })}
+                {row.cells.map((cell) => (
+                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                    {cell.render("Cell")}
+                  </Td>
+                ))}
               </Tr>
             );
           })}
@@ -372,6 +181,6 @@ const ActualTable = ({
       </Flex>
     </>
   );
-};
+}
 
 export default BoxesTable;

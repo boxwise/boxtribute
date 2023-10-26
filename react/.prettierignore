@@ -18,7 +18,7 @@ src/views/BaseDashboard
 *.stories.*
 !src/views/BoxCreate
 !src/views/BoxEdit
-src/views/Boxes
+!src/views/Boxes
 src/views/Distributions
 !src/views/Box
 public

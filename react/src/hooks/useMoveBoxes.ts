@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { DocumentNode, useApolloClient } from "@apollo/client";
 import { useCallback, useState } from "react";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { useErrorHandling } from "./useErrorHandling";
@@ -41,7 +41,18 @@ export interface IMoveBoxesResult {
   error?: any;
 }
 
-export const useMoveBoxes = () => {
+export interface IUseMoveBoxesReturnType {
+  moveBoxes: (
+    labelIdentifiers: string[],
+    newLocationId: number,
+    showToastMessage?: boolean,
+  ) => IMoveBoxesResult | Promise<IMoveBoxesResult>;
+  isLoading: boolean;
+}
+
+export const useMoveBoxes = (
+  refetchQueries: Array<{ query: DocumentNode; variables?: any }> = [],
+) => {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,7 +75,11 @@ export const useMoveBoxes = () => {
 
       // execute mutation
       return apolloClient
-        .mutate({ mutation: gqlRequestPrep.gqlRequest, variables: gqlRequestPrep.variables })
+        .mutate({
+          mutation: gqlRequestPrep.gqlRequest,
+          variables: gqlRequestPrep.variables,
+          refetchQueries,
+        })
         .then(({ data, errors }) => {
           setIsLoading(false);
           if ((errors?.length || 0) > 0) {
@@ -148,7 +163,7 @@ export const useMoveBoxes = () => {
           },
         );
     },
-    [apolloClient, createToast, triggerError],
+    [apolloClient, createToast, refetchQueries, triggerError],
   );
 
   return {
