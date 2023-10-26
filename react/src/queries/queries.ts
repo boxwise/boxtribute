@@ -160,6 +160,7 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
     shipments {
       id
       state
+      labelIdentifier
       sourceBase {
         ...BaseOrgFields
       }

@@ -6,6 +6,7 @@ import { colorIsBright } from "utils/helpers";
 export interface IDropdownOption extends OptionBase {
   value: string;
   label: string;
+  subTitle?: string | undefined | null;
   color?: string | undefined | null;
   data?: object | undefined | null;
 }
