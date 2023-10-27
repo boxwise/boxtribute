@@ -18,10 +18,11 @@ import {
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
-import { selectOptionInSelectField } from "tests/helpers";
+// import { selectOptionInSelectField } from "tests/helpers";
 import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
+import { selectOptionInSelectField } from "tests/helpers";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later

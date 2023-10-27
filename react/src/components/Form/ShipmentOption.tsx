@@ -3,6 +3,7 @@ import { chakra } from "@chakra-ui/react";
 export function ShipmentOption(props) {
   return !props.isDisabled ? (
     <chakra.div
+      role="button"
       {...props.innerProps}
       px={2}
       py={2}
