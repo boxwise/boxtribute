@@ -1,10 +1,17 @@
 import { chakra } from "@chakra-ui/react";
 
 export function ShipmentOption(props) {
-  return !props.isDisabled ? (
+  const { isDisabled, innerProps, data } = props;
+
+  if (isDisabled) {
+    return null;
+  }
+
+  const [base, organisation] = (data.label as string).split("-").map((part) => part.trim());
+
+  return (
     <chakra.div
-      role="button"
-      {...props.innerProps}
+      {...innerProps}
       px={2}
       py={2}
       _hover={{
@@ -12,12 +19,11 @@ export function ShipmentOption(props) {
         cursor: "pointer",
       }}
     >
-      <chakra.div>
-        <chakra.strong>{props.data.label}</chakra.strong>
+      <chakra.div role="button">
+        <chakra.span fontWeight="semibold">{base}</chakra.span>{" "}
+        <chakra.span fontWeight="normal">{organisation}</chakra.span>
       </chakra.div>
-      <chakra.div style={{ fontSize: "0.8em", color: "gray" }}>
-        ID: {props.data.subTitle}
-      </chakra.div>
+      <chakra.div style={{ fontSize: "0.8em", color: "gray" }}>ID: {data.subTitle}</chakra.div>
     </chakra.div>
-  ) : null;
+  );
 }
