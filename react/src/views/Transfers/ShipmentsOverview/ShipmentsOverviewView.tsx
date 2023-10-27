@@ -123,16 +123,16 @@ function ShipmentsOverviewView() {
         filter: "includesSome",
       },
       {
+        Header: "Shipment ID",
+        accessor: "labelIdentifier",
+        disableFilters: true,
+      },
+      {
         Header: "Base",
         accessor: "partnerBaseOrg",
         Cell: BaseOrgCell,
         Filter: SelectColumnFilter,
         filter: "includesSomeObject",
-      },
-      {
-        Header: "ID",
-        accessor: "labelIdentifier",
-        disableFilters: true,
       },
       {
         Header: "Status",
