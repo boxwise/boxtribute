@@ -23,6 +23,7 @@ import {
   IAssignBoxToShipmentResultKind,
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
+import { locationToDropdownOptionTransformer } from "utils/transformers";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssignTagsAlert,
@@ -159,22 +160,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
   // Data preparation
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const locationOptions: IDropdownOption[] = useMemo(
-    () =>
-      optionsQueryResult.data?.base?.locations
-        ?.filter(
-          (location) =>
-            location?.defaultBoxState !== BoxState.Lost &&
-            location?.defaultBoxState !== BoxState.Scrap,
-        )
-        ?.sort((a, b) => Number(a?.seq) - Number(b?.seq))
-        ?.map((location) => ({
-          label: `${location.name}${
-            location.defaultBoxState !== BoxState.InStock
-              ? ` - Boxes are ${location.defaultBoxState}`
-              : ""
-          }`,
-          value: location.id,
-        })) ?? [],
+    () => locationToDropdownOptionTransformer(optionsQueryResult.data?.base?.locations ?? []),
     [optionsQueryResult.data?.base?.locations],
   );
 

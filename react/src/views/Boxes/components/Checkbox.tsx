@@ -1,6 +1,9 @@
-import React, { useEffect, forwardRef } from 'react';
+/* eslint-disable no-param-reassign */
+/* eslint-disable react/require-default-props */
+import React, { useEffect, forwardRef } from "react";
 
-interface Props {
+// TODO rename
+interface IProps {
   indeterminate?: boolean;
   name?: string;
 }
@@ -9,10 +12,10 @@ const useCombinedRefs = (...refs): React.MutableRefObject<any> => {
   const targetRef = React.useRef();
 
   useEffect(() => {
-    refs.forEach(ref => {
+    refs.forEach((ref) => {
       if (!ref) return;
 
-      if (typeof ref === 'function') {
+      if (typeof ref === "function") {
         ref(targetRef.current);
       } else {
         ref.current = targetRef.current;
@@ -23,7 +26,7 @@ const useCombinedRefs = (...refs): React.MutableRefObject<any> => {
   return targetRef;
 };
 
-const IndeterminateCheckbox = forwardRef<HTMLInputElement, Props>(
+const IndeterminateCheckbox = forwardRef<HTMLInputElement, IProps>(
   ({ indeterminate, ...rest }, ref: React.Ref<HTMLInputElement>) => {
     const defaultRef = React.useRef(null);
     const combinedRef = useCombinedRefs(ref, defaultRef);
@@ -35,11 +38,9 @@ const IndeterminateCheckbox = forwardRef<HTMLInputElement, Props>(
     }, [combinedRef, indeterminate]);
 
     return (
-      <>
-        <input type="checkbox" ref={combinedRef} onClick={(e) => e.stopPropagation()} {...rest} />
-      </>
+      <input type="checkbox" ref={combinedRef} onClick={(e) => e.stopPropagation()} {...rest} />
     );
-  }
+  },
 );
 
 export default IndeterminateCheckbox;
