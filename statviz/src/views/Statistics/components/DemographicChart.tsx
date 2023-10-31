@@ -43,7 +43,7 @@ export default function DemographicChart(props: {
         <CardBody>
           <p>
             No demographic data available for your base. Either you are a
-            sending base which is not registering people or the birth rate is
+            sending base which is not registering people or the birth date is
             not registered.
           </p>
         </CardBody>
