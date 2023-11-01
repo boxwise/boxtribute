@@ -34,11 +34,6 @@ def handle_auth_error(ex):
     return response
 
 
-@api_bp.route("/public", methods=["GET"])
-def public():
-    return PLAYGROUND_HTML, 200
-
-
 @api_bp.route("/", methods=["GET"])
 def query_api_playground():
     return PLAYGROUND_HTML, 200
@@ -127,4 +122,9 @@ def graphql_playgroud():
     # You don't need to provide Playground if you don't want to
     # but keep on mind this will not prohibit clients from
     # exploring your API using desktop GraphQL Playground app.
+    return PLAYGROUND_HTML, 200
+
+
+@api_bp.route("/public", methods=["GET"])
+def public():
     return PLAYGROUND_HTML, 200
