@@ -1,7 +1,7 @@
 """Construction of routes for web app and API"""
 import os
 
-from ariadne.explorer import ExplorerPlayground
+from ariadne.explorer import ExplorerGraphiQL
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
@@ -23,7 +23,7 @@ app_bp = Blueprint("app_bp", __name__)
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
 
 PLAYGROUND_TITLE = "boxtribute API"
-PLAYGROUND_HTML = ExplorerPlayground(title=PLAYGROUND_TITLE).html(None)
+PLAYGROUND_HTML = ExplorerGraphiQL(title=PLAYGROUND_TITLE).html(None)
 
 
 @api_bp.errorhandler(AuthenticationFailed)
