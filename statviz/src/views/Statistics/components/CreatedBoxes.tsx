@@ -21,6 +21,7 @@ import { useParams } from "react-router-dom";
 import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
 import VisHeader from "./VisHeader";
 import { getSelectionBackground } from "../../../utils/theme";
+import NoDataCard from "./NoDataCard";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -79,19 +80,13 @@ export default function CreatedBoxes(params: {
   if (loading) {
     return <p>loading...</p>;
   }
-  if (createdBoxesPerDay.length === 0) {
-    return (
-      <Card h={params.height} w={params.width}>
-        <CardHeader>
-          <Heading size="md">Created Boxes</Heading>
-        </CardHeader>
-        <CardHeader>No data for the selected time range</CardHeader>
-      </Card>
-    );
-  }
 
   const getHeading = () =>
     params.boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
+
+  if (createdBoxesPerDay.length === 0) {
+    return <NoDataCard header={getHeading()} />;
+  }
 
   return (
     <Card backgroundColor={getSelectionBackground(selected)}>

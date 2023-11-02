@@ -7,7 +7,7 @@ import {
   QueryCreatedBoxesArgs,
 } from "../../../types/generated/graphql";
 import { ApolloError, useQuery, gql } from "@apollo/client";
-import { Card, CardBody } from "@chakra-ui/react";
+import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import { round } from "lodash";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -15,6 +15,7 @@ import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
 import { getSelectionBackground } from "../../../utils/theme";
 import VisHeader from "./VisHeader";
 import useCreatedBoxes from "../../../utils/hooks/useCreatedBoxes";
+import NoDataCard from "./NoDataCard";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -94,11 +95,15 @@ export default function TopProducts(params: {
   }
 
   const topProductsHeading = boxesOrItems === "boxesCount" ? "boxes" : "items";
+  const heading = "Top Products by " + topProductsHeading;
 
+  if (chartData.length == 0) {
+    return <NoDataCard header={heading} />;
+  }
   return (
     <Card backgroundColor={getSelectionBackground(selected)}>
       <VisHeader
-        heading={"Top Products by " + topProductsHeading}
+        heading={heading}
         visId="tp"
         onSelect={() => setSelected(true)}
         onDeselect={() => setSelected(false)}
