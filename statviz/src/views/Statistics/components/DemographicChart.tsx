@@ -26,12 +26,13 @@ export interface IDemographicCube {
   };
 }
 
+const visId = "demographic-pyramid";
+
 export default function DemographicChart(props: {
   cube: IDemographicCube;
   width: number;
   height: number;
 }) {
-  const [selected, setSelected] = useState<boolean>(false);
   const facts = [...props.cube.facts];
 
   if (facts.length === 0) {
@@ -89,19 +90,15 @@ export default function DemographicChart(props: {
     background: "#ffffff",
     colorBarLeft: "#ec5063",
     colorBarRight: "#31cab5",
+    visId: visId,
     settings: {
       hideZeroY: false,
     },
   };
 
   return (
-    <Card backgroundColor={getSelectionBackground(selected)}>
-      <VisHeader
-        heading="Demographics"
-        visId="dc"
-        onSelect={() => setSelected(true)}
-        onDeselect={() => setSelected(false)}
-      ></VisHeader>
+    <Card>
+      <VisHeader heading="Demographics" visId={visId} custom={true}></VisHeader>
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
         <BarChartCenterAxis fields={chart} />
       </CardBody>

@@ -1,23 +1,52 @@
-import { CardHeader, Flex, Heading, Spacer, Checkbox } from "@chakra-ui/react";
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { DownloadIcon } from "@chakra-ui/icons";
+import {
+  CardHeader,
+  Flex,
+  Heading,
+  Spacer,
+  Checkbox,
+  Button,
+} from "@chakra-ui/react";
 
 export default function VisHeader(params: {
   heading: string;
   visId: string;
-  onSelect: () => void;
-  onDeselect: () => void;
+  custom?: boolean;
 }) {
-  const [checked, setChecked] = useState(false);
+  const download = () => {
+    const chart = params.custom
+      ? document.getElementById(params.visId)
+      : document.getElementById(params.visId)?.firstChild?.firstChild
+          ?.firstChild;
 
-  const select = (event) => {
-    if (event.target.checked) {
-      setChecked(true);
-      params.onSelect();
-    } else {
-      setChecked(false);
-      params.onDeselect();
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(chart);
+
+    //add name spaces.
+    if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+      source = source.replace(
+        /^<svg/,
+        '<svg xmlns="http://www.w3.org/2000/svg"'
+      );
     }
+    if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+      source = source.replace(
+        /^<svg/,
+        '<svg xmlns:xlink="http://www.w3.org/1999/xlink"'
+      );
+    }
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+    const a = document.createElement("a");
+    a.setAttribute(
+      "href",
+      "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source)
+    );
+
+    a.setAttribute("download", params.visId + ".svg");
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -25,7 +54,9 @@ export default function VisHeader(params: {
       <Flex>
         <Heading size="md">{params.heading}</Heading>
         <Spacer></Spacer>
-        <Checkbox size="lg" onChange={select} isChecked={checked}></Checkbox>
+        <Button backgroundColor="white" onClick={download}>
+          <DownloadIcon />
+        </Button>
       </Flex>
     </CardHeader>
   );

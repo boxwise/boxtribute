@@ -23,6 +23,7 @@ export interface IBarChartCenterAxis {
     background: string;
     colorBarLeft: string;
     colorBarRight: string;
+    visId: string;
     settings?: {
       hideZeroY?: boolean;
       hideZeroX?: boolean;
@@ -116,6 +117,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       <svg
         width={fields.width}
         height={fields.height}
+        id={chart.fields.visId}
         style={{ fontFamily: "Open Sans" }}
       >
         <rect

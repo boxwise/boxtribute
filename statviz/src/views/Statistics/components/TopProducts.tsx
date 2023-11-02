@@ -42,6 +42,8 @@ const CREATED_BOXES_QUERY = gql`
   }
 `;
 
+const visId = "top-products";
+
 export default function TopProducts(params: {
   width: string;
   height: string;
@@ -53,7 +55,6 @@ export default function TopProducts(params: {
     CreatedBoxesData,
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
-  const [selected, setSelected] = useState<boolean>(false);
   const createdBoxes = useCreatedBoxes(data);
 
   const getChartData = () => {
@@ -101,15 +102,11 @@ export default function TopProducts(params: {
     return <NoDataCard header={heading} />;
   }
   return (
-    <Card backgroundColor={getSelectionBackground(selected)}>
-      <VisHeader
-        heading={heading}
-        visId="tp"
-        onSelect={() => setSelected(true)}
-        onDeselect={() => setSelected(false)}
-      ></VisHeader>
+    <Card>
+      <VisHeader heading={heading} visId={visId}></VisHeader>
       <CardBody>
         <BarChart
+          visId={visId}
           data={chartData}
           width={params.width}
           height={params.height}

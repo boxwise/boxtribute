@@ -1,13 +1,5 @@
 import { ApolloError, useQuery, gql } from "@apollo/client";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Checkbox,
-  Flex,
-  Heading,
-  Spacer,
-} from "@chakra-ui/react";
+import { Card, CardBody } from "@chakra-ui/react";
 import _ from "lodash";
 
 import {
@@ -15,12 +7,11 @@ import {
   QueryCreatedBoxesArgs,
 } from "../../../types/generated/graphql";
 import BarChart from "../../../components/nivo-graphs/BarChart";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import useCreatedBoxes from "../../../utils/hooks/useCreatedBoxes";
 import { useParams } from "react-router-dom";
 import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
 import VisHeader from "./VisHeader";
-import { getSelectionBackground } from "../../../utils/theme";
 import NoDataCard from "./NoDataCard";
 
 const CREATED_BOXES_QUERY = gql`
@@ -48,6 +39,8 @@ const CREATED_BOXES_QUERY = gql`
   }
 `;
 
+const visId = "created-boxes";
+
 export default function CreatedBoxes(params: {
   width: string;
   height: string;
@@ -59,7 +52,6 @@ export default function CreatedBoxes(params: {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
   const createdBoxes = useCreatedBoxes(data);
-  const [selected, setSelected] = useState<boolean>(false);
 
   const getChartData = () => {
     if (data === undefined) return [];
@@ -89,15 +81,11 @@ export default function CreatedBoxes(params: {
   }
 
   return (
-    <Card backgroundColor={getSelectionBackground(selected)}>
-      <VisHeader
-        heading={getHeading()}
-        visId="cb"
-        onSelect={() => setSelected(true)}
-        onDeselect={() => setSelected(false)}
-      ></VisHeader>
+    <Card>
+      <VisHeader heading={getHeading()} visId={visId}></VisHeader>
       <CardBody>
         <BarChart
+          visId={visId}
           data={createdBoxesPerDay}
           indexBy="createdOn"
           keys={[params.boxesOrItems]}

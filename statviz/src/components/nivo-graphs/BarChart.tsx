@@ -5,6 +5,7 @@ export interface BarChart {
   width: string;
   height: string;
   data: Array<object>;
+  visId: string;
   keys?: Array<string>;
   indexBy?: string;
   ariaLabel?: string;
@@ -43,7 +44,10 @@ export default function BarChart(barChart: BarChart) {
       : [];
 
   return (
-    <div style={{ width: barChart.width, height: barChart.height }}>
+    <div
+      id={barChart.visId}
+      style={{ width: barChart.width, height: barChart.height }}
+    >
       <ResponsiveBar
         data={barChart.data}
         keys={barChart.keys}
