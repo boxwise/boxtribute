@@ -8,7 +8,7 @@ It is possible to extend the existing data structures (history / box table) if i
 
 ## Context
 
-We are building a visualization that shows statistics about boxes that have been moved out of warehouses of a certain base within a certain time frame.
+We are building a visualization that shows statistics about boxes that have been moved out of warehouses of a certain base within a certain time frame. 
 
 A box is a collection of items of the same product which is registered in a location. A box has a state.
 
@@ -17,6 +17,14 @@ Each location is part of one base. A base is an operational site of an aid organ
 For the **Goal of the task it is relevant to know** that "moving a box out of a warehouse" means: moving a box from a location with default box state `InStock` to a location with default box state `Donated`. This is the only scenario when the box state change from `InStock` to `Donated` can occur.
 
 Boxes can move between locations of different bases (also of other organisations).
+
+Ideally, in the final state, we would like to be able to combine box and location data with shipments data to produce a visualization in this style for a given range of time:
+
+![Sankey with shipments and box move data for a single org](https://github.com/boxwise/boxtribute/blob/94da29211b2d7d5dd0db63930fb08eb448d1de15/docs/sankeymatic_20231019_222017.svg)
+
+The "Self-reported" arm would contain all boxes/items moved into an "outgoing" location for a single base or organisation. 
+
+**For the purposes of this visualization, for the range of time selected, the visualization is intended be a traceable comparison of the 'snapshot' state of boxes and shipments at the start of the time range vs. the 'snapshot' state of boxes and shipments at the end of the time range.** The business objective of this visualization is to provide a transparent view of aid inventory movements of a base so that the aid organisation can communicate its impact clearly to the public.
 
 ## Example data
 
@@ -112,7 +120,6 @@ moved_on   | product_id | target_location_id | box_count | items_count
 
 - Box can moved between locations of different bases, but we only want to count the box if the transition from `InStock` to `Donated` happened in the base given in the query input
 - items being taken out of a box: We want to count the items that were in the box at the time of the movement
-- box product changed: We want to count the items that were in the box at the time of the movement
+- box product changed: We want to count only the product and items and that were in the box at the time of the movement
 - how to take into account if a box was moved back from a `Donated` to an `InStock` location`?
-
 - How to find all boxes in my base that had their state changed from InStock to Donated, then back to InStock, and finally their product changed?
