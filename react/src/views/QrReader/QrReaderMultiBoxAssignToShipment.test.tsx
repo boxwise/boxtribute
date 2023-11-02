@@ -18,10 +18,10 @@ import {
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
-import { selectOptionInSelectField } from "tests/helpers";
 import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
+import { selectOptionInSelectField } from "tests/helpers";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later
@@ -207,12 +207,7 @@ it("3.4.5.1 - There are boxes in the list, but the state of some is not InStock"
   // 3.4.5.5 - Query for shipments returns one or more shipments in preparing state
   const assignToShipmentOption = await screen.findByTestId("AssignShipment");
   await user.click(assignToShipmentOption);
-  await selectOptionInSelectField(
-    user,
-    undefined,
-    /thessaloniki - BoxCare/i,
-    /please select a shipment/i,
-  );
+  await selectOptionInSelectField(user, undefined, /thessaloniki/i, /please select a shipment/i);
 
   // Alert appears and button is disabled
   expect(
@@ -297,12 +292,7 @@ assignToShipmentMutationTests.forEach(({ name, mocks, toast }) => {
     // 3.4.5.5 - Query for shipments returns one or more shipments in preparing state
     const assignToShipmentOption = await screen.findByTestId("AssignShipment");
     await user.click(assignToShipmentOption);
-    await selectOptionInSelectField(
-      user,
-      undefined,
-      /thessaloniki - BoxCare/i,
-      /please select a shipment/i,
-    );
+    await selectOptionInSelectField(user, undefined, /thessaloniki/i, /please select a shipment/i);
 
     // The submit button is not yet shown
     expect(screen.queryByRole("button", { name: /assign all/i })).not.toBeInTheDocument();
@@ -366,12 +356,7 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   // 3.4.5.5 - Query for shipments returns one or more shipments in preparing state
   const assignToShipmentOption = await screen.findByTestId("AssignShipment");
   await user.click(assignToShipmentOption);
-  await selectOptionInSelectField(
-    user,
-    undefined,
-    /thessaloniki - BoxCare/i,
-    /please select a shipment/i,
-  );
+  await selectOptionInSelectField(user, undefined, /thessaloniki/i, /please select a shipment/i);
 
   // The submit button is shown
   const submitButton = await screen.findByRole("button", { name: /assign all/i });

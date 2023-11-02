@@ -1603,7 +1603,7 @@ export type MultiBoxActionOptionsForLocationsTagsAndShipmentsQueryVariables = Ex
 }>;
 
 
-export type MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery = { __typename?: 'Query', base?: { __typename?: 'Base', tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, seq?: number | null, name?: string | null }> } | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } }> };
+export type MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery = { __typename?: 'Query', base?: { __typename?: 'Base', tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, seq?: number | null, name?: string | null }> } | null, shipments: Array<{ __typename?: 'Shipment', id: string, state?: ShipmentState | null, labelIdentifier: string, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } }> };
 
 export type BaseDataQueryVariables = Exact<{
   baseId: Scalars['ID'];

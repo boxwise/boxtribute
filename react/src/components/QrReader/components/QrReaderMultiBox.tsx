@@ -21,6 +21,7 @@ import { FaWarehouse, FaTags } from "react-icons/fa";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { colorIsBright } from "utils/helpers";
+import { ShipmentOption } from "components/Form/ShipmentOption";
 
 // eslint-disable-next-line no-shadow
 export enum IMultiBoxAction {
@@ -156,7 +157,7 @@ function QrReaderMultiBox({
                 </Radio>
                 {/* show select field only if the radio button is selected */}
                 {multiBoxAction === IMultiBoxAction.assignShipment && (
-                  <FormControl isRequired>
+                  <FormControl isRequired mt={2}>
                     <Select
                       placeholder="Please select a shipment ..."
                       isSearchable
@@ -164,6 +165,7 @@ function QrReaderMultiBox({
                       colorScheme="black"
                       useBasicStyles
                       focusBorderColor="blue.500"
+                      components={{ Option: ShipmentOption }}
                       chakraStyles={{
                         control: (provided) => ({
                           ...provided,

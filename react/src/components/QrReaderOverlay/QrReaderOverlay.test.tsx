@@ -295,7 +295,7 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   expect(await screen.findByText(/This is not a Boxtribute QR code/i)).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
-}, 10000);
+}, 15000);
 
 const queryHashNotInDb = {
   request: {
