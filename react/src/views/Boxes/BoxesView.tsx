@@ -12,6 +12,7 @@ import { locationToDropdownOptionTransformer } from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
 import { TableSkeleton } from "components/Skeletons";
+import { Alert, AlertIcon } from "@chakra-ui/react";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 
@@ -69,7 +70,7 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
         state: element.state,
         place: element.location?.name,
         tags: element.tags?.map((tag) => tag.name),
-      } as BoxRow),
+      }) as BoxRow,
   );
 
 function Boxes() {
@@ -147,27 +148,31 @@ function Boxes() {
     [],
   );
 
-  // TODO: implement error handling and tests
-  if (loading) {
-    return <TableSkeleton />;
-  }
-  // TODO: change to Alert
-  if (error || !data) {
-    return <div>Error!</div>;
+  // error and loading handling
+  let boxesTable;
+
+  if (error) {
+    boxesTable = (
+      <Alert status="error" data-testid="ErrorAlert">
+        <AlertIcon />
+        Could not fetch boxes data! Please try reloading the page.
+      </Alert>
+    );
+  } else if (loading) {
+    boxesTable = <TableSkeleton />;
+  } else if (data) {
+    boxesTable = (
+      // TODO: pass shipment and tag options to BoxesActionsAndTable
+      <BoxesActionsAndTable
+        tableData={graphqlToTableTransformer(data)}
+        availableColumns={availableColumns}
+        locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
+      />
+    );
   }
 
-  // Data preparation
-  const tableData = graphqlToTableTransformer(data);
-  const locationOptions = locationToDropdownOptionTransformer(data.base?.locations ?? []);
-
-  // TODO: pass shipment and tag options to BoxesActionsAndTable
-  return (
-    <BoxesActionsAndTable
-      tableData={tableData}
-      availableColumns={availableColumns}
-      locationOptions={locationOptions}
-    />
-  );
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{boxesTable}</>;
 }
 
 export default Boxes;
