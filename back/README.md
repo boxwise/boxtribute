@@ -335,16 +335,16 @@ For building a static web documentation of the schema, see [this directory](../d
 
 For the production schema, documentation can be found online at `api.boxtribute.org/docs`.
 
-### Playground
+### GraphQL API explorer
 
-You can experiment with the API in the GraphQL playground.
+You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
 1. Activate the virtual environment
 1. Start the required services by `docker-compose up webapp`
-1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statistics API, then the next steps can be skipped)
+1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
 1. Copy the displayed token
-1. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
+1. Insert the access token in the following format in the section called 'Headers' on the bottom left of the explorer.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
@@ -400,7 +400,7 @@ Launch the production server by
 
     ENVIRONMENT=production docker-compose up --build webapp
 
-In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
+In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to use auto-completion the GraphQL explorer.
 
 ## Performance evaluation
 
