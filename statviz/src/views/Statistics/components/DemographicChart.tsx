@@ -98,7 +98,12 @@ export default function DemographicChart(props: {
 
   return (
     <Card>
-      <VisHeader heading="Demographics" visId={visId} custom={true}></VisHeader>
+      <VisHeader
+        maxWidthPx={width}
+        heading="Demographics"
+        visId={visId}
+        custom={true}
+      ></VisHeader>
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
         <BarChartCenterAxis fields={chart} />
       </CardBody>

@@ -103,7 +103,11 @@ export default function TopProducts(params: {
   }
   return (
     <Card>
-      <VisHeader heading={heading} visId={visId}></VisHeader>
+      <VisHeader
+        maxWidthPx={params.width}
+        heading={heading}
+        visId={visId}
+      ></VisHeader>
       <CardBody>
         <BarChart
           visId={visId}

@@ -82,7 +82,11 @@ export default function CreatedBoxes(params: {
 
   return (
     <Card>
-      <VisHeader heading={getHeading()} visId={visId}></VisHeader>
+      <VisHeader
+        maxWidthPx={params.width}
+        heading={getHeading()}
+        visId={visId}
+      ></VisHeader>
       <CardBody>
         <BarChart
           visId={visId}
