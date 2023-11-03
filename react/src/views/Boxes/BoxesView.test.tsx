@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { GraphQLError } from "graphql";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
-import { screen, render } from "tests/test-utils";
+import { screen, render, within } from "tests/test-utils";
 import Boxes, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
 
 const initialQuery = {
@@ -376,5 +376,36 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(
       await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
     ).toBeInTheDocument();
+  });
+
+  it("4.8.1.3 - The Boxes Table is shown", async () => {
+    render(<Boxes />, {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/2/boxes",
+      mocks: [initialQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation2.id, name: organisation2.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base2.id, name: base2.name },
+        },
+      },
+    });
+
+    // Test case 4.8.1.3
+    const row = await screen.findByRole("row", {
+      // eslint-disable-next-line max-len
+      name: /toggle all rows selected toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby/i,
+    });
+
+    within(row).getByText(/product/i);
+
+    within(row).getByText(/box number/i);
+
+    within(row).getByText(/gender/i);
+
+    within(row).getByText(/size/i);
   });
 });
