@@ -6,6 +6,7 @@ import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
+import { Box } from "@chakra-ui/react";
 
 type TooltipData = string;
 
@@ -111,6 +112,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
   return (
     <>
+      <Box h="50px" w={fields.width} backgroundColor="white"></Box>
       <svg
         width={fields.width}
         height={fields.height}

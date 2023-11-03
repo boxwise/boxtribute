@@ -1,6 +1,9 @@
 import { extendTheme } from "@chakra-ui/react";
 import { Theme } from "@nivo/core";
 
+export const getSelectionBackground = (selected: boolean) =>
+  selected ? "blue.100" : "white";
+
 const colors = {
   brandRed: {
     300: "#ef404a",

@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { Heading } from "@chakra-ui/react";
+import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../../../components/custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { HumanGender } from "../../../types/generated/graphql";
+import { getSelectionBackground } from "../../../utils/theme";
+import { useState } from "react";
+import VisHeader from "./VisHeader";
+import { table } from "../../../utils/table";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -23,32 +26,55 @@ export interface IDemographicCube {
   };
 }
 
-export default function DemographicChart(props: { cube: IDemographicCube }) {
+export default function DemographicChart(props: {
+  cube: IDemographicCube;
+  width: number;
+  height: number;
+}) {
+  const [selected, setSelected] = useState<boolean>(false);
   const facts = [...props.cube.facts];
 
-  const prepareFacts = (facts: IDemographicFact[]) => {
-    const dataXr = facts
-      .filter((value) => value.gender === HumanGender.Male)
-      .map((e) => ({ x: e.count, y: e.age }));
+  if (facts.length === 0) {
+    return (
+      <Card w={props.width}>
+        <CardHeader>
+          <Heading size="md">Created Boxes</Heading>
+        </CardHeader>
+        <CardBody>
+          <p>
+            No demographic data available for your base. Either you are a
+            sending base which is not registering people or the birth date is
+            not registered.
+          </p>
+        </CardBody>
+      </Card>
+    );
+  }
 
-    const dataXl = facts
-      .filter((value) => value.gender === HumanGender.Female)
-      .map((e) => ({ x: e.count, y: e.age }));
+  const prepareFacts = (facts: IDemographicFact[]) => {
+    const dataXr = table(
+      facts
+        .filter((value) => value.gender === HumanGender.Male)
+        .map((e) => ({ x: e.count, y: e.age }))
+    ).groupBySum("y", ["x"]).data;
+
+    const dataXl = table(
+      facts
+        .filter((value) => value.gender === HumanGender.Female)
+        .map((e) => ({ x: e.count, y: e.age }))
+    ).groupBySum("y", ["x"]).data;
 
     return [dataXr, dataXl];
   };
 
-  const [a, b] = prepareFacts(facts);
-
-  const [dataXr, SetDataXr] = useState(a);
-  const [dataXl, SetDataXl] = useState(b);
+  const [dataXr, dataXl] = prepareFacts(facts);
 
   const maxAge: number = facts.reduce((acc: number, current) => {
     if (current.age > acc) return current.age;
     return acc;
   }, 0);
 
-  const height = 400;
+  const height = 650;
   const width = 700;
 
   const chart = {
@@ -68,21 +94,17 @@ export default function DemographicChart(props: { cube: IDemographicCube }) {
     },
   };
 
-  const onFilterChange = (facts: IDemographicFact[]) => {
-    const [a, b] = prepareFacts(facts);
-    SetDataXr(a);
-    SetDataXl(b);
-  };
-
   return (
-    <>
-      <Heading size="md">Demographic Chart</Heading>
-      <div
-        id="chart-container"
-        style={{ width: "100%", height: "100%", marginTop: "25px" }}
-      >
+    <Card backgroundColor={getSelectionBackground(selected)}>
+      <VisHeader
+        heading="Demographics"
+        visId="dc"
+        onSelect={() => setSelected(true)}
+        onDeselect={() => setSelected(false)}
+      ></VisHeader>
+      <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
         <BarChartCenterAxis fields={chart} />
-      </div>
-    </>
+      </CardBody>
+    </Card>
   );
 }

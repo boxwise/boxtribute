@@ -48,12 +48,12 @@ export default function BarChart(barChart: BarChart) {
         data={barChart.data}
         keys={barChart.keys}
         indexBy={barChart.indexBy}
-        margin={{ top: 50, right: 130, bottom: 75, left: 60 }}
+        margin={{ top: 50, right: 50, bottom: 100, left: 60 }}
         padding={0.3}
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
         theme={nivoScheme}
-        colors={{ scheme: "set2" }}
+        colors="#ec5063"
         defs={[
           {
             id: "dots",
@@ -83,7 +83,7 @@ export default function BarChart(barChart: BarChart) {
         axisBottom={{
           tickSize: 5,
           tickPadding: 5,
-          tickRotation: 45,
+          tickRotation: 25,
           legend: barChart.labelAxisBottom,
           legendPosition: "middle",
           legendOffset: 32,

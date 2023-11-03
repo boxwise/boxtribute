@@ -1,4 +1,6 @@
 import _ from "lodash";
+import { CreatedBoxesResult } from "../types/generated/graphql";
+import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
 
 export enum Sort {
   asc = "asc",
@@ -54,6 +56,13 @@ export function table<Row extends object>(f: Array<Row>) {
     limit: (limit: number) => {
       return table(data.slice(0, limit));
     },
+    filterFromTo: (interval: Interval, field: keyof Row) => {
+      const result = data.filter((row) => {
+        return isWithinInterval(new Date(row[field]), interval);
+      });
+
+      return table(result);
+    },
     innerJoin: (foreignTable, column: keyof Row, foreignColumn: string) => {
       const joinedTable = data.map((row) => {
         const foreignIndex = foreignTable.data.findIndex(
@@ -69,5 +78,83 @@ export function table<Row extends object>(f: Array<Row>) {
 
       return table(joinedTable);
     },
+    leftJoin: (foreignTable, column: keyof Row, foreignColumn: string) => {
+      const joinedTable = data.map((row) => {
+        const foreignIndex = foreignTable.data.findIndex(
+          (e) => e[foreignColumn] == row[column]
+        );
+        if (foreignIndex !== -1) {
+          return {
+            ...row,
+            ...foreignTable.data[foreignIndex],
+          };
+        }
+        return {
+          ...row,
+        };
+      });
+
+      return table(joinedTable);
+    },
+  };
+}
+
+export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
+  const dataTable = table(createdBoxes);
+
+  return {
+    ...dataTable,
+    filterCreatedOn: (interval: Interval) => {
+      return createdBoxesTable(
+        dataTable.filterFromTo(interval, "createdOn").data
+      );
+    },
+    groupByCreatedOn: () => {
+      return createdBoxesTable(
+        dataTable.groupBySum("createdOn", ["boxesCount", "itemsCount"]).data
+      );
+    },
+    removeMissingCreatedOn: () => {
+      return createdBoxesTable(
+        dataTable.data.filter((row) => row.createdOn !== null)
+      );
+    },
+    fillMissingDays: () => {
+      if (dataTable.data.length < 2) return createdBoxesTable(dataTable.data);
+      const interval: Interval = {
+        start: new Date(dataTable.data[0].createdOn),
+        end: new Date(dataTable.data[dataTable.data.length - 1].createdOn),
+      };
+      const eachDay = eachDayOfInterval(interval);
+
+      const result = eachDay.map((day) => {
+        const isoDay = day.toISOString().substring(0, 10);
+        const i = dataTable.data.findIndex((e) => e.createdOn === isoDay);
+        if (i !== -1) {
+          return dataTable.data[i];
+        }
+        return {
+          createdOn: isoDay,
+          boxesCount: 0,
+          itemsCount: 0,
+        };
+      });
+
+      return createdBoxesTable(result);
+    },
+    fillMissingDaysNew: () => {},
+    groupByWeek: () => {
+      const interval: Interval = {
+        start: new Date(dataTable.data[0].createdOn),
+        end: new Date(dataTable.data[dataTable.data.length - 1].createdOn),
+      };
+
+      const eachWeek = eachWeekOfInterval(interval);
+
+      const result = dataTable.data.reduce();
+    },
+    groupByMonth: () => {},
+    groupByQuarter: () => {},
+    groupByYear: () => {},
   };
 }
