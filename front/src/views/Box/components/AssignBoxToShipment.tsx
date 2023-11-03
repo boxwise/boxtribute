@@ -19,6 +19,7 @@ import {
   BoxState,
   UpdateLocationOfBoxMutation,
 } from "types/generated/graphql";
+import { ShipmentOption } from "components/Form/ShipmentOption";
 
 export interface IAssignBoxToShipmentProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
@@ -38,6 +39,7 @@ function AssignBoxToShipment({
   const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption>({
     value: "",
     label: "",
+    subTitle: "",
   });
 
   const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
@@ -62,6 +64,7 @@ function AssignBoxToShipment({
         colorScheme="black"
         useBasicStyles
         focusBorderColor="blue.500"
+        components={{ Option: ShipmentOption }}
         chakraStyles={{
           control: (provided) => ({
             ...provided,
@@ -87,7 +90,7 @@ function AssignBoxToShipment({
       size="md"
       onClick={() => {
         onAssignBoxesToShipment(selectedShipmentOption.value);
-        setSelectedShipmentOption({ value: "", label: "" });
+        setSelectedShipmentOption({ value: "", label: "", subTitle: "" });
       }}
     >
       {currentShipmentId ? "Reassign" : "Assign"} Box
@@ -127,7 +130,7 @@ function AssignBoxToShipment({
               aria-label="remove to shipment"
               onClick={() => {
                 onUnassignBoxesToShipment(currentShipmentId);
-                setSelectedShipmentOption({ value: "", label: "" });
+                setSelectedShipmentOption({ value: "", label: "", subTitle: "" });
               }}
             >
               Remove from Shipment

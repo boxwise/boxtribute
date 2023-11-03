@@ -20,7 +20,7 @@ import { tags } from "mocks/tags";
 import { selectOptionInSelectField, textContentMatcher } from "tests/helpers";
 import BoxDetails from "./components/BoxDetails";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
-import { mockGraphQLError, mockNetworkError } from "mocks/functions";
+import { mockGraphQLError, mockMatchMediaQuery, mockNetworkError } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
 import { generateMockShipment, shipment1 } from "mocks/shipments";
@@ -307,6 +307,8 @@ const moveLocationOfBoxNetworkFailedMutation = {
 };
 
 beforeEach(() => {
+  // setting the screensize to
+  mockMatchMediaQuery(true);
   const mockedUseErrorHandling = jest.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
   const mockedUseNotification = jest.mocked(useNotification);
@@ -762,6 +764,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
     <BoxDetails
       boxData={undefined}
       boxInTransit={false}
+      onHistoryOpen={mockFunction}
       onMoveToLocationClick={mockFunction}
       onPlusOpen={mockFunction}
       onMinusOpen={mockFunction}
@@ -816,16 +819,44 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
 
   expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
 
-  const transferTab = screen.getByRole("tab", { name: /transfer/i });
-  await user.click(transferTab);
+  // The following code is commented out as a temporary workaround (refer to Trello card at https://trello.com/c/4lxf6jY3).
 
-  expect(screen.getByRole("tab", { name: /transfer/i, selected: true })).toHaveTextContent(
-    "Transfer",
-  );
+  // const transferTab = screen.getByRole("tab", { name: /transfer/i });
+  // await user.click(transferTab);
 
-  await waitFor(() =>
-    expect(
-      screen.getByText(/no shipments are being prepared from your base!/i),
-    ).toBeInTheDocument(),
-  );
+  // expect(screen.getByRole("tab", { name: /transfer/i, selected: true })).toHaveTextContent(
+  //   "Transfer",
+  // );
+
+  // await waitFor(() =>
+  //   expect(
+  //     screen.getByText(/no shipments are being prepared from your base!/i),
+  //   ).toBeInTheDocument(),
+  // );
+}, 10000);
+
+// Test case 4.6.1.3b
+it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be visible', async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/2/boxes/129",
+    mocks: [initialWithoutShipmentQuery],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  await waitFor(async () => {
+    expect(await screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
+  });
+
+  expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
+
+  expect(screen.queryByRole("tab", { name: /transfer/i, selected: true })).not.toBeInTheDocument();
 }, 10000);

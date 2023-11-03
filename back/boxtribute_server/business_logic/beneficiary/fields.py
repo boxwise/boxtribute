@@ -1,5 +1,3 @@
-from datetime import date
-
 from ariadne import ObjectType
 from peewee import fn
 
@@ -9,6 +7,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
+from ...models.utils import compute_age
 
 beneficiary = ObjectType("Beneficiary")
 
@@ -68,12 +67,7 @@ def resolve_beneficiary_gender(beneficiary_obj, _):
 
 @beneficiary.field("age")
 def resolve_beneficiary_age(beneficiary_obj, _):
-    dob = beneficiary_obj.date_of_birth
-    if dob is None:
-        return
-    today = date.today()
-    # Subtract 1 if current day is before birthday in current year
-    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return compute_age(beneficiary_obj.date_of_birth)
 
 
 @beneficiary.field("active")

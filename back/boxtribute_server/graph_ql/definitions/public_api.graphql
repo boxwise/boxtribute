@@ -1,6 +1,9 @@
 type Query {
   beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
+  movedBoxes(baseId: Int!): MovedBoxesData
 }
 
 interface DataCube {
@@ -8,8 +11,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -17,7 +20,7 @@ type BeneficiaryDemographicsData implements DataCube {
 }
 
 type BeneficiaryDemographicsDimensions {
-  tag: [ResultIdName]
+  tag: [TagDimensionInfo]
 }
 
 type BeneficiaryDemographicsResult {
@@ -43,11 +46,100 @@ type CreatedBoxesResult {
 }
 
 type CreatedBoxDataDimensions {
-  product: [ResultIdName]
-  category: [ResultIdName]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
 }
 
-type ResultIdName {
+type TopProductsCheckedOutData implements DataCube {
+  facts: [TopProductsCheckedOutResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsCheckedOutResult {
+  checkedOutOn: Date
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDonatedData implements DataCube {
+  facts: [TopProductsDonatedResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsDonatedResult {
+  createdOn: Date
+  donatedOn: Date
+  sizeId: Int
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDimensions {
+  " Always null for topProductsCheckedOut query "
+  size: [DimensionInfo]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
+}
+
+type MovedBoxesData implements DataCube {
+  facts: [MovedBoxesResult]
+  dimensions: MovedBoxDataDimensions
+}
+
+"""
+A box can be moved in various ways:
+- within a base (location ID with InStock/Donated)
+- because it's lost (Lost)
+- because it becomes scrap (Scrap)
+- because it's about to be shipped (target base ID with MarkedForShipment)
+- because it's being shipped (target base ID with InTransit/Receiving)
+"""
+type MovedBoxesResult {
+  movedOn: Date!
+  targetId: ID!
+  categoryId: Int!
+  boxesCount: Int!
+}
+
+type MovedBoxDataDimensions {
+  category: [DimensionInfo]
+  target: [TargetDimensionInfo]
+}
+
+interface BasicDimensionInfo {
   id: ID
   name: String
+}
+
+type DimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+}
+
+type TagDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  " Hex color code "
+  color: String
+}
+
+type ProductDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  gender: ProductGender
+}
+
+type TargetDimensionInfo implements BasicDimensionInfo {
+  id: ID
+  name: String
+  type: TargetType
+}
+
+enum TargetType {
+  Shipment
+  OutgoingLocation
 }

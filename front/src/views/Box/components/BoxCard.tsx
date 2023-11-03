@@ -22,7 +22,9 @@ import {
   SkeletonCircle,
   Skeleton,
   SkeletonText,
+  Icon,
 } from "@chakra-ui/react";
+import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import {
   BoxByLabelIdentifierQuery,
@@ -38,6 +40,7 @@ import HistoryEntries from "./HistoryEntries";
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
   boxInTransit: boolean;
+  onHistoryOpen: () => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onStateChange: (boxState: BoxState) => void;
@@ -47,6 +50,7 @@ export interface IBoxCardProps {
 function BoxCard({
   boxData,
   boxInTransit,
+  onHistoryOpen,
   onPlusOpen,
   onMinusOpen,
   onStateChange,
@@ -54,13 +58,15 @@ function BoxCard({
 }: IBoxCardProps) {
   const statusColor = (value) => {
     let color;
-    if (value === "Lost" || value === "Scrap") {
+    if (value === "Lost" || value === "Scrap" || value === "NotDelivered") {
       color = "#EB404A";
     } else {
       color = "#0CA789";
     }
     return color;
   };
+
+  const hasTag = !!boxData?.tags?.length;
 
   const product =
     boxData?.state === BoxState.Receiving
@@ -92,7 +98,7 @@ function BoxCard({
       backgroundColor="brandYellow.100"
       mr={["0", "0", "4rem", "4rem"]}
     >
-      <Wrap py={2} px={4} alignItems="center">
+      <Wrap pt={2} pb={hasTag ? 2 : 0} px={4} alignItems="center">
         <WrapItem>
           <Heading fontWeight="bold" as="h2" data-testid="box-header">
             Box {boxData?.labelIdentifier}
@@ -102,6 +108,7 @@ function BoxCard({
         <WrapItem>
           {(BoxState.Lost === boxData?.state ||
             BoxState.Scrap === boxData?.state ||
+            BoxState.NotDelivered === boxData?.state ||
             boxInTransit) && (
             <IconButton
               aria-label="Edit box"
@@ -114,6 +121,7 @@ function BoxCard({
           {!(
             BoxState.Lost === boxData?.state ||
             BoxState.Scrap === boxData?.state ||
+            BoxState.NotDelivered === boxData?.state ||
             boxInTransit
           ) && (
             <NavLink to="edit">
@@ -144,7 +152,7 @@ function BoxCard({
         </Flex>
       )}
 
-      <Flex data-testid="box-subheader" py={2} px={4} direction="row">
+      <Flex data-testid="box-subheader" pb={2} pt={hasTag ? 2 : 0} px={4} direction="row">
         <Text fontWeight="bold">Status:&nbsp;</Text>
         {isLoading && <Skeleton width="60px" alignItems="center" />}
         {!isLoading && (
@@ -179,6 +187,7 @@ function BoxCard({
                   disabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
+                    BoxState.NotDelivered === boxData?.state ||
                     boxInTransit
                   }
                   size="sm"
@@ -207,6 +216,7 @@ function BoxCard({
                   disabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
+                    BoxState.NotDelivered === boxData?.state ||
                     boxInTransit
                   }
                   borderRadius="0"
@@ -269,6 +279,7 @@ function BoxCard({
                 id="scrap"
                 isDisabled={
                   boxInTransit ||
+                  boxData?.state === BoxState.NotDelivered ||
                   (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
                 }
                 isReadOnly={isLoading}
@@ -298,6 +309,7 @@ function BoxCard({
                 data-testid="box-lost-btn"
                 isDisabled={
                   boxInTransit ||
+                  boxData?.state === BoxState.NotDelivered ||
                   (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
                 }
                 onChange={() =>
@@ -325,12 +337,28 @@ function BoxCard({
                 History: &nbsp;
               </Text>
               <Spacer />
-              {!isLoading && (
-                <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
-              )}
-              {isLoading && (
-                <SkeletonText noOfLines={5} width="100%" py={2} px={2} alignContent="center" />
-              )}
+              <Flex py={0} px={0} alignContent="space-between" verticalAlign="center">
+                {!isLoading && (
+                  <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
+                )}
+                {isLoading && (
+                  <SkeletonText noOfLines={3} width="100%" py={2} px={2} alignContent="center" />
+                )}
+                {boxData?.history && boxData?.history?.length > 1 && (
+                  <>
+                    <Spacer />
+                    <IconButton
+                      onClick={onHistoryOpen}
+                      border="2px"
+                      size="sm"
+                      borderRadius="0"
+                      isRound
+                      aria-label="Show detail history"
+                      icon={<Icon as={MdHistory} h={6} w={6} />}
+                    />
+                  </>
+                )}
+              </Flex>
             </Flex>
           </Stack>
         </>

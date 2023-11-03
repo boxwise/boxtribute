@@ -1,245 +1,411 @@
 import "@testing-library/jest-dom";
-import { screen, waitFor, fireEvent } from "@testing-library/react";
-import { render } from "tests/test-utils";
-import Boxes, { BOXES_FOR_BASE_QUERY } from "./BoxesView";
+import { GraphQLError } from "graphql";
+import { base2 } from "mocks/bases";
+import { organisation1, organisation2 } from "mocks/organisations";
+import { screen, render, within } from "tests/test-utils";
+import Boxes, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
 
-describe("Boxes view", () => {
-  const mocks = [
-    {
-      request: {
-        query: BOXES_FOR_BASE_QUERY,
-        variables: {
-          baseId: "1",
-        },
+const initialQuery = {
+  request: {
+    query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    variables: {
+      baseId: "2",
+    },
+  },
+  result: {
+    data: {
+      // TODO: the data should be placed in the mocks
+      base: {
+        __typename: "Base",
+        locations: [
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "Lost",
+            id: "14",
+            name: "LOST",
+            seq: 14,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "Scrap",
+            id: "15",
+            name: "SCRAP",
+            seq: 15,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "16",
+            name: "Stockroom",
+            seq: 16,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "17",
+            name: "WH1",
+            seq: 17,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "18",
+            name: "WH2",
+            seq: 18,
+          },
+        ],
+        tags: [
+          {
+            __typename: "Tag",
+            color: "#f37167",
+            description: "Donation from company x",
+            id: "10",
+            name: "company X",
+            type: "Box",
+          },
+          {
+            __typename: "Tag",
+            color: "#d89016",
+            description: "",
+            id: "11",
+            name: "new",
+            type: "All",
+          },
+          {
+            __typename: "Tag",
+            color: "#0097ff",
+            description: "Hold back for emergencies",
+            id: "12",
+            name: "emergency",
+            type: "Box",
+          },
+        ],
       },
-      result: {
-        data: {
-          base: {
-            __typename: "Base",
-            locations: [
-              {
-                __typename: "Location",
-                name: "Warehouse 1",
-                boxes: {
-                  __typename: "BoxPage",
-                  totalCount: 27,
-                  elements: [
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1234",
-                      state: "Donated",
-                      size: "4",
-                      product: {
-                        __typename: "Product",
-                        gender: "Women",
-                        name: "Long Dress",
-                      },
-                      numberOfItems: 64,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1235",
-                      state: "Donated",
-                      size: "52",
-                      product: {
-                        __typename: "Product",
-                        gender: "Women",
-                        name: "Socks",
-                      },
-                      numberOfItems: 35,
-                    },
-                  ],
-                },
+      boxes: {
+        __typename: "BoxPage",
+        elements: [
+          {
+            __typename: "Box",
+            comment: null,
+            history: [],
+            labelIdentifier: "4495955",
+            location: {
+              __typename: "ClassicLocation",
+              base: {
+                __typename: "Base",
+                id: "2",
+                name: "Thessaloniki",
               },
-              {
-                __typename: "Location",
-                name: "Warehouse 2",
-                boxes: {
-                  __typename: "BoxPage",
-                  totalCount: 31,
-                  elements: [
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1236",
-                      state: "Lost",
-                      size: "54",
-                      product: {
-                        __typename: "Product",
-                        gender: "UnisexBaby",
-                        name: "Blanket",
-                      },
-                      numberOfItems: 40,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1237",
-                      state: "MarkedForShipment",
-                      size: "68",
-                      product: {
-                        __typename: "Product",
-                        gender: "UnisexBaby",
-                        name: "Top 2-6 Months ",
-                      },
-                      numberOfItems: 16,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1238",
-                      state: "Lost",
-                      size: "118",
-                      product: {
-                        __typename: "Product",
-                        gender: "UnisexKid",
-                        name: "Jacket Sleeveless ",
-                      },
-                      numberOfItems: 81,
-                    },
-                  ],
-                },
+              defaultBoxState: "Scrap",
+              id: "15",
+              name: "SCRAP",
+            },
+            numberOfItems: 99,
+            product: {
+              __typename: "Product",
+              deletedOn: null,
+              gender: "none",
+              id: "233",
+              name: "Toothbrush",
+            },
+            shipmentDetail: null,
+            size: {
+              __typename: "Size",
+              id: "68",
+              label: "One size",
+            },
+            state: "Scrap",
+            tags: [],
+          },
+          {
+            __typename: "Box",
+            comment: null,
+            history: [],
+            labelIdentifier: "1481666",
+            location: {
+              __typename: "ClassicLocation",
+              base: {
+                __typename: "Base",
+                id: "2",
+                name: "Thessaloniki",
               },
+              defaultBoxState: "Scrap",
+              id: "15",
+              name: "SCRAP",
+            },
+            numberOfItems: 23,
+            product: {
+              __typename: "Product",
+              deletedOn: null,
+              gender: "Men",
+              id: "267",
+              name: "Sweatpants",
+            },
+            shipmentDetail: null,
+            size: {
+              __typename: "Size",
+              id: "52",
+              label: "Mixed",
+            },
+            state: "Scrap",
+            tags: [
               {
-                __typename: "Location",
-                name: "Warehouse 3",
-                boxes: {
-                  __typename: "BoxPage",
-                  totalCount: 16,
-                  elements: [
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1239",
-                      state: "InStock",
-                      size: "68",
-                      product: {
-                        __typename: "Product",
-                        gender: "Women",
-                        name: "Hijab",
-                      },
-                      numberOfItems: 4,
-                    },
-                    {
-                      __typename: "Box",
-                      labelIdentifier: "1230",
-                      state: "InStock",
-                      size: "68",
-                      product: {
-                        __typename: "Product",
-                        gender: "Boy",
-                        name: "Top Boys (18-24 months)",
-                      },
-                      numberOfItems: 95,
-                    },
-                  ],
-                },
+                __typename: "Tag",
+                color: "#d89016",
+                description: "",
+                id: "11",
+                name: "new",
+                type: "All",
               },
             ],
           },
+          {
+            __typename: "Box",
+            comment: null,
+            history: [
+              {
+                __typename: "HistoryEntry",
+                changeDate: "2023-10-29T15:02:58+00:00",
+                changes: "changed box state from Scrap to InStock",
+                id: "30946",
+                user: {
+                  __typename: "User",
+                  id: "17",
+                  name: "Dev Coordinator",
+                },
+              },
+              {
+                __typename: "HistoryEntry",
+                changeDate: "2023-10-29T15:02:51+00:00",
+                changes: "changed box state from InStock to Scrap",
+                id: "30945",
+                user: {
+                  __typename: "User",
+                  id: "17",
+                  name: "Dev Coordinator",
+                },
+              },
+              {
+                __typename: "HistoryEntry",
+                changeDate: "2023-10-29T15:02:40+00:00",
+                changes: "changed box state from Scrap to InStock",
+                id: "30944",
+                user: {
+                  __typename: "User",
+                  id: "17",
+                  name: "Dev Coordinator",
+                },
+              },
+              {
+                __typename: "HistoryEntry",
+                changeDate: "2023-10-29T15:02:40+00:00",
+                changes: "changed box location from SCRAP to WH2",
+                id: "30943",
+                user: {
+                  __typename: "User",
+                  id: "17",
+                  name: "Dev Coordinator",
+                },
+              },
+            ],
+            labelIdentifier: "8650860",
+            location: {
+              __typename: "ClassicLocation",
+              base: {
+                __typename: "Base",
+                id: "2",
+                name: "Thessaloniki",
+              },
+              defaultBoxState: "InStock",
+              id: "18",
+              name: "WH2",
+            },
+            numberOfItems: 33,
+            product: {
+              __typename: "Product",
+              deletedOn: null,
+              gender: "UnisexKid",
+              id: "350",
+              name: "Robes",
+            },
+            shipmentDetail: null,
+            size: {
+              __typename: "Size",
+              id: "52",
+              label: "Mixed",
+            },
+            state: "InStock",
+            tags: [
+              {
+                __typename: "Tag",
+                color: "#f37167",
+                description: "Donation from company x",
+                id: "10",
+                name: "company X",
+                type: "Box",
+              },
+              {
+                __typename: "Tag",
+                color: "#d89016",
+                description: "",
+                id: "11",
+                name: "new",
+                type: "All",
+              },
+              {
+                __typename: "Tag",
+                color: "#0097ff",
+                description: "Hold back for emergencies",
+                id: "12",
+                name: "emergency",
+                type: "Box",
+              },
+            ],
+          },
+        ],
+        pageInfo: {
+          __typename: "PageInfo",
+          hasNextPage: false,
         },
+        totalCount: 268,
       },
+      shipments: [
+        {
+          __typename: "Shipment",
+          id: "1",
+          sourceBase: {
+            __typename: "Base",
+            id: "1",
+            name: "Lesvos",
+            organisation: {
+              __typename: "Organisation",
+              id: "1",
+              name: "BoxAid",
+            },
+          },
+          state: "Preparing",
+          targetBase: {
+            __typename: "Base",
+            id: "2",
+            name: "Thessaloniki",
+            organisation: {
+              __typename: "Organisation",
+              id: "2",
+              name: "BoxCare",
+            },
+          },
+        },
+        {
+          __typename: "Shipment",
+          id: "2",
+          sourceBase: {
+            __typename: "Base",
+            id: "1",
+            name: "Lesvos",
+            organisation: {
+              __typename: "Organisation",
+              id: "1",
+              name: "BoxAid",
+            },
+          },
+          state: "Canceled",
+          targetBase: {
+            __typename: "Base",
+            id: "3",
+            name: "Samos",
+            organisation: {
+              __typename: "Organisation",
+              id: "2",
+              name: "BoxCare",
+            },
+          },
+        },
+      ],
     },
-  ];
+  },
+};
 
-  const waitTillLoadingIsDone = async () => {
-    await waitFor(() => {
-      const loadingInfo = screen.queryByText("Loading...");
-      expect(loadingInfo).toBeNull();
-    });
-  };
+const initialQueryNetworkError = {
+  request: {
+    query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    variables: {
+      baseId: "2",
+    },
+  },
+  result: {
+    errors: [new GraphQLError("Error!")],
+  },
+};
 
-  beforeEach(() => {
+describe("4.8.1 - Initial load of Page", () => {
+  it("4.8.1.1 - Is the Loading State Shown First?", async () => {
     render(<Boxes />, {
       routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/1/boxes",
-      mocks,
+      initialUrl: "/bases/2/boxes",
+      mocks: [initialQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation2.id, name: organisation2.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base2.id, name: base2.name },
+        },
+      },
     });
+    // Test case 4.8.1.1
+    expect(screen.getByTestId("TableSkeleton")).toBeInTheDocument();
   });
 
-  // it("renders with an initial 'Loading...'", async () => {
-  //   const loadingInfo = await screen.findByTestId("loading-indicator");
-  //   expect(loadingInfo).toBeInTheDocument();
-  // });
-
-  // it("eventually removes the 'Loading...' and shows the table head", async () => {
-  //   await waitFor(waitTillLoadingIsDone);
-  //   const productColumnHeader = screen.getByTestId("loading-indicator");
-  //   expect(productColumnHeader).toBeInTheDocument();
-  // });
-
-  describe("search filter", () => {
-    beforeEach(waitTillLoadingIsDone);
-    it("initially it shows also entries in the table that don't match the later used search term", async () => {
-      const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-        name: "Top 2-6 Months",
-      });
-      expect(firstEntryInOriginalRowSet).toBeInTheDocument();
+  it("4.8.1.2 - Failed to Fetch Initial Data", async () => {
+    render(<Boxes />, {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/2/boxes",
+      mocks: [initialQueryNetworkError],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation2.id, name: organisation2.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base2.id, name: base2.name },
+        },
+      },
     });
-
-    describe("applying the search term 'Blanket' in the filter", () => {
-      beforeEach(() => {
-        const searchField = screen.getByPlaceholderText("Search");
-        fireEvent.change(searchField, { target: { value: "Blanket" } });
-      });
-      it("only shows entries in the table that match the filter search term", async () => {
-        await waitFor(() => {
-          const firstEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-            name: "Top 2-6 Months",
-          });
-          expect(firstEntryInOriginalRowSet).toBeNull();
-        });
-
-        const blanketProduct = screen.queryByRole("gridcell", {
-          name: "Blanket",
-        });
-        expect(blanketProduct).toBeInTheDocument();
-      });
-    });
+    // Test case 4.8.1.2
+    expect(
+      await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
+    ).toBeInTheDocument();
   });
 
-  // describe("filter dropdowns", () => {
-  //   beforeEach(waitTillLoadingIsDone);
-  //   it("initially it shows also entries in the table that don't match the later used filter value", async () => {
-  //     const nonWomenEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-  //       name: "1237",
-  //     });
-  //     expect(nonWomenEntryInOriginalRowSet).toBeInTheDocument();
-  //   });
+  it("4.8.1.3 - The Boxes Table is shown", async () => {
+    render(<Boxes />, {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/2/boxes",
+      mocks: [initialQuery],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation2.id, name: organisation2.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base2.id, name: base2.name },
+        },
+      },
+    });
 
-  //   describe("switching the Gender filter to the value 'Women'", () => {
-  //     beforeEach(() => {
-  //       const genderFilter = screen.getByLabelText("Gender:");
+    // Test case 4.8.1.3
+    const row = await screen.findByRole("row", {
+      // eslint-disable-next-line max-len
+      name: /toggle all rows selected toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby/i,
+    });
 
-  //       fireEvent.change(genderFilter, { target: { value: "Women" } });
-  //     });
+    within(row).getByText(/product/i);
 
-  //     it("only shows entries in the table that match the selected filter dropdown value", async () => {
-  //       await waitFor(() => {
-  //         const nonWomenEntryInOriginalRowSet = screen.queryByRole("gridcell", {
-  //           name: "1237",
-  //         });
-  //         expect(nonWomenEntryInOriginalRowSet).toBeNull();
-  //       });
+    within(row).getByText(/box number/i);
 
-  //       const womenEntryInFilteredRowSet = screen.queryByRole("gridcell", {
-  //         name: "1235",
-  //       });
-  //       expect(womenEntryInFilteredRowSet).toBeInTheDocument();
-  //     });
-  //   });
-  // });
+    within(row).getByText(/gender/i);
 
-  // describe("sorting by fields/column headers", () => {
-  //   beforeEach(waitTillLoadingIsDone);
-  //   it("sorts the table data correctly when the user clicks on the column headers", async () => {
-  //     const productColumnHeader = screen.getByTitle("Toggle SortBy for 'Product'");
-  //     fireEvent.click(productColumnHeader);
-  //     const rowsAfterFirstSortingClick = screen.getAllByRole("row");
-
-  //     expect(rowsAfterFirstSortingClick[1]).toHaveTextContent("Blanket");
-
-  //     fireEvent.click(productColumnHeader);
-  //     const rowsAfterSecondSortingClick = screen.getAllByRole("row");
-  //     expect(rowsAfterSecondSortingClick[1]).toHaveTextContent(
-  //       "Top Boys (18-24 months)"
-  //     );
-  //   });
-  // });
+    within(row).getByText(/size/i);
+  });
 });

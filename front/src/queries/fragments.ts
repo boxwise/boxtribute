@@ -27,6 +27,7 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
     id
     name
     gender
+    deletedOn
   }
 `;
 
@@ -369,6 +370,7 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
   ${SHIPMENT_DETAIL_FIELDS_FRAGMENT}
   fragment ShipmentFields on Shipment {
     id
+    labelIdentifier
     state
     details {
       ...ShipmentDetailFields

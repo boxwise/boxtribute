@@ -1,8 +1,9 @@
+import zoneinfo
 from datetime import datetime, time
 from datetime import timezone as dtimezone
 
-from dateutil import tz
 from peewee import fn
+from sentry_sdk import capture_message as emit_sentry_message
 
 from ....db import db
 from ....enums import TransferAgreementState, TransferAgreementType
@@ -102,7 +103,7 @@ def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone):
     midnight. Let valid_from default to current UTC time.
     Return converted datetimes (UTC but without timezone information) as tuple.
     """
-    tzinfo = tz.gettz(timezone)
+    tzinfo = zoneinfo.ZoneInfo(timezone)
     if valid_from is not None:
         valid_from = (
             datetime.combine(valid_from, time(), tzinfo=tzinfo)
@@ -131,7 +132,6 @@ def create_transfer_agreement(
     partner_organisation_base_ids=None,
     valid_from=None,
     valid_until=None,
-    timezone=None,
     comment=None,
     user,
 ):
@@ -140,7 +140,7 @@ def create_transfer_agreement(
     the agreement is established between all bases of both organisations (indicated by
     NULL for the Detail.source/target_base field). As a result, any base that added to
     an organisation in the future would be part of such an agreement.
-    Convert optional local dates into UTC datetimes using timezone information.
+    Convert optional local dates into UTC datetimes using user timezone information.
     Raise an InvalidTransferAgreementOrganisation exception if the current user's
     organisation is identical to the target organisation.
     Raise a DuplicateTransferAgreement exception if the agreement requested to be
@@ -154,7 +154,7 @@ def create_transfer_agreement(
         raise InvalidTransferAgreementOrganisation()
 
     valid_from, valid_until = _convert_dates_to_utc_datetimes(
-        valid_from, valid_until, timezone
+        valid_from, valid_until, user.timezone
     )
 
     if valid_until and valid_from.date() >= valid_until.date():
@@ -222,6 +222,18 @@ def create_transfer_agreement(
             for t in target_base_ids
         ]
         TransferAgreementDetail.insert_many(details_data).execute()
+
+        if len(source_base_ids) > 1 or len(target_base_ids) > 1:
+            emit_sentry_message(
+                "Created multi-base agreement",
+                level="warning",
+                extras={
+                    "transfer_agreement_id": transfer_agreement.id,
+                    "source_base_ids": list(source_base_ids),
+                    "target_base_ids": list(target_base_ids),
+                },
+            )
+
         return transfer_agreement
 
 

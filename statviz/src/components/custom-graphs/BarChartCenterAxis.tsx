@@ -1,27 +1,14 @@
-import { useTooltip, defaultStyles, Tooltip } from "@visx/tooltip";
+import { useTooltip, Tooltip } from "@visx/tooltip";
+import { IXY, tooltipStyles, labelProps, tickProps } from "../../utils/chart";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
+import { Box } from "@chakra-ui/react";
 
 type TooltipData = string;
-
-const tooltipStyles = {
-  ...defaultStyles,
-  backgroundColor: "#000000",
-  color: "white",
-  width: 152,
-  height: 32,
-  padding: 6,
-  fontSize: 14,
-};
-
-export interface IXY {
-  x: number;
-  y: number;
-}
 
 export interface IBarChartCenterAxis {
   fields: {
@@ -52,11 +39,6 @@ const marginTop = 0;
 const marginLeft = 70;
 const marginRight = 40;
 const marginBottom = 70;
-
-const labelProps = {
-  fontFamily: "Open Sans",
-  fontSize: 16,
-};
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const fields = { ...chart.fields };
@@ -92,7 +74,11 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const halfWidth = chartWidth / 2;
 
   const minX = 0;
-  const maxX = Math.max(...fields.dataXr.map((e) => e.x), ...fields.dataXl.map((e) => e.x)) * 1.05;
+  const maxX =
+    Math.max(
+      ...fields.dataXr.map((e) => e.x),
+      ...fields.dataXl.map((e) => e.x)
+    ) * 1.05;
 
   const minY = Math.min(...fields.dataY);
   const maxY = Math.max(...fields.dataY);
@@ -126,11 +112,25 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
   return (
     <>
-      <svg width={fields.width} height={fields.height} style={{ fontFamily: "Open Sans" }}>
-        <rect fill={fields.background} width={fields.width} height={fields.height} />
+      <Box h="50px" w={fields.width} backgroundColor="white"></Box>
+      <svg
+        width={fields.width}
+        height={fields.height}
+        style={{ fontFamily: "Open Sans" }}
+      >
+        <rect
+          fill={fields.background}
+          width={fields.width}
+          height={fields.height}
+        />
         <Group top={marginTop} left={marginLeft}>
           <Group>
-            <Grid width={chartWidth / 2} height={chartHeight} xScale={scaleXLeft} yScale={scaleY} />
+            <Grid
+              width={chartWidth / 2}
+              height={chartHeight}
+              xScale={scaleXLeft}
+              yScale={scaleY}
+            />
             <Grid
               left={chartWidth / 2}
               width={chartWidth / 2}
@@ -154,7 +154,10 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   x={x}
                   y={y - barHight / 2}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                    tooltipTimeout = window.setTimeout(
+                      () => hideTooltip(),
+                      300
+                    );
                   }}
                   onMouseMove={(event) => {
                     if (tooltipTimeout) clearTimeout(tooltipTimeout);
@@ -185,7 +188,10 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   y={y - barHight / 2}
                   fill={fields.colorBarRight}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                    tooltipTimeout = window.setTimeout(
+                      () => hideTooltip(),
+                      300
+                    );
                   }}
                   onMouseMove={(event) => {
                     if (tooltipTimeout) clearTimeout(tooltipTimeout);
@@ -206,12 +212,14 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               labelProps={labelProps}
               scale={scaleXLeft}
               hideZero={settings.hideZeroX}
+              tickLabelProps={tickProps}
               label={fields.labelXl}
             />
             <AxisBottom
               labelProps={labelProps}
               scale={scaleXRight}
               hideZero={settings.hideZeroX}
+              tickLabelProps={tickProps}
               label={fields.labelXr}
             />
           </Group>
@@ -228,7 +236,12 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       </svg>
       <div style={{ position: "relative" }}>
         {tooltipOpen && tooltipData && (
-          <Tooltip key={Math.random()} left={tooltipLeft} top={tooltipTop} style={tooltipStyles}>
+          <Tooltip
+            key={Math.random()}
+            left={tooltipLeft}
+            top={tooltipTop}
+            style={tooltipStyles}
+          >
             <span>{tooltipData}</span>
           </Tooltip>
         )}

@@ -22,6 +22,9 @@ app_bp = Blueprint("app_bp", __name__)
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
 
+PLAYGROUND_TITLE = "boxtribute API"
+PLAYGROUND_HTML = ExplorerPlayground(title=PLAYGROUND_TITLE).html(None)
+
 
 @api_bp.errorhandler(AuthenticationFailed)
 @app_bp.errorhandler(AuthenticationFailed)
@@ -29,17 +32,6 @@ def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
     return response
-
-
-@app_bp.route("/public", methods=["GET"])
-def public():
-    response = (
-        "Hello from a public endpoint! You don't need to be authenticated to see this."
-    )
-    return jsonify(message=response)
-
-
-PLAYGROUND_HTML = ExplorerPlayground(title="boxtribute API").html(None)
 
 
 @api_bp.route("/", methods=["GET"])
@@ -130,4 +122,9 @@ def graphql_playgroud():
     # You don't need to provide Playground if you don't want to
     # but keep on mind this will not prohibit clients from
     # exploring your API using desktop GraphQL Playground app.
+    return PLAYGROUND_HTML, 200
+
+
+@api_bp.route("/public", methods=["GET"])
+def public():
     return PLAYGROUND_HTML, 200

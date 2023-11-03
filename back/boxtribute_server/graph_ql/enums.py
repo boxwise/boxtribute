@@ -12,6 +12,7 @@ from ..enums import (
     ShipmentState,
     TaggableObjectType,
     TagType,
+    TargetType,
     TransferAgreementState,
     TransferAgreementType,
 )
@@ -31,4 +32,8 @@ enum_types = [
     DistributionEventsTrackingGroupState,
     DistributionEventTrackingFlowDirection,
     DistributionEventTrackingFlowDirection,
+]
+
+public_api_enum_types = [
+    TargetType,
 ]

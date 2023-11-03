@@ -34,7 +34,11 @@ class Product(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted = ZeroDateTimeField(null=True, default=None)
+    deleted_on = ZeroDateTimeField(
+        null=True,
+        default=None,
+        column_name="deleted",
+    )
     gender = UIntForeignKeyField(
         column_name="gender_id",
         field="id",

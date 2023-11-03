@@ -12,6 +12,20 @@ import {
   LOCATION_BASIC_FIELDS_FRAGMENT,
 } from "./fragments";
 
+// very first query that is always executed
+export const ORGANISATION_AND_BASES_QUERY = gql`
+  query OrganisationAndBases($organisationId: ID!) {
+    bases {
+      id
+      name
+    }
+    organisation(id: $organisationId) {
+      id
+      name
+    }
+  }
+`;
+
 export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
   ${BOX_FIELDS_FRAGMENT}
   query BoxDetails($labelIdentifier: String!) {
@@ -146,6 +160,7 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
     shipments {
       id
       state
+      labelIdentifier
       sourceBase {
         ...BaseOrgFields
       }

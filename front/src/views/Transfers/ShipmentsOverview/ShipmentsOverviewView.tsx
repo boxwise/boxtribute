@@ -19,7 +19,10 @@ function ShipmentsOverviewView() {
   const location = useLocation();
 
   // fetch shipments data
-  const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY);
+  const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY, {
+    // returns cache first, but syncs with server in background
+    fetchPolicy: "cache-and-network",
+  });
 
   // transform shipments data for UI
   const graphqlToTableTransformer = (shipmentQueryResult: ShipmentsQuery | undefined) =>
@@ -33,6 +36,7 @@ function ShipmentsOverviewView() {
 
         const shipmentRow = {
           id: element.id,
+          labelIdentifier: element.labelIdentifier,
           direction: "To",
           partnerBaseOrg: {
             base: element.targetBase.name,
@@ -117,6 +121,11 @@ function ShipmentsOverviewView() {
         Cell: DirectionCell,
         Filter: SelectColumnFilter,
         filter: "includesSome",
+      },
+      {
+        Header: "Shipment ID",
+        accessor: "labelIdentifier",
+        disableFilters: true,
       },
       {
         Header: "Base",

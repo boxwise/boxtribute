@@ -114,14 +114,16 @@ class TagsForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         tags = defaultdict(list)
         # maybe need different join type
-        for relation in (
-            TagsRelation.select(TagsRelation.object_type, TagsRelation.object_id, Tag)
-            .join(Tag)
-            .where(
-                TagsRelation.object_type == TaggableObjectType.Box,
-                TagsRelation.object_id << keys,
-                authorized_bases_filter(Tag),
-            )
+        for relation in TagsRelation.select(
+            TagsRelation.object_type, TagsRelation.object_id, Tag
+        ).join(
+            Tag,
+            on=(
+                (TagsRelation.tag == Tag.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.object_id << keys)
+                & (authorized_bases_filter(Tag))
+            ),
         ):
             tags[relation.object_id].append(relation.tag)
 

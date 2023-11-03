@@ -6,10 +6,8 @@ orbs:
 executors:
   node-executor:
     docker:
-      # The node version is 16.19.1 and the yarn version is 1.22.5
-      # TODO: change to a node only image since we do not need python in the front-end jobs
-      # TODO: update node and yarn version in the whole repo
-      - image: cimg/python:3.10.4-node
+      # The node version is 20.9.0 and the yarn version is 1.22.19
+      - image: cimg/node:20.9.0
   python-executor:
     docker:
       - image: cimg/python:3.10.4
@@ -87,6 +85,7 @@ jobs:
   build-front:
     executor: node-executor
     working_directory: ~/front
+    resource_class: medium+
     steps:
       - attach_workspace:
           at: ~/
@@ -280,7 +279,7 @@ jobs:
     parameters:
       serviceName:
         type: string
-    executor: node-executor
+    executor: python-node-executor
     working_directory: ~/back
     steps:
       # Attach workspace from build
@@ -390,6 +389,7 @@ workflows:
           requires:
             - install-node-packages
       - test-front:
+          context: STAGING
           requires:
             - install-node-packages
 

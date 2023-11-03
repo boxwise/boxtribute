@@ -18,6 +18,7 @@ import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
+import { mockMatchMediaQuery } from "mocks/functions";
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
@@ -126,6 +127,8 @@ const queryShipmentDetailForBoxReconciliation = {
 };
 
 beforeEach(() => {
+  // setting the screensize to
+  mockMatchMediaQuery(true);
   const mockedUseErrorHandling = jest.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
   const mockedUseNotification = jest.mocked(useNotification);

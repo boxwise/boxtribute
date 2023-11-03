@@ -61,10 +61,9 @@ input TransferAgreementCreationInput {
   initiatingOrganisationId: Int!
   partnerOrganisationId: Int!
   type: TransferAgreementType!
-  # pass local date and timezone information (e.g. 'Europe/Berlin')
+  # pass local date
   validFrom: Date
   validUntil: Date
-  timezone: String
   initiatingOrganisationBaseIds: [Int!]!
   partnerOrganisationBaseIds: [Int!]
   comment: String

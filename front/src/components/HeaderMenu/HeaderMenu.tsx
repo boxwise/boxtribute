@@ -10,6 +10,7 @@ export interface MenuItemData {
 export interface MenuItemsGroupData {
   text: string;
   links: MenuItemData[];
+  minBeta?: number;
 }
 
 export interface BaseData {

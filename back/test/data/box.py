@@ -7,8 +7,13 @@ from boxtribute_server.models.definitions.box import Box
 from .box_state import default_box_state_data
 from .location import another_location_data, default_location_data
 from .product import data as product_data
-from .qr_code import another_qr_code_with_box_data, default_qr_code_data
-from .size import default_data as size_data
+from .qr_code import (
+    another_qr_code_with_box_data,
+    default_qr_code_data,
+    qr_code_for_in_transit_box_data,
+    qr_code_for_not_delivered_box_data,
+)
+from .size import another_size_data, default_size_data
 from .user import default_user_data
 
 
@@ -23,7 +28,7 @@ def default_box_data():
         "created_on": datetime(2020, 11, 27),
         "created_by": default_user_data()["id"],
         "number_of_items": 0,
-        "size": size_data()["id"],
+        "size": default_size_data()["id"],
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
     }
@@ -45,6 +50,7 @@ def another_box_data():
     data["label_identifier"] = "34567890"
     data["location"] = another_location_data()["id"]
     data["product"] = product_data()[1]["id"]
+    data["state"] = BoxState.InStock
     return data
 
 
@@ -87,6 +93,7 @@ def in_transit_box_data():
     data["id"] = 9
     data["label_identifier"] = "89012345"
     data["state"] = BoxState.InTransit
+    data["qr_code"] = qr_code_for_in_transit_box_data()["id"]
     return data
 
 
@@ -94,7 +101,57 @@ def another_in_transit_box_data():
     data = in_transit_box_data()
     data["id"] = 10
     data["label_identifier"] = "90123456"
+    data["qr_code"] = None
     return data
+
+
+def donated_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 11
+    data["label_identifier"] = "23123123"
+    data["state"] = BoxState.Donated
+    return data
+
+
+def another_donated_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 12
+    data["label_identifier"] = "34534534"
+    data["state"] = BoxState.Donated
+    data["number_of_items"] = 12
+    return data
+
+
+def third_donated_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 13
+    data["label_identifier"] = "56756756"
+    data["state"] = BoxState.Donated
+    data["number_of_items"] = 12
+    data["product"] = product_data()[2]["id"]
+    data["size"] = another_size_data()["id"]
+    return data
+
+
+def not_delivered_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 14
+    data["label_identifier"] = "11113333"
+    data["state"] = BoxState.NotDelivered
+    data["qr_code"] = qr_code_for_not_delivered_box_data()["id"]
+    return data
+
+
+def another_not_delivered_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 15
+    data["label_identifier"] = "64646464"
+    data["state"] = BoxState.NotDelivered
+    return data
+
+
+def donated_boxes_data():
+    return [donated_box_data(), another_donated_box_data(), third_donated_box_data()]
 
 
 def data():
@@ -107,6 +164,11 @@ def data():
         another_marked_for_shipment_box_data(),
         in_transit_box_data(),
         another_in_transit_box_data(),
+        donated_box_data(),
+        another_donated_box_data(),
+        third_donated_box_data(),
+        not_delivered_box_data(),
+        another_not_delivered_box_data(),
         box_in_another_location_with_qr_code_data(),
     ]
 
@@ -159,6 +221,16 @@ def in_transit_box():
 @pytest.fixture
 def another_in_transit_box():
     return another_in_transit_box_data()
+
+
+@pytest.fixture
+def not_delivered_box():
+    return not_delivered_box_data()
+
+
+@pytest.fixture
+def another_not_delivered_box():
+    return another_not_delivered_box_data()
 
 
 def create():

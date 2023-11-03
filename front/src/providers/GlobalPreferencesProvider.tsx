@@ -1,4 +1,4 @@
-import React, { Context, createContext, useReducer } from "react";
+import React, { Context, createContext, useMemo, useReducer } from "react";
 
 export interface IIdAndNameTuple {
   id: string;
@@ -10,15 +10,6 @@ export interface IGlobalPreferences {
   availableBases?: IIdAndNameTuple[];
   organisation?: IIdAndNameTuple;
 }
-
-export interface IGlobalPreferencesContext {
-  globalPreferences: IGlobalPreferences;
-  dispatch: React.Dispatch<ISetGlobalPreferencesAction>;
-}
-
-const GlobalPreferencesContext: Context<IGlobalPreferencesContext> = createContext(
-  {} as IGlobalPreferencesContext,
-);
 
 export interface ISetAvailableBasesAction {
   type: "setAvailableBases";
@@ -40,6 +31,15 @@ export type ISetGlobalPreferencesAction =
   | ISetSelectedBaseAction
   | ISetOrganisationAction;
 
+export interface IGlobalPreferencesContext {
+  globalPreferences: IGlobalPreferences;
+  dispatch: React.Dispatch<ISetGlobalPreferencesAction>;
+}
+
+const GlobalPreferencesContext: Context<IGlobalPreferencesContext> = createContext(
+  {} as IGlobalPreferencesContext,
+);
+
 export const globalPreferencesReducer = (
   state: IGlobalPreferences,
   action: ISetGlobalPreferencesAction,
@@ -56,14 +56,18 @@ export const globalPreferencesReducer = (
   }
 };
 
-const GlobalPreferencesProvider = ({ children }) => {
+function GlobalPreferencesProvider({ children }) {
   const [globalPreferences, dispatch] = useReducer(globalPreferencesReducer, {});
 
+  const memoedGlobalPreferences = useMemo(
+    () => ({ globalPreferences, dispatch }),
+    [globalPreferences],
+  );
   return (
-    <GlobalPreferencesContext.Provider value={{ globalPreferences, dispatch }}>
+    <GlobalPreferencesContext.Provider value={memoedGlobalPreferences}>
       {children}
     </GlobalPreferencesContext.Provider>
   );
-};
+}
 
 export { GlobalPreferencesContext, GlobalPreferencesProvider };

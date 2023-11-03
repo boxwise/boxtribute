@@ -88,15 +88,15 @@ export const BoxEditFormDataSchema = z.object({
   comment: z.string().optional().nullable(),
 });
 
-export type IBoxEditFormInput = z.input<typeof BoxEditFormDataSchema>;
-export type IBoxEditFormOutput = z.output<typeof BoxEditFormDataSchema>;
+export type IBoxEditFormDataInput = z.input<typeof BoxEditFormDataSchema>;
+export type IBoxEditFormDataOutput = z.output<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
   boxData: Exclude<BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"], null | undefined>;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
-  onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormInput) => void;
+  onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormDataOutput) => void;
 }
 
 function BoxEdit({
@@ -108,14 +108,15 @@ function BoxEdit({
 }: IBoxEditProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id;
-  const { labelIdentifier } = useParams<{
-    labelIdentifier: string;
-  }>();
+  const { labelIdentifier } =
+    useParams<{
+      labelIdentifier: string;
+    }>();
   const navigate = useNavigate();
 
   // Form Default Values
-  const defaultValues: IBoxEditFormInput = {
-    productId: boxData.product
+  const defaultValues: IBoxEditFormDataInput = {
+    productId: boxData?.product?.id
       ? {
           label: `${boxData.product.name}${
             boxData.product.gender !== "none" ? ` (${boxData.product.gender})` : ""
@@ -123,14 +124,20 @@ function BoxEdit({
           value: boxData.product.id,
         }
       : null,
-    sizeId: boxData.size ? { label: boxData.size.label, value: boxData.size.id } : null,
-    numberOfItems: boxData?.numberOfItems || null,
-    locationId: boxData.location?.name
+    sizeId: boxData?.size?.id ? { label: boxData.size.label, value: boxData.size.id } : null,
+    numberOfItems: boxData?.numberOfItems || 0,
+    locationId: boxData?.location?.name
       ? { label: boxData.location.name, value: boxData.location.id }
       : null,
-    comment: boxData?.comment,
+    comment: boxData?.comment || undefined,
     tags: boxData?.tags || [],
   };
+
+  // If the product is deleted we have to reset the productId and sizeId
+  if (boxData?.product?.deletedOn !== null) {
+    defaultValues.productId = null;
+    defaultValues.sizeId = null;
+  }
 
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
@@ -170,9 +177,10 @@ function BoxEdit({
     control,
     register,
     resetField,
+    setError,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<IBoxEditFormInput>({
+  } = useForm<IBoxEditFormDataInput>({
     resolver: zodResolver(BoxEditFormDataSchema),
     defaultValues,
   });
@@ -210,6 +218,16 @@ function BoxEdit({
       }
     }
   }, [productId, productAndSizesData, boxData, resetField]);
+
+  // If the product is deleted show a custom error message for productId
+  useEffect(() => {
+    if (boxData?.product?.deletedOn !== null) {
+      setError("productId", {
+        type: "manual",
+        message: "The product assigned to this box no longer exists. Please select another one.",
+      });
+    }
+  }, [boxData?.product?.deletedOn, setError]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>

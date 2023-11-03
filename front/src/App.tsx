@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -26,6 +26,22 @@ import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOv
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
+import { useAuthorization } from "hooks/useAuthorization";
+
+interface IProtectedRouteProps {
+  minBeta: number;
+  redirectPath: string;
+}
+
+function ProtectedRoute({ minBeta, redirectPath }: IProtectedRouteProps) {
+  const isAuthorized = useAuthorization({ minBeta });
+
+  if (!isAuthorized) {
+    return <Navigate to={redirectPath} replace />;
+  }
+
+  return <Outlet />;
+}
 
 function App() {
   const { logout } = useAuth0();
@@ -53,7 +69,7 @@ function App() {
         <Route index />
         <Route path=":baseId">
           <Route index element={<BaseDashboardView />} />
-          <Route path="transfers">
+          <Route path="transfers" element={<ProtectedRoute minBeta={2} redirectPath="/qrreader" />}>
             <Route path="agreements">
               <Route index element={<TransferAgreementOverviewView />} />
               <Route path="create" element={<CreateTransferAgreementView />} />

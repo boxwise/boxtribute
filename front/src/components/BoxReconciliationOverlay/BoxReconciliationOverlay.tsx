@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -16,6 +16,7 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { useNavigate } from "react-router-dom";
+import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
 import {
   BoxReconciliationView,
   ILocationData,
@@ -36,6 +37,7 @@ export function BoxReconciliationOverlay({
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id;
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
+  const [boxUndeliveredAYSState, setBoxUndeliveredAYSState] = useState<string>("");
   const navigate = useNavigate();
 
   const onOverlayClose = useCallback(() => {
@@ -96,18 +98,7 @@ export function BoxReconciliationOverlay({
   const allLocations = useMemo(
     () =>
       data?.base?.locations
-        .filter(
-          (location) =>
-            location?.defaultBoxState !== BoxState.Lost &&
-            location?.defaultBoxState !== BoxState.Scrap,
-        )
-        .map((location) => ({
-          ...location,
-          name:
-            (location.defaultBoxState !== BoxState.InStock
-              ? `${location.name} - Boxes are ${location.defaultBoxState}`
-              : location.name) ?? "",
-        }))
+        .filter((location) => location?.defaultBoxState === BoxState.InStock)
         .sort((a, b) => Number(a?.seq) - Number(b?.seq)),
     [data],
   );
@@ -124,9 +115,10 @@ export function BoxReconciliationOverlay({
           .then((mutationResult) => {
             if (mutationResult?.errors) {
               triggerError({
-                message: "Error: Could not change state of the box.",
+                message: "Could not change state of the box.",
               });
             } else {
+              setBoxUndeliveredAYSState("");
               onOverlayClose();
               createToast({
                 title: `Box ${labelIdentifier}`,
@@ -139,7 +131,7 @@ export function BoxReconciliationOverlay({
           })
           .catch(() => {
             triggerError({
-              message: "Could not remove the box from the shipment.",
+              message: "Could not change state of the box.",
             });
           });
       }
@@ -184,7 +176,7 @@ export function BoxReconciliationOverlay({
           .then((mutationResult) => {
             if (mutationResult?.errors) {
               triggerError({
-                message: "Error: Could not change state of the box.",
+                message: "Could not change state of the box.",
               });
             } else {
               const locationName = allLocations?.find(
@@ -200,7 +192,7 @@ export function BoxReconciliationOverlay({
           })
           .catch(() => {
             triggerError({
-              message: "Could not remove the box from the shipment.",
+              message: "Could not change state of the box.",
             });
           });
       }
@@ -217,17 +209,38 @@ export function BoxReconciliationOverlay({
   );
 
   return (
-    <BoxReconciliationView
-      loading={loading}
-      mutationLoading={mutationLoading}
-      onClose={onOverlayClose}
-      onBoxUndelivered={onBoxUndelivered}
-      onBoxDelivered={onBoxDelivered}
-      shipmentDetail={shipmentDetail as ShipmentDetail}
-      allLocations={allLocations as ILocationData[]}
-      productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
-      closeOnOverlayClick={closeOnOverlayClick}
-      closeOnEsc={closeOnEsc}
-    />
+    <>
+      <BoxReconciliationView
+        isOpen={boxReconciliationOverlayState.isOpen && boxUndeliveredAYSState === ""}
+        loading={loading}
+        mutationLoading={mutationLoading}
+        onClose={onOverlayClose}
+        onBoxUndelivered={setBoxUndeliveredAYSState}
+        onBoxDelivered={onBoxDelivered}
+        shipmentDetail={shipmentDetail as ShipmentDetail}
+        allLocations={allLocations as ILocationData[]}
+        productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
+        closeOnOverlayClick={closeOnOverlayClick}
+        closeOnEsc={closeOnEsc}
+      />
+      <BoxUndeliveredAYS
+        title="Box Not Delivered?"
+        body={
+          "Confirming this means that this box never arrived as part of this shipment." +
+          " " +
+          "We’ll record this as NotDelivered and remove it from the shipment receive list."
+        }
+        rightButtonProps={{
+          colorScheme: "red",
+        }}
+        isOpen={boxUndeliveredAYSState !== ""}
+        isLoading={loading}
+        leftButtonText="Nevermind"
+        rightButtonText="Confirm"
+        onClose={() => setBoxUndeliveredAYSState("")}
+        onLeftButtonClick={() => setBoxUndeliveredAYSState("")}
+        onRightButtonClick={() => onBoxUndelivered(boxUndeliveredAYSState)}
+      />
+    </>
   );
 }

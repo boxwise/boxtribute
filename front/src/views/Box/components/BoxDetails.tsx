@@ -13,6 +13,7 @@ interface IBoxDetailsProps {
   boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
+  onHistoryOpen: () => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onStateChange: (boxState: BoxState) => void;
@@ -30,6 +31,7 @@ function BoxDetails({
   onMoveToLocationClick,
   onAssignBoxToDistributionEventClick,
   onUnassignBoxFromDistributionEventClick,
+  onHistoryOpen,
   onPlusOpen,
   onMinusOpen,
   onStateChange,
@@ -53,6 +55,7 @@ function BoxDetails({
       <BoxCard
         boxData={boxData}
         boxInTransit={boxInTransit}
+        onHistoryOpen={onHistoryOpen}
         onMinusOpen={onMinusOpen}
         onPlusOpen={onPlusOpen}
         onStateChange={onStateChange}

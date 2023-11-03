@@ -1,19 +1,19 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
+import ShipmentHistory, { IGroupedRecordEntry } from "components/Timeline/Timeline";
 import _ from "lodash";
 import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
-import ShipmentHistory from "./ShipmentHistory";
 
 // eslint-disable-next-line no-shadow
 export enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
   ShipmentCanceled = "Shipment Canceled",
   ShipmentSent = "Shipment Sent",
-  ShipmentStartReceiving = "Shipment BeingReceived",
+  ShipmentStartReceiving = "Shipment Being Received",
   ShipmentCompleted = "Shipment Completed",
   BoxAdded = "Box Added",
   BoxRemoved = "Box Removed",
-  BoxLost = "Box Lost",
+  BoxLost = "Box Marked Not Delivered",
   BoxReceived = "Box Received",
 }
 
@@ -32,7 +32,7 @@ export interface IGroupedHistoryEntry {
 export interface IShipmentTabsProps {
   shipmentState: ShipmentState | undefined;
   detail: ShipmentDetail[];
-  histories: IGroupedHistoryEntry[];
+  histories: IGroupedRecordEntry[];
   isLoadingMutation: boolean | undefined;
   showRemoveIcon: Boolean;
   onRemoveBox: (id: string) => void;
@@ -54,16 +54,18 @@ function ShipmentTabs({
         product: group[0]?.sourceProduct,
         totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
         totalBoxes: group.length,
+        totalLosts: group.filter((shipment) => shipment?.lostOn !== null).length,
         boxes: group.map(
           (shipment) =>
             ({
               ...shipment.box,
               size: group[0]?.sourceSize,
-              numberOfItems: group[0]?.sourceQuantity,
+              numberOfItems: shipment.sourceQuantity,
               product: group[0]?.sourceProduct,
             } as Box),
         ),
       }))
+      .orderBy((value) => value.totalLosts, "asc")
       .mapKeys(
         (value) =>
           // eslint-disable-next-line max-len
@@ -93,7 +95,7 @@ function ShipmentTabs({
           />
         </TabPanel>
         <TabPanel>
-          <ShipmentHistory histories={histories} />
+          <ShipmentHistory records={histories} />
         </TabPanel>
       </TabPanels>
     </Tabs>
