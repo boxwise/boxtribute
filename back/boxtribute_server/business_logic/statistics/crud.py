@@ -15,9 +15,11 @@ from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
 
 
-def _generate_dimensions(*names, facts):
+def _generate_dimensions(*names, target_type=None, facts):
     """Return a dictionary holding information (ID, name) about dimensions with
     specified names.
+    If `target_type` is set, add a 'target' field containing information about a target
+    with given type.
     """
     dimensions = {}
 
@@ -48,12 +50,11 @@ def _generate_dimensions(*names, facts):
             .dicts()
         )
 
-    if "target" in names:
+    if target_type is not None:
         target_ids = {f["target_id"] for f in facts}
         # Target ID and name are identical for now
         dimensions["target"] = [
-            {"id": i, "name": i, "type": TargetType.OutgoingLocation}
-            for i in target_ids
+            {"id": i, "name": i, "type": target_type} for i in target_ids
         ]
 
     return dimensions
@@ -286,5 +287,7 @@ def compute_moved_boxes(base_id):
     for row in facts:
         row["moved_on"] = row["moved_on"].date()
 
-    dimensions = _generate_dimensions("category", "target", facts=facts)
+    dimensions = _generate_dimensions(
+        "category", target_type=TargetType.OutgoingLocation, facts=facts
+    )
     return {"facts": facts, "dimensions": dimensions}
