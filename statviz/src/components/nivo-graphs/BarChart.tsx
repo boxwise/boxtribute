@@ -1,5 +1,5 @@
 import { ResponsiveBar, BarDefaultProps, BarDatum, BarLayer } from "@nivo/bar";
-import { nivoScheme, scaleTick, scaledTheme } from "../../utils/theme";
+import { nivoScheme, scaleTick, scaledNivoTheme } from "../../utils/theme";
 import { percent, pixelCalculator } from "../../utils/chart";
 import { useTheme } from "@nivo/core";
 import { forwardRef, useRef } from "react";
@@ -25,7 +25,7 @@ export default function BarChart(barChart: BarChart) {
   const height = parseInt(barChart.height);
   const width = parseInt(barChart.width);
 
-  const theme = scaledTheme(width, height);
+  const theme = scaledNivoTheme(width, height);
   // getting updated depending on how much space is needed for extra information e. g. Timestamp and Heading
   let marginTop = percent(height, 5);
   let marginBottom = percent(height, 25);
@@ -46,7 +46,6 @@ export default function BarChart(barChart: BarChart) {
     layers.push(() => {
       return (
         <text
-          fontFamily="OpenSans"
           x={width * 0.05 * -1}
           y={-size * 1.5}
           style={{
@@ -67,7 +66,6 @@ export default function BarChart(barChart: BarChart) {
     layers.push(() => {
       return (
         <text
-          fontFamily="OpenSans"
           x={width * 0.05 * -1}
           y={-size * 2}
           style={{

@@ -41,7 +41,7 @@ export default function CreatedBoxes(params: {
     return createdBoxesPerDay.data;
   };
 
-  const createdBoxesPerDay = useMemo(getChartData, [createdBoxes]);
+  const createdBoxesPerDay = useMemo(getChartData, [createdBoxes, data]);
 
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;

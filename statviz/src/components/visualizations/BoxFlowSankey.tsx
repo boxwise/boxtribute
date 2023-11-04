@@ -1,7 +1,5 @@
-import { useState } from "react";
 import VisHeader from "../VisHeader";
 import { Card, CardBody } from "@chakra-ui/react";
-import { getSelectionBackground } from "../../utils/theme";
 
 export default function BoxFlowSankey() {
   return (

@@ -116,7 +116,10 @@ export default function DemographicChart(params: {
           background="#ffffff"
           colorBarLeft="#ec5063"
           colorBarRight="#31cab5"
-          visId={visId}
+          heading="Demographic"
+          timerange={timerange}
+          timestamp={date2String(new Date())}
+          visId="preview-demographic"
           settings={{
             hideZeroY: false,
           }}
@@ -125,13 +128,24 @@ export default function DemographicChart(params: {
       {isExporting && (
         <Box position="absolute" top="0" left="-5000">
           <BarChartCenterAxis
+            labelY="Age"
+            labelXr="Male"
+            labelXl="Female"
+            dataY={range(-1, maxAge + 2)}
+            dataXr={dataXr}
+            dataXl={dataXl}
+            width={exportWidth}
+            height={exportHeight}
+            background="#ffffff"
+            colorBarLeft="#ec5063"
+            colorBarRight="#31cab5"
+            heading={exportHeading ? heading : undefined}
+            timerange={exportTimerange ? timerange : undefined}
+            timestamp={exportTimestamp ? date2String(new Date()) : undefined}
             visId={visId}
-            indexBy="createdOn"
-            heading={exportHeading && heading}
-            timestamp={exportTimestamp && date2String(new Date())}
-            timeRange={exportTimerange && fromToTimestamp}
-            width={exportWidth + "px"}
-            height={exportHeight + "px"}
+            settings={{
+              hideZeroY: false,
+            }}
           />
         </Box>
       )}

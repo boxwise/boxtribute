@@ -1,5 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
 import { Theme } from "@nivo/core";
+import { defaultStyles } from "@visx/tooltip";
 
 export const getSelectionBackground = (selected: boolean) =>
   selected ? "blue.100" : "white";
@@ -214,7 +215,7 @@ export const nivoScheme: Theme = {
   },
 };
 
-export const scaledTheme = (width: number, height: number): Theme => {
+export const scaledNivoTheme = (width: number, height: number): Theme => {
   const strokeWidth = Math.floor(height / 500) + 1;
   const fontSizeAxis = Math.floor(height / 35) + 1;
   const fontSizeLegend = Math.floor(height / 25) + 1;
@@ -337,4 +338,79 @@ export const scaledTheme = (width: number, height: number): Theme => {
   };
 };
 
+export const scaledExportFieldsVisX = (width: number, height: number) => {
+  const headingFontSize = Math.floor((width + height) / 40);
+  const fontSize = Math.floor((width + height) / 90);
+
+  return {
+    heading: {
+      style: {
+        fontSize: headingFontSize,
+        fontFamily: "Open Sans",
+      },
+      x: Math.floor(width * 0.05),
+      y: 30,
+    },
+    timerange: {
+      style: {
+        fontSize: fontSize,
+        fontFamily: "Open Sans",
+      },
+      x: Math.floor(width * 0.05),
+      y: fontSize * 4,
+    },
+    timestamp: {
+      style: {
+        fontSize: fontSize,
+        fontFamily: "Open Sans",
+      },
+      x: 30,
+      y: height,
+    },
+  };
+};
+
+export const scaledExportFieldsNivo = (width: number, height: number) => {
+  const headingFontSize = Math.floor(width / 20);
+  const fontSize = Math.floor(width / 40);
+
+  return {
+    heading: {
+      style: {
+        fontSize: headingFontSize,
+        fontFamily: "Open Sans",
+      },
+      x: width * 0.05,
+      y: 30,
+    },
+    timerange: {
+      style: {
+        fontSize: fontSize,
+        fontFamily: "Open Sans",
+      },
+      x: width * 0.05,
+      y: fontSize * 4,
+    },
+    timestamp: {
+      style: {
+        fontSize: fontSize,
+        fontFamily: "Open Sans",
+      },
+      x: 30,
+      y: height,
+    },
+  };
+};
+
 export const scaleTick = (height: number) => height / 80;
+export const tooltipStyles = {
+  ...defaultStyles,
+  backgroundColor: "white",
+  width: 152,
+  height: 32,
+  padding: 6,
+  fontSize: 14,
+};
+export const tickProps = {
+  fontSize: 12,
+};

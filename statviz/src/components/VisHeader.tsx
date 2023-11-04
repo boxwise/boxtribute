@@ -52,7 +52,9 @@ export default function VisHeader(params: {
   });
 
   const downloadImage = () => {
-    const chart = document.getElementById(params.visId)?.firstChild?.firstChild;
+    const chart = params.custom
+      ? document.getElementById(params.visId)
+      : document.getElementById(params.visId)?.firstChild?.firstChild;
 
     domtoimage
       .toJpeg(chart, {
@@ -75,8 +77,9 @@ export default function VisHeader(params: {
   };
 
   const downloadImageSVG = () => {
-    const svgData = document.getElementById(params.visId)?.firstChild
-      ?.firstChild.innerHTML;
+    const svgData = params.custom
+      ? document.getElementById(params.visId).innerHTML
+      : document.getElementById(params.visId)?.firstChild?.firstChild.innerHTML;
 
     const svgBlob = new Blob([svgData], {
       type: "image/svg+xml;charset=utf-8",
@@ -103,8 +106,8 @@ export default function VisHeader(params: {
     setLoading(true);
     // timeout triggers the rerender with loading animations before generating the image.
     // without the timeout the loading animation sometimes won't be triggered
-    if (event.target.value === "svg") setTimeout(downloadImageSVG, 500);
-    if (event.target.value === "jpg") setTimeout(downloadImage, 500);
+    if (event.target.value === "svg") setTimeout(downloadImageSVG, 1000);
+    if (event.target.value === "jpg") setTimeout(downloadImage, 1000);
   };
 
   const getMaxWidth = () => {

@@ -1,12 +1,13 @@
 import { useTooltip, Tooltip } from "@visx/tooltip";
-import { IXY, tooltipStyles, labelProps, tickProps } from "../../utils/chart";
+import { IXY, labelProps, percent } from "../../utils/chart";
+import { scaledExportFieldsVisX, tickProps } from "../../utils/theme";
+import { tooltipStyles } from "../../utils/theme";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
-import { Box } from "@chakra-ui/react";
 
 type TooltipData = string;
 
@@ -23,6 +24,9 @@ export interface IBarChartCenterAxis {
   colorBarLeft: string;
   colorBarRight: string;
   visId: string;
+  heading?: string;
+  timerange?: string;
+  timestamp?: string;
   settings?: {
     hideZeroY?: boolean;
     hideZeroX?: boolean;
@@ -34,7 +38,6 @@ const defaultSettings = {
   hideZeroX: false,
 };
 
-const marginTop = 0;
 const marginLeft = 70;
 const marginRight = 40;
 const marginBottom = 70;
@@ -52,10 +55,18 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   } = useTooltip<TooltipData>({
     // initial tooltip state
     tooltipOpen: false,
-    tooltipLeft: fields.width / 3,
-    tooltipTop: fields.height / 3,
+    tooltipLeft: Math.floor(fields.width / 3),
+    tooltipTop: Math.floor(fields.height / 3),
     tooltipData: "",
   });
+
+  let marginTop = percent(chart.height, 5);
+
+  const size = Math.floor(chart.width / 20);
+
+  if (chart.heading) {
+    marginTop += size * 2.5;
+  }
 
   let tooltipTimeout: number;
 
@@ -104,18 +115,19 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   });
 
   const scaleY = scaleLinear({
-    domain: [minY, maxY],
-    range: [chartHeight, marginTop],
+    domain: [maxY + 2, -1],
+    range: [0, chartHeight],
+    nice: false,
     round: true,
   });
 
+  const exportFields = scaledExportFieldsVisX(chart.width, chart.height);
+
   return (
-    <>
-      <Box h="50px" w={fields.width} backgroundColor="white"></Box>
+    <div id={chart.visId}>
       <svg
         width={fields.width}
         height={fields.height}
-        id={chart.visId}
         style={{ fontFamily: "Open Sans" }}
       >
         <rect
@@ -123,6 +135,17 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
           width={fields.width}
           height={fields.height}
         />
+        <Group>
+          {chart.heading && (
+            <text {...exportFields.heading}>{chart.heading}</text>
+          )}
+          {chart.timerange && (
+            <text {...exportFields.timerange}>{chart.timerange}</text>
+          )}
+          {chart.timestamp && (
+            <text {...exportFields.timestamp}>{chart.timestamp}</text>
+          )}
+        </Group>
         <Group top={marginTop} left={marginLeft}>
           <Group>
             <Grid
@@ -227,7 +250,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
             <AxisLeft
               scale={scaleY}
               hideZero={settings.hideZeroY}
-              labelOffset={25}
+              labelOffset={30}
               label={fields.labelY}
               labelProps={labelProps}
             />
@@ -246,6 +269,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
           </Tooltip>
         )}
       </div>
-    </>
+    </div>
   );
 }
