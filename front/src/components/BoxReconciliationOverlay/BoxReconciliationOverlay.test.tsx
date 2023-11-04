@@ -116,7 +116,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   const selectProductControlInput = screen.getByText(/select product & gender/i);
   await user.click(selectProductControlInput);
   [/Winter Jackets \(Men\)/, /Long Sleeves \(Women\)/].forEach((option) => {
-    expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: option })).toBeInTheDocument();
   });
 
   const receiveLocationButton = screen.getByRole("button", {
@@ -129,7 +129,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   const selectLocationControlInput = screen.getByText(/select location/i);
   await user.click(selectLocationControlInput);
   [/WH Men/].forEach((option) => {
-    expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: option })).toBeInTheDocument();
   });
 }, 20000);
 
@@ -270,7 +270,7 @@ noDeliveryTests.forEach(({ name, mocks, toast }) => {
 
       // AYS is open
       expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
-      const yesButton = screen.getByRole("button", { name: /confirm/i });
+      const yesButton = screen.getByRole("button", { name: "Confirm" });
       expect(yesButton).toBeInTheDocument();
       user.click(yesButton);
 

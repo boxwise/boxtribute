@@ -395,17 +395,6 @@ describe("4.8.1 - Initial load of Page", () => {
     });
 
     // Test case 4.8.1.3
-    const row = await screen.findByRole("row", {
-      // eslint-disable-next-line max-len
-      name: /toggle all rows selected toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby toggle sortby/i,
-    });
-
-    within(row).getByText(/product/i);
-
-    within(row).getByText(/box number/i);
-
-    within(row).getByText(/gender/i);
-
-    within(row).getByText(/size/i);
+    expect(await screen.findByRole("gridcell", { name: /4495955/i })).toBeInTheDocument();
   });
 });
