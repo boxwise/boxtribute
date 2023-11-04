@@ -279,7 +279,7 @@ jobs:
     parameters:
       serviceName:
         type: string
-    executor: python-node-executor
+    executor: node-executor
     working_directory: ~/back
     steps:
       # Attach workspace from build
