@@ -1,3 +1,5 @@
+from datetime import date
+
 from boxtribute_server.enums import ProductGender, TargetType
 from boxtribute_server.models.utils import compute_age
 from utils import assert_successful_request
@@ -159,29 +161,41 @@ def test_query_top_products(
     }
 
 
-def test_query_moved_boxes(read_only_client, default_location):
+def test_query_moved_boxes(read_only_client, default_location, default_bases):
     query = """query { movedBoxes(baseId: 1) {
         facts { movedOn targetId categoryId boxesCount }
         dimensions { target { id name type } }
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint="public")
-    target_id = default_location["name"]
+    location_name = default_location["name"]
+    base_name = default_bases[3]["name"]
     assert data == {
         "facts": [
             {
                 "boxesCount": 3,
                 "categoryId": 1,
-                "targetId": target_id,
+                "targetId": location_name,
                 "movedOn": "2022-12-05",
+            },
+            {
+                "boxesCount": 5,
+                "categoryId": 1,
+                "targetId": base_name,
+                "movedOn": date.today().isoformat(),
             },
         ],
         "dimensions": {
             "target": [
                 {
-                    "id": target_id,
-                    "name": target_id,
+                    "id": location_name,
+                    "name": location_name,
                     "type": TargetType.OutgoingLocation.name,
-                }
+                },
+                {
+                    "id": base_name,
+                    "name": base_name,
+                    "type": TargetType.Shipment.name,
+                },
             ],
         },
     }

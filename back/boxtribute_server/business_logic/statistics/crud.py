@@ -2,12 +2,15 @@ from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
+from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.shipment import Shipment
+from ...models.definitions.shipment_detail import ShipmentDetail
 from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
@@ -277,17 +280,62 @@ def compute_moved_boxes(base_id):
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
     )
-    facts = selection.group_by(
+    donated_boxes_facts = selection.group_by(
         SQL("moved_on"),
         SQL("target_id"),
         SQL("category_id"),
     ).dicts()
 
+    # Select information about all boxes sent from the specified base as source, that
+    # were not removed from the shipment during preparation
+    shipped_boxes_facts = (
+        ShipmentDetail.select(
+            Shipment.sent_on.alias("moved_on"),
+            Product.category.alias("category_id"),
+            Base.name.alias("target_id"),
+            fn.COUNT(ShipmentDetail.box).alias("boxes_count"),
+        )
+        .join(
+            Shipment,
+            on=(
+                (ShipmentDetail.shipment == Shipment.id)
+                & (ShipmentDetail.removed_on.is_null())
+                & (Shipment.source_base == base_id)
+                & (Shipment.sent_on.is_null(False))
+            ),
+        )
+        .join(
+            Base,
+            on=(Shipment.target_base == Base.id),
+        )
+        .join(
+            Product,
+            src=ShipmentDetail,
+            on=(ShipmentDetail.source_product == Product.id),
+        )
+        .group_by(
+            SQL("moved_on"),
+            SQL("target_id"),
+            SQL("category_id"),
+        )
+        .dicts()
+    )
+
+    facts = list(donated_boxes_facts) + list(shipped_boxes_facts)
+
     # Conversions for GraphQL interface
     for row in facts:
         row["moved_on"] = row["moved_on"].date()
 
-    dimensions = _generate_dimensions(
-        "category", target_type=TargetType.OutgoingLocation, facts=facts
+    dimensions = _generate_dimensions("category", facts=facts)
+    dimensions["target"] = (
+        _generate_dimensions(
+            target_type=TargetType.OutgoingLocation,
+            facts=donated_boxes_facts,
+        )["target"]
+        + _generate_dimensions(
+            target_type=TargetType.Shipment,
+            facts=shipped_boxes_facts,
+        )["target"]
     )
     return {"facts": facts, "dimensions": dimensions}
