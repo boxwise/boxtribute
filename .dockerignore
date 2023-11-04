@@ -1,0 +1,36 @@
+# Node modules and logs
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build directories
+**/build
+**/dist
+
+# Docker and Git
+.dockerignore
+**/.git
+.gitignore
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Editor directories and files
+**/.vscode
+**/.idea
+**/*.sublime-workspace
+
+# Ignore all node_modules in subdirectories
+**/node_modules
+
+# If you have any test or documentation that should not be included in the build
+**/test
+**/tests
+**/coverage
+**/docs
+
+# If you're using environment files you don't want to copy
+*.env
+*.env.local
