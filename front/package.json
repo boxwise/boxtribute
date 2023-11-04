@@ -88,7 +88,7 @@
     "chromatic": "npx chromatic --project-token=2763da0ce36c",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
     "build": "yarn generate-graphql-ts-types && react-scripts build",
-    "start": "yarn build && yarn generate-graphql-ts-types --watch & craco start",
+    "dev": "yarn generate-graphql-ts-types --watch & craco start",
     "test": "react-scripts test",
     "test:coverage": "yarn test --env=jsdom --coverage --watchAll=false",
     "upload:test-report": "./node_modules/.bin/codecov",
