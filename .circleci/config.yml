@@ -248,6 +248,7 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
+              MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
@@ -320,6 +321,7 @@ jobs:
               MYSQL_DB=${DB_NAME}
               MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
+              MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
