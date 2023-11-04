@@ -6,8 +6,8 @@ import {
 } from "../types/generated/graphql";
 import { useMemo } from "react";
 import { createdBoxesTable } from "../utils/table";
-import { useParams, useSearchParams } from "react-router-dom";
-import { date2String } from "../utils/chart";
+import { useParams } from "react-router-dom";
+import useTimerange from "./useTimerange";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -41,24 +41,7 @@ export default function useCreatedBoxes() {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
 
-  const [searchParams] = useSearchParams();
-
-  const fromToInterval = useMemo(
-    () => ({
-      start: new Date(searchParams.get("from") as string),
-      end: new Date(searchParams.get("to") as string),
-    }),
-    [searchParams]
-  );
-
-  const fromToTimestamp = useMemo(
-    () =>
-      "from " +
-      date2String(fromToInterval.start) +
-      " to " +
-      date2String(fromToInterval.end),
-    [fromToInterval]
-  );
+  const { timerange, interval } = useTimerange();
 
   return {
     createdBoxes: useMemo(() => {
@@ -69,18 +52,18 @@ export default function useCreatedBoxes() {
       );
 
       try {
-        const filteredByTime = boxesFacts.filterCreatedOn(fromToInterval);
+        const filteredByTime = boxesFacts.filterCreatedOn(interval);
         return createdBoxesTable(filteredByTime.data);
       } catch (e) {
         console.log("invalid timerange");
         return createdBoxesTable([]);
       }
-    }, [data, fromToInterval]),
+    }, [data, interval]),
+    data,
     loading,
     error,
-    data,
     baseId,
-    fromToInterval,
-    fromToTimestamp,
+    timerange,
+    interval,
   };
 }

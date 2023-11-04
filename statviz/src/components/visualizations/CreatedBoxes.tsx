@@ -1,5 +1,5 @@
 import { ApolloError } from "@apollo/client";
-import { Card, CardBody } from "@chakra-ui/react";
+import { Box, Card, CardBody } from "@chakra-ui/react";
 import _ from "lodash";
 
 import BarChart from "../nivo-graphs/BarChart";
@@ -9,6 +9,7 @@ import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
 import VisHeader from "../VisHeader";
 import NoDataCard from "../NoDataCard";
 import useExport from "../../hooks/useExport";
+import { date2String } from "../../utils/chart";
 
 const visId = "created-boxes";
 
@@ -17,11 +18,18 @@ export default function CreatedBoxes(params: {
   height: string;
   boxesOrItems: BoxesOrItemsCount;
 }) {
-  const { createdBoxes, loading, data, error } = useCreatedBoxes();
+  const { createdBoxes, loading, data, error, timerange } = useCreatedBoxes();
 
-  const { exportWidth, exportHeight, isExporting, onExport, onExportFinish } =
-    useExport();
-
+  const {
+    exportWidth,
+    exportHeight,
+    isExporting,
+    exportHeading,
+    exportTimestamp,
+    exportTimerange,
+    onExport,
+    onExportFinish,
+  } = useExport();
   const getChartData = () => {
     if (data === undefined) return [];
 
@@ -42,23 +50,25 @@ export default function CreatedBoxes(params: {
     return <p>loading...</p>;
   }
 
-  const getHeading = () =>
+  const heading =
     params.boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
 
   if (createdBoxesPerDay.length === 0) {
-    return <NoDataCard header={getHeading()} />;
+    return <NoDataCard header={heading} />;
   }
 
   return (
     <Card>
       <VisHeader
         maxWidthPx={params.width}
-        heading={getHeading()}
+        heading={heading}
         visId={visId}
+        onExport={onExport}
+        onExportFinished={onExportFinish}
       ></VisHeader>
       <CardBody>
         <BarChart
-          visId={visId}
+          visId="preview-created-boxes"
           data={createdBoxesPerDay}
           indexBy="createdOn"
           keys={[params.boxesOrItems]}
@@ -67,15 +77,20 @@ export default function CreatedBoxes(params: {
         />
       </CardBody>
       {isExporting && (
-        <BarChart
-          animate={false}
-          visId={visId}
-          data={createdBoxesPerDay}
-          indexBy="createdOn"
-          keys={[params.boxesOrItems]}
-          width={params.width}
-          height={params.height}
-        />
+        <Box position="absolute" top="0" left="-5000">
+          <BarChart
+            animate={false}
+            visId={visId}
+            indexBy="createdOn"
+            keys={[params.boxesOrItems]}
+            heading={exportHeading && heading}
+            timestamp={exportTimestamp && date2String(new Date())}
+            timerange={exportTimerange && timerange}
+            data={createdBoxesPerDay}
+            width={exportWidth + "px"}
+            height={exportHeight + "px"}
+          />
+        </Box>
       )}
     </Card>
   );

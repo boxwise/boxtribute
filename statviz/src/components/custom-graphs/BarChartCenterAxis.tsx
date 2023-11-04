@@ -11,23 +11,21 @@ import { Box } from "@chakra-ui/react";
 type TooltipData = string;
 
 export interface IBarChartCenterAxis {
-  fields: {
-    labelY: string;
-    labelXr: string;
-    labelXl: string;
-    dataY: Array<number>;
-    dataXr: Array<IXY>;
-    dataXl: Array<IXY>;
-    width: number;
-    height: number;
-    background: string;
-    colorBarLeft: string;
-    colorBarRight: string;
-    visId: string;
-    settings?: {
-      hideZeroY?: boolean;
-      hideZeroX?: boolean;
-    };
+  labelY: string;
+  labelXr: string;
+  labelXl: string;
+  dataY: Array<number>;
+  dataXr: Array<IXY>;
+  dataXl: Array<IXY>;
+  width: number;
+  height: number;
+  background: string;
+  colorBarLeft: string;
+  colorBarRight: string;
+  visId: string;
+  settings?: {
+    hideZeroY?: boolean;
+    hideZeroX?: boolean;
   };
 }
 
@@ -42,7 +40,7 @@ const marginRight = 40;
 const marginBottom = 70;
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
-  const fields = { ...chart.fields };
+  const fields = { ...chart };
 
   const {
     showTooltip,
@@ -117,7 +115,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       <svg
         width={fields.width}
         height={fields.height}
-        id={chart.fields.visId}
+        id={chart.visId}
         style={{ fontFamily: "Open Sans" }}
       >
         <rect

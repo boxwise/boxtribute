@@ -5,19 +5,19 @@ export default function useExport() {
   const [exportHeight, setExportHeight] = useState(0);
   const [exportHeading, setExportHeading] = useState(false);
   const [exportTimestamp, setExportTimestamp] = useState(false);
-  const [exportFromTo, setExportFromTo] = useState(false);
+  const [exportTimerange, setExportTimerange] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   const onExport = (
     width: number,
     height: number,
     exportHeading: boolean,
-    exportTimestamp: boolean,
-    exportFromTo: boolean
+    exportTimerange: boolean,
+    exportTimestamp: boolean
   ) => {
     setExportHeading(exportHeading);
     setExportTimestamp(exportTimestamp);
-    setExportFromTo(exportFromTo);
+    setExportTimerange(exportTimerange);
     setExportWidth(width);
     setExportHeight(height);
     setIsExporting(true);
@@ -32,7 +32,7 @@ export default function useExport() {
     exportHeight,
     exportHeading,
     exportTimestamp,
-    exportFromTo,
+    exportTimerange,
     isExporting,
     onExport,
     onExportFinish,

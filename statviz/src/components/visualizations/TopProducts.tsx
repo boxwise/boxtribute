@@ -1,15 +1,10 @@
 import BarChart from "../nivo-graphs/BarChart";
 import { Sort, table } from "../../utils/table";
-import {
-  CreatedBoxesData,
-  ProductDimensionInfo,
-  QueryCreatedBoxesArgs,
-} from "../../types/generated/graphql";
-import { ApolloError, useQuery, gql } from "@apollo/client";
-import { Box, Card, CardBody, Heading } from "@chakra-ui/react";
+import { ProductDimensionInfo } from "../../types/generated/graphql";
+import { ApolloError } from "@apollo/client";
+import { Box, Card, CardBody } from "@chakra-ui/react";
 import { round } from "lodash";
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
 import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
 import VisHeader from "../VisHeader";
 import useCreatedBoxes from "../../hooks/useCreatedBoxes";
@@ -24,8 +19,7 @@ export default function TopProducts(params: {
   boxesOrItems: BoxesOrItemsCount;
 }) {
   const boxesOrItems = params.boxesOrItems;
-  const { createdBoxes, data, loading, error, fromToTimestamp } =
-    useCreatedBoxes();
+  const { createdBoxes, loading, error, timerange, data } = useCreatedBoxes();
 
   const {
     exportWidth,
@@ -33,7 +27,7 @@ export default function TopProducts(params: {
     isExporting,
     exportHeading,
     exportTimestamp,
-    exportFromTo,
+    exportTimerange,
     onExport,
     onExportFinish,
   } = useExport();
@@ -96,29 +90,18 @@ export default function TopProducts(params: {
         <BarChart
           visId={"visId"}
           data={chartData}
-          heading={exportHeading && heading}
-          timestamp={exportTimestamp && new Date().toISOString()}
-          timeRange={exportFromTo && fromToTimestamp}
           width={params.width}
           height={params.height}
         />
       </CardBody>
       {isExporting && (
-        <Box
-          margin="0"
-          padding="0"
-          bg="white"
-          position="absolute"
-          top="0"
-          left="-5000"
-          id={visId}
-        >
+        <Box id="export" position="absolute" top="0" left="-5000">
           <BarChart
             animate={false}
-            visId="test"
+            visId={visId}
             heading={exportHeading && heading}
             timestamp={exportTimestamp && new Date().toISOString()}
-            timeRange={exportFromTo && fromToTimestamp}
+            timerange={exportTimerange && timerange}
             data={chartData}
             width={exportWidth + "px"}
             height={exportHeight + "px"}

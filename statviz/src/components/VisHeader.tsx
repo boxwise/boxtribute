@@ -22,6 +22,8 @@ import {
   CheckboxGroup,
   HStack,
   Wrap,
+  useCheckboxGroup,
+  Text,
 } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
 import domtoimage from "dom-to-image-more";
@@ -35,8 +37,8 @@ export default function VisHeader(params: {
     width: number,
     height: number,
     includeHeading: boolean,
-    includeTimestamp: boolean,
-    includeFromTo: boolean
+    includeTimerange: boolean,
+    includeTimestamp: boolean
   ) => void;
   onExportFinished: () => void;
   custom?: boolean;
@@ -44,16 +46,13 @@ export default function VisHeader(params: {
   const [isLoading, setLoading] = useState(false);
   const [inputWidth, setInputWidth] = useState(800);
   const [inputHeight, setInputHeight] = useState(500);
-  const [includeHeading, setIncludeHeading] = useState(true);
-  const [includeTimestamp, setIncludeTimestamp] = useState(true);
-  const [includeFromTo, setIncludeFromTo] = useState(true);
 
-  const handleIncludeHeading = (e) => setIncludeHeading(e.target.checked);
-  const handleIncludeTimestamp = (e) => setIncludeTimestamp(e.target.checked);
-  const handleIncludeFromTo = (e) => setIncludeFromTo(e.target.checked);
+  const { value, getCheckboxProps } = useCheckboxGroup({
+    defaultValue: ["heading", "timerange"],
+  });
 
   const downloadImage = () => {
-    const chart = document.getElementById(params.visId); // params.visId
+    const chart = document.getElementById(params.visId)?.firstChild?.firstChild;
 
     domtoimage
       .toJpeg(chart, {
@@ -76,10 +75,9 @@ export default function VisHeader(params: {
   };
 
   const downloadImageSVG = () => {
-    const svgData = params.custom
-      ? document.getElementById(params.visId).outerHTML
-      : document.getElementById(params.visId)?.firstChild?.firstChild
-          ?.firstChild.outerHTML;
+    const svgData = document.getElementById(params.visId)?.firstChild
+      ?.firstChild.innerHTML;
+
     const svgBlob = new Blob([svgData], {
       type: "image/svg+xml;charset=utf-8",
     });
@@ -90,20 +88,23 @@ export default function VisHeader(params: {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+    setLoading(false);
+    params.onExportFinished();
   };
 
-  const download = () => {
+  const download = (event) => {
     params.onExport(
       inputWidth,
       inputHeight,
-      includeHeading,
-      includeTimestamp,
-      includeFromTo
+      value.indexOf("heading") !== -1,
+      value.indexOf("timerange") !== -1,
+      value.indexOf("timestamp") !== -1
     );
     setLoading(true);
     // timeout triggers the rerender with loading animations before generating the image.
     // without the timeout the loading animation sometimes won't be triggered
-    setTimeout(downloadImage, 250);
+    if (event.target.value === "svg") setTimeout(downloadImageSVG, 500);
+    if (event.target.value === "jpg") setTimeout(downloadImage, 500);
   };
 
   const getMaxWidth = () => {
@@ -167,29 +168,20 @@ export default function VisHeader(params: {
                 </Box>
                 <Spacer />
                 <Center>
-                  <CheckboxGroup>
+                  <CheckboxGroup defaultValue={["heading", "timerange"]}>
                     <Box>
                       <FormLabel>Options</FormLabel>
                       <HStack spacing="24px">
                         <Checkbox
-                          isChecked={includeHeading}
-                          onChange={handleIncludeHeading}
-                          value="include-heading"
+                          checked
+                          {...getCheckboxProps({ value: "heading" })}
                         >
                           Heading
                         </Checkbox>
-                        <Checkbox
-                          isChecked={includeTimestamp}
-                          onChange={handleIncludeFromTo}
-                          value="include-fromto"
-                        >
-                          timerange
+                        <Checkbox {...getCheckboxProps({ value: "timerange" })}>
+                          Time Range
                         </Checkbox>
-                        <Checkbox
-                          isChecked={includeTimestamp}
-                          onChange={handleIncludeTimestamp}
-                          value="include-timestamp"
-                        >
+                        <Checkbox {...getCheckboxProps({ value: "timestamp" })}>
                           Timestamp
                         </Checkbox>
                       </HStack>
@@ -204,6 +196,7 @@ export default function VisHeader(params: {
                       <Button
                         isLoading={isLoading}
                         backgroundColor="white"
+                        value="jpg"
                         onClick={download}
                       >
                         JPG
@@ -212,7 +205,8 @@ export default function VisHeader(params: {
                       <Button
                         isLoading={isLoading}
                         backgroundColor="white"
-                        onClick={downloadImageSVG}
+                        value="svg"
+                        onClick={download}
                       >
                         SVG
                         <DownloadIcon marginLeft="10px" />

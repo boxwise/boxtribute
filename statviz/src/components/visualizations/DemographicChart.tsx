@@ -1,11 +1,13 @@
-import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
+import { Box, Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { HumanGender } from "../../types/generated/graphql";
-import { getSelectionBackground } from "../../utils/theme";
-import { useState } from "react";
 import VisHeader from "../VisHeader";
 import { table } from "../../utils/table";
+import useExport from "../../hooks/useExport";
+import { date2String } from "../../utils/chart";
+import useDemographics from "../../hooks/useDemographics";
+import { ApolloError } from "@apollo/client";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -27,19 +29,35 @@ export interface IDemographicCube {
 }
 
 const visId = "demographic-pyramid";
+const heading = "Demographic";
 
-export default function DemographicChart(props: {
-  cube: IDemographicCube;
+export default function DemographicChart(params: {
   width: number;
   height: number;
 }) {
-  const facts = [...props.cube.facts];
+  const { demographics, error, timerange, loading } = useDemographics();
+  const {
+    exportWidth,
+    exportHeight,
+    isExporting,
+    exportHeading,
+    exportTimestamp,
+    exportTimerange,
+    onExport,
+    onExportFinish,
+  } = useExport();
 
-  if (facts.length === 0) {
+  if (error instanceof ApolloError) {
+    return <p>{error.message}</p>;
+  }
+  if (loading || typeof demographics === "undefined") {
+    return <p>loading...</p>;
+  }
+  if (demographics.data.length === 0) {
     return (
-      <Card w={props.width}>
+      <Card w={params.width}>
         <CardHeader>
-          <Heading size="md">Created Boxes</Heading>
+          <Heading size="md">{heading}</Heading>
         </CardHeader>
         <CardBody>
           <p>
@@ -52,61 +70,71 @@ export default function DemographicChart(props: {
     );
   }
 
-  const prepareFacts = (facts: IDemographicFact[]) => {
+  const prepareFacts = () => {
     const dataXr = table(
-      facts
+      demographics
         .filter((value) => value.gender === HumanGender.Male)
-        .map((e) => ({ x: e.count, y: e.age }))
+        .data.map((e) => ({ x: e.count, y: e.age }))
     ).groupBySum("y", ["x"]).data;
 
     const dataXl = table(
-      facts
+      demographics
         .filter((value) => value.gender === HumanGender.Female)
-        .map((e) => ({ x: e.count, y: e.age }))
+        .data.map((e) => ({ x: e.count, y: e.age }))
     ).groupBySum("y", ["x"]).data;
 
     return [dataXr, dataXl];
   };
 
-  const [dataXr, dataXl] = prepareFacts(facts);
+  const [dataXr, dataXl] = prepareFacts();
 
-  const maxAge: number = facts.reduce((acc: number, current) => {
+  const maxAge: number = demographics.data.reduce((acc: number, current) => {
     if (current.age > acc) return current.age;
     return acc;
   }, 0);
 
-  const height = 650;
-  const width = 700;
-
-  const chart = {
-    labelY: "Age",
-    labelXr: "Male",
-    labelXl: "Female",
-    dataY: range(-1, maxAge + 2),
-    dataXr,
-    dataXl,
-    width,
-    height,
-    background: "#ffffff",
-    colorBarLeft: "#ec5063",
-    colorBarRight: "#31cab5",
-    visId: visId,
-    settings: {
-      hideZeroY: false,
-    },
-  };
-
   return (
     <Card>
       <VisHeader
-        maxWidthPx={width}
-        heading="Demographics"
+        maxWidthPx={params.width}
+        heading={heading}
         visId={visId}
+        onExport={onExport}
+        onExportFinished={onExportFinish}
         custom={true}
       ></VisHeader>
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
-        <BarChartCenterAxis fields={chart} />
+        <BarChartCenterAxis
+          labelY="Age"
+          labelXr="Male"
+          labelXl="Female"
+          dataY={range(-1, maxAge + 2)}
+          dataXr={dataXr}
+          dataXl={dataXl}
+          width={params.width}
+          height={params.height}
+          background="#ffffff"
+          colorBarLeft="#ec5063"
+          colorBarRight="#31cab5"
+          visId={visId}
+          settings={{
+            hideZeroY: false,
+          }}
+        />
       </CardBody>
+      {isExporting && (
+        <Box position="absolute" top="0" left="-5000">
+          <BarChartCenterAxis
+            visId={visId}
+            indexBy="createdOn"
+            heading={exportHeading && heading}
+            timestamp={exportTimestamp && date2String(new Date())}
+            timeRange={exportTimerange && fromToTimestamp}
+            width={exportWidth + "px"}
+            height={exportHeight + "px"}
+          />
+        </Box>
+      )}
     </Card>
   );
 }

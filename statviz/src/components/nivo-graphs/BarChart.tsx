@@ -2,6 +2,7 @@ import { ResponsiveBar, BarDefaultProps, BarDatum, BarLayer } from "@nivo/bar";
 import { nivoScheme, scaleTick, scaledTheme } from "../../utils/theme";
 import { percent, pixelCalculator } from "../../utils/chart";
 import { useTheme } from "@nivo/core";
+import { forwardRef, useRef } from "react";
 
 export interface BarChart {
   width: string;
@@ -10,7 +11,7 @@ export interface BarChart {
   visId: string;
   heading?: string | false;
   timestamp?: string | false;
-  timeRange?: string | false;
+  timerange?: string | false;
   keys?: Array<string>;
   animate?: boolean; // null defaults to true
   indexBy?: string;
@@ -39,21 +40,43 @@ export default function BarChart(barChart: BarChart) {
   ];
 
   if (typeof barChart.heading === "string") {
-    marginTop += 50;
+    const size = Math.floor(width / 20);
+
+    marginTop += size * 2.5;
     layers.push(() => {
       return (
-        <text x="-30" y="-55" style={{ ...theme.labels?.text, fontSize: 30 }}>
+        <text
+          fontFamily="OpenSans"
+          x={width * 0.05 * -1}
+          y={-size * 1.5}
+          style={{
+            ...theme.labels?.text,
+            fontSize: size,
+            fontFamily: "Open Sans",
+          }}
+        >
           {barChart.heading}
         </text>
       );
     });
   }
-  if (typeof barChart.timeRange === "string") {
-    marginTop += 20;
+  if (typeof barChart.timerange === "string") {
+    const size = Math.floor(width / 50);
+
+    marginTop += size * 3;
     layers.push(() => {
       return (
-        <text x="-30" y="-30" style={{ ...theme.labels?.text, fontSize: 14 }}>
-          {barChart.timeRange}
+        <text
+          fontFamily="OpenSans"
+          x={width * 0.05 * -1}
+          y={-size * 2}
+          style={{
+            ...theme.labels?.text,
+            fontSize: size,
+            fontFamily: "Open Sans",
+          }}
+        >
+          {barChart.timerange}
         </text>
       );
     });
@@ -63,7 +86,15 @@ export default function BarChart(barChart: BarChart) {
     const y = height - marginTop - 20;
     layers.push(() => {
       return (
-        <text x="-30" y={y} style={{ ...theme.labels?.text, fontSize: 14 }}>
+        <text
+          x="-30"
+          y={y}
+          style={{
+            ...theme.labels?.text,
+            fontSize: 14,
+            fontFamily: "Open Sans",
+          }}
+        >
           {barChart.timestamp}
         </text>
       );
