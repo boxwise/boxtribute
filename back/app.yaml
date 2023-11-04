@@ -2,28 +2,28 @@ runtime: python310
 service: v2-staging
 entrypoint: gunicorn -b :$PORT boxtribute_server.main:app
 handlers:
-- url: /graphql
-  script: auto
-  secure: always
-- url: /
-  secure: always
-  static_files: react-build/index.html
-  upload: react-build/index.html
-- url: /manifest.json
-  static_files: react-build/manifest.json
-  upload: react-build/manifest.json
-- url: /heapanalytics.js
-  static_files: react-build/heapanalytics.js
-  upload: react-build/heapanalytics.js
-- url: /static/(.*)
-  secure: always
-  static_files: react-build/static/\1
-  upload: react-build/static/(.*)
-- url: /(.*\.(ico|png|svg))$
-  secure: always
-  static_files: react-build/\1
-  upload: react-build/(.*\.(ico|png|svg))$
-- url: /(.*)
-  secure: always
-  static_files: react-build/index.html
-  upload: react-build/index.html
+  - url: /graphql
+    script: auto
+    secure: always
+  - url: /
+    secure: always
+    static_files: front-build/index.html
+    upload: front-build/index.html
+  - url: /manifest.json
+    static_files: front-build/manifest.json
+    upload: front-build/manifest.json
+  - url: /heapanalytics.js
+    static_files: front-build/heapanalytics.js
+    upload: front-build/heapanalytics.js
+  - url: /static/(.*)
+    secure: always
+    static_files: front-build/static/\1
+    upload: front-build/static/(.*)
+  - url: /(.*\.(ico|png|svg))$
+    secure: always
+    static_files: front-build/\1
+    upload: front-build/(.*\.(ico|png|svg))$
+  - url: /(.*)
+    secure: always
+    static_files: front-build/index.html
+    upload: front-build/index.html
