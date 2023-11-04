@@ -18,11 +18,11 @@ from .utils import (
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
-    "category",
     "gender",
     "history",
     "language",
     "organisation",
+    "product_category",
     "qr",
     "shipment_detail",
     "size",

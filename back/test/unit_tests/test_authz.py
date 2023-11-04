@@ -27,7 +27,7 @@ BASE_RELATED_PERMISSIONS = {
 }
 BASE_AGNOSTIC_PERMISSIONS = {
     "box_state:read": [BASE_ID],
-    "category:read": [BASE_ID],
+    "product_category:read": [BASE_ID],
     "gender:read": [BASE_ID],
     "language:read": [BASE_ID],
     "organisation:read": [BASE_ID],
@@ -50,7 +50,7 @@ def test_authorized_user():
     user = CurrentUser(id=3, organisation_id=2, base_ids=ALL_PERMISSIONS)
     assert authorize(user, permission="base:read", base_id=BASE_ID)
     assert authorize(user, permission="beneficiary:read", base_id=BASE_ID)
-    assert authorize(user, permission="category:read")
+    assert authorize(user, permission="product_category:read")
     assert authorize(user, permission="location:read", base_id=BASE_ID)
     assert authorize(user, permission="product:read", base_id=BASE_ID)
     assert authorize(user, permission="shipment:read", base_id=BASE_ID)
@@ -134,7 +134,7 @@ def test_user_with_insufficient_permissions():
         authorize(user, permission="product:read", base_id=1)
     with pytest.raises(Forbidden):
         # The base-agnostic permission field is not part of the user's permissions
-        authorize(user, permission="category:read")
+        authorize(user, permission="product_category:read")
 
 
 def test_invalid_authorize_function_call():

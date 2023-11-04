@@ -89,7 +89,7 @@ def _create_jwt_payload(
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
             f"{base_prefix}/base:read",
             f"{base_prefix}/beneficiary:read",
-            f"{base_prefix}/category:read",
+            f"{base_prefix}/product_category:read",
             f"{base_prefix}/distro_event:write",
             f"{base_prefix}/distro_event:read",
             f"{base_prefix}/location:read",
