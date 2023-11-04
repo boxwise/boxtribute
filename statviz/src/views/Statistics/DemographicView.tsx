@@ -3,7 +3,7 @@ import {
   BeneficiaryDemographicsQuery,
   BeneficiaryDemographicsQueryVariables,
 } from "../../types/generated/graphql";
-import DemographicChart from "./components/DemographicChart";
+import DemographicChart from "../../components/visualizations/DemographicChart";
 import { useParams } from "react-router-dom";
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 

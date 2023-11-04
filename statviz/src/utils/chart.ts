@@ -22,3 +22,5 @@ export const labelProps = {
   fontFamily: "Open Sans",
   fontSize: 16,
 };
+
+export const percent = (px: number, percent: number) => px * (percent / 100);

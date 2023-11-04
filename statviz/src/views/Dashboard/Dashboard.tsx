@@ -8,7 +8,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import TimeRangeSelect from "../Statistics/components/filter/TimeRangeSelect";
+import TimeRangeSelect from "../../components/Form/TimeRangeSelect";
 import { useSearchParams } from "react-router-dom";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";

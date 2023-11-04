@@ -2,9 +2,9 @@ import { gql, useQuery } from "@apollo/client";
 import {
   CreatedBoxesData,
   CreatedBoxesResult,
-} from "../../types/generated/graphql";
+} from "../types/generated/graphql";
 import { useMemo } from "react";
-import { createdBoxesTable } from "../table";
+import { createdBoxesTable } from "../utils/table";
 import { useSearchParams } from "react-router-dom";
 
 export default function useCreatedBoxes(data?: {

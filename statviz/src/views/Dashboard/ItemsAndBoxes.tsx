@@ -12,8 +12,8 @@ import {
 } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import TopProductsPieChart from "../Statistics/components/TopProducts";
-import CreatedBoxesBarChart from "../Statistics/components/CreatedBoxes";
+import TopProductsPieChart from "../../components/visualizations/TopProducts";
+import CreatedBoxesBarChart from "../../components/visualizations/CreatedBoxes";
 
 export type BoxesOrItemsCount = "boxesCount" | "itemsCount";
 export const isBoxesOrItemsCount = (

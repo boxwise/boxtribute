@@ -213,3 +213,128 @@ export const nivoScheme: Theme = {
     tableCellValue: {},
   },
 };
+
+export const scaledTheme = (width: number, height: number): Theme => {
+  const strokeWidth = Math.floor(height / 500) + 1;
+  const fontSizeAxis = Math.floor(height / 35) + 1;
+  const fontSizeLegend = Math.floor(height / 20) + 1;
+  const fontSizeText = Math.floor(height / 20) + 1;
+  const fontSizeLabel = Math.floor(width / 25) + 1;
+
+  return {
+    background: "#ffffff",
+    fontFamily: "Open Sans",
+    text: {
+      fontSize: fontSizeText,
+      fill: "#333333",
+      outlineWidth: 0,
+      outlineColor: "transparent",
+    },
+    labels: {
+      text: {
+        fontSize: fontSizeLabel,
+      },
+    },
+    axis: {
+      domain: {
+        line: {
+          stroke: "#777777",
+          strokeWidth: strokeWidth,
+        },
+      },
+      legend: {
+        text: {
+          fontSize: fontSizeLegend,
+          fill: "#333333",
+          outlineWidth: 0,
+          outlineColor: "transparent",
+        },
+      },
+      ticks: {
+        line: {
+          stroke: "#777777",
+          strokeWidth: strokeWidth,
+        },
+        text: {
+          fontSize: fontSizeAxis,
+          fill: "#333333",
+          outlineWidth: 0,
+          outlineColor: "transparent",
+        },
+      },
+    },
+    grid: {
+      line: {
+        stroke: "#dddddd",
+        strokeWidth: strokeWidth,
+      },
+    },
+    legends: {
+      title: {
+        text: {
+          fontSize: fontSizeLegend,
+          fill: "#333333",
+          outlineWidth: 0,
+          outlineColor: "transparent",
+        },
+      },
+      text: {
+        fontSize: fontSizeLegend,
+        fill: "#333333",
+        outlineWidth: 0,
+        outlineColor: "transparent",
+      },
+      ticks: {
+        line: {},
+        text: {
+          fontSize: fontSizeLegend,
+          fill: "#333333",
+          outlineWidth: 0,
+          outlineColor: "transparent",
+        },
+      },
+    },
+    annotations: {
+      text: {
+        fontSize: fontSizeLegend,
+        fill: "#333333",
+        outlineWidth: 2,
+        outlineColor: "#ffffff",
+        outlineOpacity: 1,
+      },
+      link: {
+        stroke: "#000000",
+        strokeWidth: 1,
+        outlineWidth: 2,
+        outlineColor: "#ffffff",
+        outlineOpacity: 1,
+      },
+      outline: {
+        stroke: "#000000",
+        strokeWidth: 2,
+        outlineWidth: 2,
+        outlineColor: "#ffffff",
+        outlineOpacity: 1,
+      },
+      symbol: {
+        fill: "#000000",
+        outlineWidth: 2,
+        outlineColor: "#ffffff",
+        outlineOpacity: 1,
+      },
+    },
+    tooltip: {
+      container: {
+        background: "#ffffff",
+        fontSize: fontSizeLegend,
+      },
+      basic: {},
+      chip: {},
+      table: {},
+      tableCell: {},
+      tableCellValue: {},
+    },
+  };
+};
+
+export const scaleTick = (height: number) => height / 80;

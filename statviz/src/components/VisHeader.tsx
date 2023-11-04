@@ -24,30 +24,53 @@ import {
   Wrap,
 } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
-import domtoimage from "dom-to-image";
+import domtoimage from "dom-to-image-more";
 import { useState } from "react";
 
 export default function VisHeader(params: {
   heading: string;
   visId: string;
   maxWidthPx: number | string;
+  onExport: (
+    width: number,
+    height: number,
+    includeHeading: boolean,
+    includeTimestamp: boolean
+  ) => void;
+  onExportFinished: () => void;
   custom?: boolean;
 }) {
   const [isLoading, setLoading] = useState(false);
+  const [inputWidth, setInputWidth] = useState(800);
+  const [inputHeight, setInputHeight] = useState(500);
+  const [includeHeading, setIncludeHeading] = useState(true);
+  const [includeTimestamp, setIncludeTimestamp] = useState(true);
+
+  const handleIncludeHeading = (e) => setIncludeHeading(e.target.checked);
+  const handleIncludeTimestamp = (e) => setIncludeTimestamp(e.target.checked);
 
   const downloadImage = () => {
-    const chart = document.getElementById(params.visId);
+    const chart = document.getElementById(params.visId); // params.visId
 
-    domtoimage.toJpeg(chart, { quality: 0.9 }).then((dataUrl) => {
-      const a = document.createElement("a");
-      a.setAttribute("href", dataUrl);
+    domtoimage
+      .toJpeg(chart, {
+        quality: 0.9,
+        width: inputWidth,
+        height: inputHeight,
+        bgColor: "#ffffff",
+      })
+      .then((dataUrl) => {
+        console.log(dataUrl);
+        const a = document.createElement("a");
+        a.setAttribute("href", dataUrl);
 
-      a.setAttribute("download", params.visId);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setLoading(false);
-    });
+        a.setAttribute("download", params.visId);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setLoading(false);
+        params.onExportFinished();
+      });
   };
 
   const downloadImageSVG = () => {
@@ -61,15 +84,18 @@ export default function VisHeader(params: {
     const svgUrl = URL.createObjectURL(svgBlob);
     const downloadLink = document.createElement("a");
     downloadLink.href = svgUrl;
-    downloadLink.download = "newesttree.svg";
+    downloadLink.download = params.visId + ".svg";
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
   };
 
   const download = () => {
+    params.onExport(inputWidth, inputHeight, includeHeading, includeHeading);
     setLoading(true);
-    setTimeout(downloadImage, 1);
+    // timeout triggers the rerender with loading animations before generating the image.
+    // without the timeout the loading animation sometimes won't be triggered
+    setTimeout(downloadImage, 250);
   };
 
   const getMaxWidth = () => {
@@ -102,9 +128,10 @@ export default function VisHeader(params: {
                   <NumberInput
                     max={5000}
                     min={100}
-                    defaultValue={800}
                     step={10}
                     size="sm"
+                    value={inputWidth}
+                    onChange={setInputWidth}
                   >
                     <NumberInputField />
                     <NumberInputStepper>
@@ -118,9 +145,10 @@ export default function VisHeader(params: {
                   <NumberInput
                     max={5000}
                     min={100}
-                    defaultValue={800}
                     step={10}
                     size="sm"
+                    value={inputHeight}
+                    onChange={setInputHeight}
                   >
                     <NumberInputField />
                     <NumberInputStepper>
@@ -135,10 +163,18 @@ export default function VisHeader(params: {
                     <Box>
                       <FormLabel>Options</FormLabel>
                       <HStack spacing="24px">
-                        <Checkbox checked value="include-heading">
+                        <Checkbox
+                          isChecked={includeHeading}
+                          onChange={handleIncludeHeading}
+                          value="include-heading"
+                        >
                           Heading
                         </Checkbox>
-                        <Checkbox checked value="include-timestamp">
+                        <Checkbox
+                          isChecked={includeTimestamp}
+                          onChange={handleIncludeTimestamp}
+                          value="include-timestamp"
+                        >
                           Timestamp
                         </Checkbox>
                       </HStack>

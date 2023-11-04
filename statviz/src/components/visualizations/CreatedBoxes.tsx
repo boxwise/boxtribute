@@ -5,14 +5,15 @@ import _ from "lodash";
 import {
   CreatedBoxesData,
   QueryCreatedBoxesArgs,
-} from "../../../types/generated/graphql";
-import BarChart from "../../../components/nivo-graphs/BarChart";
+} from "../../types/generated/graphql";
+import BarChart from "../nivo-graphs/BarChart";
 import { useMemo } from "react";
-import useCreatedBoxes from "../../../utils/hooks/useCreatedBoxes";
+import useCreatedBoxes from "../../hooks/useCreatedBoxes";
 import { useParams } from "react-router-dom";
-import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
-import VisHeader from "./VisHeader";
-import NoDataCard from "./NoDataCard";
+import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
+import VisHeader from "../VisHeader";
+import NoDataCard from "../NoDataCard";
+import useExport from "../../hooks/useExport";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -52,6 +53,9 @@ export default function CreatedBoxes(params: {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
   const createdBoxes = useCreatedBoxes(data);
+
+  const { exportWidth, exportHeight, isExporting, onExport, onExportFinish } =
+    useExport();
 
   const getChartData = () => {
     if (data === undefined) return [];
@@ -97,6 +101,17 @@ export default function CreatedBoxes(params: {
           height={params.height}
         />
       </CardBody>
+      {isExporting && (
+        <BarChart
+          animate={false}
+          visId={visId}
+          data={createdBoxesPerDay}
+          indexBy="createdOn"
+          keys={[params.boxesOrItems]}
+          width={params.width}
+          height={params.height}
+        />
+      )}
     </Card>
   );
 }

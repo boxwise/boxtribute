@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import DemographicView from "./views/Statistics/DemographicView";
 import Dashboard from "./views/Dashboard/Dashboard";
-import CreatedBoxes from "./views/Statistics/components/CreatedBoxes";
-import TopProducts from "./views/Statistics/components/TopProducts";
+import CreatedBoxes from "./components/visualizations/CreatedBoxes";
+import TopProducts from "./components/visualizations/TopProducts";
 
 function App() {
   return (

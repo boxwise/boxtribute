@@ -1,11 +1,11 @@
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
-import BarChartCenterAxis from "../../../components/custom-graphs/BarChartCenterAxis";
+import BarChartCenterAxis from "../custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
-import { HumanGender } from "../../../types/generated/graphql";
-import { getSelectionBackground } from "../../../utils/theme";
+import { HumanGender } from "../../types/generated/graphql";
+import { getSelectionBackground } from "../../utils/theme";
 import { useState } from "react";
-import VisHeader from "./VisHeader";
-import { table } from "../../../utils/table";
+import VisHeader from "../VisHeader";
+import { table } from "../../utils/table";
 
 export interface IDemographicFact {
   createdOn: Date;

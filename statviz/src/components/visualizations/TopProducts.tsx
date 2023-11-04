@@ -1,21 +1,20 @@
-import BarChart from "../../../components/nivo-graphs/BarChart";
-import { Sort, table } from "../../../utils/table";
+import BarChart from "../nivo-graphs/BarChart";
+import { Sort, table } from "../../utils/table";
 import {
   CreatedBoxesData,
-  CreatedBoxesResult,
   ProductDimensionInfo,
   QueryCreatedBoxesArgs,
-} from "../../../types/generated/graphql";
+} from "../../types/generated/graphql";
 import { ApolloError, useQuery, gql } from "@apollo/client";
-import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
+import { Box, Card, CardBody, Heading } from "@chakra-ui/react";
 import { round } from "lodash";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { BoxesOrItemsCount } from "../../Dashboard/Dashboard";
-import { getSelectionBackground } from "../../../utils/theme";
-import VisHeader from "./VisHeader";
-import useCreatedBoxes from "../../../utils/hooks/useCreatedBoxes";
-import NoDataCard from "./NoDataCard";
+import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
+import VisHeader from "../VisHeader";
+import useCreatedBoxes from "../../hooks/useCreatedBoxes";
+import NoDataCard from "../NoDataCard";
+import useExport from "../../hooks/useExport";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -56,6 +55,16 @@ export default function TopProducts(params: {
     QueryCreatedBoxesArgs
   >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
   const createdBoxes = useCreatedBoxes(data);
+
+  const {
+    exportWidth,
+    exportHeight,
+    isExporting,
+    exportHeading,
+    exportTimestamp,
+    onExport,
+    onExportFinish,
+  } = useExport();
 
   const getChartData = () => {
     if (data === undefined) {
@@ -101,21 +110,51 @@ export default function TopProducts(params: {
   if (chartData.length == 0) {
     return <NoDataCard header={heading} />;
   }
+
   return (
     <Card>
       <VisHeader
         maxWidthPx={params.width}
         heading={heading}
         visId={visId}
+        onExport={onExport}
+        onExportFinished={onExportFinish}
       ></VisHeader>
       <CardBody>
         <BarChart
-          visId={visId}
+          visId={"visId"}
           data={chartData}
           width={params.width}
           height={params.height}
         />
       </CardBody>
+      {isExporting && (
+        <Box
+          margin="0"
+          padding="0"
+          bg="white"
+          position="absolute"
+          top="0"
+          left="-5000"
+          id={visId}
+        >
+          {exportHeading && (
+            <Heading margin="0" fontSize={exportWidth / 24}>
+              {heading}
+            </Heading>
+          )}
+          {exportTimestamp && (
+            <Box fontSize={exportWidth / 32}>{new Date().toISOString()}</Box>
+          )}
+          <BarChart
+            animate={false}
+            visId="test"
+            data={chartData}
+            width={exportWidth + "px"}
+            height={exportHeight + "px"}
+          />
+        </Box>
+      )}
     </Card>
   );
 }

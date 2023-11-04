@@ -1,5 +1,6 @@
-import { ResponsiveBar } from "@nivo/bar";
-import { nivoScheme } from "../../utils/theme";
+import { ResponsiveBar, ResponsiveBarCanvas } from "@nivo/bar";
+import { nivoScheme, scaleTick, scaledTheme } from "../../utils/theme";
+import { percent, pixelCalculator } from "../../utils/chart";
 
 export interface BarChart {
   width: string;
@@ -7,6 +8,7 @@ export interface BarChart {
   data: Array<object>;
   visId: string;
   keys?: Array<string>;
+  animate?: boolean; // null defaults to true
   indexBy?: string;
   ariaLabel?: string;
   legend?: boolean;
@@ -51,12 +53,18 @@ export default function BarChart(barChart: BarChart) {
       <ResponsiveBar
         data={barChart.data}
         keys={barChart.keys}
+        animate={barChart.animate === true || barChart.animate === null}
         indexBy={barChart.indexBy}
-        margin={{ top: 50, right: 50, bottom: 100, left: 60 }}
+        margin={{
+          top: percent(parseInt(barChart.height), 5),
+          right: percent(parseInt(barChart.width), 10),
+          bottom: percent(parseInt(barChart.height), 20),
+          left: percent(parseInt(barChart.width), 15),
+        }}
         padding={0.3}
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
-        theme={nivoScheme}
+        theme={scaledTheme(parseInt(barChart.width), parseInt(barChart.height))}
         colors="#ec5063"
         defs={[
           {
@@ -85,16 +93,16 @@ export default function BarChart(barChart: BarChart) {
         axisTop={null}
         axisRight={null}
         axisBottom={{
-          tickSize: 5,
-          tickPadding: 5,
+          tickSize: scaleTick(parseInt(barChart.height)),
+          tickPadding: scaleTick(parseInt(barChart.height)),
           tickRotation: 25,
           legend: barChart.labelAxisBottom,
           legendPosition: "middle",
           legendOffset: 32,
         }}
         axisLeft={{
-          tickSize: 5,
-          tickPadding: 5,
+          tickSize: scaleTick(parseInt(barChart.height)),
+          tickPadding: scaleTick(parseInt(barChart.height)),
           tickRotation: 0,
           legend: barChart.labelAxisLeft,
           legendPosition: "middle",

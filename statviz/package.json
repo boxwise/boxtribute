@@ -39,7 +39,7 @@
     "react-hook-form": "^7.43.1",
     "react-router-dom": "^6.15.0",
     "zod": "^3.22.3",
-    "dom-to-image": "^2.6.0"
+    "dom-to-image-more": "^3.2.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",
