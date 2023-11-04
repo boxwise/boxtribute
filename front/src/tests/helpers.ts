@@ -19,7 +19,7 @@ export async function assertOptionsInSelectField(
   });
   await user.click(fieldControlInput);
   options.forEach((option) => {
-    expect(screen.getByRole("button", { name: option })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: option })).toBeInTheDocument();
   });
   subHeadings.forEach((subHeading) => {
     expect(screen.getByText(subHeading)).toBeInTheDocument();
@@ -43,11 +43,11 @@ export async function selectOptionInSelectField(
   const fieldControlInput =
     label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
   await user.click(fieldControlInput);
-  const optionButton = screen.getByRole("button", { name: option });
+  const optionButton = screen.getByRole("option", { name: option });
   expect(optionButton).toBeInTheDocument();
   await user.click(optionButton);
   if (isMulti) {
-    expect(screen.queryByRole("button", { name: option })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: option })).not.toBeInTheDocument();
   }
   expect(screen.getByText(option)).toBeInTheDocument();
 }
