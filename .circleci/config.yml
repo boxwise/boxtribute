@@ -13,8 +13,7 @@ executors:
       - image: cimg/python:3.10.4
   python-node-executor:
     docker:
-      - image: cimg/python:3.10.4
-      - image: cimg/node:20.9.0
+      - image: cimg/python:3.10.4-node
   python-mysql-executor:
     docker:
       - image: cimg/python:3.10.4
