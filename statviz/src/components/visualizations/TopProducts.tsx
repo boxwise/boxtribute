@@ -16,31 +16,6 @@ import useCreatedBoxes from "../../hooks/useCreatedBoxes";
 import NoDataCard from "../NoDataCard";
 import useExport from "../../hooks/useExport";
 
-const CREATED_BOXES_QUERY = gql`
-  query createdBoxes($baseId: Int!) {
-    createdBoxes(baseId: $baseId) {
-      facts {
-        boxesCount
-        productId
-        categoryId
-        createdOn
-        gender
-        itemsCount
-      }
-      dimensions {
-        product {
-          id
-          name
-        }
-        category {
-          id
-          name
-        }
-      }
-    }
-  }
-`;
-
 const visId = "top-products";
 
 export default function TopProducts(params: {
@@ -49,12 +24,8 @@ export default function TopProducts(params: {
   boxesOrItems: BoxesOrItemsCount;
 }) {
   const boxesOrItems = params.boxesOrItems;
-  const { baseId } = useParams();
-  const { data, loading, error } = useQuery<
-    CreatedBoxesData,
-    QueryCreatedBoxesArgs
-  >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
-  const createdBoxes = useCreatedBoxes(data);
+  const { createdBoxes, data, loading, error, fromToTimestamp } =
+    useCreatedBoxes();
 
   const {
     exportWidth,
@@ -62,6 +33,7 @@ export default function TopProducts(params: {
     isExporting,
     exportHeading,
     exportTimestamp,
+    exportFromTo,
     onExport,
     onExportFinish,
   } = useExport();
@@ -124,6 +96,9 @@ export default function TopProducts(params: {
         <BarChart
           visId={"visId"}
           data={chartData}
+          heading={exportHeading && heading}
+          timestamp={exportTimestamp && new Date().toISOString()}
+          timeRange={exportFromTo && fromToTimestamp}
           width={params.width}
           height={params.height}
         />
@@ -138,17 +113,12 @@ export default function TopProducts(params: {
           left="-5000"
           id={visId}
         >
-          {exportHeading && (
-            <Heading margin="0" fontSize={exportWidth / 24}>
-              {heading}
-            </Heading>
-          )}
-          {exportTimestamp && (
-            <Box fontSize={exportWidth / 32}>{new Date().toISOString()}</Box>
-          )}
           <BarChart
             animate={false}
             visId="test"
+            heading={exportHeading && heading}
+            timestamp={exportTimestamp && new Date().toISOString()}
+            timeRange={exportFromTo && fromToTimestamp}
             data={chartData}
             width={exportWidth + "px"}
             height={exportHeight + "px"}

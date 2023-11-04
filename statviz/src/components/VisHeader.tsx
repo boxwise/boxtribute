@@ -35,7 +35,8 @@ export default function VisHeader(params: {
     width: number,
     height: number,
     includeHeading: boolean,
-    includeTimestamp: boolean
+    includeTimestamp: boolean,
+    includeFromTo: boolean
   ) => void;
   onExportFinished: () => void;
   custom?: boolean;
@@ -45,9 +46,11 @@ export default function VisHeader(params: {
   const [inputHeight, setInputHeight] = useState(500);
   const [includeHeading, setIncludeHeading] = useState(true);
   const [includeTimestamp, setIncludeTimestamp] = useState(true);
+  const [includeFromTo, setIncludeFromTo] = useState(true);
 
   const handleIncludeHeading = (e) => setIncludeHeading(e.target.checked);
   const handleIncludeTimestamp = (e) => setIncludeTimestamp(e.target.checked);
+  const handleIncludeFromTo = (e) => setIncludeFromTo(e.target.checked);
 
   const downloadImage = () => {
     const chart = document.getElementById(params.visId); // params.visId
@@ -60,7 +63,6 @@ export default function VisHeader(params: {
         bgColor: "#ffffff",
       })
       .then((dataUrl) => {
-        console.log(dataUrl);
         const a = document.createElement("a");
         a.setAttribute("href", dataUrl);
 
@@ -91,7 +93,13 @@ export default function VisHeader(params: {
   };
 
   const download = () => {
-    params.onExport(inputWidth, inputHeight, includeHeading, includeHeading);
+    params.onExport(
+      inputWidth,
+      inputHeight,
+      includeHeading,
+      includeTimestamp,
+      includeFromTo
+    );
     setLoading(true);
     // timeout triggers the rerender with loading animations before generating the image.
     // without the timeout the loading animation sometimes won't be triggered
@@ -169,6 +177,13 @@ export default function VisHeader(params: {
                           value="include-heading"
                         >
                           Heading
+                        </Checkbox>
+                        <Checkbox
+                          isChecked={includeTimestamp}
+                          onChange={handleIncludeFromTo}
+                          value="include-fromto"
+                        >
+                          timerange
                         </Checkbox>
                         <Checkbox
                           isChecked={includeTimestamp}

@@ -1,11 +1,12 @@
-import { Box, Button, ButtonGroup, HStack, Heading } from "@chakra-ui/react";
+import { Box, HStack } from "@chakra-ui/react";
 import DateField from "./DateField";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
-import { addDays, isBefore, subDays, subMonths } from "date-fns";
+import { subMonths } from "date-fns";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { date2String } from "../../utils/chart";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z
@@ -37,9 +38,6 @@ export default function TimeRangeSelect(params: {
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const date2String = (date: Date) => date.toISOString().substring(0, 10);
-
   const toFormValue = watch("to");
   const fromFormValue = watch("from");
 

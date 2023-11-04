@@ -1,12 +1,16 @@
-import { ResponsiveBar, ResponsiveBarCanvas } from "@nivo/bar";
+import { ResponsiveBar, BarDefaultProps, BarDatum, BarLayer } from "@nivo/bar";
 import { nivoScheme, scaleTick, scaledTheme } from "../../utils/theme";
 import { percent, pixelCalculator } from "../../utils/chart";
+import { useTheme } from "@nivo/core";
 
 export interface BarChart {
   width: string;
   height: string;
   data: Array<object>;
   visId: string;
+  heading?: string | false;
+  timestamp?: string | false;
+  timeRange?: string | false;
   keys?: Array<string>;
   animate?: boolean; // null defaults to true
   indexBy?: string;
@@ -17,6 +21,55 @@ export interface BarChart {
 }
 
 export default function BarChart(barChart: BarChart) {
+  const height = parseInt(barChart.height);
+  const width = parseInt(barChart.width);
+
+  const theme = scaledTheme(width, height);
+  // getting updated depending on how much space is needed for extra information e. g. Timestamp and Heading
+  let marginTop = percent(height, 5);
+  let marginBottom = percent(height, 25);
+
+  const layers: BarLayer<BarDatum>[] = [
+    "grid",
+    "axes",
+    "bars",
+    "markers",
+    "legends",
+    "annotations",
+  ];
+
+  if (typeof barChart.heading === "string") {
+    marginTop += 50;
+    layers.push(() => {
+      return (
+        <text x="-30" y="-55" style={{ ...theme.labels?.text, fontSize: 30 }}>
+          {barChart.heading}
+        </text>
+      );
+    });
+  }
+  if (typeof barChart.timeRange === "string") {
+    marginTop += 20;
+    layers.push(() => {
+      return (
+        <text x="-30" y="-30" style={{ ...theme.labels?.text, fontSize: 14 }}>
+          {barChart.timeRange}
+        </text>
+      );
+    });
+  }
+  if (typeof barChart.timestamp === "string") {
+    marginBottom += 20;
+    const y = height - marginTop - 20;
+    layers.push(() => {
+      return (
+        <text x="-30" y={y} style={{ ...theme.labels?.text, fontSize: 14 }}>
+          {barChart.timestamp}
+        </text>
+      );
+    });
+  }
+
   const legend =
     barChart.legend === true
       ? [
@@ -56,15 +109,16 @@ export default function BarChart(barChart: BarChart) {
         animate={barChart.animate === true || barChart.animate === null}
         indexBy={barChart.indexBy}
         margin={{
-          top: percent(parseInt(barChart.height), 5),
-          right: percent(parseInt(barChart.width), 10),
-          bottom: percent(parseInt(barChart.height), 20),
-          left: percent(parseInt(barChart.width), 15),
+          top: marginTop,
+          right: percent(width, 10),
+          bottom: marginBottom,
+          left: percent(width, 15),
         }}
+        layers={layers}
         padding={0.3}
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
-        theme={scaledTheme(parseInt(barChart.width), parseInt(barChart.height))}
+        theme={theme}
         colors="#ec5063"
         defs={[
           {
@@ -93,16 +147,16 @@ export default function BarChart(barChart: BarChart) {
         axisTop={null}
         axisRight={null}
         axisBottom={{
-          tickSize: scaleTick(parseInt(barChart.height)),
-          tickPadding: scaleTick(parseInt(barChart.height)),
+          tickSize: scaleTick(height),
+          tickPadding: scaleTick(height),
           tickRotation: 25,
           legend: barChart.labelAxisBottom,
           legendPosition: "middle",
           legendOffset: 32,
         }}
         axisLeft={{
-          tickSize: scaleTick(parseInt(barChart.height)),
-          tickPadding: scaleTick(parseInt(barChart.height)),
+          tickSize: scaleTick(height),
+          tickPadding: scaleTick(height),
           tickRotation: 0,
           legend: barChart.labelAxisLeft,
           legendPosition: "middle",
