@@ -45,12 +45,16 @@ jobs:
       - save_cache:
           key: dependency-cache-{{ checksum "yarn.lock" }}
           paths:
-            - ./node_modules
             - ./.cache
-      - persist_to_workspace:
-          root: ./
-          paths:
             - ./node_modules
+            - ./front/node_modules
+            - ./statviz/node_modules
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - node_modules
+            - front/node_modules
+            - statviz/node_modules
 
   build-back:
     executor: python-executor
