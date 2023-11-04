@@ -1,8 +1,9 @@
 {
   "name": "boxtribute-client",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@boxtribute/shared": "1.0.0",
     "@apollo/client": "^3.8.1",
     "@auth0/auth0-react": "^2.2.1",
     "@babel/runtime": "^7.20.13",

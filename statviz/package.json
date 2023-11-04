@@ -1,7 +1,7 @@
 {
   "name": "statviz",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "yarn generate-graphql-ts-types --watch & vite",
@@ -11,6 +11,7 @@
     "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
+    "@boxtribute/shared": "1.0.0",
     "@apollo/client": "^3.8.1",
     "@chakra-ui/icons": "^2.1.0",
     "@chakra-ui/react": "^2.8.0",

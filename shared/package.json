@@ -1,0 +1,7 @@
+{
+  "name": "@boxtribute/shared",
+  "version": "1.0.0",
+  "description": "Shared React components",
+  "main": "index.js",
+  "private": true
+}
