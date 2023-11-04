@@ -39,15 +39,18 @@ export async function selectOptionInSelectField(
   option: RegExp | string,
   placeholderText: RegExp | string = "",
   isMulti: boolean = false,
+  optionInTestingEnvironment: string = "option",
 ) {
   const fieldControlInput =
     label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
   await user.click(fieldControlInput);
-  const optionButton = screen.getByRole("option", { name: option });
+  const optionButton = screen.getByRole(optionInTestingEnvironment, { name: option });
   expect(optionButton).toBeInTheDocument();
   await user.click(optionButton);
   if (isMulti) {
-    expect(screen.queryByRole("option", { name: option })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole(optionInTestingEnvironment, { name: option }),
+    ).not.toBeInTheDocument();
   }
   expect(screen.getByText(option)).toBeInTheDocument();
 }
