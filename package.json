@@ -2,7 +2,8 @@
   "private": true,
   "workspaces": [
     "front",
-    "statviz"
+    "statviz",
+    "shared"
   ],
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",
