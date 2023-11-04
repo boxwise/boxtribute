@@ -140,7 +140,7 @@ it("4.1.1 - Initial load of Page", async () => {
   await user.click(selectBaseDropDown);
   expect(await screen.findByText("Thessaloniki")).toBeInTheDocument();
   expect(await screen.findByText("Samos")).toBeInTheDocument();
-  const selectedBase = screen.getByRole("button", { name: /samos/i });
+  const selectedBase = screen.getByRole("option", { name: /samos/i });
   expect(selectedBase).toBeInTheDocument();
   await user.click(selectedBase);
   // Test case 4.1.1.4	- Content: Display Source Organisation name on the label

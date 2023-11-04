@@ -1,5 +1,5 @@
 """Utility functions to support data model definitions."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from functools import wraps
 
 from flask import g
@@ -21,6 +21,21 @@ def convert_ids(concat_ids):
     list of integers.
     """
     return [int(i) for i in (concat_ids or "").split(",") if i]
+
+
+today = date.today()
+
+
+def compute_age(date_of_birth):
+    """Compute today's age given a person's date of birth."""
+    if date_of_birth is None:
+        return
+    # Subtract 1 if current day is before birthday in current year
+    return (
+        today.year
+        - date_of_birth.year
+        - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+    )
 
 
 def save_creation_to_history(f):

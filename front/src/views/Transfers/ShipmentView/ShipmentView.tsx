@@ -45,12 +45,26 @@ import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/Bo
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { ITimelineEntry } from "components/Timeline/Timeline";
 import ShipmentCard from "./components/ShipmentCard";
-import ShipmentTabs, { IShipmentHistory, ShipmentActionEvent } from "./components/ShipmentTabs";
+import ShipmentTabs from "./components/ShipmentTabs";
 import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOverlay";
 import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
+
+// eslint-disable-next-line no-shadow
+enum ShipmentActionEvent {
+  ShipmentStarted = "Shipment Started",
+  ShipmentCanceled = "Shipment Canceled",
+  ShipmentSent = "Shipment Sent",
+  ShipmentStartReceiving = "Shipment Being Received",
+  ShipmentCompleted = "Shipment Completed",
+  BoxAdded = "Box Added",
+  BoxRemoved = "Box Removed",
+  BoxLost = "Box Marked Lost",
+  BoxReceived = "Box Received",
+}
 
 // graphql query and mutations
 export const SHIPMENT_BY_ID_QUERY = gql`
@@ -123,7 +137,6 @@ function ShipmentView() {
     onClose: onShipmentOverlayClose,
     onOpen: onShipmentOverlayOpen,
   } = useDisclosure();
-
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
   const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
@@ -140,6 +153,8 @@ function ShipmentView() {
       variables: {
         id: shipmentId,
       },
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
     },
   );
 
@@ -151,30 +166,24 @@ function ShipmentView() {
   }, [data]);
 
   // Mutations for shipment actions
-  const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
-    RemoveBoxFromShipmentMutation,
-    RemoveBoxFromShipmentMutationVariables
-  >(REMOVE_BOX_FROM_SHIPMENT);
+  const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] =
+    useMutation<RemoveBoxFromShipmentMutation, RemoveBoxFromShipmentMutationVariables>(
+      REMOVE_BOX_FROM_SHIPMENT,
+    );
 
-  const [cancelShipment, cancelShipmentStatus] = useMutation<
-    CancelShipmentMutation,
-    CancelShipmentMutationVariables
-  >(CANCEL_SHIPMENT);
+  const [cancelShipment, cancelShipmentStatus] =
+    useMutation<CancelShipmentMutation, CancelShipmentMutationVariables>(CANCEL_SHIPMENT);
 
-  const [lostShipment, lostShipmentStatus] = useMutation<
-    LostShipmentMutation,
-    LostShipmentMutationVariables
-  >(LOST_SHIPMENT);
+  const [lostShipment, lostShipmentStatus] =
+    useMutation<LostShipmentMutation, LostShipmentMutationVariables>(LOST_SHIPMENT);
 
-  const [sendShipment, sendShipmentStatus] = useMutation<
-    SendShipmentMutation,
-    SendShipmentMutationVariables
-  >(SEND_SHIPMENT);
+  const [sendShipment, sendShipmentStatus] =
+    useMutation<SendShipmentMutation, SendShipmentMutationVariables>(SEND_SHIPMENT);
 
-  const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
-    StartReceivingShipmentMutation,
-    StartReceivingShipmentMutationVariables
-  >(START_RECEIVING_SHIPMENT);
+  const [startReceivingShipment, startReceivingShipmentStatus] =
+    useMutation<StartReceivingShipmentMutation, StartReceivingShipmentMutationVariables>(
+      START_RECEIVING_SHIPMENT,
+    );
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
     UpdateShipmentWhenReceivingMutationVariables
@@ -213,7 +222,7 @@ function ShipmentView() {
   );
 
   const onCancel = handleShipment(cancelShipment, "cancel");
-  const onSend = handleShipment(sendShipment, "send");
+  const onSend = handleShipment(sendShipment, "send", "Shipment was Sent Successfully");
   const onLost = handleShipment(
     lostShipment,
     "lost",
@@ -360,10 +369,33 @@ function ShipmentView() {
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetail[];
 
+  const changesLabel = (history: any): string => {
+    let changes = "";
+    if (
+      [
+        ShipmentActionEvent.ShipmentCanceled,
+        ShipmentActionEvent.ShipmentCompleted,
+        ShipmentActionEvent.ShipmentSent,
+        ShipmentActionEvent.ShipmentStartReceiving,
+        ShipmentActionEvent.ShipmentStarted,
+      ].includes(history.action)
+    ) {
+      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${
+        history.createdBy?.name
+      }`;
+    } else {
+      changes = `Box ${history.box}  is ${history.action.toLowerCase().replace("box", "")} by ${
+        history.createdBy?.name
+      }`;
+    }
+
+    return changes;
+  };
+
   const generateShipmentHistory = (
     entry: Partial<Record<ShipmentActionEvent, { createdOn: string; createdBy: User }>>,
-  ): IShipmentHistory[] => {
-    const shipmentHistory: IShipmentHistory[] = [];
+  ): ITimelineEntry[] => {
+    const shipmentHistory: ITimelineEntry[] = [];
 
     Object.entries(entry).forEach(([action, shipmentObj]) => {
       if (shipmentObj.createdOn) {
@@ -378,7 +410,7 @@ function ShipmentView() {
     return shipmentHistory;
   };
 
-  const shipmentLogs: IShipmentHistory[] = generateShipmentHistory({
+  const shipmentLogs: ITimelineEntry[] = generateShipmentHistory({
     [ShipmentActionEvent.ShipmentStarted]: {
       createdOn: shipmentData?.startedOn,
       createdBy: shipmentData?.startedBy! as User,
@@ -401,10 +433,7 @@ function ShipmentView() {
     },
   });
 
-  // map over each ShipmentDetail to compile its history records
-  const shipmentDetailLogs: IShipmentHistory[] = (
-    data?.shipment?.details! as ShipmentDetail[]
-  )?.flatMap((detail) =>
+  const shipmentDetailLogs = (data?.shipment?.details! as ShipmentDetail[])?.flatMap((detail) =>
     _.compact([
       detail?.createdBy && {
         box: detail.box.labelIdentifier,
@@ -431,29 +460,30 @@ function ShipmentView() {
         createdOn: new Date(detail?.receivedOn),
       },
     ]),
-  ) as unknown as IShipmentHistory[];
+  );
 
   const allLogs = _.orderBy(
     _.sortBy(_.concat([...(shipmentLogs || []), ...(shipmentDetailLogs || [])]), "createdOn"),
     ["createdOn"],
     ["asc", "desc"],
   );
-  const groupedHistoryEntries: _.Dictionary<IShipmentHistory[]> = _.groupBy(
+  const groupedHistoryEntries: _.Dictionary<ITimelineEntry[]> = _.groupBy(
     allLogs,
     (log) => `${formatDateKey(log?.createdOn)}`,
   );
 
-  // sort each array of history entries in descending order
   const sortedGroupedHistoryEntries = _(groupedHistoryEntries)
     .toPairs()
     .map(([date, entries]) => ({
       date,
-      entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc"),
+      entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc").map((entry) => ({
+        ...entry,
+        action: changesLabel(entry),
+      })),
     }))
     .orderBy((entry) => new Date(entry.date), "desc")
     .value();
 
-  // variables for loading dynamic components
   let shipmentTitle = <Heading>View Shipment</Heading>;
   let shipmentTab;
   let shipmentCard;
@@ -463,7 +493,6 @@ function ShipmentView() {
   let canLooseShipment = false;
   let shipmentActionButtons = <Box />;
 
-  // error and loading handling
   if (error) {
     shipmentTab = (
       <Alert status="error" data-testid="ErrorAlert">
@@ -482,7 +511,6 @@ function ShipmentView() {
         (b) => b.id === data?.shipment?.sourceBase?.id,
       ) !== "undefined";
 
-    // Role Sender // Different State UI Changes
     if (ShipmentState.Preparing === shipmentState && isSender) {
       canUpdateShipment = true;
       canCancelShipment = true;
@@ -490,9 +518,7 @@ function ShipmentView() {
       shipmentTitle = <Heading>Prepare Shipment</Heading>;
     } else if (ShipmentState.Sent === shipmentState && isSender) {
       canLooseShipment = true;
-    }
-    // Role Receiver // Different State UI Changes
-    else if (ShipmentState.Sent === shipmentState && !isSender) {
+    } else if (ShipmentState.Sent === shipmentState && !isSender) {
       canLooseShipment = true;
     } else if (ShipmentState.Receiving === shipmentState && !isSender) {
       canLooseShipment = true;
@@ -556,43 +582,21 @@ function ShipmentView() {
           {shipmentActionButtons}
         </Flex>
         <BoxReconciliationOverlay />
-
-        <ShipmentOverlay
-          isOpen={isShipmentOverlayOpen}
-          isLoading={isLoadingFromMutation}
-          shipmentOverlayData={shipmentOverlayData}
-          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onShipmentOverlayClose}
-          onCancel={onCancel}
-          onLost={onLost}
-        />
       </>
     );
   } else {
     shipmentViewComponents = (
-      <>
-        <Flex direction="column" gap={2}>
-          <Center>
-            <VStack>
-              {shipmentTitle}
-              {shipmentCard}
-            </VStack>
-          </Center>
-          <Spacer />
-          <Box>{shipmentTab}</Box>
-          {shipmentActionButtons}
-        </Flex>
-
-        <ShipmentOverlay
-          isOpen={isShipmentOverlayOpen}
-          isLoading={isLoadingFromMutation}
-          shipmentOverlayData={shipmentOverlayData}
-          onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
-          onClose={onShipmentOverlayClose}
-          onCancel={onCancel}
-          onLost={onLost}
-        />
-      </>
+      <Flex direction="column" gap={2}>
+        <Center>
+          <VStack>
+            {shipmentTitle}
+            {shipmentCard}
+          </VStack>
+        </Center>
+        <Spacer />
+        <Box>{shipmentTab}</Box>
+        {shipmentActionButtons}
+      </Flex>
     );
   }
 
@@ -600,6 +604,15 @@ function ShipmentView() {
     <>
       <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
       {shipmentViewComponents}
+      <ShipmentOverlay
+        isOpen={isShipmentOverlayOpen}
+        isLoading={isLoadingFromMutation}
+        shipmentOverlayData={shipmentOverlayData}
+        onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
+        onClose={onShipmentOverlayClose}
+        onCancel={onCancel}
+        onLost={onLost}
+      />
     </>
   );
 }

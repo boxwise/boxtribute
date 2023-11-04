@@ -1,29 +1,74 @@
-from datetime import date
-
 from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import HumanGender, TaggableObjectType
+from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
+from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
-from ...models.utils import convert_ids
+from ...models.definitions.transaction import Transaction
+from ...models.utils import compute_age, convert_ids
+
+
+def _generate_dimensions(*names, facts):
+    """Return a dictionary holding information (ID, name) about dimensions with
+    specified names.
+    """
+    dimensions = {}
+
+    if "product" in names:
+        product_ids = {f["product_id"] for f in facts}
+        dimensions["product"] = (
+            Product.select(Product.id, Product.name, Product.gender)
+            .where(Product.id << product_ids)
+            .dicts()
+        )
+
+    if "category" in names:
+        dimensions["category"] = ProductCategory.select(
+            ProductCategory.id, ProductCategory.name
+        ).dicts()
+
+    if "tag" in names:
+        tag_ids = {t for f in facts for t in f["tag_ids"]}
+        dimensions["tag"] = (
+            Tag.select(Tag.id, Tag.name, Tag.color).where(Tag.id << tag_ids).dicts()
+        )
+
+    if "size" in names:
+        size_ids = {f["size_id"] for f in facts}
+        dimensions["size"] = (
+            Size.select(Size.id, Size.label.alias("name"))
+            .where(Size.id << size_ids)
+            .dicts()
+        )
+
+    if "target" in names:
+        target_ids = {f["target_id"] for f in facts}
+        # Target ID and name are identical for now
+        dimensions["target"] = [
+            {"id": i, "name": i, "type": TargetType.OutgoingLocation}
+            for i in target_ids
+        ]
+
+    return dimensions
 
 
 def compute_beneficiary_demographics(base_ids=None):
     """For each combination of age, gender, and day-truncated date count the number of
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
-    The 'age' dimensions actually represents a range of ages (e.g. 0-5, 5-10, etc.)
     """
-    bin_width = 5
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
-    age = fn.FLOOR((date.today().year - Beneficiary.date_of_birth.year) / bin_width)
+    age = fn.IF(
+        Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
+    )
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     conditions = [Beneficiary.deleted.is_null()]
@@ -54,13 +99,10 @@ def compute_beneficiary_demographics(base_ids=None):
     # Conversions for GraphQL interface
     for row in demographics:
         row["gender"] = HumanGender(row["gender"])
-        row["created_on"] = row["created_on"].date()
+        if row["created_on"] is not None:
+            row["created_on"] = row["created_on"].date()
 
-    selected_tag_ids = {t for t in row["tag_ids"] for row in demographics}
-    dimensions = {
-        "tag": Tag.select(Tag.id, Tag.name).where(Tag.id << selected_tag_ids).dicts()
-    }
-
+    dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
 
 
@@ -70,14 +112,18 @@ def compute_created_boxes(base_id=None):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    selection = Box.select(
-        Box.created_on.alias("created_on"),
-        Product.id.alias("product_id"),
-        Product.gender.alias("gender"),
-        Product.category.alias("category_id"),
-        fn.COUNT(Box.id).alias("boxes_count"),
-        fn.SUM(Box.number_of_items).alias("items_count"),
-    ).join(Product)
+    selection = (
+        Box.select(
+            Box.created_on.alias("created_on"),
+            Product.id.alias("product_id"),
+            Product.gender.alias("gender"),
+            Product.category.alias("category_id"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
+        )
+        .join(Product)
+        .order_by(Box.created_on.asc())
+    )
 
     if base_id is not None:
         selection = selection.join(Location, src=Box).where(Location.base == base_id)
@@ -91,16 +137,154 @@ def compute_created_boxes(base_id=None):
         if row["created_on"] is not None:
             row["created_on"] = row["created_on"].date()
 
-    products_ids = {f["product_id"] for f in facts}
-    dimensions = {
-        "product": list(
-            Product.select(Product.id, Product.name)
-            .where(Product.id << products_ids)
-            .dicts()
-        ),
-        "category": list(
-            ProductCategory.select(ProductCategory.id, ProductCategory.name).dicts()
-        ),
-    }
+    dimensions = _generate_dimensions("category", "product", facts=facts)
+    return {"facts": facts, "dimensions": dimensions}
 
+
+def compute_top_products_checked_out(base_id):
+    """Return list of most-checked-out products (i.e. highest count in transactions)
+    with rank included, grouped by distribution date and product category.
+    """
+    selection = Transaction.select(
+        Transaction.created_on.alias("checked_out_on"),
+        Transaction.product.alias("product_id"),
+        Product.category.alias("category_id"),
+        fn.SUM(Transaction.count).alias("items_count"),
+    ).join(
+        Product, on=((Product.base == base_id) & (Transaction.product == Product.id))
+    )
+    facts = (
+        selection.group_by(SQL("product_id"), SQL("category_id"), SQL("checked_out_on"))
+        .order_by(SQL("items_count").desc())
+        .dicts()
+    )
+
+    # Data transformations
+    for rank, row in enumerate(facts, start=1):
+        row["rank"] = rank
+        row["checked_out_on"] = row["checked_out_on"].date()
+
+    dimensions = _generate_dimensions("category", "product", facts=facts)
+    dimensions["size"] = None
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_top_products_donated(base_id):
+    """Return list of most-donated products with rank included, grouped by distribution
+    date, creation date, size, and product category.
+    """
+    selection = (
+        DbChangeHistory.select(
+            Box.created_on.alias("created_on"),
+            DbChangeHistory.change_date.alias("donated_on"),
+            Box.size.alias("size_id"),
+            Box.product.alias("product_id"),
+            Product.category.alias("category_id"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
+        )
+        .join(
+            Box,
+            on=(
+                (DbChangeHistory.record_id == Box.id)
+                & (DbChangeHistory.table_name == Box._meta.table_name)
+                & (DbChangeHistory.changes == Box.state.column_name)
+                & (DbChangeHistory.from_int == BoxState.InStock)
+                & (DbChangeHistory.to_int == BoxState.Donated)
+            ),
+        )
+        .join(
+            Product,
+            on=((Box.product == Product.id) & (Product.base == base_id)),
+        )
+    )
+    facts = (
+        selection.group_by(
+            SQL("created_on"),
+            SQL("donated_on"),
+            SQL("size_id"),
+            SQL("product_id"),
+            SQL("category_id"),
+        )
+        .order_by(SQL("items_count").desc())
+        .dicts()
+    )
+
+    # Data transformations
+    for rank, row in enumerate(facts, start=1):
+        row["rank"] = rank
+        row["donated_on"] = row["donated_on"].date()
+        row["created_on"] = row["created_on"].date()
+
+    dimensions = _generate_dimensions("category", "product", "size", facts=facts)
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_moved_boxes(base_id):
+    """Count all boxes moved to locations in the given base, grouped by date of
+    movement, product category, and box state.
+    """
+    # Similar to example from
+    # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
+    # Subquery to select record IDs and latest dates when box state was changed from
+    # InStock to Donated.
+    LatestMoved = DbChangeHistory.alias()
+    LatestMovedSubQuery = (
+        LatestMoved.select(
+            LatestMoved.record_id,
+            fn.MAX(LatestMoved.change_date).alias("move_date"),
+        )
+        .where(
+            (LatestMoved.table_name == Box._meta.table_name),
+            (LatestMoved.changes == Box.state.column_name),
+            (LatestMoved.from_int == BoxState.InStock),
+            (LatestMoved.to_int == BoxState.Donated),
+        )
+        .group_by(LatestMoved.record_id)
+        .alias("sq")
+    )
+
+    # This selects only information of boxes that were moved from InStock to Donated
+    # state, and are now in the base of given base ID. It is NOT taken into account that
+    # boxes can be moved back from Donated to InStock, nor that the product or other
+    # attributes of the box change after having been donated
+    selection = (
+        DbChangeHistory.select(
+            DbChangeHistory.change_date.alias("moved_on"),
+            Location.name.alias("target_id"),
+            Product.category.alias("category_id"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+        )
+        .join(
+            LatestMovedSubQuery,
+            on=(
+                (DbChangeHistory.record_id == LatestMovedSubQuery.c.record_id)
+                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.move_date)
+            ),
+        )
+        .join(
+            Box,
+            on=((DbChangeHistory.record_id == Box.id)),
+            src=DbChangeHistory,
+        )
+        .join(
+            Product,
+            on=((Box.product == Product.id) & (Product.base == base_id)),
+        )
+        .join(
+            Location,
+            src=Box,
+            on=((Box.location == Location.id) & (Location.base == base_id)),
+        )
+    )
+    facts = selection.group_by(
+        SQL("moved_on"),
+        SQL("target_id"),
+        SQL("category_id"),
+    ).dicts()
+
+    # Conversions for GraphQL interface
+    for row in facts:
+        row["moved_on"] = row["moved_on"].date()
+
+    dimensions = _generate_dimensions("category", "target", facts=facts)
     return {"facts": facts, "dimensions": dimensions}

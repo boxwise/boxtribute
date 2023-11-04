@@ -125,6 +125,7 @@ class CurrentUser:
         is_god=False,
         base_ids=None,
         beta_feature_scope=None,
+        timezone=None,
     ):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
         that the permission is granted for. However it is never exposed directly to
@@ -136,6 +137,7 @@ class CurrentUser:
         self._is_god = is_god
         self._base_ids = base_ids or {}
         self._beta_feature_scope = beta_feature_scope or 0
+        self._timezone = timezone
 
     @classmethod
     def from_jwt(cls, payload):
@@ -199,6 +201,7 @@ class CurrentUser:
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
             beta_feature_scope=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
             id=int(payload["sub"].replace("auth0|", "")),
+            timezone=payload.get(f"{JWT_CLAIM_PREFIX}/timezone"),
             is_god=is_god,
             base_ids=base_ids,
         )
@@ -221,6 +224,10 @@ class CurrentUser:
     @property
     def is_god(self):
         return self._is_god
+
+    @property
+    def timezone(self):
+        return self._timezone
 
 
 def requires_auth(f):

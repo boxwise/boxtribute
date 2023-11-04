@@ -62,6 +62,7 @@ def _create_jwt_payload(
     roles=("Coordinator",),
     user_id=8,
     permissions=None,
+    timezone="Europe/London",
 ):
     """Create payload containing arbitrary authorization information of a user.
     The payload field names are identical to the actual ones in the JWT returned by
@@ -79,6 +80,7 @@ def _create_jwt_payload(
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
         f"{JWT_CLAIM_PREFIX}/roles": roles,
+        f"{JWT_CLAIM_PREFIX}/timezone": timezone,
         "sub": f"auth0|{user_id}",
     }
 
@@ -87,7 +89,7 @@ def _create_jwt_payload(
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
             f"{base_prefix}/base:read",
             f"{base_prefix}/beneficiary:read",
-            f"{base_prefix}/category:read",
+            f"{base_prefix}/product_category:read",
             f"{base_prefix}/distro_event:write",
             f"{base_prefix}/distro_event:read",
             f"{base_prefix}/location:read",

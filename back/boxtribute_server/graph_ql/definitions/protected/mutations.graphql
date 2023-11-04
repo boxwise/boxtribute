@@ -28,6 +28,7 @@ type Mutation {
   sendShipment(id: ID!): Shipment
   startReceivingShipment(id: ID!): Shipment
   markShipmentAsLost(id: ID!): Shipment
+  moveNotDeliveredBoxesInStock(boxIds: [String!]!): Shipment
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent

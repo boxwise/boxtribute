@@ -7,7 +7,7 @@ from .distribution_event import (
     default_distribution_event_data,
 )
 from .product import data as product_data
-from .size import default_data as default_size_data
+from .size import default_size_data
 
 
 def data():

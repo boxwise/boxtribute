@@ -53,6 +53,7 @@ function ShipmentTable({ columns, data }: IShipmentTablePros) {
                 <Tr {...row.getRowProps()}>
                   {row.cells.map((cell) => (
                     <Td
+                      data-testid={cell.column.id}
                       {...cell.getCellProps()}
                       style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
                     >

@@ -1,11 +1,10 @@
 from ariadne import QueryType
 
-from ....authz import authorize
-from ....enums import BoxState
+from ....authz import authorize, authorize_for_reading_box
+from ....graph_ql.filtering import derive_box_filter
+from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
-from ....models.definitions.shipment import Shipment
-from ....models.definitions.shipment_detail import ShipmentDetail
 
 query = QueryType()
 
@@ -18,25 +17,22 @@ def resolve_box(*_, label_identifier):
         .where(Box.label_identifier == label_identifier)
         .get()
     )
-
-    if box.state_id in [BoxState.InTransit, BoxState.Receiving]:
-        # Users of both source and target base of the underlying shipment are allowed to
-        # view InTransit or Receiving boxes
-        detail = (
-            ShipmentDetail.select(Shipment)
-            .join(Shipment)
-            .where(
-                ShipmentDetail.box_id == box.id,
-                ShipmentDetail.removed_on.is_null(),
-                ShipmentDetail.received_on.is_null(),
-            )
-        ).get()
-        authz_kwargs = {
-            "base_ids": [detail.shipment.source_base_id, detail.shipment.target_base_id]
-        }
-
-    else:
-        authz_kwargs = {"base_id": box.location.base_id}
-
-    authorize(permission="stock:read", **authz_kwargs)
+    authorize_for_reading_box(box)
     return box
+
+
+@query.field("boxes")
+def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
+    authorize(permission="stock:read", base_id=base_id)
+
+    # Join with Location model to filter for Location base ID below
+    selection = Box.select().join(Location)
+    filter_condition, selection = derive_box_filter(filter_input, selection=selection)
+
+    return load_into_page(
+        Box,
+        Location.base == base_id,
+        filter_condition,
+        selection=selection,
+        pagination_input=pagination_input,
+    )

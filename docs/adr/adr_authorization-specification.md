@@ -158,6 +158,7 @@ The current user is programmatically represented by the `auth.CurrentUser` class
 - `organisation_id`: ID of the organisation that the user belongs to. If the user is a god user, it is `None`
 - `is_god`: whether the user is god user or not (default: false)
 - `_base_ids`: a data structure indicating the bases in which the user is allowed to access specific resources. This structure has to be queried via the `CurrentUser.authorized_base_ids()` method, passing in an RBP name.
+- `timezone`: timezone identifier determined by Auth0, e.g. "Europe/Berlin"
 
 The decoded JWT payload is converted into a `CurrentUser` instance with the following procedure:
 

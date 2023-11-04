@@ -15,14 +15,14 @@ def data():
         },
         {
             "id": 2,
-            "name": "the second best name",
+            "name": "Aßlar",
             "currency_name": "monster munch",
             "seq": 1,
             "organisation": organisation_data()[0]["id"],
         },
         {
             "id": 3,
-            "name": "harold",
+            "name": "Würzburg",
             "currency_name": "mustard",
             "seq": 1,
             "organisation": organisation_data()[1]["id"],

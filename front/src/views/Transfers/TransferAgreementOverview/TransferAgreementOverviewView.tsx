@@ -93,20 +93,20 @@ function TransferAgreementOverviewView() {
   );
 
   // Mutations for transfer agreement actions
-  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] = useMutation<
-    AcceptTransferAgreementMutation,
-    AcceptTransferAgreementMutationVariables
-  >(ACCEPT_TRANSFER_AGREEMENT);
+  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] =
+    useMutation<AcceptTransferAgreementMutation, AcceptTransferAgreementMutationVariables>(
+      ACCEPT_TRANSFER_AGREEMENT,
+    );
 
-  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] = useMutation<
-    RejectTransferAgreementMutation,
-    RejectTransferAgreementMutationVariables
-  >(REJECT_TRANSFER_AGREEMENT);
+  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] =
+    useMutation<RejectTransferAgreementMutation, RejectTransferAgreementMutationVariables>(
+      REJECT_TRANSFER_AGREEMENT,
+    );
 
-  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] = useMutation<
-    CancelTransferAgreementMutation,
-    CancelTransferAgreementMutationVariables
-  >(CANCEL_TRANSFER_AGREEMENT);
+  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] =
+    useMutation<CancelTransferAgreementMutation, CancelTransferAgreementMutationVariables>(
+      CANCEL_TRANSFER_AGREEMENT,
+    );
 
   const isLoadingFromMutation =
     acceptTransferAgreementMutationStatus.loading ||
@@ -142,7 +142,13 @@ function TransferAgreementOverviewView() {
   const onCancel = handleTransferAgreement(cancelTransferAgreementMutation, "cancel");
 
   // fetch agreements data
-  const { loading, error, data } = useQuery<TransferAgreementsQuery>(ALL_TRANSFER_AGREEMENTS_QUERY);
+  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
+    ALL_TRANSFER_AGREEMENTS_QUERY,
+    {
+      // returns cache first, but syncs with server in background
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   // transform agreements data for UI
   const graphqlToTableTransformer = (

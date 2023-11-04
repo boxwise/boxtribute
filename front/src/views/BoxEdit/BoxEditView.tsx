@@ -19,7 +19,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
-import BoxEdit, { IBoxEditFormOutput } from "./components/BoxEdit";
+import BoxEdit, { IBoxEditFormDataOutput } from "./components/BoxEdit";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
   ${TAG_OPTIONS_FRAGMENT}
@@ -122,7 +122,7 @@ function BoxEditView() {
   });
 
   // Handle Submission
-  const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormOutput) => {
+  const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormDataOutput) => {
     const tagIds = boxEditFormData?.tags
       ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
       : [];
@@ -135,7 +135,7 @@ function BoxEditView() {
         numberOfItems: boxEditFormData.numberOfItems,
         locationId: parseInt(boxEditFormData.locationId.value, 10),
         tagIds,
-        comment: boxEditFormData?.comment,
+        comment: boxEditFormData?.comment || null,
       },
     })
       .then((mutationResult) => {

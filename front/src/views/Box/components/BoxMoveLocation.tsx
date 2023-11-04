@@ -53,6 +53,7 @@ function BoxMoveLocation({
                     (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Scrap
                       ? BoxState.Lost === boxData.state ||
                         BoxState.Scrap === boxData.state ||
+                        BoxState.NotDelivered === boxData.state ||
                         boxInTransit
                       : false
                   }

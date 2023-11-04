@@ -9,9 +9,11 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # boxtribute
 
-This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). Built by aid workers for aid workers, it is designed with three top priorities in mind:
+This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). We support the distribution of over 1 million items each year and are deployed in over 15 locations across Europe and the Middle East (check our website for the most current list of partners).
 
-1. Quick deployment into crisis situations, including an easy integration into all sorts of relief operations, whether they're new or already up and running.
+Built by aid workers for aid workers, it is designed with three top priorities in mind:
+
+1. Quick deployment into crisis situations, including easy integration into z large range of relief operations, whether they're new or already up and running.
 2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
 3. Dignity and choice-based distribution as a first priority for vulnerable individuals.
 
@@ -215,7 +217,7 @@ See the [LICENSE file](./LICENSE.md) for license rights and limitations (Apache 
 
 ## Sponsors
 
-This project is funded by the German Federal Ministry of Education and Research (BMBF). Read more here (German only):
+This project was funded 3x by the German Federal Ministry of Education and Research (BMBF) via the [Prototype Fund](https://prototypefund.de/). Read more here (German only):
 
 - [API für Datenbankzugriff und optimerten Austausch von Hilfsgütern](https://prototypefund.de/project/boxtribute-api-fuer-datenbankzugriff-und-optimierten-austausch-von-hilfsguetern/)
 - [Erweiterung zur Unterstützung von Transient Refugees](https://prototypefund.de/project/erweiterung-von-boxtribute-zur-unterstuetzung-von-transient-refugees/)

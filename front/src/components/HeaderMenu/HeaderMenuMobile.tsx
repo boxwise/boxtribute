@@ -29,7 +29,8 @@ import {
   MenuItemsGroupsProps,
 } from "./HeaderMenu";
 import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-import { generateDropappUrl, handleLogout } from "utils/helpers";
+import { generateDropappUrl } from "utils/helpers";
+import { useHandleLogout } from "hooks/hooks";
 
 type MenuItemsGroupsMobileProps = MenuItemsGroupsProps & {
   isMenuOpen: boolean;
@@ -57,6 +58,7 @@ const LoginOrUserMenuButtonMobile = ({
   setIsMenuOpen,
 }: LoginOrUserMenuButtonProps & { setIsMenuOpen: (isOpen: boolean) => void }) => {
   const { isOpen, onToggle } = useDisclosure();
+  const handleLogout = useHandleLogout();
 
   return isAuthenticated ? (
     <MenuItem onClick={handleLogout} key="logout-menu">

@@ -9,7 +9,7 @@ from .bindables import (
     union_types,
 )
 from .definitions import definitions, public_api_definitions, query_api_definitions
-from .enums import enum_types
+from .enums import enum_types, public_api_enum_types
 from .scalars import date_scalar, datetime_scalar
 
 full_api_schema = make_executable_schema(
@@ -46,5 +46,6 @@ public_api_schema = make_executable_schema(
     date_scalar,
     statistics_query,
     *enum_types,
+    *public_api_enum_types,
     convert_names_case=True,
 )

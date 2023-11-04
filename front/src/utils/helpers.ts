@@ -71,8 +71,31 @@ export const formatDateKey = (date: Date): string => {
   return `${date.toLocaleString("default", { month: "short" })}
     ${date.getDate()}, ${date.getFullYear()}`;
 };
-// logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
-export const handleLogout = () => {
-  window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
-  return null;
+
+export const prepareBoxHistoryEntryText = (text: string): string => {
+  // Remove the last character if it is a semicolon
+  const trimmedText = text?.endsWith(";") ? text?.slice(0, -1) : text;
+
+  // Replace "box state" with "box status" (ref. trello card https://trello.com/c/ClAikFIk)
+  const updatedText = trimmedText?.replace("box state", "box status");
+
+  return updatedText;
+};
+
+/**
+ * Formats a given date or string into a string representation of the time.
+ *
+ * @param {Date | string} date - The date or string to be formatted.
+ * @return {string} The formatted time as a string in the format "HH:MM".
+ */
+export const formatTime = (date: Date | string): string => {
+  const formattedDate = typeof date === "string" && date !== "" ? new Date(date) : date;
+
+  if (formattedDate instanceof Date) {
+    const hours = formattedDate.getHours().toString().padStart(2, "0");
+    const minutes = formattedDate.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+
+  return "";
 };

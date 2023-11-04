@@ -17,10 +17,10 @@ import {
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
-import { selectOptionInSelectField } from "tests/helpers";
 import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
+import { selectOptionInSelectField } from "tests/helpers";
 import QrReaderView from "./QrReaderView";
 
 // extracting a cacheObject to reset the cache correctly later
@@ -207,8 +207,10 @@ it("3.4.5.1 - There are boxes in the list, but the state of some is not InStock"
   await selectOptionInSelectField(
     user,
     undefined,
-    /thessaloniki - BoxCare/i,
+    /thessaloniki/i,
     /please select a shipment/i,
+    false,
+    "button",
   );
 
   // Alert appears and button is disabled
@@ -297,8 +299,10 @@ assignToShipmentMutationTests.forEach(({ name, mocks, toast }) => {
     await selectOptionInSelectField(
       user,
       undefined,
-      /thessaloniki - BoxCare/i,
+      /thessaloniki/i,
       /please select a shipment/i,
+      false,
+      "button",
     );
 
     // The submit button is not yet shown
@@ -366,8 +370,10 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   await selectOptionInSelectField(
     user,
     undefined,
-    /thessaloniki - BoxCare/i,
+    /thessaloniki/i,
     /please select a shipment/i,
+    false,
+    "button",
   );
 
   // The submit button is shown

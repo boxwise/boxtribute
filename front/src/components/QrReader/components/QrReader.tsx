@@ -1,10 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Result } from "@zxing/library";
 import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   IconButton,
   Input,
   InputGroup,
@@ -15,7 +14,7 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import { AddIcon, MinusIcon, SearchIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -37,11 +36,7 @@ function QrReader({
   onSuccess,
 }: IQrReaderProps) {
   // Zoom
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const browserSupportsZoom = useMemo(
-    () => navigator?.mediaDevices?.getSupportedConstraints?.().zoom != null,
-    [],
-  );
+  const [zoomLevel] = useState(1);
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
@@ -84,24 +79,6 @@ function QrReader({
         scanPeriod={1000}
         onResult={onResult}
       />
-      {browserSupportsZoom && (
-        <HStack>
-          <IconButton
-            disabled={zoomLevel <= 1}
-            onClick={() => setZoomLevel((curr) => (curr > 1 ? curr - 1 : curr))}
-            aria-label="Decrease zoom level"
-          >
-            <MinusIcon />
-          </IconButton>
-          <IconButton
-            disabled={zoomLevel >= 8}
-            onClick={() => setZoomLevel((curr) => (curr < 8 ? curr + 1 : curr))}
-            aria-label="Increase zoom level"
-          >
-            <AddIcon />
-          </IconButton>
-        </HStack>
-      )}
       <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>

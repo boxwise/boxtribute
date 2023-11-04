@@ -286,5 +286,5 @@ it("3.2.7 - Mutation failure due to GraphQL Error", async () => {
   await user.click(submitButton);
   // TODO: Why are there multiple errors shown for GrqphQL errors
   expect((await screen.findAllByText(/could not update Box/i)).length).toBeGreaterThanOrEqual(1);
-  expect(screen.getByRole("heading", { name: "Box 123" })).toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: "Box 123" })).toBeInTheDocument();
 });

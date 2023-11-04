@@ -1,6 +1,6 @@
 import { Flex, Box, Spacer, Heading, Wrap, WrapItem, VStack, Center } from "@chakra-ui/react";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
-import { BoxState, Shipment } from "types/generated/graphql";
+import { Shipment } from "types/generated/graphql";
 
 export interface IShipmentReceivingCardProps {
   shipment: Shipment;
@@ -21,8 +21,7 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
           <VStack align="start">
             <Heading>
               <Wrap fontSize="xl" fontWeight="extrabold">
-                <WrapItem>Shipment</WrapItem>
-                <WrapItem>{shipment?.id}</WrapItem>
+                <WrapItem>{shipment?.labelIdentifier}</WrapItem>
               </Wrap>
             </Heading>
             <Heading>
@@ -46,14 +45,19 @@ function ShipmentReceivingCard({ shipment }: IShipmentReceivingCardProps) {
             fontSize="sm"
             fontWeight="semibold"
           >
-            REMAINING
+            RECEIVED
           </Box>
           <Box pr={2}>
             <Flex alignItems="flex-end" justifyContent="flex-end">
               <Wrap>
                 <WrapItem fontWeight="extrabold" fontSize="lg">
-                  {shipment.details.filter((b) => b.box.state === BoxState.Receiving).length} /{" "}
-                  {shipment.details.filter((b) => b.removedOn === null).length}
+                  {
+                    shipment.details.filter((b) => b.receivedOn !== null && b.removedOn === null)
+                      .length
+                  }{" "}
+                  /{" "}
+                  {shipment.details.filter((b) => b.removedOn === null).length -
+                    shipment.details.filter((b) => b.lostOn !== null).length}
                 </WrapItem>
                 <WrapItem alignItems="center">
                   <Center>
