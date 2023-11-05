@@ -23,10 +23,8 @@ import {
   HStack,
   Wrap,
   useCheckboxGroup,
-  Text,
 } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
-import domtoimage from "dom-to-image-more";
 import { useState } from "react";
 
 export default function VisHeader(params: {
@@ -38,76 +36,32 @@ export default function VisHeader(params: {
     height: number,
     includeHeading: boolean,
     includeTimerange: boolean,
-    includeTimestamp: boolean
+    includeTimestamp: boolean,
+    chartProps: object
   ) => void;
-  onExportFinished: () => void;
+  defaultWidth: number;
+  defaultHeight: number;
+  chartProps: object;
   custom?: boolean;
 }) {
   const [isLoading, setLoading] = useState(false);
-  const [inputWidth, setInputWidth] = useState(800);
-  const [inputHeight, setInputHeight] = useState(500);
+  const [inputWidth, setInputWidth] = useState(params.defaultWidth);
+  const [inputHeight, setInputHeight] = useState(params.defaultHeight);
 
   const { value, getCheckboxProps } = useCheckboxGroup({
     defaultValue: ["heading", "timerange"],
   });
 
-  const downloadImage = () => {
-    const chart = params.custom
-      ? document.getElementById(params.visId)
-      : document.getElementById(params.visId)?.firstChild?.firstChild;
-
-    domtoimage
-      .toJpeg(chart, {
-        quality: 0.9,
-        width: inputWidth,
-        height: inputHeight,
-        bgColor: "#ffffff",
-      })
-      .then((dataUrl) => {
-        const a = document.createElement("a");
-        a.setAttribute("href", dataUrl);
-
-        a.setAttribute("download", params.visId);
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setLoading(false);
-        params.onExportFinished();
-      });
-  };
-
-  const downloadImageSVG = () => {
-    const svgData = params.custom
-      ? document.getElementById(params.visId).innerHTML
-      : document.getElementById(params.visId)?.firstChild?.firstChild.innerHTML;
-
-    const svgBlob = new Blob([svgData], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const downloadLink = document.createElement("a");
-    downloadLink.href = svgUrl;
-    downloadLink.download = params.visId + ".svg";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    setLoading(false);
-    params.onExportFinished();
-  };
-
-  const download = (event) => {
+  const download = () => {
     params.onExport(
       inputWidth,
       inputHeight,
       value.indexOf("heading") !== -1,
       value.indexOf("timerange") !== -1,
-      value.indexOf("timestamp") !== -1
+      value.indexOf("timestamp") !== -1,
+      params.chartProps
     );
     setLoading(true);
-    // timeout triggers the rerender with loading animations before generating the image.
-    // without the timeout the loading animation sometimes won't be triggered
-    if (event.target.value === "svg") setTimeout(downloadImageSVG, 1000);
-    if (event.target.value === "jpg") setTimeout(downloadImage, 1000);
   };
 
   const getMaxWidth = () => {

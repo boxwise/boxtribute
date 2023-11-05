@@ -1,8 +1,6 @@
-import { ResponsiveBar, BarDefaultProps, BarDatum, BarLayer } from "@nivo/bar";
-import { nivoScheme, scaleTick, scaledNivoTheme } from "../../utils/theme";
-import { percent, pixelCalculator } from "../../utils/chart";
-import { useTheme } from "@nivo/core";
-import { forwardRef, useRef } from "react";
+import { ResponsiveBar, BarDatum, BarLayer } from "@nivo/bar";
+import { scaleTick, scaledNivoTheme } from "../../utils/theme";
+import { percent } from "../../utils/chart";
 
 export interface BarChart {
   width: string;

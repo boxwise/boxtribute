@@ -19,18 +19,9 @@ export default function TopProducts(params: {
   boxesOrItems: BoxesOrItemsCount;
 }) {
   const boxesOrItems = params.boxesOrItems;
-  const { createdBoxes, loading, error, timerange, data } = useCreatedBoxes();
 
-  const {
-    exportWidth,
-    exportHeight,
-    isExporting,
-    exportHeading,
-    exportTimestamp,
-    exportTimerange,
-    onExport,
-    onExportFinish,
-  } = useExport();
+  const { createdBoxes, loading, error, timerange, data } = useCreatedBoxes();
+  const { isExporting, onExport } = useExport("BarChart");
 
   const getChartData = () => {
     if (data === undefined) {
@@ -63,6 +54,13 @@ export default function TopProducts(params: {
 
   const chartData = useMemo(getChartData, [data, createdBoxes, boxesOrItems]);
 
+  const chartProps = {
+    visId: "visId",
+    data: chartData,
+    width: params.width,
+    height: params.height,
+  };
+
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;
   }
@@ -84,30 +82,13 @@ export default function TopProducts(params: {
         heading={heading}
         visId={visId}
         onExport={onExport}
-        onExportFinished={onExportFinish}
+        defaultHeight={500}
+        defaultWidth={500}
+        chartProps={chartProps}
       ></VisHeader>
       <CardBody>
-        <BarChart
-          visId={"visId"}
-          data={chartData}
-          width={params.width}
-          height={params.height}
-        />
+        <BarChart {...chartProps} />
       </CardBody>
-      {isExporting && (
-        <Box id="export" position="absolute" top="0" left="-5000">
-          <BarChart
-            animate={false}
-            visId={visId}
-            heading={exportHeading && heading}
-            timestamp={exportTimestamp && new Date().toISOString()}
-            timerange={exportTimerange && timerange}
-            data={chartData}
-            width={exportWidth + "px"}
-            height={exportHeight + "px"}
-          />
-        </Box>
-      )}
     </Card>
   );
 }
