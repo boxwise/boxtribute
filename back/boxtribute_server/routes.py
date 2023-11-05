@@ -63,6 +63,7 @@ def query_api_server():
     methods=["POST"],
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
+@requires_auth
 def public_api_server():
     # Block access unless in CI, or in staging/development
     if (

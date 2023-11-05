@@ -36,7 +36,7 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
 
 
 def test_query_created_boxes(read_only_client, products, product_categories):
-    query = """query { createdBoxes {
+    query = """query { createdBoxes(baseId: 1) {
         facts {
             createdOn categoryId productId gender boxesCount itemsCount
         }
@@ -44,11 +44,11 @@ def test_query_created_boxes(read_only_client, products, product_categories):
             product { id name gender }
             category { id name }
     } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="public")
+    data = assert_successful_request(read_only_client, query)
     facts = data.pop("facts")
-    assert len(facts) == 3
+    assert len(facts) == 2
     assert facts[0]["boxesCount"] == 11
-    assert facts[1]["boxesCount"] == 2
+    assert facts[1]["boxesCount"] == 1
     assert data == {
         "dimensions": {
             "product": [
@@ -57,7 +57,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
                     "name": p["name"],
                     "gender": ProductGender(p["gender"]).name,
                 }
-                for p in products[:3]
+                for p in [products[0], products[2]]
             ],
             "category": [
                 {"id": str(c["id"]), "name": c["name"]}
@@ -65,10 +65,6 @@ def test_query_created_boxes(read_only_client, products, product_categories):
             ],
         }
     }
-
-    query = """query { createdBoxes(baseId: 1) { facts { boxesCount } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="public")
-    assert data == {"facts": [{"boxesCount": 11}, {"boxesCount": 1}]}
 
 
 def test_query_top_products(
