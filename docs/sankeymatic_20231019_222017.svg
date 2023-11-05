@@ -1,0 +1,89 @@
+<svg height="600" width="600" xmlns="http://www.w3.org/2000/svg">
+<title>Your Diagram Title</title>
+<!-- Generated with SankeyMATIC: 10/19/2023, 10:20:17 PM -->
+<rect height="600" width="600" fill="#ffffff"></rect>
+<g transform="translate(112.31805952310562,18)">
+<g id="sankey_flows">
+<path id="flow0" d="M9 107.3v284.5L155.56065 391.8v-284.5z" fill="#17becf" stroke-width="0.5" stroke="#17becf" opacity="0.45"><title>Stock → Outgoing: 1,000</title></path>
+<path id="flow1" d="M164.56065 178.425C237.84097 178.425 237.84097 143.04375 311.12129 143.04375" fill="none" stroke-width="142.25" stroke="#1f77b4" opacity="0.45"><title>Outgoing → Boxtribute Shipments: 500</title></path>
+<path id="flow2" d="M164.56065 320.675C237.84097 320.675 237.84097 356.05625 311.12129 356.05625" fill="none" stroke-width="142.25" stroke="#1f77b4" opacity="0.45"><title>Outgoing → Self Reported: 500</title></path>
+<path id="flow3" d="M320.12129 114.59375C393.40162 114.59375 393.40162 63.4875 466.68194 63.4875" fill="none" stroke-width="85.35" stroke="#d62728" opacity="0.45"><title>Boxtribute Shipments → DiH: 300</title></path>
+<path id="flow4" d="M320.12129 185.71875C393.40162 185.71875 393.40162 173.925 466.68194 173.925" fill="none" stroke-width="56.9" stroke="#9467bd" opacity="0.45"><title>Boxtribute Shipments → Samos Volunteers: 200</title></path>
+<path id="flow5" d="M320.12129 299.15625C393.40162 299.15625 393.40162 255.9125 466.68194 255.9125" fill="none" stroke-width="28.45" stroke="#8c564b" opacity="0.45"><title>Self Reported → Location A: 100</title></path>
+<path id="flow6" d="M320.12129 327.60625C393.40162 327.60625 393.40162 323.675 466.68194 323.675" fill="none" stroke-width="28.45" stroke="#8c564b" opacity="0.45"><title>Self Reported → Location B: 100</title></path>
+<path id="flow7" d="M320.12129 356.05625C393.40162 356.05625 393.40162 391.4375 466.68194 391.4375" fill="none" stroke-width="28.45" stroke="#8c564b" opacity="0.45"><title>Self Reported → Location C: 100</title></path>
+<path id="flow8" d="M320.12129 384.50625C393.40162 384.50625 393.40162 459.2 466.68194 459.2" fill="none" stroke-width="28.45" stroke="#8c564b" opacity="0.45"><title>Self Reported → Location D: 100</title></path>
+<path id="flow9" d="M320.12129 412.95625C393.40162 412.95625 393.40162 526.9625 466.68194 526.9625" fill="none" stroke-width="28.45" stroke="#e377c2" opacity="0.45"><title>Self Reported → Scrap: 100</title></path>
+</g>
+<g id="sankey_nodes">
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r0" class="for_r0" x="0" y="107.3" height="284.5" width="9" fill="#17becf" fill-opacity="1"><title>Stock:
+1,000</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r1" class="for_r1" x="155.56065" y="107.3" height="284.5" width="9" fill="#1f77b4" fill-opacity="1"><title>Outgoing:
+1,000</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r2" class="for_r2" x="311.12129" y="71.91875" height="142.25" width="9" fill="#ff7f0e" fill-opacity="1"><title>Boxtribute Shipments:
+500</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r3" class="for_r3" x="311.12129" y="284.93125" height="142.25" width="9" fill="#2ca02c" fill-opacity="1"><title>Self Reported:
+500</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r4" class="for_r4" x="466.68194" y="20.8125" height="85.35" width="9" fill="#d62728" fill-opacity="1"><title>DiH:
+300</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r5" class="for_r5" x="466.68194" y="145.475" height="56.9" width="9" fill="#9467bd" fill-opacity="1"><title>Samos Volunteers:
+200</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r6" class="for_r6" x="466.68194" y="241.6875" height="28.45" width="9" fill="#8c564b" fill-opacity="1"><title>Location A:
+100</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r7" class="for_r7" x="466.68194" y="309.45" height="28.45" width="9" fill="#8c564b" fill-opacity="1"><title>Location B:
+100</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r8" class="for_r8" x="466.68194" y="377.2125" height="28.45" width="9" fill="#8c564b" fill-opacity="1"><title>Location C:
+100</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r9" class="for_r9" x="466.68194" y="444.975" height="28.45" width="9" fill="#8c564b" fill-opacity="1"><title>Location D:
+100</title></rect>
+</g>
+<g class="node" style="touch-action: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+<rect id="r10" class="for_r10" x="466.68194" y="512.7375" height="28.45" width="9" fill="#e377c2" fill-opacity="1"><title>Scrap:
+100</title></rect>
+</g>
+</g>
+<g id="sankey_labels" font-family="sans-serif" font-size="16px" font-weight="400" fill="#000000">
+<text text-anchor="middle" x="187.6819404768944" y="577" font-size="11px" font-weight="400" fill="rgb(127, 127, 127)">Made with SankeyMATIC</text>
+<rect id="label0_bg" class="for_r0" x="-100.31806" y="237.76779" width="98.68473" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label0" class="for_r0" text-anchor="end" x="-6.3" y="249.55" dy="5.2844447517395015">Stock: 1,000</text>
+<rect id="label1_bg" class="for_r1" x="30.32594" y="237.76779" width="123.60139" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label1" class="for_r1" text-anchor="end" x="149.26065" y="249.55" dy="5.2844447517395015">Outgoing: 1,000</text>
+<rect id="label2_bg" class="for_r2" x="112.08796" y="131.26153" width="197.4" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label2" class="for_r2" text-anchor="end" x="304.82129" y="143.04375" dy="5.2844447517395015">Boxtribute Shipments: 500</text>
+<rect id="label3_bg" class="for_r3" x="166.33101" y="344.27401" width="143.15695" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label3" class="for_r3" text-anchor="end" x="304.82129" y="356.05625" dy="5.2844447517395015">Self Reported: 500</text>
+<rect id="label4_bg" class="for_r4" x="393.06529" y="51.70528" width="71.98333" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label4" class="for_r4" text-anchor="end" x="460.38194" y="63.4875" dy="5.2844447517395015">DiH: 300</text>
+<rect id="label5_bg" class="for_r5" x="289.87779" y="162.1428" width="175.17083" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label5" class="for_r5" text-anchor="end" x="460.38194" y="173.925" dy="5.2844447517395015">Samos Volunteers: 200</text>
+<rect id="label6_bg" class="for_r6" x="345.00279" y="244.1303" width="120.04583" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label6" class="for_r6" text-anchor="end" x="460.38194" y="255.9125" dy="5.2844447517395015">Location A: 100</text>
+<rect id="label7_bg" class="for_r7" x="344.11391" y="311.89279" width="120.93473" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label7" class="for_r7" text-anchor="end" x="460.38194" y="323.675" dy="5.2844447517395015">Location B: 100</text>
+<rect id="label8_bg" class="for_r8" x="343.23195" y="379.6553" width="121.81667" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label8" class="for_r8" text-anchor="end" x="460.38194" y="391.4375" dy="5.2844447517395015">Location C: 100</text>
+<rect id="label9_bg" class="for_r9" x="343.23195" y="447.41781" width="121.81667" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label9" class="for_r9" text-anchor="end" x="460.38194" y="459.2" dy="5.2844447517395015">Location D: 100</text>
+<rect id="label10_bg" class="for_r10" x="377.92641" y="515.18032" width="87.12223" height="23.02222" rx="4" fill="#fff" fill-opacity="0.55" stroke="none" stroke-width="0" stroke-opacity="0"></rect>
+<text id="label10" class="for_r10" text-anchor="end" x="460.38194" y="526.9625" dy="5.2844447517395015">Scrap: 100</text>
+</g>
+</g></svg>

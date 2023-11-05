@@ -13,6 +13,11 @@ updates:
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
-    directory: "/react/"
+    directory: "/"
     schedule:
       interval: "weekly"
+    assignees:
+      - "haguesto"
+    # Always increase the minimum version requirement to match the new version.
+    # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
+    versioning-strategy: "increase"
