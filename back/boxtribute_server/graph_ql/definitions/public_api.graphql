@@ -1,5 +1,5 @@
 type Query {
-  beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
+  beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
   createdBoxes(baseId: Int): CreatedBoxesData
   topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
   topProductsDonated(baseId: Int!): TopProductsDonatedData

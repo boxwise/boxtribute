@@ -64,7 +64,7 @@ def _generate_dimensions(*names, target_type=None, facts):
     return dimensions
 
 
-def compute_beneficiary_demographics(base_ids=None):
+def compute_beneficiary_demographics(base_id):
     """For each combination of age, gender, and day-truncated date count the number of
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
@@ -75,10 +75,6 @@ def compute_beneficiary_demographics(base_ids=None):
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
-
-    conditions = [Beneficiary.deleted.is_null()]
-    if base_ids is not None:
-        conditions.append(Beneficiary.base << base_ids)
 
     demographics = (
         Beneficiary.select(
@@ -96,7 +92,10 @@ def compute_beneficiary_demographics(base_ids=None):
                 & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
             ),
         )
-        .where(*conditions)
+        .where(
+            Beneficiary.deleted.is_null(),
+            Beneficiary.base == base_id,
+        )
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
         .dicts()
     )

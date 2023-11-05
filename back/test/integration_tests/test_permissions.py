@@ -236,7 +236,7 @@ def test_check_public_api_access(dropapp_dev_client, mocker):
     env_variables["ENVIRONMENT"] = "production"
     mocker.patch("os.environ", env_variables)
 
-    query = "query { beneficiaryDemographics(baseIds: [1]) { count } }"
+    query = "query { beneficiaryDemographics(baseId: 1) { count } }"
     data = {"query": query}
     response = dropapp_dev_client.post("/public", json=data)
     assert response.status_code == 401
