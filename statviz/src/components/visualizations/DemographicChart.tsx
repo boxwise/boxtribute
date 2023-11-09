@@ -1,13 +1,12 @@
-import { Box, Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
+import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import BarChartCenterAxis from "../custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
 import { HumanGender } from "../../types/generated/graphql";
 import VisHeader from "../VisHeader";
 import { table } from "../../utils/table";
-import runExport from "../../hooks/useExport";
-import { date2String } from "../../utils/chart";
 import useDemographics from "../../hooks/useDemographics";
 import { ApolloError } from "@apollo/client";
+import getOnExport from "../../utils/chartExport";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -35,8 +34,8 @@ export default function DemographicChart(params: {
   width: number;
   height: number;
 }) {
-  const { demographics, error, timerange, loading } = useDemographics();
-  const { onExport } = runExport(BarChartCenterAxis);
+  const { demographics, error, loading } = useDemographics();
+  const onExport = getOnExport(BarChartCenterAxis);
 
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;

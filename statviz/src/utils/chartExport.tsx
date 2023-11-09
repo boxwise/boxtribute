@@ -1,7 +1,6 @@
 import domtoimage from "dom-to-image-more";
 import { render } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { useParams } from "react-router-dom";
 import { isChartExporting } from "../state/exportingCharts";
 const createOffScreenContainer = () => {
   const offScreenContainer = document.createElement("div");
@@ -13,7 +12,7 @@ const createOffScreenContainer = () => {
 
 export type ImageFormat = "svg" | "png" | "jpg";
 
-export const exportChartWithSettings = (
+const exportChartWithSettings = (
   ChartComponent: JSX.Element,
   chartProps: object,
   exportFormat: ImageFormat
@@ -77,3 +76,29 @@ export const exportChartWithSettings = (
   const link = document.createElement("a");
   document.body.appendChild(link);
 };
+
+export default function getOnExport(ChartComponent: JSX.Element) {
+  const onExport = (
+    width: number,
+    height: number,
+    heading: string | undefined,
+    timerange: string | undefined,
+    timestamp: string | undefined,
+    chartProps: object,
+    imageFormat: ImageFormat
+  ) => {
+    const props = {
+      ...chartProps,
+      width: width,
+      height: height,
+      timestamp: timestamp,
+      timerange: timerange,
+      heading: heading,
+      animate: false,
+    };
+
+    exportChartWithSettings(ChartComponent, props, imageFormat);
+  };
+
+  return onExport;
+}

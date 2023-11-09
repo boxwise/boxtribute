@@ -63,17 +63,17 @@ export default function BarChart(barChart: BarChart) {
   );
 
   if (includeHeading) {
-    layers.unshift(() => {
+    layers.push(() => {
       return <text {...exportInfoStyles.heading}>{barChart.heading}</text>;
     });
   }
   if (typeof barChart.timerange === "string") {
-    layers.unshift(() => {
+    layers.push(() => {
       return <text {...exportInfoStyles.timerange}>{barChart.timerange}</text>;
     });
   }
   if (typeof barChart.timestamp === "string") {
-    layers.unshift(() => {
+    layers.push(() => {
       return <text {...exportInfoStyles.timestamp}>{barChart.timestamp}</text>;
     });
   }

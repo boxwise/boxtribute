@@ -2,14 +2,14 @@ import BarChart from "../nivo-graphs/BarChart";
 import { Sort, table } from "../../utils/table";
 import { ProductDimensionInfo } from "../../types/generated/graphql";
 import { ApolloError } from "@apollo/client";
-import { Box, Card, CardBody } from "@chakra-ui/react";
+import { Card, CardBody } from "@chakra-ui/react";
 import { round } from "lodash";
 import { useMemo } from "react";
 import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
 import VisHeader from "../VisHeader";
 import useCreatedBoxes from "../../hooks/useCreatedBoxes";
 import NoDataCard from "../NoDataCard";
-import runExport from "../../hooks/useExport";
+import getOnExport from "../../utils/chartExport";
 
 const visId = "top-products";
 
@@ -21,7 +21,7 @@ export default function TopProducts(params: {
   const boxesOrItems = params.boxesOrItems;
 
   const { createdBoxes, loading, error, data } = useCreatedBoxes();
-  const { onExport } = runExport(BarChart);
+  const onExport = getOnExport(BarChart);
 
   const getChartData = () => {
     if (data === undefined) {

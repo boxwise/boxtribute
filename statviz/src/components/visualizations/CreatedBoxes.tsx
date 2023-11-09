@@ -1,5 +1,5 @@
 import { ApolloError } from "@apollo/client";
-import { Box, Card, CardBody } from "@chakra-ui/react";
+import { Card, CardBody } from "@chakra-ui/react";
 import _ from "lodash";
 
 import BarChart from "../nivo-graphs/BarChart";
@@ -8,8 +8,7 @@ import useCreatedBoxes from "../../hooks/useCreatedBoxes";
 import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
 import VisHeader from "../VisHeader";
 import NoDataCard from "../NoDataCard";
-import runExport from "../../hooks/useExport";
-import { date2String } from "../../utils/chart";
+import getOnExport from "../../utils/chartExport";
 
 const visId = "created-boxes";
 
@@ -18,9 +17,9 @@ export default function CreatedBoxes(params: {
   height: string;
   boxesOrItems: BoxesOrItemsCount;
 }) {
-  const { createdBoxes, loading, data, error, timerange } = useCreatedBoxes();
+  const { createdBoxes, loading, data, error } = useCreatedBoxes();
 
-  const { onExport } = runExport(BarChart);
+  const onExport = getOnExport(BarChart);
   const getChartData = () => {
     if (data === undefined) return [];
 
