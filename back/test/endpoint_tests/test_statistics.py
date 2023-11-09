@@ -1,6 +1,6 @@
 from datetime import date
 
-from boxtribute_server.enums import ProductGender, TargetType
+from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.utils import compute_age
 from utils import assert_successful_request
 
@@ -183,6 +183,12 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases):
                 "targetId": base_name,
                 "movedOn": date.today().isoformat(),
             },
+            {
+                "boxesCount": 1,
+                "categoryId": 1,
+                "targetId": BoxState.Lost.name,
+                "movedOn": "2023-02-01",
+            },
         ],
         "dimensions": {
             "target": [
@@ -195,6 +201,11 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases):
                     "id": base_name,
                     "name": base_name,
                     "type": TargetType.Shipment.name,
+                },
+                {
+                    "id": BoxState.Lost.name,
+                    "name": BoxState.Lost.name,
+                    "type": TargetType.BoxState.name,
                 },
             ],
         },
