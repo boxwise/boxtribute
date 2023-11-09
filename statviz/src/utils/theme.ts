@@ -1,6 +1,7 @@
 import { extendTheme } from "@chakra-ui/react";
 import { Theme } from "@nivo/core";
 import { defaultStyles } from "@visx/tooltip";
+import { percent } from "./chart";
 
 export const getSelectionBackground = (selected: boolean) =>
   selected ? "blue.100" : "white";
@@ -216,11 +217,12 @@ export const nivoScheme: Theme = {
 };
 
 export const scaledNivoTheme = (width: number, height: number): Theme => {
-  const strokeWidth = Math.floor(height / 500) + 1;
-  const fontSizeAxis = Math.floor(height / 35) + 1;
-  const fontSizeLegend = Math.floor(height / 25) + 1;
-  const fontSizeText = Math.floor(height / 25) + 1;
-  const fontSizeLabel = Math.floor(width / 25) + 1;
+  const hW = height + width;
+  const strokeWidth = Math.ceil(height / 900);
+  const fontSizeAxis = Math.ceil(height / 35);
+  const fontSizeLegend = Math.ceil(height / 35);
+  const fontSizeText = Math.ceil(height / 35);
+  const fontSizeLabel = Math.ceil(hW / 35); // TODO: needs to be dependend on the amount of data points (smaller bars -> smaller fontSizeLabel)
 
   return {
     background: "#ffffff",
@@ -338,66 +340,111 @@ export const scaledNivoTheme = (width: number, height: number): Theme => {
   };
 };
 
-export const scaledExportFieldsVisX = (width: number, height: number) => {
-  const headingFontSize = Math.floor((width + height) / 40);
-  const fontSize = Math.floor((width + height) / 90);
+// Calculate margins, fontSizes, and styles for additional information that can be displayed in an exported image
+export const graphMarginTopPercent = 10;
+export const graphMarginBottomPercent = 20;
+export const graphMarginRightPercent = 5;
+export const graphMarginLeft = (width: number) => percent(width, 10);
 
+// Extra margins needed between the graph and top of the image to display additional information
+const getMarginHeader = (headingFontSize: number) => headingFontSize * 1.1;
+const getMarginTimerange = (timeRangeFontSize: number) =>
+  timeRangeFontSize * 1.1;
+
+// Calculate font sizes in dependence of the image size
+const headingFontSize = (width: number, height: number) =>
+  Math.ceil((width + height) / 50);
+
+const timeRangeFontSize = (width: number, height: number) =>
+  Math.ceil((width + height) / 90);
+
+const timeStampFontSize = (width: number, height: number) =>
+  Math.ceil((width + height) / 90);
+
+const headingPosition = (width: number, height: number) => {
   return {
-    heading: {
-      style: {
-        fontSize: headingFontSize,
-        fontFamily: "Open Sans",
-      },
-      x: Math.floor(width * 0.05),
-      y: 30,
-    },
-    timerange: {
-      style: {
-        fontSize: fontSize,
-        fontFamily: "Open Sans",
-      },
-      x: Math.floor(width * 0.05),
-      y: fontSize * 4,
-    },
-    timestamp: {
-      style: {
-        fontSize: fontSize,
-        fontFamily: "Open Sans",
-      },
-      x: 30,
-      y: height,
-    },
+    y: -percent(height, 10),
+    x: -graphMarginLeft(width) + percent(width, 3),
   };
 };
 
-export const scaledExportFieldsNivo = (width: number, height: number) => {
-  const headingFontSize = Math.floor(width / 20);
-  const fontSize = Math.floor(width / 40);
+const timeRangePosition = (
+  width: number,
+  height: number,
+  hasHeading: boolean
+) => {
+  if (hasHeading) {
+    const hP = headingPosition(width, height);
+    return {
+      x: hP.x,
+      y: hP.y + timeRangeFontSize(width, height) + percent(height, 1),
+    };
+  }
+  return {
+    x: -graphMarginLeft(width) + percent(width, 3),
+    y: -percent(height, 5),
+  };
+};
 
+const timeStampPosition = (
+  width: number,
+  height: number,
+  marginTop: number
+) => {
+  return {
+    x: -graphMarginLeft(width) + percent(width, 1),
+    y: height - marginTop - percent(height, 1),
+  };
+};
+
+// Calculate margin between graph and top of the image needed
+export const getMarginTop = (
+  height: number,
+  width: number,
+  header: boolean,
+  timerange: boolean
+) => {
+  const marginTop = percent(height, 10);
+  if (header && timerange) {
+    return (
+      getMarginHeader(headingFontSize(width, height)) +
+      getMarginTimerange(timeRangeFontSize(width, height)) +
+      marginTop
+    );
+  }
+  if (header) {
+    return getMarginHeader(headingFontSize(width, height)) + marginTop;
+  }
+  if (timerange) {
+    return getMarginTimerange(timeRangeFontSize(width, height)) + marginTop;
+  }
+  return marginTop;
+};
+
+export const getScaledExportFields = (
+  width: number,
+  height: number,
+  marginTop: number,
+  heading: boolean
+) => {
   return {
     heading: {
       style: {
-        fontSize: headingFontSize,
-        fontFamily: "Open Sans",
+        fontSize: headingFontSize(width, height),
       },
-      x: width * 0.05,
-      y: 30,
+      ...headingPosition(width, height),
     },
     timerange: {
       style: {
-        fontSize: fontSize,
-        fontFamily: "Open Sans",
+        fontSize: timeRangeFontSize(width, height),
       },
-      x: width * 0.05,
-      y: fontSize * 4,
+      ...timeRangePosition(width, height, heading),
     },
     timestamp: {
       style: {
-        fontSize: fontSize,
-        fontFamily: "Open Sans",
+        fontSize: timeStampFontSize(width, height),
       },
-      x: 30,
-      y: height,
+      ...timeStampPosition(width, height, marginTop),
     },
   };
 };

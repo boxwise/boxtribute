@@ -6,6 +6,7 @@ export interface PieChart {
   data: Array<object>;
 }
 
+// Old, doesn't work with export and heading functions
 export default function PieChart(chart: PieChart) {
   const arcLabel = (d) => {
     if (d.id.length > 20) {

@@ -1,35 +1,29 @@
-import { useState } from "react";
-import { exportChartWithSettings } from "../utils/chartExport";
-import { date2String } from "../utils/chart";
+import { ImageFormat, exportChartWithSettings } from "../utils/chartExport";
 
-export default function useExport(ChartComponent) {
-  const [isExporting, setIsExporting] = useState(false);
-
+export default function runExport(ChartComponent: JSX.Element) {
   const onExport = (
     width: number,
     height: number,
-    exportHeading: boolean,
-    exportTimerange: boolean,
-    exportTimestamp: boolean,
-    chartProps: object
+    heading: string | undefined,
+    timerange: string | undefined,
+    timestamp: string | undefined,
+    chartProps: object,
+    imageFormat: ImageFormat
   ) => {
-    setIsExporting(true);
-
     const props = {
       ...chartProps,
       width: width,
       height: height,
-      timestamp: exportTimestamp ? date2String(new Date()) : undefined,
-      timerange: exportTimerange ? "timerange" : undefined,
-      heading: exportHeading ? "heading" : undefined,
+      timestamp: timestamp,
+      timerange: timerange,
+      heading: heading,
+      animate: false,
     };
 
-    exportChartWithSettings(ChartComponent, props);
-    setIsExporting(false);
+    exportChartWithSettings(ChartComponent, props, imageFormat);
   };
 
   return {
-    isExporting,
     onExport,
   };
 }

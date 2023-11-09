@@ -1,5 +1,10 @@
 import { ResponsiveBar, BarDatum, BarLayer } from "@nivo/bar";
-import { scaleTick, scaledNivoTheme } from "../../utils/theme";
+import {
+  getMarginTop,
+  getScaledExportFields,
+  scaleTick,
+  scaledNivoTheme,
+} from "../../utils/theme";
 import { percent } from "../../utils/chart";
 
 export interface BarChart {
@@ -17,6 +22,7 @@ export interface BarChart {
   legend?: boolean;
   labelAxisBottom?: string;
   labelAxisLeft?: string;
+  rendered?: () => void;
 }
 
 export default function BarChart(barChart: BarChart) {
@@ -24,9 +30,7 @@ export default function BarChart(barChart: BarChart) {
   const width = parseInt(barChart.width);
 
   const theme = scaledNivoTheme(width, height);
-  // getting updated depending on how much space is needed for extra information e. g. Timestamp and Heading
-  let marginTop = percent(height, 5);
-  let marginBottom = percent(height, 25);
+  const marginBottom = percent(height, 25);
 
   const layers: BarLayer<BarDatum>[] = [
     "grid",
@@ -35,65 +39,42 @@ export default function BarChart(barChart: BarChart) {
     "markers",
     "legends",
     "annotations",
+    () => {
+      if (barChart.rendered) {
+        barChart.rendered();
+      }
+    },
   ];
 
-  if (typeof barChart.heading === "string") {
-    const size = Math.floor(width / 20);
+  const includeHeading = typeof barChart.heading === "string";
+  const includeTimerange = typeof barChart.timerange === "string";
+  const marginTop = getMarginTop(
+    height,
+    width,
+    includeHeading,
+    includeTimerange
+  );
 
-    marginTop += size * 2.5;
-    layers.push(() => {
-      return (
-        <text
-          x={width * 0.05 * -1}
-          y={-size * 1.5}
-          style={{
-            ...theme.labels?.text,
-            fontSize: size,
-            fontFamily: "Open Sans",
-          }}
-        >
-          {barChart.heading}
-        </text>
-      );
+  const exportInfoStyles = getScaledExportFields(
+    width,
+    height,
+    marginTop,
+    includeHeading
+  );
+
+  if (includeHeading) {
+    layers.unshift(() => {
+      return <text {...exportInfoStyles.heading}>{barChart.heading}</text>;
     });
   }
   if (typeof barChart.timerange === "string") {
-    const size = Math.floor(width / 50);
-
-    marginTop += size * 3;
-    layers.push(() => {
-      return (
-        <text
-          x={width * 0.05 * -1}
-          y={-size * 2}
-          style={{
-            ...theme.labels?.text,
-            fontSize: size,
-            fontFamily: "Open Sans",
-          }}
-        >
-          {barChart.timerange}
-        </text>
-      );
+    layers.unshift(() => {
+      return <text {...exportInfoStyles.timerange}>{barChart.timerange}</text>;
     });
   }
   if (typeof barChart.timestamp === "string") {
-    marginBottom += 20;
-    const y = height - marginTop - 20;
-    layers.push(() => {
-      return (
-        <text
-          x="-30"
-          y={y}
-          style={{
-            ...theme.labels?.text,
-            fontSize: 14,
-            fontFamily: "Open Sans",
-          }}
-        >
-          {barChart.timestamp}
-        </text>
-      );
+    layers.unshift(() => {
+      return <text {...exportInfoStyles.timestamp}>{barChart.timestamp}</text>;
     });
   }
 
@@ -139,7 +120,7 @@ export default function BarChart(barChart: BarChart) {
           top: marginTop,
           right: percent(width, 10),
           bottom: marginBottom,
-          left: percent(width, 15),
+          left: percent(width, 10),
         }}
         layers={layers}
         padding={0.3}

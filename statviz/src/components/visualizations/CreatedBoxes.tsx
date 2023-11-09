@@ -8,7 +8,7 @@ import useCreatedBoxes from "../../hooks/useCreatedBoxes";
 import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
 import VisHeader from "../VisHeader";
 import NoDataCard from "../NoDataCard";
-import useExport from "../../hooks/useExport";
+import runExport from "../../hooks/useExport";
 import { date2String } from "../../utils/chart";
 
 const visId = "created-boxes";
@@ -20,16 +20,7 @@ export default function CreatedBoxes(params: {
 }) {
   const { createdBoxes, loading, data, error, timerange } = useCreatedBoxes();
 
-  const {
-    exportWidth,
-    exportHeight,
-    isExporting,
-    exportHeading,
-    exportTimestamp,
-    exportTimerange,
-    onExport,
-    onExportFinish,
-  } = useExport();
+  const { onExport } = runExport(BarChart);
   const getChartData = () => {
     if (data === undefined) return [];
 
@@ -57,6 +48,15 @@ export default function CreatedBoxes(params: {
     return <NoDataCard header={heading} />;
   }
 
+  const chartProps = {
+    visId: "preview-created-boxes",
+    data: createdBoxesPerDay,
+    indexBy: "createdOn",
+    keys: [params.boxesOrItems],
+    width: params.width,
+    height: params.height,
+  };
+
   return (
     <Card>
       <VisHeader
@@ -64,34 +64,13 @@ export default function CreatedBoxes(params: {
         heading={heading}
         visId={visId}
         onExport={onExport}
-        onExportFinished={onExportFinish}
+        defaultHeight={500}
+        defaultWidth={1000}
+        chartProps={chartProps}
       ></VisHeader>
       <CardBody>
-        <BarChart
-          visId="preview-created-boxes"
-          data={createdBoxesPerDay}
-          indexBy="createdOn"
-          keys={[params.boxesOrItems]}
-          width={params.width}
-          height={params.height}
-        />
+        <BarChart {...chartProps} />
       </CardBody>
-      {isExporting && (
-        <Box position="absolute" top="0" left="-5000">
-          <BarChart
-            animate={false}
-            visId={visId}
-            indexBy="createdOn"
-            keys={[params.boxesOrItems]}
-            heading={exportHeading && heading}
-            timestamp={exportTimestamp && date2String(new Date())}
-            timerange={exportTimerange && timerange}
-            data={createdBoxesPerDay}
-            width={exportWidth + "px"}
-            height={exportHeight + "px"}
-          />
-        </Box>
-      )}
     </Card>
   );
 }

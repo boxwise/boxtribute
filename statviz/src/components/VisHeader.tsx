@@ -26,6 +26,11 @@ import {
 } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import { ImageFormat } from "../utils/chartExport";
+import { date2String } from "../utils/chart";
+import useTimerange from "../hooks/useTimerange";
+import { isChartExporting } from "../state/exportingCharts";
+import { useReactiveVar } from "@apollo/client";
 
 export default function VisHeader(params: {
   heading: string;
@@ -37,31 +42,35 @@ export default function VisHeader(params: {
     includeHeading: boolean,
     includeTimerange: boolean,
     includeTimestamp: boolean,
-    chartProps: object
+    chartProps: object,
+    imageFormat: ImageFormat
   ) => void;
   defaultWidth: number;
   defaultHeight: number;
   chartProps: object;
   custom?: boolean;
 }) {
-  const [isLoading, setLoading] = useState(false);
   const [inputWidth, setInputWidth] = useState(params.defaultWidth);
   const [inputHeight, setInputHeight] = useState(params.defaultHeight);
+  const isExporting = useReactiveVar(isChartExporting);
+
+  const { timerange } = useTimerange();
 
   const { value, getCheckboxProps } = useCheckboxGroup({
     defaultValue: ["heading", "timerange"],
   });
 
-  const download = () => {
+  const download = (e) => {
+    isChartExporting(true);
     params.onExport(
-      inputWidth,
-      inputHeight,
-      value.indexOf("heading") !== -1,
-      value.indexOf("timerange") !== -1,
-      value.indexOf("timestamp") !== -1,
-      params.chartProps
+      parseInt(inputWidth),
+      parseInt(inputHeight),
+      value.indexOf("heading") !== -1 ? params.heading : undefined,
+      value.indexOf("timerange") !== -1 ? timerange : undefined,
+      value.indexOf("timestamp") !== -1 ? date2String(new Date()) : undefined,
+      params.chartProps,
+      e.target.value
     );
-    setLoading(true);
   };
 
   const getMaxWidth = () => {
@@ -151,7 +160,7 @@ export default function VisHeader(params: {
                     <FormLabel>Downloads</FormLabel>
                     <HStack>
                       <Button
-                        isLoading={isLoading}
+                        isLoading={isExporting}
                         backgroundColor="white"
                         value="jpg"
                         onClick={download}
@@ -160,7 +169,7 @@ export default function VisHeader(params: {
                         <DownloadIcon marginLeft="10px" />
                       </Button>
                       <Button
-                        isLoading={isLoading}
+                        isLoading={isExporting}
                         backgroundColor="white"
                         value="svg"
                         onClick={download}

@@ -4,7 +4,7 @@ import { range } from "lodash";
 import { HumanGender } from "../../types/generated/graphql";
 import VisHeader from "../VisHeader";
 import { table } from "../../utils/table";
-import useExport from "../../hooks/useExport";
+import runExport from "../../hooks/useExport";
 import { date2String } from "../../utils/chart";
 import useDemographics from "../../hooks/useDemographics";
 import { ApolloError } from "@apollo/client";
@@ -36,16 +36,7 @@ export default function DemographicChart(params: {
   height: number;
 }) {
   const { demographics, error, timerange, loading } = useDemographics();
-  const {
-    exportWidth,
-    exportHeight,
-    isExporting,
-    exportHeading,
-    exportTimestamp,
-    exportTimerange,
-    onExport,
-    onExportFinish,
-  } = useExport();
+  const { onExport } = runExport(BarChartCenterAxis);
 
   if (error instanceof ApolloError) {
     return <p>{error.message}</p>;
@@ -93,6 +84,24 @@ export default function DemographicChart(params: {
     return acc;
   }, 0);
 
+  const chartProps = {
+    labelY: "Age",
+    labelXr: "Male",
+    labelXl: "Female",
+    dataY: range(-1, maxAge + 2),
+    dataXr: dataXr,
+    dataXl: dataXl,
+    width: params.width,
+    height: params.height,
+    background: "#ffffff",
+    colorBarLeft: "#ec5063",
+    colorBarRight: "#31cab5",
+    visId: "preview-demographic",
+    settings: {
+      hideZeroY: false,
+    },
+  };
+
   return (
     <Card>
       <VisHeader
@@ -100,55 +109,14 @@ export default function DemographicChart(params: {
         heading={heading}
         visId={visId}
         onExport={onExport}
-        onExportFinished={onExportFinish}
         custom={true}
+        chartProps={chartProps}
+        defaultHeight={800}
+        defaultWidth={600}
       ></VisHeader>
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
-        <BarChartCenterAxis
-          labelY="Age"
-          labelXr="Male"
-          labelXl="Female"
-          dataY={range(-1, maxAge + 2)}
-          dataXr={dataXr}
-          dataXl={dataXl}
-          width={params.width}
-          height={params.height}
-          background="#ffffff"
-          colorBarLeft="#ec5063"
-          colorBarRight="#31cab5"
-          heading="Demographic"
-          timerange={timerange}
-          timestamp={date2String(new Date())}
-          visId="preview-demographic"
-          settings={{
-            hideZeroY: false,
-          }}
-        />
+        <BarChartCenterAxis {...chartProps} />
       </CardBody>
-      {isExporting && (
-        <Box position="absolute" top="0" left="-5000">
-          <BarChartCenterAxis
-            labelY="Age"
-            labelXr="Male"
-            labelXl="Female"
-            dataY={range(-1, maxAge + 2)}
-            dataXr={dataXr}
-            dataXl={dataXl}
-            width={exportWidth}
-            height={exportHeight}
-            background="#ffffff"
-            colorBarLeft="#ec5063"
-            colorBarRight="#31cab5"
-            heading={exportHeading ? heading : undefined}
-            timerange={exportTimerange ? timerange : undefined}
-            timestamp={exportTimestamp ? date2String(new Date()) : undefined}
-            visId={visId}
-            settings={{
-              hideZeroY: false,
-            }}
-          />
-        </Box>
-      )}
     </Card>
   );
 }

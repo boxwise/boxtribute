@@ -9,7 +9,7 @@ import { BoxesOrItemsCount } from "../../views/Dashboard/Dashboard";
 import VisHeader from "../VisHeader";
 import useCreatedBoxes from "../../hooks/useCreatedBoxes";
 import NoDataCard from "../NoDataCard";
-import useExport from "../../hooks/useExport";
+import runExport from "../../hooks/useExport";
 
 const visId = "top-products";
 
@@ -20,8 +20,8 @@ export default function TopProducts(params: {
 }) {
   const boxesOrItems = params.boxesOrItems;
 
-  const { createdBoxes, loading, error, timerange, data } = useCreatedBoxes();
-  const { isExporting, onExport } = useExport("BarChart");
+  const { createdBoxes, loading, error, data } = useCreatedBoxes();
+  const { onExport } = runExport(BarChart);
 
   const getChartData = () => {
     if (data === undefined) {
