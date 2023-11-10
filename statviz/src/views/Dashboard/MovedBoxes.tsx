@@ -22,7 +22,7 @@ export default function MovedBoxes() {
       <AccordionPanel>
         <Wrap gap={6}>
           <WrapItem overflow="auto" padding="5px">
-            <BoxFlowSankey />
+            <BoxFlowSankey width="1000px" height="600px" />
           </WrapItem>
         </Wrap>
       </AccordionPanel>

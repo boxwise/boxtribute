@@ -2,6 +2,7 @@ import _ from "lodash";
 import {
   BeneficiaryDemographicsResult,
   CreatedBoxesResult,
+  MovedBoxesResult,
 } from "../types/generated/graphql";
 import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
 
@@ -173,6 +174,17 @@ export const demographicTable = (
       return demographicTable(
         dataTable.filterFromTo(interval, "createdOn").data
       );
+    },
+  };
+};
+
+export const movedBoxesTable = (movedBoxes: MovedBoxesResult[]) => {
+  const dataTable = table(movedBoxes);
+
+  return {
+    ...dataTable,
+    filterCreatedOn: (interval: Interval) => {
+      return movedBoxesTable(dataTable.filterFromTo(interval, "movedOn").data);
     },
   };
 };
