@@ -55,7 +55,7 @@ def create_db_interface(**mysql_kwargs):
     are validated to not be None and forwarded to `pymysql.connect`.
     Configure primary keys to be unsigned integer.
     """
-    for field in ["host", "port", "user", "password", "database"]:
+    for field in ["user", "password", "database"]:
         if mysql_kwargs.get(field) is None:
             raise ValueError(
                 f"Field '{field}' for database configuration must not be None"
