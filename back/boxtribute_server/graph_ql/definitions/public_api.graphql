@@ -142,4 +142,5 @@ type TargetDimensionInfo implements BasicDimensionInfo {
 enum TargetType {
   Shipment
   OutgoingLocation
+  BoxState
 }
