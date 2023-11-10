@@ -1,5 +1,8 @@
 import _ from "lodash";
-import { CreatedBoxesResult } from "../types/generated/graphql";
+import {
+  BeneficiaryDemographicsResult,
+  CreatedBoxesResult,
+} from "../types/generated/graphql";
 import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
 
 export enum Sort {
@@ -158,3 +161,18 @@ export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
     groupByYear: () => {},
   };
 }
+
+export const demographicTable = (
+  demographicFacts: BeneficiaryDemographicsResult[]
+) => {
+  const dataTable = table(demographicFacts);
+
+  return {
+    ...dataTable,
+    filterCreatedOn: (interval: Interval) => {
+      return demographicTable(
+        dataTable.filterFromTo(interval, "createdOn").data
+      );
+    },
+  };
+};

@@ -8,7 +8,7 @@ import {
   WrapItem,
   Box,
 } from "@chakra-ui/react";
-import BoxFlowSankey from "../Statistics/components/BoxFlowSankey";
+import BoxFlowSankey from "../../components/visualizations/BoxFlowSankey";
 
 export default function MovedBoxes() {
   return (

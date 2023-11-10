@@ -1,32 +1,43 @@
 import { useTooltip, Tooltip } from "@visx/tooltip";
-import { IXY, tooltipStyles, labelProps, tickProps } from "../../utils/chart";
+import { IXY, labelProps, percent } from "../../utils/chart";
+import {
+  getMarginTop,
+  getScaledExportFields,
+  scaledExportFieldsVisX,
+  tickProps,
+} from "../../utils/theme";
+import { tooltipStyles } from "../../utils/theme";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
-import { Box } from "@chakra-ui/react";
+import { isNumber } from "lodash";
+import { useEffect, useRef } from "react";
 
 type TooltipData = string;
 
 export interface IBarChartCenterAxis {
-  fields: {
-    labelY: string;
-    labelXr: string;
-    labelXl: string;
-    dataY: Array<number>;
-    dataXr: Array<IXY>;
-    dataXl: Array<IXY>;
-    width: number;
-    height: number;
-    background: string;
-    colorBarLeft: string;
-    colorBarRight: string;
-    settings?: {
-      hideZeroY?: boolean;
-      hideZeroX?: boolean;
-    };
+  labelY: string;
+  labelXr: string;
+  labelXl: string;
+  dataY: Array<number>;
+  dataXr: Array<IXY>;
+  dataXl: Array<IXY>;
+  width: number;
+  height: number;
+  background: string;
+  colorBarLeft: string;
+  colorBarRight: string;
+  visId: string;
+  heading?: string;
+  timerange?: string;
+  timestamp?: string;
+  rendered?: () => void;
+  settings?: {
+    hideZeroY?: boolean;
+    hideZeroX?: boolean;
   };
 }
 
@@ -35,13 +46,22 @@ const defaultSettings = {
   hideZeroX: false,
 };
 
-const marginTop = 0;
 const marginLeft = 70;
 const marginRight = 40;
 const marginBottom = 70;
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
-  const fields = { ...chart.fields };
+  const ref = useRef(true);
+
+  useEffect(() => {
+    const firstRender = ref.current;
+
+    if (firstRender && chart.rendered) {
+      chart.rendered();
+    }
+  });
+
+  const fields = { ...chart };
 
   const {
     showTooltip,
@@ -53,8 +73,8 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   } = useTooltip<TooltipData>({
     // initial tooltip state
     tooltipOpen: false,
-    tooltipLeft: fields.width / 3,
-    tooltipTop: fields.height / 3,
+    tooltipLeft: Math.floor(fields.width / 3),
+    tooltipTop: Math.floor(fields.height / 3),
     tooltipData: "",
   });
 
@@ -67,6 +87,22 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     ...defaultSettings,
     ...fields.settings,
   };
+
+  const includeHeading = typeof chart.heading === "string";
+  const includeTimerange = typeof chart.timerange === "string";
+  const marginTop = getMarginTop(
+    fields.height,
+    fields.width,
+    includeHeading,
+    includeTimerange
+  );
+
+  const exportInfoStyles = getScaledExportFields(
+    fields.width,
+    fields.height,
+    marginTop,
+    includeHeading
+  );
 
   const chartWidth = fields.width - (marginLeft + marginRight);
   const chartHeight = fields.height - (marginTop + marginBottom);
@@ -105,14 +141,14 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   });
 
   const scaleY = scaleLinear({
-    domain: [minY, maxY],
-    range: [chartHeight, marginTop],
+    domain: [maxY + 2, -1],
+    range: [0, chartHeight],
+    nice: false,
     round: true,
   });
 
   return (
-    <>
-      <Box h="50px" w={fields.width} backgroundColor="white"></Box>
+    <div id={chart.visId}>
       <svg
         width={fields.width}
         height={fields.height}
@@ -124,10 +160,20 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
           height={fields.height}
         />
         <Group top={marginTop} left={marginLeft}>
+          {chart.heading && (
+            <text {...exportInfoStyles.heading}>{chart.heading}</text>
+          )}
+          {chart.timerange && (
+            <text {...exportInfoStyles.timerange}>{chart.timerange}</text>
+          )}
+          {chart.timestamp && (
+            <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>
+          )}
           <Group>
             <Grid
               width={chartWidth / 2}
               height={chartHeight}
+              strokeWidth={Math.ceil(chartWidth / 750)}
               xScale={scaleXLeft}
               yScale={scaleY}
             />
@@ -135,16 +181,18 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               left={chartWidth / 2}
               width={chartWidth / 2}
               height={chartHeight}
+              strokeWidth={Math.ceil(chartWidth / 750)}
               xScale={scaleXLeft}
               yScale={scaleY}
             />
           </Group>
           <Group>
             {fields.dataXl.map((element) => {
+              const yElement = isNumber(element.y) ? element.y : 0;
               const barWidth = halfWidth - scaleXLeft(element.x);
               const x = scaleXLeft(minX) - barWidth;
-              const y = scaleY(element.y);
-              const tooltip = `${fields.labelY} ${element.y}, ${fields.labelXl} ${element.x}`;
+              const y = scaleY(yElement);
+              const tooltip = `${fields.labelY} ${yElement}, ${fields.labelXl} ${element.x}`;
 
               return (
                 <Bar
@@ -214,6 +262,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               hideZero={settings.hideZeroX}
               tickLabelProps={tickProps}
               label={fields.labelXl}
+              strokeWidth={Math.ceil(chartWidth / 750)}
             />
             <AxisBottom
               labelProps={labelProps}
@@ -221,15 +270,17 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
               hideZero={settings.hideZeroX}
               tickLabelProps={tickProps}
               label={fields.labelXr}
+              strokeWidth={Math.ceil(chartWidth / 750)}
             />
           </Group>
           <Group>
             <AxisLeft
               scale={scaleY}
               hideZero={settings.hideZeroY}
-              labelOffset={25}
+              labelOffset={30}
               label={fields.labelY}
               labelProps={labelProps}
+              strokeWidth={Math.ceil(chartWidth / 750)}
             />
           </Group>
         </Group>
@@ -246,6 +297,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
           </Tooltip>
         )}
       </div>
-    </>
+    </div>
   );
 }

@@ -8,7 +8,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import TimeRangeSelect from "../Statistics/components/filter/TimeRangeSelect";
+import TimeRangeSelect from "../../components/form/TimeRangeSelect";
 import { useSearchParams } from "react-router-dom";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
@@ -44,7 +44,7 @@ export default function Dashboard() {
         </WrapItem>
       </Wrap>
 
-      <Accordion defaultIndex={[0, 1]} allowMultiple marginBottom="100px">
+      <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />
