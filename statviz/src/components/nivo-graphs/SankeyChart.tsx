@@ -98,7 +98,7 @@ export default function SankeyChart(chart: SankeyChart) {
         linkOpacity={0.5}
         linkHoverOthersOpacity={0.1}
         linkContract={3}
-        sort="descending"
+        sort="auto"
         enableLinkGradient={true}
         labelPosition="outside"
         labelOrientation="horizontal"
