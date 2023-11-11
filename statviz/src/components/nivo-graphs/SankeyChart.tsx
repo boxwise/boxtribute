@@ -1,11 +1,11 @@
-import { ResponsiveSankey, SankeyLayerId } from "@nivo/sankey";
+import { ResponsiveSankey } from "@nivo/sankey";
 import {
   getMarginTop,
   getScaledExportFields,
   scaledNivoTheme,
 } from "../../utils/theme";
 import { percent } from "../../utils/chart";
-import { VoidFunctionComponent, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export interface SankeyChart {
   width: string;
@@ -76,8 +76,6 @@ export default function SankeyChart(chart: SankeyChart) {
       return <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>;
     });
   }
-
-  console.log(chart.data);
 
   return (
     <div ref={ref} style={{ width: chart.width, height: chart.height }}>

@@ -1,6 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import {} from "../types/generated/graphql";
+import {
+  MovedBoxesData,
+  QueryMovedBoxesArgs,
+} from "../types/generated/graphql";
 import { movedBoxesTable } from "../utils/table";
 import { useMemo } from "react";
 import useTimerange from "./useTimerange";
@@ -31,9 +34,12 @@ const MOVED_BOXES_QUERY = gql`
 
 export default function useMovedBoxes() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery(MOVED_BOXES_QUERY, {
-    variables: { baseId: parseInt(baseId) },
-  });
+  const { data, loading, error } = useQuery<any, QueryMovedBoxesArgs>(
+    MOVED_BOXES_QUERY,
+    {
+      variables: { baseId: parseInt(baseId) },
+    }
+  );
 
   const { timerange, interval } = useTimerange();
 

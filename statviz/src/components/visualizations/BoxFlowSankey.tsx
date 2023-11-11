@@ -2,11 +2,8 @@ import VisHeader from "../VisHeader";
 import { Card, CardBody } from "@chakra-ui/react";
 import SankeyChart from "../nivo-graphs/SankeyChart";
 import getOnExport from "../../utils/chartExport";
-import MovedBoxes from "../../views/Dashboard/MovedBoxes";
 import useMovedBoxes from "../../hooks/useMovedBoxes";
 import { ApolloError } from "@apollo/client";
-import useCreatedBoxes from "../../hooks/useCreatedBoxes";
-import { create, head } from "lodash";
 import NoDataCard from "../NoDataCard";
 
 const heading = "Moved Boxes";
@@ -37,7 +34,6 @@ export default function BoxFlowSankey(params: {
     return <NoDataCard header={heading}></NoDataCard>;
   }
   const targetIds = movedBoxesGrouped?.data.map((e) => e.targetId);
-  console.log(data.movedBoxes.dimensions.target);
 
   const nodes = data.movedBoxes.dimensions.target.filter(
     (target) => targetIds?.indexOf(target.id) !== -1
