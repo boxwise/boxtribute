@@ -6,6 +6,7 @@ import {
   scaledNivoTheme,
 } from "../../utils/theme";
 import { percent } from "../../utils/chart";
+import { useRef, useEffect } from "react";
 
 export interface BarChart {
   width: string;
@@ -26,6 +27,15 @@ export interface BarChart {
 }
 
 export default function BarChart(barChart: BarChart) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current === null) return;
+    if (!barChart.rendered) return;
+
+    barChart.rendered();
+  }, [ref]);
+
   const height = parseInt(barChart.height);
   const width = parseInt(barChart.width);
 
@@ -39,11 +49,6 @@ export default function BarChart(barChart: BarChart) {
     "markers",
     "legends",
     "annotations",
-    () => {
-      if (barChart.rendered) {
-        barChart.rendered();
-      }
-    },
   ];
 
   const includeHeading = typeof barChart.heading === "string";
@@ -108,6 +113,7 @@ export default function BarChart(barChart: BarChart) {
 
   return (
     <div
+      ref={ref}
       id={barChart.visId}
       style={{ width: barChart.width, height: barChart.height }}
     >

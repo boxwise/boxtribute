@@ -44,7 +44,7 @@ export default function Dashboard() {
         </WrapItem>
       </Wrap>
 
-      <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
+      <Accordion defaultIndex={[1]} allowMultiple marginBottom="100px">
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />
