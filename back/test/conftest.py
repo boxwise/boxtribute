@@ -28,7 +28,7 @@ MYSQL_CONNECTION_PARAMETERS = dict(
     # - db:3306         when testing in container on local machine
     # - 127.0.0.1:3306  when testing in CircleCI
     host=os.getenv("MYSQL_HOST", "127.0.0.1"),
-    port=int(os.getenv("MYSQL_PORT", 3306)),
+    port=int(os.getenv("MYSQL_PORT", 32000)),
     user="root",
     password="dropapp_root",
 )
