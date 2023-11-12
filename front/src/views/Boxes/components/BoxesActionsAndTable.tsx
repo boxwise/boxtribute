@@ -38,7 +38,6 @@ function BoxesActionsAndTable({
     navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
   // --- Actions on selected Boxes
-  // TODO: pass set SelectedBoxes to checkboxes in Boxes Tables
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
   // Move Boxes
@@ -51,14 +50,16 @@ function BoxesActionsAndTable({
       },
     },
   ]);
+
   const onMoveBoxes = useCallback(
     (locationId: string) =>
       moveBoxesAction.moveBoxes(
-        selectedBoxes.map((box) => box.values.labelIdentifier),
+        selectedBoxes.map((box) => (box as unknown as BoxRow).labelIdentifier),
         parseInt(locationId, 10),
       ),
     [moveBoxesAction, selectedBoxes],
   );
+
   // TODO: Implement Assign to Shipment
   // TODO: Implement Unassign to Shipment
   const actionButtons = useMemo(
@@ -75,6 +76,7 @@ function BoxesActionsAndTable({
       columns={orderedSelectedColumns}
       tableData={tableData}
       actionButtons={actionButtons}
+      setSelectedBoxes={setSelectedBoxes}
       columnSelector={
         <ColumnSelector
           availableColumns={availableColumns}

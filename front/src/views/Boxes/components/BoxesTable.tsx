@@ -19,6 +19,7 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
+  Row,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { tableConfigsVar } from "queries/cache";
@@ -34,6 +35,7 @@ interface IBoxesTableProps {
   actionButtons: React.ReactNode[];
   columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
+  setSelectedBoxes: (rows: Row<any>[]) => void;
 }
 
 function BoxesTable({
@@ -43,6 +45,7 @@ function BoxesTable({
   actionButtons,
   columnSelector,
   onBoxRowClick,
+  setSelectedBoxes,
 }: IBoxesTableProps) {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
@@ -109,6 +112,10 @@ function BoxesTable({
   );
 
   useEffect(() => {
+    setSelectedBoxes(selectedFlatRows.map((row) => row.original));
+  }, [selectedFlatRows, setSelectedBoxes]);
+
+  useEffect(() => {
     tableConfigsState.set(tableConfigKey, {
       globalFilter,
       columnFilters: filters,
@@ -118,14 +125,14 @@ function BoxesTable({
 
   return (
     <>
-      <Flex alignItems="center" flexWrap="wrap">
+      <Flex alignItems="center" flexWrap="wrap" key="columnSelector">
         <ButtonGroup>{actionButtons}</ButtonGroup>
         <Spacer />
         {columnSelector}
         <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
-      <Table>
+      <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
           {page.map((row) => {
@@ -147,7 +154,7 @@ function BoxesTable({
           })}
         </Tbody>
       </Table>
-      <Flex justifyContent="center" alignItems="center">
+      <Flex justifyContent="center" alignItems="center" key="pagination">
         <Flex>
           <IconButton
             aria-label="Previous Page"
