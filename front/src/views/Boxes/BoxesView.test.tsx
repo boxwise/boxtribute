@@ -1,8 +1,10 @@
 import "@testing-library/jest-dom";
 import { GraphQLError } from "graphql";
+import userEvent from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
-import { screen, render, within } from "tests/test-utils";
+import { screen, render } from "tests/test-utils";
+import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import Boxes, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
 
 const initialQuery = {
@@ -325,6 +327,38 @@ const initialQuery = {
   },
 };
 
+const gqlRequestPrep = generateMoveBoxRequest(["4495955", "1481666"], 17);
+
+const moveBoxesMutation = {
+  request: {
+    query: gqlRequestPrep.gqlRequest,
+    variables: gqlRequestPrep.variables,
+  },
+  result: {
+    data: {
+      // TODO: the data should be placed in the mocks
+      moveBox4495955: {
+        __typename: "Box",
+        labelIdentifier: "4495955",
+        location: {
+          __typename: "ClassicLocation",
+          id: "17",
+        },
+        state: "InStock",
+      },
+      moveBox1481666: {
+        __typename: "Box",
+        labelIdentifier: "1481666",
+        location: {
+          __typename: "ClassicLocation",
+          id: "17",
+        },
+        state: "InStock",
+      },
+    },
+  },
+};
+
 const initialQueryNetworkError = {
   request: {
     query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
@@ -396,5 +430,65 @@ describe("4.8.1 - Initial load of Page", () => {
 
     // Test case 4.8.1.3
     expect(await screen.findByRole("gridcell", { name: /4495955/i })).toBeInTheDocument();
+  });
+});
+
+describe("4.8.2 - Selecting rows and performing bulk actions", () => {
+  it("4.8.2.1 - Select two checkboxes and perform bulk moves", async () => {
+    const user = userEvent.setup();
+    render(<Boxes />, {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/2/boxes",
+      mocks: [initialQuery, moveBoxesMutation],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation2.id, name: organisation2.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base2.id, name: base2.name },
+        },
+      },
+    });
+
+    // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
+
+    const row1 = await screen.findByRole("row", { name: /4495955/i });
+    // eslint-disable-next-line testing-library/no-node-access
+    const checkbox1 = row1.querySelector('input[type="checkbox"]');
+
+    const row2 = await screen.findByRole("row", { name: /1481666/i });
+    // eslint-disable-next-line testing-library/no-node-access
+    const checkbox2 = row2.querySelector('input[type="checkbox"]');
+
+    if (checkbox1 && checkbox2) {
+      expect(checkbox1).not.toBeChecked();
+      await user.click(checkbox1);
+      expect(checkbox1).toBeChecked();
+
+      expect(checkbox2).not.toBeChecked();
+      await user.click(checkbox2);
+      expect(checkbox2).toBeChecked();
+
+      const moveBoxesButton = screen.getByRole("button", {
+        name: /move boxes/i,
+      });
+
+      await user.click(moveBoxesButton);
+
+      expect(
+        screen.getByRole("menuitem", {
+          name: /wh1/i,
+        }),
+      ).toBeInTheDocument();
+
+      user.click(
+        screen.getByRole("menuitem", {
+          name: /wh1/i,
+        }),
+      );
+
+      expect(await screen.findByText(/2 Boxes were successfully moved./i)).toBeInTheDocument();
+    }
   });
 });
