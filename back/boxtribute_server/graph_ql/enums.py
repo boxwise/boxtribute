@@ -1,3 +1,6 @@
+from enum import Enum
+from typing import List, Type, Union
+
 from ariadne import EnumType
 
 from ..enums import (
@@ -17,7 +20,7 @@ from ..enums import (
     TransferAgreementType,
 )
 
-enum_types = [
+enum_types: List[Union[EnumType, Type[Enum]]] = [
     ProductGender,
     BoxState,
     HumanGender,
@@ -31,6 +34,5 @@ enum_types = [
     TransferAgreementType,
     DistributionEventState,
     DistributionEventsTrackingGroupState,
-    DistributionEventTrackingFlowDirection,
     DistributionEventTrackingFlowDirection,
 ]
