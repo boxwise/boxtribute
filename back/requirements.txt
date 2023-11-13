@@ -1,4 +1,4 @@
-ariadne==0.20.1
+ariadne==0.21
 Flask==3.0.0
 Flask-Cors==4.0.0
 sentry-sdk[flask]==1.34.0
