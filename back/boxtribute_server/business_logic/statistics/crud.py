@@ -124,30 +124,97 @@ def compute_created_boxes(base_id):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    selection = (
+    cte = (
+        Location.select(Location.id).where(Location.base == base_id).cte("location_ids")
+    )
+    location_ids = cte.select(cte.c.id)
+    created_on = db.database.truncate_date("day", Box.created_on)
+    LocationHistory = DbChangeHistory.alias()
+    ProductHistory = DbChangeHistory.alias()
+    ItemsHistory = DbChangeHistory.alias()
+
+    def oldest_rows(field):
+        # Find the change with smallest ID (i.e. the oldest) corresponding to the given
+        # field of the Box model
+        HistoryAlias = DbChangeHistory.alias()
+        return HistoryAlias.select(fn.MIN(HistoryAlias.id)).where(
+            HistoryAlias.record_id == Box.id,
+            HistoryAlias.table_name == Box._meta.table_name,
+            HistoryAlias.changes == field.column_name,
+        )
+
+    # Select all boxes, that were in the given base at creation, and their initial
+    # properties
+    boxes = (
         Box.select(
-            Box.created_on.alias("created_on"),
+            Box.id,
+            created_on.alias("created_on"),
+            fn.IFNULL(ItemsHistory.from_int, Box.number_of_items).alias("items"),
+            fn.IFNULL(ProductHistory.from_int, Box.product).alias("product_id"),
+        )
+        .join(
+            LocationHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (LocationHistory.record_id == Box.id)
+                & (LocationHistory.table_name == Box._meta.table_name)
+                & (LocationHistory.changes == Box.location.column_name)
+                & (LocationHistory.id == oldest_rows(Box.location))
+            ),
+        )
+        .join(
+            ProductHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (ProductHistory.record_id == Box.id)
+                & (ProductHistory.table_name == Box._meta.table_name)
+                & (ProductHistory.changes == Box.product.column_name)
+                & (ProductHistory.id == oldest_rows(Box.product))
+            ),
+        )
+        .join(
+            ItemsHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (ItemsHistory.record_id == Box.id)
+                & (ItemsHistory.table_name == Box._meta.table_name)
+                & (ItemsHistory.changes == Box.number_of_items.column_name)
+                & (ItemsHistory.id == oldest_rows(Box.number_of_items))
+            ),
+        )
+        .where(
+            Box.created_on.is_null(False),
+            (LocationHistory.from_int << location_ids)
+            | (LocationHistory.from_int.is_null() & (Box.location << location_ids)),
+        )
+    )
+
+    # Group and aggregate these results. No Box.alias() needed since `from_` is used
+    facts = (
+        Box.select(
+            boxes.c.created_on,
+            fn.COUNT(boxes.c.id).alias("boxes_count"),
+            fn.SUM(boxes.c.items).alias("items_count"),
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
             Product.category.alias("category_id"),
-            fn.COUNT(Box.id).alias("boxes_count"),
-            fn.SUM(Box.number_of_items).alias("items_count"),
         )
-        .join(Product)
-        .order_by(Box.created_on.asc())
-    )
-
-    if base_id is not None:
-        selection = selection.join(Location, src=Box).where(Location.base == base_id)
-
-    facts = selection.group_by(
-        SQL("product_id"), SQL("category_id"), SQL("gender"), SQL("created_on")
+        .from_(boxes)
+        .join(
+            Product,
+            on=(boxes.c.product_id == Product.id),
+        )
+        .group_by(
+            SQL("product_id"),
+            SQL("category_id"),
+            SQL("gender"),
+            SQL("created_on"),
+        )
+        .with_cte(cte)
     ).dicts()
-
-    # Conversions for GraphQL interface
-    for row in facts:
-        if row["created_on"] is not None:
-            row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
