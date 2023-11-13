@@ -198,7 +198,7 @@ export type QueryBeneficiaryDemographicsArgs = {
 
 
 export type QueryCreatedBoxesArgs = {
-  baseId?: InputMaybe<Scalars['Int']['input']>;
+  baseId?: Scalars['Int']['input'];
 };
 
 

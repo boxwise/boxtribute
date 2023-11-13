@@ -114,7 +114,7 @@ def compute_beneficiary_demographics(base_id):
     return {"facts": demographics, "dimensions": dimensions}
 
 
-def compute_created_boxes(base_id=None):
+def compute_created_boxes(base_id):
     """For each combination of product ID, category ID, gender, and day-truncated
     creation date count the number of created boxes, and the contained items, in the
     base with the specified ID.
