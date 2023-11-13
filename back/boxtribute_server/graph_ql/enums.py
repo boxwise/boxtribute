@@ -26,14 +26,11 @@ enum_types = [
     ShipmentState,
     TagType,
     EnumType("TaggableResourceType", TaggableObjectType),
+    TargetType,
     TransferAgreementState,
     TransferAgreementType,
     DistributionEventState,
     DistributionEventsTrackingGroupState,
     DistributionEventTrackingFlowDirection,
     DistributionEventTrackingFlowDirection,
-]
-
-public_api_enum_types = [
-    TargetType,
 ]

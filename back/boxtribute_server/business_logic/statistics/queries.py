@@ -9,6 +9,7 @@ from .crud import (
 )
 
 query = QueryType()
+public_query = QueryType()
 
 
 @query.field("beneficiaryDemographics")

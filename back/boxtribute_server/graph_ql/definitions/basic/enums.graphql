@@ -86,6 +86,12 @@ enum ShipmentState {
   Lost
 }
 
+enum TargetType {
+  Shipment
+  OutgoingLocation
+  BoxState
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """

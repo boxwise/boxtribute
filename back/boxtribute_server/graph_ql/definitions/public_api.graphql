@@ -138,9 +138,3 @@ type TargetDimensionInfo implements BasicDimensionInfo {
   name: String
   type: TargetType
 }
-
-enum TargetType {
-  Shipment
-  OutgoingLocation
-  BoxState
-}

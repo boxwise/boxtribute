@@ -47,4 +47,10 @@ type Query {
   shipments: [Shipment!]!
   " Return various metrics about stock and beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
+
+  beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
+  createdBoxes(baseId: Int): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
+  movedBoxes(baseId: Int!): MovedBoxesData
 }

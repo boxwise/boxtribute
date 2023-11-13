@@ -9,7 +9,7 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
     query = """query { beneficiaryDemographics(baseId: 1) {
         facts { gender age createdOn count tagIds }
         dimensions { tag { id name color } } } }"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(read_only_client, query)
     age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
@@ -81,7 +81,7 @@ def test_query_top_products(
     query = """query { topProductsCheckedOut(baseId: 1) {
         facts { checkedOutOn productId categoryId rank itemsCount }
         dimensions { product { id name } } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="public")
+    data = assert_successful_request(read_only_client, query)
     assert data == {
         "facts": [
             {
@@ -117,7 +117,7 @@ def test_query_top_products(
     query = """query { topProductsDonated(baseId: 1) {
         facts { createdOn donatedOn sizeId productId categoryId rank itemsCount }
         dimensions { product { id name } size { id name } } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="public")
+    data = assert_successful_request(read_only_client, query)
     assert data == {
         "facts": [
             {
@@ -157,7 +157,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases):
         facts { movedOn targetId categoryId boxesCount }
         dimensions { target { id name type } }
         } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="public")
+    data = assert_successful_request(read_only_client, query)
     location_name = default_location["name"]
     base_name = default_bases[3]["name"]
     assert data == {
