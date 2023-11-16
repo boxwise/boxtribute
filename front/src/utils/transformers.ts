@@ -1,5 +1,5 @@
 import { IDropdownOption } from "components/Form/SelectField";
-import { BoxState } from "types/generated/graphql";
+import { BoxState, ShipmentState } from "types/generated/graphql";
 
 export function locationToDropdownOptionTransformer(
   locations: {
@@ -25,6 +25,45 @@ export function locationToDropdownOptionTransformer(
             : ""
         }`,
         value: location.id,
+      })) ?? []
+  );
+}
+
+export function shipmentToDropdownOptionTransformer(
+  shipments: {
+    __typename?: "Shipment" | undefined;
+    id: string;
+    state?: ShipmentState | null | undefined;
+    labelIdentifier?: string | null | undefined;
+    sourceBase: {
+      __typename?: "Base" | undefined;
+      id: string;
+      name: string;
+      organisation: {
+        __typename?: "Organisation" | undefined;
+        id: string;
+        name: string;
+      };
+    };
+    targetBase: {
+      __typename?: "Base" | undefined;
+      id: string;
+      name: string;
+      organisation: {
+        __typename?: "Organisation" | undefined;
+        id: string;
+        name: string;
+      };
+    };
+  }[],
+): IDropdownOption[] {
+  return (
+    shipments
+      ?.filter((shipment) => shipment?.state === ShipmentState.Preparing)
+      ?.map((shipment) => ({
+        label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+        subTitle: shipment.labelIdentifier,
+        value: shipment.id,
       })) ?? []
   );
 }
