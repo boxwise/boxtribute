@@ -48,6 +48,30 @@ const initialQuery = {
     },
   },
 };
+
+const initialQueryWithoutTransferAgreement = {
+  request: {
+    query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+    variables: {
+      baseId: "1",
+    },
+  },
+  result: {
+    data: {
+      base: {
+        __typename: "Base",
+        id: "1",
+        name: "Lesvos",
+        organisation: {
+          __typename: "Organisation",
+          id: "1",
+          name: "BoxAid",
+        },
+      },
+      transferAgreements: [],
+    },
+  },
+};
 const initialWithoutBoxQuery = {
   request: {
     query: SHIPMENT_BY_ID_QUERY,
@@ -319,27 +343,53 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
 });
 
 // Test case 4.3.4
-it("4.3.4 - Failed to Fetch Initial Data", async () => {
-  // const user = userEvent.setup();
-  render(<CreateShipmentView />, {
-    routePath: "/bases/:baseId/transfers/shipment/create",
-    initialUrl: "/bases/1/transfers/shipment/create",
-    mocks: [initialQueryNetworkError],
-    addTypename: true,
-    globalPreferences: {
-      dispatch: jest.fn(),
+describe("4.3.4 - Failed to Fetch Initial Data", () => {
+  it("4.3.4.1 - No Partner Organisations and Bases Data", async () => {
+    render(<CreateShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipment/create",
+      initialUrl: "/bases/1/transfers/shipment/create",
+      mocks: [initialQueryNetworkError],
+      addTypename: true,
       globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation1.id, name: organisation1.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base1.id, name: base1.name },
+        },
       },
-    },
+    });
+
+    // Test case 4.3.4.1 - No Partner Organisations and Bases Data
+    expect(
+      await screen.findByText(
+        /could not fetch Organisation and Base data! Please try reloading the page./i,
+      ),
+    ).toBeInTheDocument();
   });
 
-  // Test case 4.3.4.1 - No Partner Organisations and Bases Data
-  expect(
-    await screen.findByText(
-      /could not fetch Organisation and Base data! Please try reloading the page./i,
-    ),
-  ).toBeInTheDocument();
+  // Test case 4.3.4.2
+  it("4.3.4.2 - No Agreements Found", async () => {
+    render(<CreateShipmentView />, {
+      routePath: "/bases/:baseId/transfers/shipment/create",
+      initialUrl: "/bases/1/transfers/shipment/create",
+      mocks: [initialQueryWithoutTransferAgreement],
+      addTypename: true,
+      globalPreferences: {
+        dispatch: jest.fn(),
+        globalPreferences: {
+          organisation: { id: organisation1.id, name: organisation1.name },
+          availableBases: organisation1.bases,
+          selectedBase: { id: base1.id, name: base1.name },
+        },
+      },
+    });
+
+    // Test case 4.3.4.2 - No Agreements Found
+    expect(
+      await screen.findByText(
+        /you must have an agreement with a network partner before creating a shipment\./i,
+      ),
+    ).toBeInTheDocument();
+  });
 });
