@@ -28,7 +28,7 @@ function ResolveHash() {
   }, [hash, resolveQrHash]);
 
   if (!resolvedValue) {
-    return <BoxViewSkeleton data-testid="loader" />;
+    return <BoxViewSkeleton />;
   }
 
   switch (resolvedValue.kind) {
