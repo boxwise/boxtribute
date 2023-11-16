@@ -1,15 +1,19 @@
 from datetime import date
 
+import pytest
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.utils import compute_age
 from utils import assert_successful_request
 
 
-def test_query_beneficiary_demographics(read_only_client, tags, default_beneficiary):
+@pytest.mark.parametrize("endpoint", ["graphql", "public"])
+def test_query_beneficiary_demographics(
+    read_only_client, tags, default_beneficiary, endpoint
+):
     query = """query { beneficiaryDemographics(baseId: 1) {
         facts { gender age createdOn count tagIds }
         dimensions { tag { id name color } } } }"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(read_only_client, query, endpoint=endpoint)
     age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
@@ -35,7 +39,8 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
     }
 
 
-def test_query_created_boxes(read_only_client, products, product_categories):
+@pytest.mark.parametrize("endpoint", ["graphql", "public"])
+def test_query_created_boxes(read_only_client, products, product_categories, endpoint):
     query = """query { createdBoxes(baseId: 1) {
         facts {
             createdOn categoryId productId gender boxesCount itemsCount
@@ -44,7 +49,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
             product { id name gender }
             category { id name }
     } } }"""
-    data = assert_successful_request(read_only_client, query)
+    data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
     assert len(facts) == 2
     assert facts[0]["boxesCount"] == 11
@@ -67,6 +72,7 @@ def test_query_created_boxes(read_only_client, products, product_categories):
     }
 
 
+@pytest.mark.parametrize("endpoint", ["graphql", "public"])
 def test_query_top_products(
     read_only_client,
     default_product,
@@ -77,11 +83,12 @@ def test_query_top_products(
     default_box,
     default_size,
     another_size,
+    endpoint,
 ):
     query = """query { topProductsCheckedOut(baseId: 1) {
         facts { checkedOutOn productId categoryId rank itemsCount }
         dimensions { product { id name } } } }"""
-    data = assert_successful_request(read_only_client, query)
+    data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     assert data == {
         "facts": [
             {
@@ -117,7 +124,7 @@ def test_query_top_products(
     query = """query { topProductsDonated(baseId: 1) {
         facts { createdOn donatedOn sizeId productId categoryId rank itemsCount }
         dimensions { product { id name } size { id name } } } }"""
-    data = assert_successful_request(read_only_client, query)
+    data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     assert data == {
         "facts": [
             {
@@ -152,12 +159,13 @@ def test_query_top_products(
     }
 
 
-def test_query_moved_boxes(read_only_client, default_location, default_bases):
+@pytest.mark.parametrize("endpoint", ["graphql", "public"])
+def test_query_moved_boxes(read_only_client, default_location, default_bases, endpoint):
     query = """query { movedBoxes(baseId: 1) {
         facts { movedOn targetId categoryId boxesCount }
         dimensions { target { id name type } }
         } }"""
-    data = assert_successful_request(read_only_client, query)
+    data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     location_name = default_location["name"]
     base_name = default_bases[3]["name"]
     assert data == {

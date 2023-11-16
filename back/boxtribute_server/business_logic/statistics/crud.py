@@ -1,6 +1,5 @@
 from peewee import JOIN, SQL, fn
 
-from ...authz import authorize
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
 from ...models.definitions.base import Base
@@ -70,9 +69,6 @@ def compute_beneficiary_demographics(base_id):
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
     """
-    authorize(permission="beneficiary:read", base_id=base_id)
-    authorize(permission="tag_relation:read")
-
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.IF(
@@ -120,10 +116,6 @@ def compute_created_boxes(base_id):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    authorize(permission="stock:read", base_id=base_id)
-    authorize(permission="product:read", base_id=base_id)
-    authorize(permission="product_category:read")
-
     selection = (
         Box.select(
             Box.created_on.alias("created_on"),
@@ -185,12 +177,6 @@ def compute_top_products_donated(base_id):
     """Return list of most-donated products with rank included, grouped by distribution
     date, creation date, size, and product category.
     """
-    authorize(permission="stock:read", base_id=base_id)
-    authorize(permission="product:read", base_id=base_id)
-    authorize(permission="product_category:read")
-    authorize(permission="history:read")
-    authorize(permission="size:read")
-
     selection = (
         DbChangeHistory.select(
             Box.created_on.alias("created_on"),
@@ -241,13 +227,6 @@ def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, product category, and box state.
     """
-    authorize(permission="stock:read", base_id=base_id)
-    authorize(permission="product:read", base_id=base_id)
-    authorize(permission="location:read", base_id=base_id)
-    authorize(permission="product_category:read")
-    authorize(permission="history:read")
-    authorize(permission="size:read")
-
     # Similar to example from
     # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
     # Subquery to select record IDs and latest dates when box state was changed from
