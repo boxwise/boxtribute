@@ -15,12 +15,14 @@ import ColumnSelector from "./ColumnSelector";
 export interface IBoxesActionsAndTableProps {
   tableData: BoxRow[];
   locationOptions: { label: string; value: string }[];
+  shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
 }
 
 function BoxesActionsAndTable({
   tableData,
   locationOptions,
+  shipmentOptions,
   availableColumns,
 }: IBoxesActionsAndTableProps) {
   const navigate = useNavigate();
@@ -62,7 +64,7 @@ function BoxesActionsAndTable({
   const onMoveBoxes = useCallback(
     (locationId: string) =>
       moveBoxesAction.moveBoxes(
-        selectedBoxes.map((box) => (box as unknown as BoxRow).labelIdentifier),
+        selectedBoxes.map((box) => box.values.labelIdentifier),
         parseInt(locationId, 10),
       ),
     [moveBoxesAction, selectedBoxes],
@@ -73,16 +75,28 @@ function BoxesActionsAndTable({
     (shipmentId: string) =>
       assignBoxesToShipment(
         shipmentId,
-        selectedBoxes.map((box) => box as unknown as IBoxBasicFields),
+        selectedBoxes.map((box) => box.values as IBoxBasicFields),
       ),
     [assignBoxesToShipment, selectedBoxes],
   );
+
   // Unassign to Shipment
   const onUnassignBoxesToShipment = useCallback(
     (shipmentId: string) =>
       unassignBoxesToShipment(
         shipmentId,
-        selectedBoxes.map((box) => box as unknown as IBoxBasicFieldsWithShipmentDetail),
+        selectedBoxes.map(
+          (box) =>
+            ({
+              labelIdentifier: box.values.labelIdentifier,
+              state: box.values.state,
+              shipmentDetail: {
+                shipment: {
+                  id: box.values.shipment,
+                },
+              },
+            }) as IBoxBasicFieldsWithShipmentDetail,
+        ),
       ),
     [unassignBoxesToShipment, selectedBoxes],
   );
@@ -90,14 +104,24 @@ function BoxesActionsAndTable({
   const actionButtons = useMemo(
     () => [
       <SelectButton label="Move Boxes" options={locationOptions} onSelect={onMoveBoxes} />,
-      <SelectButton label="Assign to Shipment" options={[]} onSelect={onAssignBoxesToShipment} />,
+      <SelectButton
+        label="Assign to Shipment"
+        options={shipmentOptions}
+        onSelect={onAssignBoxesToShipment}
+      />,
       <SelectButton
         label="Unassign to Shipment"
-        options={[]}
+        options={shipmentOptions}
         onSelect={onUnassignBoxesToShipment}
       />,
     ],
-    [locationOptions, onMoveBoxes, onAssignBoxesToShipment, onUnassignBoxesToShipment],
+    [
+      locationOptions,
+      onMoveBoxes,
+      shipmentOptions,
+      onAssignBoxesToShipment,
+      onUnassignBoxesToShipment,
+    ],
   );
   if (moveBoxesAction.isLoading || isAssignBoxesToShipmentLoading) {
     return <TableSkeleton />;

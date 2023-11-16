@@ -83,6 +83,9 @@ function BoxesTable({
       initialState: {
         pageIndex: 0,
         pageSize: 20,
+        hiddenColumns: columns
+          .filter((col: any) => col.show === false)
+          .map((col) => col.id || col.accessor) as any,
         filters: tableConfig?.columnFilters ?? [],
         ...(tableConfig?.globalFilter != null
           ? { globalFilter: tableConfig?.globalFilter }
@@ -112,7 +115,7 @@ function BoxesTable({
   );
 
   useEffect(() => {
-    setSelectedBoxes(selectedFlatRows.map((row) => row.original));
+    setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {

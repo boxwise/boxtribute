@@ -8,7 +8,10 @@ import {
   LOCATION_BASIC_FIELDS_FRAGMENT,
   TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
-import { locationToDropdownOptionTransformer } from "utils/transformers";
+import {
+  locationToDropdownOptionTransformer,
+  shipmentToDropdownOptionTransformer,
+} from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
 import { TableSkeleton } from "components/Skeletons";
@@ -70,7 +73,8 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
         state: element.state,
         place: element.location?.name,
         tags: element.tags?.map((tag) => tag.name),
-      } as BoxRow),
+        shipment: element.shipmentDetail?.shipment.id,
+      }) as BoxRow,
   );
 
 function Boxes() {
@@ -144,6 +148,12 @@ function Boxes() {
         Filter: SelectColumnFilter,
         filter: "includesSome",
       },
+      {
+        Header: "",
+        accessor: "shipment",
+        id: "shipment",
+        show: false,
+      },
     ],
     [],
   );
@@ -166,6 +176,7 @@ function Boxes() {
       <BoxesActionsAndTable
         tableData={graphqlToTableTransformer(data)}
         availableColumns={availableColumns}
+        shipmentOptions={shipmentToDropdownOptionTransformer(data.shipments ?? [])}
         locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
       />
     );
