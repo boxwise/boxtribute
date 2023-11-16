@@ -256,6 +256,7 @@ export type TargetDimensionInfo = BasicDimensionInfo & {
 };
 
 export enum TargetType {
+  BoxState = 'BoxState',
   OutgoingLocation = 'OutgoingLocation',
   Shipment = 'Shipment'
 }

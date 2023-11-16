@@ -6,7 +6,7 @@ from boxtribute_server.models.definitions.history import DbChangeHistory
 
 from .box import another_marked_for_shipment_box_data
 from .box import data as box_data
-from .box import donated_boxes_data
+from .box import donated_boxes_data, lost_box_data
 
 
 def data():
@@ -20,6 +20,15 @@ def data():
                 "to_int": 3,
                 "record_id": another_marked_for_shipment_box_data()["id"],
                 "change_date": datetime(2023, 6, 21),
+                "table_name": "stock",
+            },
+            {
+                "id": 111,
+                "changes": "box_state_id",
+                "from_int": BoxState.InStock,
+                "to_int": BoxState.Lost,
+                "record_id": lost_box_data()["id"],
+                "change_date": datetime(2023, 2, 1),
                 "table_name": "stock",
             },
             {"id": 112, "changes": "Changes"},
