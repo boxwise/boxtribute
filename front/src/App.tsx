@@ -27,6 +27,7 @@ import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 import { useAuthorization } from "hooks/useAuthorization";
+import ResolveHash from "views/QrReader/components/ResolveHash";
 
 interface IProtectedRouteProps {
   minBeta: number;
@@ -65,20 +66,13 @@ function App() {
   return (
     <Routes>
       <Route index />
-      <Route path="bases" element={<Layout />}>
+      <Route path="bases">
         <Route index />
-        <Route path=":baseId">
+        <Route path=":baseId" element={<Layout />}>
           <Route index element={<BaseDashboardView />} />
-          <Route path="transfers" element={<ProtectedRoute minBeta={2} redirectPath="/qrreader" />}>
-            <Route path="agreements">
-              <Route index element={<TransferAgreementOverviewView />} />
-              <Route path="create" element={<CreateTransferAgreementView />} />
-            </Route>
-            <Route path="shipments">
-              <Route index element={<ShipmentsOverviewView />} />
-              <Route path="create" element={<CreateShipmentView />} />
-              <Route path=":id" element={<ShipmentView />} />
-            </Route>
+          <Route path="qrreader">
+            <Route index element={<QrReaderView />} />
+            <Route path=":hash" element={<ResolveHash />} />
           </Route>
           <Route path="boxes">
             <Route index element={<Boxes />} />
@@ -88,6 +82,17 @@ function App() {
             <Route path=":labelIdentifier">
               <Route index element={<BTBox />} />
               <Route path="edit" element={<BoxEditView />} />
+            </Route>
+          </Route>
+          <Route path="transfers" element={<ProtectedRoute minBeta={2} redirectPath="/qrreader" />}>
+            <Route path="agreements">
+              <Route index element={<TransferAgreementOverviewView />} />
+              <Route path="create" element={<CreateTransferAgreementView />} />
+            </Route>
+            <Route path="shipments">
+              <Route index element={<ShipmentsOverviewView />} />
+              <Route path="create" element={<CreateShipmentView />} />
+              <Route path=":id" element={<ShipmentView />} />
             </Route>
           </Route>
           <Route path="distributions">
@@ -116,7 +121,6 @@ function App() {
               </Route>
             </Route>
           </Route>
-          <Route path="qrreader" element={<QrReaderView />} />
         </Route>
       </Route>
       <Route path="/*" element={<NotFoundView />} />
