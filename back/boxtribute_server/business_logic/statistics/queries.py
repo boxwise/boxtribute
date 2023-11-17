@@ -1,6 +1,6 @@
 from ariadne import QueryType
 
-from ...authz import authorize
+from ...authz import authorize_cross_organisation_access
 from .crud import (
     compute_beneficiary_demographics,
     compute_created_boxes,
@@ -15,45 +15,56 @@ public_query = QueryType()
 
 @query.field("beneficiaryDemographics")
 def resolve_beneficiary_demographics(*_, base_id):
-    authorize(permission="beneficiary:read", base_id=base_id)
-    authorize(permission="tag_relation:read")
-
+    authorize_cross_organisation_access("beneficiary", "tag_relation", base_id=base_id)
     return compute_beneficiary_demographics(base_id)
 
 
 @query.field("createdBoxes")
 def resolve_created_boxes(*_, base_id):
-    authorize(permission="stock:read", base_id=base_id)
-    authorize(permission="product:read", base_id=base_id)
-    authorize(permission="product_category:read")
-
+    authorize_cross_organisation_access(
+        "stock",
+        "product",
+        "product_category",
+        base_id=base_id,
+    )
     return compute_created_boxes(base_id)
 
 
 @query.field("topProductsCheckedOut")
 def resolve_top_products_checked_out(*_, base_id):
+    authorize_cross_organisation_access(
+        "transaction",
+        "product",
+        "product_category",
+        base_id=base_id,
+    )
     return compute_top_products_checked_out(base_id)
 
 
 @query.field("topProductsDonated")
 def resolve_top_products_donated(*_, base_id):
-    authorize(permission="stock:read", base_id=base_id)
-    authorize(permission="product:read", base_id=base_id)
-    authorize(permission="product_category:read")
-    authorize(permission="history:read")
-    authorize(permission="size:read")
-
+    authorize_cross_organisation_access(
+        "stock",
+        "product",
+        "product_category",
+        "history",
+        "size",
+        base_id=base_id,
+    )
     return compute_top_products_donated(base_id)
 
 
 @query.field("movedBoxes")
 def resolve_moved_boxes(*_, base_id=None):
-    authorize(permission="stock:read", base_id=base_id)
-    authorize(permission="product:read", base_id=base_id)
-    authorize(permission="location:read", base_id=base_id)
-    authorize(permission="product_category:read")
-    authorize(permission="history:read")
-    authorize(permission="size:read")
+    authorize_cross_organisation_access(
+        "stock",
+        "product",
+        "product_category",
+        "location",
+        "history",
+        "size",
+        base_id=base_id,
+    )
 
     return compute_moved_boxes(base_id)
 

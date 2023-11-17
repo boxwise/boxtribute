@@ -1,9 +1,10 @@
 from datetime import date
 
 import pytest
+from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.utils import compute_age
-from utils import assert_successful_request
+from utils import assert_forbidden_request, assert_successful_request
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
@@ -209,3 +210,49 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
             ],
         },
     }
+
+
+def test_authorization(read_only_client, mocker):
+    # Current user is from base 1 of organisation 1.
+    # Hence the user is not allowed to access base 2 from organisation 1
+    query = "query { beneficiaryDemographics(baseId: 2) { facts { age } } }"
+    assert_forbidden_request(read_only_client, query)
+
+    # An accepted agreement exists between orgs 1 and 2 for bases 1+2 and 3.
+    # Hence the user is allowed to access data from base 3
+    for query in [
+        "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
+        "query { createdBoxes(baseId: 3) { facts { productId } } }",
+        "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
+        "query { topProductsDonated(baseId: 3) { facts { productId } } }",
+        "query { movedBoxes(baseId: 3) { facts { categoryId } } }",
+    ]:
+        assert_successful_request(read_only_client, query)
+
+    # There's no agreement that involves base 1 and base 4
+    # Hence the user is not allowed to access data from base 4
+    for query in [
+        "query { beneficiaryDemographics(baseId: 4) { facts { age } } }",
+        "query { createdBoxes(baseId: 4) { facts { productId } } }",
+        "query { topProductsCheckedOut(baseId: 4) { facts { productId } } }",
+        "query { topProductsDonated(baseId: 4) { facts { productId } } }",
+        "query { movedBoxes(baseId: 4) { facts { categoryId } } }",
+    ]:
+        assert_forbidden_request(read_only_client, query)
+
+    # Base 5 does not exist
+    query = "query { beneficiaryDemographics(baseId: 5) { facts { age } } }"
+    assert_forbidden_request(read_only_client, query)
+
+    # User lacks 'tag_relation:read' permission
+    mock_user_for_request(mocker, permissions=[])
+    query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    assert_forbidden_request(read_only_client, query)
+
+    # User lacks 'beneficiary:read' permission
+    mock_user_for_request(mocker, permissions=["tag_relation:read"])
+    query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    assert_forbidden_request(read_only_client, query)
+
+    query = "query { beneficiaryDemographics(baseId: 3) { facts { age } } }"
+    assert_forbidden_request(read_only_client, query)
