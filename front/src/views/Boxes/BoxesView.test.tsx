@@ -471,7 +471,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       expect(checkbox2).toBeChecked();
 
       const moveBoxesButton = screen.getByRole("button", {
-        name: /move boxes/i,
+        name: /move to/i,
       });
 
       await user.click(moveBoxesButton);
