@@ -50,6 +50,7 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
     }
     shipments {
       id
+      labelIdentifier
       state
       sourceBase {
         ...BaseOrgFields

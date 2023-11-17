@@ -35,7 +35,7 @@ interface IBoxesTableProps {
   actionButtons: React.ReactNode[];
   columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
-  setSelectedBoxes: (rows: Row<any>[]) => void;
+  setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
 }
 
 function BoxesTable({
