@@ -261,9 +261,21 @@ export const useAssignBoxesToShipment = () => {
               .filter((detail) => detail.box.state === BoxState.InStock)
               .map((detail) => detail.box) as IBoxBasicFieldsWithShipmentDetail[]) ?? [];
 
-          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxesRemoved.filter(
-            (boxRemoved) => boxes.some((box) => box.labelIdentifier === boxRemoved.labelIdentifier),
-          );
+          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxesRemoved
+            .map((boxRemoved, index, array) => ({
+              boxRemoved,
+              isUnique: !array
+                .slice(0, index)
+                .some((prevBox) => prevBox.labelIdentifier === boxRemoved.labelIdentifier),
+            }))
+            .filter(
+              ({ boxRemoved, isUnique }) =>
+                isUnique &&
+                boxes.some(
+                  (box) => box.labelIdentifier === boxRemoved.labelIdentifier && box !== boxRemoved,
+                ),
+            )
+            .map(({ boxRemoved }) => boxRemoved);
 
           if (unassignedBoxes.length) {
             if (showToastMessage)
