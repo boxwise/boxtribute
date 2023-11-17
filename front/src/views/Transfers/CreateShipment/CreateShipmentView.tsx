@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Center } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -144,7 +144,7 @@ function CreateShipmentView() {
           id: agreement.id,
           name: agreement.name,
           bases: agreement.bases,
-        } as IOrganisationBaseData),
+        }) as IOrganisationBaseData,
     )
     .reduce((accumulator, currentOrg) => {
       // Merge options. If there are multiple transfer agreements this step is necessary
@@ -224,19 +224,33 @@ function CreateShipmentView() {
     return <APILoadingIndicator />;
   }
 
-  if (
-    partnerOrganisationBaseData?.length === 0 ||
-    partnerOrganisationBaseData === undefined ||
-    allAcceptedTransferAgreements.error
-  ) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        {/* TODO: We need to distinguish the case here between a network error and
-         a base without transfer agreements */}
-        Could not fetch Organisation and Base data! Please try reloading the page.
-      </Alert>
-    );
+  const renderNoAcceptedAgreementsAlert = (
+    <Alert status="error">
+      <AlertIcon />
+      <AlertDescription>
+        You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
+        shipment.
+      </AlertDescription>
+    </Alert>
+  );
+
+  const renderErrorAlert = (
+    <Alert status="error">
+      <AlertIcon />
+      Could not fetch Organisation and Base data! Please try reloading the page.
+    </Alert>
+  );
+
+  const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
+  const noPartnerOrgBaseData =
+    !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
+
+  if (noAcceptedAgreements) {
+    return renderNoAcceptedAgreementsAlert;
+  }
+
+  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) {
+    return renderErrorAlert;
   }
 
   return (
