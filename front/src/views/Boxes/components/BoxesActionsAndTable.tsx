@@ -160,7 +160,7 @@ function BoxesActionsAndTable({
   const actionButtons = useMemo(
     () => [
       <SelectButton
-        label="Move To..."
+        label="Move to..."
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
@@ -173,7 +173,7 @@ function BoxesActionsAndTable({
           icon={<ShipmentIcon />}
         />
       ),
-      <Button onClick={() => onUnassignBoxesToShipment()}>Unassign to Shipment</Button>,
+      <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>,
     ],
     [
       locationOptions,
