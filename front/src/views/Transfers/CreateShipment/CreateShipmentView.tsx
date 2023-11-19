@@ -10,7 +10,6 @@ import {
   AllAcceptedTransferAgreementsQuery,
   CreateShipmentMutation,
   CreateShipmentMutationVariables,
-  TransferAgreementState,
   TransferAgreementType,
 } from "types/generated/graphql";
 import {
@@ -242,10 +241,7 @@ function CreateShipmentView() {
     </Alert>
   );
 
-  const noAcceptedAgreements =
-    allAcceptedTransferAgreements.data?.transferAgreements.filter(
-      (a) => a.state === TransferAgreementState.Accepted,
-    ).length === 0;
+  const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 

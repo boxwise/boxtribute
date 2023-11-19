@@ -49,32 +49,6 @@ const initialQuery = {
   },
 };
 
-const initialQueryWithoutAcceptedTransferAgreement = {
-  request: {
-    query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-    variables: {
-      baseId: "1",
-    },
-  },
-  result: {
-    data: {
-      base: {
-        __typename: "Base",
-        id: "1",
-        name: "Lesvos",
-        organisation: {
-          __typename: "Organisation",
-          id: "1",
-          name: "BoxAid",
-        },
-      },
-      transferAgreements: [
-        generateMockTransferAgreement({ state: TransferAgreementState.UnderReview }),
-      ],
-    },
-  },
-};
-
 const initialQueryWithoutAgreement = {
   request: {
     query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
@@ -94,9 +68,7 @@ const initialQueryWithoutAgreement = {
           name: "BoxAid",
         },
       },
-      transferAgreements: [
-        generateMockTransferAgreement({ state: TransferAgreementState.UnderReview }),
-      ],
+      transferAgreements: [],
     },
   },
 };
@@ -414,30 +386,6 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
     });
 
     // Test case 4.3.4.2 - No Accepeted Agreements Found
-    expect(
-      await screen.findByText(
-        /you must have an agreement with a network partner before creating a shipment\./i,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("4.3.4.3 - No Accepeted Agreements Found", async () => {
-    render(<CreateShipmentView />, {
-      routePath: "/bases/:baseId/transfers/shipment/create",
-      initialUrl: "/bases/1/transfers/shipment/create",
-      mocks: [initialQueryWithoutAcceptedTransferAgreement],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base1.id, name: base1.name },
-        },
-      },
-    });
-
-    // Test case 4.3.4.3 - No Accepeted Agreements Found
     expect(
       await screen.findByText(
         /you must have an agreement with a network partner before creating a shipment\./i,
