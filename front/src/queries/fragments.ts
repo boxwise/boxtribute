@@ -119,9 +119,13 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
     state
     comment
     location {
+      id
       base {
         id
       }
+    }
+    shipmentDetail {
+      id
     }
   }
 `;
@@ -143,6 +147,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
       ...SizeBasicFields
     }
     shipmentDetail {
+      id
       shipment {
         id
         state
