@@ -1,28 +1,8 @@
 import { DocumentNode, useApolloClient } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { generateMoveBoxRequest } from "queries/dynamic-mutations";
+import { generateMoveBoxRequest, isMove, IMove } from "queries/dynamic-mutations";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
-
-interface IMove {
-  labelIdentifier: string;
-  location: { id: string };
-}
-
-// helper function to check type of dynamically created query
-function isMove(move: any): move is IMove {
-  return (
-    typeof move === "object" &&
-    move !== null &&
-    move !== undefined &&
-    "labelIdentifier" in move &&
-    "location" in move &&
-    typeof move.location === "object" &&
-    move.location !== null &&
-    move.location !== undefined &&
-    "id" in move.location
-  );
-}
 
 // eslint-disable-next-line no-shadow
 export enum IMoveBoxesResultKind {
