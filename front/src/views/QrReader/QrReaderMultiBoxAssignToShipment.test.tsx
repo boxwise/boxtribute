@@ -17,7 +17,7 @@ import {
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
-import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
+import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
 import { selectOptionInSelectField } from "tests/helpers";
@@ -79,7 +79,7 @@ const mockAssignToShipmentMutation = ({
   labelIdentifiers = ["123"],
 }) => ({
   request: {
-    query: ASSIGN_BOX_TO_SHIPMENT,
+    query: ASSIGN_BOXES_TO_SHIPMENT,
     variables: {
       id: "1",
       labelIdentifiers,

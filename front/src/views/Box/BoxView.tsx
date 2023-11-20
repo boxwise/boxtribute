@@ -155,7 +155,7 @@ function BTBox() {
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
     assignBoxesToShipment,
-    unassignBoxesToShipment,
+    unassignBoxesFromShipment,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
 
@@ -229,10 +229,10 @@ function BTBox() {
     UpdateStateMutationVariables
   >(UPDATE_STATE_IN_BOX_MUTATION);
 
-  const [updateBoxLocation, updateBoxLocationMutationStatus] =
-    useMutation<UpdateLocationOfBoxMutation, UpdateLocationOfBoxMutationVariables>(
-      UPDATE_BOX_MUTATION,
-    );
+  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
+    UpdateLocationOfBoxMutation,
+    UpdateLocationOfBoxMutationVariables
+  >(UPDATE_BOX_MUTATION);
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
@@ -504,7 +504,7 @@ function BTBox() {
           });
         }
       } else {
-        const unassignedBoxResult = await unassignBoxesToShipment(
+        const unassignedBoxResult = await unassignBoxesFromShipment(
           currentShipmentId,
           [boxData as IBoxBasicFieldsWithShipmentDetail],
           false,
@@ -545,7 +545,7 @@ function BTBox() {
     },
     [
       assignBoxesToShipment,
-      unassignBoxesToShipment,
+      unassignBoxesFromShipment,
       boxData,
       createToast,
       handelAssignBoxToShipmentError,
@@ -556,7 +556,7 @@ function BTBox() {
     async (shipmentId: string) => {
       const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
 
-      const unassigmentResult = (await unassignBoxesToShipment(
+      const unassigmentResult = (await unassignBoxesFromShipment(
         shipmentId,
         [boxData as IBoxBasicFieldsWithShipmentDetail],
         false,
@@ -574,7 +574,7 @@ function BTBox() {
         });
       }
     },
-    [unassignBoxesToShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(

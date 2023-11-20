@@ -74,7 +74,7 @@ function BoxesActionsAndTable({
 
   const {
     assignBoxesToShipment,
-    unassignBoxesToShipment,
+    unassignBoxesFromShipment,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
 
@@ -139,7 +139,7 @@ function BoxesActionsAndTable({
         boxesByShipment,
       ).map((shipmentId) => {
         const shipmentDetails = boxesByShipment[shipmentId];
-        return unassignBoxesToShipment(shipmentId, shipmentDetails);
+        return unassignBoxesFromShipment(shipmentId, shipmentDetails);
       });
 
       // Wait for all unassignment promises to resolve
@@ -155,7 +155,7 @@ function BoxesActionsAndTable({
           .join(", ")}) that are not assigned to a shipment cannot be unassigned`,
       });
     }
-  }, [unassignBoxesToShipment, selectedBoxes]);
+  }, [unassignBoxesFromShipment, selectedBoxes]);
 
   const actionButtons = useMemo(
     () => [

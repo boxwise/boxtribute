@@ -3,13 +3,13 @@ import { gql, useMutation } from "@apollo/client";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { useCallback, useState } from "react";
 import {
-  AssignBoxToShipmentMutation,
-  AssignBoxToShipmentMutationVariables,
-  UnassignBoxToShipmentMutation,
-  UnassignBoxToShipmentMutationVariables,
+  AssignBoxesToShipmentMutation,
+  AssignBoxesToShipmentMutationVariables,
+  UnassignBoxesFromShipmentMutation,
+  UnassignBoxesFromShipmentMutationVariables,
   BoxState,
 } from "types/generated/graphql";
-import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
+import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -32,9 +32,9 @@ export interface IAssignBoxToShipmentResult {
   error?: any;
 }
 
-export const ASSIGN_BOX_TO_SHIPMENT = gql`
+export const ASSIGN_BOXES_TO_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation AssignBoxToShipment($id: ID!, $labelIdentifiers: [String!]) {
+  mutation AssignBoxesToShipment($id: ID!, $labelIdentifiers: [String!]) {
     updateShipmentWhenPreparing(
       updateInput: {
         id: $id
@@ -47,9 +47,9 @@ export const ASSIGN_BOX_TO_SHIPMENT = gql`
   }
 `;
 
-export const UNASSIGN_BOX_TO_SHIPMENT = gql`
+export const UNASSIGN_BOX_FROM_SHIPMENT = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation UnassignBoxToShipment($id: ID!, $labelIdentifiers: [String!]) {
+  mutation UnassignBoxesFromShipment($id: ID!, $labelIdentifiers: [String!]) {
     updateShipmentWhenPreparing(
       updateInput: {
         id: $id
@@ -68,14 +68,14 @@ export const useAssignBoxesToShipment = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [assignBoxesToShipmentMutation] = useMutation<
-    AssignBoxToShipmentMutation,
-    AssignBoxToShipmentMutationVariables
-  >(ASSIGN_BOX_TO_SHIPMENT);
+    AssignBoxesToShipmentMutation,
+    AssignBoxesToShipmentMutationVariables
+  >(ASSIGN_BOXES_TO_SHIPMENT);
 
-  const [unassignBoxesToShipmentMutation] = useMutation<
-    UnassignBoxToShipmentMutation,
-    UnassignBoxToShipmentMutationVariables
-  >(UNASSIGN_BOX_TO_SHIPMENT);
+  const [unassignBoxesFromShipmentMutation] = useMutation<
+    UnassignBoxesFromShipmentMutation,
+    UnassignBoxesFromShipmentMutationVariables
+  >(UNASSIGN_BOX_FROM_SHIPMENT);
 
   const assignBoxesToShipment = useCallback(
     (shipmentId: string, boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
@@ -188,12 +188,8 @@ export const useAssignBoxesToShipment = () => {
     [assignBoxesToShipmentMutation, createToast, triggerError],
   );
 
-  const unassignBoxesToShipment = useCallback(
-    (
-      shipmentId: string,
-      boxes: IBoxBasicFieldsWithShipmentDetail[],
-      showToastMessage: boolean = true,
-    ) => {
+  const unassignBoxesFromShipment = useCallback(
+    (shipmentId: string, boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
       setIsLoading(true);
       const inStockLabelIdentifiers = boxes
         .filter(
@@ -202,7 +198,7 @@ export const useAssignBoxesToShipment = () => {
             box.shipmentDetail?.shipment.id === shipmentId,
         )
         .map((box) => box.labelIdentifier);
-      return unassignBoxesToShipmentMutation({
+      return unassignBoxesFromShipmentMutation({
         variables: {
           id: shipmentId,
           labelIdentifiers: inStockLabelIdentifiers,
@@ -216,7 +212,7 @@ export const useAssignBoxesToShipment = () => {
             if (errorCode === "FORBIDDEN") {
               if (showToastMessage)
                 triggerError({
-                  message: "You don't have the permissions to unassign boxes to this shipment.",
+                  message: "You don't have the permissions to unassign boxes from this shipment.",
                 });
               return {
                 kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
@@ -238,7 +234,7 @@ export const useAssignBoxesToShipment = () => {
             }
             if (showToastMessage)
               triggerError({
-                message: "Could not unassign boxes to shipment. Try again?",
+                message: "Could not unassign boxes from shipment. Try again?",
               });
             // General error
             return {
@@ -251,15 +247,15 @@ export const useAssignBoxesToShipment = () => {
             (data?.updateShipmentWhenPreparing?.details
               .filter((detail) => detail.removedOn === null)
               .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
-              .map((detail) => detail.box) as IBoxBasicFieldsWithShipmentDetail[]) ?? [];
+              .map((detail) => detail.box) as IBoxBasicFields[]) ?? [];
 
-          const failedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter((box) =>
+          const failedBoxes: IBoxBasicFields[] = boxes.filter((box) =>
             boxesInShipment.some(
               (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
             ),
           );
 
-          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter(
+          const unassignedBoxes: IBoxBasicFields[] = boxes.filter(
             (box) =>
               !boxesInShipment.some(
                 (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
@@ -269,7 +265,6 @@ export const useAssignBoxesToShipment = () => {
           if (unassignedBoxes.length) {
             if (showToastMessage)
               createToast({
-                // eslint-disable-next-line max-len
                 message: `${unassignedBoxes.length} Boxes were successfully unassigned to the shipment.`,
               });
           }
@@ -296,7 +291,7 @@ export const useAssignBoxesToShipment = () => {
             setIsLoading(false);
             if (showToastMessage)
               triggerError({
-                message: "Could not unassign boxes to shipment. Try again?",
+                message: "Could not unassign boxes from shipment. Try again?",
               });
             return {
               kind: IAssignBoxToShipmentResultKind.NETWORK_FAIL,
@@ -306,12 +301,12 @@ export const useAssignBoxesToShipment = () => {
           },
         );
     },
-    [unassignBoxesToShipmentMutation, createToast, triggerError],
+    [unassignBoxesFromShipmentMutation, createToast, triggerError],
   );
 
   return {
     assignBoxesToShipment,
-    unassignBoxesToShipment,
+    unassignBoxesFromShipment,
     isLoading,
   };
 };
