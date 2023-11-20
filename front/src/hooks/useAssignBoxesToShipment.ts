@@ -132,6 +132,7 @@ export const useAssignBoxesToShipment = () => {
           const boxesInShipment: IBoxBasicFields[] =
             data?.updateShipmentWhenPreparing?.details
               .filter((detail) => detail.removedOn === null)
+              .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
               .map((detail) => detail.box) ?? [];
           const failedBoxes: IBoxBasicFields[] = boxes.filter(
             (box) =>
@@ -248,34 +249,22 @@ export const useAssignBoxesToShipment = () => {
           }
           const boxesInShipment =
             (data?.updateShipmentWhenPreparing?.details
+              .filter((detail) => detail.removedOn === null)
               .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
               .map((detail) => detail.box) as IBoxBasicFieldsWithShipmentDetail[]) ?? [];
+
           const failedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter((box) =>
             boxesInShipment.some(
               (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
             ),
           );
 
-          const boxesRemoved =
-            (data?.updateShipmentWhenPreparing?.details
-              .filter((detail) => detail.box.state === BoxState.InStock)
-              .map((detail) => detail.box) as IBoxBasicFieldsWithShipmentDetail[]) ?? [];
-
-          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxesRemoved
-            .map((boxRemoved, index, array) => ({
-              boxRemoved,
-              isUnique: !array
-                .slice(0, index)
-                .some((prevBox) => prevBox.labelIdentifier === boxRemoved.labelIdentifier),
-            }))
-            .filter(
-              ({ boxRemoved, isUnique }) =>
-                isUnique &&
-                boxes.some(
-                  (box) => box.labelIdentifier === boxRemoved.labelIdentifier && box !== boxRemoved,
-                ),
-            )
-            .map(({ boxRemoved }) => boxRemoved);
+          const unassignedBoxes: IBoxBasicFieldsWithShipmentDetail[] = boxes.filter(
+            (box) =>
+              !boxesInShipment.some(
+                (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
+              ),
+          );
 
           if (unassignedBoxes.length) {
             if (showToastMessage)
