@@ -212,6 +212,95 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
     }
 
 
+@pytest.mark.parametrize("endpoint", ["graphql", "public"])
+def test_query_stock_overview(read_only_client, default_product, endpoint):
+    query = """query { stockOverview(baseId: 1) {
+        facts { categoryId productName gender sizeId locationId boxState tagIds
+            itemsCount boxesCount }
+    } }"""
+    data = assert_successful_request(read_only_client, query)
+    product_name = default_product["name"]
+    assert data["facts"] == [
+        {
+            "boxState": BoxState.InStock.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 0,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [2, 3],
+        },
+        {
+            "boxState": BoxState.Lost.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.MarkedForShipment.name,
+            "boxesCount": 3,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 30,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [3],
+        },
+        {
+            "boxState": BoxState.Donated.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 22,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.InTransit.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 20,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.NotDelivered.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 20,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.Donated.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 12,
+            "locationId": 1,
+            "productName": "jackets",
+            "sizeId": 2,
+            "tagIds": [],
+        },
+    ]
+
+
 def test_authorization(read_only_client, mocker):
     # Current user is from base 1 of organisation 1.
     # Hence the user is not allowed to access base 2 from organisation 1

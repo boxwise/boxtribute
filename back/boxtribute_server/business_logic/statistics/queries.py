@@ -5,6 +5,7 @@ from .crud import (
     compute_beneficiary_demographics,
     compute_created_boxes,
     compute_moved_boxes,
+    compute_stock_overview,
     compute_top_products_checked_out,
     compute_top_products_donated,
 )
@@ -69,6 +70,11 @@ def resolve_moved_boxes(*_, base_id=None):
     return compute_moved_boxes(base_id)
 
 
+@query.field("stockOverview")
+def resolve_stock_overview(*_, base_id):
+    return compute_stock_overview(base_id)
+
+
 @public_query.field("beneficiaryDemographics")
 def public_resolve_beneficiary_demographics(*_, base_id):
     return compute_beneficiary_demographics(base_id)
@@ -92,3 +98,8 @@ def public_resolve_top_products_donated(*_, base_id):
 @public_query.field("movedBoxes")
 def public_resolve_moved_boxes(*_, base_id=None):
     return compute_moved_boxes(base_id)
+
+
+@public_query.field("stockOverview")
+def public_resolve_stock_overview(*_, base_id):
+    return compute_stock_overview(base_id)
