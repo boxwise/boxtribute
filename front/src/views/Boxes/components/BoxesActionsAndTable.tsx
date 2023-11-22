@@ -7,7 +7,7 @@ import { useCallback, useContext, useMemo, useState } from "react";
 import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { Alert, AlertIcon, Button } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, Button, CloseButton, VStack } from "@chakra-ui/react";
 import { BoxState } from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
@@ -17,16 +17,17 @@ import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import ColumnSelector from "./ColumnSelector";
 
+interface IAlerts {
+  id: number;
+  status: "info" | "warning" | "success" | "error";
+  message: string;
+}
+
 export interface IBoxesActionsAndTableProps {
   tableData: BoxRow[];
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
-}
-
-export interface IShowErrorAlert {
-  showErrorAlert: Boolean;
-  message: string;
 }
 
 function BoxesActionsAndTable({
@@ -44,10 +45,8 @@ function BoxesActionsAndTable({
   const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(availableColumns);
   // TODO: remove the no-unused-vars once the alert implemented
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [showErrorAlert, setShowErrorAlert] = useState<IShowErrorAlert>({
-    showErrorAlert: false,
-    message: "",
-  });
+  const [alerts, setAlerts] = useState<IAlerts[]>([]);
+
   const orderedSelectedColumns = useMemo(
     () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
     [selectedColumns, availableColumns],
@@ -79,21 +78,31 @@ function BoxesActionsAndTable({
   ]);
 
   const onMoveBoxes = useCallback(
-    (locationId: string) =>
-      moveBoxesAction.moveBoxes(
-        selectedBoxes
-          // TODO: show some kind of feedback when user selected boxes that cannot be moved
-          // filter out the boxes that should not moved
-          .filter(
-            (box) =>
-              ![BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(
-                box.values.state,
-              ),
-          )
-          .map((box) => box.values.labelIdentifier),
-        parseInt(locationId, 10),
-      ),
-    [moveBoxesAction, selectedBoxes],
+    (locationId: string) => {
+      const movableLabelIdentifiers = selectedBoxes
+        .filter(
+          (box) =>
+            ![BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(
+              box.values.state,
+            ),
+        )
+        .map((box) => box.values.labelIdentifier);
+
+      const boxCountInShipmentStates = selectedBoxes.length - movableLabelIdentifiers.length;
+      if (boxCountInShipmentStates > 0) {
+        setAlerts(
+          alerts.concat({
+            id: alerts.length,
+            status: "info",
+            message: `Cannot move ${boxCountInShipmentStates}${
+              boxCountInShipmentStates === 1 ? " box" : " boxes"
+            } in shipment states.`,
+          }),
+        );
+      }
+      moveBoxesAction.moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10));
+    },
+    [alerts, moveBoxesAction, selectedBoxes],
   );
 
   // Assign to Shipment
@@ -177,11 +186,21 @@ function BoxesActionsAndTable({
 
   return (
     <>
-      {showErrorAlert.showErrorAlert && (
-        <Alert status="error" data-testid="ErrorAlert" mx={2} my={4}>
-          <AlertIcon />
-          {showErrorAlert.message}
-        </Alert>
+      {alerts.length > 0 && (
+        <VStack>
+          {alerts.map((alert) => (
+            <Alert status={alert.status} variant="left-accent">
+              <AlertIcon />
+              <AlertDescription>{alert.message}</AlertDescription>
+              <CloseButton
+                position="absolute"
+                right="8px"
+                top="8px"
+                onClick={() => setAlerts(alerts.filter((a) => a.id !== alert.id))}
+              />
+            </Alert>
+          ))}
+        </VStack>
       )}
 
       <BoxesTable
