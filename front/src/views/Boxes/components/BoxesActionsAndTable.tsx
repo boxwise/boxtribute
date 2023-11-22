@@ -3,7 +3,7 @@ import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
 import { FaWarehouse } from "react-icons/fa";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
@@ -40,12 +40,10 @@ function BoxesActionsAndTable({
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
   const tableConfigKey = `boxes-view--base-id-${baseId}`;
+  const [alerts, setAlerts] = useState<IAlerts[]>([]);
 
   // Column Selector
   const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(availableColumns);
-  // TODO: remove the no-unused-vars once the alert implemented
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [alerts, setAlerts] = useState<IAlerts[]>([]);
 
   const orderedSelectedColumns = useMemo(
     () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
@@ -119,8 +117,12 @@ function BoxesActionsAndTable({
   );
 
   // Unassign to Shipment
-  const { unassignBoxesFromShipments, isLoading: isUnassignBoxesFromShipmentsLoading } =
-    useUnassignBoxesFromShipments();
+  const {
+    unassignBoxesFromShipments,
+    unassignBoxesFromShipmentsResult,
+    flushResult,
+    isLoading: isUnassignBoxesFromShipmentsLoading,
+  } = useUnassignBoxesFromShipments();
 
   const onUnassignBoxesToShipment = useCallback(() => {
     unassignBoxesFromShipments(
@@ -138,6 +140,36 @@ function BoxesActionsAndTable({
       }),
     );
   }, [unassignBoxesFromShipments, selectedBoxes]);
+
+  useEffect(() => {
+    if (unassignBoxesFromShipmentsResult) {
+      const newAlerts: IAlerts[] = alerts;
+      const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
+
+      if (notMarkedForShipmentBoxes.length > 0) {
+        newAlerts.push({
+          id: alerts.length,
+          status: "info",
+          message: `Cannot unnassign ${notMarkedForShipmentBoxes.length}${
+            notMarkedForShipmentBoxes.length === 1 ? " box" : " boxes"
+          } that ${
+            notMarkedForShipmentBoxes.length === 1 ? "is" : "are"
+          } not assigned to any shipment.`,
+        });
+      }
+      if (failedBoxes && failedBoxes.length > 0) {
+        newAlerts.push({
+          id: alerts.length,
+          status: "error",
+          message: `Could not unassign ${failedBoxes.length}${
+            failedBoxes.length === 1 ? "box" : "boxes"
+          } from shipment. Try again?`,
+        });
+      }
+      flushResult();
+      setAlerts(newAlerts);
+    }
+  }, [alerts, flushResult, unassignBoxesFromShipmentsResult]);
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||

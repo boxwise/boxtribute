@@ -7,7 +7,6 @@ import {
   generateUnassignBoxesFromShipmentsRequest,
   isUnassignmentFromShipment,
 } from "queries/dynamic-mutations";
-import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
 // eslint-disable-next-line no-shadow
@@ -29,7 +28,6 @@ export interface IUnassignBoxesFromShipmentsResult {
 }
 
 export const useUnassignBoxesFromShipments = () => {
-  const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [unassignBoxesFromShipmentsResult, setUnassignBoxesFromShipmentsResult] =
@@ -37,7 +35,7 @@ export const useUnassignBoxesFromShipments = () => {
   const apolloClient = useApolloClient();
 
   const unassignBoxesFromShipments = useCallback(
-    (boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
+    (boxes: IBoxBasicFields[]) => {
       setIsLoading(true);
       const markedForShipmentBoxes = boxes.filter(
         (box) => box.state === BoxState.MarkedForShipment,
@@ -86,7 +84,9 @@ export const useUnassignBoxesFromShipments = () => {
               if (isUnassignmentFromShipment(unassignment)) {
                 const typedUnassignment = unassignment as IUnassignmentFromShipment;
                 typedUnassignment.details.forEach((detail) => {
-                  result.push(detail.box.labelIdentifier);
+                  if (detail.removedOn === null) {
+                    result.push(detail.box.labelIdentifier);
+                  }
                 });
               }
               return result;
@@ -109,7 +109,7 @@ export const useUnassignBoxesFromShipments = () => {
 
           setIsLoading(false);
 
-          // all boxes were unassigned
+          // no boxes were unassigned
           if (unassignedBoxes.length === 0) {
             setUnassignBoxesFromShipmentsResult({
               kind: IUnassignBoxesFromShipmentsResultKind.FAIL,
@@ -117,22 +117,17 @@ export const useUnassignBoxesFromShipments = () => {
               notMarkedForShipmentBoxes,
               failedBoxes,
             } as IUnassignBoxesFromShipmentsResult);
-            if (showToastMessage)
-              triggerError({
-                message: "Could not unassign boxes from shipments. Try again?",
-              });
             return;
           }
 
           // some boxes were unassigned
-          if (showToastMessage && unassignedBoxes.length > 0) {
+          if (unassignedBoxes.length > 0) {
             createToast({
               message: `${
                 unassignedBoxes.length === 1 ? "A Box was" : `${unassignedBoxes.length} Boxes were`
               } successfully unassigned from their corresponding shipment.`,
             });
           }
-
           if (failedBoxes.length > 0) {
             setUnassignBoxesFromShipmentsResult({
               kind: IUnassignBoxesFromShipmentsResultKind.PARTIAL_FAIL,
@@ -152,14 +147,29 @@ export const useUnassignBoxesFromShipments = () => {
             unassignedBoxes,
             failedBoxes,
           } as IUnassignBoxesFromShipmentsResult);
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          setUnassignBoxesFromShipmentsResult({
+            kind: IUnassignBoxesFromShipmentsResultKind.NETWORK_FAIL,
+            requestedBoxes: boxes,
+            notMarkedForShipmentBoxes,
+            failedBoxes: markedForShipmentBoxes,
+            error,
+          } as IUnassignBoxesFromShipmentsResult);
         });
     },
-    [apolloClient, triggerError, createToast],
+    [apolloClient, createToast],
   );
+
+  const flushResult = () => {
+    setUnassignBoxesFromShipmentsResult(null);
+  };
 
   return {
     unassignBoxesFromShipments,
     isLoading,
     unassignBoxesFromShipmentsResult,
+    flushResult,
   };
 };

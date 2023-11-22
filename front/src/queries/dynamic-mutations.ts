@@ -127,6 +127,7 @@ export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: nu
 export interface IUnassignmentFromShipment {
   id: string;
   details: {
+    removedOn: any | null;
     box: {
       labelIdentifier: string;
     };
