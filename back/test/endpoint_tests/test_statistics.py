@@ -219,7 +219,7 @@ def test_query_stock_overview(read_only_client, default_product, endpoint):
             itemsCount boxesCount }
     } }"""
     data = assert_successful_request(read_only_client, query)
-    product_name = default_product["name"]
+    product_name = default_product["name"].strip().lower()
     assert data["facts"] == [
         {
             "boxState": BoxState.InStock.name,

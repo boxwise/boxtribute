@@ -403,7 +403,7 @@ def compute_stock_overview(base_id):
             Box.location.alias("location_id"),
             Box.state.alias("box_state"),
             Product.category.alias("category_id"),
-            Product.name.alias("product_name"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
             Product.gender.alias("gender"),
             tag_ids.alias("tag_ids"),
             fn.COUNT(Box.id).alias("boxes_count"),
