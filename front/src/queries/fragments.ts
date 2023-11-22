@@ -153,6 +153,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
       id
       shipment {
         id
+        labelIdentifier
         state
         details {
           box {

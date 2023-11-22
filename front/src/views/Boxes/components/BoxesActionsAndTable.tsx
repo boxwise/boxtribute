@@ -114,7 +114,7 @@ function BoxesActionsAndTable({
           state,
           shipmentDetail: shipment
             ? {
-                shipment: { id: shipment },
+                shipment,
               }
             : null,
         } as IBoxBasicFields;

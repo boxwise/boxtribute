@@ -19,6 +19,7 @@ import { Alert, AlertIcon } from "@chakra-ui/react";
 import { differenceInDays } from "date-fns";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
+import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
@@ -74,8 +75,8 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
         size: element.size.label,
         state: element.state,
         place: element.location!.name,
-        tags: element.tags?.map((tag) => tag.name),
-        shipment: element.shipmentDetail?.shipment.id,
+        tags: element.tags,
+        shipment: element.shipmentDetail?.shipment,
         comment: element.comment,
         age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
         untouched:
@@ -139,6 +140,7 @@ function Boxes() {
         Header: "Status",
         accessor: "state",
         id: "state",
+        Cell: StateCell,
         Filter: SelectColumnFilter,
         filter: "includesSome",
       },
@@ -153,13 +155,15 @@ function Boxes() {
         Header: "Tags",
         accessor: "tags",
         id: "tags",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
+        Cell: TagsCell,
+        disableFilters: true,
       },
       {
         Header: "Shipment",
         accessor: "shipment",
         id: "shipment",
+        Cell: ShipmentCell,
+        disableFilters: true,
       },
       {
         Header: "Comments",
@@ -172,12 +176,14 @@ function Boxes() {
         Header: "Age",
         accessor: "age",
         id: "age",
+        Cell: DaysCell,
         disableFilters: true,
       },
       {
         Header: "Untouched",
         accessor: "untouched",
         id: "untouched",
+        Cell: DaysCell,
         disableFilters: true,
       },
     ],
