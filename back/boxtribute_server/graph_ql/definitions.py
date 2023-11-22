@@ -12,9 +12,13 @@ basic_definitions = load_schema_from_path(DEFINITIONS_DIRECTORY / "basic")
 # - these are building blocks accessing protected data and must not be used in public
 #   schemas
 protected_definitions = load_schema_from_path(DEFINITIONS_DIRECTORY / "protected")
+# - these are types related to statistics queries
+public_type_definitions = load_schema_from_path(
+    DEFINITIONS_DIRECTORY / "public" / "types.graphql"
+)
 
 # Definitions for the schema consumed by the boxtribute v2 front-end
-definitions = basic_definitions + protected_definitions
+definitions = basic_definitions + protected_definitions + public_type_definitions
 
 # Definitions for the schema consumed by the boxtribute query-only API
 query_api_definitions = (
@@ -23,10 +27,10 @@ query_api_definitions = (
         for name in ["types", "queries"]
     )
     + basic_definitions
+    + public_type_definitions
 )
 
 # Definitions for the schema consumed by the public statistics API
 public_api_definitions = (
-    load_schema_from_path(DEFINITIONS_DIRECTORY / "public_api.graphql")
-    + basic_definitions
+    load_schema_from_path(DEFINITIONS_DIRECTORY / "public") + basic_definitions
 )
