@@ -5,14 +5,12 @@ import { FaWarehouse } from "react-icons/fa";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { TableSkeleton } from "components/Skeletons";
-import {
-  IAssignBoxToShipmentResult,
-  useAssignBoxesToShipment,
-} from "hooks/useAssignBoxesToShipment";
-import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
+import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { IBoxBasicFields } from "types/graphql-local-only";
 import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { BoxState } from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
+import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "../BoxesView";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
@@ -72,12 +70,6 @@ function BoxesActionsAndTable({
     },
   ]);
 
-  const {
-    assignBoxesToShipment,
-    unassignBoxesFromShipment,
-    isLoading: isAssignBoxesToShipmentLoading,
-  } = useAssignBoxesToShipment();
-
   const onMoveBoxes = useCallback(
     (locationId: string) =>
       moveBoxesAction.moveBoxes(
@@ -97,6 +89,9 @@ function BoxesActionsAndTable({
   );
 
   // Assign to Shipment
+  const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
+    useAssignBoxesToShipment();
+
   const onAssignBoxesToShipment = useCallback(
     (shipmentId: string) =>
       assignBoxesToShipment(
@@ -107,55 +102,25 @@ function BoxesActionsAndTable({
   );
 
   // Unassign to Shipment
+  const { unassignBoxesFromShipments, isLoading: isUnassignBoxesFromShipmentsLoading } =
+    useUnassignBoxesFromShipments();
+
   const onUnassignBoxesToShipment = useCallback(() => {
-    // Create a dictionary to group boxes by their assigned shipment
-    const boxesByShipment: { [shipmentId: string]: IBoxBasicFieldsWithShipmentDetail[] } = {};
-
-    // Filter boxes that are not assigned to any shipment
-    const boxesNotAssignedToShipment = selectedBoxes.filter((box) => !box.values.shipment);
-
-    // Filter boxes that are assigned to a shipment
-    const boxesAssignedToShipment = selectedBoxes.filter((box) => box.values.shipment);
-
-    if (boxesAssignedToShipment.length > 0) {
-      // Process boxes assigned to a shipment
-      boxesAssignedToShipment.forEach((box) => {
+    unassignBoxesFromShipments(
+      selectedBoxes.map((box) => {
         const { labelIdentifier, state, shipment } = box.values;
-        const shipmentId: string = shipment || "";
-
-        // Grouping boxes with their assigned shipment
-        boxesByShipment[shipmentId] = boxesByShipment[shipmentId] || [];
-        boxesByShipment[shipmentId].push({
+        return {
           labelIdentifier,
           state,
-          shipmentDetail: {
-            shipment: { id: shipmentId },
-          },
-        } as IBoxBasicFieldsWithShipmentDetail);
-      });
-
-      // Call the unassignBoxesToShipment for each group of boxes
-      const unassignBoxesToShipmentResult: Promise<IAssignBoxToShipmentResult>[] = Object.keys(
-        boxesByShipment,
-      ).map((shipmentId) => {
-        const shipmentDetails = boxesByShipment[shipmentId];
-        return unassignBoxesFromShipment(shipmentId, shipmentDetails);
-      });
-
-      // Wait for all unassignment promises to resolve
-      Promise.all(unassignBoxesToShipmentResult);
-    }
-
-    if (boxesNotAssignedToShipment.length > 0) {
-      // Display an error alert for boxes not assigned to any shipment
-      setShowErrorAlert({
-        showErrorAlert: true,
-        message: `Boxes (${boxesNotAssignedToShipment
-          .map((box) => box.values.labelIdentifier)
-          .join(", ")}) that are not assigned to a shipment cannot be unassigned`,
-      });
-    }
-  }, [unassignBoxesFromShipment, selectedBoxes]);
+          shipmentDetail: shipment
+            ? {
+                shipment: { id: shipment },
+              }
+            : null,
+        } as IBoxBasicFields;
+      }),
+    );
+  }, [unassignBoxesFromShipments, selectedBoxes]);
 
   const actionButtons = useMemo(
     () => [
@@ -183,7 +148,11 @@ function BoxesActionsAndTable({
       onUnassignBoxesToShipment,
     ],
   );
-  if (moveBoxesAction.isLoading || isAssignBoxesToShipmentLoading) {
+  if (
+    moveBoxesAction.isLoading ||
+    isAssignBoxesToShipmentLoading ||
+    isUnassignBoxesFromShipmentsLoading
+  ) {
     return <TableSkeleton />;
   }
 

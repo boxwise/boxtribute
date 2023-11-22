@@ -150,10 +150,9 @@ function Boxes() {
         filter: "includesSome",
       },
       {
-        Header: "",
+        Header: "Shipment",
         accessor: "shipment",
         id: "shipment",
-        show: false,
       },
     ],
     [],

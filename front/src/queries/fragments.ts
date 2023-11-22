@@ -126,6 +126,9 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
     }
     shipmentDetail {
       id
+      shipment {
+        id
+      }
     }
   }
 `;

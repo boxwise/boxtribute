@@ -48,7 +48,7 @@ import {
   IAssignBoxToShipmentResultKind,
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
-import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
+import { IBoxBasicFields } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { BoxViewSkeleton } from "components/Skeletons";
@@ -506,7 +506,7 @@ function BTBox() {
       } else {
         const unassignedBoxResult = await unassignBoxesFromShipment(
           currentShipmentId,
-          [boxData as IBoxBasicFieldsWithShipmentDetail],
+          [boxData as IBoxBasicFields],
           false,
         );
 
@@ -558,7 +558,7 @@ function BTBox() {
 
       const unassigmentResult = (await unassignBoxesFromShipment(
         shipmentId,
-        [boxData as IBoxBasicFieldsWithShipmentDetail],
+        [boxData as IBoxBasicFields],
         false,
       )) as IAssignBoxToShipmentResult;
       if (

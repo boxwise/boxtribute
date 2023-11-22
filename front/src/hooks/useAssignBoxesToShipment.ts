@@ -133,7 +133,7 @@ export const useAssignBoxesToShipment = () => {
             data?.updateShipmentWhenPreparing?.details
               .filter((detail) => detail.removedOn === null)
               .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
-              .map((detail) => detail.box) ?? [];
+              .map((detail) => detail.box as IBoxBasicFields) ?? [];
           const failedBoxes: IBoxBasicFields[] = boxes.filter(
             (box) =>
               !boxesInShipment.some(
