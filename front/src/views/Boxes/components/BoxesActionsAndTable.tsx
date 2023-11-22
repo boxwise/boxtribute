@@ -11,7 +11,6 @@ import { Alert, AlertDescription, AlertIcon, Button, CloseButton, VStack } from 
 import { BoxState } from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
-import { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "../BoxesView";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
@@ -65,18 +64,11 @@ function BoxesActionsAndTable({
   );
 
   // Move Boxes
-  // TODO: replace following refetchQuery with something directly writing to the cache
-  const moveBoxesAction = useMoveBoxes([
-    {
-      query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
-      variables: {
-        baseId,
-      },
-    },
-  ]);
+  const moveBoxesAction = useMoveBoxes();
 
   const onMoveBoxes = useCallback(
-    (locationId: string) => {
+    async (locationId: string) => {
+      const newAlerts: IAlerts[] = [];
       const movableLabelIdentifiers = selectedBoxes
         .filter(
           (box) =>
@@ -88,17 +80,34 @@ function BoxesActionsAndTable({
 
       const boxCountInShipmentStates = selectedBoxes.length - movableLabelIdentifiers.length;
       if (boxCountInShipmentStates > 0) {
-        setAlerts(
-          alerts.concat({
-            id: alerts.length,
-            status: "info",
-            message: `Cannot move ${boxCountInShipmentStates}${
-              boxCountInShipmentStates === 1 ? " box" : " boxes"
-            } in shipment states.`,
-          }),
-        );
+        newAlerts.push({
+          id: alerts.length,
+          status: "info",
+          message: `Cannot move ${boxCountInShipmentStates}${
+            boxCountInShipmentStates === 1 ? " box" : " boxes"
+          } in shipment states.`,
+        });
       }
-      moveBoxesAction.moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10));
+      const moveBoxesResult = await moveBoxesAction.moveBoxes(
+        movableLabelIdentifiers,
+        parseInt(locationId, 10),
+        true,
+        false,
+      );
+      if (
+        moveBoxesResult.failedLabelIdentifiers &&
+        moveBoxesResult.failedLabelIdentifiers.length > 0
+      ) {
+        newAlerts.push({
+          id: alerts.length,
+          status: "error",
+          message: `Could not move ${moveBoxesResult.failedLabelIdentifiers.length}${
+            moveBoxesResult.failedLabelIdentifiers.length === 1 ? " box" : " boxes"
+          }. Try again?`,
+        });
+      }
+
+      setAlerts([...alerts, ...newAlerts]);
     },
     [alerts, moveBoxesAction, selectedBoxes],
   );
@@ -143,7 +152,7 @@ function BoxesActionsAndTable({
 
   useEffect(() => {
     if (unassignBoxesFromShipmentsResult) {
-      const newAlerts: IAlerts[] = alerts;
+      const newAlerts: IAlerts[] = [];
       const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
 
       if (notMarkedForShipmentBoxes.length > 0) {
@@ -167,7 +176,7 @@ function BoxesActionsAndTable({
         });
       }
       flushResult();
-      setAlerts(newAlerts);
+      setAlerts([...alerts, ...newAlerts]);
     }
   }, [alerts, flushResult, unassignBoxesFromShipmentsResult]);
 

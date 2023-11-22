@@ -25,7 +25,8 @@ export interface IUseMoveBoxesReturnType {
   moveBoxes: (
     labelIdentifiers: string[],
     newLocationId: number,
-    showToastMessage?: boolean,
+    showToasts?: boolean,
+    showErrors?: boolean,
   ) => IMoveBoxesResult | Promise<IMoveBoxesResult>;
   isLoading: boolean;
 }
@@ -39,9 +40,15 @@ export const useMoveBoxes = (
   const apolloClient = useApolloClient();
 
   const moveBoxes = useCallback(
-    (labelIdentifiers: string[], newLocationId: number, showToastMessage: boolean = true) => {
+    (
+      labelIdentifiers: string[],
+      newLocationId: number,
+      showToasts: boolean = true,
+      showErrors: boolean = true,
+    ) => {
       setIsLoading(true);
 
+      // TODO: Validate here that Boxes are in the right state
       // no Boxes were passed
       if (labelIdentifiers.length === 0) {
         setIsLoading(false);
@@ -64,7 +71,7 @@ export const useMoveBoxes = (
           setIsLoading(false);
           if ((errors?.length || 0) > 0) {
             // General error
-            if (showToastMessage)
+            if (showErrors)
               triggerError({
                 message: `Could not move ${
                   labelIdentifiers.length === 1 ? "box" : "boxes"
@@ -74,6 +81,7 @@ export const useMoveBoxes = (
             return {
               kind: IMoveBoxesResultKind.FAIL,
               requestedLabelIdentifiers: labelIdentifiers,
+              failedLabelIdentifiers: labelIdentifiers,
               error: errors ? errors[0] : undefined,
             } as IMoveBoxesResult;
           }
@@ -98,7 +106,7 @@ export const useMoveBoxes = (
               ),
           );
 
-          if (showToastMessage && movedLabelIdentifiers.length > 0) {
+          if (showToasts && movedLabelIdentifiers.length > 0) {
             createToast({
               message: `${
                 movedLabelIdentifiers.length === 1
@@ -129,7 +137,7 @@ export const useMoveBoxes = (
           // Network error
           (err) => {
             setIsLoading(false);
-            if (showToastMessage)
+            if (showErrors)
               triggerError({
                 message: `Network issue: could not move ${
                   labelIdentifiers.length === 1 ? "box" : "boxes"
@@ -138,6 +146,7 @@ export const useMoveBoxes = (
             return {
               kind: IMoveBoxesResultKind.NETWORK_FAIL,
               requestedLabelIdentifiers: labelIdentifiers,
+              failedLabelIdentifiers: labelIdentifiers,
               error: err,
             } as IMoveBoxesResult;
           },
