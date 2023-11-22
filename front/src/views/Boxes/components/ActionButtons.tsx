@@ -1,14 +1,4 @@
-import {
-  Box,
-  Button,
-  chakra,
-  Flex,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Spacer,
-} from "@chakra-ui/react";
+import { Button, chakra, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ReactNode } from "react";
@@ -17,19 +7,15 @@ interface ISelectButtonProps {
   label: string;
   options: IDropdownOption[];
   onSelect: (value: string) => void;
-  // eslint-disable-next-line react/require-default-props
+  disabled: boolean;
   icon?: ReactNode;
 }
 
-export function SelectButton({ label, options, onSelect, icon = null }: ISelectButtonProps) {
+export function SelectButton({ label, options, onSelect, disabled, icon }: ISelectButtonProps) {
   return (
     <Menu>
-      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} display="flex" alignItems="center">
-        <Flex>
-          {icon && <Box p="1">{icon}</Box>}
-          <Spacer />
-          <Box p="1">{label}</Box>
-        </Flex>
+      <MenuButton as={Button} isDisabled={disabled} leftIcon={icon} rightIcon={<ChevronDownIcon />}>
+        {label}
       </MenuButton>
       <MenuList>
         {options.map(({ label: olabel, value, subTitle }) => {
@@ -57,3 +43,7 @@ export function SelectButton({ label, options, onSelect, icon = null }: ISelectB
     </Menu>
   );
 }
+
+SelectButton.defaultProps = {
+  icon: undefined,
+};

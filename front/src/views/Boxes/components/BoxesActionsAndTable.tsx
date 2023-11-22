@@ -58,7 +58,15 @@ function BoxesActionsAndTable({
     navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
   // --- Actions on selected Boxes
-  const [selectedBoxes, setSelectedBoxes] = useState<Row<any>[]>([]);
+  const [selectedBoxes, setSelectedBoxes] = useState<Row<BoxRow>[]>([]);
+  const thereIsABoxMarkedForShipmentSelected = useMemo(
+    () =>
+      selectedBoxes.some(
+        (box) => box.values.shipment !== null && box.values.state === BoxState.MarkedForShipment,
+      ),
+    [selectedBoxes],
+  );
+
   // Move Boxes
   // TODO: replace following refetchQuery with something directly writing to the cache
   const moveBoxesAction = useMoveBoxes([
@@ -122,6 +130,11 @@ function BoxesActionsAndTable({
     );
   }, [unassignBoxesFromShipments, selectedBoxes]);
 
+  const actionsAreLoading =
+    moveBoxesAction.isLoading ||
+    isAssignBoxesToShipmentLoading ||
+    isUnassignBoxesFromShipmentsLoading;
+
   const actionButtons = useMemo(
     () => [
       <SelectButton
@@ -129,6 +142,7 @@ function BoxesActionsAndTable({
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
+        disabled={actionsAreLoading}
       />,
       shipmentOptions.length > 0 && (
         <SelectButton
@@ -136,23 +150,28 @@ function BoxesActionsAndTable({
           options={shipmentOptions}
           onSelect={onAssignBoxesToShipment}
           icon={<ShipmentIcon />}
+          disabled={
+            actionsAreLoading ||
+            shipmentOptions.length === 0 ||
+            thereIsABoxMarkedForShipmentSelected
+          }
         />
       ),
-      <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>,
+      thereIsABoxMarkedForShipmentSelected && (
+        <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>
+      ),
     ],
     [
       locationOptions,
-      shipmentOptions,
       onMoveBoxes,
+      actionsAreLoading,
+      shipmentOptions,
       onAssignBoxesToShipment,
+      thereIsABoxMarkedForShipmentSelected,
       onUnassignBoxesToShipment,
     ],
   );
-  if (
-    moveBoxesAction.isLoading ||
-    isAssignBoxesToShipmentLoading ||
-    isUnassignBoxesFromShipmentsLoading
-  ) {
+  if (actionsAreLoading) {
     return <TableSkeleton />;
   }
 
