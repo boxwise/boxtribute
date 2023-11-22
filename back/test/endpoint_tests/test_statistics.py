@@ -315,6 +315,7 @@ def test_authorization(read_only_client, mocker):
         "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
         "query { topProductsDonated(baseId: 3) { facts { productId } } }",
         "query { movedBoxes(baseId: 3) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 3) { facts { categoryId } } }",
     ]:
         assert_successful_request(read_only_client, query)
 
@@ -326,6 +327,7 @@ def test_authorization(read_only_client, mocker):
         "query { topProductsCheckedOut(baseId: 4) { facts { productId } } }",
         "query { topProductsDonated(baseId: 4) { facts { productId } } }",
         "query { movedBoxes(baseId: 4) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 4) { facts { categoryId } } }",
     ]:
         assert_forbidden_request(read_only_client, query)
 
