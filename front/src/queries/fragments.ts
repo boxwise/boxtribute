@@ -204,6 +204,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
     history {
       ...HistoryFields
     }
+    createdOn
   }
 `;
 

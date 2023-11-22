@@ -16,6 +16,7 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
 import { TableSkeleton } from "components/Skeletons";
 import { Alert, AlertIcon } from "@chakra-ui/react";
+import { differenceInDays } from "date-fns";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 
@@ -66,15 +67,21 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
   boxesQueryResult.boxes.elements.map(
     (element) =>
       ({
-        productName: element.product?.name,
+        productName: element.product!.name,
         labelIdentifier: element.labelIdentifier,
-        gender: element.product?.gender,
+        gender: element.product!.gender,
         numberOfItems: element.numberOfItems,
         size: element.size.label,
         state: element.state,
-        place: element.location?.name,
+        place: element.location!.name,
         tags: element.tags?.map((tag) => tag.name),
         shipment: element.shipmentDetail?.shipment.id,
+        comment: element.comment,
+        age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
+        untouched:
+          element.history && element.history[0] && element.history[0].changeDate
+            ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
+            : 0,
       }) as BoxRow,
   );
 
@@ -129,7 +136,7 @@ function Boxes() {
         disableFilters: true,
       },
       {
-        Header: "State",
+        Header: "Status",
         accessor: "state",
         id: "state",
         Filter: SelectColumnFilter,
@@ -153,6 +160,25 @@ function Boxes() {
         Header: "Shipment",
         accessor: "shipment",
         id: "shipment",
+      },
+      {
+        Header: "Comments",
+        accessor: "comment",
+        id: "comment",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
+      },
+      {
+        Header: "Age",
+        accessor: "age",
+        id: "age",
+        disableFilters: true,
+      },
+      {
+        Header: "Untouched",
+        accessor: "untouched",
+        id: "untouched",
+        disableFilters: true,
       },
     ],
     [],

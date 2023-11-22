@@ -1,11 +1,14 @@
 export type BoxRow = {
   labelIdentifier: string;
   productName: string;
-  gender?: string | null;
+  gender: string;
   numberOfItems: number;
-  size?: string | null;
-  place?: string | null;
+  size: string;
+  place: string;
   state: string;
-  tags?: string[];
-  shipment?: string | null;
+  tags: string[];
+  shipment: string | null;
+  comment: string | null;
+  age: number;
+  untouched: number;
 };

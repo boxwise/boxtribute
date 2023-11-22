@@ -10,6 +10,7 @@ import {
   Text,
   IconButton,
   ButtonGroup,
+  TableContainer,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -135,28 +136,30 @@ function BoxesTable({
         <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
-      <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
-        <Tbody>
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr
-                cursor="pointer"
-                {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                key={row.original.labelIdentifier}
-              >
-                {row.cells.map((cell) => (
-                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+      <TableContainer>
+        <Table key="boxes-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} />
+          <Tbody>
+            {page.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr
+                  cursor="pointer"
+                  {...row.getRowProps()}
+                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                  key={row.original.labelIdentifier}
+                >
+                  {row.cells.map((cell) => (
+                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
       <Flex justifyContent="center" alignItems="center" key="pagination">
         <Flex>
           <IconButton
