@@ -489,6 +489,7 @@ function BTBox() {
           shipmentId,
           [boxData as IBoxBasicFields],
           false,
+          false,
         )) as IAssignBoxToShipmentResult;
 
         if (
@@ -525,6 +526,7 @@ function BTBox() {
             const reassignedResult = (await assignBoxesToShipment(
               shipmentId,
               [updatedBoxData as IBoxBasicFields],
+              false,
               false,
             )) as IAssignBoxToShipmentResult;
             if (

@@ -117,12 +117,43 @@ function BoxesActionsAndTable({
     useAssignBoxesToShipment();
 
   const onAssignBoxesToShipment = useCallback(
-    (shipmentId: string) =>
-      assignBoxesToShipment(
+    async (shipmentId: string) => {
+      const newAlerts: IAlerts[] = [];
+      const assignBoxesToShipmentResult = await assignBoxesToShipment(
         shipmentId,
         selectedBoxes.map((box) => box.values as IBoxBasicFields),
-      ),
-    [assignBoxesToShipment, selectedBoxes],
+        true,
+        false,
+      );
+      if (
+        assignBoxesToShipmentResult.notInStockBoxes &&
+        assignBoxesToShipmentResult.notInStockBoxes.length > 0
+      ) {
+        newAlerts.push({
+          id: alerts.length,
+          status: "info",
+          message: `Cannot assign ${assignBoxesToShipmentResult.notInStockBoxes.length}${
+            assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? " box" : " boxes"
+          } to shipment that ${
+            assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
+          } not InStock.`,
+        });
+      }
+      if (
+        assignBoxesToShipmentResult.failedBoxes &&
+        assignBoxesToShipmentResult.failedBoxes.length > 0
+      ) {
+        newAlerts.push({
+          id: alerts.length,
+          status: "error",
+          message: `Could not assign ${assignBoxesToShipmentResult.failedBoxes.length}${
+            assignBoxesToShipmentResult.failedBoxes.length === 1 ? " box" : " boxes"
+          } to shipment. Try again?`,
+        });
+      }
+      setAlerts([...alerts, ...newAlerts]);
+    },
+    [alerts, assignBoxesToShipment, selectedBoxes],
   );
 
   // Unassign to Shipment

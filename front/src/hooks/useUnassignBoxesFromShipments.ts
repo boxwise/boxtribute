@@ -145,7 +145,6 @@ export const useUnassignBoxesFromShipments = () => {
             requestedBoxes: boxes,
             notMarkedForShipmentBoxes,
             unassignedBoxes,
-            failedBoxes,
           } as IUnassignBoxesFromShipmentsResult);
         })
         .catch((error) => {
