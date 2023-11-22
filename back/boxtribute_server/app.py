@@ -14,7 +14,9 @@ def create_app():
     return Flask(__name__)
 
 
-def configure_app(app, *blueprints, database_interface=None, **mysql_kwargs):
+def configure_app(
+    app, *blueprints, database_interface=None, replica_socket=None, **mysql_kwargs
+):
     """Register blueprints. Configure the app's database interface. `mysql_kwargs` are
     forwarded.
     """
@@ -22,6 +24,14 @@ def configure_app(app, *blueprints, database_interface=None, **mysql_kwargs):
         app.register_blueprint(blueprint)
 
     app.config["DATABASE"] = database_interface or create_db_interface(**mysql_kwargs)
+
+    if replica_socket or mysql_kwargs:
+        # In deployed environment: replica_socket is set
+        # In integration tests: connect to same host/port as primary database
+        # In endpoint tests, no replica connection is used
+        mysql_kwargs["unix_socket"] = replica_socket
+        app.config["DATABASE_REPLICA"] = create_db_interface(**mysql_kwargs)
+
     db.init_app(app)
 
 
@@ -53,7 +63,10 @@ def main(*blueprints):
             return
         return event
 
-    # dsn/environment/release: reading SENTRY_* environment variables set in CircleCI
+    # The SDK requires the parameters dns, and optionally, environment and release for
+    # initialization. In the deployed GAE environments they are read from the
+    # environment variables `SENTRY_*`. Since in local or CI testing environments these
+    # variables don't exist, the SDK is not effective which is desired.
     sentry_sdk.init(
         integrations=[FlaskIntegration(), AriadneIntegration()],
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.0)),
@@ -65,11 +78,15 @@ def main(*blueprints):
     configure_app(
         app,
         *blueprints,
-        host=os.environ["MYSQL_HOST"],
-        port=int(os.environ["MYSQL_PORT"]),
+        # always used
         user=os.environ["MYSQL_USER"],
         password=os.environ["MYSQL_PASSWORD"],
         database=os.environ["MYSQL_DB"],
+        # used for connecting to development / CI testing DB
+        host=os.getenv("MYSQL_HOST"),
+        port=int(os.getenv("MYSQL_PORT", 0)),
+        # used for connecting to Google Cloud from GAE
         unix_socket=os.getenv("MYSQL_SOCKET"),
+        replica_socket=os.getenv("MYSQL_REPLICA_SOCKET"),
     )
     return app

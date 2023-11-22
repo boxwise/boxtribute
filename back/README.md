@@ -206,9 +206,9 @@ Most tests require a running MySQL server. Before executing tests for the first 
 
 Run the test suite on your machine by executing
 
-    MYSQL_PORT=32000 pytest
+    pytest
 
-If you persistently want these variables to be set for your environment, export them via the `.envrc` file.
+Add `-x` to stop at the first failure, and `-v` or `-vv` for increased verbosity.
 
 You can also run the tests via `docker-compose`:
 

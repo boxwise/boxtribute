@@ -198,7 +198,8 @@ jobs:
           name: Run pytest
           command: |
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
-            ENVIRONMENT=test pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
+            # overwrite environment variable because it must not depend on the CircleCI context
+            ENVIRONMENT=development MYSQL_PORT=3306 pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -247,12 +248,11 @@ jobs:
               AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
               AUTH0_JWKS_KID=${AUTH0_JWKS_KID}
               AUTH0_JWKS_N=${AUTH0_JWKS_N}
-              MYSQL_HOST=127.0.0.1
               MYSQL_USER=${DB_NAME}
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
-              MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
+              MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
@@ -319,12 +319,11 @@ jobs:
               AUTH0_CLIENT_SECRET=${QUERY_API_AUTH0_CLIENT_SECRET}
               AUTH0_JWKS_KID=${AUTH0_JWKS_KID}
               AUTH0_JWKS_N=${AUTH0_JWKS_N}
-              MYSQL_HOST=127.0.0.1
               MYSQL_USER=${DB_NAME}
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
-              MYSQL_PORT=3306
               MYSQL_SOCKET=${DB_SOCKET}
+              MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
               SENTRY_DSN=${SENTRY_BE_DSN}
               SENTRY_ENVIRONMENT=${ENVIRONMENT}
               SENTRY_RELEASE=${CIRCLE_SHA1}
