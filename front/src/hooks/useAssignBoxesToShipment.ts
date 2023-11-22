@@ -168,7 +168,9 @@ export const useAssignBoxesToShipment = () => {
             if (showToasts)
               createToast({
                 // eslint-disable-next-line max-len
-                message: `${assignedBoxes.length} Boxes were successfully assigned to the shipment.`,
+                message: `${
+                  assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
+                } successfully assigned to the shipment.`,
               });
           }
           // Not all Boxes were assigned

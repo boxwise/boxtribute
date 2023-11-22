@@ -156,6 +156,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
         labelIdentifier
         state
         details {
+          id
           box {
             location {
               ...LocationBasicFields

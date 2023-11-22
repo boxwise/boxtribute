@@ -6,8 +6,37 @@ import { generateMockLocationWithBase } from "./locations";
 import { product1, product3 } from "./products";
 import { size1, size2 } from "./sizeRanges";
 import { user1 } from "./users";
+import { generateMockShipmentDetail } from "./shipmentDetail";
+
+export const basicShipment = {
+  __typename: "Shipment",
+  id: "1",
+  labelIdentifier: "S001-231111-LExTH",
+  state: ShipmentState.Preparing,
+  sourceBase: {
+    __typename: "Base",
+    id: "1",
+    name: "Lesvos",
+    organisation: {
+      __typename: "Organisation",
+      id: "1",
+      name: "BoxAid",
+    },
+  },
+  targetBase: {
+    __typename: "Base",
+    id: "2",
+    name: "Thessaloniki",
+    organisation: {
+      __typename: "Organisation",
+      id: "2",
+      name: "BoxCare",
+    },
+  },
+};
 
 export const shipment1 = {
+  ...basicShipment,
   details: [
     {
       sourceProduct: product1,
@@ -26,25 +55,7 @@ export const shipment1 = {
       }),
     },
   ],
-  id: "1",
-  state: ShipmentState.Preparing,
   sentBy: null,
-  sourceBase: {
-    id: "1",
-    name: "Lesvos",
-    organisation: {
-      id: "1",
-      name: "BoxAid",
-    },
-  },
-  targetBase: {
-    id: 2,
-    name: "Thessaloniki",
-    organisation: {
-      id: "2",
-      name: "BoxCare",
-    },
-  },
   transferAgreement: {
     id: "1",
     type: TransferAgreementType.Bidirectional,
@@ -53,26 +64,9 @@ export const shipment1 = {
 };
 
 export const shipment2 = {
+  ...basicShipment,
   details: [],
-  id: "1",
-  state: ShipmentState.Preparing,
   sentBy: null,
-  sourceBase: {
-    id: "1",
-    name: "Lesvos",
-    organisation: {
-      id: "1",
-      name: "BoxAid",
-    },
-  },
-  targetBase: {
-    id: "2",
-    name: "Thessaloniki",
-    organisation: {
-      id: "2",
-      name: "BoxCare",
-    },
-  },
   transferAgreement: {
     id: "1",
     type: TransferAgreementType.Bidirectional,
@@ -89,6 +83,7 @@ export const generateMockShipment = ({
 }) => ({
   id: "1",
   state,
+  labelIdentifier: "S001-231111-LExTH",
   details: hasBoxes
     ? [
         {
@@ -236,34 +231,4 @@ export const generateMockShipmentWithCustomDetails = ({
   canceledOn: null,
   canceledBy: null,
   __typename: "Shipment",
-});
-
-export const generateMockShipmentDetail = ({
-  id = "1",
-  box = generateMockBox({
-    labelIdentifier: "123",
-    numberOfItems: 10,
-    product: product1,
-    location: generateMockLocationWithBase({}),
-  }),
-  sourceQuantity = 10,
-  sourceSize = size1,
-  sourceProduct = product1,
-  targetProduct = null,
-  createdOn = "2023-01-09T17:24:29+00:00",
-  createdBy = user1,
-  removedOn = null,
-  removedBy = null,
-}) => ({
-  id,
-  box,
-  sourceSize,
-  sourceQuantity,
-  sourceProduct,
-  targetProduct,
-  createdOn,
-  createdBy,
-  removedOn,
-  removedBy,
-  __typename: "ShipmentDetail",
 });

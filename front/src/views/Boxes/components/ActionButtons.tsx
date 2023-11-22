@@ -1,4 +1,14 @@
-import { Button, chakra, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import {
+  Button,
+  chakra,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  VStack,
+  Wrap,
+  WrapItem,
+} from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ReactNode } from "react";
@@ -22,20 +32,19 @@ export function SelectButton({ label, options, onSelect, disabled, icon }: ISele
           const [firstPart, secondPart] = olabel.split("-");
           return (
             <MenuItem key={`SelectButtonOption${value}`} onClick={() => onSelect(value)}>
-              {!subTitle && <chakra.span>{olabel}</chakra.span>}
-              <chakra.div>
-                {subTitle && (
-                  <>
-                    <chakra.div>
-                      <chakra.span fontWeight="semibold">{firstPart.trim()}, </chakra.span>
-                      <chakra.span>{secondPart.trim()}</chakra.span>
-                    </chakra.div>
-                    <chakra.div style={{ fontSize: "0.8em", color: "gray" }}>
-                      ID: {subTitle}
-                    </chakra.div>
-                  </>
-                )}
-              </chakra.div>
+              {!subTitle ? (
+                olabel
+              ) : (
+                <VStack align="start" spacing={0}>
+                  <Wrap spacing={1}>
+                    <WrapItem fontWeight="semibold">{firstPart.trim()}, </WrapItem>
+                    <WrapItem>{secondPart.trim()}</WrapItem>
+                  </Wrap>
+                  <chakra.span style={{ fontSize: "0.8em", color: "gray" }}>
+                    ID: {subTitle}
+                  </chakra.span>
+                </VStack>
+              )}
             </MenuItem>
           );
         })}

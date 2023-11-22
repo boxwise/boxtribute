@@ -2,17 +2,14 @@ import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
-import {
-  generateMockShipment,
-  generateMockShipmentDetail,
-  generateMockShipmentWithCustomDetails,
-} from "mocks/shipments";
+import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import userEvent from "@testing-library/user-event";
 import { mockMatchMediaQuery } from "mocks/functions";
+import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
 
 const mockedTriggerError = jest.fn();

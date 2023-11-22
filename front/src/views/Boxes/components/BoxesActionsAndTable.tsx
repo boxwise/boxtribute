@@ -83,8 +83,8 @@ function BoxesActionsAndTable({
         newAlerts.push({
           id: alerts.length,
           status: "info",
-          message: `Cannot move ${boxCountInShipmentStates}${
-            boxCountInShipmentStates === 1 ? " box" : " boxes"
+          message: `Cannot move ${
+            boxCountInShipmentStates === 1 ? "a box" : `${boxCountInShipmentStates} boxes`
           } in shipment states.`,
         });
       }
@@ -101,8 +101,10 @@ function BoxesActionsAndTable({
         newAlerts.push({
           id: alerts.length,
           status: "error",
-          message: `Could not move ${moveBoxesResult.failedLabelIdentifiers.length}${
-            moveBoxesResult.failedLabelIdentifiers.length === 1 ? " box" : " boxes"
+          message: `Could not move ${
+            moveBoxesResult.failedLabelIdentifiers.length === 1
+              ? "a box"
+              : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
           }. Try again?`,
         });
       }
