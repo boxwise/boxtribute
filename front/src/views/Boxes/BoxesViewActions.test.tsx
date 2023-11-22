@@ -1,4 +1,4 @@
-import { basicShipment } from "mocks/shipments";
+import { basicShipment, generateMockShipment } from "mocks/shipments";
 import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState } from "types/generated/graphql";
@@ -14,7 +14,7 @@ import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";
 import BoxesView, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
 
-const initialQuery = ({ boxInShipment = false }) => ({
+const initialQuery = ({ state = BoxState.InStock }) => ({
   request: {
     query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
     variables: {
@@ -27,7 +27,7 @@ const initialQuery = ({ boxInShipment = false }) => ({
         __typename: "BoxPage",
         elements: [
           generateMockBox({
-            state: boxInShipment ? BoxState.MarkedForShipment : BoxState.InStock,
+            state,
           }),
         ],
         pageInfo: {
@@ -160,10 +160,62 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
-    mocks: [initialQuery({ boxInShipment: true })],
+    mocks: [initialQuery({ state: BoxState.MarkedForShipment })],
     clicks: [/move to/i, /warehouse/i],
     toast: undefined,
     alert: /Cannot move a box in shipment states./i,
+  },
+  {
+    name: "4.8.3.2 - Assign To Shipment Action is successful",
+    mocks: [
+      initialQuery({}),
+      mutation({
+        gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
+        variables: { id: "1", labelIdentifiers: ["123"] },
+        resultData: {
+          updateShipmentWhenPreparing: generateMockShipment({}),
+        },
+      }),
+      initialQuery({}),
+    ],
+    clicks: [/assign to shipment/i, /thessaloniki/i],
+    toast: /A Box was successfully assigned/i,
+    alert: undefined,
+  },
+  {
+    name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
+    mocks: [
+      initialQuery({}),
+      mutation({
+        gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
+        variables: { id: "1", labelIdentifiers: ["123"] },
+        graphQlError: true,
+      }),
+    ],
+    clicks: [/assign to shipment/i, /thessaloniki/i],
+    toast: undefined,
+    alert: /Could not assign a box/i,
+  },
+  {
+    name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
+    mocks: [
+      initialQuery({}),
+      mutation({
+        gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
+        variables: { id: "1", labelIdentifiers: ["123"] },
+        networkError: true,
+      }),
+    ],
+    clicks: [/assign to shipment/i, /thessaloniki/i],
+    toast: undefined,
+    alert: /Could not assign a box/i,
+  },
+  {
+    name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
+    mocks: [initialQuery({ state: BoxState.Donated })],
+    clicks: [/assign to shipment/i, /thessaloniki/i],
+    toast: undefined,
+    alert: /Cannot assign a box/i,
   },
 ];
 

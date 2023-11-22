@@ -2,7 +2,7 @@
 import { BoxState, ShipmentState, TransferAgreementType } from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
-import { generateMockLocationWithBase } from "./locations";
+import { location1 } from "./locations";
 import { product1, product3 } from "./products";
 import { size1, size2 } from "./sizeRanges";
 import { user1 } from "./users";
@@ -82,39 +82,80 @@ export const generateMockShipment = ({
   hasBoxes = true,
 }) => ({
   id: "1",
-  state,
   labelIdentifier: "S001-231111-LExTH",
+  state,
   details: hasBoxes
     ? [
         {
           id: "1",
-          box: generateMockBox({
+          box: {
+            __typename: "Box",
             labelIdentifier: "123",
-            numberOfItems: 10,
-            product: product1,
-            location: generateMockLocationWithBase({}),
-          }),
-          sourceSize: size1,
-          sourceQuantity: 10,
+            state: BoxState.MarkedForShipment,
+            comment: null,
+            location: {
+              __typename: "ClassicLocation",
+              id: "1",
+              base: {
+                __typename: "Base",
+                id: "1",
+              },
+            },
+            shipmentDetail: {
+              __typename: "ShipmentDetail",
+              id: "2",
+              shipment: {
+                id: "1",
+              },
+            },
+          },
           sourceProduct: product1,
           targetProduct: null,
+          sourceSize: size1,
+          sourceLocation: location1,
+          targetSize: null,
+          sourceQuantity: 10,
+          targetQuantity: null,
           createdOn: "2023-01-09T17:24:29+00:00",
           createdBy: user1,
           removedOn: "2023-01-10T17:24:29+00:00",
           removedBy: user1,
+          lostOn: null,
+          lostBy: null,
+          receivedOn: null,
+          receivedBy: null,
           __typename: "ShipmentDetail",
         },
         {
           id: "2",
-          box: generateMockBox({
+          box: {
+            __typename: "Box",
             labelIdentifier: "123",
-            numberOfItems: 10,
-            product: product1,
-          }),
-          sourceSize: size1,
-          sourceQuantity: 10,
+            state: BoxState.MarkedForShipment,
+            comment: null,
+            location: {
+              __typename: "ClassicLocation",
+              id: "1",
+              base: {
+                __typename: "Base",
+                id: "1",
+              },
+            },
+            shipmentDetail: {
+              __typename: "ShipmentDetail",
+              id: "2",
+              shipment: {
+                id: "1",
+              },
+            },
+          },
           sourceProduct: product1,
           targetProduct: null,
+          sourceSize: size1,
+          targetSize: null,
+          sourceLocation: location1,
+          sourceQuantity: 10,
+          targetQuantity: null,
           createdOn: "2023-01-11T17:24:29+00:00",
           createdBy: user1,
           receivedOn: state === ShipmentState.Completed ? "2023-01-14T17:24:29+00:00" : null,
@@ -138,11 +179,21 @@ export const generateMockShipment = ({
                 : state === ShipmentState.Sent
                 ? BoxState.InTransit
                 : BoxState.MarkedForShipment,
+            shipmentDetail: {
+              __typename: "ShipmentDetail",
+              id: "3",
+              shipment: {
+                id: "1",
+              },
+            },
           }),
-          sourceSize: size2,
-          sourceQuantity: 12,
           sourceProduct: product3,
           targetProduct: null,
+          sourceSize: size2,
+          targetSize: null,
+          sourceLocation: location1,
+          sourceQuantity: 12,
+          targetQuantity: null,
           createdOn: "2023-02-01T17:24:29+00:00",
           createdBy: user1,
           receivedOn: state === ShipmentState.Completed ? "2023-01-14T17:24:29+00:00" : null,

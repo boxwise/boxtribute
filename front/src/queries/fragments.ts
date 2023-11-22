@@ -344,15 +344,15 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     sourceSize {
       ...SizeBasicFields
     }
+    targetSize {
+      ...SizeBasicFields
+    }
     sourceLocation {
       id
       name
       ... on ClassicLocation {
         defaultBoxState
       }
-    }
-    targetSize {
-      ...SizeBasicFields
     }
     sourceQuantity
     targetQuantity

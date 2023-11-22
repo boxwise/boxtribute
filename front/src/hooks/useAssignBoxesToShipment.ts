@@ -120,6 +120,7 @@ export const useAssignBoxesToShipment = () => {
                 kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
                 requestedBoxes: boxes,
                 notInStockBoxes,
+                failedBoxes: inStockBoxes,
                 error: errors ? errors[0] : undefined,
               } as IAssignBoxToShipmentResult;
             }
@@ -133,6 +134,7 @@ export const useAssignBoxesToShipment = () => {
                 kind: IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE,
                 requestedBoxes: boxes,
                 notInStockBoxes,
+                failedBoxes: inStockBoxes,
                 error: errors ? errors[0] : undefined,
               } as IAssignBoxToShipmentResult;
             }
@@ -145,6 +147,7 @@ export const useAssignBoxesToShipment = () => {
               kind: IAssignBoxToShipmentResultKind.FAIL,
               requestedBoxes: boxes,
               notInStockBoxes,
+              failedBoxes: inStockBoxes,
               error: errors ? errors[0] : undefined,
             } as IAssignBoxToShipmentResult;
           }

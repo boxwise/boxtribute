@@ -134,8 +134,10 @@ function BoxesActionsAndTable({
         newAlerts.push({
           id: alerts.length,
           status: "info",
-          message: `Cannot assign ${assignBoxesToShipmentResult.notInStockBoxes.length}${
-            assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? " box" : " boxes"
+          message: `Cannot assign ${
+            assignBoxesToShipmentResult.notInStockBoxes.length === 1
+              ? "a box"
+              : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
           } to shipment that ${
             assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
           } not InStock.`,
@@ -148,8 +150,10 @@ function BoxesActionsAndTable({
         newAlerts.push({
           id: alerts.length,
           status: "error",
-          message: `Could not assign ${assignBoxesToShipmentResult.failedBoxes.length}${
-            assignBoxesToShipmentResult.failedBoxes.length === 1 ? " box" : " boxes"
+          message: `Could not assign ${
+            assignBoxesToShipmentResult.failedBoxes.length === 1
+              ? "a box"
+              : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
           } to shipment. Try again?`,
         });
       }
@@ -263,7 +267,7 @@ function BoxesActionsAndTable({
       {alerts.length > 0 && (
         <VStack>
           {alerts.map((alert) => (
-            <Alert status={alert.status} variant="left-accent">
+            <Alert key={alert.id} status={alert.status} variant="left-accent">
               <AlertIcon />
               <AlertDescription>{alert.message}</AlertDescription>
               <CloseButton
