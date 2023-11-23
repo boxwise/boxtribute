@@ -232,7 +232,6 @@ def authorize_cross_organisation_access(
         # The user already lacks the first base-specific permission
         raise Forbidden(reason=f"base={base_id}")
 
-    involved_base_ids = user_base_ids + [base_id]
     details = (
         TransferAgreementDetail.select()
         .join(
@@ -240,8 +239,16 @@ def authorize_cross_organisation_access(
             on=(
                 (TransferAgreementDetail.transfer_agreement == TransferAgreement.id)
                 & (TransferAgreement.state == TransferAgreementState.Accepted)
-                & (TransferAgreementDetail.source_base << involved_base_ids)
-                & (TransferAgreementDetail.target_base << involved_base_ids)
+                & (
+                    (
+                        (TransferAgreementDetail.source_base << user_base_ids)
+                        & (TransferAgreementDetail.target_base == base_id)
+                    )
+                    | (
+                        (TransferAgreementDetail.source_base == base_id)
+                        & (TransferAgreementDetail.target_base << user_base_ids)
+                    )
+                )
             ),
         )
         .get_or_none()
