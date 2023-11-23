@@ -272,7 +272,7 @@ const assignToShipmentMutationTests = [
       mockShipmentsQuery({}),
       mockAssignToShipmentMutation({}),
     ],
-    toast: { isError: false, message: /A Boxes were successfully assigned to the shipment/i },
+    toast: { isError: false, message: /A Box was successfully assigned to the shipment/i },
   },
 ];
 
@@ -388,7 +388,7 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/A Boxes were successfully assigned to the shipment/i),
+        message: expect.stringMatching(/A Box was successfully assigned to the shipment/i),
       }),
     ),
   );
