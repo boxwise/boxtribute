@@ -38,6 +38,7 @@ introspection:
     - ../../back/boxtribute_server/graph_ql/definitions/protected/types.graphql
     - ../../back/boxtribute_server/graph_ql/definitions/protected/queries.graphql
     - ../../back/boxtribute_server/graph_ql/definitions/basic/*.graphql
+    - ../../back/boxtribute_server/graph_ql/definitions/public/types.graphql
 
   # File containing Introspection Query response in JS module export, or JSON format
   # introspectionFile: path/to/introspection.js[on]
