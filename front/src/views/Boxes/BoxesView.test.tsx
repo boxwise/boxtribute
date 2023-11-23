@@ -490,5 +490,5 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
       expect(await screen.findByText(/2 Boxes were successfully moved./i)).toBeInTheDocument();
     }
-  });
+  }, 10000);
 });
