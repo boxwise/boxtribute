@@ -82,7 +82,7 @@ function MenuItemsGroupDesktop({ ...props }: IMenuItemsGroupData) {
             to={subMenu.link}
             reloadDocument={subMenu.external}
           >
-            {subMenu.name}
+            {subMenu.name}&nbsp;{subMenu.beta && <sup>beta</sup>}
           </MenuItem>
         ))}
       </MenuList>

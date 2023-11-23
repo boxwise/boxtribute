@@ -46,7 +46,7 @@ function MenuItemsGroupMobile({ links, text }: IMenuItemsGroupData) {
             w="100%"
             reloadDocument={subMenu.external}
           >
-            {subMenu.name}
+            {subMenu.name}&nbsp;{subMenu.beta && <sup>beta</sup>}
           </MenuItem>
         ))}
       </Stack>

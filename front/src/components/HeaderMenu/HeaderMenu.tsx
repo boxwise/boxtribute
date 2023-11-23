@@ -5,6 +5,7 @@ import HeaderMenuMobile from "./HeaderMenuMobile";
 export interface IMenuItemData {
   link: string;
   name: string;
+  beta?: boolean;
   minBeta?: number;
   abp: string[];
   external?: boolean;
