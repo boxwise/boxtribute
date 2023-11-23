@@ -10,6 +10,7 @@ import {
   Text,
   IconButton,
   ButtonGroup,
+  TableContainer,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -35,7 +36,7 @@ interface IBoxesTableProps {
   actionButtons: React.ReactNode[];
   columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
-  setSelectedBoxes: (rows: Row<any>[]) => void;
+  setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
 }
 
 function BoxesTable({
@@ -83,6 +84,9 @@ function BoxesTable({
       initialState: {
         pageIndex: 0,
         pageSize: 20,
+        hiddenColumns: columns
+          .filter((col: any) => col.show === false)
+          .map((col) => col.id || col.accessor) as any,
         filters: tableConfig?.columnFilters ?? [],
         ...(tableConfig?.globalFilter != null
           ? { globalFilter: tableConfig?.globalFilter }
@@ -112,7 +116,7 @@ function BoxesTable({
   );
 
   useEffect(() => {
-    setSelectedBoxes(selectedFlatRows.map((row) => row.original));
+    setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {
@@ -132,28 +136,30 @@ function BoxesTable({
         <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
       </Flex>
 
-      <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
-        <Tbody>
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr
-                cursor="pointer"
-                {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                key={row.original.labelIdentifier}
-              >
-                {row.cells.map((cell) => (
-                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+      <TableContainer>
+        <Table key="boxes-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} />
+          <Tbody>
+            {page.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr
+                  cursor="pointer"
+                  {...row.getRowProps()}
+                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                  key={row.original.labelIdentifier}
+                >
+                  {row.cells.map((cell) => (
+                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
       <Flex justifyContent="center" alignItems="center" key="pagination">
         <Flex>
           <IconButton

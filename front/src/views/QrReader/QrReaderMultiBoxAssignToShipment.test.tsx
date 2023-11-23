@@ -17,7 +17,7 @@ import {
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
-import { ASSIGN_BOX_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
+import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
 import { selectOptionInSelectField } from "tests/helpers";
@@ -79,7 +79,7 @@ const mockAssignToShipmentMutation = ({
   labelIdentifiers = ["123"],
 }) => ({
   request: {
-    query: ASSIGN_BOX_TO_SHIPMENT,
+    query: ASSIGN_BOXES_TO_SHIPMENT,
     variables: {
       id: "1",
       labelIdentifiers,
@@ -272,7 +272,7 @@ const assignToShipmentMutationTests = [
       mockShipmentsQuery({}),
       mockAssignToShipmentMutation({}),
     ],
-    toast: { isError: false, message: /1 Boxes were successfully assigned to the shipment/i },
+    toast: { isError: false, message: /A Box was successfully assigned to the shipment/i },
   },
 ];
 
@@ -388,7 +388,7 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/1 Boxes were successfully assigned to the shipment/i),
+        message: expect.stringMatching(/A Box was successfully assigned to the shipment/i),
       }),
     ),
   );

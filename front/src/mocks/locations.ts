@@ -111,6 +111,7 @@ export const generateMockLocationWithBase = ({
     ],
   },
   id: defaultLocationId,
+  seq: defaultLocationId,
   name: defaultLocationName,
 });
 

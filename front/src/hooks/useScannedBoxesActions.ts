@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useApolloClient } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { BoxFieldsFragment, BoxState } from "types/generated/graphql";
-import { IScannedBoxesData } from "types/graphql-local-only";
+import { IBoxBasicFields, IScannedBoxesData } from "types/graphql-local-only";
 import { useNotification } from "./useNotification";
 
 export const useScannedBoxesActions = () => {
@@ -16,11 +16,7 @@ export const useScannedBoxesActions = () => {
           query: GET_SCANNED_BOXES,
         },
         (data: IScannedBoxesData) => {
-          const existingBoxRefs = data.scannedBoxes.map((b) => ({
-            __typename: "Box",
-            labelIdentifier: b.labelIdentifier,
-            state: b.state,
-          }));
+          const existingBoxRefs = data.scannedBoxes;
 
           const alreadyExists = existingBoxRefs.some(
             (ref) => ref.labelIdentifier === box.labelIdentifier,
@@ -41,14 +37,7 @@ export const useScannedBoxesActions = () => {
           });
 
           return {
-            scannedBoxes: [
-              ...existingBoxRefs,
-              {
-                __typename: "Box",
-                labelIdentifier: box.labelIdentifier,
-                state: box.state,
-              },
-            ],
+            scannedBoxes: [...existingBoxRefs, box as IBoxBasicFields],
           } as IScannedBoxesData;
         },
       ),
@@ -72,7 +61,7 @@ export const useScannedBoxesActions = () => {
       (data: IScannedBoxesData) =>
         ({
           scannedBoxes: data.scannedBoxes.slice(0, -1),
-        } as IScannedBoxesData),
+        }) as IScannedBoxesData,
     );
   }, [apolloClient]);
 
@@ -84,7 +73,7 @@ export const useScannedBoxesActions = () => {
       (data: IScannedBoxesData) =>
         ({
           scannedBoxes: data.scannedBoxes.filter((box) => box.state === BoxState.InStock),
-        } as IScannedBoxesData),
+        }) as IScannedBoxesData,
     );
   }, [apolloClient]);
 
@@ -99,7 +88,7 @@ export const useScannedBoxesActions = () => {
             scannedBoxes: data.scannedBoxes.filter(
               (box) => !labelIdentifiers.includes(box.labelIdentifier),
             ),
-          } as IScannedBoxesData),
+          }) as IScannedBoxesData,
       );
     },
     [apolloClient],

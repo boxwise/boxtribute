@@ -48,7 +48,7 @@ import {
   IAssignBoxToShipmentResultKind,
   useAssignBoxesToShipment,
 } from "hooks/useAssignBoxesToShipment";
-import { IBoxBasicFields, IBoxBasicFieldsWithShipmentDetail } from "types/graphql-local-only";
+import { IBoxBasicFields } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { BoxViewSkeleton } from "components/Skeletons";
@@ -155,7 +155,7 @@ function BTBox() {
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
     assignBoxesToShipment,
-    unassignBoxesToShipment,
+    unassignBoxesFromShipment,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
 
@@ -229,10 +229,10 @@ function BTBox() {
     UpdateStateMutationVariables
   >(UPDATE_STATE_IN_BOX_MUTATION);
 
-  const [updateBoxLocation, updateBoxLocationMutationStatus] =
-    useMutation<UpdateLocationOfBoxMutation, UpdateLocationOfBoxMutationVariables>(
-      UPDATE_BOX_MUTATION,
-    );
+  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
+    UpdateLocationOfBoxMutation,
+    UpdateLocationOfBoxMutationVariables
+  >(UPDATE_BOX_MUTATION);
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
@@ -489,6 +489,7 @@ function BTBox() {
           shipmentId,
           [boxData as IBoxBasicFields],
           false,
+          false,
         )) as IAssignBoxToShipmentResult;
 
         if (
@@ -504,9 +505,9 @@ function BTBox() {
           });
         }
       } else {
-        const unassignedBoxResult = await unassignBoxesToShipment(
+        const unassignedBoxResult = await unassignBoxesFromShipment(
           currentShipmentId,
-          [boxData as IBoxBasicFieldsWithShipmentDetail],
+          [boxData as IBoxBasicFields],
           false,
         );
 
@@ -525,6 +526,7 @@ function BTBox() {
             const reassignedResult = (await assignBoxesToShipment(
               shipmentId,
               [updatedBoxData as IBoxBasicFields],
+              false,
               false,
             )) as IAssignBoxToShipmentResult;
             if (
@@ -545,7 +547,7 @@ function BTBox() {
     },
     [
       assignBoxesToShipment,
-      unassignBoxesToShipment,
+      unassignBoxesFromShipment,
       boxData,
       createToast,
       handelAssignBoxToShipmentError,
@@ -556,9 +558,9 @@ function BTBox() {
     async (shipmentId: string) => {
       const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
 
-      const unassigmentResult = (await unassignBoxesToShipment(
+      const unassigmentResult = (await unassignBoxesFromShipment(
         shipmentId,
-        [boxData as IBoxBasicFieldsWithShipmentDetail],
+        [boxData as IBoxBasicFields],
         false,
       )) as IAssignBoxToShipmentResult;
       if (
@@ -574,7 +576,7 @@ function BTBox() {
         });
       }
     },
-    [unassignBoxesToShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(
