@@ -7,7 +7,7 @@ export interface IMenuItemData {
   name: string;
   beta?: boolean;
   minBeta?: number;
-  abp: string[];
+  requiredAbp: string[];
   external?: boolean;
 }
 
@@ -15,7 +15,7 @@ export interface IMenuItemsGroupData {
   text: string;
   links: IMenuItemData[];
   minBeta?: number;
-  abp: string[];
+  requiredAbp: string[];
 }
 
 export interface IHeaderMenuProps {

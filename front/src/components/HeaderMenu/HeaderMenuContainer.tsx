@@ -1,48 +1,47 @@
 import { useContext, useMemo } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
+import { useAuthorization } from "hooks/useAuthorization";
 import HeaderMenu, { IMenuItemsGroupData } from "./HeaderMenu";
 
 function HeaderMenuContainer() {
-  const auth0 = useAuth0();
+  const authorize = useAuthorization();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   // TODO: do this at route definition
-  // abp are minimum permissions required to access the link
   const menuItems: IMenuItemsGroupData[] = useMemo(() => {
     const oldAppUrlWithBase = `${process.env.REACT_APP_OLD_APP_BASE_URL}/?camp=${baseId}`;
     return [
       {
         text: "Inventory",
-        abp: ["create_label"],
+        requiredAbp: ["create_label"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=qr`,
             name: "Print Box Labels",
-            abp: ["create_label"],
+            requiredAbp: ["create_label"],
             external: true,
           },
           {
             link: "/boxes",
             name: "Manage Boxes v2",
             beta: true,
-            abp: ["manage_inventory"],
+            requiredAbp: ["create_transfer_agreement"],
           },
           {
             link: `${oldAppUrlWithBase}&action=stock`,
             name: "Classic Manage Boxes",
-            abp: ["manage_inventory"],
+            requiredAbp: ["manage_inventory"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=stock_overview`,
             name: "Stock Overview",
-            abp: ["view_inventory"],
+            requiredAbp: ["view_inventory"],
             external: true,
           },
         ],
@@ -50,19 +49,19 @@ function HeaderMenuContainer() {
       {
         text: "Transfers",
         minBeta: 2,
-        abp: ["view_shipments"],
+        requiredAbp: ["view_shipments"],
         links: [
           {
             link: "/transfers/shipments",
             name: "Manage Shipments",
             beta: true,
-            abp: ["view_shipments"],
+            requiredAbp: ["view_shipments"],
           },
           {
             link: "/transfers/agreements",
             name: "Manage Agreements",
             beta: true,
-            abp: ["view_transfer_agreements"],
+            requiredAbp: ["view_transfer_agreements"],
           },
         ],
       },
@@ -72,37 +71,22 @@ function HeaderMenuContainer() {
   const authorizedMenuItems: IMenuItemsGroupData[] = useMemo(
     () =>
       menuItems.reduce((acc, menuItem) => {
-        if (auth0.user) {
-          const userBetaValue = parseInt(
-            auth0.user["https://www.boxtribute.com/beta_user"] ?? "0",
-            10,
-          );
-
-          const userAbp = auth0.user["https://www.boxtribute.com/actions"] ?? [];
-
-          if (
-            userBetaValue >= (menuItem.minBeta ?? 0) &&
-            menuItem.abp.every((abp) => userAbp.includes(abp))
-          ) {
-            acc.push({
-              ...menuItem,
-              links: menuItem.links.filter(
-                (subMenu) =>
-                  userBetaValue >= (subMenu.minBeta ?? 0) &&
-                  subMenu.abp.every((abp) => userAbp.includes(abp)),
-              ),
-            });
-          }
+        if (authorize({ requiredAbp: menuItem.requiredAbp, minBeta: menuItem.minBeta })) {
+          acc.push({
+            ...menuItem,
+            links: menuItem.links.filter((subMenu) =>
+              authorize({ requiredAbp: subMenu.requiredAbp, minBeta: subMenu.minBeta }),
+            ),
+          });
         }
         return acc;
       }, [] as IMenuItemsGroupData[]),
-    [menuItems, auth0.user],
+    [menuItems, authorize],
   );
 
   return (
     <>
       <HeaderMenu
-        {...auth0}
         menuItemsGroups={authorizedMenuItems}
         onClickScanQrCode={() => qrReaderOverlayVar({ isOpen: true })}
       />

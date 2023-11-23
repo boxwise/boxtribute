@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
+import { ReactElement } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Alert, AlertIcon, Button } from "@chakra-ui/react";
@@ -30,19 +31,24 @@ import { useAuthorization } from "hooks/useAuthorization";
 import ResolveHash from "views/QrReader/components/ResolveHash";
 
 interface IProtectedRouteProps {
-  minBeta: number;
-  redirectPath: string;
+  component: ReactElement;
+  requiredAbp?: string[];
+  minBeta?: number;
 }
 
-function ProtectedRoute({ minBeta, redirectPath }: IProtectedRouteProps) {
-  const isAuthorized = useAuthorization({ minBeta });
+function Protected({ component, requiredAbp, minBeta }: IProtectedRouteProps) {
+  const authorize = useAuthorization();
 
-  if (!isAuthorized) {
-    return <Navigate to={redirectPath} replace />;
+  if (authorize({ requiredAbp, minBeta })) {
+    return component;
   }
 
-  return <Outlet />;
+  return <Navigate to="/qrreader" replace />;
 }
+Protected.defaultProps = {
+  requiredAbp: [],
+  minBeta: 0,
+};
 
 function App() {
   const { logout } = useAuth0();
@@ -75,27 +81,77 @@ function App() {
             <Route path=":hash" element={<ResolveHash />} />
           </Route>
           <Route path="boxes">
-            <Route index element={<Boxes />} />
+            <Route
+              index
+              element={<Protected component={<Boxes />} requiredAbp={["view_inventory"]} />}
+            />
             <Route path="create">
-              <Route path=":qrCode" element={<BoxCreateView />} />
+              <Route
+                path=":qrCode"
+                element={
+                  <Protected component={<BoxCreateView />} requiredAbp={["manage_inventory"]} />
+                }
+              />
             </Route>
             <Route path=":labelIdentifier">
-              <Route index element={<BTBox />} />
-              <Route path="edit" element={<BoxEditView />} />
+              <Route
+                index
+                element={<Protected component={<BTBox />} requiredAbp={["view_inventory"]} />}
+              />
+              <Route
+                path="edit"
+                element={
+                  <Protected component={<BoxEditView />} requiredAbp={["manage_inventory"]} />
+                }
+              />
             </Route>
           </Route>
-          <Route path="transfers" element={<ProtectedRoute minBeta={2} redirectPath="/qrreader" />}>
+          <Route path="transfers" element={<Protected component={<Outlet />} minBeta={2} />}>
             <Route path="agreements">
-              <Route index element={<TransferAgreementOverviewView />} />
-              <Route path="create" element={<CreateTransferAgreementView />} />
+              <Route
+                index
+                element={
+                  <Protected
+                    component={<TransferAgreementOverviewView />}
+                    requiredAbp={["view_transfer_agreements"]}
+                  />
+                }
+              />
+              <Route
+                path="create"
+                element={
+                  <Protected
+                    component={<CreateTransferAgreementView />}
+                    requiredAbp={["create_transfer_agreement"]}
+                  />
+                }
+              />
             </Route>
             <Route path="shipments">
-              <Route index element={<ShipmentsOverviewView />} />
-              <Route path="create" element={<CreateShipmentView />} />
-              <Route path=":id" element={<ShipmentView />} />
+              <Route
+                index
+                element={
+                  <Protected
+                    component={<ShipmentsOverviewView />}
+                    requiredAbp={["view_shipments"]}
+                  />
+                }
+              />
+              <Route
+                path="create"
+                element={
+                  <Protected component={<CreateShipmentView />} requiredAbp={["create_shipment"]} />
+                }
+              />
+              <Route
+                path=":id"
+                element={
+                  <Protected component={<ShipmentView />} requiredAbp={["view_shipments"]} />
+                }
+              />
             </Route>
           </Route>
-          <Route path="distributions">
+          <Route path="distributions" element={<Protected component={<Outlet />} minBeta={999} />}>
             <Route index element={<DistrosDashboardView />} />
             <Route path="return-trackings">
               <Route index element={<DistributionReturnTrackingsView />} />
