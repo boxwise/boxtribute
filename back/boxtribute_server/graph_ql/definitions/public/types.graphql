@@ -1,11 +1,3 @@
-type Query {
-  beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
-  createdBoxes(baseId: Int): CreatedBoxesData
-  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
-  topProductsDonated(baseId: Int!): TopProductsDonatedData
-  movedBoxes(baseId: Int!): MovedBoxesData
-}
-
 interface DataCube {
   facts: [Result]
   dimensions: Dimensions
@@ -137,10 +129,4 @@ type TargetDimensionInfo implements BasicDimensionInfo {
   id: ID
   name: String
   type: TargetType
-}
-
-enum TargetType {
-  Shipment
-  OutgoingLocation
-  BoxState
 }

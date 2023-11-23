@@ -8,8 +8,8 @@ import { useParams } from "react-router-dom";
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 
 const DEMOGRAPHIC_QUERY = gql`
-  query BeneficiaryDemographics($baseIds: [Int!]!) {
-    beneficiaryDemographics(baseIds: $baseIds) {
+  query BeneficiaryDemographics($baseId: Int!) {
+    beneficiaryDemographics(baseId: $baseId) {
       facts {
         count
         createdOn
@@ -34,7 +34,7 @@ export default function DemographicView(params: {
   const { data, loading, error } = useQuery<
     BeneficiaryDemographicsQuery,
     BeneficiaryDemographicsQueryVariables
-  >(DEMOGRAPHIC_QUERY, { variables: { baseIds: [parseInt(baseId)] } });
+  >(DEMOGRAPHIC_QUERY, { variables: { baseId: baseId } });
 
   if (error instanceof ApolloError) {
     return <p>ApolloError: {error.message}</p>;

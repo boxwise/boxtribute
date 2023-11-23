@@ -2,6 +2,7 @@ overwrite: true
 schema:
   - "../back/boxtribute_server/graph_ql/definitions/basic/*.graphql"
   - "../back/boxtribute_server/graph_ql/definitions/protected/*.graphql"
+  - "../back/boxtribute_server/graph_ql/definitions/public/types.graphql"
 documents:
   - "./src/**/*.{ts,tsx}"
   - "!./src/queries/local-only.ts"

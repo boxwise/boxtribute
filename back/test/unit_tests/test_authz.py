@@ -6,6 +6,7 @@ from boxtribute_server.authz import (
     ALL_ALLOWED_MUTATIONS,
     _authorize,
     authorize,
+    authorize_cross_organisation_access,
     check_beta_feature_access,
 )
 from boxtribute_server.exceptions import Forbidden
@@ -239,3 +240,23 @@ def test_check_beta_feature_access(mocker):
 
     current_user = CurrentUser(id=0, organisation_id=0, is_god=True)
     assert check_beta_feature_access({}, current_user=current_user)
+
+
+def test_authorize_cross_organisation_access():
+    current_user = CurrentUser(id=1, base_ids={"box_state:read": [1]})
+    # No resource given
+    with pytest.raises(ValueError):
+        authorize_cross_organisation_access(current_user=current_user, base_id=1)
+    # Only base-agnostic resource given
+    assert (
+        authorize_cross_organisation_access(
+            "box_state", current_user=current_user, base_id=1
+        )
+        is None
+    )
+
+    current_user = CurrentUser(id=0, organisation_id=0, is_god=True)
+    assert (
+        authorize_cross_organisation_access(current_user=current_user, base_id=1)
+        is None
+    )

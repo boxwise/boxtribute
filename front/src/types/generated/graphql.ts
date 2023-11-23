@@ -77,6 +77,11 @@ export type BaseTagsArgs = {
   resourceType?: InputMaybe<TaggableResourceType>;
 };
 
+export type BasicDimensionInfo = {
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
+};
+
 /**
  * Representation of a beneficiary.
  * The beneficiary is registered in a specific [`Base`]({{Types.Base}}).
@@ -128,6 +133,26 @@ export type BeneficiaryCreationInput = {
   lastName: Scalars['String'];
   registered: Scalars['Boolean'];
   signature?: InputMaybe<Scalars['String']>;
+};
+
+export type BeneficiaryDemographicsData = DataCube & {
+  __typename?: 'BeneficiaryDemographicsData';
+  dimensions?: Maybe<BeneficiaryDemographicsDimensions>;
+  facts?: Maybe<Array<Maybe<BeneficiaryDemographicsResult>>>;
+};
+
+export type BeneficiaryDemographicsDimensions = {
+  __typename?: 'BeneficiaryDemographicsDimensions';
+  tag?: Maybe<Array<Maybe<TagDimensionInfo>>>;
+};
+
+export type BeneficiaryDemographicsResult = {
+  __typename?: 'BeneficiaryDemographicsResult';
+  age?: Maybe<Scalars['Int']>;
+  count?: Maybe<Scalars['Int']>;
+  createdOn?: Maybe<Scalars['Date']>;
+  gender?: Maybe<HumanGender>;
+  tagIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 /** Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}). */
@@ -254,6 +279,41 @@ export type ClassicLocationBoxesArgs = {
   filterInput?: InputMaybe<FilterBoxInput>;
   paginationInput?: InputMaybe<PaginationInput>;
 };
+
+export type CreatedBoxDataDimensions = {
+  __typename?: 'CreatedBoxDataDimensions';
+  category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  product?: Maybe<Array<Maybe<ProductDimensionInfo>>>;
+};
+
+export type CreatedBoxesData = DataCube & {
+  __typename?: 'CreatedBoxesData';
+  dimensions?: Maybe<CreatedBoxDataDimensions>;
+  facts?: Maybe<Array<Maybe<CreatedBoxesResult>>>;
+};
+
+export type CreatedBoxesResult = {
+  __typename?: 'CreatedBoxesResult';
+  boxesCount?: Maybe<Scalars['Int']>;
+  categoryId?: Maybe<Scalars['Int']>;
+  createdOn?: Maybe<Scalars['Date']>;
+  gender?: Maybe<ProductGender>;
+  itemsCount?: Maybe<Scalars['Int']>;
+  productId?: Maybe<Scalars['Int']>;
+};
+
+export type DataCube = {
+  dimensions?: Maybe<Dimensions>;
+  facts?: Maybe<Array<Maybe<Result>>>;
+};
+
+export type DimensionInfo = BasicDimensionInfo & {
+  __typename?: 'DimensionInfo';
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
+};
+
+export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | MovedBoxDataDimensions | TopProductsDimensions;
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
@@ -493,6 +553,34 @@ export type MetricsNumberOfFamiliesServedArgs = {
 export type MetricsNumberOfSalesArgs = {
   after?: InputMaybe<Scalars['Date']>;
   before?: InputMaybe<Scalars['Date']>;
+};
+
+export type MovedBoxDataDimensions = {
+  __typename?: 'MovedBoxDataDimensions';
+  category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
+};
+
+export type MovedBoxesData = DataCube & {
+  __typename?: 'MovedBoxesData';
+  dimensions?: Maybe<MovedBoxDataDimensions>;
+  facts?: Maybe<Array<Maybe<MovedBoxesResult>>>;
+};
+
+/**
+ * A box can be moved in various ways:
+ * - within a base (location ID with InStock/Donated)
+ * - because it's lost (Lost)
+ * - because it becomes scrap (Scrap)
+ * - because it's about to be shipped (target base ID with MarkedForShipment)
+ * - because it's being shipped (target base ID with InTransit/Receiving)
+ */
+export type MovedBoxesResult = {
+  __typename?: 'MovedBoxesResult';
+  boxesCount: Scalars['Int'];
+  categoryId: Scalars['Int'];
+  movedOn: Scalars['Date'];
+  targetId: Scalars['ID'];
 };
 
 /**
@@ -1042,6 +1130,13 @@ export type ProductCategoryProductsArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
+export type ProductDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'ProductDimensionInfo';
+  gender?: Maybe<ProductGender>;
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
+};
+
 /** Classificators for [`Product`]({{Types.Product}}) gender. */
 export enum ProductGender {
   Boy = 'Boy',
@@ -1082,8 +1177,10 @@ export type Query = {
   /**  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view.  */
   beneficiaries: BeneficiaryPage;
   beneficiary?: Maybe<Beneficiary>;
+  beneficiaryDemographics?: Maybe<BeneficiaryDemographicsData>;
   box?: Maybe<Box>;
   boxes: BoxPage;
+  createdBoxes?: Maybe<CreatedBoxesData>;
   distributionEvent?: Maybe<DistributionEvent>;
   distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
@@ -1094,6 +1191,7 @@ export type Query = {
   locations: Array<ClassicLocation>;
   /**  Return various metrics about stock and beneficiaries for client's organisation.  */
   metrics?: Maybe<Metrics>;
+  movedBoxes?: Maybe<MovedBoxesData>;
   organisation?: Maybe<Organisation>;
   /**  Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view.  */
   organisations: Array<Organisation>;
@@ -1112,6 +1210,8 @@ export type Query = {
   tag?: Maybe<Tag>;
   /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
   tags: Array<Tag>;
+  topProductsCheckedOut?: Maybe<TopProductsCheckedOutData>;
+  topProductsDonated?: Maybe<TopProductsDonatedData>;
   transferAgreement?: Maybe<TransferAgreement>;
   /**
    * Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
@@ -1141,6 +1241,11 @@ export type QueryBeneficiaryArgs = {
 };
 
 
+export type QueryBeneficiaryDemographicsArgs = {
+  baseId: Scalars['Int'];
+};
+
+
 export type QueryBoxArgs = {
   labelIdentifier: Scalars['String'];
 };
@@ -1150,6 +1255,11 @@ export type QueryBoxesArgs = {
   baseId: Scalars['ID'];
   filterInput?: InputMaybe<FilterBoxInput>;
   paginationInput?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryCreatedBoxesArgs = {
+  baseId: Scalars['Int'];
 };
 
 
@@ -1175,6 +1285,11 @@ export type QueryLocationArgs = {
 
 export type QueryMetricsArgs = {
   organisationId?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type QueryMovedBoxesArgs = {
+  baseId: Scalars['Int'];
 };
 
 
@@ -1228,6 +1343,16 @@ export type QueryTagsArgs = {
 };
 
 
+export type QueryTopProductsCheckedOutArgs = {
+  baseId: Scalars['Int'];
+};
+
+
+export type QueryTopProductsDonatedArgs = {
+  baseId: Scalars['Int'];
+};
+
+
 export type QueryTransferAgreementArgs = {
   id: Scalars['ID'];
 };
@@ -1241,6 +1366,8 @@ export type QueryTransferAgreementsArgs = {
 export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
+
+export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | MovedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
 
 export type Shipment = {
   __typename?: 'Shipment';
@@ -1365,6 +1492,14 @@ export type TagCreationInput = {
   type: TagType;
 };
 
+export type TagDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'TagDimensionInfo';
+  /**  Hex color code  */
+  color?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
+};
+
 export type TagOperationInput = {
   id: Scalars['ID'];
   resourceId: Scalars['ID'];
@@ -1394,6 +1529,59 @@ export enum TaggableResourceType {
   Beneficiary = 'Beneficiary',
   Box = 'Box'
 }
+
+export type TargetDimensionInfo = BasicDimensionInfo & {
+  __typename?: 'TargetDimensionInfo';
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
+  type?: Maybe<TargetType>;
+};
+
+export enum TargetType {
+  BoxState = 'BoxState',
+  OutgoingLocation = 'OutgoingLocation',
+  Shipment = 'Shipment'
+}
+
+export type TopProductsCheckedOutData = DataCube & {
+  __typename?: 'TopProductsCheckedOutData';
+  dimensions?: Maybe<TopProductsDimensions>;
+  facts?: Maybe<Array<Maybe<TopProductsCheckedOutResult>>>;
+};
+
+export type TopProductsCheckedOutResult = {
+  __typename?: 'TopProductsCheckedOutResult';
+  categoryId?: Maybe<Scalars['Int']>;
+  checkedOutOn?: Maybe<Scalars['Date']>;
+  itemsCount?: Maybe<Scalars['Int']>;
+  productId?: Maybe<Scalars['Int']>;
+  rank?: Maybe<Scalars['Int']>;
+};
+
+export type TopProductsDimensions = {
+  __typename?: 'TopProductsDimensions';
+  category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  product?: Maybe<Array<Maybe<ProductDimensionInfo>>>;
+  /**  Always null for topProductsCheckedOut query  */
+  size?: Maybe<Array<Maybe<DimensionInfo>>>;
+};
+
+export type TopProductsDonatedData = DataCube & {
+  __typename?: 'TopProductsDonatedData';
+  dimensions?: Maybe<TopProductsDimensions>;
+  facts?: Maybe<Array<Maybe<TopProductsDonatedResult>>>;
+};
+
+export type TopProductsDonatedResult = {
+  __typename?: 'TopProductsDonatedResult';
+  categoryId?: Maybe<Scalars['Int']>;
+  createdOn?: Maybe<Scalars['Date']>;
+  donatedOn?: Maybe<Scalars['Date']>;
+  itemsCount?: Maybe<Scalars['Int']>;
+  productId?: Maybe<Scalars['Int']>;
+  rank?: Maybe<Scalars['Int']>;
+  sizeId?: Maybe<Scalars['Int']>;
+};
 
 /** Representation of a transaction executed by a beneficiary (spending or receiving tokens). */
 export type Transaction = {
