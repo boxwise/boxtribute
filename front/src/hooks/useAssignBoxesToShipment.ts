@@ -240,7 +240,7 @@ export const useAssignBoxesToShipment = () => {
             if (errorCode === "FORBIDDEN") {
               if (showToastMessage)
                 triggerError({
-                  message: "You don't have the permissions to unassign boxes from this shipment.",
+                  message: "You don't have the permissions to remove boxes from this shipment.",
                 });
               return {
                 kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
@@ -262,7 +262,7 @@ export const useAssignBoxesToShipment = () => {
             }
             if (showToastMessage)
               triggerError({
-                message: "Could not unassign boxes from shipment. Try again?",
+                message: "Could not remove boxes from shipment. Try again?",
               });
             // General error
             return {
@@ -293,7 +293,11 @@ export const useAssignBoxesToShipment = () => {
           if (unassignedBoxes.length) {
             if (showToastMessage)
               createToast({
-                message: `${unassignedBoxes.length} Boxes were successfully unassigned to the shipment.`,
+                message: `${
+                  unassignedBoxes.length === 1
+                    ? "A Box was"
+                    : `${unassignedBoxes.length} Boxes were`
+                } successfully removed from the shipment.`,
               });
           }
           // Not all Boxes were unassigned
@@ -319,7 +323,7 @@ export const useAssignBoxesToShipment = () => {
             setIsLoading(false);
             if (showToastMessage)
               triggerError({
-                message: "Could not unassign boxes from shipment. Try again?",
+                message: "Could not remove boxes from shipment. Try again?",
               });
             return {
               kind: IAssignBoxToShipmentResultKind.NETWORK_FAIL,
