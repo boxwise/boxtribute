@@ -1,5 +1,9 @@
 import { IDropdownOption } from "components/Form/SelectField";
-import { BoxState } from "types/generated/graphql";
+import {
+  BoxesLocationsTagsShipmentsForBaseQuery,
+  BoxState,
+  ShipmentState,
+} from "types/generated/graphql";
 
 export function locationToDropdownOptionTransformer(
   locations: {
@@ -26,5 +30,20 @@ export function locationToDropdownOptionTransformer(
         }`,
         value: location.id,
       })) ?? []
+  );
+}
+
+export function shipmentToDropdownOptionTransformer(
+  shipments: BoxesLocationsTagsShipmentsForBaseQuery["shipments"],
+): IDropdownOption[] {
+  return (
+    shipments
+      ?.filter((shipment) => shipment.state === ShipmentState.Preparing)
+      ?.map((shipment) => ({
+        __typename: "Shipment", // Add this line to ensure __typename is set to "Shipment"
+        label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+        subTitle: shipment.labelIdentifier,
+        value: shipment.id,
+      })) || []
   );
 }

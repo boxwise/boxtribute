@@ -19,6 +19,12 @@ export const GET_SCANNED_BOXES = gql`
       __typename
       labelIdentifier
       state
+      shipmentDetail {
+        id
+        shipment {
+          id
+        }
+      }
     }
   }
 `;

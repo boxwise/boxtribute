@@ -1,26 +1,8 @@
 import { useApolloClient } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { generateAssignTagsRequest } from "queries/dynamic-mutations";
+import { IAssign, generateAssignTagsRequest, isAssign } from "queries/dynamic-mutations";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
-
-interface IAssign {
-  labelIdentifier: string;
-  tags: { id: string }[];
-}
-
-// // helper function to check type of dynamically created query
-function isAssign(obj: any): obj is IAssign {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    obj !== undefined &&
-    "labelIdentifier" in obj &&
-    "tags" in obj &&
-    Array.isArray(obj.tags) &&
-    obj.tags.every((tag: any) => typeof tag === "object" && "id" in tag)
-  );
-}
 
 // eslint-disable-next-line no-shadow
 export enum IAssignTagsResultKind {

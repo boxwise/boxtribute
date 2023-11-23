@@ -1,13 +1,10 @@
-import { BoxState, Maybe, ShipmentDetail } from "./generated/graphql";
+import { BoxState } from "./generated/graphql";
 
 export interface IBoxBasicFields {
-  _typename?: "Box";
+  __typename?: "Box";
   labelIdentifier: string;
   state: BoxState;
-}
-
-export interface IBoxBasicFieldsWithShipmentDetail extends IBoxBasicFields {
-  shipmentDetail: ShipmentDetail | null | undefined;
+  shipmentDetail: { id: string; shipment: { id: string } } | null;
 }
 
 export interface IScannedBoxesData {

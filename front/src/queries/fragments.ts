@@ -119,7 +119,14 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
     state
     comment
     location {
+      id
       base {
+        id
+      }
+    }
+    shipmentDetail {
+      id
+      shipment {
         id
       }
     }
@@ -143,10 +150,13 @@ export const BOX_FIELDS_FRAGMENT = gql`
       ...SizeBasicFields
     }
     shipmentDetail {
+      id
       shipment {
         id
+        labelIdentifier
         state
         details {
+          id
           box {
             location {
               ...LocationBasicFields
@@ -196,6 +206,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
     history {
       ...HistoryFields
     }
+    createdOn
   }
 `;
 
@@ -333,15 +344,15 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
     sourceSize {
       ...SizeBasicFields
     }
+    targetSize {
+      ...SizeBasicFields
+    }
     sourceLocation {
       id
       name
       ... on ClassicLocation {
         defaultBoxState
       }
-    }
-    targetSize {
-      ...SizeBasicFields
     }
     sourceQuantity
     targetQuantity
