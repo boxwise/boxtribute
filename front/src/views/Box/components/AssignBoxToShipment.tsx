@@ -150,7 +150,7 @@ function AssignBoxToShipment({
             </Tooltip>
           </Flex>
 
-          <Flex alignItems="center" gap={3} width="100%">
+          {/* <Flex alignItems="center" gap={3} width="100%">
             <Divider border="2px" borderColor="black" borderRadius={0} />
             <Heading
               as="h4"
@@ -167,7 +167,7 @@ function AssignBoxToShipment({
             <Text>Assign box to a different shipment under preparation:</Text>
             {allShipmentsDropDown}
             {assignButton}
-          </Flex>
+          </Flex> */}
         </Flex>
       )}
     </>
