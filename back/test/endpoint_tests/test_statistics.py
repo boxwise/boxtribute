@@ -4,7 +4,11 @@ import pytest
 from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.utils import compute_age
-from utils import assert_forbidden_request, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_forbidden_request,
+    assert_successful_request,
+)
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
@@ -256,3 +260,14 @@ def test_authorization(read_only_client, mocker):
 
     query = "query { beneficiaryDemographics(baseId: 3) { facts { age } } }"
     assert_forbidden_request(read_only_client, query)
+
+
+def test_public_query_validation(read_only_client):
+    for query in [
+        "query { beneficiaryDemographics(baseId: 5) { facts { age } } }",
+        "query { createdBoxes(baseId: 5) { facts { productId } } }",
+        "query { topProductsCheckedOut(baseId: 5) { facts { productId } } }",
+        "query { topProductsDonated(baseId: 5) { facts { productId } } }",
+        "query { movedBoxes(baseId: 5) { facts { categoryId } } }",
+    ]:
+        assert_bad_user_input(read_only_client, query, endpoint="public")
