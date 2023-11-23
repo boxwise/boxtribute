@@ -196,8 +196,10 @@ function BoxesActionsAndTable({
         newAlerts.push({
           id: alerts.length,
           status: "info",
-          message: `Cannot unnassign ${notMarkedForShipmentBoxes.length}${
-            notMarkedForShipmentBoxes.length === 1 ? " box" : " boxes"
+          message: `Cannot remove ${
+            notMarkedForShipmentBoxes.length === 1
+              ? "a box"
+              : `${notMarkedForShipmentBoxes.length} boxes`
           } that ${
             notMarkedForShipmentBoxes.length === 1 ? "is" : "are"
           } not assigned to any shipment.`,
@@ -207,8 +209,8 @@ function BoxesActionsAndTable({
         newAlerts.push({
           id: alerts.length,
           status: "error",
-          message: `Could not unassign ${failedBoxes.length}${
-            failedBoxes.length === 1 ? "box" : "boxes"
+          message: `Could not remove ${
+            failedBoxes.length === 1 ? "a box" : `${failedBoxes.length} boxes`
           } from shipment. Try again?`,
         });
       }

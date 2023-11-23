@@ -94,11 +94,9 @@ export const generateMockShipment = ({
             state: BoxState.MarkedForShipment,
             comment: null,
             location: {
-              __typename: "ClassicLocation",
-              id: "1",
+              ...location1,
               base: {
-                __typename: "Base",
-                id: "1",
+                ...base1,
               },
             },
             shipmentDetail: {
@@ -134,11 +132,9 @@ export const generateMockShipment = ({
             state: BoxState.MarkedForShipment,
             comment: null,
             location: {
-              __typename: "ClassicLocation",
-              id: "1",
+              ...location1,
               base: {
-                __typename: "Base",
-                id: "1",
+                ...base1,
               },
             },
             shipmentDetail: {

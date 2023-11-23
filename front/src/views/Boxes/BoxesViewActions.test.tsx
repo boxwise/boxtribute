@@ -14,7 +14,7 @@ import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";
 import BoxesView, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
 
-const initialQuery = ({ state = BoxState.InStock }) => ({
+const initialQuery = ({ state = BoxState.InStock, shipmentDetail = null as any }) => ({
   request: {
     query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
     variables: {
@@ -28,6 +28,7 @@ const initialQuery = ({ state = BoxState.InStock }) => ({
         elements: [
           generateMockBox({
             state,
+            shipmentDetail,
           }),
         ],
         pageInfo: {
@@ -42,7 +43,7 @@ const initialQuery = ({ state = BoxState.InStock }) => ({
         locations: [location1],
         tags: [],
       },
-      shipments: [basicShipment],
+      shipments: [generateMockShipment({ hasBoxes: false })],
     },
   },
 });
@@ -51,7 +52,7 @@ const mutation = ({
   gQLRequest = ASSIGN_BOXES_TO_SHIPMENT,
   variables = { id: "1", labelIdentifiers: ["123"] } as any,
   resultData = {
-    updateShipmentWhenPreparing: { ...basicShipment, details: [shipmentDetail1] },
+    updateShipmentWhenPreparing: { ...basicShipment, details: [shipmentDetail1()] },
   } as any,
   networkError = false,
   graphQlError = false,
@@ -103,6 +104,39 @@ const moveBoxesGQLRequest = gql`
       location {
         id
       }
+    }
+  }
+`;
+
+const unassignFromShipmentGQLRequest = gql`
+  mutation UnassignBoxesFromShipments($shipment0: ID!, $labelIdentifiers0: [String!]!) {
+    unassignBoxesFromShipment1: updateShipmentWhenPreparing(
+      updateInput: {
+        id: $shipment0
+        preparedBoxLabelIdentifiers: []
+        removedBoxLabelIdentifiers: $labelIdentifiers0
+      }
+    ) {
+      id
+      details {
+        id
+        removedOn
+        removedBy {
+          id
+          __typename
+        }
+        box {
+          labelIdentifier
+          state
+          shipmentDetail {
+            id
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      __typename
     }
   }
 `;
@@ -216,6 +250,50 @@ const boxesViewActionsTests = [
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: undefined,
     alert: /Cannot assign a box/i,
+  },
+  {
+    name: "4.8.4.2 - Unassign From Shipment Action is successful",
+    mocks: [
+      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+      mutation({
+        gQLRequest: unassignFromShipmentGQLRequest,
+        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+        resultData: {
+          unassignBoxesFromShipment1: generateMockShipment({ hasBoxes: false }),
+        },
+      }),
+    ],
+    clicks: [/remove from shipment/i],
+    toast: /A Box was successfully unassigned/i,
+    alert: undefined,
+  },
+  {
+    name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
+    mocks: [
+      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+      mutation({
+        gQLRequest: unassignFromShipmentGQLRequest,
+        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+        graphQlError: true,
+      }),
+    ],
+    clicks: [/remove from shipment/i],
+    toast: undefined,
+    alert: /Could not remove a box/i,
+  },
+  {
+    name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
+    mocks: [
+      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+      mutation({
+        gQLRequest: unassignFromShipmentGQLRequest,
+        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+        networkError: true,
+      }),
+    ],
+    clicks: [/remove from shipment/i],
+    toast: undefined,
+    alert: /Could not remove a box/i,
   },
 ];
 
