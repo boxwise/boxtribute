@@ -1,136 +1,109 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
+import HeaderMenu, { IMenuItemsGroupData } from "./HeaderMenu";
 
-const HeaderMenuContainer = () => {
+function HeaderMenuContainer() {
   const auth0 = useAuth0();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
-  const menuItems: MenuItemsGroupData[] = useMemo(
-    () => [
+  // TODO: do this at route definition
+  // abp are minimum permissions required to access the link
+  const menuItems: IMenuItemsGroupData[] = useMemo(() => {
+    const oldAppUrlWithBase = `${process.env.REACT_APP_OLD_APP_BASE_URL}/?camp=${baseId}`;
+    return [
       {
-        text: "Classic View",
+        text: "Inventory",
+        abp: ["create_label"],
         links: [
           {
-            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/mobile.php`,
-            name: "Go to classic mobile",
+            link: `${oldAppUrlWithBase}&action=qr`,
+            name: "Print Box Labels",
+            abp: ["create_label"],
+            external: true,
           },
           {
-            link: `${process.env.REACT_APP_OLD_APP_BASE_URL}/`,
-            name: "Go to classic desktop",
+            link: "/boxes",
+            name: "Manage Boxes v2",
+            beta: true,
+            abp: ["manage_inventory"],
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=stock`,
+            name: "Classic Manage Boxes",
+            abp: ["manage_inventory"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=stock_overview`,
+            name: "Stock Overview",
+            abp: ["view_inventory"],
+            external: true,
           },
         ],
       },
       {
         text: "Transfers",
         minBeta: 2,
+        abp: ["view_shipments"],
         links: [
           {
             link: "/transfers/shipments",
             name: "Manage Shipments",
+            beta: true,
+            abp: ["view_shipments"],
           },
           {
             link: "/transfers/agreements",
             name: "Manage Agreements",
+            beta: true,
+            abp: ["view_transfer_agreements"],
           },
         ],
       },
-      // {
-      //   text: "Boxes",
-      //   links: [
-      //     // { link: "#", name: "Print Labels" },
-      //     { link: `/bases/${baseId}/boxes`, name: "Manage Boxes" },
-      //       // TODO: uncomment this once we have finished/tested the Create Box feature sufficiently
-      //     // { link: `/bases/${baseId}/boxes/create`, name: "Create new Box" },
-      //     // { link: "#", name: "Stock Overview" },
-      //   ],
-      // },
-      // {
-      //   text: "Freeshop",
-      //   links: [
-      //     { link: "#", name: "Manage Beneficiaries" },
-      //     { link: "#", name: "Checkout" },
-      //     { link: "#", name: "Generate Market Schedule" },
-      //   ],
-      // },
-      // {
-      //   text: "Mobile Distributions",
-      //   links: [
-      //     {
-      //       link: `/bases/${baseId}/distributions`,
-      //       name: "Distribution Events",
-      //     },
-      //     {
-      //       link: `/bases/${baseId}/distributions/return-trackings`,
-      //       name: "Return Trackings",
-      //     },
-      //     {
-      //       link: `/bases/${baseId}/distributions/spots`,
-      //       name: "Distribution Spots",
-      //     },
-      //   ],
-      // },
-      // {
-      //   text: "Box Transfers",
-      //   links: [
-      //     { link: "#", name: "Transfer Agreements" },
-      //     { link: "#", name: "Shipments" },
-      //   ],
-      // },
-      // {
-      //   text: "Data Insights",
-      //   links: [
-      //     { link: "#", name: "Charts" },
-      //     { link: "#", name: "Export" },
-      //   ],
-      // },
-      // {
-      //   text: "Admin",
-      //   links: [
-      //     { link: "#", name: "Manage Tags" },
-      //     // { link: "#", name: "Manage Products" },
-      //     // { link: "#", name: "Edit Warehouses" },
-      //     // { link: "#", name: "Manage Users" },
-      //   ],
-      // },
-    ],
-    [baseId],
+    ];
+  }, [baseId]);
+
+  const authorizedMenuItems: IMenuItemsGroupData[] = useMemo(
+    () =>
+      menuItems.reduce((acc, menuItem) => {
+        if (auth0.user) {
+          const userBetaValue = parseInt(
+            auth0.user["https://www.boxtribute.com/beta_user"] ?? "0",
+            10,
+          );
+
+          const userAbp = auth0.user["https://www.boxtribute.com/actions"] ?? [];
+
+          if (
+            userBetaValue >= (menuItem.minBeta ?? 0) &&
+            menuItem.abp.every((abp) => userAbp.includes(abp))
+          ) {
+            acc.push({
+              ...menuItem,
+              links: menuItem.links.filter(
+                (subMenu) =>
+                  userBetaValue >= (subMenu.minBeta ?? 0) &&
+                  subMenu.abp.every((abp) => userAbp.includes(abp)),
+              ),
+            });
+          }
+        }
+        return acc;
+      }, [] as IMenuItemsGroupData[]),
+    [menuItems, auth0.user],
   );
-
-  const authorizedMenuItems: MenuItemsGroupData[] = useMemo(() => {
-    return menuItems.filter((menuItem) => {
-      // If no minimum beta requirement exists for the menu item, it should be included.
-      if (!menuItem.minBeta) {
-        return true;
-      }
-
-      // Ensure that auth0.user is defined and parse the beta_user value.
-      if (auth0.user) {
-        const userBetaValue = parseInt(
-          auth0.user["https://www.boxtribute.com/beta_user"] ?? "0",
-          10,
-        );
-        return userBetaValue >= menuItem.minBeta;
-      }
-
-      // If auth0.user is not defined, then don't show items that have a beta requirement.
-      return false;
-    });
-  }, [menuItems, auth0.user]);
 
   return (
     <>
       <HeaderMenu
         {...auth0}
         menuItemsGroups={authorizedMenuItems}
-        currentActiveBaseId={baseId}
-        availableBases={globalPreferences.availableBases}
         onClickScanQrCode={() => qrReaderOverlayVar({ isOpen: true })}
       />
       <QrReaderOverlay
@@ -139,5 +112,5 @@ const HeaderMenuContainer = () => {
       />
     </>
   );
-};
+}
 export default HeaderMenuContainer;
