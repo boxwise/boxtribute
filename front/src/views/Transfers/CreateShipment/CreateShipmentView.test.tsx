@@ -1,12 +1,12 @@
 import "@testing-library/jest-dom";
 import { screen, render } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
-import { acceptedTransferAgreement, generateMockTransferAgreement } from "mocks/transferAgreements";
+import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import userEvent from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { GraphQLError } from "graphql";
 import { base1 } from "mocks/bases";
-import { ShipmentState, TransferAgreementState } from "types/generated/graphql";
+import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
 import { gql } from "@apollo/client";
