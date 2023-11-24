@@ -49,12 +49,7 @@ function BoxTabs({
         )[0]?.sourceLocation
       : boxData?.location;
   return (
-    <Box
-      alignContent="center"
-      w={["100%", "80%", "30%", "30%"]}
-      mr={["0", "0", "4rem", "4rem"]}
-      mb={6}
-    >
+    <Box alignContent="center" w="100%">
       <Flex direction="column">
         <Stack direction="column" alignContent="flex-start" p={2}>
           {location && (

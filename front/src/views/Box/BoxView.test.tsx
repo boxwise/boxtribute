@@ -442,7 +442,7 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
   expect(screen.getByRole("alert")).toBeInTheDocument();
   expect(
     screen.getByText(
-      /if this box has been found, please move it to an instock location\. boxtribute no longer supports lost locations\./i,
+      /To edit this box, please move it to an InStock warehouse location\. Boxtribute no longer supports LOST and SCRAP locations\./i,
     ),
   ).toBeInTheDocument();
 }, 10000);

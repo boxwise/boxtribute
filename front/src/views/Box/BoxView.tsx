@@ -587,7 +587,6 @@ function BTBox() {
             shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
         )
         ?.map((shipment) => ({
-          // eslint-disable-next-line max-len
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           subTitle: shipment.labelIdentifier,
           value: shipment.id,
@@ -595,83 +594,72 @@ function BTBox() {
     [currentBaseId, shipmentsQueryResult],
   );
 
-  let shipmentDetail;
-
   if (error) {
-    shipmentDetail = (
+    return (
       <Alert status="error" data-testid="ErrorAlert">
         <AlertIcon />
         Could not fetch Box Data! Please try reloading the page.
       </Alert>
     );
-  } else if (allData.loading) {
-    shipmentDetail = <BoxViewSkeleton data-testid="loader" />;
-  } else {
-    const alertForLagacyBox = (
-      <Alert status="info" variant="top-accent">
-        <AlertIcon />
-        <Box>
-          <AlertTitle>Note</AlertTitle>
-          <AlertDescription>
-            If this box has been found, please move it to an instock location. Boxtribute no longer
-            supports LOST locations.
-          </AlertDescription>
-        </Box>
-      </Alert>
-    );
-
-    const alertMessageForBoxWithLostScrapState = `To edit or move this box, remove the ${
-      boxData?.state === BoxState.Lost ? "Lost" : "Scrap"
-    } status`;
-
-    const alertForBoxWithLostScrapState = (
-      <Alert status="info" variant="top-accent">
-        <AlertIcon />
-        <Box>
-          <AlertDescription>{alertMessageForBoxWithLostScrapState}</AlertDescription>
-        </Box>
-      </Alert>
-    );
-
-    const location =
-      boxData?.state === BoxState.Receiving
-        ? boxData?.shipmentDetail?.shipment.details.filter(
-            (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-          )[0]?.sourceLocation
-        : boxData?.location;
-
-    const boxInLagacyLocation =
-      (location as ClassicLocation)?.defaultBoxState === BoxState.Lost ||
-      (location as ClassicLocation)?.defaultBoxState === BoxState.Scrap;
-
-    shipmentDetail = (
-      <>
-        {boxInLagacyLocation && boxData?.state !== BoxState.InStock && alertForLagacyBox}
-        {!boxInLagacyLocation &&
-          (boxData?.state === BoxState.Lost || boxData?.state === BoxState.Scrap) &&
-          alertForBoxWithLostScrapState}
-        <BoxDetails
-          boxData={boxData}
-          boxInTransit={boxInTransit}
-          onPlusOpen={onPlusOpen}
-          onHistoryOpen={onHistoryOpen}
-          onMinusOpen={onMinusOpen}
-          onMoveToLocationClick={onMoveBoxToLocationClick}
-          onStateChange={onStateChange}
-          onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
-          onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
-          onAssignBoxesToShipment={onAssignBoxesToShipment}
-          onUnassignBoxesToShipment={onUnassignBoxesToShipment}
-          isLoading={loading}
-          shipmentOptions={shipmentOptions}
-        />
-      </>
-    );
   }
+  if (allData.loading) {
+    return <BoxViewSkeleton data-testid="loader" />;
+  }
+  const alertMessageForLegacyLocation = `To edit this box, please move it to an InStock
+    warehouse location. Boxtribute no longer supports LOST and SCRAP locations.`;
+
+  const alertMessageForBoxWithLostScrapState = `To edit or move this box, remove the ${
+    boxData?.state === BoxState.Lost ? "Lost" : "Scrap"
+  } status.`;
+
+  const location =
+    boxData?.state === BoxState.Receiving
+      ? boxData?.shipmentDetail?.shipment.details.filter(
+          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
+        )[0]?.sourceLocation
+      : boxData?.location;
+
+  const boxInLegacyLocation =
+    (location as ClassicLocation)?.defaultBoxState === BoxState.Lost ||
+    (location as ClassicLocation)?.defaultBoxState === BoxState.Scrap;
 
   return (
     <VStack spacing={4} align="stretch">
-      {shipmentDetail}
+      {(boxInLegacyLocation ||
+        boxData?.state === BoxState.Lost ||
+        boxData?.state === BoxState.Scrap) && (
+        <Alert
+          status="info"
+          variant="top-accent"
+          w={["100%", "80%", "100%", "80%"]}
+          alignSelf="center"
+        >
+          <AlertIcon />
+          <Box>
+            <AlertTitle>Note</AlertTitle>
+            <AlertDescription>
+              {boxInLegacyLocation
+                ? alertMessageForLegacyLocation
+                : alertMessageForBoxWithLostScrapState}
+            </AlertDescription>
+          </Box>
+        </Alert>
+      )}
+      <BoxDetails
+        boxData={boxData}
+        boxInTransit={boxInTransit}
+        onPlusOpen={onPlusOpen}
+        onHistoryOpen={onHistoryOpen}
+        onMinusOpen={onMinusOpen}
+        onMoveToLocationClick={onMoveBoxToLocationClick}
+        onStateChange={onStateChange}
+        onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
+        onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
+        onAssignBoxesToShipment={onAssignBoxesToShipment}
+        onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+        isLoading={loading}
+        shipmentOptions={shipmentOptions}
+      />
       <AddItemsToBoxOverlay
         isLoading={loading}
         isOpen={isPlusOpen}
