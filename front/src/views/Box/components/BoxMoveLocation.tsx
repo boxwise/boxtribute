@@ -26,7 +26,7 @@ function BoxMoveLocation({
           noOfLines={1}
         />
       )}
-      {!isLoading && (
+      {!isLoading && boxData.state !== BoxState.MarkedForShipment && (
         <Text data-testid="box-location-label" textAlign="center" fontSize="xl" mb={4}>
           Move this box from <strong>{boxData.location?.name}</strong> to:
         </Text>

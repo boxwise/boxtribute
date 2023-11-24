@@ -11,6 +11,8 @@ import {
   Wrap,
   Text,
   SkeletonText,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
@@ -116,14 +118,22 @@ function BoxTabs({
             )}
           </TabList>
           <TabPanels>
-            <TabPanel p={4}>
+            <TabPanel>
               {boxData?.location !== null && (
-                <BoxMoveLocation
-                  boxData={boxData}
-                  boxInTransit={boxInTransit}
-                  onMoveToLocationClick={onMoveToLocationClick}
-                  isLoading={isLoading}
-                />
+                <>
+                  {boxData?.state === BoxState.MarkedForShipment && (
+                    <Alert status="warning" fontSize={16} fontWeight="bold" my={4}>
+                      <AlertIcon />
+                      Marked for Shipment Boxes are not Movable
+                    </Alert>
+                  )}
+                  <BoxMoveLocation
+                    boxData={boxData}
+                    boxInTransit={boxInTransit}
+                    onMoveToLocationClick={onMoveToLocationClick}
+                    isLoading={isLoading}
+                  />
+                </>
               )}
             </TabPanel>
 
