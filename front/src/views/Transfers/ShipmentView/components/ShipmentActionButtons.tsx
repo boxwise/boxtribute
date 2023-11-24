@@ -62,7 +62,7 @@ function ShipmentActionButtons({
     colorScheme: "red",
     isDisabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
-    variant: "ghost",
+    variant: "outline",
     onClick: openShipmentOverlay,
     size: "md",
     marginTop: 2,
