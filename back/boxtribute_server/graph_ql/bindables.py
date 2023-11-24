@@ -61,6 +61,7 @@ from ..business_logic.mobile_distribution.tracking_group.fields import (
 from ..business_logic.mobile_distribution.tracking_group.queries import (
     query as distribution_events_tracking_group_query,
 )
+from ..business_logic.statistics.queries import query as statistics_query
 from ..business_logic.tag.fields import tag
 from ..business_logic.tag.mutations import mutation as tag_mutation
 from ..business_logic.tag.queries import query as tag_query
@@ -95,6 +96,7 @@ query_types = (
     product_query,
     qr_code_query,
     shipment_query,
+    statistics_query,
     tag_query,
     user_query,
 )
