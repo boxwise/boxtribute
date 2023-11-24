@@ -527,7 +527,7 @@ it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipme
   await user.click(moveTab);
 
   expect(screen.getByRole("alert")).toBeInTheDocument();
-  expect(screen.getByText(/marked for shipment boxes are not movable/i)).toBeInTheDocument();
+  expect(screen.getByText(/markedforshipment boxes are not movable/i)).toBeInTheDocument();
 }, 10000);
 // Test case 3.1.2
 it("3.1.2 - Change Number of Items", async () => {

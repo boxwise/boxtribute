@@ -117,9 +117,9 @@ function BoxTabs({
               {boxData?.location !== null && (
                 <>
                   {boxData?.state === BoxState.MarkedForShipment && (
-                    <Alert status="warning" fontSize={16} fontWeight="bold" my={4}>
+                    <Alert status="warning" my={4}>
                       <AlertIcon />
-                      Marked for Shipment Boxes are not Movable
+                      MarkedForShipment Boxes are not movable.
                     </Alert>
                   )}
                   <BoxMoveLocation
