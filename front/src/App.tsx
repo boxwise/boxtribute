@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
-import { ReactElement } from "react";
-import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { ReactElement, useEffect, useState } from "react";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -15,7 +15,6 @@ import DistroEventView from "views/Distributions/DistroEventView/DistroEventView
 import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
 import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
 import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
-import BaseDashboardView from "views/BaseDashboard/BaseDashboardView";
 import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
 import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
 import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
@@ -29,21 +28,37 @@ import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 import { useAuthorization } from "hooks/useAuthorization";
 import ResolveHash from "views/QrReader/components/ResolveHash";
+import { useErrorHandling } from "hooks/useErrorHandling";
 
 interface IProtectedRouteProps {
   component: ReactElement;
+  redirectPath: string | undefined;
   requiredAbp?: string[];
   minBeta?: number;
 }
 
-function Protected({ component, requiredAbp, minBeta }: IProtectedRouteProps) {
+function Protected({ component, redirectPath, requiredAbp, minBeta }: IProtectedRouteProps) {
+  const { triggerError } = useErrorHandling();
+  const { pathname: currentPath } = useLocation();
   const authorize = useAuthorization();
+  const isAuthorized = authorize({ requiredAbp, minBeta });
 
-  if (authorize({ requiredAbp, minBeta })) {
+  useEffect(() => {
+    if (!isAuthorized) {
+      triggerError({ message: "You are not authorized." });
+    }
+  }, [isAuthorized, triggerError]);
+
+  if (isAuthorized) {
     return component;
   }
 
-  return <Navigate to="/qrreader" replace />;
+  return (
+    <Navigate
+      to={redirectPath && redirectPath !== currentPath ? redirectPath : "/qrreader"}
+      replace
+    />
+  );
 }
 Protected.defaultProps = {
   requiredAbp: [],
@@ -53,6 +68,18 @@ Protected.defaultProps = {
 function App() {
   const { logout } = useAuth0();
   const { isLoading, error } = useLoadAndSetGlobalPreferences();
+  const location = useLocation();
+  const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
+
+  // store previous location to return to if you are not authorized
+  useEffect(() => {
+    const regex = /^\/bases\/\d+\//;
+    // only store previous location if a base is selected
+    if (regex.test(location.pathname)) {
+      setPrevLocation(location.pathname);
+    }
+  }, [location]);
+
   if (error) {
     // eslint-disable-next-line no-console
     console.error(error);
@@ -75,7 +102,7 @@ function App() {
       <Route path="bases">
         <Route index />
         <Route path=":baseId" element={<Layout />}>
-          <Route index element={<BaseDashboardView />} />
+          <Route index element={<QrReaderView />} />
           <Route path="qrreader">
             <Route index element={<QrReaderView />} />
             <Route path=":hash" element={<ResolveHash />} />
@@ -83,36 +110,60 @@ function App() {
           <Route path="boxes">
             <Route
               index
-              element={<Protected component={<Boxes />} requiredAbp={["manage_inventory"]} />}
+              element={
+                <Protected
+                  component={<Boxes />}
+                  redirectPath={prevLocation}
+                  requiredAbp={["manage_inventory"]}
+                />
+              }
             />
             <Route path="create">
               <Route
                 path=":qrCode"
                 element={
-                  <Protected component={<BoxCreateView />} requiredAbp={["manage_inventory"]} />
+                  <Protected
+                    component={<BoxCreateView />}
+                    redirectPath={prevLocation}
+                    requiredAbp={["manage_inventory"]}
+                  />
                 }
               />
             </Route>
             <Route path=":labelIdentifier">
               <Route
                 index
-                element={<Protected component={<BTBox />} requiredAbp={["view_inventory"]} />}
+                element={
+                  <Protected
+                    component={<BTBox />}
+                    redirectPath={prevLocation}
+                    requiredAbp={["view_inventory"]}
+                  />
+                }
               />
               <Route
                 path="edit"
                 element={
-                  <Protected component={<BoxEditView />} requiredAbp={["manage_inventory"]} />
+                  <Protected
+                    component={<BoxEditView />}
+                    redirectPath={prevLocation}
+                    requiredAbp={["manage_inventory"]}
+                  />
                 }
               />
             </Route>
           </Route>
-          <Route path="transfers" element={<Protected component={<Outlet />} minBeta={2} />}>
+          <Route
+            path="transfers"
+            element={<Protected component={<Outlet />} redirectPath={prevLocation} minBeta={2} />}
+          >
             <Route path="agreements">
               <Route
                 index
                 element={
                   <Protected
                     component={<TransferAgreementOverviewView />}
+                    redirectPath={prevLocation}
                     requiredAbp={["view_transfer_agreements"]}
                   />
                 }
@@ -122,6 +173,7 @@ function App() {
                 element={
                   <Protected
                     component={<CreateTransferAgreementView />}
+                    redirectPath={prevLocation}
                     requiredAbp={["create_transfer_agreement"]}
                   />
                 }
@@ -133,6 +185,7 @@ function App() {
                 element={
                   <Protected
                     component={<ShipmentsOverviewView />}
+                    redirectPath={prevLocation}
                     requiredAbp={["view_shipments"]}
                   />
                 }
@@ -140,18 +193,29 @@ function App() {
               <Route
                 path="create"
                 element={
-                  <Protected component={<CreateShipmentView />} requiredAbp={["create_shipment"]} />
+                  <Protected
+                    component={<CreateShipmentView />}
+                    redirectPath={prevLocation}
+                    requiredAbp={["create_shipment"]}
+                  />
                 }
               />
               <Route
                 path=":id"
                 element={
-                  <Protected component={<ShipmentView />} requiredAbp={["view_shipments"]} />
+                  <Protected
+                    component={<ShipmentView />}
+                    redirectPath={prevLocation}
+                    requiredAbp={["view_shipments"]}
+                  />
                 }
               />
             </Route>
           </Route>
-          <Route path="distributions" element={<Protected component={<Outlet />} minBeta={999} />}>
+          <Route
+            path="distributions"
+            element={<Protected component={<Outlet />} redirectPath={prevLocation} minBeta={999} />}
+          >
             <Route index element={<DistrosDashboardView />} />
             <Route path="return-trackings">
               <Route index element={<DistributionReturnTrackingsView />} />
