@@ -27,7 +27,7 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
-            link: "/boxes",
+            link: `/bases/${baseId}/boxes`,
             name: "Manage Boxes v2",
             beta: true,
             requiredAbp: ["manage_inventory"],
@@ -52,13 +52,13 @@ function HeaderMenuContainer() {
         requiredAbp: ["view_shipments"],
         links: [
           {
-            link: "/transfers/shipments",
+            link: `/bases/${baseId}/transfers/shipments`,
             name: "Manage Shipments",
             beta: true,
             requiredAbp: ["view_shipments"],
           },
           {
-            link: "/transfers/agreements",
+            link: `/bases/${baseId}/transfers/agreements`,
             name: "Manage Agreements",
             beta: true,
             requiredAbp: ["view_transfer_agreements"],
