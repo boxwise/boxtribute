@@ -1,58 +1,33 @@
-import { LayoutProps, useMediaQuery } from "@chakra-ui/react";
+import { useMediaQuery } from "@chakra-ui/react";
 import HeaderMenuDesktop from "./HeaderMenuDesktop";
 import HeaderMenuMobile from "./HeaderMenuMobile";
 
-export interface MenuItemData {
+export interface IMenuItemData {
   link: string;
   name: string;
-}
-
-export interface MenuItemsGroupData {
-  text: string;
-  links: MenuItemData[];
+  beta?: boolean;
   minBeta?: number;
+  requiredAbp: string[];
+  external?: boolean;
 }
 
-export interface BaseData {
-  id: string;
-  name: string;
+export interface IMenuItemsGroupData {
+  text: string;
+  links: IMenuItemData[];
+  minBeta?: number;
+  requiredAbp: string[];
 }
 
-export interface BaseSwitcherProps {
-  currentActiveBaseId: string;
-  availableBases?: BaseData[];
-}
-
-export interface UserMenuProps extends BaseSwitcherProps {
-  logout: () => void;
-  user?: {
-    picture?: string;
-    email?: string;
-  };
-}
-
-export interface LoginOrUserMenuButtonProps extends UserMenuProps {
-  isAuthenticated: boolean;
-  loginWithRedirect: () => void;
-}
-
-export interface MenuItemsGroupProps extends MenuItemsGroupData {}
-
-export interface MenuItemsGroupsProps extends LoginOrUserMenuButtonProps, LayoutProps {
-  menuItemsGroups: MenuItemsGroupData[];
-}
-
-export type HeaderMenuProps = LoginOrUserMenuButtonProps & {
+export interface IHeaderMenuProps {
   onClickScanQrCode: () => void;
-  menuItemsGroups: MenuItemsGroupData[];
-};
+  menuItemsGroups: IMenuItemsGroupData[];
+}
 
-const HeaderMenu = (props: HeaderMenuProps) => {
+function HeaderMenu(props: IHeaderMenuProps) {
   const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
   if (isSmallScreen) {
     return <HeaderMenuMobile {...props} />;
-  } else {
-    return <HeaderMenuDesktop {...props} />;
   }
-};
+  return <HeaderMenuDesktop {...props} />;
+}
 export default HeaderMenu;

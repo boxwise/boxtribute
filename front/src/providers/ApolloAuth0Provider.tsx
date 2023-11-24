@@ -2,21 +2,13 @@
 // https://github.com/samjulien/apollo-auth0-fullstack/blob/master/habit-tracker/src/ApolloWrapper.js
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
-import { useState, useEffect, ReactNode, createContext, Context } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { cache } from "queries/cache";
-
-export interface IApolloAuth0WrapperContext {
-  isAccessTokenInHeader: Boolean;
-}
-
-export const ApolloAuth0WrapperContext: Context<IApolloAuth0WrapperContext> = createContext(
-  {} as IApolloAuth0WrapperContext,
-);
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { triggerError } = useErrorHandling();

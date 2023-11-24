@@ -3,7 +3,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useLazyQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { ApolloAuth0WrapperContext } from "providers/ApolloAuth0Provider";
 import { OrganisationAndBasesQuery } from "types/generated/graphql";
 import { ORGANISATION_AND_BASES_QUERY } from "queries/queries";
 
@@ -12,23 +11,19 @@ export const useLoadAndSetGlobalPreferences = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
-  const { isAccessTokenInHeader } = useContext(ApolloAuth0WrapperContext);
   const [error, setError] = useState<string>();
 
   const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
-    // run query only if the access token is in the request header from the apollo client
-    if (user) {
+    // run query only if the access token is in the request header from the apollo client and the base is not set
+    if (user && !globalPreferences.selectedBase?.id) {
       runOrganisationAndBasesQuery({
         variables: { organisationId: user["https://www.boxtribute.com/organisation_id"] },
       });
-    } else {
-      // The user MUST be set by the logic of the app. The checking of user is actually just for type checking.
-      setError("Unexpected Error!");
     }
-  }, [runOrganisationAndBasesQuery, globalPreferences.availableBases, isAccessTokenInHeader, user]);
+  }, [runOrganisationAndBasesQuery, user, globalPreferences.selectedBase?.id]);
 
   // set available bases
   useEffect(() => {

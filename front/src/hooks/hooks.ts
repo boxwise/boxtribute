@@ -13,7 +13,7 @@ export interface INotificationProps extends UseToastOptions {
 
 // logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
 export const useHandleLogout = () => {
-  const { logout } = useAuth0();
+  const { user, logout } = useAuth0();
 
   const handleLogout = () => {
     // only redirect in staging and production environments
@@ -25,7 +25,7 @@ export const useHandleLogout = () => {
     }
     return null;
   };
-  return handleLogout;
+  return { user, handleLogout };
 };
 
 export const useGetUrlForResourceHelpers = () => {
