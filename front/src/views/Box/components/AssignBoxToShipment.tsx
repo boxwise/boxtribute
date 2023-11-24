@@ -1,19 +1,7 @@
 import { useMemo, useState } from "react";
-import {
-  Text,
-  FormControl,
-  FormErrorMessage,
-  Button,
-  Flex,
-  // Divider,
-  // Heading,
-  chakra,
-  IconButton,
-  Tooltip,
-} from "@chakra-ui/react";
+import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
-import { AiFillInfoCircle } from "react-icons/ai";
 import {
   BoxByLabelIdentifierQuery,
   BoxState,
@@ -117,13 +105,13 @@ function AssignBoxToShipment({
 
       {currentShipmentId && (
         <Flex direction="column" alignContent="center" alignItems="center">
-          <Flex direction="row" alignContent="center" alignItems="center" px={4}>
+          <Flex direction="column" alignContent="center" alignItems="center" px={4}>
             <Button
               isLoading={isAssignBoxesToShipmentLoading}
               type="button"
               colorScheme="blue"
               size="md"
-              mt={2}
+              mt={45}
               disabled={
                 boxData.state === BoxState.InTransit || boxData.state === BoxState.Receiving
               }
@@ -132,24 +120,18 @@ function AssignBoxToShipment({
                 onUnassignBoxesToShipment(currentShipmentId);
                 setSelectedShipmentOption({ value: "", label: "", subTitle: "" });
               }}
+              px={10}
             >
               Remove from Shipment
             </Button>
-            <Tooltip
-              hasArrow
-              placement="bottom-start"
-              label="Remove a box from a shipment to return it to Instock status"
-              bg="black"
-            >
-              <IconButton
-                isRound
-                icon={<AiFillInfoCircle size={24} />}
-                style={{ background: "white", color: "grey" }}
-                aria-label="remove from shipment"
-              />
-            </Tooltip>
+            <Text fontSize={12} fontStyle="italic">
+              This will revert the box status back to Instock
+            </Text>
           </Flex>
-
+          {/*
+            TODO: For now, the following code has been temporarily commented out and
+            will be added back once we have made the reassignment change in the backend
+          */}
           {/* <Flex alignItems="center" gap={3} width="100%">
             <Divider border="2px" borderColor="black" borderRadius={0} />
             <Heading
