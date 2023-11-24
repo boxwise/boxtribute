@@ -83,6 +83,60 @@ const initialQueryForBoxInLegacyLostLocation = {
   },
 };
 
+const initialQueryForBoxLostState = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "1234",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "1234",
+        state: BoxState.Lost,
+      }),
+      shipments: null,
+    },
+  },
+};
+
+const initialQueryForBoxScrapState = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "1234",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "1234",
+        state: BoxState.Scrap,
+      }),
+      shipments: null,
+    },
+  },
+};
+
+const initialQueryForBoxMarkedForShipmentState = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "1234",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "1234",
+        state: BoxState.MarkedForShipment,
+      }),
+      shipments: null,
+    },
+  },
+};
+
 const productWithoutGenderQuery = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
@@ -388,11 +442,93 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
   expect(screen.getByRole("alert")).toBeInTheDocument();
   expect(
     screen.getByText(
-      /if this box has been found, please move it to an instock location\. boxtribute no longer supports lost locations\./i,
+      /To edit this box, please move it to an InStock warehouse location\. Boxtribute no longer supports LOST and SCRAP locations\./i,
     ),
   ).toBeInTheDocument();
 }, 10000);
 
+// Test case 3.1.1.8
+it("3.1.1.8 - Content: Display an info alert if a box status is Lost", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/1234",
+    mocks: [initialQueryForBoxLostState],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  // Test case 3.1.1.8 - Content: Display an info alert if a box status is Lost
+
+  const title = await screen.findByRole("heading", { name: "Box 1234" });
+  expect(title).toBeInTheDocument();
+
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(screen.getByText(/to edit or move this box, remove the lost status/i)).toBeInTheDocument();
+}, 10000);
+
+// Test case 3.1.1.9
+it("3.1.1.9 - Content: Display an info alert if a box status is Scrap", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/1234",
+    mocks: [initialQueryForBoxScrapState],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  // Test case 3.1.1.9 - Content: Display an info alert if a box status is Scrap
+
+  const title = await screen.findByRole("heading", { name: "Box 1234" });
+  expect(title).toBeInTheDocument();
+
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(
+    screen.getByText(/to edit or move this box, remove the scrap status/i),
+  ).toBeInTheDocument();
+}, 10000);
+
+// Test case 3.1.1.10
+it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipment", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/1234",
+    mocks: [initialQueryForBoxMarkedForShipmentState],
+    addTypename: true,
+    globalPreferences: {
+      dispatch: jest.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+      },
+    },
+  });
+
+  // Test case 3.1.1.10 - Content: Display an info alert if a box status is mark for shipment
+
+  const title = await screen.findByRole("heading", { name: "Box 1234" });
+  expect(title).toBeInTheDocument();
+
+  const moveTab = screen.getByRole("tab", { name: /move/i });
+  await user.click(moveTab);
+
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(screen.getByText(/markedforshipment boxes are not movable/i)).toBeInTheDocument();
+}, 10000);
 // Test case 3.1.2
 it("3.1.2 - Change Number of Items", async () => {
   const user = userEvent.setup();

@@ -11,6 +11,8 @@ import {
   Wrap,
   Text,
   SkeletonText,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
@@ -47,12 +49,7 @@ function BoxTabs({
         )[0]?.sourceLocation
       : boxData?.location;
   return (
-    <Box
-      alignContent="center"
-      w={["100%", "80%", "30%", "30%"]}
-      mr={["0", "0", "4rem", "4rem"]}
-      mb={6}
-    >
+    <Box alignContent="center" w="100%">
       <Flex direction="column">
         <Stack direction="column" alignContent="flex-start" p={2}>
           {location && (
@@ -116,14 +113,22 @@ function BoxTabs({
             )}
           </TabList>
           <TabPanels>
-            <TabPanel p={4}>
+            <TabPanel>
               {boxData?.location !== null && (
-                <BoxMoveLocation
-                  boxData={boxData}
-                  boxInTransit={boxInTransit}
-                  onMoveToLocationClick={onMoveToLocationClick}
-                  isLoading={isLoading}
-                />
+                <>
+                  {boxData?.state === BoxState.MarkedForShipment && (
+                    <Alert status="warning" my={4}>
+                      <AlertIcon />
+                      MarkedForShipment Boxes are not movable.
+                    </Alert>
+                  )}
+                  <BoxMoveLocation
+                    boxData={boxData}
+                    boxInTransit={boxInTransit}
+                    onMoveToLocationClick={onMoveToLocationClick}
+                    isLoading={isLoading}
+                  />
+                </>
               )}
             </TabPanel>
 
