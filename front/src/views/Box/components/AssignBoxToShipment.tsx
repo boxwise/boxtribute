@@ -74,8 +74,9 @@ function AssignBoxToShipment({
       isDisabled={isSubmitButtonDisabled}
       type="button"
       colorScheme={!currentShipmentId ? "blue" : "green"}
-      mt={2}
+      mt={4}
       size="md"
+      px={20}
       onClick={() => {
         onAssignBoxesToShipment(selectedShipmentOption.value);
         setSelectedShipmentOption({ value: "", label: "", subTitle: "" });
