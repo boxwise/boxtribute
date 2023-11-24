@@ -1,14 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { gql, useMutation, useQuery, NetworkStatus } from "@apollo/client";
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  useDisclosure,
-  VStack,
-} from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, Box, useDisclosure, VStack } from "@chakra-ui/react";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -607,25 +599,24 @@ function BTBox() {
   } else if (allData.loading) {
     shipmentDetail = <BoxViewSkeleton data-testid="loader" />;
   } else {
-    const alertForLagacyBox = (
-      <Alert status="warning">
-        <AlertIcon />
-        <Box>
-          <AlertTitle>Note</AlertTitle>
-          <AlertDescription>
-            If this box has been found, please move it to an instock location. Boxtribute no longer
-            supports LOST locations.
-          </AlertDescription>
-        </Box>
-      </Alert>
-    );
-
     const location =
       boxData?.state === BoxState.Receiving
         ? boxData?.shipmentDetail?.shipment.details.filter(
             (b) => b.box.labelIdentifier === boxData.labelIdentifier,
           )[0]?.sourceLocation
         : boxData?.location;
+
+    const legacyBoxMessage = `To edit or move this box, remove the ${
+      (location as ClassicLocation).defaultBoxState === BoxState.Lost ? "Lost" : "Scrap"
+    } status`;
+    const alertForLagacyBox = (
+      <Alert status="info" variant="top-accent">
+        <AlertIcon />
+        <Box>
+          <AlertDescription>{legacyBoxMessage}</AlertDescription>
+        </Box>
+      </Alert>
+    );
 
     shipmentDetail = (
       <>
