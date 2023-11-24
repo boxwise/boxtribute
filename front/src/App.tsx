@@ -83,7 +83,7 @@ function App() {
           <Route path="boxes">
             <Route
               index
-              element={<Protected component={<Boxes />} requiredAbp={["view_inventory"]} />}
+              element={<Protected component={<Boxes />} requiredAbp={["manage_inventory"]} />}
             />
             <Route path="create">
               <Route

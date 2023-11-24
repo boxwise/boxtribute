@@ -30,7 +30,7 @@ function HeaderMenuContainer() {
             link: "/boxes",
             name: "Manage Boxes v2",
             beta: true,
-            requiredAbp: ["view_inventory"],
+            requiredAbp: ["manage_inventory"],
           },
           {
             link: `${oldAppUrlWithBase}&action=stock`,
