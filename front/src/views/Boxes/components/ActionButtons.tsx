@@ -8,6 +8,8 @@ import {
   VStack,
   Wrap,
   WrapItem,
+  useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { IDropdownOption } from "components/Form/SelectField";
@@ -22,10 +24,18 @@ interface ISelectButtonProps {
 }
 
 export function SelectButton({ label, options, onSelect, disabled, icon }: ISelectButtonProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   return (
-    <Menu>
-      <MenuButton as={Button} isDisabled={disabled} leftIcon={icon} rightIcon={<ChevronDownIcon />}>
-        {label}
+    <Menu onOpen={onOpen} onClose={onClose}>
+      <MenuButton
+        as={Button}
+        isDisabled={disabled}
+        leftIcon={icon}
+        iconSpacing={isLargerThan768 || isOpen ? 2 : 0}
+        rightIcon={(isLargerThan768 || isOpen) && <ChevronDownIcon />}
+      >
+        {(isLargerThan768 || isOpen) && label}
       </MenuButton>
       <MenuList>
         {options.map(({ label: olabel, value, subTitle }) => {

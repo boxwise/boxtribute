@@ -191,7 +191,7 @@ function Boxes() {
   );
 
   // error and loading handling
-  if (error || !data) {
+  if (error) {
     return (
       <Alert status="error" data-testid="ErrorAlert">
         <AlertIcon />
@@ -199,7 +199,7 @@ function Boxes() {
       </Alert>
     );
   }
-  if (loading) {
+  if (loading || !data) {
     return <TableSkeleton />;
   }
 

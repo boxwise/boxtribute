@@ -231,25 +231,19 @@ function BoxesActionsAndTable({
   const actionButtons = useMemo(
     () => [
       <SelectButton
-        label="Move to..."
+        label="Move to ..."
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
         disabled={actionsAreLoading}
       />,
-      shipmentOptions.length > 0 && (
-        <SelectButton
-          label="Assign to Shipment"
-          options={shipmentOptions}
-          onSelect={onAssignBoxesToShipment}
-          icon={<ShipmentIcon />}
-          disabled={
-            actionsAreLoading ||
-            shipmentOptions.length === 0 ||
-            thereIsABoxMarkedForShipmentSelected
-          }
-        />
-      ),
+      <SelectButton
+        label="Assign to Shipment"
+        options={shipmentOptions}
+        onSelect={onAssignBoxesToShipment}
+        icon={<ShipmentIcon />}
+        disabled={actionsAreLoading || shipmentOptions.length === 0}
+      />,
       thereIsABoxMarkedForShipmentSelected && (
         <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>
       ),
