@@ -56,7 +56,7 @@ function MenuItemsGroupMobile({ links, text }: IMenuItemsGroupData) {
 
 function HeaderMenuMobileContent({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   return (
-    <MenuList>
+    <MenuList zIndex={3}>
       <MenuItem as="div" key="qr-code-menu">
         <Flex
           px={4}

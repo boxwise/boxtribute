@@ -8,8 +8,7 @@ import {
   Flex,
   Checkbox,
   PopoverTrigger as OrigPopoverTrigger,
-  IconButton,
-  Tag,
+  Button,
 } from "@chakra-ui/react";
 import React, { useMemo } from "react";
 import { Column } from "react-table";
@@ -62,18 +61,10 @@ function ColumnSelector({
   return (
     <Popover>
       <PopoverTrigger>
-        <Box position="relative" mr={4}>
-          <IconButton aria-label="Columns Shown" icon={<RiLayoutColumnFill />} />
-          <Tag
-            position="absolute"
-            right={-4}
-            top={0}
-            borderRadius="full"
-            bg="brandBlue.100"
-            color="black"
-          >
+        <Box position="relative">
+          <Button aria-label="Columns Shown" leftIcon={<RiLayoutColumnFill />}>
             {selectedColumns.length}
-          </Tag>
+          </Button>
         </Box>
       </PopoverTrigger>
       <PopoverContent>
