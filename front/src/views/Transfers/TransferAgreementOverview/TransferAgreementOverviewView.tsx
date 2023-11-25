@@ -34,7 +34,7 @@ import {
 import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 
-interface IAcceptedTransferAgreement {
+export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreement[];
 }
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`

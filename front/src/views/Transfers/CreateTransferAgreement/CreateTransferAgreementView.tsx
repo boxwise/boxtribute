@@ -18,6 +18,8 @@ import CreateTransferAgreement, {
   IBasesForOrganisationData,
   ITransferAgreementFormData,
 } from "./components/CreateTransferAgreement";
+import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
+import { IAcceptedTransferAgreement } from "../TransferAgreementOverview/TransferAgreementOverviewView";
 
 export const ALL_ORGS_AND_BASES_QUERY = gql`
   query AllOrganisationsAndBases {
@@ -90,6 +92,7 @@ function CreateTransferAgreementView() {
                   fragment NewTransferAgreement on TransferAgreement {
                     id
                     type
+                    state
                   }
                 `,
               });
@@ -97,6 +100,31 @@ function CreateTransferAgreementView() {
             },
           },
         });
+
+        const createdTransferAgreementId = returnedTransferAgreement?.createTransferAgreement.id;
+
+        const existingAcceptedTransferAgreementsData = cache.readQuery<IAcceptedTransferAgreement>({
+          query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+          variables: { baseId },
+        });
+
+        const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
+          (a) => a.id === createdTransferAgreementId,
+        );
+
+        if (index !== undefined && index > -1) {
+          existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
+
+          cache.writeQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: {
+              variables: { baseId },
+            },
+            data: {
+              transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
+            },
+          });
+        }
       }
     },
   });
