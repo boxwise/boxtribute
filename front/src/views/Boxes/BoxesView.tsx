@@ -69,13 +69,13 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
   boxesQueryResult.boxes.elements.map(
     (element) =>
       ({
-        productName: element.product!.name,
         labelIdentifier: element.labelIdentifier,
+        product: element.product!.name,
         gender: element.product!.gender,
         numberOfItems: element.numberOfItems,
         size: element.size.label,
         state: element.state,
-        place: element.location!.name,
+        location: element.location!.name,
         tags: element.tags,
         shipment: element.shipmentDetail?.shipment,
         comment: element.comment,
@@ -101,21 +101,20 @@ function Boxes() {
     },
   );
 
-  // TODO: What additional columns do we want? (Age, Shipment, ...) Which are the default ones?
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
       {
-        Header: "Product",
-        accessor: "productName",
-        id: "productName",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Box Number",
+        Header: "Box #",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
         disableFilters: true,
+      },
+      {
+        Header: "Product",
+        accessor: "product",
+        id: "product",
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
       },
       {
         Header: "Gender",
@@ -146,9 +145,9 @@ function Boxes() {
         filter: "includesSome",
       },
       {
-        Header: "Place",
-        accessor: "place",
-        id: "place",
+        Header: "Location",
+        accessor: "location",
+        id: "location",
         Filter: SelectColumnFilter,
         filter: "includesSome",
       },
@@ -192,31 +191,27 @@ function Boxes() {
   );
 
   // error and loading handling
-  let boxesTable;
-
-  if (error) {
-    boxesTable = (
+  if (error || !data) {
+    return (
       <Alert status="error" data-testid="ErrorAlert">
         <AlertIcon />
         Could not fetch boxes data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading) {
-    boxesTable = <TableSkeleton />;
-  } else if (data) {
-    boxesTable = (
-      // TODO: pass shipment and tag options to BoxesActionsAndTable
-      <BoxesActionsAndTable
-        tableData={graphqlToTableTransformer(data)}
-        availableColumns={availableColumns}
-        shipmentOptions={shipmentToDropdownOptionTransformer(data.shipments ?? [])}
-        locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
-      />
-    );
+  }
+  if (loading) {
+    return <TableSkeleton />;
   }
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{boxesTable}</>;
+  // TODO: pass tag options to BoxesActionsAndTable
+  return (
+    <BoxesActionsAndTable
+      tableData={graphqlToTableTransformer(data)}
+      availableColumns={availableColumns}
+      shipmentOptions={shipmentToDropdownOptionTransformer(data.shipments ?? [])}
+      locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
+    />
+  );
 }
 
 export default Boxes;

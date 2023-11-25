@@ -2,11 +2,11 @@ import { Shipment, Tag } from "types/generated/graphql";
 
 export type BoxRow = {
   labelIdentifier: string;
-  productName: string;
+  product: string;
   gender: string;
   numberOfItems: number;
   size: string;
-  place: string;
+  location: string;
   state: string;
   tags: Tag[];
   shipment: Shipment | null;

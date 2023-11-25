@@ -42,7 +42,11 @@ function BoxesActionsAndTable({
   const [alerts, setAlerts] = useState<IAlerts[]>([]);
 
   // Column Selector
-  const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(availableColumns);
+  const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(
+    availableColumns.filter((col) =>
+      ["labelIdentifier", "product", "numberOfItems", "state", "location"].includes(col.id!),
+    ),
+  );
 
   const orderedSelectedColumns = useMemo(
     () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
