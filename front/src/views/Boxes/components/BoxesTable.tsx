@@ -11,6 +11,7 @@ import {
   IconButton,
   ButtonGroup,
   TableContainer,
+  HStack,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -130,10 +131,12 @@ function BoxesTable({
   return (
     <>
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector">
-        <ButtonGroup>{actionButtons}</ButtonGroup>
+        <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
-        {columnSelector}
-        <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+        <HStack spacing={2} mb={2}>
+          {columnSelector}
+          <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+        </HStack>
       </Flex>
 
       <TableContainer>
