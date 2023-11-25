@@ -225,7 +225,7 @@ function CreateShipmentView() {
   }
 
   const renderNoAcceptedAgreementsAlert = (
-    <Alert status="error">
+    <Alert status="warning">
       <AlertIcon />
       <AlertDescription>
         You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
