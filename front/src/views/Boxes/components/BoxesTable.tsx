@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Table,
@@ -26,6 +26,10 @@ import {
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
+import {
+  includesOneOfMulipleStringsFilterFn,
+  includesSomeObjectFilterFn,
+} from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -60,6 +64,16 @@ function BoxesTable({
     tableConfigsVar(tableConfigsState);
   }
 
+  // Add custom filter function to filter objects in a column
+  // https://react-table-v7.tanstack.com/docs/examples/filtering
+  const filterTypes = useMemo(
+    () => ({
+      includesSomeObject: includesSomeObjectFilterFn,
+      includesOneOfMulipleStrings: includesOneOfMulipleStringsFilterFn,
+    }),
+    [],
+  );
+
   const {
     headerGroups,
     prepareRow,
@@ -82,6 +96,7 @@ function BoxesTable({
       // @ts-ignore
       columns,
       data: tableData,
+      filterTypes,
       initialState: {
         pageIndex: 0,
         pageSize: 20,
