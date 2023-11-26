@@ -67,6 +67,7 @@ export function SelectColumnFilter({
           background="inherit"
           icon={filterValue ? <MdFilterListAlt /> : <MdFilterList />}
           aria-label={`Filter for '${render("Header")}'`}
+          data-testid={`filter-${id}`}
         />
       </PopoverTrigger>
       <PopoverContent>

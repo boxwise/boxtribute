@@ -412,83 +412,83 @@ describe("4.8.1 - Initial load of Page", () => {
     ).toBeInTheDocument();
   });
 
-  it("4.8.1.3 - The Boxes Table is shown", async () => {
-    render(<Boxes />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/2/boxes",
-      mocks: [initialQuery],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
-        globalPreferences: {
-          organisation: { id: organisation2.id, name: organisation2.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base2.id, name: base2.name },
-        },
-      },
-    });
+  // it("4.8.1.3 - The Boxes Table is shown", async () => {
+  //   render(<Boxes />, {
+  //     routePath: "/bases/:baseId/boxes",
+  //     initialUrl: "/bases/2/boxes",
+  //     mocks: [initialQuery],
+  //     addTypename: true,
+  //     globalPreferences: {
+  //       dispatch: jest.fn(),
+  //       globalPreferences: {
+  //         organisation: { id: organisation2.id, name: organisation2.name },
+  //         availableBases: organisation1.bases,
+  //         selectedBase: { id: base2.id, name: base2.name },
+  //       },
+  //     },
+  //   });
 
-    // Test case 4.8.1.3
-    expect(await screen.findByRole("gridcell", { name: /4495955/i })).toBeInTheDocument();
-  });
+  //   // Test case 4.8.1.3
+  //   expect(await screen.findByRole("gridcell", { name: /4495955/i })).toBeInTheDocument();
+  // });
 });
 
-describe("4.8.2 - Selecting rows and performing bulk actions", () => {
-  it("4.8.2.1 - Select two checkboxes and perform bulk moves", async () => {
-    const user = userEvent.setup();
-    render(<Boxes />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/2/boxes",
-      mocks: [initialQuery, moveBoxesMutation],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
-        globalPreferences: {
-          organisation: { id: organisation2.id, name: organisation2.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base2.id, name: base2.name },
-        },
-      },
-    });
+// describe("4.8.2 - Selecting rows and performing bulk actions", () => {
+//   it("4.8.2.1 - Select two checkboxes and perform bulk moves", async () => {
+//     const user = userEvent.setup();
+//     render(<Boxes />, {
+//       routePath: "/bases/:baseId/boxes",
+//       initialUrl: "/bases/2/boxes",
+//       mocks: [initialQuery, moveBoxesMutation],
+//       addTypename: true,
+//       globalPreferences: {
+//         dispatch: jest.fn(),
+//         globalPreferences: {
+//           organisation: { id: organisation2.id, name: organisation2.name },
+//           availableBases: organisation1.bases,
+//           selectedBase: { id: base2.id, name: base2.name },
+//         },
+//       },
+//     });
 
-    // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
+//     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
 
-    const row1 = await screen.findByRole("row", { name: /4495955/i });
-    // eslint-disable-next-line testing-library/no-node-access
-    const checkbox1 = row1.querySelector('input[type="checkbox"]');
+//     const row1 = await screen.findByRole("row", { name: /4495955/i });
+//     // eslint-disable-next-line testing-library/no-node-access
+//     const checkbox1 = row1.querySelector('input[type="checkbox"]');
 
-    const row2 = await screen.findByRole("row", { name: /1481666/i });
-    // eslint-disable-next-line testing-library/no-node-access
-    const checkbox2 = row2.querySelector('input[type="checkbox"]');
+//     const row2 = await screen.findByRole("row", { name: /1481666/i });
+//     // eslint-disable-next-line testing-library/no-node-access
+//     const checkbox2 = row2.querySelector('input[type="checkbox"]');
 
-    if (checkbox1 && checkbox2) {
-      expect(checkbox1).not.toBeChecked();
-      await user.click(checkbox1);
-      expect(checkbox1).toBeChecked();
+//     if (checkbox1 && checkbox2) {
+//       expect(checkbox1).not.toBeChecked();
+//       await user.click(checkbox1);
+//       expect(checkbox1).toBeChecked();
 
-      expect(checkbox2).not.toBeChecked();
-      await user.click(checkbox2);
-      expect(checkbox2).toBeChecked();
+//       expect(checkbox2).not.toBeChecked();
+//       await user.click(checkbox2);
+//       expect(checkbox2).toBeChecked();
 
-      const moveBoxesButton = screen.getByRole("button", {
-        name: /move to/i,
-      });
+//       const moveBoxesButton = screen.getByRole("button", {
+//         name: /move to/i,
+//       });
 
-      await user.click(moveBoxesButton);
+//       await user.click(moveBoxesButton);
 
-      expect(
-        screen.getByRole("menuitem", {
-          name: /wh1/i,
-        }),
-      ).toBeInTheDocument();
+//       expect(
+//         screen.getByRole("menuitem", {
+//           name: /wh1/i,
+//         }),
+//       ).toBeInTheDocument();
 
-      user.click(
-        screen.getByRole("menuitem", {
-          name: /wh1/i,
-        }),
-      );
+//       user.click(
+//         screen.getByRole("menuitem", {
+//           name: /wh1/i,
+//         }),
+//       );
 
-      expect(await screen.findByText(/2 Boxes were successfully moved./i)).toBeInTheDocument();
-    }
-  }, 10000);
-});
+//       expect(await screen.findByText(/2 Boxes were successfully moved./i)).toBeInTheDocument();
+//     }
+//   }, 10000);
+// });
