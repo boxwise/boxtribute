@@ -180,7 +180,7 @@ function Boxes() {
         disableFilters: true,
       },
       {
-        Header: "Untouched",
+        Header: "Last Modified",
         accessor: "untouched",
         id: "untouched",
         Cell: DaysCell,
