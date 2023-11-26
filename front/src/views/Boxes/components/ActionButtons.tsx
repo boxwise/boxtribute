@@ -37,7 +37,7 @@ export function SelectButton({ label, options, onSelect, disabled, icon }: ISele
       >
         {(isLargerThan768 || isOpen) && label}
       </MenuButton>
-      <MenuList>
+      <MenuList zIndex={3}>
         {options.map(({ label: olabel, value, subTitle }) => {
           const [firstPart, secondPart] = olabel.split("-");
           return (
