@@ -45,7 +45,7 @@ function Protected({ component, redirectPath, requiredAbp, minBeta }: IProtected
 
   useEffect(() => {
     if (!isAuthorized) {
-      triggerError({ message: "You are not authorized." });
+      triggerError({ message: "Access to this page is not permitted for your user group." });
     }
   }, [isAuthorized, triggerError]);
 
