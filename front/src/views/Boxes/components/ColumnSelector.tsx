@@ -24,6 +24,7 @@ interface IColumnSelectorProps {
 
 const mapColumnsToColumnOptionCollection = (columns: Column<BoxRow>[]) =>
   columns
+    .filter((column) => column.id !== "shipment")
     .map((column) => ({
       label: column.Header?.toString() || "",
       value: column.accessor?.toString() || "",
