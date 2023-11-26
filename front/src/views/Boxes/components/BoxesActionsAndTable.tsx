@@ -218,6 +218,7 @@ function BoxesActionsAndTable({
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
         disabled={actionsAreLoading}
+        key="move-to"
       />,
       <SelectButton
         label="Assign to Shipment"
@@ -225,10 +226,13 @@ function BoxesActionsAndTable({
         onSelect={onAssignBoxesToShipment}
         icon={<ShipmentIcon />}
         disabled={actionsAreLoading || shipmentOptions.length === 0}
+        key="assign-to-shipment"
       />,
-      thereIsABoxMarkedForShipmentSelected && (
-        <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>
-      ),
+      <div key="unassign-from-shipment">
+        {thereIsABoxMarkedForShipmentSelected && (
+          <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>
+        )}
+      </div>,
     ],
     [
       locationOptions,
