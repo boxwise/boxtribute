@@ -22,6 +22,7 @@ import {
   useRowSelect,
   usePagination,
   Row,
+  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { tableConfigsVar } from "queries/cache";
@@ -74,6 +75,18 @@ function BoxesTable({
     [],
   );
 
+  // only set default filter to instock if there is at least one instock box
+  const columnFiltersDefault: Filters<any> = useMemo(() => {
+    if (tableConfig?.columnFilters) {
+      return tableConfig.columnFilters;
+    }
+    const hasInStockBox = tableData.some((box) => box.state === "InStock");
+    if (hasInStockBox) {
+      return [{ id: "state", value: ["InStock"] }];
+    }
+    return [];
+  }, [tableConfig?.columnFilters, tableData]);
+
   const {
     headerGroups,
     prepareRow,
@@ -103,7 +116,7 @@ function BoxesTable({
         hiddenColumns: columns
           .filter((col: any) => col.show === false)
           .map((col) => col.id || col.accessor) as any,
-        filters: tableConfig?.columnFilters ?? [{ id: "state", value: ["InStock"] }],
+        filters: columnFiltersDefault,
         ...(tableConfig?.globalFilter != null
           ? { globalFilter: tableConfig?.globalFilter }
           : undefined),
