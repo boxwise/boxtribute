@@ -47,13 +47,15 @@ export function SelectColumnFilter({
         optionValues[value] = value;
       }
     });
-    return Array.from(groupedOptionLabels.values()).map(
-      (label) =>
-        ({
-          label,
-          value: optionValues[label],
-        } as ISelectOption),
-    );
+    return Array.from(groupedOptionLabels.values())
+      .map(
+        (label) =>
+          ({
+            label,
+            value: optionValues[label],
+          }) as ISelectOption,
+      )
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [id, preFilteredRows]);
 
   // Render a multi-select box
