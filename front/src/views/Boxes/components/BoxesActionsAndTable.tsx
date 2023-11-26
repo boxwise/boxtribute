@@ -11,16 +11,11 @@ import { Alert, AlertDescription, AlertIcon, Button, CloseButton, VStack } from 
 import { BoxState } from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
+import { useNotification } from "hooks/useNotification";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import ColumnSelector from "./ColumnSelector";
-
-interface IAlerts {
-  id: number;
-  status: "info" | "warning" | "success" | "error";
-  message: string;
-}
 
 export interface IBoxesActionsAndTableProps {
   tableData: BoxRow[];
@@ -39,7 +34,7 @@ function BoxesActionsAndTable({
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
   const tableConfigKey = `boxes-view--base-id-${baseId}`;
-  const [alerts, setAlerts] = useState<IAlerts[]>([]);
+  const { createToast } = useNotification();
 
   // Column Selector
   const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(
@@ -72,7 +67,6 @@ function BoxesActionsAndTable({
 
   const onMoveBoxes = useCallback(
     async (locationId: string) => {
-      const newAlerts: IAlerts[] = [];
       const movableLabelIdentifiers = selectedBoxes
         .filter(
           (box) =>
@@ -84,9 +78,8 @@ function BoxesActionsAndTable({
 
       const boxCountInShipmentStates = selectedBoxes.length - movableLabelIdentifiers.length;
       if (boxCountInShipmentStates > 0) {
-        newAlerts.push({
-          id: alerts.length,
-          status: "info",
+        createToast({
+          type: "info",
           message: `Cannot move ${
             boxCountInShipmentStates === 1 ? "a box" : `${boxCountInShipmentStates} boxes`
           } in shipment states.`,
@@ -102,9 +95,8 @@ function BoxesActionsAndTable({
         moveBoxesResult.failedLabelIdentifiers &&
         moveBoxesResult.failedLabelIdentifiers.length > 0
       ) {
-        newAlerts.push({
-          id: alerts.length,
-          status: "error",
+        createToast({
+          type: "error",
           message: `Could not move ${
             moveBoxesResult.failedLabelIdentifiers.length === 1
               ? "a box"
@@ -112,10 +104,8 @@ function BoxesActionsAndTable({
           }. Try again?`,
         });
       }
-
-      setAlerts([...alerts, ...newAlerts]);
     },
-    [alerts, moveBoxesAction, selectedBoxes],
+    [createToast, moveBoxesAction, selectedBoxes],
   );
 
   // Assign to Shipment
@@ -124,7 +114,6 @@ function BoxesActionsAndTable({
 
   const onAssignBoxesToShipment = useCallback(
     async (shipmentId: string) => {
-      const newAlerts: IAlerts[] = [];
       const assignBoxesToShipmentResult = await assignBoxesToShipment(
         shipmentId,
         selectedBoxes.map((box) => box.values as IBoxBasicFields),
@@ -135,9 +124,8 @@ function BoxesActionsAndTable({
         assignBoxesToShipmentResult.notInStockBoxes &&
         assignBoxesToShipmentResult.notInStockBoxes.length > 0
       ) {
-        newAlerts.push({
-          id: alerts.length,
-          status: "info",
+        createToast({
+          type: "info",
           message: `Cannot assign ${
             assignBoxesToShipmentResult.notInStockBoxes.length === 1
               ? "a box"
@@ -151,9 +139,8 @@ function BoxesActionsAndTable({
         assignBoxesToShipmentResult.failedBoxes &&
         assignBoxesToShipmentResult.failedBoxes.length > 0
       ) {
-        newAlerts.push({
-          id: alerts.length,
-          status: "error",
+        createToast({
+          type: "error",
           message: `Could not assign ${
             assignBoxesToShipmentResult.failedBoxes.length === 1
               ? "a box"
@@ -161,9 +148,8 @@ function BoxesActionsAndTable({
           } to shipment. Try again?`,
         });
       }
-      setAlerts([...alerts, ...newAlerts]);
     },
-    [alerts, assignBoxesToShipment, selectedBoxes],
+    [createToast, assignBoxesToShipment, selectedBoxes],
   );
 
   // Unassign to Shipment
@@ -177,7 +163,7 @@ function BoxesActionsAndTable({
   const onUnassignBoxesToShipment = useCallback(() => {
     unassignBoxesFromShipments(
       selectedBoxes.map((box) => {
-        const { labelIdentifier, state, shipment } = box.values;
+        const { labelIdentifier, state, shipment } = box.original;
         return {
           labelIdentifier,
           state,
@@ -193,13 +179,11 @@ function BoxesActionsAndTable({
 
   useEffect(() => {
     if (unassignBoxesFromShipmentsResult) {
-      const newAlerts: IAlerts[] = [];
       const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
 
       if (notMarkedForShipmentBoxes.length > 0) {
-        newAlerts.push({
-          id: alerts.length,
-          status: "info",
+        createToast({
+          type: "info",
           message: `Cannot remove ${
             notMarkedForShipmentBoxes.length === 1
               ? "a box"
@@ -210,18 +194,16 @@ function BoxesActionsAndTable({
         });
       }
       if (failedBoxes && failedBoxes.length > 0) {
-        newAlerts.push({
-          id: alerts.length,
-          status: "error",
+        createToast({
+          type: "error",
           message: `Could not remove ${
             failedBoxes.length === 1 ? "a box" : `${failedBoxes.length} boxes`
           } from shipment. Try again?`,
         });
       }
       flushResult();
-      setAlerts([...alerts, ...newAlerts]);
     }
-  }, [alerts, flushResult, unassignBoxesFromShipmentsResult]);
+  }, [createToast, flushResult, unassignBoxesFromShipmentsResult]);
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
@@ -263,40 +245,21 @@ function BoxesActionsAndTable({
   }
 
   return (
-    <>
-      {alerts.length > 0 && (
-        <VStack>
-          {alerts.map((alert) => (
-            <Alert key={alert.id} status={alert.status} variant="left-accent">
-              <AlertIcon />
-              <AlertDescription>{alert.message}</AlertDescription>
-              <CloseButton
-                position="absolute"
-                right="8px"
-                top="8px"
-                onClick={() => setAlerts(alerts.filter((a) => a.id !== alert.id))}
-              />
-            </Alert>
-          ))}
-        </VStack>
-      )}
-
-      <BoxesTable
-        tableConfigKey={tableConfigKey}
-        columns={orderedSelectedColumns}
-        tableData={tableData}
-        actionButtons={actionButtons}
-        setSelectedBoxes={setSelectedBoxes}
-        columnSelector={
-          <ColumnSelector
-            availableColumns={availableColumns}
-            selectedColumns={selectedColumns}
-            setSelectedColumns={setSelectedColumns}
-          />
-        }
-        onBoxRowClick={onBoxRowClick}
-      />
-    </>
+    <BoxesTable
+      tableConfigKey={tableConfigKey}
+      columns={orderedSelectedColumns}
+      tableData={tableData}
+      actionButtons={actionButtons}
+      setSelectedBoxes={setSelectedBoxes}
+      columnSelector={
+        <ColumnSelector
+          availableColumns={availableColumns}
+          selectedColumns={selectedColumns}
+          setSelectedColumns={setSelectedColumns}
+        />
+      }
+      onBoxRowClick={onBoxRowClick}
+    />
   );
 }
 
