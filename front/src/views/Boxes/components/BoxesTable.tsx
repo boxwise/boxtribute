@@ -10,8 +10,8 @@ import {
   Text,
   IconButton,
   ButtonGroup,
-  TableContainer,
   HStack,
+  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -129,8 +129,8 @@ function BoxesTable({
   }, [globalFilter, filters, tableConfig, tableConfigsState, tableConfigKey]);
 
   return (
-    <>
-      <Flex alignItems="center" flexWrap="wrap" key="columnSelector">
+    <Flex direction="column" height="100%">
+      <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
         <HStack spacing={2} mb={2}>
@@ -138,8 +138,19 @@ function BoxesTable({
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-
-      <TableContainer>
+      {/*
+      see https://chakra-ui.com/docs/components/table/usage#table-container
+      I added overflowY and flex={1} to make the table scrollable vertically scrollable and
+      took the other settings from <TableContainer>
+      */}
+      <Box
+        flex={1}
+        display="block"
+        maxWidth="100%"
+        overflowX="auto"
+        overflowY="auto"
+        whiteSpace="nowrap"
+      >
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
@@ -162,8 +173,8 @@ function BoxesTable({
             })}
           </Tbody>
         </Table>
-      </TableContainer>
-      <Flex justifyContent="center" alignItems="center" key="pagination">
+      </Box>
+      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
             aria-label="Previous Page"
@@ -195,7 +206,7 @@ function BoxesTable({
           />
         </Flex>
       </Flex>
-    </>
+    </Flex>
   );
 }
 
