@@ -39,24 +39,24 @@ export const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
-        borderRadius: "none",
+        borderRadius: 0,
       },
       // TODO: we need to define our brand color palette and apply a whole colorScheme to config chakra UI properly.
       variants: {
         blue: {
           bg: "brandBlue.300",
           color: "white",
-          borderRadius: "none",
+          borderRadius: 0,
         },
         green: {
           bg: "brandGreen",
           color: "white",
-          borderRadius: "none",
+          borderRadius: 0,
         },
         gray: {
           bg: "brandGray",
           color: "white",
-          borderRadius: "none",
+          borderRadius: 0,
         },
       },
     },
@@ -92,14 +92,14 @@ export const theme = extendTheme({
       baseStyle: {
         field: {
           focusBorderColor: "transparent",
-          borderRadius: "none",
+          borderRadius: 0,
         },
       },
       shadows: "none",
       sizes: {
         lg: {
           field: {
-            borderRadius: "none",
+            borderRadius: 0,
           },
         },
       },
