@@ -7,7 +7,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { Alert, AlertDescription, AlertIcon, Button, CloseButton, VStack } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { BoxState } from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";

@@ -103,7 +103,7 @@ function BoxesTable({
         hiddenColumns: columns
           .filter((col: any) => col.show === false)
           .map((col) => col.id || col.accessor) as any,
-        filters: tableConfig?.columnFilters ?? [],
+        filters: tableConfig?.columnFilters ?? [{ id: "state", value: ["InStock"] }],
         ...(tableConfig?.globalFilter != null
           ? { globalFilter: tableConfig?.globalFilter }
           : undefined),
