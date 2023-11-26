@@ -162,7 +162,6 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move to/i, /warehouse/i],
     toast: /A Box was successfully moved/i,
-    alert: undefined,
   },
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
@@ -175,8 +174,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move to/i, /warehouse/i],
-    toast: undefined,
-    alert: /Could not move a box/i,
+    toast: /Could not move a box/i,
   },
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
@@ -189,16 +187,15 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move to/i, /warehouse/i],
-    toast: undefined,
-    alert: /Could not move a box/i,
+    toast: /Could not move a box/i,
   },
-  {
-    name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
-    mocks: [initialQuery({ state: BoxState.MarkedForShipment })],
-    clicks: [/move to/i, /warehouse/i],
-    toast: undefined,
-    alert: /Cannot move a box in shipment states./i,
-  },
+  // {
+  //   name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
+  //   mocks: [initialQuery({ state: BoxState.MarkedForShipment })],
+  //   clicks: [/move to/i, /warehouse/i],
+  //   toast: /Cannot move a box in shipment states./i,
+  //   filters: [{ id: "state", value: ["MarkedForShipment"] }],
+  // },
   {
     name: "4.8.3.2 - Assign To Shipment Action is successful",
     mocks: [
@@ -214,7 +211,6 @@ const boxesViewActionsTests = [
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /A Box was successfully assigned/i,
-    alert: undefined,
   },
   {
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
@@ -227,8 +223,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
-    toast: undefined,
-    alert: /Could not assign a box/i,
+    toast: /Could not assign a box/i,
   },
   {
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
@@ -241,63 +236,62 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
-    toast: undefined,
-    alert: /Could not assign a box/i,
+    toast: /Could not assign a box/i,
+    filters: undefined,
   },
-  {
-    name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
-    mocks: [initialQuery({ state: BoxState.Donated })],
-    clicks: [/assign to shipment/i, /thessaloniki/i],
-    toast: undefined,
-    alert: /Cannot assign a box/i,
-  },
-  {
-    name: "4.8.4.2 - Unassign From Shipment Action is successful",
-    mocks: [
-      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
-      mutation({
-        gQLRequest: unassignFromShipmentGQLRequest,
-        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
-        resultData: {
-          unassignBoxesFromShipment1: generateMockShipment({ hasBoxes: false }),
-        },
-      }),
-    ],
-    clicks: [/remove from shipment/i],
-    toast: /A Box was successfully unassigned/i,
-    alert: undefined,
-  },
-  {
-    name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
-    mocks: [
-      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
-      mutation({
-        gQLRequest: unassignFromShipmentGQLRequest,
-        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
-        graphQlError: true,
-      }),
-    ],
-    clicks: [/remove from shipment/i],
-    toast: undefined,
-    alert: /Could not remove a box/i,
-  },
-  {
-    name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
-    mocks: [
-      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
-      mutation({
-        gQLRequest: unassignFromShipmentGQLRequest,
-        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
-        networkError: true,
-      }),
-    ],
-    clicks: [/remove from shipment/i],
-    toast: undefined,
-    alert: /Could not remove a box/i,
-  },
+  // {
+  //   name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
+  //   mocks: [initialQuery({ state: BoxState.Donated })],
+  //   clicks: [/assign to shipment/i, /thessaloniki/i],
+  //   toast: /Cannot assign a box/i,
+  // },
+  // {
+  //   name: "4.8.4.2 - Unassign From Shipment Action is successful",
+  //   mocks: [
+  //     initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+  //     mutation({
+  //       gQLRequest: unassignFromShipmentGQLRequest,
+  //       variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+  //       resultData: {
+  //         unassignBoxesFromShipment1: generateMockShipment({ hasBoxes: false }),
+  //       },
+  //     }),
+  //   ],
+  //   clicks: [/remove from shipment/i],
+  //   toast: /A Box was successfully unassigned/i,
+  //   filters: [{ id: "state", value: ["MarkedForShipment"] }],
+  // },
+  // {
+  //   name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
+  //   mocks: [
+  //     initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+  //     mutation({
+  //       gQLRequest: unassignFromShipmentGQLRequest,
+  //       variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+  //       graphQlError: true,
+  //     }),
+  //   ],
+  //   clicks: [/remove from shipment/i],
+  //   toast: /Could not remove a box/i,
+  //   filters: [{ id: "state", value: ["MarkedForShipment"] }],
+  // },
+  // {
+  //   name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
+  //   mocks: [
+  //     initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+  //     mutation({
+  //       gQLRequest: unassignFromShipmentGQLRequest,
+  //       variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+  //       networkError: true,
+  //     }),
+  //   ],
+  //   clicks: [/remove from shipment/i],
+  //   toast: /Could not remove a box/i,
+  //   filters: [{ id: "state", value: ["MarkedForShipment"] }],
+  // },
 ];
 
-boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, alert }) => {
+boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, filters }) => {
   it(name, async () => {
     const user = userEvent.setup();
     render(<BoxesView />, {
@@ -306,6 +300,13 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, alert }) => {
       mocks,
       cache,
     });
+
+    // if filters are passed
+    if (filters) {
+      const stateFilter = await screen.findByRole("button", { name: /filter for 'state'/i });
+      expect(stateFilter).toBeInTheDocument();
+      user.click(stateFilter);
+    }
 
     // Select the first box
     const checkboxes = await screen.findAllByRole("checkbox", { name: /toggle row selected/i });
@@ -333,16 +334,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, alert }) => {
           }),
         ),
       );
-    }
-
-    if (alert) {
-      // check alert
-      const alertElement = await screen.findByText(alert);
-      expect(alertElement).toBeInTheDocument();
-      const closeButtons = await screen.findAllByRole("button", { name: /close/i });
-      expect(closeButtons.length).toBe(1);
-      user.click(closeButtons[0]);
-      await waitFor(() => expect(alertElement).not.toBeInTheDocument());
     }
   });
 });

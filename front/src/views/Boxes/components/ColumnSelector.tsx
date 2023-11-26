@@ -1,6 +1,5 @@
 import {
   Popover,
-  Button,
   Box,
   PopoverContent,
   PopoverArrow,
@@ -9,9 +8,11 @@ import {
   Flex,
   Checkbox,
   PopoverTrigger as OrigPopoverTrigger,
+  Button,
 } from "@chakra-ui/react";
 import React, { useMemo } from "react";
 import { Column } from "react-table";
+import { RiLayoutColumnFill } from "react-icons/ri";
 import { BoxRow } from "./types";
 
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
@@ -59,39 +60,41 @@ function ColumnSelector({
   const selectedColumnOptions = mapColumnsToColumnOptionCollection(selectedColumns);
 
   return (
-    <Box maxW="400px" minW="250px">
-      <Popover>
-        <PopoverTrigger>
-          <Button>Columns shown</Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverCloseButton />
-          <PopoverBody textStyle="h1">
-            <Flex flexWrap="wrap">
-              {allAvailableColumnOptions.map((columnOption) => (
-                <Checkbox
-                  m={1}
-                  py={1}
-                  px={2}
-                  border="1px"
-                  colorScheme="gray"
-                  borderColor="gray.200"
-                  onChange={onCheckboxChange}
-                  key={columnOption.value}
-                  defaultChecked={selectedColumnOptions
-                    .map((c) => c.value)
-                    .includes(columnOption.value)}
-                  value={columnOption.value}
-                >
-                  {columnOption.label}
-                </Checkbox>
-              ))}
-            </Flex>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
-    </Box>
+    <Popover>
+      <PopoverTrigger>
+        <Box position="relative">
+          <Button aria-label="Columns Shown" leftIcon={<RiLayoutColumnFill />}>
+            {selectedColumns.length}
+          </Button>
+        </Box>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverBody textStyle="h1">
+          <Flex flexWrap="wrap">
+            {allAvailableColumnOptions.map((columnOption) => (
+              <Checkbox
+                m={1}
+                py={1}
+                px={2}
+                border="1px"
+                colorScheme="gray"
+                borderColor="gray.200"
+                onChange={onCheckboxChange}
+                key={columnOption.value}
+                defaultChecked={selectedColumnOptions
+                  .map((c) => c.value)
+                  .includes(columnOption.value)}
+                value={columnOption.value}
+              >
+                {columnOption.label}
+              </Checkbox>
+            ))}
+          </Flex>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   );
 }
 

@@ -72,7 +72,7 @@ function MenuItemsGroupDesktop({ ...props }: IMenuItemsGroupData) {
       >
         <Text display="block">{props.text}</Text>
       </MenuButton>
-      <MenuList border="2px" p={0} borderRadius="0px" my={0}>
+      <MenuList border="2px" p={0} borderRadius="0px" my={0} zIndex={3}>
         {props.links.map((subMenu) => (
           <MenuItem
             py={2}
