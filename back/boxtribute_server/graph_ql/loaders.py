@@ -16,6 +16,7 @@ from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
+from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..utils import convert_pascal_to_snake_case
 
@@ -68,6 +69,11 @@ class LocationLoader(SimpleDataLoader):
 class BoxLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(Box, skip_authorize=True)
+
+
+class TransferAgreementLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(TransferAgreement, skip_authorize=True)
 
 
 class SizeLoader(SimpleDataLoader):

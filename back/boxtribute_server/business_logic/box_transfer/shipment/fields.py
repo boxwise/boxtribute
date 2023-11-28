@@ -44,6 +44,13 @@ def resolve_shipment_details(shipment_obj, _):
     )
 
 
+@shipment.field("transferAgreement")
+def resolve_shipment_transfer_agreement(shipment_obj, info):
+    return info.context["transfer_agreement_loader"].load(
+        shipment_obj.transfer_agreement_id
+    )
+
+
 @shipment.field("sourceBase")
 def resolve_shipment_source_base(shipment_obj, info):
     authorize(
