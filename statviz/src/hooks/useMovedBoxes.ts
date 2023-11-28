@@ -2,11 +2,13 @@ import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import {
   MovedBoxesData,
+  MovedBoxesResult,
   QueryMovedBoxesArgs,
 } from "../types/generated/graphql";
 import { movedBoxesTable } from "../utils/table";
 import { useMemo } from "react";
 import useTimerange from "./useTimerange";
+import { filterListByInterval } from "../utils/helpers";
 
 const MOVED_BOXES_QUERY = gql`
   query movedBoxes($baseId: Int!) {
@@ -34,23 +36,25 @@ const MOVED_BOXES_QUERY = gql`
 
 export default function useMovedBoxes() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery<any, QueryMovedBoxesArgs>(
-    MOVED_BOXES_QUERY,
-    {
-      variables: { baseId: parseInt(baseId) },
-    }
-  );
+  const { data, loading, error } = useQuery<
+    { movedBoxes: MovedBoxesData },
+    QueryMovedBoxesArgs
+  >(MOVED_BOXES_QUERY, {
+    variables: { baseId: parseInt(baseId) },
+  });
 
   const { timerange, interval } = useTimerange();
 
   return {
-    movedBoxes: useMemo(() => {
+    movedBoxesFacts: useMemo(() => {
       if (!data) return;
 
-      const movedBoxesFacts = movedBoxesTable(data.movedBoxes.facts);
-
       try {
-        return movedBoxesFacts.filterCreatedOn(interval);
+        return filterListByInterval(
+          data.movedBoxes.facts as MovedBoxesResult[],
+          "movedOn",
+          interval
+        ) as MovedBoxesResult[];
       } catch (error) {
         console.log("invalid timerange in use boxes");
       }

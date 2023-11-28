@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { join } from "lodash";
 import {
   BeneficiaryDemographicsResult,
   CreatedBoxesResult,
@@ -6,10 +6,17 @@ import {
 } from "../types/generated/graphql";
 import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
 
+type Fact = object;
+type Dim = object;
+type FactKey = keyof Fact;
+type DimKey = keyof Dim;
+
 export enum Sort {
   asc = "asc",
   desc = "desc",
 }
+
+export function joinFactWidthDim() {}
 
 export function table<Row extends object>(f: Array<Row>) {
   const data = f;
@@ -74,8 +81,8 @@ export function table<Row extends object>(f: Array<Row>) {
         );
         if (foreignIndex !== -1) {
           return {
-            ...row,
             ...foreignTable.data[foreignIndex],
+            ...row,
           };
         }
       });
@@ -89,8 +96,8 @@ export function table<Row extends object>(f: Array<Row>) {
         );
         if (foreignIndex !== -1) {
           return {
-            ...row,
             ...foreignTable.data[foreignIndex],
+            ...row,
           };
         }
         return {

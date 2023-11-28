@@ -5,14 +5,32 @@ import getOnExport from "../../utils/chartExport";
 import useMovedBoxes from "../../hooks/useMovedBoxes";
 import { ApolloError } from "@apollo/client";
 import NoDataCard from "../NoDataCard";
+import { TargetDimensionInfo } from "../../types/generated/graphql";
+import { groupBy, innerJoin, sum, summarize, tidy, filter } from "@tidyjs/tidy";
 
 const heading = "Moved Boxes";
+
+const shipmentNode = {
+  id: "shipmentsYp9WMJiNbEvi",
+  name: "shipments",
+};
+const selfReportedNode = {
+  id: "selfreportedYp9WMJiNbEvi",
+  name: "self reported",
+};
+const outgoingNode = {
+  id: "outgoingYp9WMJiNbEvi",
+  name: "outgoing boxes",
+};
 
 export default function BoxFlowSankey(params: {
   width: string;
   height: string;
+  filter?: {
+    locations: string[];
+  };
 }) {
-  const { movedBoxes, loading, data, error } = useMovedBoxes();
+  const { loading, data, error, movedBoxesFacts } = useMovedBoxes();
 
   const onExport = getOnExport(SankeyChart);
 
@@ -24,34 +42,90 @@ export default function BoxFlowSankey(params: {
     return <p>loading...</p>;
   }
 
-  const movedBoxesGrouped = movedBoxes?.groupBySum(
-    "targetId",
-    ["boxesCount"],
-    []
+  const movedBoxes = tidy(
+    movedBoxesFacts,
+    groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
+    innerJoin(data.movedBoxes.dimensions.target as TargetDimensionInfo[], {
+      by: { id: "targetId" },
+    }),
+    filter(
+      (movedBox) =>
+        params.filter?.locations.findIndex(
+          (location) => movedBox.targetId === location
+        ) === -1
+    )
   );
 
-  if (!movedBoxesGrouped || movedBoxesGrouped.data.length === 0) {
+  if (!movedBoxes || movedBoxesFacts.length === 0) {
     return <NoDataCard header={heading}></NoDataCard>;
   }
-  const targetIds = movedBoxesGrouped?.data.map((e) => e.targetId);
 
-  const nodes = data.movedBoxes.dimensions.target.filter(
-    (target) => targetIds?.indexOf(target.id) !== -1
+  const movedBoxesByTargetType = tidy(
+    movedBoxes,
+    groupBy("type", [summarize({ boxesCount: sum("boxesCount") })])
   );
 
-  nodes.push({
-    id: "outgoing",
-    name: "outgoing",
-    boxesCount: movedBoxesGrouped?.sumColumn("boxesCount"),
-  });
+  const links = [
+    ...movedBoxesByTargetType
+      .map((target) => {
+        if (target.type === "OutgoingLocation") {
+          return {
+            source: outgoingNode.id,
+            target: selfReportedNode.id,
+            value: target.boxesCount,
+          };
+        }
+        if (target.type === "Shipment") {
+          return {
+            source: outgoingNode.id,
+            target: shipmentNode.id,
+            value: target.boxesCount,
+          };
+        }
+      })
+      .filter((e) => e !== undefined),
+    ...movedBoxes.map((movedBox) => {
+      if (movedBox.type === "OutgoingLocation") {
+        return {
+          source: selfReportedNode.id,
+          target: movedBox.targetId,
+          value: movedBox.boxesCount,
+        };
+      }
+      if (movedBox.type === "Shipment") {
+        return {
+          source: shipmentNode.id,
+          target: movedBox.targetId,
+          value: movedBox.boxesCount,
+        };
+      }
+      return {
+        source: outgoingNode.id,
+        target: movedBox.targetId,
+        value: movedBox.boxesCount,
+      };
+    }),
+  ];
+  const nodes = [
+    outgoingNode,
+    ...movedBoxes.map((movedBox) => ({
+      id: movedBox.targetId,
+      name: movedBox.name,
+    })),
+  ];
+
+  const nodeIsTargetedByLink = (node) =>
+    links.findIndex((link) => link?.target === node.id) !== -1;
+  if (nodeIsTargetedByLink(selfReportedNode)) {
+    nodes.push(selfReportedNode);
+  }
+  if (nodeIsTargetedByLink(shipmentNode)) {
+    nodes.push(shipmentNode);
+  }
 
   const chartData = {
     nodes: nodes,
-    links: movedBoxesGrouped?.data.map((e) => ({
-      source: "outgoing",
-      target: e.targetId,
-      value: e.boxesCount,
-    })),
+    links,
   };
 
   const chartProps = {

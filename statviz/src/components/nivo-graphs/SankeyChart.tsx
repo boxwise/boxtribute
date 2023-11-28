@@ -38,9 +38,9 @@ export default function SankeyChart(chart: SankeyChart) {
 
   const margin = {
     top: getMarginTop(height, width, includeHeading, includeTimerange),
-    right: percent(width, 20),
+    right: percent(width, 5),
     bottom: percent(height, 5),
-    left: percent(width, 15),
+    left: percent(width, 5),
   };
 
   const theme = {
@@ -98,7 +98,8 @@ export default function SankeyChart(chart: SankeyChart) {
         linkContract={3}
         sort="auto"
         enableLinkGradient={true}
-        labelPosition="outside"
+        label={(e) => `${e.name} ${e.value}`}
+        labelPosition="inside"
         labelOrientation="horizontal"
         labelPadding={16}
         labelTextColor={{

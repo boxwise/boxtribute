@@ -364,7 +364,7 @@ const timeStampFontSize = (width: number, height: number) =>
 const headingPosition = (width: number, height: number) => {
   return {
     y: -percent(height, 10),
-    x: -graphMarginLeft(width) + percent(width, 3),
+    x: 0,
   };
 };
 
