@@ -107,6 +107,21 @@ class ShipmentLoader(DataLoader):
         return [shipments.get(i) for i in keys]
 
 
+class ShipmentsForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        # Select all shipments with given agreement IDs that the user is authorized for,
+        # and group them by agreement ID
+        shipments = defaultdict(list)
+        for shipment in Shipment.select().where(
+            Shipment.transfer_agreement << agreement_ids,
+            authorized_bases_filter(Shipment, base_fk_field_name="source_base")
+            | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
+        ):
+            shipments[shipment.transfer_agreement_id].append(shipment)
+        # Return empty list if agreement has no shipments attached
+        return [shipments.get(i, []) for i in agreement_ids]
+
+
 class TagsForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         tags = defaultdict(list)
