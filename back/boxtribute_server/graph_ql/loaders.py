@@ -149,6 +149,24 @@ class TagsForBoxLoader(DataLoader):
         return [tags.get(i, []) for i in keys]
 
 
+class ShipmentDetailsForShipmentLoader(DataLoader):
+    async def batch_load_fn(self, shipment_ids):
+        authorize(permission="shipment_detail:read")
+        # Select all details with given shipments IDs that the user is authorized for,
+        # and group them by shipment ID.
+        # Join with Shipment model, such that authorization in ShipmentDetail resolvers
+        # (detail.shipment.source_base_id) don't create additional DB queries
+        details = defaultdict(list)
+        for detail in (
+            ShipmentDetail.select(ShipmentDetail, Shipment)
+            .join(Shipment)
+            .where(ShipmentDetail.shipment << shipment_ids)
+        ):
+            details[detail.shipment_id].append(detail)
+        # Return empty list if shipment has no details attached
+        return [details.get(i, []) for i in shipment_ids]
+
+
 class ShipmentDetailForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         details = {

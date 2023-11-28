@@ -3,8 +3,6 @@ from datetime import datetime
 from ariadne import ObjectType
 
 from ....authz import authorize
-from ....models.definitions.shipment import Shipment
-from ....models.definitions.shipment_detail import ShipmentDetail
 
 shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
@@ -33,15 +31,8 @@ async def resolve_shipment_label_identifier(shipment_obj, info):
 
 
 @shipment.field("details")
-def resolve_shipment_details(shipment_obj, _):
-    authorize(permission="shipment_detail:read")
-    # Join with Shipment model, such that authorization in ShipmentDetail resolvers
-    # (detail.shipment.source_base_id) don't create additional DB queries
-    return (
-        ShipmentDetail.select(ShipmentDetail, Shipment)
-        .join(Shipment)
-        .where(ShipmentDetail.shipment == shipment_obj.id)
-    )
+def resolve_shipment_details(shipment_obj, info):
+    return info.context["shipment_details_for_shipment_loader"].load(shipment_obj.id)
 
 
 @shipment.field("transferAgreement")
