@@ -153,7 +153,7 @@ def cancel_shipment(*, shipment, user):
             ShipmentDetail.bulk_update(
                 details, [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
             )
-        shipment.save()
+        shipment.save(only=[Shipment.state, Shipment.canceled_by, Shipment.canceled_on])
     return shipment
 
 
@@ -181,7 +181,7 @@ def send_shipment(*, shipment, user):
     ]
 
     with db.database.atomic():
-        shipment.save()
+        shipment.save(only=[Shipment.state, Shipment.sent_by, Shipment.sent_on])
         _bulk_update_box_state(boxes=boxes, state=BoxState.InTransit)
     return shipment
 
@@ -209,7 +209,13 @@ def start_receiving_shipment(*, shipment, user):
     ]
 
     with db.database.atomic():
-        shipment.save()
+        shipment.save(
+            only=[
+                Shipment.state,
+                Shipment.receiving_started_by,
+                Shipment.receiving_started_on,
+            ]
+        )
         _bulk_update_box_state(boxes=boxes, state=BoxState.Receiving)
     return shipment
 
@@ -406,7 +412,9 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
         shipment.completed_on = now
-        shipment.save()
+        shipment.save(
+            only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
+        )
 
     elif all(
         d.box.state_id in [BoxState.InStock, BoxState.NotDelivered] for d in details
@@ -459,7 +467,7 @@ def update_shipment_when_preparing(
 
         if target_base_id is not None:
             shipment.target_base = target_base_id
-            shipment.save()
+            shipment.save(only=[Shipment.target_base])
 
     return shipment
 
@@ -538,7 +546,9 @@ def mark_shipment_as_lost(*, shipment, user):
             box_label_identifiers=box_label_identifiers,
             box_state=BoxState.NotDelivered,
         )
-        shipment.save()
+        shipment.save(
+            only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
+        )
     return shipment
 
 
