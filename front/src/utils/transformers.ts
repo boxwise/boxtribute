@@ -35,10 +35,14 @@ export function locationToDropdownOptionTransformer(
 
 export function shipmentToDropdownOptionTransformer(
   shipments: BoxesLocationsTagsShipmentsForBaseQuery["shipments"],
+  baseId: string,
 ): IDropdownOption[] {
   return (
     shipments
-      ?.filter((shipment) => shipment.state === ShipmentState.Preparing)
+      ?.filter(
+        (shipment) =>
+          shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === baseId,
+      )
       ?.map((shipment) => ({
         __typename: "Shipment", // Add this line to ensure __typename is set to "Shipment"
         label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
