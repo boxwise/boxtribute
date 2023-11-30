@@ -111,8 +111,16 @@ def create_history_entries(*, old_resource, new_resource, fields):
     now = utcnow()
     entries = []
     for field in fields:
-        old_value = getattr(old_resource, field.name)
-        new_value = getattr(new_resource, field.name)
+        field_class = field.__class__
+        field_name = (
+            # For ForeignKeyFields, avoid an additional DB lookup triggered by accessing
+            # the field via getattr(resource, field.name)
+            field.object_id_name
+            if issubclass(field_class, ForeignKeyField)
+            else field.name
+        )
+        old_value = getattr(old_resource, field_name)
+        new_value = getattr(new_resource, field_name)
 
         if old_value == new_value:
             continue  # no change in value, hence no need for history entry
@@ -124,7 +132,7 @@ def create_history_entries(*, old_resource, new_resource, fields):
         entry.ip = None
         entry.change_date = now
 
-        if issubclass(field.__class__, (IntegerField, ForeignKeyField)):
+        if issubclass(field_class, (IntegerField, ForeignKeyField)):
             entry.from_int = old_value
             entry.to_int = new_value
             entry.changes = field.column_name
