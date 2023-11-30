@@ -66,7 +66,7 @@ function ShipmentOverlay({
         <chakra.span>
           <Text>
             This will mark the remaining boxes as{" "}
-            <Text as="b" colorScheme="red">
+            <Text as="b" color="red">
               NotDelivered
             </Text>{" "}
             and will complete the shipment.
