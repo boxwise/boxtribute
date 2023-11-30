@@ -36,7 +36,7 @@ def resolve_accept_transfer_agreement(*_, id):
     )
     for base in retrieve_transfer_agreement_bases(agreement=agreement, kind=kind):
         authorize(permission="transfer_agreement:edit", base_id=base.id)
-    return accept_transfer_agreement(id=id, user=g.user)
+    return accept_transfer_agreement(agreement=agreement, user=g.user)
 
 
 @mutation.field("rejectTransferAgreement")
@@ -50,7 +50,7 @@ def resolve_reject_transfer_agreement(*_, id):
     )
     for base in retrieve_transfer_agreement_bases(agreement=agreement, kind=kind):
         authorize(permission="transfer_agreement:edit", base_id=base.id)
-    return reject_transfer_agreement(id=id, user=g.user)
+    return reject_transfer_agreement(agreement=agreement, user=g.user)
 
 
 @mutation.field("cancelTransferAgreement")
@@ -69,4 +69,4 @@ def resolve_cancel_transfer_agreement(*_, id):
         for base in target_bases:
             authorize(permission="transfer_agreement:edit", base_id=base.id)
 
-    return cancel_transfer_agreement(id=id, user_id=g.user.id)
+    return cancel_transfer_agreement(agreement=agreement, user=g.user)
