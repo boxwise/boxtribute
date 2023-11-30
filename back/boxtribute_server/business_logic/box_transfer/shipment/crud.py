@@ -300,6 +300,9 @@ def _update_shipment_with_received_boxes(
     registered in the target base, or with a state other than 'Receiving', they are
     silently discarded.
     """
+    if not shipment_detail_update_inputs:
+        return
+
     # Transform input list into dict for easy look-up
     update_inputs = {
         int(i["id"]): {
