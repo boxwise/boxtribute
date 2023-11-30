@@ -163,6 +163,9 @@ export function MatchProductsForm({
           style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
         >
           {shipmentDetail?.sourceProduct?.name}{" "}
+          {shipmentDetail?.sourceProduct?.gender
+            ? `(${shipmentDetail?.sourceProduct?.gender})`
+            : ""}
         </Text>
         <Flex alignContent="center" gap={2} alignItems="center">
           <BiSubdirectoryRight size={30} />

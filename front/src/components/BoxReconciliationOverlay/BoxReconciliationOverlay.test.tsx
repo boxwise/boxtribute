@@ -114,6 +114,8 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   expect((await screen.findAllByText(/Long Sleeves/i)).length).toBeGreaterThanOrEqual(1);
   expect((await screen.findAllByText(/product & gender/i)).length).toBeGreaterThanOrEqual(1);
   const selectProductControlInput = screen.getByText(/select product & gender/i);
+  // check if source product renders correctly
+  expect(screen.getByText(/Long Sleeves \(Women\)/i)).toBeInTheDocument();
   await user.click(selectProductControlInput);
   [/Winter Jackets \(Men\)/, /Long Sleeves \(Women\)/].forEach((option) => {
     expect(screen.getByRole("option", { name: option })).toBeInTheDocument();
