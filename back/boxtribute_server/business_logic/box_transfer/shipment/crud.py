@@ -260,20 +260,22 @@ def _remove_boxes_from_shipment(
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
         return
+    if box_state not in [BoxState.InStock, BoxState.NotDelivered]:
+        raise ValueError("Function used with invalid box state")
+
+    if box_state == BoxState.InStock:
+        fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
+    else:
+        fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
 
     now = utcnow()
     details = []
     for detail in _retrieve_shipment_details(
-        shipment_id, (Box.label_identifier << box_label_identifiers)
+        shipment_id,
+        (Box.label_identifier << box_label_identifiers),
     ):
-        if box_state == BoxState.InStock:
-            detail.removed_on = now
-            detail.removed_by = user_id
-            fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
-        elif box_state == BoxState.NotDelivered:
-            detail.lost_on = now
-            detail.lost_by = user_id
-            fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
+        setattr(detail, fields[0].name, now)
+        setattr(detail, fields[1].name, user_id)
         details.append(detail)
 
     if details:
