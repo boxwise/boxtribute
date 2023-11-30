@@ -389,8 +389,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
     """If all boxes of the shipment that were being sent
     - are marked as NotDelivered, transition the shipment state to 'Lost',
     - are marked as InStock or NotDelivered, transition the shipment state to
-    'Completed', and soft-delete the corresponding shipment details by setting the
-    received_on/by fields.
+    'Completed'.
     """
     details = _retrieve_shipment_details(
         shipment.id,
@@ -414,18 +413,6 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.completed_by = user_id
         shipment.completed_on = now
         shipment.save()
-
-        for detail in details:
-            if detail.box.state_id == BoxState.NotDelivered:
-                # NotDelivered boxes must not be marked as received
-                continue
-            detail.received_by = user_id
-            detail.received_on = now
-
-        if details:
-            ShipmentDetail.bulk_update(
-                details, [ShipmentDetail.received_on, ShipmentDetail.received_by]
-            )
 
 
 def update_shipment_when_preparing(
