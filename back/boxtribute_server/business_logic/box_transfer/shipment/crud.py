@@ -504,6 +504,7 @@ def update_shipment_when_receiving(
             box_label_identifiers=lost_box_label_identifiers,
             box_state=BoxState.NotDelivered,
         )
+    with db.database.atomic():
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
 
     return shipment
