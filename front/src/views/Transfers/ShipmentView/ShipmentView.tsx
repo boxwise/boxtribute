@@ -197,7 +197,7 @@ function ShipmentView() {
 
   // shipment actions in the modal
   const handleShipment = useCallback(
-    (mutation, kind, successMessage = "", failedMessage = "") =>
+    (mutation, kind, successMessage = "", failedMessage = "", showSuccessMessage = true) =>
       () => {
         mutation({
           variables: {
@@ -207,11 +207,13 @@ function ShipmentView() {
           .then((res) => {
             if (!res?.errors) {
               onShipmentOverlayClose();
-              createToast({
-                type: "success",
-                message:
-                  successMessage !== "" ? successMessage : `Successfully ${kind}ed the shipment.`,
-              });
+              if (showSuccessMessage) {
+                createToast({
+                  type: "success",
+                  message:
+                    successMessage !== "" ? successMessage : `Successfully ${kind}ed the shipment.`,
+                });
+              }
             } else {
               triggerError({
                 message: failedMessage !== "" ? failedMessage : `Could not ${kind} the shipment.`,
@@ -235,7 +237,7 @@ function ShipmentView() {
     "Successfully marked the shipment as Lost.",
     "Could not marking the shipment as Lost.",
   );
-  const onReceive = handleShipment(startReceivingShipment, "receive");
+  const onReceive = handleShipment(startReceivingShipment, "receive", "", "", false);
 
   // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(() => {
