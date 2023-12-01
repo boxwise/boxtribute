@@ -210,7 +210,7 @@ function Boxes() {
     <BoxesActionsAndTable
       tableData={graphqlToTableTransformer(data)}
       availableColumns={availableColumns}
-      shipmentOptions={shipmentToDropdownOptionTransformer(data.shipments ?? [])}
+      shipmentOptions={shipmentToDropdownOptionTransformer(data?.shipments, baseId)}
       locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
     />
   );
