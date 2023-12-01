@@ -3,29 +3,27 @@ from datetime import datetime
 from ariadne import ObjectType
 
 from ....authz import authorize
-from ....models.definitions.base import Base
-from ....models.definitions.shipment import Shipment
-from ....models.definitions.shipment_detail import ShipmentDetail
 
 shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
 
 
-def first_letters_of_base_name(base_id):
-    base = Base.get_by_id(base_id)
+def first_letters_of_base_name(base):
     return base.name.upper()[:2]
 
 
 @shipment.field("labelIdentifier")
-def resolve_shipment_label_identifier(shipment_obj, _):
+async def resolve_shipment_label_identifier(shipment_obj, info):
     # Shipment ID left-padded with zeroes; three characters
     id_part = f"{shipment_obj.id:03}"[-3:]
     # Shipment start date in format YYMMDD
     date_part = datetime.strftime(shipment_obj.started_on.date(), "%y%m%d")
+    source_base = await info.context["base_loader"].load(shipment_obj.source_base_id)
+    target_base = await info.context["base_loader"].load(shipment_obj.target_base_id)
     # First letters of source and target base, concatenated by 'x'
     bases_part = (
-        f"{first_letters_of_base_name(shipment_obj.source_base_id)}x"
-        + f"{first_letters_of_base_name(shipment_obj.target_base_id)}"
+        f"{first_letters_of_base_name(source_base)}x"
+        + f"{first_letters_of_base_name(target_base)}"
     )
     # All three parts combined with hyphens; prefixed with 'S'
     # Example: S042-230815-THxLE
@@ -33,14 +31,14 @@ def resolve_shipment_label_identifier(shipment_obj, _):
 
 
 @shipment.field("details")
-def resolve_shipment_details(shipment_obj, _):
-    authorize(permission="shipment_detail:read")
-    # Join with Shipment model, such that authorization in ShipmentDetail resolvers
-    # (detail.shipment.source_base_id) don't create additional DB queries
-    return (
-        ShipmentDetail.select(ShipmentDetail, Shipment)
-        .join(Shipment)
-        .where(ShipmentDetail.shipment == shipment_obj.id)
+def resolve_shipment_details(shipment_obj, info):
+    return info.context["shipment_details_for_shipment_loader"].load(shipment_obj.id)
+
+
+@shipment.field("transferAgreement")
+def resolve_shipment_transfer_agreement(shipment_obj, info):
+    return info.context["transfer_agreement_loader"].load(
+        shipment_obj.transfer_agreement_id
     )
 
 
