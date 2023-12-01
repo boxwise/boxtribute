@@ -128,18 +128,17 @@ function BoxesTable({
     usePagination,
     useRowSelect,
     (hooks) => {
-      // eslint-disable-next-line no-shadow
-      hooks.visibleColumns.push((columns) => [
+      hooks.visibleColumns.push((col) => [
         {
           id: "selection",
           // eslint-disable-next-line react/no-unstable-nested-components
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          Header: ({ getToggleAllPageRowsSelectedProps }) => (
+            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
           // eslint-disable-next-line react/no-unstable-nested-components
           Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
-        ...columns,
+        ...col,
       ]);
     },
   );
