@@ -146,6 +146,18 @@ By default the Flask app runs in `development` mode in the Docker container whic
 
 For debugging an exception in an endpoint, direct your web browser to that endpoint. The built-in Flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
 
+#### Using pdb
+
+`pdb` is a Python debugging command line interface integrated in the Python standard library. It is helpful for setting breakpoints, stepping through executed code, inspecting variables, etc.
+
+Enabling `pdb` is a bit involved since the Flask app is being run in a Docker container. On the command-line do (inspired by [this blog post](https://trstringer.com/python-flask-debug-docker-compose/))
+
+    docker-compose run -p 5005:5005 webapp python -m pdb -m boxtribute_server.dev_main
+
+At the beginning, code execution will pause twice for the `pdb` CLI. Press `c` to continue, or if you want to set a breakpoint, `b` with according arguments. The Flask app should have started as usual. Make a request that will trigger the breakpoint. For `pdb` debugger commands, see the [official documentation](https://docs.python.org/3/library/pdb.html#debugger-commands), and use the command `help`.
+
+For setting a breakpoint, you can also put `breakpoint()` in the code.
+
 #### Debugging Back-end in VSCode
 
 VSCode has [a very easy-to-use debugger](https://code.visualstudio.com/docs/editor/debugging) built-in.

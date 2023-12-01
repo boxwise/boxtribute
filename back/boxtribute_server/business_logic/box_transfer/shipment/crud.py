@@ -121,14 +121,13 @@ def _bulk_update_box_state(*, boxes, state):
     DbChangeHistory.bulk_create(history_entries)
 
 
-def cancel_shipment(*, id, user):
+def cancel_shipment(*, shipment, user):
     """Transition state of specified shipment to 'Canceled'.
     Move any boxes marked for shipment back into stock, and soft-delete the
     corresponding shipment details by setting the removed_on/by fields.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
-    shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
@@ -140,7 +139,10 @@ def cancel_shipment(*, id, user):
     shipment.canceled_on = now
 
     # Only remove details that have not been removed yet
-    details = _retrieve_shipment_details(id, ShipmentDetail.removed_on.is_null())
+    details = _retrieve_shipment_details(
+        shipment.id,
+        ShipmentDetail.removed_on.is_null(),
+    )
     for detail in details:
         detail.removed_by = user.id
         detail.removed_on = now
@@ -151,17 +153,16 @@ def cancel_shipment(*, id, user):
             ShipmentDetail.bulk_update(
                 details, [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
             )
-        shipment.save()
+        shipment.save(only=[Shipment.state, Shipment.canceled_by, Shipment.canceled_on])
     return shipment
 
 
-def send_shipment(*, id, user):
+def send_shipment(*, shipment, user):
     """Transition state of specified shipment to 'Sent'.
     Transition states of all contained MarkedForShipment boxes to 'InTransit'.
     Raise InvalidShipmentState exception if shipment state is different from
     'Preparing'.
     """
-    shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
@@ -173,24 +174,23 @@ def send_shipment(*, id, user):
     boxes = [
         detail.box
         for detail in _retrieve_shipment_details(
-            id,
+            shipment.id,
             Box.state == BoxState.MarkedForShipment,
             ShipmentDetail.removed_on.is_null(),
         )
     ]
 
     with db.database.atomic():
-        shipment.save()
+        shipment.save(only=[Shipment.state, Shipment.sent_by, Shipment.sent_on])
         _bulk_update_box_state(boxes=boxes, state=BoxState.InTransit)
     return shipment
 
 
-def start_receiving_shipment(*, id, user):
+def start_receiving_shipment(*, shipment, user):
     """Transition state of specified shipment to 'Receiving'.
     Transition states of all contained InTransit boxes to 'Receiving'.
     Raise InvalidShipmentState exception if shipment state is different from 'Sent'.
     """
-    shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Sent:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Sent], actual_state=shipment.state
@@ -202,14 +202,20 @@ def start_receiving_shipment(*, id, user):
     boxes = [
         detail.box
         for detail in _retrieve_shipment_details(
-            id,
+            shipment.id,
             Box.state == BoxState.InTransit,
             ShipmentDetail.removed_on.is_null(),
         )
     ]
 
     with db.database.atomic():
-        shipment.save()
+        shipment.save(
+            only=[
+                Shipment.state,
+                Shipment.receiving_started_by,
+                Shipment.receiving_started_on,
+            ]
+        )
         _bulk_update_box_state(boxes=boxes, state=BoxState.Receiving)
     return shipment
 
@@ -260,20 +266,22 @@ def _remove_boxes_from_shipment(
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
         return
+    if box_state not in [BoxState.InStock, BoxState.NotDelivered]:
+        raise ValueError("Function used with invalid box state")
+
+    if box_state == BoxState.InStock:
+        fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
+    else:
+        fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
 
     now = utcnow()
     details = []
     for detail in _retrieve_shipment_details(
-        shipment_id, (Box.label_identifier << box_label_identifiers)
+        shipment_id,
+        (Box.label_identifier << box_label_identifiers),
     ):
-        if box_state == BoxState.InStock:
-            detail.removed_on = now
-            detail.removed_by = user_id
-            fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
-        elif box_state == BoxState.NotDelivered:
-            detail.lost_on = now
-            detail.lost_by = user_id
-            fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
+        setattr(detail, fields[0].name, now)
+        setattr(detail, fields[1].name, user_id)
         details.append(detail)
 
     if details:
@@ -292,6 +300,9 @@ def _update_shipment_with_received_boxes(
     registered in the target base, or with a state other than 'Receiving', they are
     silently discarded.
     """
+    if not shipment_detail_update_inputs:
+        return
+
     # Transform input list into dict for easy look-up
     update_inputs = {
         int(i["id"]): {
@@ -389,8 +400,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
     """If all boxes of the shipment that were being sent
     - are marked as NotDelivered, transition the shipment state to 'Lost',
     - are marked as InStock or NotDelivered, transition the shipment state to
-    'Completed', and soft-delete the corresponding shipment details by setting the
-    received_on/by fields.
+    'Completed'.
     """
     details = _retrieve_shipment_details(
         shipment.id,
@@ -405,7 +415,9 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
         shipment.completed_on = now
-        shipment.save()
+        shipment.save(
+            only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
+        )
 
     elif all(
         d.box.state_id in [BoxState.InStock, BoxState.NotDelivered] for d in details
@@ -413,24 +425,14 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
         shipment.completed_on = now
-        shipment.save()
-
-        for detail in details:
-            if detail.box.state_id == BoxState.NotDelivered:
-                # NotDelivered boxes must not be marked as received
-                continue
-            detail.received_by = user_id
-            detail.received_on = now
-
-        if details:
-            ShipmentDetail.bulk_update(
-                details, [ShipmentDetail.received_on, ShipmentDetail.received_by]
-            )
+        shipment.save(
+            only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
+        )
 
 
 def update_shipment_when_preparing(
     *,
-    id,
+    shipment,
     user,
     prepared_box_label_identifiers=None,
     removed_box_label_identifiers=None,
@@ -443,7 +445,6 @@ def update_shipment_when_preparing(
     - raise an InvalidTransferAgreementBase exception if specified target base is not
       included in given agreement
     """
-    shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
@@ -469,14 +470,14 @@ def update_shipment_when_preparing(
 
         if target_base_id is not None:
             shipment.target_base = target_base_id
-            shipment.save()
+            shipment.save(only=[Shipment.target_base])
 
     return shipment
 
 
 def update_shipment_when_receiving(
     *,
-    id,
+    shipment,
     user,
     received_shipment_detail_update_inputs=None,
     lost_box_label_identifiers=None,
@@ -486,7 +487,6 @@ def update_shipment_when_receiving(
     - raise InvalidShipmentState exception if shipment state is different from
       'Receiving'
     """
-    shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Receiving:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Receiving], actual_state=shipment.state
@@ -504,6 +504,7 @@ def update_shipment_when_receiving(
             box_label_identifiers=lost_box_label_identifiers,
             box_state=BoxState.NotDelivered,
         )
+    with db.database.atomic():
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
 
     return shipment
@@ -521,13 +522,12 @@ def _validate_base_as_part_of_shipment(resource_id, *, detail, model):
         return False
 
 
-def mark_shipment_as_lost(*, id, user):
+def mark_shipment_as_lost(*, shipment, user):
     """Change shipment state to 'Lost'. Update states of all contained
     'InTransit' boxes to 'NotDelivered' and soft-delete all shipment details by setting
     the lost_on/by fields.
     - raise InvalidShipmentState exception if shipment state is different from 'Sent'
     """
-    shipment = Shipment.get_by_id(id)
     if shipment.state != ShipmentState.Sent:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Sent], actual_state=shipment.state
@@ -539,15 +539,19 @@ def mark_shipment_as_lost(*, id, user):
         shipment.completed_by = user.id
         box_label_identifiers = [
             d.box.label_identifier
-            for d in _retrieve_shipment_details(id, Box.state == BoxState.InTransit)
+            for d in _retrieve_shipment_details(
+                shipment.id, Box.state == BoxState.InTransit
+            )
         ]
         _remove_boxes_from_shipment(
-            shipment_id=id,
+            shipment_id=shipment.id,
             user_id=user.id,
             box_label_identifiers=box_label_identifiers,
             box_state=BoxState.NotDelivered,
         )
-        shipment.save()
+        shipment.save(
+            only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
+        )
     return shipment
 
 
