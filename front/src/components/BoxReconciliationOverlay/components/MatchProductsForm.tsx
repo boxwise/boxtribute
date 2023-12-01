@@ -1,4 +1,4 @@
-import { Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
@@ -153,22 +153,24 @@ export function MatchProductsForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmitMatchProductsForm)}>
-      <Flex direction="column" gap="2" alignItems="stretch">
-        <Text fontSize={16} fontWeight="bold">
-          Sender Product & Gender:{" "}
-        </Text>
-        <Text
-          fontSize={16}
-          fontWeight={productId?.value === "" ? "semibold" : ""}
-          fontStyle="italic"
-          style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
-        >
-          {shipmentDetail?.sourceProduct?.name}{" "}
-          {shipmentDetail?.sourceProduct?.gender
-            ? `(${shipmentDetail?.sourceProduct?.gender})`
-            : ""}
-        </Text>
-        <Flex alignContent="center" gap={2} alignItems="center">
+      <Flex direction="column" gap="4" alignItems="stretch">
+        <Box>
+          <Text fontSize={16} fontWeight="bold">
+            Sender Product & Gender:{" "}
+          </Text>
+          <Text
+            fontSize={16}
+            fontWeight={productId?.value === "" ? "semibold" : ""}
+            fontStyle="italic"
+            style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
+          >
+            {shipmentDetail?.sourceProduct?.name}{" "}
+            {shipmentDetail?.sourceProduct?.gender !== "none"
+              ? `(${shipmentDetail?.sourceProduct?.gender})`
+              : ""}
+          </Text>
+        </Box>
+        <Flex alignContent="center" gap={4} alignItems="center">
           <BiSubdirectoryRight size={30} />
           <SelectField
             showError={false}
@@ -182,20 +184,20 @@ export function MatchProductsForm({
           />
           <BsFillCheckCircleFill color={productId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
         </Flex>
-        <Text fontSize={16} fontWeight="bold">
-          Sender Size:{" "}
-        </Text>
-
-        <Text
-          fontSize={16}
-          fontWeight={sizeId?.value === "" ? "semibold" : ""}
-          fontStyle="italic"
-          style={{ color: sizeId?.value === "" ? "#FF0000" : "#000" }}
-        >
-          {shipmentDetail?.sourceSize?.label}{" "}
-        </Text>
-
-        <Flex alignContent="center" gap={2} alignItems="center">
+        <Box>
+          <Text fontSize={16} fontWeight="bold">
+            Sender Size:{" "}
+          </Text>
+          <Text
+            fontSize={16}
+            fontWeight={sizeId?.value === "" ? "semibold" : ""}
+            fontStyle="italic"
+            style={{ color: sizeId?.value === "" ? "#FF0000" : "#000" }}
+          >
+            {shipmentDetail?.sourceSize?.label}{" "}
+          </Text>
+        </Box>
+        <Flex alignContent="center" gap={4} alignItems="center">
           <BiSubdirectoryRight size={30} />
           <SelectField
             showError={false}
