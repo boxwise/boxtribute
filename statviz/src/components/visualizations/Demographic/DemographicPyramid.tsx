@@ -1,12 +1,12 @@
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
-import BarChartCenterAxis from "../custom-graphs/BarChartCenterAxis";
+import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
-import { HumanGender } from "../../types/generated/graphql";
-import VisHeader from "../VisHeader";
-import { table } from "../../utils/table";
-import useDemographics from "../../hooks/useDemographics";
+import { HumanGender } from "../../../types/generated/graphql";
+import VisHeader from "../../VisHeader";
+import { table } from "../../../utils/table";
+import useDemographics from "../../../hooks/useDemographics";
 import { ApolloError } from "@apollo/client";
-import getOnExport from "../../utils/chartExport";
+import getOnExport from "../../../utils/chartExport";
 
 export interface IDemographicFact {
   createdOn: Date;

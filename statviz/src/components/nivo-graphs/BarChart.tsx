@@ -39,7 +39,7 @@ export default function BarChart(barChart: BarChart) {
   const height = parseInt(barChart.height);
   const width = parseInt(barChart.width);
 
-  const theme = scaledNivoTheme(width, height);
+  const theme = scaledNivoTheme(width, height, barChart.data.length);
   const marginBottom = percent(height, 25);
 
   const layers: BarLayer<BarDatum>[] = [
@@ -163,7 +163,7 @@ export default function BarChart(barChart: BarChart) {
         axisBottom={{
           tickSize: scaleTick(height),
           tickPadding: scaleTick(height),
-          tickRotation: 25,
+          tickRotation: 45,
           legend: barChart.labelAxisBottom,
           legendPosition: "middle",
           legendOffset: 32,
@@ -176,8 +176,8 @@ export default function BarChart(barChart: BarChart) {
           legendPosition: "middle",
           legendOffset: -40,
         }}
-        labelSkipWidth={12}
-        labelSkipHeight={12}
+        labelSkipWidth={20}
+        labelSkipHeight={20}
         labelTextColor={{
           from: "color",
           modifiers: [["darker", 1.6]],

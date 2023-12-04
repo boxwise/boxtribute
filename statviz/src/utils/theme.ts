@@ -216,13 +216,17 @@ export const nivoScheme: Theme = {
   },
 };
 
-export const scaledNivoTheme = (width: number, height: number): Theme => {
+export const scaledNivoTheme = (
+  width: number,
+  height: number,
+  dataPoints: number = 5
+): Theme => {
   const hW = height + width;
   const strokeWidth = Math.ceil(height / 900);
   const fontSizeAxis = Math.ceil(height / 35);
   const fontSizeLegend = Math.ceil(height / 35);
   const fontSizeText = Math.ceil(height / 35);
-  const fontSizeLabel = Math.ceil(hW / 35); // TODO: needs to be dependend on the amount of data points (smaller bars -> smaller fontSizeLabel)
+  const fontSizeLabel = Math.ceil(width / (dataPoints * 4.5));
 
   return {
     background: "#ffffff",

@@ -130,29 +130,7 @@ export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
         dataTable.data.filter((row) => row.createdOn !== null)
       );
     },
-    fillMissingDays: () => {
-      if (dataTable.data.length < 2) return createdBoxesTable(dataTable.data);
-      const interval: Interval = {
-        start: new Date(dataTable.data[0].createdOn),
-        end: new Date(dataTable.data[dataTable.data.length - 1].createdOn),
-      };
-      const eachDay = eachDayOfInterval(interval);
 
-      const result = eachDay.map((day) => {
-        const isoDay = day.toISOString().substring(0, 10);
-        const i = dataTable.data.findIndex((e) => e.createdOn === isoDay);
-        if (i !== -1) {
-          return dataTable.data[i];
-        }
-        return {
-          createdOn: isoDay,
-          boxesCount: 0,
-          itemsCount: 0,
-        };
-      });
-
-      return createdBoxesTable(result);
-    },
     fillMissingDaysNew: () => {},
     groupByWeek: () => {
       const interval: Interval = {

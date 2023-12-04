@@ -1,11 +1,14 @@
-import VisHeader from "../VisHeader";
+import VisHeader from "../../VisHeader";
 import { Card, CardBody } from "@chakra-ui/react";
-import SankeyChart from "../nivo-graphs/SankeyChart";
-import getOnExport from "../../utils/chartExport";
-import useMovedBoxes from "../../hooks/useMovedBoxes";
+import SankeyChart from "../../nivo-graphs/SankeyChart";
+import getOnExport from "../../../utils/chartExport";
+import useMovedBoxes from "../../../hooks/useMovedBoxes";
 import { ApolloError } from "@apollo/client";
-import NoDataCard from "../NoDataCard";
-import { TargetDimensionInfo } from "../../types/generated/graphql";
+import NoDataCard from "../../NoDataCard";
+import {
+  MovedBoxesData,
+  TargetDimensionInfo,
+} from "../../../types/generated/graphql";
 import { groupBy, innerJoin, sum, summarize, tidy, filter } from "@tidyjs/tidy";
 
 const heading = "Moved Boxes";
@@ -23,42 +26,20 @@ const outgoingNode = {
   name: "outgoing boxes",
 };
 
-export default function BoxFlowSankey(params: {
+export default function BoxFlowSankey(props: {
   width: string;
   height: string;
-  filter?: {
-    locations: string[];
-  };
+  movedBoxes: MovedBoxesData;
 }) {
-  const { loading, data, error, movedBoxesFacts } = useMovedBoxes();
-
   const onExport = getOnExport(SankeyChart);
 
-  if (error instanceof ApolloError) {
-    return <p>{error.message}</p>;
-  }
-
-  if (loading) {
-    return <p>loading...</p>;
-  }
-
   const movedBoxes = tidy(
-    movedBoxesFacts,
+    props.movedBoxes.facts,
     groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
-    innerJoin(data.movedBoxes.dimensions.target as TargetDimensionInfo[], {
+    innerJoin(props.movedBoxes.dimensions.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
-    }),
-    filter(
-      (movedBox) =>
-        params.filter?.locations.findIndex(
-          (location) => movedBox.targetId === location
-        ) === -1
-    )
+    })
   );
-
-  if (!movedBoxes || movedBoxesFacts.length === 0) {
-    return <NoDataCard header={heading}></NoDataCard>;
-  }
 
   const movedBoxesByTargetType = tidy(
     movedBoxes,
@@ -116,6 +97,7 @@ export default function BoxFlowSankey(params: {
 
   const nodeIsTargetedByLink = (node) =>
     links.findIndex((link) => link?.target === node.id) !== -1;
+
   if (nodeIsTargetedByLink(selfReportedNode)) {
     nodes.push(selfReportedNode);
   }
@@ -129,8 +111,8 @@ export default function BoxFlowSankey(params: {
   };
 
   const chartProps = {
-    width: params.width,
-    height: params.height,
+    width: props.width,
+    height: props.height,
     data: chartData,
   };
 

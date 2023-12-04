@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { createdBoxesTable } from "../utils/table";
 import { useParams } from "react-router-dom";
 import useTimerange from "./useTimerange";
+import { filterListByInterval } from "../utils/helpers";
 
 const CREATED_BOXES_QUERY = gql`
   query createdBoxes($baseId: Int!) {
@@ -45,18 +46,13 @@ export default function useCreatedBoxes() {
 
   return {
     createdBoxes: useMemo(() => {
-      if (!data) return createdBoxesTable([]);
-
-      const boxesFacts = createdBoxesTable(
-        data.createdBoxes.facts as CreatedBoxesResult[]
-      );
+      if (!data) return [];
 
       try {
-        const filteredByTime = boxesFacts.filterCreatedOn(interval);
-        return createdBoxesTable(filteredByTime.data);
+        return filterListByInterval(data.facts, "createdOn", interval);
       } catch (e) {
         console.log("invalid timerange");
-        return createdBoxesTable([]);
+        return [];
       }
     }, [data, interval]),
     data,

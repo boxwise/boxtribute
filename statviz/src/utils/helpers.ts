@@ -1,5 +1,13 @@
-import { filter, tidy } from "@tidyjs/tidy";
-import { Interval, isWithinInterval } from "date-fns";
+import {
+  complete,
+  expand,
+  filter,
+  leftJoin,
+  tidy,
+  fullSeqDateISOString,
+} from "@tidyjs/tidy";
+import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
+import { string } from "zod";
 
 export const getISODateTimeFromDateAndTimeString = (
   date: Date,
@@ -108,6 +116,24 @@ export const formatTime = (date: Date | string): string => {
   }
 
   return "";
+};
+
+type Key = string;
+type Table = Record<Key, Date>;
+
+// this function assumes that the data is already sorted by the date column in ascending order
+// Make sure data is sorted by date first, for createdBoxes this is done by the backend
+export const fillMissingDays = (
+  table: Table[],
+  column: Key,
+  filling: object
+) => {
+  return tidy(
+    table,
+    complete(column, {
+      [column]: fullSeqDateISOString(table, column, "day", 1),
+    })
+  );
 };
 
 export const filterListByInterval = (

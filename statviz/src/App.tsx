@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import DemographicView from "./views/Statistics/DemographicView";
 import Dashboard from "./views/Dashboard/Dashboard";
-import CreatedBoxes from "./components/visualizations/CreatedBoxes";
-import TopProducts from "./components/visualizations/TopProducts";
-import DemographicChart from "./components/visualizations/DemographicChart";
+import CreatedBoxes from "./components/visualizations/CreatedBoxes/CreatedBoxes";
+import TopCreatedProducts from "./components/visualizations/CreatedBoxes/TopCreatedProducts";
+import DemographicChart from "./components/visualizations/Demographic/DemographicPyramid";
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
           />
           <Route
             path="product-rank"
-            element={<TopProducts width="800px" height="800px" />}
+            element={<TopCreatedProducts width="800px" height="800px" />}
           />
           <Route path="demographic" element={<DemographicChart />} />
         </Route>
