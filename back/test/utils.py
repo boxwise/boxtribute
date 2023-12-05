@@ -1,5 +1,12 @@
 def _assert_erroneous_request(
-    client, query, *, code, verify_response=True, error_count=1, **kwargs
+    client,
+    query,
+    *,
+    code,
+    endpoint="graphql",
+    verify_response=True,
+    error_count=1,
+    **kwargs,
 ):
     """Assertion utility that posts the given query via a client fixture.
     Assert presence of `error_count` errors with specified code in response.
@@ -8,7 +15,7 @@ def _assert_erroneous_request(
     the test function.
     """
     data = {"query": query}
-    response = client.post("/graphql", json=data)
+    response = client.post(f"/{endpoint}", json=data)
     assert response.status_code == 200
 
     assert len(response.json["errors"]) == error_count

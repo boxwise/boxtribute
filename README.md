@@ -13,7 +13,7 @@ This is the repository for version 2 of the humanitarian relief web app [Boxtrib
 
 Built by aid workers for aid workers, it is designed with three top priorities in mind:
 
-1. Quick deployment into crisis situations, including easy integration into z large range of relief operations, whether they're new or already up and running.
+1. Quick deployment into crisis situations, including easy integration into a large range of relief operations, whether they're being newly set up or already up and running.
 2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
 3. Dignity and choice-based distribution as a first priority for vulnerable individuals.
 

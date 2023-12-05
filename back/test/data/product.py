@@ -16,7 +16,7 @@ def data():
         {
             "id": 1,
             "base": base_data()[0]["id"],
-            "name": "indigestion tablets",
+            "name": "Indigestion tablets",
             "category": default_product_category_data()["id"],
             "gender": default_product_gender_data()["id"],
             "size_range": size_range_data()["id"],
@@ -40,7 +40,7 @@ def data():
         {
             "id": 3,
             "base": base_data()[0]["id"],
-            "name": "jackets",
+            "name": " jackets ",
             "category": default_product_category_data()["id"],
             "gender": default_product_gender_data()["id"],
             "size_range": size_range_data()["id"],

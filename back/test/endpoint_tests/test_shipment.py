@@ -702,7 +702,7 @@ def test_shipment_mutations_on_target_side(
                             + f"{another_location['name']}",
                         },
                         {
-                            "changes": "changed product type from indigestion tablets "
+                            "changes": "changed product type from Indigestion tablets "
                             + f"to {another_product['name']}"
                         },
                         {"changes": f"{change_prefix} InTransit to Receiving"},

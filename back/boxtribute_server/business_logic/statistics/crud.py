@@ -64,7 +64,7 @@ def _generate_dimensions(*names, target_type=None, facts):
     return dimensions
 
 
-def compute_beneficiary_demographics(base_ids=None):
+def compute_beneficiary_demographics(base_id):
     """For each combination of age, gender, and day-truncated date count the number of
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
@@ -75,10 +75,6 @@ def compute_beneficiary_demographics(base_ids=None):
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
-
-    conditions = [Beneficiary.deleted.is_null()]
-    if base_ids is not None:
-        conditions.append(Beneficiary.base << base_ids)
 
     demographics = (
         Beneficiary.select(
@@ -96,7 +92,10 @@ def compute_beneficiary_demographics(base_ids=None):
                 & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
             ),
         )
-        .where(*conditions)
+        .where(
+            Beneficiary.deleted.is_null(),
+            Beneficiary.base == base_id,
+        )
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
         .dicts()
     )
@@ -111,7 +110,7 @@ def compute_beneficiary_demographics(base_ids=None):
     return {"facts": demographics, "dimensions": dimensions}
 
 
-def compute_created_boxes(base_id=None):
+def compute_created_boxes(base_id):
     """For each combination of product ID, category ID, gender, and day-truncated
     creation date count the number of created boxes, and the contained items, in the
     base with the specified ID.
@@ -387,5 +386,54 @@ def compute_moved_boxes(base_id):
             target_type=TargetType.BoxState,
             facts=lost_scrap_box_facts,
         )["target"]
+    )
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_stock_overview(base_id):
+    """Compute stock overview (number of boxes and number of contained items) for the
+    given base. The result can be filtered by size, location, box state, product
+    category, product name, and product gender.
+    """
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
+
+    facts = (
+        Box.select(
+            Box.size.alias("size_id"),
+            Box.location.alias("location_id"),
+            Box.state.alias("box_state"),
+            Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            tag_ids.alias("tag_ids"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
+        )
+        .join(
+            Location,
+            on=((Box.location == Location.id) & (Location.base == base_id)),
+        )
+        .join(Product, src=Box)
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (TagsRelation.object_id == Box.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
+        )
+        .group_by(
+            SQL("size_id"),
+            SQL("location_id"),
+            SQL("box_state"),
+            SQL("category_id"),
+            SQL("product_name"),
+            SQL("gender"),
+        )
+        .dicts()
+    )
+    dimensions = _generate_dimensions(
+        "size", "location", "category", "tag", facts=facts
     )
     return {"facts": facts, "dimensions": dimensions}

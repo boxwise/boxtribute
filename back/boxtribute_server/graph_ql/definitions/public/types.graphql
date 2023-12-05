@@ -1,18 +1,10 @@
-type Query {
-  beneficiaryDemographics(baseIds: [Int!]): BeneficiaryDemographicsData
-  createdBoxes(baseId: Int): CreatedBoxesData
-  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
-  topProductsDonated(baseId: Int!): TopProductsDonatedData
-  movedBoxes(baseId: Int!): MovedBoxesData
-}
-
 interface DataCube {
   facts: [Result]
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -110,6 +102,30 @@ type MovedBoxDataDimensions {
   target: [TargetDimensionInfo]
 }
 
+type StockOverviewData implements DataCube {
+  facts: [StockOverviewResult!]!
+  dimensions: StockOverviewDataDimensions!
+}
+
+type StockOverviewResult {
+  categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  sizeId: Int!
+  tagIds: [Int!]
+  locationId: Int!
+  boxState: BoxState!
+  itemsCount: Int!
+  boxesCount: Int!
+}
+
+type StockOverviewDataDimensions {
+  category: [DimensionInfo!]!
+  size: [DimensionInfo!]!
+  tag: [TagDimensionInfo!]!
+  location: [DimensionInfo!]!
+}
+
 interface BasicDimensionInfo {
   id: ID
   name: String
@@ -137,10 +153,4 @@ type TargetDimensionInfo implements BasicDimensionInfo {
   id: ID
   name: String
   type: TargetType
-}
-
-enum TargetType {
-  Shipment
-  OutgoingLocation
-  BoxState
 }
