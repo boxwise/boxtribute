@@ -217,13 +217,21 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
-def test_query_stock_overview(read_only_client, default_product, endpoint):
+def test_query_stock_overview(
+    read_only_client, default_product, default_location, endpoint
+):
     query = """query { stockOverview(baseId: 1) {
         facts { categoryId productName gender sizeId locationId boxState tagIds
             itemsCount boxesCount }
+        dimensions { location { id name } }
     } }"""
     data = assert_successful_request(read_only_client, query)
     product_name = default_product["name"].strip().lower()
+    assert data["dimensions"] == {
+        "location": [
+            {"id": str(default_location["id"]), "name": default_location["name"]}
+        ]
+    }
     assert data["facts"] == [
         {
             "boxState": BoxState.InStock.name,
