@@ -316,20 +316,24 @@ def test_query_stock_overview(
 def test_authorization(read_only_client, mocker):
     # Current user is from base 1 of organisation 1.
     # Hence the user is not allowed to access base 2 from organisation 1
-    query = "query { beneficiaryDemographics(baseId: 2) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 2) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
     # An accepted agreement exists between orgs 1 and 2 for bases 1+2 and 3.
-    # Hence the user is allowed to access data from base 3
+    # Hence the user is allowed to access stock-related data from base 3
     for query in [
-        "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
         "query { createdBoxes(baseId: 3) { facts { productId } } }",
-        "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
         "query { topProductsDonated(baseId: 3) { facts { productId } } }",
         "query { movedBoxes(baseId: 3) { facts { categoryId } } }",
         "query { stockOverview(baseId: 3) { facts { categoryId } } }",
     ]:
         assert_successful_request(read_only_client, query)
+    # ...but not beneficiary-related data
+    for query in [
+        "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
+        "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
+    ]:
+        assert_forbidden_request(read_only_client, query)
 
     # There's no agreement that involves base 1 and base 4
     # Hence the user is not allowed to access data from base 4
@@ -344,20 +348,20 @@ def test_authorization(read_only_client, mocker):
         assert_forbidden_request(read_only_client, query)
 
     # Base 5 does not exist
-    query = "query { beneficiaryDemographics(baseId: 5) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 5) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
-    # User lacks 'tag_relation:read' permission
+    # User lacks 'product_category:read' permission
     mock_user_for_request(mocker, permissions=[])
-    query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
-    # User lacks 'beneficiary:read' permission
-    mock_user_for_request(mocker, permissions=["tag_relation:read"])
-    query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    # User lacks 'stock:read' permission
+    mock_user_for_request(mocker, permissions=["product_category:read"])
+    query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
-    query = "query { beneficiaryDemographics(baseId: 3) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 3) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
 
