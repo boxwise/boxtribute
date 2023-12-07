@@ -225,7 +225,7 @@ def test_query_stock_overview(
             itemsCount boxesCount }
         dimensions { location { id name } }
     } }"""
-    data = assert_successful_request(read_only_client, query)
+    data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     product_name = default_product["name"].strip().lower()
     assert data["dimensions"] == {
         "location": [
