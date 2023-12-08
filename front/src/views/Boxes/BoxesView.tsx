@@ -4,8 +4,8 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { BoxesLocationsTagsShipmentsForBaseQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
-  BOX_FIELDS_FRAGMENT,
-  LOCATION_BASIC_FIELDS_FRAGMENT,
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  SIZE_BASIC_FIELDS_FRAGMENT,
   TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import {
@@ -23,10 +23,10 @@ import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableC
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
-  ${LOCATION_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
   ${BASE_ORG_FIELDS_FRAGMENT}
-  ${BOX_FIELDS_FRAGMENT}
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${SIZE_BASIC_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
   query BoxesLocationsTagsShipmentsForBase($baseId: ID!) {
     boxes(baseId: $baseId, paginationInput: { first: 100000 }) {
       totalCount
@@ -34,7 +34,30 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
         hasNextPage
       }
       elements {
-        ...BoxFields
+        labelIdentifier
+        product {
+          ...ProductBasicFields
+        }
+        numberOfItems
+        size {
+          ...SizeBasicFields
+        }
+        state
+        location {
+          id
+          name
+        }
+        tags {
+          ...TagBasicFields
+        }
+        shipmentDetail {
+          id
+          shipment {
+            id
+          }
+        }
+        comment
+        createdOn
       }
     }
     base(id: $baseId) {
@@ -65,6 +88,7 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
   }
 `;
 
+// TODO: uncomment untouched days
 const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipmentsForBaseQuery) =>
   boxesQueryResult.boxes.elements.map(
     (element) =>
@@ -80,10 +104,10 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
         shipment: element.shipmentDetail?.shipment,
         comment: element.comment,
         age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
-        untouched:
-          element.history && element.history[0] && element.history[0].changeDate
-            ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
-            : 0,
+        // untouched:
+        //   element.history && element.history[0] && element.history[0].changeDate
+        //     ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
+        //     : 0,
       }) as BoxRow,
   );
 
@@ -181,13 +205,13 @@ function Boxes() {
         Cell: DaysCell,
         disableFilters: true,
       },
-      {
-        Header: "Last Modified",
-        accessor: "untouched",
-        id: "untouched",
-        Cell: DaysCell,
-        disableFilters: true,
-      },
+      // {
+      //   Header: "Last Modified",
+      //   accessor: "untouched",
+      //   id: "untouched",
+      //   Cell: DaysCell,
+      //   disableFilters: true,
+      // },
     ],
     [],
   );
