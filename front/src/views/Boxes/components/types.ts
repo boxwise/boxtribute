@@ -9,7 +9,7 @@ export type BoxRow = {
   location: string;
   state: string;
   tags: Tag[];
-  shipment: Shipment | null | undefined;
+  shipment: Shipment | null;
   comment: string | null;
   age: number;
   untouched: number | null | undefined;

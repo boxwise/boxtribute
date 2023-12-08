@@ -19,7 +19,7 @@ import { Alert, AlertIcon } from "@chakra-ui/react";
 import { differenceInDays } from "date-fns";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
-import { DaysCell, StateCell, TagsCell } from "./components/TableCells";
+import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
@@ -49,6 +49,12 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
         }
         tags {
           ...TagBasicFields
+        }
+        shipmentDetail {
+          id
+          shipment {
+            id
+          }
         }
         comment
         createdOn
@@ -82,7 +88,7 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
   }
 `;
 
-// TODO: uncomment shipment info and untouched days
+// TODO: uncomment untouched days
 const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipmentsForBaseQuery) =>
   boxesQueryResult.boxes.elements.map(
     (element) =>
@@ -95,7 +101,7 @@ const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipments
         state: element.state,
         location: element.location!.name,
         tags: element.tags,
-        // shipment: element.shipmentDetail?.shipment,
+        shipment: element.shipmentDetail?.shipment,
         comment: element.comment,
         age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
         // untouched:
@@ -177,14 +183,14 @@ function Boxes() {
         disableFilters: true,
         disableSortBy: true,
       },
-      // {
-      //   Header: "Shipment",
-      //   accessor: "shipment",
-      //   id: "shipment",
-      //   Cell: ShipmentCell,
-      //   disableFilters: true,
-      //   disableSortBy: true,
-      // },
+      {
+        Header: "Shipment",
+        accessor: "shipment",
+        id: "shipment",
+        Cell: ShipmentCell,
+        disableFilters: true,
+        disableSortBy: true,
+      },
       {
         Header: "Comments",
         accessor: "comment",
