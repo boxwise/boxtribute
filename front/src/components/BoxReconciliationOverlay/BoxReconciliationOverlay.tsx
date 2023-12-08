@@ -17,6 +17,7 @@ import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/querie
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { useNavigate } from "react-router-dom";
 import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
+import { chakra } from "@chakra-ui/react";
 import {
   BoxReconciliationView,
   ILocationData,
@@ -226,9 +227,14 @@ export function BoxReconciliationOverlay({
       <BoxUndeliveredAYS
         title="Box Not Delivered?"
         body={
-          "Confirming this means that this box never arrived as part of this shipment." +
-          " " +
-          "We’ll record this as NotDelivered and remove it from the shipment receive list."
+          <chakra.span>
+            Confirming this means that this box never arrived as part of this shipment. We’ll record
+            this as{" "}
+            <chakra.span color="red.500" fontWeight="semibold">
+              NotDelivered
+            </chakra.span>{" "}
+            and remove it from the shipment receive list.
+          </chakra.span>
         }
         rightButtonProps={{
           colorScheme: "red",
