@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Alert, AlertIcon, Button } from "@chakra-ui/react";
@@ -29,6 +29,7 @@ import NotFoundView from "views/NotFoundView/NotFoundView";
 import { useAuthorization } from "hooks/useAuthorization";
 import ResolveHash from "views/QrReader/components/ResolveHash";
 import { useErrorHandling } from "hooks/useErrorHandling";
+import { TableSkeleton } from "components/Skeletons";
 
 interface IProtectedRouteProps {
   component: ReactElement;
@@ -112,7 +113,11 @@ function App() {
               index
               element={
                 <Protected
-                  component={<Boxes />}
+                  component={
+                    <Suspense fallback={<TableSkeleton />}>
+                      <Boxes />
+                    </Suspense>
+                  }
                   redirectPath={prevLocation}
                   requiredAbp={["manage_inventory"]}
                 />

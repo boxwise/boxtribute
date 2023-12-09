@@ -26,18 +26,22 @@ import {
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { tableConfigsVar } from "queries/cache";
-import { useReactiveVar } from "@apollo/client";
+import { QueryReference, useReactiveVar, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMulipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
+import { BoxesForBoxesViewQuery } from "types/generated/graphql";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
+import { boxesRawDataToTableDataTransformer } from "./transformers";
 
 interface IBoxesTableProps {
+  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
+  refetchBoxesIsPending: boolean;
+  onRefetchBoxes: () => void;
   tableConfigKey: string;
-  tableData: BoxRow[];
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
   columnSelector: React.ReactNode;
@@ -46,16 +50,20 @@ interface IBoxesTableProps {
 }
 
 function BoxesTable({
+  boxesQueryRef,
+  refetchBoxesIsPending,
+  onRefetchBoxes,
   tableConfigKey,
-  tableData,
   columns,
   actionButtons,
   columnSelector,
   onBoxRowClick,
   setSelectedBoxes,
 }: IBoxesTableProps) {
-  const tableConfigsState = useReactiveVar(tableConfigsVar);
+  const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
+  const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
 
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
   const tableConfig = tableConfigsState?.get(tableConfigKey);
   if (tableConfig == null) {
     tableConfigsState.set(tableConfigKey, {
@@ -98,7 +106,6 @@ function BoxesTable({
     pageOptions,
     nextPage,
     previousPage,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     selectedFlatRows,
   } = useTable(
     // TODO: remove this ts-ignore again and try to fix the type error properly
@@ -113,9 +120,6 @@ function BoxesTable({
       initialState: {
         pageIndex: 0,
         pageSize: 20,
-        hiddenColumns: columns
-          .filter((col: any) => col.show === false)
-          .map((col) => col.id || col.accessor) as any,
         filters: columnFiltersDefault,
         ...(tableConfig?.globalFilter != null
           ? { globalFilter: tableConfig?.globalFilter }
@@ -142,6 +146,13 @@ function BoxesTable({
       ]);
     },
   );
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log(filters);
+    // if filters
+    // onRefetchBoxes();
+  }, [filters]);
 
   useEffect(() => {
     setSelectedBoxes(selectedFlatRows.map((row) => row));

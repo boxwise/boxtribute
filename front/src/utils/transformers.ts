@@ -1,9 +1,5 @@
 import { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxesLocationsTagsShipmentsForBaseQuery,
-  BoxState,
-  ShipmentState,
-} from "types/generated/graphql";
+import { ActionOptionsForBoxesViewQuery, BoxState, ShipmentState } from "types/generated/graphql";
 
 export function locationToDropdownOptionTransformer(
   locations: {
@@ -34,7 +30,7 @@ export function locationToDropdownOptionTransformer(
 }
 
 export function shipmentToDropdownOptionTransformer(
-  shipments: BoxesLocationsTagsShipmentsForBaseQuery["shipments"],
+  shipments: ActionOptionsForBoxesViewQuery["shipments"],
   baseId: string,
 ): IDropdownOption[] {
   return (

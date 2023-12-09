@@ -8,24 +8,29 @@ import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
-import { BoxState } from "types/generated/graphql";
+import { BoxState, BoxesForBoxesViewQuery } from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
+import { QueryReference } from "@apollo/client";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import ColumnSelector from "./ColumnSelector";
 
 export interface IBoxesActionsAndTableProps {
-  tableData: BoxRow[];
+  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
+  refetchBoxesIsPending: boolean;
+  onRefetchBoxes: () => void;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
 }
 
 function BoxesActionsAndTable({
-  tableData,
+  boxesQueryRef,
+  refetchBoxesIsPending,
+  onRefetchBoxes,
   locationOptions,
   shipmentOptions,
   availableColumns,
@@ -250,9 +255,11 @@ function BoxesActionsAndTable({
 
   return (
     <BoxesTable
+      boxesQueryRef={boxesQueryRef}
+      refetchBoxesIsPending={refetchBoxesIsPending}
+      onRefetchBoxes={onRefetchBoxes}
       tableConfigKey={tableConfigKey}
       columns={orderedSelectedColumns}
-      tableData={tableData}
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}
       columnSelector={

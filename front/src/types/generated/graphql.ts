@@ -1865,12 +1865,20 @@ export type UpdateContentOfBoxMutationVariables = Exact<{
 
 export type UpdateContentOfBoxMutation = { __typename?: 'Mutation', updateBox?: { __typename?: 'Box', labelIdentifier: string } | null };
 
-export type BoxesLocationsTagsShipmentsForBaseQueryVariables = Exact<{
+export type BoxesForBoxesViewQueryVariables = Exact<{
+  baseId: Scalars['ID'];
+  filterInput?: InputMaybe<FilterBoxInput>;
+}>;
+
+
+export type BoxesForBoxesViewQuery = { __typename?: 'Query', boxes: { __typename?: 'BoxPage', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, elements: Array<{ __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, state: BoxState, comment?: string | null, createdOn?: any | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, deletedOn?: any | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null }> } };
+
+export type ActionOptionsForBoxesViewQueryVariables = Exact<{
   baseId: Scalars['ID'];
 }>;
 
 
-export type BoxesLocationsTagsShipmentsForBaseQuery = { __typename?: 'Query', boxes: { __typename?: 'BoxPage', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, elements: Array<{ __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, state: BoxState, comment?: string | null, createdOn?: any | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, deletedOn?: any | null } | null, size: { __typename?: 'Size', id: string, label: string }, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null }> }, base?: { __typename?: 'Base', id: string, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, seq?: number | null, name?: string | null }>, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null } | null, shipments: Array<{ __typename?: 'Shipment', id: string, labelIdentifier: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } }> };
+export type ActionOptionsForBoxesViewQuery = { __typename?: 'Query', base?: { __typename?: 'Base', id: string, locations: Array<{ __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, seq?: number | null, name?: string | null }>, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null } | null, shipments: Array<{ __typename?: 'Shipment', id: string, labelIdentifier: string, state?: ShipmentState | null, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } } }> };
 
 export type MoveBoxesMutationVariables = Exact<{
   newLocationId: Scalars['Int'];
