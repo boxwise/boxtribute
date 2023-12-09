@@ -1,4 +1,4 @@
-import { Column, Row } from "react-table";
+import { Column, Filters, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
 import { FaWarehouse } from "react-icons/fa";
@@ -21,7 +21,7 @@ import ColumnSelector from "./ColumnSelector";
 export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   refetchBoxesIsPending: boolean;
-  onRefetchBoxes: () => void;
+  onRefetchBoxes: (filters: Filters<any> | []) => void;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];

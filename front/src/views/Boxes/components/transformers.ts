@@ -23,3 +23,12 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
         //     : 0,
       }) as BoxRow,
   );
+
+export const filterIdToGraphQLVariable = (filterID: string) => {
+  switch (filterID) {
+    case "state":
+      return "states";
+    default:
+      return "";
+  }
+};

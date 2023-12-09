@@ -5,6 +5,7 @@ import {
   BoxesForBoxesViewQuery,
   ActionOptionsForBoxesViewQuery,
   BoxState,
+  BoxesForBoxesViewQueryVariables,
 } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
@@ -17,10 +18,11 @@ import {
   shipmentToDropdownOptionTransformer,
 } from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { Column } from "react-table";
+import { Column, Filters } from "react-table";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import { filterIdToGraphQLVariable } from "./components/transformers";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = gql`
@@ -124,11 +126,22 @@ function Boxes() {
     },
   );
 
-  const handleRefetchBoxes = useCallback(() => {
-    // startRefetchBoxes(() => {
-    refetchBoxes();
-    // });
-  }, [refetchBoxes]);
+  const handleRefetchBoxes = useCallback(
+    (filters: Filters<any>) => {
+      const variables: BoxesForBoxesViewQueryVariables = { baseId, filterInput: {} };
+      if (filters.length > 0) {
+        const filterInput = filters.reduce(
+          (acc, filter) => ({ ...acc, [filterIdToGraphQLVariable(filter.id)]: filter.value }),
+          {},
+        );
+        variables.filterInput = filterInput;
+      }
+      // startRefetchBoxes(() => {
+      refetchBoxes(variables);
+      // });
+    },
+    [baseId, refetchBoxes],
+  );
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [

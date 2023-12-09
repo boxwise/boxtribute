@@ -12,11 +12,11 @@ import userEvent from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";
-import BoxesView, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
+import BoxesView, { BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
 const initialQuery = ({ state = BoxState.InStock, shipmentDetail = null as any }) => ({
   request: {
-    query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "1",
     },

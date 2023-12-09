@@ -40,7 +40,7 @@ import { boxesRawDataToTableDataTransformer } from "./transformers";
 interface IBoxesTableProps {
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   refetchBoxesIsPending: boolean;
-  onRefetchBoxes: () => void;
+  onRefetchBoxes: (filters: Filters<any> | []) => void;
   tableConfigKey: string;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
@@ -148,15 +148,19 @@ function BoxesTable({
   );
 
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log(filters);
-    // if filters
-    // onRefetchBoxes();
-  }, [filters]);
-
-  useEffect(() => {
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
+
+  useEffect(() => {
+    if (tableConfig?.columnFilters) {
+      const refetchFilters = filters.filter((filter) => filter.id === "state");
+      const newStateFilter = filters.find((filter) => filter.id === "state");
+      const oldStateFilter = tableConfig.columnFilters.find((filter) => filter.id === "state");
+      if (newStateFilter !== oldStateFilter) {
+        onRefetchBoxes(refetchFilters);
+      }
+    }
+  }, [filters, onRefetchBoxes, tableConfig?.columnFilters]);
 
   useEffect(() => {
     tableConfigsState.set(tableConfigKey, {

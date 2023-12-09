@@ -5,11 +5,11 @@ import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
 import { screen, render } from "tests/test-utils";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
-import Boxes, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
+import Boxes, { BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
 const initialQuery = {
   request: {
-    query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
     },
@@ -361,7 +361,7 @@ const moveBoxesMutation = {
 
 const initialQueryNetworkError = {
   request: {
-    query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
     },
