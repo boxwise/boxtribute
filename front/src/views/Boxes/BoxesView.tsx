@@ -23,6 +23,7 @@ import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { filterIdToGraphQLVariable } from "./components/transformers";
+import { SelectBoxStateFilter } from "./components/Filter";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = gql`
@@ -183,7 +184,7 @@ function Boxes() {
         accessor: "state",
         id: "state",
         Cell: StateCell,
-        Filter: SelectColumnFilter,
+        Filter: SelectBoxStateFilter,
         filter: "includesOneOfMulipleStrings",
       },
       {
