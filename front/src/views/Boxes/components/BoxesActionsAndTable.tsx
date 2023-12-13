@@ -16,7 +16,6 @@ import { QueryReference } from "@apollo/client";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
-import ColumnSelector from "./ColumnSelector";
 
 export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
@@ -40,18 +39,6 @@ function BoxesActionsAndTable({
   const baseId = globalPreferences.selectedBase?.id!;
   const tableConfigKey = `boxes-view--base-id-${baseId}`;
   const { createToast } = useNotification();
-
-  // Column Selector
-  const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(
-    availableColumns.filter((col) =>
-      ["labelIdentifier", "product", "numberOfItems", "state", "location"].includes(col.id!),
-    ),
-  );
-
-  const orderedSelectedColumns = useMemo(
-    () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
-    [selectedColumns, availableColumns],
-  );
 
   // Action when clicking on a row
   const onBoxRowClick = (labelIdentifier: string) =>
@@ -259,16 +246,9 @@ function BoxesActionsAndTable({
       refetchBoxesIsPending={refetchBoxesIsPending}
       onRefetchBoxes={onRefetchBoxes}
       tableConfigKey={tableConfigKey}
-      columns={orderedSelectedColumns}
+      columns={availableColumns}
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}
-      columnSelector={
-        <ColumnSelector
-          availableColumns={availableColumns}
-          selectedColumns={selectedColumns}
-          setSelectedColumns={setSelectedColumns}
-        />
-      }
       onBoxRowClick={onBoxRowClick}
     />
   );

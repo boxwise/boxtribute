@@ -37,6 +37,7 @@ import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
 import { boxesRawDataToTableDataTransformer } from "./transformers";
+import ColumnSelector from "./ColumnSelector";
 
 interface IBoxesTableProps {
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
@@ -45,7 +46,6 @@ interface IBoxesTableProps {
   tableConfigKey: string;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
-  columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
 }
@@ -57,7 +57,6 @@ function BoxesTable({
   tableConfigKey,
   columns,
   actionButtons,
-  columnSelector,
   onBoxRowClick,
   setSelectedBoxes,
 }: IBoxesTableProps) {
@@ -99,6 +98,7 @@ function BoxesTable({
   const {
     headerGroups,
     prepareRow,
+    allColumns,
     state: { globalFilter, pageIndex, filters },
     setGlobalFilter,
     page,
@@ -119,6 +119,7 @@ function BoxesTable({
       data: tableData,
       filterTypes,
       initialState: {
+        hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
         pageIndex: 0,
         pageSize: 20,
         filters: columnFiltersDefault,
@@ -177,7 +178,7 @@ function BoxesTable({
         <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
         <HStack spacing={2} mb={2}>
-          {columnSelector}
+          <ColumnSelector availableColumns={allColumns} />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
