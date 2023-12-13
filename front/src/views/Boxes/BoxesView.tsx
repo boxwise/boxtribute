@@ -21,7 +21,7 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { Column, Filters } from "react-table";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
-import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { filterIdToGraphQLVariable } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 
@@ -61,6 +61,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = gql`
         }
         comment
         createdOn
+        lastModifiedOn
       }
     }
   }
@@ -223,13 +224,14 @@ function Boxes() {
         Cell: DaysCell,
         disableFilters: true,
       },
-      // {
-      //   Header: "Last Modified",
-      //   accessor: "untouched",
-      //   id: "untouched",
-      //   Cell: DaysCell,
-      //   disableFilters: true,
-      // },
+      {
+        Header: "Last Modified",
+        accessor: "lastModified",
+        id: "lastModified",
+        Cell: DateCell,
+        disableFilters: true,
+        sortType: "datetime",
+      },
     ],
     [],
   );

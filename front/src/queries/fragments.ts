@@ -207,6 +207,7 @@ export const BOX_FIELDS_FRAGMENT = gql`
       ...HistoryFields
     }
     createdOn
+    lastModifiedOn
   }
 `;
 

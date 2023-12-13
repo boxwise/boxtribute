@@ -17,10 +17,9 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
         shipment: element.shipmentDetail?.shipment,
         comment: element.comment,
         age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
-        // untouched:
-        //   element.history && element.history[0] && element.history[0].changeDate
-        //     ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
-        //     : 0,
+        lastModified: element.lastModifiedOn
+          ? new Date(element.lastModifiedOn)
+          : new Date(element.createdOn),
       }) as BoxRow,
   );
 
