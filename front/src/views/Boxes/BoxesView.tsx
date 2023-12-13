@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useTransition } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
@@ -234,16 +234,6 @@ function Boxes() {
     ],
     [],
   );
-
-  // error and loading handling
-  // if (error) {
-  //   return (
-  //     <Alert status="error" data-testid="ErrorAlert">
-  //       <AlertIcon />
-  //       Could not fetch boxes data! Please try reloading the page.
-  //     </Alert>
-  //   );
-  // }
 
   // TODO: pass tag options to BoxesActionsAndTable
   return (

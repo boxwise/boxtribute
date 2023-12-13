@@ -2,6 +2,7 @@
 import "regenerator-runtime/runtime";
 import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -30,6 +31,7 @@ import { useAuthorization } from "hooks/useAuthorization";
 import ResolveHash from "views/QrReader/components/ResolveHash";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
+import { AlertWithoutAction } from "components/Alerts";
 
 interface IProtectedRouteProps {
   component: ReactElement;
@@ -114,9 +116,15 @@ function App() {
               element={
                 <Protected
                   component={
-                    <Suspense fallback={<TableSkeleton />}>
-                      <Boxes />
-                    </Suspense>
+                    <ErrorBoundary
+                      fallback={
+                        <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+                      }
+                    >
+                      <Suspense fallback={<TableSkeleton />}>
+                        <Boxes />
+                      </Suspense>
+                    </ErrorBoundary>
                   }
                   redirectPath={prevLocation}
                   requiredAbp={["manage_inventory"]}
