@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo, useTransition } from "react";
 import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
@@ -99,8 +99,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
 `;
 
 function Boxes() {
-  // const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
-  const refetchBoxesIsPending = false;
+  const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
 
@@ -137,9 +136,9 @@ function Boxes() {
         );
         variables.filterInput = filterInput;
       }
-      // startRefetchBoxes(() => {
-      refetchBoxes(variables);
-      // });
+      startRefetchBoxes(() => {
+        refetchBoxes(variables);
+      });
     },
     [baseId, refetchBoxes],
   );

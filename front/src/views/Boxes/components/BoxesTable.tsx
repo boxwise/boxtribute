@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
+  Skeleton,
   Table,
   Tr,
   Tbody,
@@ -196,6 +197,13 @@ function BoxesTable({
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
+            {refetchBoxesIsPending && (
+              <Tr key={0}>
+                <Td colSpan={columns.length + 1} p={0}>
+                  <Skeleton height={12} />
+                </Td>
+              </Tr>
+            )}
             {page.map((row) => {
               prepareRow(row);
               return (
