@@ -120,6 +120,7 @@ function BoxesTable({
       filterTypes,
       initialState: {
         hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
+        sortBy: [{ id: "lastModified", desc: true }],
         pageIndex: 0,
         pageSize: 20,
         filters: columnFiltersDefault,

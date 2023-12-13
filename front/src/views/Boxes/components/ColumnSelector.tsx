@@ -28,10 +28,9 @@ function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
     [availableColumns],
   );
 
-  const selectedColumnsCount = useMemo(
-    () => availableColumnOptions.filter((column) => column.getToggleHiddenProps().checked).length,
-    [availableColumnOptions],
-  );
+  const selectedColumnsCount = availableColumnOptions.filter(
+    (column) => column.getToggleHiddenProps().checked,
+  ).length;
 
   return (
     <Popover>
