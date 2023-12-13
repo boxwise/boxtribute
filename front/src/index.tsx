@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
@@ -35,7 +35,9 @@ if (sentryDsn) {
   });
 }
 
-ReactDOM.render(
+// TODO: move cra to vite
+const root = createRoot(document.getElementById("root")!);
+root.render(
   <ChakraProvider theme={theme}>
     <CSSReset />
     <BrowserRouter>
@@ -44,7 +46,6 @@ ReactDOM.render(
       </Auth0ProviderWithHistory>
     </BrowserRouter>
   </ChakraProvider>,
-  document.getElementById("root"),
 );
 
 // If you want your app to work offline and load faster, you can change
