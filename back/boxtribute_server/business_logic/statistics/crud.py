@@ -54,6 +54,14 @@ def _generate_dimensions(*names, target_type=None, facts):
             .dicts()
         )
 
+    if "location" in names:
+        location_ids = {f["location_id"] for f in facts}
+        dimensions["location"] = (
+            Location.select(Location.id, Location.name)
+            .where(Location.id << location_ids)
+            .dicts()
+        )
+
     if target_type is not None:
         target_ids = {f["target_id"] for f in facts}
         # Target ID and name are identical for now
@@ -386,5 +394,54 @@ def compute_moved_boxes(base_id):
             target_type=TargetType.BoxState,
             facts=lost_scrap_box_facts,
         )["target"]
+    )
+    return {"facts": facts, "dimensions": dimensions}
+
+
+def compute_stock_overview(base_id):
+    """Compute stock overview (number of boxes and number of contained items) for the
+    given base. The result can be filtered by size, location, box state, product
+    category, product name, and product gender.
+    """
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
+
+    facts = (
+        Box.select(
+            Box.size.alias("size_id"),
+            Box.location.alias("location_id"),
+            Box.state.alias("box_state"),
+            Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            tag_ids.alias("tag_ids"),
+            fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
+        )
+        .join(
+            Location,
+            on=((Box.location == Location.id) & (Location.base == base_id)),
+        )
+        .join(Product, src=Box)
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (TagsRelation.object_id == Box.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
+        )
+        .group_by(
+            SQL("size_id"),
+            SQL("location_id"),
+            SQL("box_state"),
+            SQL("category_id"),
+            SQL("product_name"),
+            SQL("gender"),
+        )
+        .dicts()
+    )
+    dimensions = _generate_dimensions(
+        "size", "location", "category", "tag", facts=facts
     )
     return {"facts": facts, "dimensions": dimensions}

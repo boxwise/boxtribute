@@ -3,8 +3,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -100,6 +100,30 @@ type MovedBoxesResult {
 type MovedBoxDataDimensions {
   category: [DimensionInfo]
   target: [TargetDimensionInfo]
+}
+
+type StockOverviewData implements DataCube {
+  facts: [StockOverviewResult!]!
+  dimensions: StockOverviewDataDimensions!
+}
+
+type StockOverviewResult {
+  categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  sizeId: Int!
+  tagIds: [Int!]
+  locationId: Int!
+  boxState: BoxState!
+  itemsCount: Int!
+  boxesCount: Int!
+}
+
+type StockOverviewDataDimensions {
+  category: [DimensionInfo!]!
+  size: [DimensionInfo!]!
+  tag: [TagDimensionInfo!]!
+  location: [DimensionInfo!]!
 }
 
 interface BasicDimensionInfo {

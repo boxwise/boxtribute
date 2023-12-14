@@ -313,7 +313,7 @@ export type DimensionInfo = BasicDimensionInfo & {
   name?: Maybe<Scalars['String']>;
 };
 
-export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | MovedBoxDataDimensions | TopProductsDimensions;
+export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions | TopProductsDimensions;
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
@@ -1207,6 +1207,7 @@ export type Query = {
   shipment?: Maybe<Shipment>;
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
+  stockOverview?: Maybe<StockOverviewData>;
   tag?: Maybe<Tag>;
   /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
   tags: Array<Tag>;
@@ -1333,6 +1334,11 @@ export type QueryShipmentArgs = {
 };
 
 
+export type QueryStockOverviewArgs = {
+  baseId: Scalars['Int'];
+};
+
+
 export type QueryTagArgs = {
   id: Scalars['ID'];
 };
@@ -1367,7 +1373,7 @@ export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
-export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | MovedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
+export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | MovedBoxesResult | StockOverviewResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
 
 export type Shipment = {
   __typename?: 'Shipment';
@@ -1470,6 +1476,33 @@ export type StockOverview = {
   numberOfBoxes?: Maybe<Scalars['Int']>;
   numberOfItems?: Maybe<Scalars['Int']>;
   productCategoryName?: Maybe<Scalars['String']>;
+};
+
+export type StockOverviewData = DataCube & {
+  __typename?: 'StockOverviewData';
+  dimensions: StockOverviewDataDimensions;
+  facts: Array<StockOverviewResult>;
+};
+
+export type StockOverviewDataDimensions = {
+  __typename?: 'StockOverviewDataDimensions';
+  category: Array<DimensionInfo>;
+  location: Array<DimensionInfo>;
+  size: Array<DimensionInfo>;
+  tag: Array<TagDimensionInfo>;
+};
+
+export type StockOverviewResult = {
+  __typename?: 'StockOverviewResult';
+  boxState: BoxState;
+  boxesCount: Scalars['Int'];
+  categoryId: Scalars['Int'];
+  gender: ProductGender;
+  itemsCount: Scalars['Int'];
+  locationId: Scalars['Int'];
+  productName: Scalars['String'];
+  sizeId: Scalars['Int'];
+  tagIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 /** Representation of a tag. */

@@ -216,22 +216,124 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
     }
 
 
+@pytest.mark.parametrize("endpoint", ["graphql", "public"])
+def test_query_stock_overview(
+    read_only_client, default_product, default_location, endpoint
+):
+    query = """query { stockOverview(baseId: 1) {
+        facts { categoryId productName gender sizeId locationId boxState tagIds
+            itemsCount boxesCount }
+        dimensions { location { id name } }
+    } }"""
+    data = assert_successful_request(read_only_client, query, endpoint=endpoint)
+    product_name = default_product["name"].strip().lower()
+    assert data["dimensions"] == {
+        "location": [
+            {"id": str(default_location["id"]), "name": default_location["name"]}
+        ]
+    }
+    assert data["facts"] == [
+        {
+            "boxState": BoxState.InStock.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 0,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [2, 3],
+        },
+        {
+            "boxState": BoxState.Lost.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.MarkedForShipment.name,
+            "boxesCount": 3,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 30,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [3],
+        },
+        {
+            "boxState": BoxState.Donated.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 22,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.InTransit.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 20,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.NotDelivered.name,
+            "boxesCount": 2,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 20,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.Donated.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 12,
+            "locationId": 1,
+            "productName": "jackets",
+            "sizeId": 2,
+            "tagIds": [],
+        },
+    ]
+
+
 def test_authorization(read_only_client, mocker):
     # Current user is from base 1 of organisation 1.
     # Hence the user is not allowed to access base 2 from organisation 1
-    query = "query { beneficiaryDemographics(baseId: 2) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 2) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
     # An accepted agreement exists between orgs 1 and 2 for bases 1+2 and 3.
-    # Hence the user is allowed to access data from base 3
+    # Hence the user is allowed to access stock-related data from base 3
     for query in [
-        "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
         "query { createdBoxes(baseId: 3) { facts { productId } } }",
-        "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
         "query { topProductsDonated(baseId: 3) { facts { productId } } }",
         "query { movedBoxes(baseId: 3) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 3) { facts { categoryId } } }",
     ]:
         assert_successful_request(read_only_client, query)
+    # ...but not beneficiary-related data
+    for query in [
+        "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
+        "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
+    ]:
+        assert_forbidden_request(read_only_client, query)
 
     # There's no agreement that involves base 1 and base 4
     # Hence the user is not allowed to access data from base 4
@@ -241,24 +343,25 @@ def test_authorization(read_only_client, mocker):
         "query { topProductsCheckedOut(baseId: 4) { facts { productId } } }",
         "query { topProductsDonated(baseId: 4) { facts { productId } } }",
         "query { movedBoxes(baseId: 4) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 4) { facts { categoryId } } }",
     ]:
         assert_forbidden_request(read_only_client, query)
 
     # Base 5 does not exist
-    query = "query { beneficiaryDemographics(baseId: 5) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 5) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
-    # User lacks 'tag_relation:read' permission
+    # User lacks 'product_category:read' permission
     mock_user_for_request(mocker, permissions=[])
-    query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
-    # User lacks 'beneficiary:read' permission
-    mock_user_for_request(mocker, permissions=["tag_relation:read"])
-    query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    # User lacks 'stock:read' permission
+    mock_user_for_request(mocker, permissions=["product_category:read"])
+    query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
-    query = "query { beneficiaryDemographics(baseId: 3) { facts { age } } }"
+    query = "query { createdBoxes(baseId: 3) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
 
@@ -269,5 +372,6 @@ def test_public_query_validation(read_only_client):
         "query { topProductsCheckedOut(baseId: 5) { facts { productId } } }",
         "query { topProductsDonated(baseId: 5) { facts { productId } } }",
         "query { movedBoxes(baseId: 5) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 5) { facts { categoryId } } }",
     ]:
         assert_bad_user_input(read_only_client, query, endpoint="public")
