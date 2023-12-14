@@ -23,7 +23,6 @@ import {
   useRowSelect,
   usePagination,
   Row,
-  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { QueryReference, useReadQuery } from "@apollo/client";
@@ -32,7 +31,7 @@ import {
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
 import { BoxesForBoxesViewQuery } from "types/generated/graphql";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { ITableConfig, IUseTableConfigReturnType } from "hooks/hooks";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -41,9 +40,9 @@ import ColumnSelector from "./ColumnSelector";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
+  onTableConfigChange: (newTableConfig: ITableConfig) => void;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   refetchBoxesIsPending: boolean;
-  onRefetchBoxes: (filters: Filters<any> | []) => void;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
   onBoxRowClick: (labelIdentified: string) => void;
@@ -52,9 +51,9 @@ interface IBoxesTableProps {
 
 function BoxesTable({
   tableConfig,
+  onTableConfigChange,
   boxesQueryRef,
   refetchBoxesIsPending,
-  onRefetchBoxes,
   columns,
   actionButtons,
   onBoxRowClick,
@@ -133,22 +132,11 @@ function BoxesTable({
   }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {
-    const refetchFilters = filters.filter((filter) => filter.id === "state");
-    const newStateFilter = filters.find((filter) => filter.id === "state");
-    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-    if (newStateFilter !== oldStateFilter) {
-      onRefetchBoxes(refetchFilters);
-    }
-    if (filters !== tableConfig.getColumnFilters()) {
-      tableConfig.setColumnFilters(filters);
-    }
-  }, [filters, onRefetchBoxes, tableConfig]);
-
-  useEffect(() => {
-    if (globalFilter !== tableConfig.getGlobalFilter()) {
-      tableConfig.setGlobalFilter(globalFilter);
-    }
-  }, [globalFilter, tableConfig]);
+    onTableConfigChange({
+      globalFilter,
+      columnFilters: filters,
+    });
+  }, [filters, globalFilter, onTableConfigChange]);
 
   return (
     <Flex direction="column" height="100%">

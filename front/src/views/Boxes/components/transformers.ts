@@ -1,5 +1,6 @@
 import { differenceInDays } from "date-fns";
-import { BoxesForBoxesViewQuery } from "types/generated/graphql";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
+import { Filters } from "react-table";
 import { BoxRow } from "./types";
 
 export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBoxesViewQuery) =>
@@ -30,4 +31,20 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
     default:
       return "";
   }
+};
+
+export const prepareBoxesForBoxesViewQueryVariables = (
+  baseId: string,
+  columnFilters: Filters<any>,
+): BoxesForBoxesViewQueryVariables => {
+  const variables: BoxesForBoxesViewQueryVariables = { baseId, filterInput: {} };
+  const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
+  if (refetchFilters.length > 0) {
+    const filterInput = refetchFilters.reduce(
+      (acc, filter) => ({ ...acc, [filterIdToGraphQLVariable(filter.id)]: filter.value }),
+      {},
+    );
+    variables.filterInput = filterInput;
+  }
+  return variables;
 };

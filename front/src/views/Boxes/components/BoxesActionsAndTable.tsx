@@ -13,16 +13,16 @@ import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryReference } from "@apollo/client";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { ITableConfig, IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
+  onTableConfigChange: (newTableConfig: ITableConfig) => void;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   refetchBoxesIsPending: boolean;
-  onRefetchBoxes: (filters: Filters<any> | []) => void;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
@@ -30,9 +30,9 @@ export interface IBoxesActionsAndTableProps {
 
 function BoxesActionsAndTable({
   tableConfig,
+  onTableConfigChange,
   boxesQueryRef,
   refetchBoxesIsPending,
-  onRefetchBoxes,
   locationOptions,
   shipmentOptions,
   availableColumns,
@@ -246,9 +246,9 @@ function BoxesActionsAndTable({
   return (
     <BoxesTable
       tableConfig={tableConfig}
+      onTableConfigChange={onTableConfigChange}
       boxesQueryRef={boxesQueryRef}
       refetchBoxesIsPending={refetchBoxesIsPending}
-      onRefetchBoxes={onRefetchBoxes}
       columns={availableColumns}
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}

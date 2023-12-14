@@ -18,12 +18,12 @@ import {
   shipmentToDropdownOptionTransformer,
 } from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { Column, Filters } from "react-table";
-import { useTableConfig } from "hooks/hooks";
+import { Column } from "react-table";
+import { ITableConfig, useTableConfig } from "hooks/hooks";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
-import { filterIdToGraphQLVariable } from "./components/transformers";
+import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 
 // TODO: Implement Pagination and Filtering
@@ -117,12 +117,7 @@ function Boxes() {
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery<BoxesForBoxesViewQuery>(
     BOXES_FOR_BOXESVIEW_QUERY,
     {
-      variables: {
-        baseId,
-        filterInput: {
-          states: [BoxState.InStock],
-        },
-      },
+      variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
     },
   );
 
@@ -136,21 +131,28 @@ function Boxes() {
     },
   );
 
-  const handleRefetchBoxes = useCallback(
-    (filters: Filters<any>) => {
-      const variables: BoxesForBoxesViewQueryVariables = { baseId, filterInput: {} };
-      if (filters.length > 0) {
-        const filterInput = filters.reduce(
-          (acc, filter) => ({ ...acc, [filterIdToGraphQLVariable(filter.id)]: filter.value }),
-          {},
-        );
-        variables.filterInput = filterInput;
+  const handleTableConfigChange = useCallback(
+    (newTableConfig: ITableConfig) => {
+      // refetch
+      const newStateFilter = newTableConfig.columnFilters.find((filter) => filter.id === "state");
+      const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+      if (newStateFilter !== oldStateFilter) {
+        startRefetchBoxes(() => {
+          refetchBoxes(
+            prepareBoxesForBoxesViewQueryVariables(baseId, newTableConfig.columnFilters),
+          );
+        });
       }
-      startRefetchBoxes(() => {
-        refetchBoxes(variables);
-      });
+
+      // update tableConfig
+      if (newTableConfig?.globalFilter !== tableConfig.getGlobalFilter()) {
+        tableConfig.setGlobalFilter(newTableConfig?.globalFilter);
+      }
+      if (newTableConfig.columnFilters !== tableConfig.getColumnFilters()) {
+        tableConfig.setColumnFilters(newTableConfig.columnFilters);
+      }
     },
-    [baseId, refetchBoxes],
+    [baseId, refetchBoxes, tableConfig],
   );
 
   const availableColumns: Column<BoxRow>[] = useMemo(
@@ -249,9 +251,9 @@ function Boxes() {
   return (
     <BoxesActionsAndTable
       tableConfig={tableConfig}
+      onTableConfigChange={handleTableConfigChange}
       boxesQueryRef={boxesQueryRef}
       refetchBoxesIsPending={refetchBoxesIsPending}
-      onRefetchBoxes={handleRefetchBoxes}
       availableColumns={availableColumns}
       shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
       locationOptions={locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? [])}
