@@ -167,7 +167,7 @@ def test_query_top_products(
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
 def test_query_moved_boxes(read_only_client, default_location, default_bases, endpoint):
     query = """query { movedBoxes(baseId: 1) {
-        facts { movedOn targetId categoryId boxesCount }
+        facts { movedOn targetId categoryId productName gender sizeId boxesCount }
         dimensions { target { id name type } }
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
@@ -176,20 +176,47 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
     assert data == {
         "facts": [
             {
-                "boxesCount": 3,
+                "boxesCount": 2,
                 "categoryId": 1,
+                "productName": "indigestion tablets",
+                "sizeId": 1,
+                "gender": "Women",
                 "targetId": location_name,
                 "movedOn": "2022-12-05",
             },
             {
-                "boxesCount": 5,
+                "boxesCount": 1,
                 "categoryId": 1,
+                "productName": "jackets",
+                "sizeId": 2,
+                "gender": "Women",
+                "targetId": location_name,
+                "movedOn": "2022-12-05",
+            },
+            {
+                "boxesCount": 4,
+                "categoryId": 1,
+                "productName": "indigestion tablets",
+                "sizeId": 1,
+                "gender": "Women",
                 "targetId": base_name,
                 "movedOn": date.today().isoformat(),
             },
             {
                 "boxesCount": 1,
                 "categoryId": 1,
+                "productName": "new product",
+                "sizeId": 1,
+                "gender": "Women",
+                "targetId": base_name,
+                "movedOn": date.today().isoformat(),
+            },
+            {
+                "boxesCount": 1,
+                "categoryId": 1,
+                "productName": "indigestion tablets",
+                "sizeId": 1,
+                "gender": "Women",
                 "targetId": BoxState.Lost.name,
                 "movedOn": "2023-02-01",
             },

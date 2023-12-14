@@ -130,6 +130,7 @@ export enum Language {
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  size?: Maybe<Array<Maybe<DimensionInfo>>>;
   target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
 };
 
@@ -151,7 +152,10 @@ export type MovedBoxesResult = {
   __typename?: 'MovedBoxesResult';
   boxesCount: Scalars['Int']['output'];
   categoryId: Scalars['Int']['output'];
+  gender: ProductGender;
   movedOn: Scalars['Date']['output'];
+  productName: Scalars['String']['output'];
+  sizeId: Scalars['Int']['output'];
   targetId: Scalars['ID']['output'];
 };
 

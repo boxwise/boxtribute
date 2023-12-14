@@ -264,6 +264,9 @@ def compute_moved_boxes(base_id):
             DbChangeHistory.change_date.alias("moved_on"),
             Location.name.alias("target_id"),
             Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            Size.id.alias("size_id"),
             fn.COUNT(Box.id).alias("boxes_count"),
         )
         .join(
@@ -287,11 +290,19 @@ def compute_moved_boxes(base_id):
             src=Box,
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
+        .join(
+            Size,
+            src=Box,
+            on=(Box.size == Size.id),
+        )
     )
     donated_boxes_facts = selection.group_by(
         SQL("moved_on"),
         SQL("target_id"),
         SQL("category_id"),
+        SQL("product_name"),
+        SQL("gender"),
+        SQL("size_id"),
     ).dicts()
 
     # Select information about all boxes sent from the specified base as source, that
@@ -300,6 +311,9 @@ def compute_moved_boxes(base_id):
         ShipmentDetail.select(
             Shipment.sent_on.alias("moved_on"),
             Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            Size.id.alias("size_id"),
             Base.name.alias("target_id"),
             fn.COUNT(ShipmentDetail.box).alias("boxes_count"),
         )
@@ -321,10 +335,18 @@ def compute_moved_boxes(base_id):
             src=ShipmentDetail,
             on=(ShipmentDetail.source_product == Product.id),
         )
+        .join(
+            Size,
+            src=ShipmentDetail,
+            on=(ShipmentDetail.source_size == Size.id),
+        )
         .group_by(
             SQL("moved_on"),
             SQL("target_id"),
             SQL("category_id"),
+            SQL("product_name"),
+            SQL("gender"),
+            SQL("size_id"),
         )
         .dicts()
     )
@@ -336,6 +358,9 @@ def compute_moved_boxes(base_id):
         DbChangeHistory.select(
             DbChangeHistory.change_date.alias("moved_on"),
             Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            Size.id.alias("size_id"),
             BoxStateModel.label.alias("target_id"),
             fn.COUNT(DbChangeHistory.id).alias("boxes_count"),
         )
@@ -359,6 +384,11 @@ def compute_moved_boxes(base_id):
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
         .join(
+            Size,
+            src=Box,
+            on=(Box.size == Size.id),
+        )
+        .join(
             BoxStateModel,
             src=DbChangeHistory,
             on=(DbChangeHistory.to_int == BoxStateModel.id),
@@ -367,6 +397,9 @@ def compute_moved_boxes(base_id):
             SQL("moved_on"),
             SQL("target_id"),
             SQL("category_id"),
+            SQL("product_name"),
+            SQL("gender"),
+            SQL("size_id"),
         )
         .dicts()
     )
@@ -380,7 +413,7 @@ def compute_moved_boxes(base_id):
     for row in facts:
         row["moved_on"] = row["moved_on"].date()
 
-    dimensions = _generate_dimensions("category", facts=facts)
+    dimensions = _generate_dimensions("category", "size", facts=facts)
     dimensions["target"] = (
         _generate_dimensions(
             target_type=TargetType.OutgoingLocation,

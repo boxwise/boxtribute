@@ -558,6 +558,7 @@ export type MetricsNumberOfSalesArgs = {
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  size?: Maybe<Array<Maybe<DimensionInfo>>>;
   target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
 };
 
@@ -579,7 +580,10 @@ export type MovedBoxesResult = {
   __typename?: 'MovedBoxesResult';
   boxesCount: Scalars['Int'];
   categoryId: Scalars['Int'];
+  gender: ProductGender;
   movedOn: Scalars['Date'];
+  productName: Scalars['String'];
+  sizeId: Scalars['Int'];
   targetId: Scalars['ID'];
 };
 
