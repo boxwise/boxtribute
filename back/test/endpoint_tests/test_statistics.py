@@ -167,7 +167,10 @@ def test_query_top_products(
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
 def test_query_moved_boxes(read_only_client, default_location, default_bases, endpoint):
     query = """query { movedBoxes(baseId: 1) {
-        facts { movedOn targetId categoryId productName gender sizeId boxesCount }
+        facts {
+            movedOn targetId categoryId productName gender sizeId tagIds
+            boxesCount
+        }
         dimensions { target { id name type } }
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
@@ -183,6 +186,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
                 "gender": "Women",
                 "targetId": location_name,
                 "movedOn": "2022-12-05",
+                "tagIds": [],
             },
             {
                 "boxesCount": 1,
@@ -192,6 +196,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
                 "gender": "Women",
                 "targetId": location_name,
                 "movedOn": "2022-12-05",
+                "tagIds": [],
             },
             {
                 "boxesCount": 4,
@@ -201,6 +206,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
                 "gender": "Women",
                 "targetId": base_name,
                 "movedOn": date.today().isoformat(),
+                "tagIds": [],
             },
             {
                 "boxesCount": 1,
@@ -210,6 +216,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
                 "gender": "Women",
                 "targetId": base_name,
                 "movedOn": date.today().isoformat(),
+                "tagIds": [],
             },
             {
                 "boxesCount": 1,
@@ -219,6 +226,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
                 "gender": "Women",
                 "targetId": BoxState.Lost.name,
                 "movedOn": "2023-02-01",
+                "tagIds": [],
             },
         ],
         "dimensions": {

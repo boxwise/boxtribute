@@ -559,6 +559,7 @@ export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
   size?: Maybe<Array<Maybe<DimensionInfo>>>;
+  tag: Array<TagDimensionInfo>;
   target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
 };
 
@@ -584,6 +585,7 @@ export type MovedBoxesResult = {
   movedOn: Scalars['Date'];
   productName: Scalars['String'];
   sizeId: Scalars['Int'];
+  tagIds?: Maybe<Array<Scalars['Int']['output']>>;
   targetId: Scalars['ID'];
 };
 
