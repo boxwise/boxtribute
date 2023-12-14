@@ -154,6 +154,7 @@ export type MovedBoxesResult = {
   boxesCount: Scalars['Int']['output'];
   categoryId: Scalars['Int']['output'];
   gender: ProductGender;
+  itemsCount: Scalars['Int']['output'];
   movedOn: Scalars['Date']['output'];
   productName: Scalars['String']['output'];
   sizeId: Scalars['Int']['output'];

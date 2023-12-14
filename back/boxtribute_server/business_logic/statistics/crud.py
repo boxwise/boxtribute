@@ -270,6 +270,7 @@ def compute_moved_boxes(base_id):
             Size.id.alias("size_id"),
             tag_ids.alias("tag_ids"),
             fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
         )
         .join(
             LatestMovedSubQuery,
@@ -328,6 +329,7 @@ def compute_moved_boxes(base_id):
             tag_ids.alias("tag_ids"),
             Base.name.alias("target_id"),
             fn.COUNT(ShipmentDetail.box).alias("boxes_count"),
+            fn.SUM(ShipmentDetail.source_quantity).alias("items_count"),
         )
         .join(
             Shipment,
@@ -385,6 +387,7 @@ def compute_moved_boxes(base_id):
             tag_ids.alias("tag_ids"),
             BoxStateModel.label.alias("target_id"),
             fn.COUNT(DbChangeHistory.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
         )
         .join(
             Box,

@@ -169,7 +169,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
-            boxesCount
+            boxesCount itemsCount
         }
         dimensions { target { id name type } }
         } }"""
@@ -180,6 +180,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
         "facts": [
             {
                 "boxesCount": 2,
+                "itemsCount": 22,
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
@@ -190,6 +191,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
             },
             {
                 "boxesCount": 1,
+                "itemsCount": 12,
                 "categoryId": 1,
                 "productName": "jackets",
                 "sizeId": 2,
@@ -200,6 +202,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
             },
             {
                 "boxesCount": 4,
+                "itemsCount": 40,
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
@@ -210,6 +213,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
             },
             {
                 "boxesCount": 1,
+                "itemsCount": 10,
                 "categoryId": 1,
                 "productName": "new product",
                 "sizeId": 1,
@@ -220,6 +224,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
             },
             {
                 "boxesCount": 1,
+                "itemsCount": 10,
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,

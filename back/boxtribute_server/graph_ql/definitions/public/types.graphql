@@ -98,6 +98,7 @@ type MovedBoxesResult {
   gender: ProductGender!
   sizeId: Int!
   tagIds: [Int!]
+  itemsCount: Int!
   boxesCount: Int!
 }
 
