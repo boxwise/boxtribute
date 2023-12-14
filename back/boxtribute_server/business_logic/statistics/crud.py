@@ -82,7 +82,7 @@ def compute_beneficiary_demographics(base_id):
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
 
     demographics = (
         Beneficiary.select(
@@ -255,7 +255,7 @@ def compute_moved_boxes(base_id):
         .alias("sq")
     )
 
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # This selects only information of boxes that were moved from InStock to Donated
     # state, and are now in the base of given base ID. It is NOT taken into account that
     # boxes can be moved back from Donated to InStock, nor that the product or other
