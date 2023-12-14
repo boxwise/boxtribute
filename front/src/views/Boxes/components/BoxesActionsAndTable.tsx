@@ -13,11 +13,13 @@ import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryReference } from "@apollo/client";
+import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 
 export interface IBoxesActionsAndTableProps {
+  tableConfig: IUseTableConfigReturnType;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   refetchBoxesIsPending: boolean;
   onRefetchBoxes: (filters: Filters<any> | []) => void;
@@ -27,6 +29,7 @@ export interface IBoxesActionsAndTableProps {
 }
 
 function BoxesActionsAndTable({
+  tableConfig,
   boxesQueryRef,
   refetchBoxesIsPending,
   onRefetchBoxes,
@@ -37,7 +40,7 @@ function BoxesActionsAndTable({
   const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
-  const tableConfigKey = `boxes-view--base-id-${baseId}`;
+
   const { createToast } = useNotification();
 
   // Action when clicking on a row
@@ -242,10 +245,10 @@ function BoxesActionsAndTable({
 
   return (
     <BoxesTable
+      tableConfig={tableConfig}
       boxesQueryRef={boxesQueryRef}
       refetchBoxesIsPending={refetchBoxesIsPending}
       onRefetchBoxes={onRefetchBoxes}
-      tableConfigKey={tableConfigKey}
       columns={availableColumns}
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}

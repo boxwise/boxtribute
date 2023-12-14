@@ -1,5 +1,5 @@
 import { useCallback, useContext, useMemo, useTransition } from "react";
-import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { gql, useBackgroundQuery, useReactiveVar, useSuspenseQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   BoxesForBoxesViewQuery,
@@ -19,6 +19,7 @@ import {
 } from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column, Filters } from "react-table";
+import { useTableConfig } from "hooks/hooks";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
@@ -103,6 +104,14 @@ function Boxes() {
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
+
+  const tableConfigKey = `bases/${baseId}/boxes`;
+  const tableConfig = useTableConfig({
+    tableConfigKey,
+    defaultTableConfig: {
+      columnFilters: [{ id: "state", value: ["InStock"] }],
+    },
+  });
 
   // fetch Boxes data in the background
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery<BoxesForBoxesViewQuery>(
@@ -239,6 +248,7 @@ function Boxes() {
   // TODO: pass tag options to BoxesActionsAndTable
   return (
     <BoxesActionsAndTable
+      tableConfig={tableConfig}
       boxesQueryRef={boxesQueryRef}
       refetchBoxesIsPending={refetchBoxesIsPending}
       onRefetchBoxes={handleRefetchBoxes}

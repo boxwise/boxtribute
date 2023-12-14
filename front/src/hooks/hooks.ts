@@ -1,8 +1,11 @@
-import { useState, useCallback, useContext } from "react";
+import { useState, useCallback, useContext, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
+import { tableConfigsVar } from "queries/cache";
+import { useReactiveVar } from "@apollo/client";
+import { Filters } from "react-table";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -71,5 +74,77 @@ export const useGlobalSiteState = () => {
   return {
     currentBaseId,
     navigate,
+  };
+};
+
+export interface ITableConfig {
+  globalFilter?: string;
+  columnFilters: Filters<any>;
+  // TODO: add here more props or even refactor the data structure, to support e.g. sorting config, filter configs and and selected columns
+}
+
+interface IUseTableConfigProps {
+  tableConfigKey: string;
+  defaultTableConfig: ITableConfig;
+}
+
+export interface IUseTableConfigReturnType {
+  getGlobalFilter: () => string | undefined;
+  getColumnFilters: () => Filters<any>;
+  setGlobalFilter: (globalFilter: string | undefined) => void;
+  setColumnFilters: (columnFilters: Filters<any>) => void;
+}
+
+export const useTableConfig = ({
+  tableConfigKey,
+  defaultTableConfig,
+}: IUseTableConfigProps): IUseTableConfigReturnType => {
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Intialization
+  useEffect(() => {
+    if (!tableConfigsState.has(tableConfigKey)) {
+      const tableConfig: ITableConfig = {
+        globalFilter: searchParams.get("globalFilter") || defaultTableConfig.globalFilter,
+        columnFilters: searchParams.get("columnFilters")
+          ? JSON.parse(searchParams.get("columnFilters") || "")
+          : defaultTableConfig.columnFilters,
+      };
+      tableConfigsState.set(tableConfigKey, tableConfig);
+      tableConfigsVar(tableConfigsState);
+      setSearchParams(JSON.stringify(tableConfig));
+    }
+  }, [defaultTableConfig, searchParams, setSearchParams, tableConfigKey, tableConfigsState]);
+
+  function getGlobalFilter() {
+    return tableConfigsState.get(tableConfigKey)?.globalFilter || defaultTableConfig.globalFilter;
+  }
+
+  function getColumnFilters() {
+    return tableConfigsState.get(tableConfigKey)?.columnFilters || defaultTableConfig.columnFilters;
+  }
+
+  function setGlobalFilter(globalFilter: string | undefined) {
+    const tableConfig = tableConfigsState.get(tableConfigKey);
+    tableConfig!.globalFilter = globalFilter;
+    tableConfigsState.set(tableConfigKey, tableConfig!);
+    tableConfigsVar(tableConfigsState);
+    setSearchParams(JSON.stringify(tableConfig!));
+  }
+
+  function setColumnFilters(columnFilters: Filters<any>) {
+    const tableConfig = tableConfigsState.get(tableConfigKey);
+    tableConfig!.columnFilters = columnFilters;
+    tableConfigsState.set(tableConfigKey, tableConfig!);
+    tableConfigsVar(tableConfigsState);
+    setSearchParams(JSON.stringify(tableConfig!));
+  }
+
+  return {
+    getGlobalFilter,
+    getColumnFilters,
+    setGlobalFilter,
+    setColumnFilters,
   };
 };

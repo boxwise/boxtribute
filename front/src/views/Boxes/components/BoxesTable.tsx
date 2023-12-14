@@ -26,13 +26,13 @@ import {
   Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { tableConfigsVar } from "queries/cache";
-import { QueryReference, useReactiveVar, useReadQuery } from "@apollo/client";
+import { QueryReference, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMulipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
 import { BoxesForBoxesViewQuery } from "types/generated/graphql";
+import { IUseTableConfigReturnType } from "hooks/hooks";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -40,10 +40,10 @@ import { boxesRawDataToTableDataTransformer } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
 
 interface IBoxesTableProps {
+  tableConfig: IUseTableConfigReturnType;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   refetchBoxesIsPending: boolean;
   onRefetchBoxes: (filters: Filters<any> | []) => void;
-  tableConfigKey: string;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
   onBoxRowClick: (labelIdentified: string) => void;
@@ -51,10 +51,10 @@ interface IBoxesTableProps {
 }
 
 function BoxesTable({
+  tableConfig,
   boxesQueryRef,
   refetchBoxesIsPending,
   onRefetchBoxes,
-  tableConfigKey,
   columns,
   actionButtons,
   onBoxRowClick,
@@ -62,16 +62,6 @@ function BoxesTable({
 }: IBoxesTableProps) {
   const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
-
-  const tableConfigsState = useReactiveVar(tableConfigsVar);
-  const tableConfig = tableConfigsState?.get(tableConfigKey);
-  if (tableConfig == null) {
-    tableConfigsState.set(tableConfigKey, {
-      globalFilter: undefined,
-      columnFilters: [],
-    });
-    tableConfigsVar(tableConfigsState);
-  }
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -82,18 +72,6 @@ function BoxesTable({
     }),
     [],
   );
-
-  // only set default filter to instock if there is at least one instock box
-  const columnFiltersDefault: Filters<any> = useMemo(() => {
-    if (tableConfig?.columnFilters) {
-      return tableConfig.columnFilters;
-    }
-    const hasInStockBox = tableData.some((box) => box.state === "InStock");
-    if (hasInStockBox) {
-      return [{ id: "state", value: ["InStock"] }];
-    }
-    return [];
-  }, [tableConfig?.columnFilters, tableData]);
 
   const {
     headerGroups,
@@ -123,9 +101,9 @@ function BoxesTable({
         sortBy: [{ id: "lastModified", desc: true }],
         pageIndex: 0,
         pageSize: 20,
-        filters: columnFiltersDefault,
-        ...(tableConfig?.globalFilter != null
-          ? { globalFilter: tableConfig?.globalFilter }
+        filters: tableConfig.getColumnFilters(),
+        ...(tableConfig.getGlobalFilter()
+          ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
     },
@@ -155,23 +133,22 @@ function BoxesTable({
   }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {
-    if (tableConfig?.columnFilters) {
-      const refetchFilters = filters.filter((filter) => filter.id === "state");
-      const newStateFilter = filters.find((filter) => filter.id === "state");
-      const oldStateFilter = tableConfig.columnFilters.find((filter) => filter.id === "state");
-      if (newStateFilter !== oldStateFilter) {
-        onRefetchBoxes(refetchFilters);
-      }
+    const refetchFilters = filters.filter((filter) => filter.id === "state");
+    const newStateFilter = filters.find((filter) => filter.id === "state");
+    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    if (newStateFilter !== oldStateFilter) {
+      onRefetchBoxes(refetchFilters);
     }
-  }, [filters, onRefetchBoxes, tableConfig?.columnFilters]);
+    if (filters !== tableConfig.getColumnFilters()) {
+      tableConfig.setColumnFilters(filters);
+    }
+  }, [filters, onRefetchBoxes, tableConfig]);
 
   useEffect(() => {
-    tableConfigsState.set(tableConfigKey, {
-      globalFilter,
-      columnFilters: filters,
-    });
-    tableConfigsVar(tableConfigsState);
-  }, [globalFilter, filters, tableConfig, tableConfigsState, tableConfigKey]);
+    if (globalFilter !== tableConfig.getGlobalFilter()) {
+      tableConfig.setGlobalFilter(globalFilter);
+    }
+  }, [globalFilter, tableConfig]);
 
   return (
     <Flex direction="column" height="100%">
