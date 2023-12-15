@@ -1,12 +1,7 @@
-import { useCallback, useContext, useMemo, useTransition } from "react";
-import { gql, useBackgroundQuery, useReactiveVar, useSuspenseQuery } from "@apollo/client";
+import { useContext, useMemo } from "react";
+import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import {
-  BoxesForBoxesViewQuery,
-  ActionOptionsForBoxesViewQuery,
-  BoxState,
-  BoxesForBoxesViewQueryVariables,
-} from "types/generated/graphql";
+import { BoxesForBoxesViewQuery, ActionOptionsForBoxesViewQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
@@ -19,7 +14,7 @@ import {
 } from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
-import { ITableConfig, useTableConfig } from "hooks/hooks";
+import { useTableConfig } from "hooks/hooks";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
@@ -112,9 +107,6 @@ function Boxes() {
     },
   });
 
-  // eslint-disable-next-line no-console
-  // console.log("ColumnFilters in BoxesView", tableConfig.getColumnFilters());
-
   // fetch Boxes data in the background
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery<BoxesForBoxesViewQuery>(
     BOXES_FOR_BOXESVIEW_QUERY,
@@ -131,26 +123,6 @@ function Boxes() {
         baseId,
       },
     },
-  );
-
-  const handleTableConfigChange = useCallback(
-    (newTableConfig: ITableConfig) => {
-      // refetch
-      const newStateFilter = newTableConfig.columnFilters.find((filter) => filter.id === "state");
-      const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-      if (newStateFilter !== oldStateFilter) {
-        refetchBoxes(prepareBoxesForBoxesViewQueryVariables(baseId, newTableConfig.columnFilters));
-      }
-
-      // update tableConfig
-      if (newTableConfig?.globalFilter !== tableConfig.getGlobalFilter()) {
-        tableConfig.setGlobalFilter(newTableConfig?.globalFilter);
-      }
-      if (newTableConfig.columnFilters !== tableConfig.getColumnFilters()) {
-        tableConfig.setColumnFilters(newTableConfig.columnFilters);
-      }
-    },
-    [baseId, refetchBoxes, tableConfig],
   );
 
   const availableColumns: Column<BoxRow>[] = useMemo(
@@ -249,7 +221,7 @@ function Boxes() {
   return (
     <BoxesActionsAndTable
       tableConfig={tableConfig}
-      onTableConfigChange={handleTableConfigChange}
+      onRefetch={refetchBoxes}
       boxesQueryRef={boxesQueryRef}
       availableColumns={availableColumns}
       shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}

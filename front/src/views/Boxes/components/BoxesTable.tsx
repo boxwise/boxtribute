@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useTransition } from "react";
+import React, { useContext, useEffect, useMemo, useTransition } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -23,7 +23,6 @@ import {
   useRowSelect,
   usePagination,
   Row,
-  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { QueryReference, useReadQuery } from "@apollo/client";
@@ -31,17 +30,21 @@ import {
   includesOneOfMulipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
-import { BoxesForBoxesViewQuery } from "types/generated/graphql";
-import { ITableConfig, IUseTableConfigReturnType } from "hooks/hooks";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
+import { IUseTableConfigReturnType } from "hooks/hooks";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
-import { boxesRawDataToTableDataTransformer } from "./transformers";
+import {
+  boxesRawDataToTableDataTransformer,
+  prepareBoxesForBoxesViewQueryVariables,
+} from "./transformers";
 import ColumnSelector from "./ColumnSelector";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
-  onTableConfigChange: (newTableConfig: ITableConfig) => void;
+  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
@@ -51,13 +54,15 @@ interface IBoxesTableProps {
 
 function BoxesTable({
   tableConfig,
-  onTableConfigChange,
+  onRefetch,
   boxesQueryRef,
   columns,
   actionButtons,
   onBoxRowClick,
   setSelectedBoxes,
 }: IBoxesTableProps) {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBase?.id!;
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
@@ -71,9 +76,6 @@ function BoxesTable({
     }),
     [],
   );
-
-  // eslint-disable-next-line no-console
-  // console.log("ColumnFilters in BoxesTable", tableConfig.getColumnFilters());
 
   const {
     headerGroups,
@@ -134,41 +136,24 @@ function BoxesTable({
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
-  const prevFiltersRef = useRef<Filters<any>>(filters);
-  const prevglobalFilterRef = useRef<string | undefined>(undefined);
-  const prevTableConfigRef = useRef(onTableConfigChange);
-
   useEffect(() => {
-    // // eslint-disable-next-line no-console
-    // console.log("filters", filters, prevFiltersRef.current, filters === prevFiltersRef.current);
-    // // eslint-disable-next-line no-console
-    // console.log(
-    //   "globalFilter",
-    //   globalFilter,
-    //   prevglobalFilterRef.current,
-    //   globalFilter === prevglobalFilterRef.current,
-    // );
-    // // eslint-disable-next-line no-console
-    // console.log(
-    //   "onTableConfigChange",
-    //   onTableConfigChange,
-    //   prevTableConfigRef.current,
-    //   onTableConfigChange === prevTableConfigRef.current,
-    // );
-
-    startRefetchBoxes(() => {
-      onTableConfigChange({
-        globalFilter,
-        columnFilters: filters,
+    // refetch
+    const newStateFilter = filters.find((filter) => filter.id === "state");
+    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    if (newStateFilter !== oldStateFilter) {
+      startRefetchBoxes(() => {
+        onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
       });
-    });
-  }, [filters, globalFilter, onTableConfigChange]);
+    }
 
-  useEffect(() => {
-    prevFiltersRef.current = filters;
-    prevglobalFilterRef.current = globalFilter;
-    prevTableConfigRef.current = onTableConfigChange;
-  }, [filters, globalFilter, onTableConfigChange]);
+    // update tableConfig
+    if (globalFilter !== tableConfig.getGlobalFilter()) {
+      tableConfig.setGlobalFilter(globalFilter);
+    }
+    if (filters !== tableConfig.getColumnFilters()) {
+      tableConfig.setColumnFilters(filters);
+    }
+  }, [baseId, filters, globalFilter, onRefetch, tableConfig]);
 
   return (
     <Flex direction="column" height="100%">

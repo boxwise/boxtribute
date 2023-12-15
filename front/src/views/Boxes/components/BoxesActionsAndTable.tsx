@@ -1,4 +1,4 @@
-import { Column, Filters, Row } from "react-table";
+import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
 import { FaWarehouse } from "react-icons/fa";
@@ -8,19 +8,23 @@ import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
-import { BoxState, BoxesForBoxesViewQuery } from "types/generated/graphql";
+import {
+  BoxState,
+  BoxesForBoxesViewQuery,
+  BoxesForBoxesViewQueryVariables,
+} from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryReference } from "@apollo/client";
-import { ITableConfig, IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
-  onTableConfigChange: (newTableConfig: ITableConfig) => void;
+  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
@@ -29,7 +33,7 @@ export interface IBoxesActionsAndTableProps {
 
 function BoxesActionsAndTable({
   tableConfig,
-  onTableConfigChange,
+  onRefetch,
   boxesQueryRef,
   locationOptions,
   shipmentOptions,
@@ -244,7 +248,7 @@ function BoxesActionsAndTable({
   return (
     <BoxesTable
       tableConfig={tableConfig}
-      onTableConfigChange={onTableConfigChange}
+      onRefetch={onRefetch}
       boxesQueryRef={boxesQueryRef}
       columns={availableColumns}
       actionButtons={actionButtons}
