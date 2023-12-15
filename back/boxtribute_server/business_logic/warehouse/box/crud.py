@@ -69,13 +69,19 @@ def create_box(
 
             with db.database.atomic():
                 new_box.save()
-                for tag_id in tag_ids or []:
-                    assign_tag(
-                        user_id=user_id,
-                        id=tag_id,
-                        resource_id=new_box.id,
-                        resource_type=TaggableObjectType.Box,
-                    )
+
+                if tag_ids:
+                    # Don't use assign_tag() because it requires an existing Box object,
+                    # however the Box creation has not yet been committed to the DB
+                    tags_relations = [
+                        {
+                            "object_id": new_box.id,
+                            "object_type": TaggableObjectType.Box,
+                            "tag": tag_id,
+                        }
+                        for tag_id in tag_ids
+                    ]
+                    TagsRelation.insert_many(tags_relations).execute()
                 return new_box
 
         except peewee.IntegrityError as e:

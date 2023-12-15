@@ -4,8 +4,8 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { BoxesLocationsTagsShipmentsForBaseQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
-  BOX_FIELDS_FRAGMENT,
-  LOCATION_BASIC_FIELDS_FRAGMENT,
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  SIZE_BASIC_FIELDS_FRAGMENT,
   TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import {
@@ -23,10 +23,10 @@ import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableC
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
-  ${LOCATION_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
   ${BASE_ORG_FIELDS_FRAGMENT}
-  ${BOX_FIELDS_FRAGMENT}
+  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
+  ${SIZE_BASIC_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
   query BoxesLocationsTagsShipmentsForBase($baseId: ID!) {
     boxes(baseId: $baseId, paginationInput: { first: 100000 }) {
       totalCount
@@ -34,7 +34,30 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
         hasNextPage
       }
       elements {
-        ...BoxFields
+        labelIdentifier
+        product {
+          ...ProductBasicFields
+        }
+        numberOfItems
+        size {
+          ...SizeBasicFields
+        }
+        state
+        location {
+          id
+          name
+        }
+        tags {
+          ...TagBasicFields
+        }
+        shipmentDetail {
+          id
+          shipment {
+            id
+          }
+        }
+        comment
+        createdOn
       }
     }
     base(id: $baseId) {
@@ -65,25 +88,26 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
   }
 `;
 
+// TODO: uncomment untouched days
 const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipmentsForBaseQuery) =>
   boxesQueryResult.boxes.elements.map(
     (element) =>
       ({
-        productName: element.product!.name,
         labelIdentifier: element.labelIdentifier,
+        product: element.product!.name,
         gender: element.product!.gender,
         numberOfItems: element.numberOfItems,
         size: element.size.label,
         state: element.state,
-        place: element.location!.name,
+        location: element.location!.name,
         tags: element.tags,
         shipment: element.shipmentDetail?.shipment,
         comment: element.comment,
         age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
-        untouched:
-          element.history && element.history[0] && element.history[0].changeDate
-            ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
-            : 0,
+        // untouched:
+        //   element.history && element.history[0] && element.history[0].changeDate
+        //     ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
+        //     : 0,
       }) as BoxRow,
   );
 
@@ -101,35 +125,34 @@ function Boxes() {
     },
   );
 
-  // TODO: What additional columns do we want? (Age, Shipment, ...) Which are the default ones?
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
       {
-        Header: "Product",
-        accessor: "productName",
-        id: "productName",
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
-      {
-        Header: "Box Number",
+        Header: "Box #",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
         disableFilters: true,
+      },
+      {
+        Header: "Product",
+        accessor: "product",
+        id: "product",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMulipleStrings",
       },
       {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesOneOfMulipleStrings",
       },
       {
         Header: "Size",
         accessor: "size",
         id: "size",
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesOneOfMulipleStrings",
       },
       {
         Header: "Items",
@@ -143,14 +166,14 @@ function Boxes() {
         id: "state",
         Cell: StateCell,
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesOneOfMulipleStrings",
       },
       {
-        Header: "Place",
-        accessor: "place",
-        id: "place",
+        Header: "Location",
+        accessor: "location",
+        id: "location",
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesOneOfMulipleStrings",
       },
       {
         Header: "Tags",
@@ -158,6 +181,7 @@ function Boxes() {
         id: "tags",
         Cell: TagsCell,
         disableFilters: true,
+        disableSortBy: true,
       },
       {
         Header: "Shipment",
@@ -165,13 +189,14 @@ function Boxes() {
         id: "shipment",
         Cell: ShipmentCell,
         disableFilters: true,
+        disableSortBy: true,
       },
       {
         Header: "Comments",
         accessor: "comment",
         id: "comment",
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesOneOfMulipleStrings",
       },
       {
         Header: "Age",
@@ -180,43 +205,39 @@ function Boxes() {
         Cell: DaysCell,
         disableFilters: true,
       },
-      {
-        Header: "Untouched",
-        accessor: "untouched",
-        id: "untouched",
-        Cell: DaysCell,
-        disableFilters: true,
-      },
+      // {
+      //   Header: "Last Modified",
+      //   accessor: "untouched",
+      //   id: "untouched",
+      //   Cell: DaysCell,
+      //   disableFilters: true,
+      // },
     ],
     [],
   );
 
   // error and loading handling
-  let boxesTable;
-
   if (error) {
-    boxesTable = (
+    return (
       <Alert status="error" data-testid="ErrorAlert">
         <AlertIcon />
         Could not fetch boxes data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading) {
-    boxesTable = <TableSkeleton />;
-  } else if (data) {
-    boxesTable = (
-      // TODO: pass shipment and tag options to BoxesActionsAndTable
-      <BoxesActionsAndTable
-        tableData={graphqlToTableTransformer(data)}
-        availableColumns={availableColumns}
-        shipmentOptions={shipmentToDropdownOptionTransformer(data.shipments ?? [])}
-        locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
-      />
-    );
+  }
+  if (loading || !data) {
+    return <TableSkeleton />;
   }
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{boxesTable}</>;
+  // TODO: pass tag options to BoxesActionsAndTable
+  return (
+    <BoxesActionsAndTable
+      tableData={graphqlToTableTransformer(data)}
+      availableColumns={availableColumns}
+      shipmentOptions={shipmentToDropdownOptionTransformer(data?.shipments, baseId)}
+      locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
+    />
+  );
 }
 
 export default Boxes;

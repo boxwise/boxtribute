@@ -237,12 +237,11 @@ def create_transfer_agreement(
         return transfer_agreement
 
 
-def accept_transfer_agreement(*, id, user):
+def accept_transfer_agreement(*, agreement, user):
     """Transition state of specified transfer agreement to 'Accepted'.
     Raise an InvalidTransferAgreementState exception if agreement state different from
     'UnderReview'.
     """
-    agreement = TransferAgreement.get_by_id(id)
     if agreement.state != TransferAgreementState.UnderReview:
         raise InvalidTransferAgreementState(
             expected_states=[TransferAgreementState.UnderReview],
@@ -255,12 +254,11 @@ def accept_transfer_agreement(*, id, user):
     return agreement
 
 
-def reject_transfer_agreement(*, id, user):
+def reject_transfer_agreement(*, agreement, user):
     """Transition state of specified transfer agreement to 'Rejected'.
     Raise an InvalidTransferAgreementState exception if agreement state different from
     'UnderReview'.
     """
-    agreement = TransferAgreement.get_by_id(id)
     if agreement.state != TransferAgreementState.UnderReview:
         raise InvalidTransferAgreementState(
             expected_states=[TransferAgreementState.UnderReview],
@@ -273,12 +271,11 @@ def reject_transfer_agreement(*, id, user):
     return agreement
 
 
-def cancel_transfer_agreement(*, id, user_id):
+def cancel_transfer_agreement(*, agreement, user):
     """Transition state of specified transfer agreement to 'Canceled'.
     Raise error if agreement state different from 'UnderReview'/'Accepted'.
     Any shipments derived from the agreement are not affected.
     """
-    agreement = TransferAgreement.get_by_id(id)
     if agreement.state not in [
         TransferAgreementState.UnderReview,
         TransferAgreementState.Accepted,
@@ -291,7 +288,7 @@ def cancel_transfer_agreement(*, id, user_id):
             actual_state=agreement.state,
         )
     agreement.state = TransferAgreementState.Canceled
-    agreement.terminated_by = user_id
+    agreement.terminated_by = user.id
     agreement.terminated_on = utcnow()
     agreement.save()
     return agreement

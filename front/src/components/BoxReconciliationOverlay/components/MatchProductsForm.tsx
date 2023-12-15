@@ -1,4 +1,4 @@
-import { Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
@@ -75,10 +75,10 @@ export function MatchProductsForm({
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: "Select Product & Gender",
+      label: "Save Product As...",
       value: "",
     },
-    sizeId: { label: "Select Size", value: "" },
+    sizeId: { label: "Save Size As...", value: "" },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
 
@@ -124,7 +124,7 @@ export function MatchProductsForm({
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
         } else {
-          resetField("sizeId", { defaultValue: { value: "", label: "Select Size" } });
+          resetField("sizeId", { defaultValue: { value: "", label: "Save Size As..." } });
         }
       }
     }
@@ -153,55 +153,58 @@ export function MatchProductsForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmitMatchProductsForm)}>
-      <Flex direction="column" gap="2" alignItems="stretch">
-        <Text fontSize={16} fontWeight="bold">
-          Product & Gender:{" "}
-        </Text>
-        <Text
-          fontSize={16}
-          fontWeight="semibold"
-          style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
-        >
-          {shipmentDetail?.sourceProduct?.name}{" "}
-        </Text>
-        <Flex alignContent="center" gap={2} alignItems="center">
+      <Flex direction="column" gap="4" alignItems="stretch">
+        <Box>
+          <Text fontSize={16} fontWeight="bold">
+            Sender Product & Gender:{" "}
+          </Text>
+          <Text
+            fontSize={16}
+            fontWeight={productId?.value === "" ? "semibold" : ""}
+            fontStyle="italic"
+            style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
+          >
+            {shipmentDetail?.sourceProduct?.name}{" "}
+            {shipmentDetail?.sourceProduct?.gender !== "none"
+              ? `(${shipmentDetail?.sourceProduct?.gender})`
+              : ""}
+          </Text>
+        </Box>
+        <Flex alignContent="center" gap={4} alignItems="center">
           <BiSubdirectoryRight size={30} />
           <SelectField
             showError={false}
             showLabel={false}
             fieldId="productId"
             fieldLabel="Product"
-            placeholder="Select Product & Gender"
+            placeholder="Save Product As..."
             options={productsForDropdownGroups}
             errors={errors}
             control={control}
           />
           <BsFillCheckCircleFill color={productId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
         </Flex>
-        <Wrap>
-          <WrapItem>
-            <Text fontSize={16} fontWeight="bold">
-              Size:{" "}
-            </Text>
-          </WrapItem>
-          <WrapItem>
-            <Text
-              fontSize={16}
-              fontWeight="semibold"
-              style={{ color: sizeId?.value === "" ? "#FF0000" : "#000" }}
-            >
-              {shipmentDetail?.sourceSize?.label}{" "}
-            </Text>
-          </WrapItem>
-        </Wrap>
-        <Flex alignContent="center" gap={2} alignItems="center">
+        <Box>
+          <Text fontSize={16} fontWeight="bold">
+            Sender Size:{" "}
+          </Text>
+          <Text
+            fontSize={16}
+            fontWeight={sizeId?.value === "" ? "semibold" : ""}
+            fontStyle="italic"
+            style={{ color: sizeId?.value === "" ? "#FF0000" : "#000" }}
+          >
+            {shipmentDetail?.sourceSize?.label}{" "}
+          </Text>
+        </Box>
+        <Flex alignContent="center" gap={4} alignItems="center">
           <BiSubdirectoryRight size={30} />
           <SelectField
             showError={false}
             showLabel={false}
             fieldId="sizeId"
             fieldLabel="Size"
-            placeholder="Select Size"
+            placeholder="Save Size As..."
             options={sizesOptionsForCurrentProduct}
             errors={errors}
             control={control}

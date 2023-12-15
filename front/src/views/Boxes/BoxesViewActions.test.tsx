@@ -162,7 +162,6 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move to/i, /warehouse/i],
     toast: /A Box was successfully moved/i,
-    alert: undefined,
   },
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
@@ -175,8 +174,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move to/i, /warehouse/i],
-    toast: undefined,
-    alert: /Could not move a box/i,
+    toast: /Could not move a box/i,
   },
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
@@ -189,15 +187,14 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move to/i, /warehouse/i],
-    toast: undefined,
-    alert: /Could not move a box/i,
+    toast: /Could not move a box/i,
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
     mocks: [initialQuery({ state: BoxState.MarkedForShipment })],
     clicks: [/move to/i, /warehouse/i],
-    toast: undefined,
-    alert: /Cannot move a box in shipment states./i,
+    toast: /Cannot move a box in shipment states./i,
+    removeFilter: true,
   },
   {
     name: "4.8.3.2 - Assign To Shipment Action is successful",
@@ -214,7 +211,6 @@ const boxesViewActionsTests = [
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /A Box was successfully assigned/i,
-    alert: undefined,
   },
   {
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
@@ -227,8 +223,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
-    toast: undefined,
-    alert: /Could not assign a box/i,
+    toast: /Could not assign a box/i,
   },
   {
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
@@ -241,15 +236,13 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
-    toast: undefined,
-    alert: /Could not assign a box/i,
+    toast: /Could not assign a box/i,
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
     mocks: [initialQuery({ state: BoxState.Donated })],
     clicks: [/assign to shipment/i, /thessaloniki/i],
-    toast: undefined,
-    alert: /Cannot assign a box/i,
+    toast: /Cannot assign a box/i,
   },
   {
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
@@ -265,7 +258,6 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /A Box was successfully unassigned/i,
-    alert: undefined,
   },
   {
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
@@ -278,8 +270,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/remove from shipment/i],
-    toast: undefined,
-    alert: /Could not remove a box/i,
+    toast: /Could not remove a box/i,
   },
   {
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
@@ -292,57 +283,60 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/remove from shipment/i],
-    toast: undefined,
-    alert: /Could not remove a box/i,
+    toast: /Could not remove a box/i,
   },
 ];
 
-boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, alert }) => {
-  it(name, async () => {
-    const user = userEvent.setup();
-    render(<BoxesView />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/1/boxes",
-      mocks,
-      cache,
-    });
+boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, removeFilter }) => {
+  it(
+    name,
+    async () => {
+      const user = userEvent.setup();
+      render(<BoxesView />, {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/1/boxes",
+        mocks,
+        cache,
+      });
 
-    // Select the first box
-    const checkboxes = await screen.findAllByRole("checkbox", { name: /toggle row selected/i });
-    expect(checkboxes.length).toBe(1);
-    user.click(checkboxes[0]);
-    await waitFor(() => expect(checkboxes[0]).toBeChecked());
+      // if filters are passed
+      if (removeFilter) {
+        const stateFilter = await screen.findByTestId("filter-state");
+        expect(stateFilter).toBeInTheDocument();
+        user.click(stateFilter);
+        const inStockOption = await screen.findByRole("button", { name: /remove instock/i });
+        expect(inStockOption).toBeInTheDocument();
+        user.click(inStockOption);
+      }
 
-    // Click the action buttons
-    const actionButton = await screen.findByRole("button", { name: clicks[0] });
-    expect(actionButton).toBeInTheDocument();
-    user.click(actionButton);
+      // Select the first box
+      const checkboxes = await screen.findAllByRole("checkbox", { name: /toggle row selected/i });
+      expect(checkboxes.length).toBe(1);
+      user.click(checkboxes[0]);
+      await waitFor(() => expect(checkboxes[0]).toBeChecked());
 
-    if (clicks[1]) {
-      const subButton = await screen.findByText(clicks[1]);
-      expect(subButton).toBeInTheDocument();
-      user.click(subButton);
-    }
+      // Click the action buttons
+      const actionButton = await screen.findByRole("button", { name: clicks[0] });
+      expect(actionButton).toBeInTheDocument();
+      user.click(actionButton);
 
-    if (toast) {
-      // check toast
-      await waitFor(() =>
-        expect(mockedCreateToast).toHaveBeenCalledWith(
-          expect.objectContaining({
-            message: expect.stringMatching(toast),
-          }),
-        ),
-      );
-    }
+      if (clicks[1]) {
+        const subButton = await screen.findByText(clicks[1]);
+        expect(subButton).toBeInTheDocument();
+        user.click(subButton);
+      }
 
-    if (alert) {
-      // check alert
-      const alertElement = await screen.findByText(alert);
-      expect(alertElement).toBeInTheDocument();
-      const closeButtons = await screen.findAllByRole("button", { name: /close/i });
-      expect(closeButtons.length).toBe(1);
-      user.click(closeButtons[0]);
-      await waitFor(() => expect(alertElement).not.toBeInTheDocument());
-    }
-  });
+      if (toast) {
+        // check toast
+        await waitFor(() =>
+          expect(mockedCreateToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              message: expect.stringMatching(toast),
+            }),
+          ),
+        );
+      }
+    },
+    10000,
+  );
 });

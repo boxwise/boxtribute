@@ -32,23 +32,6 @@ export const getDateNormalizedDateTime = (dateTime: Date) => {
   return newDate;
 };
 
-export const generateDropappUrl = (
-  oldLink: String,
-  baseId: String | undefined,
-  qrCode: String | undefined,
-  labelIdentifier: String | undefined,
-) => {
-  const newLink = oldLink + "?camp=" + baseId + "&preference=classic";
-  if (oldLink.includes("mobile.php")) {
-    if (labelIdentifier !== undefined) {
-      return newLink + "&boxid=" + labelIdentifier;
-    } else if (qrCode !== undefined) {
-      return newLink + "&barcode=" + qrCode;
-    }
-  }
-  return newLink;
-};
-
 export const redirectToExternalUrl = (url) => {
   window.location.replace(url);
 };
@@ -60,17 +43,17 @@ and then checking the Y component (luma). Cf. https://stackoverflow.com/a/946734
 */
 export const colorIsBright = (hex) => {
   const [r, g, b] = hex
-    .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => "#" + r + r + g + g + b + b)
+    .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
     .substring(1)
     .match(/.{2}/g)
     .map((x) => parseInt(x, 16));
   return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
 };
 
-export const formatDateKey = (date: Date): string => {
-  return `${date.toLocaleString("default", { month: "short" })}
+export const formatDateKey = (date: Date): string => `${date.toLocaleString("default", {
+  month: "short",
+})}
     ${date.getDate()}, ${date.getFullYear()}`;
-};
 
 export const prepareBoxHistoryEntryText = (text: string): string => {
   // Remove the last character if it is a semicolon

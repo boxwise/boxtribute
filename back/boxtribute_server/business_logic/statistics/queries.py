@@ -1,6 +1,6 @@
 from ariadne import QueryType
 
-from ...authz import authorize_cross_organisation_access
+from ...authz import authorize, authorize_cross_organisation_access
 from ...models.definitions.base import Base
 from .crud import (
     compute_beneficiary_demographics,
@@ -24,7 +24,9 @@ def _validate_existing_base(base_id):
 
 @query.field("beneficiaryDemographics")
 def resolve_beneficiary_demographics(*_, base_id):
-    authorize_cross_organisation_access("beneficiary", "tag_relation", base_id=base_id)
+    # No cross-organisational access for beneficiary-related data
+    authorize(permission="beneficiary:read", base_id=base_id)
+    authorize(permission="tag_relation:read")
     return compute_beneficiary_demographics(base_id)
 
 
@@ -41,12 +43,10 @@ def resolve_created_boxes(*_, base_id):
 
 @query.field("topProductsCheckedOut")
 def resolve_top_products_checked_out(*_, base_id):
-    authorize_cross_organisation_access(
-        "transaction",
-        "product",
-        "product_category",
-        base_id=base_id,
-    )
+    # No cross-organisational access for beneficiary-related data
+    authorize(permission="transaction:read")
+    authorize(permission="product:read", base_id=base_id)
+    authorize(permission="product_category:read")
     return compute_top_products_checked_out(base_id)
 
 

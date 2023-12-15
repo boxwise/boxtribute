@@ -12,11 +12,14 @@ from .loaders import (
     ProductCategoryLoader,
     ProductLoader,
     ShipmentDetailForBoxLoader,
+    ShipmentDetailsForShipmentLoader,
     ShipmentLoader,
+    ShipmentsForAgreementLoader,
     SizeLoader,
     SizeRangeLoader,
     SizesForSizeRangeLoader,
     TagsForBoxLoader,
+    TransferAgreementLoader,
     UserLoader,
 )
 
@@ -38,11 +41,14 @@ def execute_async(*, schema, introspection=None):
             "product_category_loader": ProductCategoryLoader(),
             "product_loader": ProductLoader(),
             "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
+            "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
             "shipment_loader": ShipmentLoader(),
+            "shipments_for_agreement_loader": ShipmentsForAgreementLoader(),
             "size_loader": SizeLoader(),
             "size_range_loader": SizeRangeLoader(),
             "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
             "tags_for_box_loader": TagsForBoxLoader(),
+            "transfer_agreement_loader": TransferAgreementLoader(),
             "user_loader": UserLoader(),
         }
 

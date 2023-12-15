@@ -1,3 +1,4 @@
+// To access the defaultTheme you can import theme here
 import { extendTheme } from "@chakra-ui/react";
 
 const colors = {
@@ -18,14 +19,22 @@ const colors = {
   },
   brandGray: "#848689",
   // this was additional generated on https://coolors.co/ to have a fitting green
-  brandGreen: "#60a561"
+  brandGreen: "#60a561",
 };
 
+// see https://chakra-ui.com/docs/styled-system/customize-theme#customizing-single-components
 export const theme = extendTheme({
   colors,
   fonts: {
     heading: `'Open Sans', sans-serif`,
     body: `'Open Sans', sans-serif`,
+  },
+  styles: {
+    global: {
+      body: {
+        color: "black",
+      },
+    },
   },
   components: {
     Button: {
@@ -34,28 +43,24 @@ export const theme = extendTheme({
       },
       // TODO: we need to define our brand color palette and apply a whole colorScheme to config chakra UI properly.
       variants: {
-        "blue": {
+        blue: {
           bg: "brandBlue.300",
           color: "white",
           borderRadius: 0,
         },
-        "green": {
+        green: {
           bg: "brandGreen",
           color: "white",
           borderRadius: 0,
         },
-        "gray": {
+        gray: {
           bg: "brandGray",
           color: "white",
           borderRadius: 0,
-        }
+        },
       },
     },
     Link: {
-      // baseStyle: {
-      //   color: "blue",
-      //   textDecoration: "underline",
-      // },
       variants: {
         "inline-link": {
           color: "blue",
@@ -84,15 +89,17 @@ export const theme = extendTheme({
       },
     },
     Input: {
-      defaultProps: {
-        focusBorderColor: "transparent",
-        borderRadius: "0",
+      baseStyle: {
+        field: {
+          focusBorderColor: "transparent",
+          borderRadius: 0,
+        },
       },
       shadows: "none",
       sizes: {
         lg: {
           field: {
-            borderRadius: "none",
+            borderRadius: 0,
           },
         },
       },

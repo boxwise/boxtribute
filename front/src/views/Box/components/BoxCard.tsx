@@ -90,14 +90,7 @@ function BoxCard({
       : boxData?.size;
 
   return (
-    <Box
-      w={["100%", "80%", "30%", "30%"]}
-      border="2px"
-      mb={6}
-      pb={2}
-      backgroundColor="brandYellow.100"
-      mr={["0", "0", "4rem", "4rem"]}
-    >
+    <Box border="2px" pb={2} backgroundColor="brandYellow.100" w="100%">
       <Wrap pt={2} pb={hasTag ? 2 : 0} px={4} alignItems="center">
         <WrapItem>
           <Heading fontWeight="bold" as="h2" data-testid="box-header">

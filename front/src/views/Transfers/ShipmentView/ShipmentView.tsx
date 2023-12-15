@@ -166,24 +166,30 @@ function ShipmentView() {
   }, [data]);
 
   // Mutations for shipment actions
-  const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] =
-    useMutation<RemoveBoxFromShipmentMutation, RemoveBoxFromShipmentMutationVariables>(
-      REMOVE_BOX_FROM_SHIPMENT,
-    );
+  const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] = useMutation<
+    RemoveBoxFromShipmentMutation,
+    RemoveBoxFromShipmentMutationVariables
+  >(REMOVE_BOX_FROM_SHIPMENT);
 
-  const [cancelShipment, cancelShipmentStatus] =
-    useMutation<CancelShipmentMutation, CancelShipmentMutationVariables>(CANCEL_SHIPMENT);
+  const [cancelShipment, cancelShipmentStatus] = useMutation<
+    CancelShipmentMutation,
+    CancelShipmentMutationVariables
+  >(CANCEL_SHIPMENT);
 
-  const [lostShipment, lostShipmentStatus] =
-    useMutation<LostShipmentMutation, LostShipmentMutationVariables>(LOST_SHIPMENT);
+  const [lostShipment, lostShipmentStatus] = useMutation<
+    LostShipmentMutation,
+    LostShipmentMutationVariables
+  >(LOST_SHIPMENT);
 
-  const [sendShipment, sendShipmentStatus] =
-    useMutation<SendShipmentMutation, SendShipmentMutationVariables>(SEND_SHIPMENT);
+  const [sendShipment, sendShipmentStatus] = useMutation<
+    SendShipmentMutation,
+    SendShipmentMutationVariables
+  >(SEND_SHIPMENT);
 
-  const [startReceivingShipment, startReceivingShipmentStatus] =
-    useMutation<StartReceivingShipmentMutation, StartReceivingShipmentMutationVariables>(
-      START_RECEIVING_SHIPMENT,
-    );
+  const [startReceivingShipment, startReceivingShipmentStatus] = useMutation<
+    StartReceivingShipmentMutation,
+    StartReceivingShipmentMutationVariables
+  >(START_RECEIVING_SHIPMENT);
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
     UpdateShipmentWhenReceivingMutation,
     UpdateShipmentWhenReceivingMutationVariables
@@ -191,7 +197,7 @@ function ShipmentView() {
 
   // shipment actions in the modal
   const handleShipment = useCallback(
-    (mutation, kind, successMessage = "", failedMessage = "") =>
+    (mutation, kind, successMessage = "", failedMessage = "", showSuccessMessage = true) =>
       () => {
         mutation({
           variables: {
@@ -201,11 +207,13 @@ function ShipmentView() {
           .then((res) => {
             if (!res?.errors) {
               onShipmentOverlayClose();
-              createToast({
-                type: "success",
-                message:
-                  successMessage !== "" ? successMessage : `Successfully ${kind}ed the shipment.`,
-              });
+              if (showSuccessMessage) {
+                createToast({
+                  type: "success",
+                  message:
+                    successMessage !== "" ? successMessage : `Successfully ${kind}ed the shipment.`,
+                });
+              }
             } else {
               triggerError({
                 message: failedMessage !== "" ? failedMessage : `Could not ${kind} the shipment.`,
@@ -229,7 +237,7 @@ function ShipmentView() {
     "Successfully marked the shipment as Lost.",
     "Could not marking the shipment as Lost.",
   );
-  const onReceive = handleShipment(startReceivingShipment, "receive");
+  const onReceive = handleShipment(startReceivingShipment, "receive", "", "", false);
 
   // callback function triggered when a state button is clicked.
   const openShipmentOverlay = useCallback(() => {
@@ -380,13 +388,12 @@ function ShipmentView() {
         ShipmentActionEvent.ShipmentStarted,
       ].includes(history.action)
     ) {
-      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${
-        history.createdBy?.name
-      }`;
+      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${history
+        .createdBy?.name}`;
     } else {
-      changes = `Box ${history.box}  is ${history.action.toLowerCase().replace("box", "")} by ${
-        history.createdBy?.name
-      }`;
+      changes = `Box ${history.box}  is ${history.action
+        .toLowerCase()
+        .replace("box", "")} by ${history.createdBy?.name}`;
     }
 
     return changes;
@@ -572,7 +579,7 @@ function ShipmentView() {
   if (shipmentState === ShipmentState.Receiving && !isSender) {
     shipmentViewComponents = (
       <>
-        <Flex direction="column" gap={2}>
+        <Flex direction="column" gap={2} paddingBottom={5}>
           <Heading>Receiving Shipment</Heading>
           <ShipmentReceivingCard shipment={data?.shipment! as Shipment} />
           <ShipmentReceivingContent
@@ -586,7 +593,7 @@ function ShipmentView() {
     );
   } else {
     shipmentViewComponents = (
-      <Flex direction="column" gap={2}>
+      <Flex direction="column" gap={2} paddingBottom={5}>
         <Center>
           <VStack>
             {shipmentTitle}

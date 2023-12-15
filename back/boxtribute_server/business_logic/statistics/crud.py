@@ -54,6 +54,14 @@ def _generate_dimensions(*names, target_type=None, facts):
             .dicts()
         )
 
+    if "location" in names:
+        location_ids = {f["location_id"] for f in facts}
+        dimensions["location"] = (
+            Location.select(Location.id, Location.name)
+            .where(Location.id << location_ids)
+            .dicts()
+        )
+
     if target_type is not None:
         target_ids = {f["target_id"] for f in facts}
         # Target ID and name are identical for now

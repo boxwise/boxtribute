@@ -49,7 +49,7 @@ const initialQuery = {
   },
 };
 
-const initialQueryWithoutTransferAgreement = {
+const initialQueryWithoutAgreement = {
   request: {
     query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
     variables: {
@@ -373,7 +373,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
     render(<CreateShipmentView />, {
       routePath: "/bases/:baseId/transfers/shipment/create",
       initialUrl: "/bases/1/transfers/shipment/create",
-      mocks: [initialQueryWithoutTransferAgreement],
+      mocks: [initialQueryWithoutAgreement],
       addTypename: true,
       globalPreferences: {
         dispatch: jest.fn(),
@@ -385,7 +385,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       },
     });
 
-    // Test case 4.3.4.2 - No Agreements Found
+    // Test case 4.3.4.2 - No Accepeted Agreements Found
     expect(
       await screen.findByText(
         /you must have an agreement with a network partner before creating a shipment\./i,

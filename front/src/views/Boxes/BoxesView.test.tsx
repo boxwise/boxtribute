@@ -131,9 +131,9 @@ const initialQuery = {
                 id: "2",
                 name: "Thessaloniki",
               },
-              defaultBoxState: "Scrap",
-              id: "15",
-              name: "SCRAP",
+              defaultBoxState: "InStock",
+              id: "16",
+              name: "Stockroom",
             },
             numberOfItems: 23,
             product: {
@@ -149,7 +149,7 @@ const initialQuery = {
               id: "52",
               label: "Mixed",
             },
-            state: "Scrap",
+            state: "InStock",
             tags: [
               {
                 __typename: "Tag",
@@ -429,7 +429,7 @@ describe("4.8.1 - Initial load of Page", () => {
     });
 
     // Test case 4.8.1.3
-    expect(await screen.findByRole("gridcell", { name: /4495955/i })).toBeInTheDocument();
+    expect(await screen.findByRole("gridcell", { name: /8650860/i })).toBeInTheDocument();
   });
 });
 
@@ -453,7 +453,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
 
-    const row1 = await screen.findByRole("row", { name: /4495955/i });
+    const row1 = await screen.findByRole("row", { name: /8650860/i });
     // eslint-disable-next-line testing-library/no-node-access
     const checkbox1 = row1.querySelector('input[type="checkbox"]');
 
@@ -478,17 +478,17 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
       expect(
         screen.getByRole("menuitem", {
-          name: /wh1/i,
+          name: /wh2/i,
         }),
       ).toBeInTheDocument();
 
       user.click(
         screen.getByRole("menuitem", {
-          name: /wh1/i,
+          name: /wh2/i,
         }),
       );
 
-      expect(await screen.findByText(/2 Boxes were successfully moved./i)).toBeInTheDocument();
+      expect((await screen.findAllByText(/wh2/i)).length).toBe(2);
     }
   }, 10000);
 });

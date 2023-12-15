@@ -1,4 +1,4 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Stack } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import {
   BoxByLabelIdentifierQuery,
@@ -45,10 +45,12 @@ function BoxDetails({
   }
 
   return (
-    <Flex
+    <Stack
       direction={["column", "column", "row"]}
+      alignSelf="center"
       alignItems={["center", "center", "flex-start"]}
-      w="100%"
+      spacing={[6, 6, 16]}
+      w={["100%", "80%", "100%", "80%"]}
       justifyContent="center"
       data-testid="box-sections"
     >
@@ -77,7 +79,7 @@ function BoxDetails({
           onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
         />
       )}
-    </Flex>
+    </Stack>
   );
 }
 

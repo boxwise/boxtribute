@@ -1,6 +1,9 @@
 /* eslint-disable no-nested-ternary */
 import { Table, TableContainer, Tbody, Td, Tr } from "@chakra-ui/react";
-import { includesSomeObjectFilterFn } from "components/Table/Filter";
+import {
+  includesOneOfMulipleStringsFilterFn,
+  includesSomeObjectFilterFn,
+} from "components/Table/Filter";
 import { ReactNode, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Column, Row, useFilters, useSortBy, useTable } from "react-table";
@@ -49,6 +52,7 @@ export function FilteringSortingTable({ columns, tableData, initialState }: IBas
   const filterTypes = useMemo(
     () => ({
       includesSomeObject: includesSomeObjectFilterFn,
+      includesOneOfMulipleStrings: includesOneOfMulipleStringsFilterFn,
     }),
     [],
   );

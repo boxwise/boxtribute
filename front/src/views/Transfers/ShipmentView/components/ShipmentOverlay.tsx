@@ -65,7 +65,11 @@ function ShipmentOverlay({
       <VStack align="start" spacing={8}>
         <chakra.span>
           <Text>
-            This will mark the remaining boxes as undelivered and will complete the shipment.
+            This will mark the remaining boxes as{" "}
+            <Text as="b" color="red">
+              NotDelivered
+            </Text>{" "}
+            and will complete the shipment.
           </Text>
         </chakra.span>
         <chakra.br />

@@ -47,13 +47,15 @@ export function SelectColumnFilter({
         optionValues[value] = value;
       }
     });
-    return Array.from(groupedOptionLabels.values()).map(
-      (label) =>
-        ({
-          label,
-          value: optionValues[label],
-        } as ISelectOption),
-    );
+    return Array.from(groupedOptionLabels.values())
+      .map(
+        (label) =>
+          ({
+            label,
+            value: optionValues[label],
+          }) as ISelectOption,
+      )
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [id, preFilteredRows]);
 
   // Render a multi-select box
@@ -65,6 +67,7 @@ export function SelectColumnFilter({
           background="inherit"
           icon={filterValue ? <MdFilterListAlt /> : <MdFilterList />}
           aria-label={`Filter for '${render("Header")}'`}
+          data-testid={`filter-${id}`}
         />
       </PopoverTrigger>
       <PopoverContent>
@@ -108,3 +111,19 @@ export const includesSomeObjectFilterFn = (rows, ids, filterValue) =>
     }),
   );
 includesSomeObjectFilterFn.autoRemove = (val) => !val || !val.length;
+
+// This is a custom filter function for columns that consist of objects
+// https://react-table-v7.tanstack.com/docs/examples/filtering
+export const includesOneOfMulipleStringsFilterFn = (rows, ids, filterValue) =>
+  rows.filter((row) =>
+    ids.some((id) => {
+      const rowValue = row.values[id];
+      return (
+        typeof rowValue === "string" &&
+        rowValue.length &&
+        Array.isArray(filterValue) &&
+        filterValue.some((val) => val === rowValue)
+      );
+    }),
+  );
+includesOneOfMulipleStringsFilterFn.autoRemove = (val) => !val || !val.length;

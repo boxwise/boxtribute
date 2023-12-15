@@ -58,7 +58,8 @@ def derive_box_filter(filter_input, selection=None):
     corresponding model selection. If no parameters given, return True (i.e. no
     filtering applied) and `Box.select()`.
     """
-    selection = selection or Box.select()
+    if selection is None:
+        selection = Box.select()
     if not filter_input:
         return True, selection
 

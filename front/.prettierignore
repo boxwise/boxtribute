@@ -2,26 +2,14 @@
 build
 coverage
 node_modules
-# temporarily disable eslint on the current code
-src/types
-src/components/HeaderMenu
-!src/components/HeaderMenu/HeaderMenuDesktop.tsx
-!src/components/HeaderMenu/HeaderMenuMobile.tsx
-!src/components/HeaderMenu/HeaderMenuContainer.tsx
-!src/components/QrReader
-!src/components/QrReaderOverlay
-!src/components/Form
-!src/components/Layout.tsx
-!src/mocks
-src/utils
-src/views/BaseDashboard
-*.stories.*
-!src/views/BoxCreate
-!src/views/BoxEdit
-!src/views/Boxes
-src/views/Distributions
-!src/views/Box
 public
 craco.config.js
 *.js
 *.old.*
+*.stories.*
+# temporarily disable eslint on the current code
+src/types
+src/utils
+src/views/BaseDashboard
+src/views/Distributions
+src/views/Box/BoxView.test.tsx

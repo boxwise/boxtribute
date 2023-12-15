@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Table,
@@ -10,7 +10,8 @@ import {
   Text,
   IconButton,
   ButtonGroup,
-  TableContainer,
+  HStack,
+  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -21,10 +22,15 @@ import {
   useRowSelect,
   usePagination,
   Row,
+  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
+import {
+  includesOneOfMulipleStringsFilterFn,
+  includesSomeObjectFilterFn,
+} from "components/Table/Filter";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -59,6 +65,28 @@ function BoxesTable({
     tableConfigsVar(tableConfigsState);
   }
 
+  // Add custom filter function to filter objects in a column
+  // https://react-table-v7.tanstack.com/docs/examples/filtering
+  const filterTypes = useMemo(
+    () => ({
+      includesSomeObject: includesSomeObjectFilterFn,
+      includesOneOfMulipleStrings: includesOneOfMulipleStringsFilterFn,
+    }),
+    [],
+  );
+
+  // only set default filter to instock if there is at least one instock box
+  const columnFiltersDefault: Filters<any> = useMemo(() => {
+    if (tableConfig?.columnFilters) {
+      return tableConfig.columnFilters;
+    }
+    const hasInStockBox = tableData.some((box) => box.state === "InStock");
+    if (hasInStockBox) {
+      return [{ id: "state", value: ["InStock"] }];
+    }
+    return [];
+  }, [tableConfig?.columnFilters, tableData]);
+
   const {
     headerGroups,
     prepareRow,
@@ -81,13 +109,14 @@ function BoxesTable({
       // @ts-ignore
       columns,
       data: tableData,
+      filterTypes,
       initialState: {
         pageIndex: 0,
         pageSize: 20,
         hiddenColumns: columns
           .filter((col: any) => col.show === false)
           .map((col) => col.id || col.accessor) as any,
-        filters: tableConfig?.columnFilters ?? [],
+        filters: columnFiltersDefault,
         ...(tableConfig?.globalFilter != null
           ? { globalFilter: tableConfig?.globalFilter }
           : undefined),
@@ -99,18 +128,17 @@ function BoxesTable({
     usePagination,
     useRowSelect,
     (hooks) => {
-      // eslint-disable-next-line no-shadow
-      hooks.visibleColumns.push((columns) => [
+      hooks.visibleColumns.push((col) => [
         {
           id: "selection",
           // eslint-disable-next-line react/no-unstable-nested-components
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          Header: ({ getToggleAllPageRowsSelectedProps }) => (
+            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
           // eslint-disable-next-line react/no-unstable-nested-components
           Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
-        ...columns,
+        ...col,
       ]);
     },
   );
@@ -128,15 +156,28 @@ function BoxesTable({
   }, [globalFilter, filters, tableConfig, tableConfigsState, tableConfigKey]);
 
   return (
-    <>
-      <Flex alignItems="center" flexWrap="wrap" key="columnSelector">
-        <ButtonGroup>{actionButtons}</ButtonGroup>
+    <Flex direction="column" height="100%">
+      <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
+        <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
-        {columnSelector}
-        <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+        <HStack spacing={2} mb={2}>
+          {columnSelector}
+          <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+        </HStack>
       </Flex>
-
-      <TableContainer>
+      {/*
+      see https://chakra-ui.com/docs/components/table/usage#table-container
+      I added overflowY and flex={1} to make the table scrollable vertically scrollable and
+      took the other settings from <TableContainer>
+      */}
+      <Box
+        flex={1}
+        display="block"
+        maxWidth="100%"
+        overflowX="auto"
+        overflowY="auto"
+        whiteSpace="nowrap"
+      >
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
@@ -159,8 +200,8 @@ function BoxesTable({
             })}
           </Tbody>
         </Table>
-      </TableContainer>
-      <Flex justifyContent="center" alignItems="center" key="pagination">
+      </Box>
+      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
             aria-label="Previous Page"
@@ -192,7 +233,7 @@ function BoxesTable({
           />
         </Flex>
       </Flex>
-    </>
+    </Flex>
   );
 }
 

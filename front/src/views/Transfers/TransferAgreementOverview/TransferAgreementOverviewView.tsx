@@ -11,6 +11,7 @@ import {
   CancelTransferAgreementMutationVariables,
   RejectTransferAgreementMutation,
   RejectTransferAgreementMutationVariables,
+  TransferAgreement,
   TransferAgreementsQuery,
   TransferAgreementState,
   TransferAgreementType,
@@ -31,7 +32,11 @@ import {
   StatusCell,
 } from "./components/TableCells";
 import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
+import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 
+export interface IAcceptedTransferAgreement {
+  transferAgreements: TransferAgreement[];
+}
 export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
   ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
   query TransferAgreements {
@@ -79,6 +84,10 @@ function TransferAgreementOverviewView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+
+  // variables in URL
+  const baseId = globalPreferences.selectedBase?.id!;
+
   const { isOpen, onClose, onOpen } = useDisclosure();
   // State to pass Data from a row to the Overlay
   const [transferAgreementOverlayData, setTransferAgreementOverlayData] = useState({});
@@ -93,20 +102,83 @@ function TransferAgreementOverviewView() {
   );
 
   // Mutations for transfer agreement actions
-  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] =
-    useMutation<AcceptTransferAgreementMutation, AcceptTransferAgreementMutationVariables>(
-      ACCEPT_TRANSFER_AGREEMENT,
-    );
+  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] = useMutation<
+    AcceptTransferAgreementMutation,
+    AcceptTransferAgreementMutationVariables
+  >(ACCEPT_TRANSFER_AGREEMENT, {
+    update(cache, { data: returnedTransferAgreement }) {
+      if (returnedTransferAgreement?.acceptTransferAgreement) {
+        const acceptedTransferAgreement = returnedTransferAgreement?.acceptTransferAgreement;
 
-  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] =
-    useMutation<RejectTransferAgreementMutation, RejectTransferAgreementMutationVariables>(
-      REJECT_TRANSFER_AGREEMENT,
-    );
+        const existingAcceptedTransferAgreementsData = cache.readQuery<IAcceptedTransferAgreement>({
+          query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+          variables: { baseId },
+        });
 
-  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] =
-    useMutation<CancelTransferAgreementMutation, CancelTransferAgreementMutationVariables>(
-      CANCEL_TRANSFER_AGREEMENT,
-    );
+        if (existingAcceptedTransferAgreementsData?.transferAgreements) {
+          const updatedTransferAgreements = [
+            ...(existingAcceptedTransferAgreementsData.transferAgreements || []), // Use existing array or an empty array
+            acceptedTransferAgreement,
+          ];
+
+          cache.writeQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: { baseId },
+            data: {
+              transferAgreements: updatedTransferAgreements,
+            },
+          });
+        } else {
+          cache.writeQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: { baseId },
+            data: {
+              transferAgreements: [acceptedTransferAgreement],
+            },
+          });
+        }
+      }
+    },
+  });
+
+  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] = useMutation<
+    RejectTransferAgreementMutation,
+    RejectTransferAgreementMutationVariables
+  >(REJECT_TRANSFER_AGREEMENT);
+
+  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] = useMutation<
+    CancelTransferAgreementMutation,
+    CancelTransferAgreementMutationVariables
+  >(CANCEL_TRANSFER_AGREEMENT, {
+    update(cache, { data: returnedTransferAgreement }) {
+      if (returnedTransferAgreement?.cancelTransferAgreement) {
+        const cancelledTransferAgreementId = returnedTransferAgreement?.cancelTransferAgreement.id;
+
+        const existingAcceptedTransferAgreementsData = cache.readQuery<IAcceptedTransferAgreement>({
+          query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+          variables: { baseId },
+        });
+
+        const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
+          (a) => a.id === cancelledTransferAgreementId,
+        );
+
+        if (index !== undefined && index > -1) {
+          existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
+
+          cache.writeQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: {
+              variables: { baseId },
+            },
+            data: {
+              transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
+            },
+          });
+        }
+      }
+    },
+  });
 
   const isLoadingFromMutation =
     acceptTransferAgreementMutationStatus.loading ||

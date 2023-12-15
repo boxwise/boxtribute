@@ -126,11 +126,8 @@ Mind the following perks of peewee:
 1. If you want to retrieve only the ID of a foreign key field, access it with the "magic" suffix `_id`, e.g. `location.base_id`. This avoids overhead of an additional select query issued by peewee when using `location.base.id`.
 1. You can activate peewee's logging to gain insight into the generated SQL queries:
 ```python
-import logging
-logger = logging.getLogger("peewee")
-if len(logger.handlers) == 1:
-    logger.addHandler(logging.StreamHandler())
-    logger.setLevel(logging.DEBUG)
+from .utils import activate_logging
+activate_logging()
 ```
 
 #### Auto-generating peewee model definitions
@@ -148,6 +145,18 @@ By default the Flask app runs in `development` mode in the Docker container whic
 #### Built-in Flask debugger
 
 For debugging an exception in an endpoint, direct your web browser to that endpoint. The built-in Flask debugger is shown. You can attach a console by clicking the icons on the right of the traceback lines. For more information, refer to the [documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/#debug-mode).
+
+#### Using pdb
+
+`pdb` is a Python debugging command line interface integrated in the Python standard library. It is helpful for setting breakpoints, stepping through executed code, inspecting variables, etc.
+
+Enabling `pdb` is a bit involved since the Flask app is being run in a Docker container. On the command-line do (inspired by [this blog post](https://trstringer.com/python-flask-debug-docker-compose/))
+
+    docker-compose run -p 5005:5005 webapp python -m pdb -m boxtribute_server.dev_main
+
+At the beginning, code execution will pause twice for the `pdb` CLI. Press `c` to continue, or if you want to set a breakpoint, `b` with according arguments. The Flask app should have started as usual. Make a request that will trigger the breakpoint. For `pdb` debugger commands, see the [official documentation](https://docs.python.org/3/library/pdb.html#debugger-commands), and use the command `help`.
+
+For setting a breakpoint, you can also put `breakpoint()` in the code.
 
 #### Debugging Back-end in VSCode
 
@@ -179,13 +188,12 @@ To log to the console while running the `webapp` service, do
     from flask import current_app
     current_app.logger.warn(<whatever you want to log>)
 
-You might want to inspect the SQL queries issued by peewee while running the app. For this you need to create a Logger instance (similar to above but without attaching a `StreamHandler`) and have its output propagated to the flask logger. In `routes.py` add the following lines at the beginning of the `graphql_server` function body:
+You might want to inspect the SQL queries issued by peewee while running the app. In `routes.py` add the following lines at the beginning of the `graphql_server` function body:
 
-    from flask import current_app
-    import logging
-    peewee_logger = logging.getLogger("peewee")
-    peewee_logger.setLevel(logging.DEBUG)
-    peewee_logger.parent = current_app.logger
+```python
+from .utils import activate_logging
+activate_logging()
+```
 
 Note that in production mode, logging is also subject to the configuration of the WSGI server.
 
