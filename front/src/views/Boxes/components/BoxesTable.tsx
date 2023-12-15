@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useTransition } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -23,6 +23,7 @@ import {
   useRowSelect,
   usePagination,
   Row,
+  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { QueryReference, useReadQuery } from "@apollo/client";
@@ -42,7 +43,6 @@ interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
   onTableConfigChange: (newTableConfig: ITableConfig) => void;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
-  refetchBoxesIsPending: boolean;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
   onBoxRowClick: (labelIdentified: string) => void;
@@ -53,12 +53,12 @@ function BoxesTable({
   tableConfig,
   onTableConfigChange,
   boxesQueryRef,
-  refetchBoxesIsPending,
   columns,
   actionButtons,
   onBoxRowClick,
   setSelectedBoxes,
 }: IBoxesTableProps) {
+  const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
 
@@ -71,6 +71,9 @@ function BoxesTable({
     }),
     [],
   );
+
+  // eslint-disable-next-line no-console
+  // console.log("ColumnFilters in BoxesTable", tableConfig.getColumnFilters());
 
   const {
     headerGroups,
@@ -131,11 +134,40 @@ function BoxesTable({
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
+  const prevFiltersRef = useRef<Filters<any>>(filters);
+  const prevglobalFilterRef = useRef<string | undefined>(undefined);
+  const prevTableConfigRef = useRef(onTableConfigChange);
+
   useEffect(() => {
-    onTableConfigChange({
-      globalFilter,
-      columnFilters: filters,
+    // // eslint-disable-next-line no-console
+    // console.log("filters", filters, prevFiltersRef.current, filters === prevFiltersRef.current);
+    // // eslint-disable-next-line no-console
+    // console.log(
+    //   "globalFilter",
+    //   globalFilter,
+    //   prevglobalFilterRef.current,
+    //   globalFilter === prevglobalFilterRef.current,
+    // );
+    // // eslint-disable-next-line no-console
+    // console.log(
+    //   "onTableConfigChange",
+    //   onTableConfigChange,
+    //   prevTableConfigRef.current,
+    //   onTableConfigChange === prevTableConfigRef.current,
+    // );
+
+    startRefetchBoxes(() => {
+      onTableConfigChange({
+        globalFilter,
+        columnFilters: filters,
+      });
     });
+  }, [filters, globalFilter, onTableConfigChange]);
+
+  useEffect(() => {
+    prevFiltersRef.current = filters;
+    prevglobalFilterRef.current = globalFilter;
+    prevTableConfigRef.current = onTableConfigChange;
   }, [filters, globalFilter, onTableConfigChange]);
 
   return (

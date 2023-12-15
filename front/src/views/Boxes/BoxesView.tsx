@@ -101,7 +101,6 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
 `;
 
 function Boxes() {
-  const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
 
@@ -112,6 +111,9 @@ function Boxes() {
       columnFilters: [{ id: "state", value: ["InStock"] }],
     },
   });
+
+  // eslint-disable-next-line no-console
+  // console.log("ColumnFilters in BoxesView", tableConfig.getColumnFilters());
 
   // fetch Boxes data in the background
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery<BoxesForBoxesViewQuery>(
@@ -137,11 +139,7 @@ function Boxes() {
       const newStateFilter = newTableConfig.columnFilters.find((filter) => filter.id === "state");
       const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
       if (newStateFilter !== oldStateFilter) {
-        startRefetchBoxes(() => {
-          refetchBoxes(
-            prepareBoxesForBoxesViewQueryVariables(baseId, newTableConfig.columnFilters),
-          );
-        });
+        refetchBoxes(prepareBoxesForBoxesViewQueryVariables(baseId, newTableConfig.columnFilters));
       }
 
       // update tableConfig
@@ -253,7 +251,6 @@ function Boxes() {
       tableConfig={tableConfig}
       onTableConfigChange={handleTableConfigChange}
       boxesQueryRef={boxesQueryRef}
-      refetchBoxesIsPending={refetchBoxesIsPending}
       availableColumns={availableColumns}
       shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
       locationOptions={locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? [])}

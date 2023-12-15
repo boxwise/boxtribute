@@ -22,7 +22,6 @@ export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
   onTableConfigChange: (newTableConfig: ITableConfig) => void;
   boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
-  refetchBoxesIsPending: boolean;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
@@ -32,7 +31,6 @@ function BoxesActionsAndTable({
   tableConfig,
   onTableConfigChange,
   boxesQueryRef,
-  refetchBoxesIsPending,
   locationOptions,
   shipmentOptions,
   availableColumns,
@@ -248,7 +246,6 @@ function BoxesActionsAndTable({
       tableConfig={tableConfig}
       onTableConfigChange={onTableConfigChange}
       boxesQueryRef={boxesQueryRef}
-      refetchBoxesIsPending={refetchBoxesIsPending}
       columns={availableColumns}
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}
