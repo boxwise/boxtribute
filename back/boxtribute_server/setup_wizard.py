@@ -93,7 +93,8 @@ def _parse_options(args=None):
     )
 
     convert_parser = subparsers.add_parser("convert")
-    convert_parser.add_argument("-l", "--location-id", type=int, required=True)
+    convert_parser.add_argument("-l", "--location-id", type=int)
+    convert_parser.add_argument("-b", "--base-id", type=int)
     convert_parser.add_argument("-y", "--oldest-creation-year", type=int)
     convert_parser.add_argument("-g", "--grouped-algorithm", action="store_true")
 
@@ -233,14 +234,27 @@ def _reconstruct(box, event):
 Event = namedtuple("Event", ["changes", "from_int"])
 
 
-def _grouped_convert(*, location_id, start):
+def _grouped_convert(*, location_id, base_id, start):
     from boxtribute_server.models.definitions.box import Box
     from boxtribute_server.models.definitions.history import DbChangeHistory
+    from boxtribute_server.models.definitions.location import Location
     from boxtribute_server.models.utils import convert_ids
     from peewee import fn
 
     def convert_str(concat_strings):
         return convert_ids(concat_strings, new_type=str)
+
+    if base_id is not None:
+        location_ids = [
+            loc.id
+            for loc in Location.select(Location.id).where(
+                Location.base == base_id, Location.deleted.is_null()
+            )
+        ]
+    elif location_id is not None:
+        location_ids = [location_id]
+    else:
+        raise ValueError("Neither location_id nor base_id given")
 
     query = (
         DbChangeHistory.select(
@@ -270,13 +284,14 @@ def _grouped_convert(*, location_id, start):
                 & (DbChangeHistory.change_date >= start)
                 & (~DbChangeHistory.changes.startswith("comments"))
                 & (Box.created_on > start)
-                & (Box.location == location_id)
+                & (Box.location << location_ids)
             ),
         )
         .group_by(Box.id)
     )
 
-    LOGGER.debug(f"Selected {len(query)} boxes.")
+    LOGGER.debug("Selected...")
+    LOGGER.debug(f"        ...{len(query)} boxes.")
     LOGGER.debug("Starting reconstruction...")
     start_time = time.perf_counter()
 
@@ -324,7 +339,7 @@ def _grouped_convert(*, location_id, start):
     LOGGER.debug(f"Exported result to '{filename}'.")
 
 
-def _convert(*, location_id, grouped_algorithm, oldest_creation_year=2020):
+def _convert(*, location_id, base_id, grouped_algorithm, oldest_creation_year=2020):
     from boxtribute_server.models.definitions.box import Box
     from boxtribute_server.models.definitions.history import DbChangeHistory
 
@@ -332,7 +347,7 @@ def _convert(*, location_id, grouped_algorithm, oldest_creation_year=2020):
     start = datetime(oldest_creation_year, 1, 1)
 
     if grouped_algorithm:
-        _grouped_convert(location_id=location_id, start=start)
+        _grouped_convert(location_id=location_id, base_id=base_id, start=start)
         return
 
     boxes = Box.select(
