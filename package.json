@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "front",
-    "statviz"
+    "statviz",
+    "ui-components"
   ]
 }

@@ -16,12 +16,13 @@ RUN yarn policies set-version $YARN_VERSION
 # Copy the root package.json and yarn.lock.
 COPY package.json .
 COPY yarn.lock .
+COPY ui-components ui-components
 
 # Copy the service package.json and yarn.lock.
 COPY ./${SERVICE_DIR}/package.json ${SERVICE_DIR}/
 
 # Install all workspace dependencies.
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
 # Change to the specific service directory.
 WORKDIR /app/${SERVICE_DIR}
