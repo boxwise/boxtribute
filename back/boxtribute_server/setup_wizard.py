@@ -333,6 +333,10 @@ def _grouped_convert(*, location_id, base_id, start):
         f"""Reconstruction completed after {round(time.perf_counter() -
     start_time, ndigits=1)}s."""
     )
+    LOGGER.debug(
+        f"""Total number of box versions: {sum(len(v) for v in
+        all_boxes_versions.values())}"""
+    )
     filename = "box_versions_grouped.json"
     with open(filename, "w") as f:
         json.dump(all_boxes_versions, f, default=str, indent=2)
