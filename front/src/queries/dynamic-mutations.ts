@@ -32,6 +32,7 @@ export const generateMoveBoxRequest = (labelIdentifiers: string[], newLocationId
   //   location {
   //     id
   //   }
+  //   lastModifiedOn
   //  }
   // }
   let mutationName = "mutation MoveBoxes($newLocationId: Int!";
@@ -49,6 +50,7 @@ export const generateMoveBoxRequest = (labelIdentifiers: string[], newLocationId
           location {
             id
           }
+          lastModifiedOn
         } `;
     variables[`labelIdentifier${index}`] = labelIdentifier;
   });
@@ -93,6 +95,7 @@ export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: nu
   //   tags {
   //     id
   //   }
+  //   lastModifiedOn
   //  }
   // }
   let mutationName = "mutation AssignTags($tagIds: [Int!]!";
@@ -109,6 +112,7 @@ export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: nu
           tags {
             id
           }
+          lastModifiedOn
         } `;
     variables[`labelIdentifier${index}`] = labelIdentifier;
   });
@@ -184,6 +188,7 @@ export const generateUnassignBoxesFromShipmentsRequest = (
   //       shipmentDetail {
   //         id
   //       }
+  //       lastModifiedOn
   //     }
   //   }
   //  }
@@ -217,6 +222,7 @@ export const generateUnassignBoxesFromShipmentsRequest = (
             shipmentDetail {
               id
             }
+            lastModifiedOn
           }
         }
       }

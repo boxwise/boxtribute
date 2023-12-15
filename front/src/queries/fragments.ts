@@ -130,6 +130,7 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
         id
       }
     }
+    lastModifiedOn
   }
 `;
 
@@ -260,6 +261,7 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    lastModifiedOn
   }
 `;
 
