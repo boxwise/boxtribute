@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { boxReconciliationOverlayVar } from "queries/cache";
@@ -70,7 +69,7 @@ export function BoxReconciliationOverlay({
   useEffect(() => {
     if (error) {
       triggerError({
-        message: "Could not fetch data! Please try reloading the page",
+        message: "Could not fetch data! Please try reloading the page.",
       });
       boxReconciliationOverlayVar({
         isOpen: false,
@@ -124,7 +123,7 @@ export function BoxReconciliationOverlay({
               createToast({
                 title: `Box ${labelIdentifier}`,
                 type: "success",
-                message: "Box marked as undelivered",
+                message: "Box marked as undelivered.",
               });
               if (redirectToShipmentView)
                 navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);

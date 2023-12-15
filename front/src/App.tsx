@@ -118,6 +118,7 @@ function App() {
                   component={
                     <ErrorBoundary
                       fallback={
+                        // eslint-disable-next-line max-len
                         <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
                       }
                     >
