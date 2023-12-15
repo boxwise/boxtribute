@@ -50,6 +50,7 @@ interface IBoxesTableProps {
   actionButtons: React.ReactNode[];
   onBoxRowClick: (labelIdentified: string) => void;
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
+  selectedRowsArePending: boolean;
 }
 
 function BoxesTable({
@@ -60,6 +61,7 @@ function BoxesTable({
   actionButtons,
   onBoxRowClick,
   setSelectedBoxes,
+  selectedRowsArePending,
 }: IBoxesTableProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
@@ -203,6 +205,15 @@ function BoxesTable({
             )}
             {page.map((row) => {
               prepareRow(row);
+              if (row.isSelected && selectedRowsArePending) {
+                return (
+                  <Tr key={row.original.labelIdentifier}>
+                    <Td colSpan={columns.length + 1}>
+                      <Skeleton height={5} />
+                    </Td>
+                  </Tr>
+                );
+              }
               return (
                 <Tr
                   cursor="pointer"

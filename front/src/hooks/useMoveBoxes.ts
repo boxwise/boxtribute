@@ -52,10 +52,10 @@ export const useMoveBoxes = (
       // no Boxes were passed
       if (labelIdentifiers.length === 0) {
         setIsLoading(false);
-        return {
+        return Promise.resolve({
           kind: IMoveBoxesResultKind.BAD_USER_INPUT,
           requestedLabelIdentifiers: labelIdentifiers,
-        } as IMoveBoxesResult;
+        } as IMoveBoxesResult);
       }
 
       const gqlRequestPrep = generateMoveBoxRequest(labelIdentifiers, newLocationId);

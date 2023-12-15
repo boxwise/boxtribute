@@ -1886,7 +1886,7 @@ export type MoveBoxesMutationVariables = Exact<{
 }>;
 
 
-export type MoveBoxesMutation = { __typename?: 'Mutation', moveBox123?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, location?: { __typename?: 'ClassicLocation', id: string } | { __typename?: 'DistributionSpot', id: string } | null } | null };
+export type MoveBoxesMutation = { __typename?: 'Mutation', moveBox123?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, lastModifiedOn?: any | null, location?: { __typename?: 'ClassicLocation', id: string } | { __typename?: 'DistributionSpot', id: string } | null } | null };
 
 export type UnassignBoxesFromShipmentsMutationVariables = Exact<{
   shipment0: Scalars['ID'];
@@ -1894,7 +1894,7 @@ export type UnassignBoxesFromShipmentsMutationVariables = Exact<{
 }>;
 
 
-export type UnassignBoxesFromShipmentsMutation = { __typename?: 'Mutation', unassignBoxesFromShipment1?: { __typename: 'Shipment', id: string, details: Array<{ __typename: 'ShipmentDetail', id: string, removedOn?: any | null, removedBy?: { __typename: 'User', id: string } | null, box: { __typename: 'Box', labelIdentifier: string, state: BoxState, shipmentDetail?: { __typename: 'ShipmentDetail', id: string } | null } }> } | null };
+export type UnassignBoxesFromShipmentsMutation = { __typename?: 'Mutation', unassignBoxesFromShipment1?: { __typename: 'Shipment', id: string, details: Array<{ __typename: 'ShipmentDetail', id: string, removedOn?: any | null, removedBy?: { __typename: 'User', id: string } | null, box: { __typename: 'Box', labelIdentifier: string, state: BoxState, lastModifiedOn?: any | null, shipmentDetail?: { __typename: 'ShipmentDetail', id: string } | null } }> } | null };
 
 export type CreateDistributionEventMutationVariables = Exact<{
   distributionSpotId: Scalars['Int'];

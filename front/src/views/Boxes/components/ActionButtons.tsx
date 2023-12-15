@@ -19,7 +19,7 @@ interface ISelectButtonProps {
   label: string;
   options: IDropdownOption[];
   onSelect: (value: string) => void;
-  disabled: boolean;
+  disabled?: boolean;
   icon?: ReactNode;
 }
 
@@ -65,4 +65,5 @@ export function SelectButton({ label, options, onSelect, disabled, icon }: ISele
 
 SelectButton.defaultProps = {
   icon: undefined,
+  disabled: false,
 };

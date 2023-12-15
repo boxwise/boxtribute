@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { FaWarehouse } from "react-icons/fa";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
@@ -63,7 +62,7 @@ function BoxesActionsAndTable({
   const moveBoxesAction = useMoveBoxes();
 
   const onMoveBoxes = useCallback(
-    async (locationId: string) => {
+    (locationId: string) => {
       const movableLabelIdentifiers = selectedBoxes
         .filter(
           (box) =>
@@ -82,25 +81,23 @@ function BoxesActionsAndTable({
           } in shipment states.`,
         });
       }
-      const moveBoxesResult = await moveBoxesAction.moveBoxes(
-        movableLabelIdentifiers,
-        parseInt(locationId, 10),
-        true,
-        false,
-      );
-      if (
-        moveBoxesResult.failedLabelIdentifiers &&
-        moveBoxesResult.failedLabelIdentifiers.length > 0
-      ) {
-        createToast({
-          type: "error",
-          message: `Could not move ${
-            moveBoxesResult.failedLabelIdentifiers.length === 1
-              ? "a box"
-              : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
-          }. Try again?`,
+      moveBoxesAction
+        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, false)
+        .then((moveBoxesResult) => {
+          if (
+            moveBoxesResult.failedLabelIdentifiers &&
+            moveBoxesResult.failedLabelIdentifiers.length > 0
+          ) {
+            createToast({
+              type: "error",
+              message: `Could not move ${
+                moveBoxesResult.failedLabelIdentifiers.length === 1
+                  ? "a box"
+                  : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
+              }. Try again?`,
+            });
+          }
         });
-      }
     },
     [createToast, moveBoxesAction, selectedBoxes],
   );
@@ -110,41 +107,42 @@ function BoxesActionsAndTable({
     useAssignBoxesToShipment();
 
   const onAssignBoxesToShipment = useCallback(
-    async (shipmentId: string) => {
-      const assignBoxesToShipmentResult = await assignBoxesToShipment(
+    (shipmentId: string) => {
+      assignBoxesToShipment(
         shipmentId,
         selectedBoxes.map((box) => box.values as IBoxBasicFields),
         true,
         false,
-      );
-      if (
-        assignBoxesToShipmentResult.notInStockBoxes &&
-        assignBoxesToShipmentResult.notInStockBoxes.length > 0
-      ) {
-        createToast({
-          type: "info",
-          message: `Cannot assign ${
-            assignBoxesToShipmentResult.notInStockBoxes.length === 1
-              ? "a box"
-              : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
-          } to shipment that ${
-            assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
-          } not InStock.`,
-        });
-      }
-      if (
-        assignBoxesToShipmentResult.failedBoxes &&
-        assignBoxesToShipmentResult.failedBoxes.length > 0
-      ) {
-        createToast({
-          type: "error",
-          message: `Could not assign ${
-            assignBoxesToShipmentResult.failedBoxes.length === 1
-              ? "a box"
-              : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
-          } to shipment. Try again?`,
-        });
-      }
+      ).then((assignBoxesToShipmentResult) => {
+        if (
+          assignBoxesToShipmentResult.notInStockBoxes &&
+          assignBoxesToShipmentResult.notInStockBoxes.length > 0
+        ) {
+          createToast({
+            type: "info",
+            message: `Cannot assign ${
+              assignBoxesToShipmentResult.notInStockBoxes.length === 1
+                ? "a box"
+                : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
+            } to shipment that ${
+              assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
+            } not InStock.`,
+          });
+        }
+        if (
+          assignBoxesToShipmentResult.failedBoxes &&
+          assignBoxesToShipmentResult.failedBoxes.length > 0
+        ) {
+          createToast({
+            type: "error",
+            message: `Could not assign ${
+              assignBoxesToShipmentResult.failedBoxes.length === 1
+                ? "a box"
+                : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
+            } to shipment. Try again?`,
+          });
+        }
+      });
     },
     [createToast, assignBoxesToShipment, selectedBoxes],
   );
@@ -214,7 +212,7 @@ function BoxesActionsAndTable({
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
-        disabled={actionsAreLoading}
+        disabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />,
       <SelectButton
@@ -241,10 +239,6 @@ function BoxesActionsAndTable({
       onUnassignBoxesToShipment,
     ],
   );
-  if (actionsAreLoading) {
-    return <TableSkeleton />;
-  }
-
   return (
     <BoxesTable
       tableConfig={tableConfig}
@@ -254,6 +248,7 @@ function BoxesActionsAndTable({
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}
       onBoxRowClick={onBoxRowClick}
+      selectedRowsArePending={actionsAreLoading}
     />
   );
 }
