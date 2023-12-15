@@ -2,7 +2,7 @@ import { useState, useCallback, useContext } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
+import { UseToastOptions, ToastPosition } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
 import { Filters, SortingRule } from "react-table";
@@ -11,7 +11,7 @@ export interface INotificationProps extends UseToastOptions {
   title?: string;
   message: string;
   type?: "info" | "warning" | "success" | "error" | undefined;
-  position?: ToastPositionWithLogical;
+  position?: ToastPosition;
 }
 
 // logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
