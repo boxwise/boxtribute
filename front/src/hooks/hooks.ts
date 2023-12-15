@@ -5,7 +5,7 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { UseToastOptions, ToastPositionWithLogical } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
-import { Filters } from "react-table";
+import { Filters, SortingRule } from "react-table";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -80,7 +80,8 @@ export const useGlobalSiteState = () => {
 export interface ITableConfig {
   globalFilter?: string;
   columnFilters: Filters<any>;
-  // TODO: add here more props or even refactor the data structure, to support e.g. sorting config, filter configs and and selected columns
+  sortBy: SortingRule<any>[];
+  hiddenColumns?: string[];
 }
 
 interface IUseTableConfigProps {
@@ -91,8 +92,12 @@ interface IUseTableConfigProps {
 export interface IUseTableConfigReturnType {
   getGlobalFilter: () => string | undefined;
   getColumnFilters: () => Filters<any>;
+  getSortBy: () => SortingRule<any>[];
+  getHiddenColumns: () => string[] | undefined;
   setGlobalFilter: (globalFilter: string | undefined) => void;
   setColumnFilters: (columnFilters: Filters<any>) => void;
+  setSortBy: (sortBy: SortingRule<any>[]) => void;
+  setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
 }
 
 export const useTableConfig = ({
@@ -115,6 +120,8 @@ export const useTableConfig = ({
       columnFilters: searchParams.get("columnFilters")
         ? JSON.parse(searchParams.get("columnFilters") || "")
         : defaultTableConfig.columnFilters,
+      sortBy: defaultTableConfig.sortBy,
+      hiddenColumns: defaultTableConfig.hiddenColumns,
     };
     tableConfigsState.set(tableConfigKey, tableConfig);
     tableConfigsVar(tableConfigsState);
@@ -131,6 +138,14 @@ export const useTableConfig = ({
     return tableConfigsState.get(tableConfigKey)!.columnFilters;
   }
 
+  function getSortBy() {
+    return tableConfigsState.get(tableConfigKey)!.sortBy;
+  }
+
+  function getHiddenColumns() {
+    return tableConfigsState.get(tableConfigKey)?.hiddenColumns;
+  }
+
   function setGlobalFilter(globalFilter: string | undefined) {
     const tableConfig = tableConfigsState.get(tableConfigKey);
     tableConfig!.globalFilter = globalFilter;
@@ -145,10 +160,28 @@ export const useTableConfig = ({
     tableConfigsVar(tableConfigsState);
   }
 
+  function setSortBy(sortBy: SortingRule<any>[]) {
+    const tableConfig = tableConfigsState.get(tableConfigKey);
+    tableConfig!.sortBy = sortBy;
+    tableConfigsState.set(tableConfigKey, tableConfig!);
+    tableConfigsVar(tableConfigsState);
+  }
+
+  function setHiddenColumns(hiddenColumns: string[] | undefined) {
+    const tableConfig = tableConfigsState.get(tableConfigKey);
+    tableConfig!.hiddenColumns = hiddenColumns;
+    tableConfigsState.set(tableConfigKey, tableConfig!);
+    tableConfigsVar(tableConfigsState);
+  }
+
   return {
     getGlobalFilter,
     getColumnFilters,
+    getSortBy,
+    getHiddenColumns,
     setGlobalFilter,
     setColumnFilters,
+    setSortBy,
+    setHiddenColumns,
   };
 };

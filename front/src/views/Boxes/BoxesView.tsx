@@ -104,6 +104,8 @@ function Boxes() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [{ id: "state", value: ["InStock"] }],
+      sortBy: [{ id: "lastModified", desc: true }],
+      hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
     },
   });
 

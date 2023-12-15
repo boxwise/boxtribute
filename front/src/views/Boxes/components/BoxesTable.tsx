@@ -81,7 +81,7 @@ function BoxesTable({
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, pageIndex, filters },
+    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     page,
     canPreviousPage,
@@ -101,8 +101,8 @@ function BoxesTable({
       data: tableData,
       filterTypes,
       initialState: {
-        hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
-        sortBy: [{ id: "lastModified", desc: true }],
+        hiddenColumns: tableConfig.getHiddenColumns(),
+        sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
         pageSize: 20,
         filters: tableConfig.getColumnFilters(),
@@ -153,7 +153,13 @@ function BoxesTable({
     if (filters !== tableConfig.getColumnFilters()) {
       tableConfig.setColumnFilters(filters);
     }
-  }, [baseId, filters, globalFilter, onRefetch, tableConfig]);
+    if (sortBy !== tableConfig.getSortBy()) {
+      tableConfig.setSortBy(sortBy);
+    }
+    if (hiddenColumns !== tableConfig.getHiddenColumns()) {
+      tableConfig.setHiddenColumns(hiddenColumns);
+    }
+  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" height="100%">
