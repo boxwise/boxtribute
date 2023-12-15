@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/views/Shipments</a> ShipmentView.tsx</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/34</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/8</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/5</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/33</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -336,11 +336,11 @@ export const SHIPMENT_BY_ID_QUERY = <span class="cstat-no" title="statement not 
       details {
         box {
           labelIdentifier
-          items 
+          items
           product {
             name
             gender
-            sizes 
+            sizes
           }
         }
       }
@@ -383,7 +383,7 @@ const ShipmentView = <span class="cstat-no" title="statement not covered" ><span
   const id = <span class="cstat-no" title="statement not covered" >useParams&lt;{ shipmentId: string }&gt;().shipmentId!;</span>
   const baseId = <span class="cstat-no" title="statement not covered" >useParams&lt;{ baseId: string }&gt;().baseId!;</span>
   const transferAgreementid = <span class="cstat-no" title="statement not covered" >useParams&lt;{ transferAgreementId: string }&gt;().transferAgreementId!;</span>
-  
+
 const [sendShipment] = <span class="cstat-no" title="statement not covered" >useMutation(</span>
   SEND_SHIPMENT_MUTATION
 );
@@ -429,7 +429,7 @@ const onCancelShipmentClick = <span class="cstat-no" title="statement not covere
   const shipmentData = <span class="cstat-no" title="statement not covered" >data.shipment;</span>
   const tableData = <span class="cstat-no" title="statement not covered" >graphqlToTableTransformer(data);</span>
   const isIncoming = <span class="cstat-no" title="statement not covered" >parseInt(shipmentData.targetBase!.id) === parseInt(baseId);</span>
-  
+
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return &lt;&gt;</span>
   &lt;ShipmentDetail shipmentData={shipmentData} /&gt;
@@ -457,4 +457,3 @@ export default ShipmentView;
         <script src="../../../block-navigation.js"></script>
     </body>
 </html>
-    

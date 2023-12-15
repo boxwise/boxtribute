@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-    
+
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/providers</a> GlobalPreferencesProvider.tsx</h1>
         <div class='clearfix'>
-            
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/10</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/4</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/2</span>
             </div>
-        
-            
+
+
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/10</span>
             </div>
-        
-            
+
+
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -222,7 +222,7 @@ const globalPreferencesReduer = <span class="cstat-no" title="statement not cove
 <span class="cstat-no" title="statement not covered" >      return { ...state, availableBases: action.payload };</span>
     case "setSelectedBaseId":
 <span class="cstat-no" title="statement not covered" >      return { ...state, selectedBaseId: action.payload };</span>
-    case "setOrganisationId": 
+    case "setOrganisationId":
 <span class="cstat-no" title="statement not covered" >      return { ...state, selectedOrganisationId: action.payload };</span>
     default:
 <span class="cstat-no" title="statement not covered" >      return state;</span>
@@ -230,7 +230,7 @@ const globalPreferencesReduer = <span class="cstat-no" title="statement not cove
 }
 &nbsp;
 const GlobalPreferencesProvider = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> children }) =&gt; {</span>
- 
+
   const [globalPreferences, dispatch] = <span class="cstat-no" title="statement not covered" >useReducer(globalPreferencesReduer, {});</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
@@ -259,4 +259,3 @@ export { GlobalPreferencesContext, GlobalPreferencesProvider };</pre></td></tr><
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
-    
