@@ -12,10 +12,10 @@ import userEvent from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";
-import { ErrorBoundary } from "react-error-boundary";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
+import { ErrorBoundary } from "@sentry/react";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
 const boxesQuery = ({
