@@ -182,9 +182,16 @@ function BoxesTable({
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
             {refetchBoxesIsPending && (
-              <Tr key={0}>
-                <Td colSpan={columns.length + 1} p={0}>
-                  <Skeleton height={12} />
+              <Tr key="refetchIsPending1">
+                <Td colSpan={columns.length + 1}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+            )}
+            {refetchBoxesIsPending && (
+              <Tr key="refetchIsPending2">
+                <Td colSpan={columns.length + 1}>
+                  <Skeleton height={5} />
                 </Td>
               </Tr>
             )}
