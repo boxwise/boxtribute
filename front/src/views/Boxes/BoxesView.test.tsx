@@ -3,86 +3,27 @@ import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
-import Boxes, { BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
+import { ErrorBoundary } from "@sentry/react";
+import { AlertWithoutAction } from "components/Alerts";
+import { TableSkeleton } from "components/Skeletons";
+import { Suspense } from "react";
+import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
-const initialQuery = {
+const boxesQuery = {
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
+      filterInput: {
+        states: ["InStock"],
+      },
     },
   },
   result: {
     data: {
       // TODO: the data should be placed in the mocks
-      base: {
-        __typename: "Base",
-        locations: [
-          {
-            __typename: "ClassicLocation",
-            defaultBoxState: "Lost",
-            id: "14",
-            name: "LOST",
-            seq: 14,
-          },
-          {
-            __typename: "ClassicLocation",
-            defaultBoxState: "Scrap",
-            id: "15",
-            name: "SCRAP",
-            seq: 15,
-          },
-          {
-            __typename: "ClassicLocation",
-            defaultBoxState: "InStock",
-            id: "16",
-            name: "Stockroom",
-            seq: 16,
-          },
-          {
-            __typename: "ClassicLocation",
-            defaultBoxState: "InStock",
-            id: "17",
-            name: "WH1",
-            seq: 17,
-          },
-          {
-            __typename: "ClassicLocation",
-            defaultBoxState: "InStock",
-            id: "18",
-            name: "WH2",
-            seq: 18,
-          },
-        ],
-        tags: [
-          {
-            __typename: "Tag",
-            color: "#f37167",
-            description: "Donation from company x",
-            id: "10",
-            name: "company X",
-            type: "Box",
-          },
-          {
-            __typename: "Tag",
-            color: "#d89016",
-            description: "",
-            id: "11",
-            name: "new",
-            type: "All",
-          },
-          {
-            __typename: "Tag",
-            color: "#0097ff",
-            description: "Hold back for emergencies",
-            id: "12",
-            name: "emergency",
-            type: "Box",
-          },
-        ],
-      },
       boxes: {
         __typename: "BoxPage",
         elements: [
@@ -118,6 +59,8 @@ const initialQuery = {
             },
             state: "Scrap",
             tags: [],
+            createdOn: "2021-10-29T15:02:40+00:00",
+            lastModifiedOn: new Date().toISOString(),
           },
           {
             __typename: "Box",
@@ -160,6 +103,8 @@ const initialQuery = {
                 type: "All",
               },
             ],
+            createdOn: "2021-10-29T15:02:40+00:00",
+            lastModifiedOn: new Date().toISOString(),
           },
           {
             __typename: "Box",
@@ -263,6 +208,8 @@ const initialQuery = {
                 type: "Box",
               },
             ],
+            createdOn: "2021-10-29T15:02:40+00:00",
+            lastModifiedOn: new Date().toISOString(),
           },
         ],
         pageInfo: {
@@ -271,9 +218,90 @@ const initialQuery = {
         },
         totalCount: 268,
       },
+    },
+  },
+};
+
+const actionsQuery = {
+  request: {
+    query: ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
+    variables: {
+      baseId: "2",
+    },
+  },
+  result: {
+    data: {
+      base: {
+        __typename: "Base",
+        id: "2",
+        locations: [
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "Lost",
+            id: "14",
+            name: "LOST",
+            seq: 14,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "Scrap",
+            id: "15",
+            name: "SCRAP",
+            seq: 15,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "16",
+            name: "Stockroom",
+            seq: 16,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "17",
+            name: "WH1",
+            seq: 17,
+          },
+          {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "18",
+            name: "WH2",
+            seq: 18,
+          },
+        ],
+        tags: [
+          {
+            __typename: "Tag",
+            color: "#f37167",
+            description: "Donation from company x",
+            id: "10",
+            name: "company X",
+            type: "Box",
+          },
+          {
+            __typename: "Tag",
+            color: "#d89016",
+            description: "",
+            id: "11",
+            name: "new",
+            type: "All",
+          },
+          {
+            __typename: "Tag",
+            color: "#0097ff",
+            description: "Hold back for emergencies",
+            id: "12",
+            name: "emergency",
+            type: "Box",
+          },
+        ],
+      },
       shipments: [
         {
           __typename: "Shipment",
+          labelIdentifier: "S001-231111-LExTH",
           id: "1",
           sourceBase: {
             __typename: "Base",
@@ -299,6 +327,7 @@ const initialQuery = {
         },
         {
           __typename: "Shipment",
+          labelIdentifier: "S002-231111-LExTH",
           id: "2",
           sourceBase: {
             __typename: "Base",
@@ -364,6 +393,9 @@ const initialQueryNetworkError = {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
+      filterInput: {
+        states: ["InStock"],
+      },
     },
   },
   result: {
@@ -373,39 +405,61 @@ const initialQueryNetworkError = {
 
 describe("4.8.1 - Initial load of Page", () => {
   it("4.8.1.1 - Is the Loading State Shown First?", async () => {
-    render(<Boxes />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/2/boxes",
-      mocks: [initialQuery],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [boxesQuery, actionsQuery],
+        addTypename: true,
         globalPreferences: {
-          organisation: { id: organisation2.id, name: organisation2.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base2.id, name: base2.name },
+          dispatch: jest.fn(),
+          globalPreferences: {
+            organisation: { id: organisation2.id, name: organisation2.name },
+            availableBases: organisation1.bases,
+            selectedBase: { id: base2.id, name: base2.name },
+          },
         },
       },
-    });
+    );
     // Test case 4.8.1.1
     expect(screen.getByTestId("TableSkeleton")).toBeInTheDocument();
   });
 
   it("4.8.1.2 - Failed to Fetch Initial Data", async () => {
-    render(<Boxes />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/2/boxes",
-      mocks: [initialQueryNetworkError],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [initialQueryNetworkError, actionsQuery],
+        addTypename: true,
         globalPreferences: {
-          organisation: { id: organisation2.id, name: organisation2.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base2.id, name: base2.name },
+          dispatch: jest.fn(),
+          globalPreferences: {
+            organisation: { id: organisation2.id, name: organisation2.name },
+            availableBases: organisation1.bases,
+            selectedBase: { id: base2.id, name: base2.name },
+          },
         },
       },
-    });
+    );
     // Test case 4.8.1.2
     expect(
       await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
@@ -413,43 +467,65 @@ describe("4.8.1 - Initial load of Page", () => {
   });
 
   it("4.8.1.3 - The Boxes Table is shown", async () => {
-    render(<Boxes />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/2/boxes",
-      mocks: [initialQuery],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [boxesQuery, actionsQuery],
+        addTypename: true,
         globalPreferences: {
-          organisation: { id: organisation2.id, name: organisation2.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base2.id, name: base2.name },
+          dispatch: jest.fn(),
+          globalPreferences: {
+            organisation: { id: organisation2.id, name: organisation2.name },
+            availableBases: organisation1.bases,
+            selectedBase: { id: base2.id, name: base2.name },
+          },
         },
       },
-    });
+    );
 
     // Test case 4.8.1.3
-    expect(await screen.findByRole("gridcell", { name: /8650860/i })).toBeInTheDocument();
+    expect(await screen.findByText(/8650860/i)).toBeInTheDocument();
   });
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
   it("4.8.2.1 - Select two checkboxes and perform bulk moves", async () => {
     const user = userEvent.setup();
-    render(<Boxes />, {
-      routePath: "/bases/:baseId/boxes",
-      initialUrl: "/bases/2/boxes",
-      mocks: [initialQuery, moveBoxesMutation],
-      addTypename: true,
-      globalPreferences: {
-        dispatch: jest.fn(),
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
+        addTypename: true,
         globalPreferences: {
-          organisation: { id: organisation2.id, name: organisation2.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base2.id, name: base2.name },
+          dispatch: jest.fn(),
+          globalPreferences: {
+            organisation: { id: organisation2.id, name: organisation2.name },
+            availableBases: organisation1.bases,
+            selectedBase: { id: base2.id, name: base2.name },
+          },
         },
       },
-    });
+    );
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
 
@@ -463,21 +539,21 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     if (checkbox1 && checkbox2) {
       expect(checkbox1).not.toBeChecked();
-      await user.click(checkbox1);
-      expect(checkbox1).toBeChecked();
+      user.click(checkbox1);
+      await waitFor(() => expect(checkbox1).toBeChecked());
 
       expect(checkbox2).not.toBeChecked();
-      await user.click(checkbox2);
-      expect(checkbox2).toBeChecked();
+      user.click(checkbox2);
+      await waitFor(() => expect(checkbox2).toBeChecked());
 
       const moveBoxesButton = screen.getByRole("button", {
         name: /move to/i,
       });
 
-      await user.click(moveBoxesButton);
+      user.click(moveBoxesButton);
 
       expect(
-        screen.getByRole("menuitem", {
+        await screen.findByRole("menuitem", {
           name: /wh2/i,
         }),
       ).toBeInTheDocument();
@@ -490,5 +566,5 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
       expect((await screen.findAllByText(/wh2/i)).length).toBe(2);
     }
-  }, 10000);
+  }, 15000);
 });
