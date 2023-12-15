@@ -1,6 +1,5 @@
 import { InMemoryCache, makeVar } from "@apollo/client";
 import { IScannedBoxesData } from "types/graphql-local-only";
-import { Filters } from "react-table";
 import { ITableConfig } from "hooks/hooks";
 import { GET_SCANNED_BOXES } from "./local-only";
 
