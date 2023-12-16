@@ -15,12 +15,9 @@ import {
   complete,
   fullSeqDateISOString,
   map,
-  fullSeq,
-  fullSeqDate,
 } from "@tidyjs/tidy";
 import { CreatedBoxesData } from "../../../types/generated/graphql";
-import { format, getISOWeek, getMonth, getYear } from "date-fns";
-import { date2String } from "../../../utils/chart";
+import { format, getISOWeek, getYear } from "date-fns";
 
 const visId = "created-boxes";
 
@@ -60,7 +57,7 @@ export default function CreatedBoxes(props: {
 
     const LIMIT_GROUP_BY_DAYS = 29;
     const LIMIT_GROUP_BY_WEEK = 197;
-    const LIMIT_GROUP_BY_MONTH = 1096;
+    const LIMIT_GROUP_BY_MONTH = 10960;
     if (createdBoxes.length < LIMIT_GROUP_BY_DAYS) {
       return tidy(
         createdBoxes,
@@ -123,7 +120,6 @@ export default function CreatedBoxes(props: {
   };
 
   const createdBoxesPerDay = useMemo(getChartData, [props.data]);
-  console.log(createdBoxesPerDay);
 
   const heading =
     props.boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";

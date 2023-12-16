@@ -8,7 +8,13 @@ import App from "./App.tsx";
 
 const client = new ApolloClient({
   uri: import.meta.env.STATVIZ_GRAPHQL_SERVER,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      DimensionInfo: {
+        keyFields: ["id", "name"],
+      },
+    },
+  }),
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

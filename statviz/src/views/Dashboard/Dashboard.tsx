@@ -13,6 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
+import StockOverview from "./StockOverview";
 
 export default function Dashboard() {
   const onTimeRangeChange = (from: Date, to: Date) => {
@@ -44,10 +45,11 @@ export default function Dashboard() {
         </WrapItem>
       </Wrap>
 
-      <Accordion defaultIndex={[0, 1]} allowMultiple marginBottom="100px">
+      <Accordion defaultIndex={[3]} allowMultiple marginBottom="100px">
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />
+        <StockOverview />
       </Accordion>
     </div>
   );
