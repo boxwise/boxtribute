@@ -212,7 +212,7 @@ function BoxesActionsAndTable({
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
-        disabled={actionsAreLoading || locationOptions.length === 0}
+        isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />,
       <SelectButton
@@ -220,7 +220,7 @@ function BoxesActionsAndTable({
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
         icon={<ShipmentIcon />}
-        disabled={actionsAreLoading || shipmentOptions.length === 0}
+        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
       <div key="unassign-from-shipment">

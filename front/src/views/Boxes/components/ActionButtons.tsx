@@ -19,18 +19,18 @@ interface ISelectButtonProps {
   label: string;
   options: IDropdownOption[];
   onSelect: (value: string) => void;
-  disabled?: boolean;
+  isDisabled?: boolean;
   icon?: ReactElement;
 }
 
-export function SelectButton({ label, options, onSelect, disabled, icon }: ISelectButtonProps) {
+export function SelectButton({ label, options, onSelect, isDisabled, icon }: ISelectButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   return (
     <Menu onOpen={onOpen} onClose={onClose}>
       <MenuButton
         as={Button}
-        isDisabled={disabled}
+        isDisabled={isDisabled}
         leftIcon={icon}
         iconSpacing={isLargerThan768 || isOpen ? 2 : 0}
         rightIcon={isLargerThan768 || isOpen ? <ChevronDownIcon /> : undefined}
@@ -65,5 +65,5 @@ export function SelectButton({ label, options, onSelect, disabled, icon }: ISele
 
 SelectButton.defaultProps = {
   icon: undefined,
-  disabled: false,
+  isDisabled: false,
 };

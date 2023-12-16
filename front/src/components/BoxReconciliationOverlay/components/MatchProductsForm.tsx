@@ -239,7 +239,7 @@ export function MatchProductsForm({
             w="full"
             bgColor="green.500"
             color="white"
-            disabled={isSubmitting || productId.value === "" || sizeId.value === ""}
+            isDisabled={isSubmitting || productId.value === "" || sizeId.value === ""}
           >
             Confirm Delivered Items
           </Button>

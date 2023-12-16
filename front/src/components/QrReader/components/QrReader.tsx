@@ -92,7 +92,7 @@ function QrReader({
                 <Input
                   type="string"
                   onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-                  disabled={findBoxByLabelIsLoading}
+                  isDisabled={findBoxByLabelIsLoading}
                   value={boxLabelInputValue}
                   borderRadius={0}
                 />
@@ -100,7 +100,7 @@ function QrReader({
                   <IconButton
                     aria-label="Find box By label"
                     icon={<SearchIcon />}
-                    disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+                    isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
                     isLoading={findBoxByLabelIsLoading}
                     onClick={() => {
                       if (boxLabelInputValue) {

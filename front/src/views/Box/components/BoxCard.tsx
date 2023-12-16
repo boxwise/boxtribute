@@ -99,34 +99,21 @@ function BoxCard({
         </WrapItem>
         <Spacer />
         <WrapItem>
-          {(BoxState.Lost === boxData?.state ||
-            BoxState.Scrap === boxData?.state ||
-            BoxState.NotDelivered === boxData?.state ||
-            boxInTransit) && (
+          <NavLink to="edit">
             <IconButton
               aria-label="Edit box"
               borderRadius="0"
               icon={<EditIcon h={6} w={6} />}
               border="2px"
-              disabled
+              isDisabled={
+                isLoading ||
+                BoxState.Lost === boxData?.state ||
+                BoxState.Scrap === boxData?.state ||
+                BoxState.NotDelivered === boxData?.state ||
+                boxInTransit
+              }
             />
-          )}
-          {!(
-            BoxState.Lost === boxData?.state ||
-            BoxState.Scrap === boxData?.state ||
-            BoxState.NotDelivered === boxData?.state ||
-            boxInTransit
-          ) && (
-            <NavLink to="edit">
-              <IconButton
-                aria-label="Edit box"
-                borderRadius="0"
-                icon={<EditIcon h={6} w={6} />}
-                border="2px"
-                isLoading={isLoading}
-              />
-            </NavLink>
-          )}
+          </NavLink>
         </WrapItem>
       </Wrap>
       {boxData?.tags !== undefined && (
@@ -147,41 +134,30 @@ function BoxCard({
 
       <Flex data-testid="box-subheader" pb={2} pt={hasTag ? 2 : 0} px={4} direction="row">
         <Text fontWeight="bold">Status:&nbsp;</Text>
-        {isLoading && <Skeleton width="60px" alignItems="center" />}
-        {!isLoading && (
-          <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData?.state)}>
-            {boxData?.state}
-          </Text>
-        )}
+        <Text fontWeight="bold" data-testid="box-state" color={statusColor(boxData?.state)}>
+          {boxData?.state}
+        </Text>
       </Flex>
 
       <Divider />
       <Stack py={2} px={4}>
         <Flex>
-          {!isLoading && (
-            <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
-              {numberOfItems}x {product?.name}
-            </Heading>
-          )}
-          {isLoading && (
-            <>
-              <Skeleton width="20px" mr={5} />
-              <Heading as="h3" fontSize="xl">
-                {product?.name}
-              </Heading>
-            </>
-          )}
+          <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
+            {numberOfItems}x {product?.name}
+          </Heading>
+
           <Spacer />
           <ButtonGroup gap="1">
             <Box alignContent="flex-end" marginLeft={2}>
               <Tooltip hasArrow shouldWrapChildren mt="3" label="add items" aria-label="A tooltip">
                 <IconButton
                   onClick={onPlusOpen}
-                  disabled={
+                  isDisabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
                     BoxState.NotDelivered === boxData?.state ||
-                    boxInTransit
+                    boxInTransit ||
+                    isLoading
                   }
                   size="sm"
                   border="2px"
@@ -190,7 +166,6 @@ function BoxCard({
                   aria-label="Search database"
                   icon={<AddIcon />}
                   data-testid="increase-items"
-                  isLoading={isLoading}
                 />
               </Tooltip>
             </Box>
@@ -206,18 +181,18 @@ function BoxCard({
                   onClick={onMinusOpen}
                   border="2px"
                   size="sm"
-                  disabled={
+                  isDisabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
                     BoxState.NotDelivered === boxData?.state ||
-                    boxInTransit
+                    boxInTransit ||
+                    isLoading
                   }
                   borderRadius="0"
                   isRound
                   aria-label="Search database"
                   icon={<MinusIcon />}
                   data-testid="decrease-items"
-                  isLoading={isLoading}
                 />
               </Tooltip>
             </Box>
