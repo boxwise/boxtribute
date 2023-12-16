@@ -225,7 +225,9 @@ function BoxesActionsAndTable({
       />,
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
-          <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>
+          <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
+            Remove from Shipment
+          </Button>
         )}
       </div>,
     ],
