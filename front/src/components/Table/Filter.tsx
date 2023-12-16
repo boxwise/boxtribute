@@ -24,40 +24,7 @@ function ObjectToString(object: Object) {
   return Object.values(object).join(" - ");
 }
 
-// This is a custom filter UI for selecting
-// a unique option from a list
-// https://react-table-v7.tanstack.com/docs/examples/filtering
-export function SelectColumnFilter({
-  column: { render, filterValue, setFilter, preFilteredRows, id },
-}) {
-  // Calculate the options for filtering
-  // using the preFilteredRows
-  const options = useMemo(() => {
-    const groupedOptionLabels = new Set<string | number>();
-    const optionValues = {};
-    preFilteredRows.forEach((row) => {
-      const value = row.values[id];
-      // if the data passed to the table is more complex than a string we need to pass the data as value
-      if (typeof value === "object" && value !== null) {
-        const objectToString = ObjectToString(value);
-        groupedOptionLabels.add(objectToString);
-        optionValues[objectToString] = value;
-      } else {
-        groupedOptionLabels.add(value);
-        optionValues[value] = value;
-      }
-    });
-    return Array.from(groupedOptionLabels.values())
-      .map(
-        (label) =>
-          ({
-            label,
-            value: optionValues[label],
-          }) as ISelectOption,
-      )
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [id, preFilteredRows]);
-
+export function SelectColumnFilterUI({ options, render, filterValue, setFilter, id }) {
   // Render a multi-select box
   return (
     <Popover>
@@ -95,6 +62,51 @@ export function SelectColumnFilter({
         </PopoverBody>
       </PopoverContent>
     </Popover>
+  );
+}
+
+// This is a custom filter UI for selecting
+// a unique option from a list
+// https://react-table-v7.tanstack.com/docs/examples/filtering
+export function SelectColumnFilter({
+  column: { render, filterValue, setFilter, preFilteredRows, id },
+}) {
+  // Calculate the options for filtering
+  // using the preFilteredRows
+  const options = useMemo(() => {
+    const groupedOptionLabels = new Set<string | number>();
+    const optionValues = {};
+    preFilteredRows.forEach((row) => {
+      const value = row.values[id];
+      // if the data passed to the table is more complex than a string we need to pass the data as value
+      if (typeof value === "object" && value !== null) {
+        const objectToString = ObjectToString(value);
+        groupedOptionLabels.add(objectToString);
+        optionValues[objectToString] = value;
+      } else {
+        groupedOptionLabels.add(value);
+        optionValues[value] = value;
+      }
+    });
+    return Array.from(groupedOptionLabels.values())
+      .map(
+        (label) =>
+          ({
+            label,
+            value: optionValues[label],
+          }) as ISelectOption,
+      )
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [id, preFilteredRows]);
+
+  return (
+    <SelectColumnFilterUI
+      options={options}
+      render={render}
+      filterValue={filterValue}
+      setFilter={setFilter}
+      id={id}
+    />
   );
 }
 

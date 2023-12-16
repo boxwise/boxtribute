@@ -15,7 +15,7 @@ export const BASE_DATA = gql`
   }
 `;
 
-const BaseDashboardView = () => {
+function BaseDashboardView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
 
@@ -28,7 +28,6 @@ const BaseDashboardView = () => {
     return <div>Loading...</div>;
   }
   if (error) {
-    console.error(error);
     return <div>Error!</div>;
   }
 
@@ -39,6 +38,6 @@ const BaseDashboardView = () => {
       </Heading>
     </Center>
   );
-};
+}
 
 export default BaseDashboardView;

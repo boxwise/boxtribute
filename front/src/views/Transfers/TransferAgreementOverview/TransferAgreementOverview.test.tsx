@@ -309,9 +309,7 @@ successfulMutationTests.forEach(
         expect(
           await screen.findByRole("button", { name: stateButtonTextAfter }),
         ).toBeInTheDocument();
-        expect(
-          screen.getByRole("button", { name: modalButtonText, hidden: true }),
-        ).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: modalButtonText })).not.toBeInTheDocument();
       },
       10000,
     );

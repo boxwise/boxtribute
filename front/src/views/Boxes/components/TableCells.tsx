@@ -1,4 +1,5 @@
 import { VStack, Tag, TagLabel, Wrap, WrapItem, chakra } from "@chakra-ui/react";
+import { isDate } from "date-fns";
 import { CellProps } from "react-table";
 import { BoxState } from "types/generated/graphql";
 import { colorIsBright } from "utils/helpers";
@@ -70,4 +71,21 @@ export function DaysCell({ value }: CellProps<any>) {
     return <chakra.span>1 day</chakra.span>;
   }
   return <chakra.span>{value} days</chakra.span>;
+}
+
+export function DateCell({ value }: CellProps<any>) {
+  return (
+    <chakra.span>
+      {isDate(value) &&
+        value.getTime() > new Date(0).getTime() &&
+        value.toLocaleString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+    </chakra.span>
+  );
 }

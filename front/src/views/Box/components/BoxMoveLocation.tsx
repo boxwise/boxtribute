@@ -48,7 +48,7 @@ function BoxMoveLocation({
                   borderRadius="0px"
                   isLoading={isLoading}
                   onClick={() => onMoveToLocationClick(location.id)}
-                  disabled={
+                  isDisabled={
                     (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Lost &&
                     (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Scrap
                       ? BoxState.Lost === boxData.state ||

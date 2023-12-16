@@ -113,7 +113,7 @@ function AssignBoxToShipment({
               colorScheme="blue"
               size="md"
               mt={45}
-              disabled={
+              isDisabled={
                 boxData.state === BoxState.InTransit || boxData.state === BoxState.Receiving
               }
               aria-label="remove to shipment"

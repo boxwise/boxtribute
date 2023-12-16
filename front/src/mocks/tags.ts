@@ -13,6 +13,8 @@ export const tag2 = {
   color: "#90d4a2",
   id: "17",
   name: "test tag",
+  label: "tag1",
+  value: "1",
   type: TagType.All,
   description: "tag17",
   __typename: "Tag",

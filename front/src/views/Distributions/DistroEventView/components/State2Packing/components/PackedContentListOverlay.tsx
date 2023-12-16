@@ -32,11 +32,7 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useContext, useEffect, useMemo, useState } from "react";
-import {
-  BoxData,
-  IPackingListEntry,
-  UnboxedItemsCollectionData,
-} from "views/Distributions/types";
+import { BoxData, IPackingListEntry, UnboxedItemsCollectionData } from "views/Distributions/types";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { DistroEventDetailsForPackingStateContext } from "../DistroEventDetailsForPackingStateContainer";
 
@@ -50,15 +46,13 @@ interface PackedContentListOverlayProps {
   packingListEntry: IPackingListEntry;
 }
 
-const UnboxedItemsCollectionListEntry = ({
+function UnboxedItemsCollectionListEntry({
   unboxedItemsCollection,
 }: {
   unboxedItemsCollection: UnboxedItemsCollectionData;
-}) => {
+}) {
   const removeUnboxedItemsOverlayState = useDisclosure();
-  const [numberOfItemsToRemove, setNumberOfItemsToRemove] = useState<
-    number | undefined
-  >();
+  const [numberOfItemsToRemove, setNumberOfItemsToRemove] = useState<number | undefined>();
 
   const ctx = useContext(DistroEventDetailsForPackingStateContext);
 
@@ -83,12 +77,7 @@ const UnboxedItemsCollectionListEntry = ({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody mx={4}>
-            <Flex
-              direction="column"
-              alignItems="start"
-              my={2}
-              justifyContent="space-between"
-            >
+            <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
               <FormControl display="flex" alignItems="center">
                 <FormLabel fontSize="sm" htmlFor="numberOfItems">
                   # of items:
@@ -97,23 +86,16 @@ const UnboxedItemsCollectionListEntry = ({
                   type="number"
                   width={20}
                   name="numberOfItems"
-                  onChange={(ev) =>
-                    setNumberOfItemsToRemove(parseInt(ev.target.value))
-                  }
+                  onChange={(ev) => setNumberOfItemsToRemove(parseInt(ev.target.value))}
                   value={numberOfItemsToRemove}
-                ></Input>
+                />
               </FormControl>
               <Button
                 onClick={() => {
-                  ctx?.onRemoveUnboxedItems(
-                    unboxedItemsCollection.id,
-                    numberOfItemsToRemove!
-                  );
+                  ctx?.onRemoveUnboxedItems(unboxedItemsCollection.id, numberOfItemsToRemove!);
                   removeUnboxedItemsOverlayState.onClose();
                 }}
-                disabled={
-                  numberOfItemsToRemove == null || numberOfItemsToRemove < 1
-                }
+                isDisabled={numberOfItemsToRemove == null || numberOfItemsToRemove < 1}
               >
                 Remove
               </Button>
@@ -125,15 +107,13 @@ const UnboxedItemsCollectionListEntry = ({
 
       <Flex alignItems="start" my={2} justifyContent="space-between">
         <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
-        <Button onClick={removeUnboxedItemsOverlayState.onOpen}>
-          Remove items
-        </Button>
+        <Button onClick={removeUnboxedItemsOverlayState.onOpen}>Remove items</Button>
       </Flex>
     </>
   );
-};
+}
 
-const UnboxedItemsCollectionList = ({
+function UnboxedItemsCollectionList({
   unboxedItemsCollectionData,
   productId,
   sizeId,
@@ -141,7 +121,7 @@ const UnboxedItemsCollectionList = ({
   unboxedItemsCollectionData: UnboxedItemsCollectionData[];
   productId: string;
   sizeId: string;
-}) => {
+}) {
   return (
     <>
       <Heading as="h3" size="md">
@@ -157,11 +137,10 @@ const UnboxedItemsCollectionList = ({
       </Flex>
     </>
   );
-};
+}
 
-const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
-  const { getBoxDetailViewUrlByLabelIdentifier } =
-    useGetUrlForResourceHelpers();
+function BoxesList({ boxesData }: { boxesData: BoxData[] }) {
+  const { getBoxDetailViewUrlByLabelIdentifier } = useGetUrlForResourceHelpers();
 
   const ctx = useContext(DistroEventDetailsForPackingStateContext);
 
@@ -176,29 +155,21 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
             <Tr>
               <Th>Box Label</Th>
               <Th isNumeric># of items</Th>
-              <Th></Th>
+              <Th />
             </Tr>
           </Thead>
           <Tbody>
             {boxesData.map((box) => (
               <Tr key={box.labelIdentifier}>
                 <Td>
-                  <RouterLink
-                    to={getBoxDetailViewUrlByLabelIdentifier(
-                      box.labelIdentifier
-                    )}
-                  >
+                  <RouterLink to={getBoxDetailViewUrlByLabelIdentifier(box.labelIdentifier)}>
                     {box.labelIdentifier}
                   </RouterLink>
                 </Td>
                 <Td isNumeric>{box.numberOfItems}</Td>
                 <Td>
                   <IconButton
-                    onClick={() =>
-                      ctx?.onUnassignBoxFromDistributionEvent(
-                        box.labelIdentifier
-                      )
-                    }
+                    onClick={() => ctx?.onUnassignBoxFromDistributionEvent(box.labelIdentifier)}
                     size="sm"
                     aria-label="Unassign Box from Distribution Event"
                     icon={<CloseIcon />}
@@ -211,87 +182,82 @@ const BoxesList = ({ boxesData }: { boxesData: BoxData[] }) => {
       </TableContainer>
     </>
   );
-};
+}
 
-const PackedContentListOverlay = ({
+function PackedContentListOverlay({
   boxesData,
   unboxedItemsCollectionData,
   packingListEntry,
 }: // packingActionProps,
-PackedContentListOverlayProps) => {
+PackedContentListOverlayProps) {
   const totalNumberOfPackedItems = useMemo(
     () =>
       boxesData.reduce((acc, box) => acc + box.numberOfItems, 0) +
       unboxedItemsCollectionData.reduce(
-        (acc, unboxedItemsCollection) =>
-          acc + unboxedItemsCollection.numberOfItems,
-        0
+        (acc, unboxedItemsCollection) => acc + unboxedItemsCollection.numberOfItems,
+        0,
       ),
-    [boxesData, unboxedItemsCollectionData]
+    [boxesData, unboxedItemsCollectionData],
   );
 
   const missingNumberOfItems = useMemo(
     () => packingListEntry.numberOfItems - totalNumberOfPackedItems,
-    [packingListEntry.numberOfItems, totalNumberOfPackedItems]
+    [packingListEntry.numberOfItems, totalNumberOfPackedItems],
   );
   return (
-    <>
-      <ModalContent>
-        <ModalHeader mx={4} pb={0}>
-          <Heading as="h3" size="md">
-            Packed Boxes and Items for: <br />
-            <i>
-              {packingListEntry.product.name} - {packingListEntry.size?.label}
-            </i>
-          </Heading>
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody mx={4}>
-          {boxesData.length > 0 && (
-            <Box my={5}>
-              <BoxesList boxesData={boxesData} />
-            </Box>
-          )}
-          {unboxedItemsCollectionData.length > 0 && (
-            <Box my={5}>
-              <UnboxedItemsCollectionList
-                unboxedItemsCollectionData={unboxedItemsCollectionData}
-                productId={packingListEntry.product.id}
-                // TODO: check/align why size.id is nullable atm
-                // assumption so far: each box / unboxed items collection needs
-                // a sizeId
-                sizeId={packingListEntry.size?.id!}
-              />
-            </Box>
-          )}
+    <ModalContent>
+      <ModalHeader mx={4} pb={0}>
+        <Heading as="h3" size="md">
+          Packed Boxes and Items for: <br />
+          <i>
+            {packingListEntry.product.name} - {packingListEntry.size?.label}
+          </i>
+        </Heading>
+      </ModalHeader>
+      <ModalCloseButton />
+      <ModalBody mx={4}>
+        {boxesData.length > 0 && (
+          <Box my={5}>
+            <BoxesList boxesData={boxesData} />
+          </Box>
+        )}
+        {unboxedItemsCollectionData.length > 0 && (
+          <Box my={5}>
+            <UnboxedItemsCollectionList
+              unboxedItemsCollectionData={unboxedItemsCollectionData}
+              productId={packingListEntry.product.id}
+              // TODO: check/align why size.id is nullable atm
+              // assumption so far: each box / unboxed items collection needs
+              // a sizeId
+              sizeId={packingListEntry.size?.id!}
+            />
+          </Box>
+        )}
 
-          <StatGroup my={5}>
-            <Stat>
-              <StatLabel>Packed # of items</StatLabel>
-              <StatNumber>{totalNumberOfPackedItems}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Target # of items</StatLabel>
-              <StatNumber>{packingListEntry.numberOfItems}</StatNumber>
-            </Stat>
-          </StatGroup>
+        <StatGroup my={5}>
+          <Stat>
+            <StatLabel>Packed # of items</StatLabel>
+            <StatNumber>{totalNumberOfPackedItems}</StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Target # of items</StatLabel>
+            <StatNumber>{packingListEntry.numberOfItems}</StatNumber>
+          </Stat>
+        </StatGroup>
 
-          {missingNumberOfItems <= 0 && (
-            <Badge colorScheme="green">
-              {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
-              <CheckIcon /> Enough items packed
-            </Badge>
-          )}
-          {missingNumberOfItems > 0 && (
-            <Badge colorScheme="red">
-              {missingNumberOfItems} items missing
-            </Badge>
-          )}
-        </ModalBody>
-        <ModalFooter />
-      </ModalContent>
-    </>
+        {missingNumberOfItems <= 0 && (
+          <Badge colorScheme="green">
+            {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
+            <CheckIcon /> Enough items packed
+          </Badge>
+        )}
+        {missingNumberOfItems > 0 && (
+          <Badge colorScheme="red">{missingNumberOfItems} items missing</Badge>
+        )}
+      </ModalBody>
+      <ModalFooter />
+    </ModalContent>
   );
-};
+}
 
 export default PackedContentListOverlay;

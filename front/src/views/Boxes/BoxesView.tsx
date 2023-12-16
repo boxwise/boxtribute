@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { BoxesLocationsTagsShipmentsForBaseQuery } from "types/generated/graphql";
+import { BoxesForBoxesViewQuery, ActionOptionsForBoxesViewQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
@@ -14,21 +14,20 @@ import {
 } from "utils/transformers";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
-import { TableSkeleton } from "components/Skeletons";
-import { Alert, AlertIcon } from "@chakra-ui/react";
-import { differenceInDays } from "date-fns";
+import { useTableConfig } from "hooks/hooks";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
-import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
+import { SelectBoxStateFilter } from "./components/Filter";
 
 // TODO: Implement Pagination and Filtering
-export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
+export const BOXES_FOR_BOXESVIEW_QUERY = gql`
   ${PRODUCT_BASIC_FIELDS_FRAGMENT}
   ${SIZE_BASIC_FIELDS_FRAGMENT}
   ${TAG_BASIC_FIELDS_FRAGMENT}
-  query BoxesLocationsTagsShipmentsForBase($baseId: ID!) {
-    boxes(baseId: $baseId, paginationInput: { first: 100000 }) {
+  query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput) {
+    boxes(baseId: $baseId, filterInput: $filterInput, paginationInput: { first: 100000 }) {
       totalCount
       pageInfo {
         hasNextPage
@@ -58,8 +57,16 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
         }
         comment
         createdOn
+        lastModifiedOn
       }
     }
+  }
+`;
+
+export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
+  ${BASE_ORG_FIELDS_FRAGMENT}
+  ${TAG_BASIC_FIELDS_FRAGMENT}
+  query ActionOptionsForBoxesView($baseId: ID!) {
     base(id: $baseId) {
       id
       locations {
@@ -88,40 +95,35 @@ export const BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY = gql`
   }
 `;
 
-// TODO: uncomment untouched days
-const graphqlToTableTransformer = (boxesQueryResult: BoxesLocationsTagsShipmentsForBaseQuery) =>
-  boxesQueryResult.boxes.elements.map(
-    (element) =>
-      ({
-        labelIdentifier: element.labelIdentifier,
-        product: element.product!.name,
-        gender: element.product!.gender,
-        numberOfItems: element.numberOfItems,
-        size: element.size.label,
-        state: element.state,
-        location: element.location!.name,
-        tags: element.tags,
-        shipment: element.shipmentDetail?.shipment,
-        comment: element.comment,
-        age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
-        // untouched:
-        //   element.history && element.history[0] && element.history[0].changeDate
-        //     ? differenceInDays(new Date(), new Date(element.history[0].changeDate))
-        //     : 0,
-      }) as BoxRow,
-  );
-
 function Boxes() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
 
-  const { loading, error, data } = useQuery<BoxesLocationsTagsShipmentsForBaseQuery>(
-    BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+  const tableConfigKey = `bases/${baseId}/boxes`;
+  const tableConfig = useTableConfig({
+    tableConfigKey,
+    defaultTableConfig: {
+      columnFilters: [{ id: "state", value: ["InStock"] }],
+      sortBy: [{ id: "lastModified", desc: true }],
+      hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
+    },
+  });
+
+  // fetch Boxes data in the background
+  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery<BoxesForBoxesViewQuery>(
+    BOXES_FOR_BOXESVIEW_QUERY,
+    {
+      variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+    },
+  );
+
+  // fetch options for actions on boxes
+  const { data: actionOptionsData } = useSuspenseQuery<ActionOptionsForBoxesViewQuery>(
+    ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
     {
       variables: {
         baseId,
       },
-      fetchPolicy: "cache-and-network",
     },
   );
 
@@ -165,7 +167,7 @@ function Boxes() {
         accessor: "state",
         id: "state",
         Cell: StateCell,
-        Filter: SelectColumnFilter,
+        Filter: SelectBoxStateFilter,
         filter: "includesOneOfMulipleStrings",
       },
       {
@@ -205,37 +207,27 @@ function Boxes() {
         Cell: DaysCell,
         disableFilters: true,
       },
-      // {
-      //   Header: "Last Modified",
-      //   accessor: "untouched",
-      //   id: "untouched",
-      //   Cell: DaysCell,
-      //   disableFilters: true,
-      // },
+      {
+        Header: "Last Modified",
+        accessor: "lastModified",
+        id: "lastModified",
+        Cell: DateCell,
+        disableFilters: true,
+        sortType: "datetime",
+      },
     ],
     [],
   );
 
-  // error and loading handling
-  if (error) {
-    return (
-      <Alert status="error" data-testid="ErrorAlert">
-        <AlertIcon />
-        Could not fetch boxes data! Please try reloading the page.
-      </Alert>
-    );
-  }
-  if (loading || !data) {
-    return <TableSkeleton />;
-  }
-
   // TODO: pass tag options to BoxesActionsAndTable
   return (
     <BoxesActionsAndTable
-      tableData={graphqlToTableTransformer(data)}
+      tableConfig={tableConfig}
+      onRefetch={refetchBoxes}
+      boxesQueryRef={boxesQueryRef}
       availableColumns={availableColumns}
-      shipmentOptions={shipmentToDropdownOptionTransformer(data?.shipments, baseId)}
-      locationOptions={locationToDropdownOptionTransformer(data.base?.locations ?? [])}
+      shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
+      locationOptions={locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? [])}
     />
   );
 }
