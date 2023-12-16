@@ -25,13 +25,18 @@ def resolve_box(*_, label_identifier):
 def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
     authorize(permission="stock:read", base_id=base_id)
 
-    # Join with Location model to filter for Location base ID below
-    selection = Box.select().join(Location)
+    selection = Box.select().join(
+        Location,
+        on=(
+            (Box.location == Location.id)
+            & (Location.base == base_id)
+            & ((Box.deleted == 0) | (Box.deleted.is_null()))
+        ),
+    )
     filter_condition, selection = derive_box_filter(filter_input, selection=selection)
 
     return load_into_page(
         Box,
-        Location.base == base_id,
         filter_condition,
         selection=selection,
         pagination_input=pagination_input,
