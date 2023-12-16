@@ -20,7 +20,6 @@ import {
   Wrap,
   WrapItem,
   SkeletonCircle,
-  Skeleton,
   SkeletonText,
   Icon,
 } from "@chakra-ui/react";

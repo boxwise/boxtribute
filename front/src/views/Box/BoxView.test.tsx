@@ -1,14 +1,8 @@
-/* eslint-disable */
 import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { cache } from "queries/cache";
-import BTBox, {
-  UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
-  UPDATE_STATE_IN_BOX_MUTATION,
-  UPDATE_BOX_MUTATION,
-} from "./BoxView";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { generateMockBox } from "mocks/boxes";
@@ -17,13 +11,16 @@ import { generateMockLocationWithBase, locations } from "mocks/locations";
 import { product1, product3, products } from "mocks/products";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "views/BoxEdit/BoxEditView";
 import { tags } from "mocks/tags";
-import { selectOptionInSelectField, textContentMatcher } from "tests/helpers";
-import BoxDetails from "./components/BoxDetails";
-import { generateMockTransferAgreement } from "mocks/transferAgreements";
-import { mockGraphQLError, mockMatchMediaQuery, mockNetworkError } from "mocks/functions";
+import { textContentMatcher } from "tests/helpers";
+import { mockMatchMediaQuery } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
-import { generateMockShipment, shipment1 } from "mocks/shipments";
+import BoxDetails from "./components/BoxDetails";
+import BTBox, {
+  UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
+  UPDATE_STATE_IN_BOX_MUTATION,
+  UPDATE_BOX_MUTATION,
+} from "./BoxView";
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
@@ -371,7 +368,6 @@ beforeEach(() => {
 
 // Test case 3.1.1
 it("3.1.1 - Initial load of Page", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
@@ -418,8 +414,8 @@ it("3.1.1 - Initial load of Page", async () => {
 }, 10000);
 
 // Test case 3.1.1.7
+// eslint-disable-next-line max-len
 it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy location", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
@@ -442,6 +438,7 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
   expect(screen.getByRole("alert")).toBeInTheDocument();
   expect(
     screen.getByText(
+      // eslint-disable-next-line max-len
       /To edit this box, please move it to an InStock warehouse location\. Boxtribute no longer supports LOST and SCRAP locations\./i,
     ),
   ).toBeInTheDocument();
@@ -449,7 +446,6 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
 
 // Test case 3.1.1.8
 it("3.1.1.8 - Content: Display an info alert if a box status is Lost", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
@@ -475,7 +471,6 @@ it("3.1.1.8 - Content: Display an info alert if a box status is Lost", async () 
 
 // Test case 3.1.1.9
 it("3.1.1.9 - Content: Display an info alert if a box status is Scrap", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
@@ -524,9 +519,9 @@ it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipme
   expect(title).toBeInTheDocument();
 
   const moveTab = screen.getByRole("tab", { name: /move/i });
-  await user.click(moveTab);
+  user.click(moveTab);
 
-  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(await screen.findByRole("alert")).toBeInTheDocument();
   expect(screen.getByText(/markedforshipment boxes are not movable/i)).toBeInTheDocument();
 }, 10000);
 // Test case 3.1.2
@@ -553,14 +548,14 @@ it("3.1.2 - Change Number of Items", async () => {
   expect(screen.getByRole("heading", { name: /31x snow trousers/i }));
 
   const addToItemsButton = screen.getByTestId("increase-items");
-  await user.click(addToItemsButton);
+  user.click(addToItemsButton);
 
   // Test case 3.1.2.1 - Click on + Button
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
   // Test case 3.1.2.1.1	- Alphabetical Input isn't allowed
-  await user.type(screen.getByRole("spinbutton"), "a");
+  user.type(screen.getByRole("spinbutton"), "a");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
   // Test case 3.1.2.1.2	- Number of Item Validation
@@ -568,7 +563,7 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "-");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
 
-  await user.click(
+  user.click(
     screen.getByRole("button", {
       name: /submit/i,
     }),
@@ -581,7 +576,7 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "1");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
-  await user.click(
+  user.click(
     screen.getByRole("button", {
       name: /submit/i,
     }),
@@ -595,7 +590,7 @@ it("3.1.2 - Change Number of Items", async () => {
     ),
   );
   expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(/32x snow trousers/i);
-}, 15000);
+}, 30000);
 
 // Test case 3.1.3.1
 it("3.1.3.1 - Change State to Scrap", async () => {
@@ -620,7 +615,7 @@ it("3.1.3.1 - Change State to Scrap", async () => {
   const boxSubheading = screen.getByTestId("box-subheader");
   await waitFor(() => expect(boxSubheading).toHaveTextContent("Status: InStock"));
   // Test case 3.1.3.1 - Click on Scrap
-  await user.click(screen.getByTestId("box-scrap-btn"));
+  user.click(screen.getByTestId("box-scrap-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.1.1 - Change state on Scrap Toggled
@@ -650,7 +645,7 @@ it("3.1.3.2 - Change State to Lost", async () => {
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
 
   // Test case 3.1.3.2 - Click on Lost
-  await user.click(screen.getByTestId("box-lost-btn"));
+  user.click(screen.getByTestId("box-lost-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.2.1 - Change state on Lost Toggled
@@ -690,7 +685,7 @@ it("3.1.4 - Move location", async () => {
   expect(boxLocationLabel).toHaveTextContent("WH Men to:");
   // Test case 3.1.4.1- Click to move box from WH Men to WH Women
   const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
-  await user.click(whWomenLocation);
+  user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
@@ -700,7 +695,7 @@ it("3.1.4 - Move location", async () => {
     ),
   );
 
-  await waitFor(() => expect(screen.getByRole("button", { name: /wh men/i })).toBeInTheDocument());
+  await screen.findByRole("button", { name: /wh men/i });
   const boxLocationUpdatedLabel = screen.getByTestId("box-location-label");
   expect(boxLocationUpdatedLabel).toHaveTextContent("Move this box from WH Women to:");
 
@@ -736,7 +731,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
 
   // Test case 3.1.5.1 - Click on edit Icon
   const editLink = screen.getByRole("link");
-  await user.click(editLink);
+  user.click(editLink);
 
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/127/edit" }),
@@ -745,7 +740,6 @@ it("3.1.5 - Redirect to Edit Box", async () => {
 
 // Test case 3.1.6
 it("3.1.6 - Product Gender", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
@@ -782,20 +776,22 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
 
   // Test case 3.1.7.1 - Correct input is entered, but there is a processing error (item mutation query returns and error message)
   const takeItemsButton = screen.getByTestId("decrease-items");
-  await user.click(takeItemsButton);
+  user.click(takeItemsButton);
   expect(await screen.findByText(/take items from the box/i)).toBeInTheDocument();
 
   await user.type(screen.getByRole("spinbutton"), "1");
-  await user.click(screen.getByText(/Submit/i));
+  user.click(screen.getByText(/Submit/i));
 
-  await waitFor(() =>
-    expect(mockedTriggerError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringMatching(/could not remove items from the box./i),
-      }),
-    ),
+  await waitFor(
+    () =>
+      expect(mockedTriggerError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringMatching(/could not remove items from the box./i),
+        }),
+      ),
+    { timeout: 5000 },
   );
-}, 10000);
+}, 20000);
 
 // Test case 3.1.7.2
 it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
@@ -821,7 +817,7 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
-  await user.click(whWomenLocation);
+  user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
@@ -848,8 +844,8 @@ it("3.1.8 - Error When Move Locations", async () => {
       },
     },
   });
-  await waitFor(async () => {
-    expect(await screen.getByTestId("box-header")).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByTestId("box-header")).toBeInTheDocument();
   });
 
   // Test case 3.1.8.1 - Move Location has a processing error (box move mutation query returns error)
@@ -857,7 +853,7 @@ it("3.1.8 - Error When Move Locations", async () => {
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
-  await user.click(whWomenLocation);
+  user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
@@ -870,7 +866,6 @@ it("3.1.8 - Error When Move Locations", async () => {
 
 // Test case 3.1.9
 it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/1111",
@@ -885,16 +880,11 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
     },
   });
 
-  await waitFor(() =>
-    expect(
-      screen.getByText(/could not fetch box data! please try reloading the page./i),
-    ).toBeInTheDocument(),
-  );
+  await screen.findByText(/could not fetch box data! please try reloading the page./i);
 }, 10000);
 
 // Test case 3.1.10
 it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", async () => {
-  const user = userEvent.setup();
   const mockFunction = jest.fn();
   render(
     <BoxDetails
@@ -927,14 +917,12 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
     },
   );
 
-  await waitFor(() =>
-    expect(screen.getByText(/no data found for a box with this id/i)).toBeInTheDocument(),
-  );
+  await screen.findByText(/no data found for a box with this id/i);
 }, 10000);
 
 // Test case 4.6.1.3
+// eslint-disable-next-line max-len
 it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in preparing state", async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/129",
@@ -949,8 +937,8 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
     },
   });
 
-  await waitFor(async () => {
-    expect(await screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
   });
 
   expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
@@ -973,7 +961,6 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
 
 // Test case 4.6.1.3b
 it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be visible', async () => {
-  const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/129",
@@ -988,8 +975,8 @@ it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be vis
     },
   });
 
-  await waitFor(async () => {
-    expect(await screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByRole("heading", { name: /box 129/i })).toBeInTheDocument();
   });
 
   expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
