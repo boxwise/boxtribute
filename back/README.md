@@ -410,6 +410,8 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
 
 ### Profiling
 
+#### Execution time
+
 1. Add profiling middleware by extending `main.py`
 
         import pathlib
@@ -432,6 +434,18 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
         snakeviz back/stats/some.profile
 
 1. Inspect the stack visualization in your web browser.
+
+#### Memory
+
+Several tools exist, e.g. [memray](https://github.com/bloomberg/memray) or [scalene](https://github.com/plasma-umass/scalene). Setting them up for analysing a complex application is not straightforward, and has only worked when running the Flask app outside of Docker, directly on the host machine.
+
+For using memray,
+
+1. the Flask app has to be registered in `setup.py` to be invoked from the CLI. Add the following to the `console_scripts` list: `"bserve = boxtribute_server.dev_main:run"`
+1. Install the new CLI command: `pip install -U -e back/`
+1. Start the server while recording profiling data: `memray run $(which bserve)`
+1. Make requests to the server. Eventually stop the server.
+1. Generate graphs with `memray flamegraph` or `memray table` and inspect them in your web browser.
 
 ## Authentication and Authorization
 
