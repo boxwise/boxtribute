@@ -1,16 +1,21 @@
+from flask import request
 from peewee import MySQLDatabase
 from playhouse.flask_utils import FlaskDB  # type: ignore
 
 
 class DatabaseManager(FlaskDB):
     """Custom class to glue Flask and Peewee together.
-    If configured accordingly, connect to a database replica, and use it in all SELECT
-    SQL queries.
+    If configured accordingly, connect to a database replica, and use it in SELECT
+    SQL queries for read-only GraphQL requests (i.e. NOT for mutations).
+    Using the replica for resolving the return field of GraphQL mutations can lead to
+    data race-conditions because the data change that occurred in the primary DB
+    instance is not yet present in the replica.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.replica = None
+        self.mutation_requested = True
 
     def init_app(self, app):
         self.replica = app.config.get("DATABASE_REPLICA")  # expecting peewee.Database
@@ -18,12 +23,17 @@ class DatabaseManager(FlaskDB):
 
     def connect_db(self):
         super().connect_db()
-        if self.replica:
+        self.mutation_requested = b"mutation" in request.data
+        if self.replica and not self.mutation_requested:
             self.replica.connect()
 
     def close_db(self, exc):
         super().close_db(exc)
-        if self.replica and not self.replica.is_closed():
+        if (
+            self.replica
+            and not self.mutation_requested
+            and not self.replica.is_closed()
+        ):
             self.replica.close()
 
     def get_model_class(self):
@@ -36,7 +46,7 @@ class DatabaseManager(FlaskDB):
         class BaseModel(self.base_model_class):
             @classmethod
             def select(cls, *args, **kwargs):
-                if self.replica:
+                if self.replica and not self.mutation_requested:
                     with cls.bind_ctx(self.replica):
                         return super().select(*args, **kwargs)
                 return super().select(*args, **kwargs)
