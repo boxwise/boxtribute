@@ -22,13 +22,20 @@ class DatabaseManager(FlaskDB):
         super().init_app(app)
 
     def connect_db(self):
-        super().connect_db()
+        if self._excluded_routes and request.endpoint in self._excluded_routes:
+            return
+        self.database.connect()
+
         self.mutation_requested = b"mutation" in request.data
         if self.replica and not self.mutation_requested:
             self.replica.connect()
 
     def close_db(self, exc):
-        super().close_db(exc)
+        if self._excluded_routes and request.endpoint in self._excluded_routes:
+            return
+        if not self.database.is_closed():
+            self.database.close()
+
         if (
             self.replica
             and not self.mutation_requested
