@@ -1,8 +1,11 @@
 {
-  "name": "boxtribute-client",
-  "version": "0.1.0",
+  "name": "@boxtribute/front",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "description": "Boxtribute FE",
   "dependencies": {
+    "@boxtribute/shared-components": "1.0.0",
     "@apollo/client": "^3.8.1",
     "@auth0/auth0-react": "^2.2.1",
     "@babel/runtime": "^7.20.13",

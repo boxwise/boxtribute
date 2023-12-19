@@ -1,8 +1,9 @@
 {
   "private": true,
+  "license": "Apache-2.0",
   "workspaces": [
     "front",
     "statviz",
-    "ui-components"
+    "shared-components"
   ]
 }
