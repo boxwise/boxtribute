@@ -13,27 +13,27 @@ import {
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { IDropdownOption } from "components/Form/SelectField";
-import { ReactNode } from "react";
+import { ReactElement } from "react";
 
 interface ISelectButtonProps {
   label: string;
   options: IDropdownOption[];
   onSelect: (value: string) => void;
-  disabled: boolean;
-  icon?: ReactNode;
+  isDisabled?: boolean;
+  icon?: ReactElement;
 }
 
-export function SelectButton({ label, options, onSelect, disabled, icon }: ISelectButtonProps) {
+export function SelectButton({ label, options, onSelect, isDisabled, icon }: ISelectButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   return (
     <Menu onOpen={onOpen} onClose={onClose}>
       <MenuButton
         as={Button}
-        isDisabled={disabled}
+        isDisabled={isDisabled}
         leftIcon={icon}
         iconSpacing={isLargerThan768 || isOpen ? 2 : 0}
-        rightIcon={(isLargerThan768 || isOpen) && <ChevronDownIcon />}
+        rightIcon={isLargerThan768 || isOpen ? <ChevronDownIcon /> : undefined}
       >
         {(isLargerThan768 || isOpen) && label}
       </MenuButton>
@@ -65,4 +65,5 @@ export function SelectButton({ label, options, onSelect, disabled, icon }: ISele
 
 SelectButton.defaultProps = {
   icon: undefined,
+  isDisabled: false,
 };

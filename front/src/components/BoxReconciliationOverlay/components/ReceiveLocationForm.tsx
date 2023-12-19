@@ -92,7 +92,7 @@ export function ReceiveLocationForm({
             w="full"
             bgColor="blue.500"
             color="white"
-            disabled={isSubmitting || locationId.value === ""}
+            isDisabled={isSubmitting || locationId.value === ""}
           >
             Save and Move Instock
           </Button>

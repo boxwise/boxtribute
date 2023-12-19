@@ -44,9 +44,19 @@
   "files.autoSave": "onFocusChange",
   "eslint.packageManager": "yarn", // optional but recommended
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
+  },
+  "[javascript][javascriptreact]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  "[typescript][typescriptreact]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    }
   }
 }

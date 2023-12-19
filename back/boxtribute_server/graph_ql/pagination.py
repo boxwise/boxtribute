@@ -196,10 +196,11 @@ def load_into_page(model, *conditions, selection=None, pagination_input):
 
     if selection is None:
         selection = model.select()
-    query_result = (
+    query_result = list(
         selection.where(pagination_condition, *conditions)
         .order_by(model.id)
         .limit(limit + 1)
+        .iterator()
     )
     return generate_page(
         *conditions,

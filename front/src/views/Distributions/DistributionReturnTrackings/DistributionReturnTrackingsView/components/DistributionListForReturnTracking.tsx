@@ -22,15 +22,9 @@ import {
   StartDistributionEventsTrackingGroupMutation,
   StartDistributionEventsTrackingGroupMutationVariables,
 } from "types/generated/graphql";
-import {
-  getDateNormalizedDateTime,
-  weekDayNumberToWeekDayName,
-} from "utils/helpers";
+import { getDateNormalizedDateTime, weekDayNumberToWeekDayName } from "utils/helpers";
 import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
-import {
-  DistributionEventDetails,
-  DistributionTrackingGroup,
-} from "views/Distributions/types";
+import { DistributionEventDetails, DistributionTrackingGroup } from "views/Distributions/types";
 
 interface CheckboxGroupProps {
   groupName: string;
@@ -53,9 +47,7 @@ function CheckboxGroup({
       <Checkbox
         isChecked={allChecked}
         isIndeterminate={isIndeterminate}
-        onChange={(e) =>
-          e.target.checked ? onChange(allValues, []) : onChange([], allValues)
-        }
+        onChange={(e) => (e.target.checked ? onChange(allValues, []) : onChange([], allValues))}
       >
         {groupName}
       </Checkbox>
@@ -64,9 +56,7 @@ function CheckboxGroup({
           <Checkbox
             key={value}
             isChecked={selectedValues.some((el) => el === value)}
-            onChange={(e) =>
-              e.target.checked ? onChange([value], []) : onChange([], [value])
-            }
+            onChange={(e) => (e.target.checked ? onChange([value], []) : onChange([], [value]))}
           >
             {label}
           </Checkbox>
@@ -76,52 +66,41 @@ function CheckboxGroup({
   );
 }
 
-const DistributionListForReturnTracking = ({
+function DistributionListForReturnTracking({
   distributionEventsData,
   returnTrackingGroups,
 }: {
   distributionEventsData: DistributionEventDetails[];
   returnTrackingGroups: DistributionTrackingGroup[];
-}) => {
+}) {
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
 
-  const sortedDistroEventsWhichNeedReturnTracking = _.chain(
-    distributionEventsData
-  )
-    .filter(
-      (el) => el.state === DistributionEventState.ReturnedFromDistribution
-    )
+  const sortedDistroEventsWhichNeedReturnTracking = _.chain(distributionEventsData)
+    .filter((el) => el.state === DistributionEventState.ReturnedFromDistribution)
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
 
-  const pastDistroEventsNotInReturnStateNorCompleted = _.chain(
-    distributionEventsData
-  )
+  const pastDistroEventsNotInReturnStateNorCompleted = _.chain(distributionEventsData)
     .filter(
       (el) =>
         isPast(el.plannedEndDateTime) &&
         ![
           DistributionEventState.Completed,
           DistributionEventState.ReturnedFromDistribution,
-        ].includes(el.state)
+        ].includes(el.state),
     )
     .value();
 
   const showMessageAboutPastEventsNotYetInReturnState =
     pastDistroEventsNotInReturnStateNorCompleted.length > 0;
 
-  const distroEventsToShowGroupedByDay = _.chain(
-    sortedDistroEventsWhichNeedReturnTracking
-  )
-    .groupBy((el) =>
-      getDateNormalizedDateTime(el.plannedStartDateTime).toISOString()
-    )
+  const distroEventsToShowGroupedByDay = _.chain(sortedDistroEventsWhichNeedReturnTracking)
+    .groupBy((el) => getDateNormalizedDateTime(el.plannedStartDateTime).toISOString())
     .map((events, date) => ({ date: parseISO(date), events }))
     .value();
 
-  const [selectedDistributionEventIds, setSelectedDistributionEventIds] =
-    useState([] as string[]);
+  const [selectedDistributionEventIds, setSelectedDistributionEventIds] = useState([] as string[]);
 
   const apolloClient = useApolloClient();
 
@@ -155,13 +134,10 @@ const DistributionListForReturnTracking = ({
           <List>
             {returnTrackingGroups.map((group) => (
               <ListItem key={group.id}>
-                <Link
-                  href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}
-                >
+                <Link href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}>
                   <>
-                    {group.createdOn.toLocaleDateString()} -{" "}
-                    {group.createdOn.toLocaleTimeString()} (
-                    {group.distributionEvents.length} Events)
+                    {group.createdOn.toLocaleDateString()} - {group.createdOn.toLocaleTimeString()}{" "}
+                    ({group.distributionEvents.length} Events)
                   </>
                 </Link>
               </ListItem>
@@ -179,34 +155,30 @@ const DistributionListForReturnTracking = ({
         </Heading>
         {showMessageAboutPastEventsNotYetInReturnState && (
           <Text backgroundColor="orange.100" textAlign="center">
-            <BellIcon /> You still have past events which are not yet in the
-            "Returned" state.
+            <BellIcon /> You still have past events which are not yet in the "Returned" state.
             <br />
             In the "Distributions" Tab, you can change their state. <br />
             Only then they will be listed here.
           </Text>
         )}
         <Text mb={5}>
-          Please select the Distribution Events that you want to track returned
-          items for.
+          Please select the Distribution Events that you want to track returned items for.
         </Text>
-        <Text backgroundColor={"orange.100"} m={5} p={3}>
-          Attention: Once you started a Return Tracking for a group of events,
-          you cannot change this group selection later anymore.
+        <Text backgroundColor="orange.100" m={5} p={3}>
+          Attention: Once you started a Return Tracking for a group of events, you cannot change
+          this group selection later anymore.
         </Text>
         <Box backgroundColor="gray.50">
           {distroEventsToShowGroupedByDay.map(({ date, events }) => {
             const groupName = `${date.toLocaleDateString()} (${weekDayNumberToWeekDayName(
-              getDay(date)
+              getDay(date),
             )})`;
             const allValuesWithLabelsOfCurrentGroup = events.map(
               (el) =>
                 [
                   el.id,
-                  `${
-                    el.distributionSpot.name
-                  } (${el.plannedStartDateTime.toLocaleTimeString()})`,
-                ] as [string, string]
+                  `${el.distributionSpot.name} (${el.plannedStartDateTime.toLocaleTimeString()})`,
+                ] as [string, string],
             );
             const allValuesOfCurrentGroup = events.map((el) => el.id);
             return (
@@ -216,17 +188,13 @@ const DistributionListForReturnTracking = ({
                   groupName={groupName}
                   allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
                   selectedValues={selectedDistributionEventIds.filter((el) =>
-                    allValuesOfCurrentGroup.includes(el)
+                    allValuesOfCurrentGroup.includes(el),
                   )}
                   onChange={(newSelectedValues, newUnselectedValues) => {
-                    setSelectedDistributionEventIds((prev) => {
-                      return [
-                        ...prev.filter(
-                          (el) => !newUnselectedValues.includes(el)
-                        ),
-                        ...newSelectedValues.filter((el) => !prev.includes(el)),
-                      ];
-                    });
+                    setSelectedDistributionEventIds((prev) => [
+                      ...prev.filter((el) => !newUnselectedValues.includes(el)),
+                      ...newSelectedValues.filter((el) => !prev.includes(el)),
+                    ]);
                   }}
                 />
               </Box>
@@ -238,13 +206,13 @@ const DistributionListForReturnTracking = ({
           my={2}
           onClick={onStartReturnTrackingClick}
           colorScheme="blue"
-          disabled={selectedDistributionEventIds.length <= 0}
+          isDisabled={selectedDistributionEventIds.length <= 0}
         >
           Start return tracking
         </Button>
       </VStack>
     </VStack>
   );
-};
+}
 
 export default DistributionListForReturnTracking;

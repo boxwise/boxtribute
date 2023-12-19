@@ -4,28 +4,36 @@ import { useNavigate } from "react-router-dom";
 import { FaWarehouse } from "react-icons/fa";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { TableSkeleton } from "components/Skeletons";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
-import { BoxState } from "types/generated/graphql";
+import {
+  BoxState,
+  BoxesForBoxesViewQuery,
+  BoxesForBoxesViewQueryVariables,
+} from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
+import { QueryReference } from "@apollo/client";
+import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
-import ColumnSelector from "./ColumnSelector";
 
 export interface IBoxesActionsAndTableProps {
-  tableData: BoxRow[];
+  tableConfig: IUseTableConfigReturnType;
+  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
+  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
 }
 
 function BoxesActionsAndTable({
-  tableData,
+  tableConfig,
+  onRefetch,
+  boxesQueryRef,
   locationOptions,
   shipmentOptions,
   availableColumns,
@@ -33,20 +41,8 @@ function BoxesActionsAndTable({
   const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id!;
-  const tableConfigKey = `boxes-view--base-id-${baseId}`;
+
   const { createToast } = useNotification();
-
-  // Column Selector
-  const [selectedColumns, setSelectedColumns] = useState<Column<BoxRow>[]>(
-    availableColumns.filter((col) =>
-      ["labelIdentifier", "product", "numberOfItems", "state", "location"].includes(col.id!),
-    ),
-  );
-
-  const orderedSelectedColumns = useMemo(
-    () => selectedColumns.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)),
-    [selectedColumns, availableColumns],
-  );
 
   // Action when clicking on a row
   const onBoxRowClick = (labelIdentifier: string) =>
@@ -66,7 +62,7 @@ function BoxesActionsAndTable({
   const moveBoxesAction = useMoveBoxes();
 
   const onMoveBoxes = useCallback(
-    async (locationId: string) => {
+    (locationId: string) => {
       const movableLabelIdentifiers = selectedBoxes
         .filter(
           (box) =>
@@ -85,25 +81,23 @@ function BoxesActionsAndTable({
           } in shipment states.`,
         });
       }
-      const moveBoxesResult = await moveBoxesAction.moveBoxes(
-        movableLabelIdentifiers,
-        parseInt(locationId, 10),
-        true,
-        false,
-      );
-      if (
-        moveBoxesResult.failedLabelIdentifiers &&
-        moveBoxesResult.failedLabelIdentifiers.length > 0
-      ) {
-        createToast({
-          type: "error",
-          message: `Could not move ${
-            moveBoxesResult.failedLabelIdentifiers.length === 1
-              ? "a box"
-              : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
-          }. Try again?`,
+      moveBoxesAction
+        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, false)
+        .then((moveBoxesResult) => {
+          if (
+            moveBoxesResult.failedLabelIdentifiers &&
+            moveBoxesResult.failedLabelIdentifiers.length > 0
+          ) {
+            createToast({
+              type: "error",
+              message: `Could not move ${
+                moveBoxesResult.failedLabelIdentifiers.length === 1
+                  ? "a box"
+                  : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
+              }. Try again?`,
+            });
+          }
         });
-      }
     },
     [createToast, moveBoxesAction, selectedBoxes],
   );
@@ -113,41 +107,42 @@ function BoxesActionsAndTable({
     useAssignBoxesToShipment();
 
   const onAssignBoxesToShipment = useCallback(
-    async (shipmentId: string) => {
-      const assignBoxesToShipmentResult = await assignBoxesToShipment(
+    (shipmentId: string) => {
+      assignBoxesToShipment(
         shipmentId,
         selectedBoxes.map((box) => box.values as IBoxBasicFields),
         true,
         false,
-      );
-      if (
-        assignBoxesToShipmentResult.notInStockBoxes &&
-        assignBoxesToShipmentResult.notInStockBoxes.length > 0
-      ) {
-        createToast({
-          type: "info",
-          message: `Cannot assign ${
-            assignBoxesToShipmentResult.notInStockBoxes.length === 1
-              ? "a box"
-              : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
-          } to shipment that ${
-            assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
-          } not InStock.`,
-        });
-      }
-      if (
-        assignBoxesToShipmentResult.failedBoxes &&
-        assignBoxesToShipmentResult.failedBoxes.length > 0
-      ) {
-        createToast({
-          type: "error",
-          message: `Could not assign ${
-            assignBoxesToShipmentResult.failedBoxes.length === 1
-              ? "a box"
-              : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
-          } to shipment. Try again?`,
-        });
-      }
+      ).then((assignBoxesToShipmentResult) => {
+        if (
+          assignBoxesToShipmentResult.notInStockBoxes &&
+          assignBoxesToShipmentResult.notInStockBoxes.length > 0
+        ) {
+          createToast({
+            type: "info",
+            message: `Cannot assign ${
+              assignBoxesToShipmentResult.notInStockBoxes.length === 1
+                ? "a box"
+                : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
+            } to shipment that ${
+              assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
+            } not InStock.`,
+          });
+        }
+        if (
+          assignBoxesToShipmentResult.failedBoxes &&
+          assignBoxesToShipmentResult.failedBoxes.length > 0
+        ) {
+          createToast({
+            type: "error",
+            message: `Could not assign ${
+              assignBoxesToShipmentResult.failedBoxes.length === 1
+                ? "a box"
+                : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
+            } to shipment. Try again?`,
+          });
+        }
+      });
     },
     [createToast, assignBoxesToShipment, selectedBoxes],
   );
@@ -217,7 +212,7 @@ function BoxesActionsAndTable({
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaWarehouse />}
-        disabled={actionsAreLoading}
+        isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />,
       <SelectButton
@@ -225,12 +220,14 @@ function BoxesActionsAndTable({
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
         icon={<ShipmentIcon />}
-        disabled={actionsAreLoading || shipmentOptions.length === 0}
+        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
-          <Button onClick={() => onUnassignBoxesToShipment()}>Remove from Shipment</Button>
+          <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
+            Remove from Shipment
+          </Button>
         )}
       </div>,
     ],
@@ -244,25 +241,16 @@ function BoxesActionsAndTable({
       onUnassignBoxesToShipment,
     ],
   );
-  if (actionsAreLoading) {
-    return <TableSkeleton />;
-  }
-
   return (
     <BoxesTable
-      tableConfigKey={tableConfigKey}
-      columns={orderedSelectedColumns}
-      tableData={tableData}
+      tableConfig={tableConfig}
+      onRefetch={onRefetch}
+      boxesQueryRef={boxesQueryRef}
+      columns={availableColumns}
       actionButtons={actionButtons}
       setSelectedBoxes={setSelectedBoxes}
-      columnSelector={
-        <ColumnSelector
-          availableColumns={availableColumns}
-          selectedColumns={selectedColumns}
-          setSelectedColumns={setSelectedColumns}
-        />
-      }
       onBoxRowClick={onBoxRowClick}
+      selectedRowsArePending={actionsAreLoading}
     />
   );
 }

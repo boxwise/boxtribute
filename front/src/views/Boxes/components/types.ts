@@ -12,5 +12,5 @@ export type BoxRow = {
   shipment: Shipment | null;
   comment: string | null;
   age: number;
-  untouched: number | null | undefined;
+  lastModified: Date | null;
 };

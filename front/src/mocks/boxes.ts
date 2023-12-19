@@ -7,14 +7,17 @@ import { history1, history2 } from "./histories";
 
 export const box123 = {
   labelIdentifier: "123",
+  state: BoxState.InStock,
   product: product1,
   size: size1,
-  state: BoxState.InStock,
   shipmentDetail: null,
-  numberOfItems: 62,
   location: location1,
+  numberOfItems: 62,
   tags: [tag1],
   comment: "Test",
+  history: null,
+  createdOn: "2023-11-09T17:24:29+00:00",
+  lastModifiedOn: "2023-11-19T10:24:29+00:00",
   __typename: "Box",
 };
 
@@ -41,6 +44,7 @@ export const generateMockBox = ({
   comment,
   history: histories,
   createdOn: "2023-11-09T17:24:29+00:00",
+  lastModifiedOn: "2023-11-19T10:24:29+00:00",
   distributionEvent: null,
   __typename: "Box",
 });
