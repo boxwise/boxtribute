@@ -12,7 +12,6 @@
 - @visx/shape
 - @visx/tooltip
 
-
 ## General React
 
 - "react"
@@ -37,3 +36,6 @@
 ## Icons
 
 - "@chakra-ui/icons"
+
+  "@hookform/resolvers": "^2.9.11",
+  "date-fns": "^2.29.3",
