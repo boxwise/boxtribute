@@ -21,12 +21,17 @@ class DatabaseManager(FlaskDB):
         super().init_app(app)
 
     def connect_db(self):
+        if request.method.upper() != "POST":
+            # GraphQL queries are sent as POST requests. Don't open database connection
+            # on other requests (e.g. CORS pre-flight OPTIONS request)
+            return
         if self._excluded_routes and request.endpoint in self._excluded_routes:
             return
         self.database.connect()
 
-        payload = request.get_json()["query"]
-        if self.replica and any([q in payload for q in statistics_queries()]):
+        # Provide fallback for non-JSON and non-GraphQL requests
+        payload = request.get_json(silent=True) or {"query": []}
+        if self.replica and any([q in payload["query"] for q in statistics_queries()]):
             self.replica.connect()
 
     def close_db(self, exc):
