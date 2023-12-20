@@ -22,7 +22,7 @@ COPY shared-components shared-components
 COPY ./${SERVICE_DIR}/package.json ${SERVICE_DIR}/
 
 # Install all workspace dependencies.
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 # Change to the specific service directory.
 WORKDIR /app/${SERVICE_DIR}
