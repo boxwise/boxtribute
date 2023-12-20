@@ -3,7 +3,7 @@ build
 coverage
 node_modules
 public
-craco.config.js
+craco.config.cjs
 *.js
 *.old.*
 *.stories.*

@@ -19,6 +19,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "../ui-components/DateField.tsx"],
+  "include": ["src", "../shared-components/DateField.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
