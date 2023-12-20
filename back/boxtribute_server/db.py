@@ -6,16 +6,12 @@ from playhouse.flask_utils import FlaskDB  # type: ignore
 class DatabaseManager(FlaskDB):
     """Custom class to glue Flask and Peewee together.
     If configured accordingly, connect to a database replica, and use it in SELECT
-    SQL queries for read-only GraphQL requests (i.e. NOT for mutations).
-    Using the replica for resolving the return field of GraphQL mutations can lead to
-    data race-conditions because the data change that occurred in the primary DB
-    instance is not yet present in the replica.
+    SQL queries.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.replica = None
-        self.mutation_requested = True
 
     def init_app(self, app):
         self.replica = app.config.get("DATABASE_REPLICA")  # expecting peewee.Database
@@ -26,8 +22,7 @@ class DatabaseManager(FlaskDB):
             return
         self.database.connect()
 
-        self.mutation_requested = b"mutation" in request.data
-        if self.replica and not self.mutation_requested:
+        if self.replica:
             self.replica.connect()
 
     def close_db(self, exc):
@@ -36,11 +31,7 @@ class DatabaseManager(FlaskDB):
         if not self.database.is_closed():
             self.database.close()
 
-        if (
-            self.replica
-            and not self.mutation_requested
-            and not self.replica.is_closed()
-        ):
+        if self.replica and not self.replica.is_closed():
             self.replica.close()
 
     def get_model_class(self):
@@ -53,7 +44,7 @@ class DatabaseManager(FlaskDB):
         class BaseModel(self.base_model_class):
             @classmethod
             def select(cls, *args, **kwargs):
-                if self.replica and not self.mutation_requested:
+                if self.replica:
                     with cls.bind_ctx(self.replica):
                         return super().select(*args, **kwargs)
                 return super().select(*args, **kwargs)
