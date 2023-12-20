@@ -19,7 +19,6 @@ export interface IDateFieldProps {
   minDate?: any;
   // eslint-disable-next-line react/require-default-props
   maxDate?: any;
-  onInput?: (event: any) => void;
 }
 
 function DateField({

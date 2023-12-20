@@ -1,5 +1,5 @@
 import { Box, HStack } from "@chakra-ui/react";
-import DateField from "ui-components/DateField";
+import { DateField } from "@boxtribute/shared-components";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
