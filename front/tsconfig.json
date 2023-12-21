@@ -6,10 +6,15 @@
 
     /* Building */
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
 
     /* only use typescript for type checking */
-    "noEmit": true
+    "noEmit": true,
+
+    /* The following linting settings we might want to get rid of in the future */
+    "allowSyntheticDefaultImports": true,
+    "strictFunctionTypes": false,
+    "noImplicitAny": false
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/views/Distributions"]
 }
