@@ -1,0 +1,14 @@
+build
+coverage
+node_modules
+public
+craco.config.cjs
+*.js
+*.old.*
+*.stories.*
+# Disable linting for Distributions feature
+Distributions
+# Disabled until we move to tanStack table v8
+react-table-config.d.ts
+# Disable linting for generated files from the GraphQL codegen
+front/src/types/generated/graphql.ts
