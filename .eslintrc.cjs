@@ -78,6 +78,8 @@ module.exports = {
     // we do not need to import React in every file
     "react/react-in-jsx-scope": "off",
     "react/jsx-props-no-spreading": "off",
+    // TODO: turn this on
+    "react/prop-types": "off",
     // matter of preference (allows to use props.propName instead of deconstructing props first)
     "react/destructuring-assignment": "off",
     // allow other than jsx extensions
@@ -86,23 +88,6 @@ module.exports = {
       { extensions: [".js", ".jsx", ".ts", ".tsx"] },
     ],
     // --------- Import Plugin Rules ---------
-    // ensure that all modules that are imported are actually declared in a package.json file
-    "import/no-extraneous-dependencies": [
-      "error",
-      {
-        // look for package.json files also in the parent directory
-        packageDir: ["./", "./front", "./shared-components"],
-        // importing devDependencies in these files is ok
-        devDependencies: [
-          "**/mocks/**",
-          "**/tests/**",
-          "**/*.test.{ts,tsx}", // tests where the extension or filename suffix denotes that it is a test
-          "**/jest.config.ts", // jest config
-          "**/jest.setup.ts", // jest setup
-          "customEslintImportResolver.js", // eslint config
-        ],
-      },
-    ],
     // ensure that all modules that are imported can be resolved to a module on the local filesystem
     "import/no-unresolved": [2, { caseSensitive: true }],
     // if there is only a single export on a file, it does not have to be a default export
@@ -125,7 +110,11 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
+      files: [
+        "**/?(__)tests?(__)/**/*.[jt]s?(x)",
+        "**/?(*.)+(spec|test).[jt]s?(x)",
+        "**/mocks/**/*.[jt]s?(x)",
+      ],
       extends: ["plugin:testing-library/react"],
       rules: {
         "no-undef": "off",

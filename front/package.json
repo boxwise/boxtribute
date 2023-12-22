@@ -20,8 +20,8 @@
     "jwt-decode": "^3.1.2",
     "react-big-calendar": "^1.5.2",
     "react-icons": "^4.11.0",
-    "react-scripts": "^5.0.1",
     "react-table": "^7.8.0",
+    "regenerator-runtime": "^0.14.0",
     "victory": "^36.6.8"
   },
   "devDependencies": {
@@ -60,9 +60,8 @@
     "prettier": "^3.0.3",
     "prettier-eslint": "^15.0.1",
     "prop-types": "^15.8.1",
-    "regenerator-runtime": "^0.14.0",
     "webpack": "^5.88.2",
-    "jest": "^29.7.0"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "chromatic": "npx chromatic --project-token=2763da0ce36c",
@@ -73,7 +72,8 @@
     "test:coverage": "yarn test --env=jsdom --coverage --watchAll=false",
     "upload:test-report": "./node_modules/.bin/codecov",
     "eject": "react-scripts eject",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
+    "lint:fix": "yarn lint --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "format:write": "yarn format:write-files \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "format:write-files": "prettier --write",

@@ -10,7 +10,7 @@ shift
 files=("${@#front/}")
 
 if [[ "$mode" = "lint" ]]; then
-    yarn --cwd front run lint-files "${files[@]}"
+    yarn --cwd front run lint "${files[@]}"
 elif [[ "$mode" = "format" ]]; then
     yarn --cwd front run format:write-files "${files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then
