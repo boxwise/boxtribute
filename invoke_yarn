@@ -9,8 +9,9 @@ shift
 # strip front/ prefix from all given filepaths (pre-commit generates them from the repository root)
 files=("${@#front/}")
 
+# TODO: move this to the pre-commit config. Otherwise people need to install yarn
 if [[ "$mode" = "lint" ]]; then
-    yarn run lint @
+    yarn run lint "$@"
 elif [[ "$mode" = "format" ]]; then
     yarn --cwd front run format:write-files "${files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then
