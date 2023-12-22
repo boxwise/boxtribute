@@ -57,8 +57,6 @@
     "jest-junit": "^15.0.0",
     "msw": "^1.1.0",
     "mutationobserver-shim": "^0.3.7",
-    "prettier": "^3.0.3",
-    "prettier-eslint": "^15.0.1",
     "prop-types": "^15.8.1",
     "webpack": "^5.88.2",
     "react-scripts": "^5.0.1"
@@ -74,9 +72,10 @@
     "eject": "react-scripts eject",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
     "lint:fix": "yarn lint --fix",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write": "yarn format:write-files \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write-files": "prettier --write",
+    "format:check:all": "yarn format:check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
+    "format:check": "prettier --check --ignore-path ../.eslintignore",
+    "format:write:all": "yarn format:write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "prettier --write --ignore-path ../.eslintignore",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
