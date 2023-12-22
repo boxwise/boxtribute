@@ -11,7 +11,7 @@ files=("${@#front/}")
 
 # TODO: move this to the pre-commit config. Otherwise people need to install yarn
 if [[ "$mode" = "lint" ]]; then
-    yarn run lint "$@"
+    yarn run lint:fix "$@"
 elif [[ "$mode" = "format" ]]; then
     yarn --cwd front run format:write-files "${files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then

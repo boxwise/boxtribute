@@ -7,7 +7,9 @@
     "shared-components"
   ],
   "scripts": {
-    "lint": "eslint shared-components front --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "yarn lint --fix",
+    "lint:all": "yarn lint shared-components front"
   },
   "dependencies": {
     "@apollo/client": "^3.8.1",
