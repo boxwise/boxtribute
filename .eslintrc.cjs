@@ -88,6 +88,8 @@ module.exports = {
       { extensions: [".js", ".jsx", ".ts", ".tsx"] },
     ],
     // --------- Import Plugin Rules ---------
+    // ensure that all modules that are imported are actually declared in a package.json file
+    "import/no-extraneous-dependencies": ["error"],
     // ensure that all modules that are imported can be resolved to a module on the local filesystem
     "import/no-unresolved": [2, { caseSensitive: true }],
     // if there is only a single export on a file, it does not have to be a default export
