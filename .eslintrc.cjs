@@ -8,6 +8,7 @@ module.exports = {
   // loads settings and rules from other eslint configs
   extends: [
     "eslint:recommended",
+    // TODO: try out plugin:@typescript-eslint/recommended-type-checked
     "plugin:@typescript-eslint/eslint-recommended",
     // we generally want to follow the rules from airbnb as a base
     // --> the extension of airbnb should be last so that it cannot be overriden by other configs
