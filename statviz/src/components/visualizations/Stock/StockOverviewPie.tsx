@@ -28,11 +28,7 @@ import {
   tidy,
 } from "@tidyjs/tidy";
 import { ChangeEvent, useMemo, useState } from "react";
-import {
-  ArrowForwardIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-} from "@chakra-ui/icons";
+import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
 import getOnExport from "../../../utils/chartExport";
 
 const heading = "Stock Overview";
@@ -151,7 +147,11 @@ export default function StockOverviewPie(props: {
           <ModalBody>
             {availableGroupOptions.map((groupOption) => {
               return (
-                <Button value={groupOption} onClick={onNextDrilldownChoice}>
+                <Button
+                  style={{ margin: "5px" }}
+                  value={groupOption}
+                  onClick={onNextDrilldownChoice}
+                >
                   {groupOption}
                 </Button>
               );
@@ -222,16 +222,19 @@ export default function StockOverviewPie(props: {
             </Box>
           </WrapItem>
         </Wrap>
-        {drilldownPath.map((value, index) => {
-          if (index == drilldownPath.length - 1) {
-            return <span> {value}</span>;
-          }
-          return (
-            <span>
-              {value}: "{drilldownValues[index]}" <ArrowForwardIcon />
-            </span>
-          );
-        })}
+        <Box style={{ margin: "20px", fontSize: "20px" }}>
+          {drilldownPath.map((value, index) => {
+            if (index == drilldownPath.length - 1) {
+              return <span> {value}</span>;
+            }
+            return (
+              <span>
+                {" "}
+                {value}: "{drilldownValues[index]}" <ArrowForwardIcon />
+              </span>
+            );
+          })}
+        </Box>
         <PieChart {...chartProps} animate={true} />
       </CardBody>
     </Card>
