@@ -3,10 +3,9 @@
   "compilerOptions": {
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-
-    /* only use typescript for type checking */
-    "noEmit": true
+    "resolveJsonModule": true,
+    /* not sure what this does*/
+    "allowImportingTsExtensions": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

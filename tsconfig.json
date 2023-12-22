@@ -1,28 +1,38 @@
 {
   "compilerOptions": {
+    /* transpile to ES2020 Javascript syntax */
     "target": "ES2020",
+    /* use these built-in type declarations */
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    /* generate js modules using the latest syntax */
     "module": "ESNext",
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
+    /* tell the compiler how to handle jsx syntax */
     "jsx": "react-jsx",
+    /* This setting ensures that each file can be safely transpiled without relying on other imports. */
     "isolatedModules": true,
 
     /* Building */
-    "declaration": true,
-    "noEmitOnError": true,
-    "sourceMap": true,
+    "noEmit": true,
+    /* we are currently not using tsc to build
+    front is doing the build with react-scripts build which uses webpack
+    statviz is doing the build with vite */
 
-    /* style ts outpur */
+    /* style ts output */
     "pretty": true,
 
     /* Linting */
     /* strict includes multiple other settings, e.g. strictFunctionTypes */
     "strict": true,
+    /* skip type checking of declaration files (.d.ts) */
+    "skipLibCheck": true,
+    /* This setting ensures that the casing of import statements is consistent with the casing of the actual files on the filesystem. */
     "forceConsistentCasingInFileNames": true,
+    /* This setting ensures that all code paths in a function return a value or throw an error. */
     "noImplicitReturns": true,
+    /* These settings ensures that you don't have any unused local variables or parameters. */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    /* These settings ensures that you don't accidentally fall through from one case to another in a switch */
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false

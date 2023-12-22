@@ -6,9 +6,7 @@
 
     /* Building */
     "moduleResolution": "node",
-
-    /* only use typescript for type checking */
-    "noEmit": true,
+    "resolveJsonModule": true,
 
     /* The following linting settings we might want to get rid of in the future */
     "allowSyntheticDefaultImports": true,
