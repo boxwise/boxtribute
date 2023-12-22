@@ -93,11 +93,11 @@ export const useAssignBoxesToShipment = () => {
       // no Boxes InStock were passed
       if (inStockBoxes.length === 0) {
         setIsLoading(false);
-        return {
+        return Promise.resolve({
           kind: IAssignBoxToShipmentResultKind.BAD_USER_INPUT,
           requestedBoxes: boxes,
           notInStockBoxes,
-        } as IAssignBoxToShipmentResult;
+        } as IAssignBoxToShipmentResult);
       }
 
       return assignBoxesToShipmentMutation({

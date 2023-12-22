@@ -6,19 +6,32 @@ import { shipmentDetail1 } from "mocks/shipmentDetail";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNotification } from "hooks/useNotification";
 import { mockAuthenticatedUser } from "mocks/hooks";
-import { cache } from "queries/cache";
+import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";
-import BoxesView, { BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY } from "./BoxesView";
+import { AlertWithoutAction } from "components/Alerts";
+import { TableSkeleton } from "components/Skeletons";
+import { Suspense } from "react";
+import { ErrorBoundary } from "@sentry/react";
+import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
-const initialQuery = ({ state = BoxState.InStock, shipmentDetail = null as any }) => ({
+const boxesQuery = ({
+  state = BoxState.InStock,
+  stateFilter = [BoxState.InStock],
+  shipmentDetail = null as any,
+}) => ({
   request: {
-    query: BOXES_LOCATIONS_TAGS_SHIPMENTS_FOR_BASE_QUERY,
+    query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "1",
+      filterInput: stateFilter.length
+        ? {
+            states: stateFilter,
+          }
+        : {},
     },
   },
   result: {
@@ -37,6 +50,19 @@ const initialQuery = ({ state = BoxState.InStock, shipmentDetail = null as any }
         },
         totalCount: 1,
       },
+    },
+  },
+});
+
+const actionsQuery = () => ({
+  request: {
+    query: ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
+    variables: {
+      baseId: "1",
+    },
+  },
+  result: {
+    data: {
       base: {
         __typename: "Base",
         id: "1",
@@ -91,6 +117,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  tableConfigsVar(new Map());
   cache.restore(emptyCache);
 });
 
@@ -104,6 +131,7 @@ const moveBoxesGQLRequest = gql`
       location {
         id
       }
+      lastModifiedOn
     }
   }
 `;
@@ -132,6 +160,7 @@ const unassignFromShipmentGQLRequest = gql`
             id
             __typename
           }
+          lastModifiedOn
           __typename
         }
         __typename
@@ -145,7 +174,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.2 - MoveBoxes Action is successful",
     mocks: [
-      initialQuery({}),
+      boxesQuery({}),
+      actionsQuery(),
       mutation({
         gQLRequest: moveBoxesGQLRequest,
         variables: { newLocationId: 1, labelIdentifier0: "123" },
@@ -156,6 +186,7 @@ const boxesViewActionsTests = [
             location: {
               id: "1",
             },
+            lastModifiedOn: new Date().toISOString(),
           },
         },
       }),
@@ -166,7 +197,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
     mocks: [
-      initialQuery({}),
+      boxesQuery({}),
+      actionsQuery(),
       mutation({
         gQLRequest: moveBoxesGQLRequest,
         variables: { newLocationId: 1, labelIdentifier0: "123" },
@@ -179,7 +211,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
     mocks: [
-      initialQuery({}),
+      boxesQuery({}),
+      actionsQuery(),
       mutation({
         gQLRequest: moveBoxesGQLRequest,
         variables: { newLocationId: 1, labelIdentifier0: "123" },
@@ -191,15 +224,16 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
-    mocks: [initialQuery({ state: BoxState.MarkedForShipment })],
+    mocks: [boxesQuery({ state: BoxState.MarkedForShipment, stateFilter: [] }), actionsQuery()],
     clicks: [/move to/i, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
-    removeFilter: true,
+    searchParams: "?columnFilters=%5B%5D",
   },
   {
     name: "4.8.3.2 - Assign To Shipment Action is successful",
     mocks: [
-      initialQuery({}),
+      boxesQuery({}),
+      actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
@@ -207,7 +241,7 @@ const boxesViewActionsTests = [
           updateShipmentWhenPreparing: generateMockShipment({}),
         },
       }),
-      initialQuery({}),
+      boxesQuery({}),
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /A Box was successfully assigned/i,
@@ -215,7 +249,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
     mocks: [
-      initialQuery({}),
+      boxesQuery({}),
+      actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
@@ -228,7 +263,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
     mocks: [
-      initialQuery({}),
+      boxesQuery({}),
+      actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
@@ -240,14 +276,20 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
-    mocks: [initialQuery({ state: BoxState.Donated })],
+    mocks: [boxesQuery({ state: BoxState.Donated, stateFilter: [] }), actionsQuery()],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
+    searchParams: "?columnFilters=%5B%5D",
   },
   {
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
     mocks: [
-      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+      boxesQuery({
+        state: BoxState.MarkedForShipment,
+        shipmentDetail: shipmentDetail1(),
+        stateFilter: [],
+      }),
+      actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
         variables: { shipment0: "1", labelIdentifiers0: ["123"] },
@@ -258,11 +300,17 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /A Box was successfully unassigned/i,
+    searchParams: "?columnFilters=%5B%5D",
   },
   {
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
     mocks: [
-      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+      boxesQuery({
+        state: BoxState.MarkedForShipment,
+        shipmentDetail: shipmentDetail1(),
+        stateFilter: [],
+      }),
+      actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
         variables: { shipment0: "1", labelIdentifiers0: ["123"] },
@@ -271,11 +319,17 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /Could not remove a box/i,
+    searchParams: "?columnFilters=%5B%5D",
   },
   {
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
     mocks: [
-      initialQuery({ state: BoxState.MarkedForShipment, shipmentDetail: shipmentDetail1() }),
+      boxesQuery({
+        state: BoxState.MarkedForShipment,
+        shipmentDetail: shipmentDetail1(),
+        stateFilter: [],
+      }),
+      actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
         variables: { shipment0: "1", labelIdentifiers0: ["123"] },
@@ -284,30 +338,35 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /Could not remove a box/i,
+    searchParams: "?columnFilters=%5B%5D",
   },
 ];
 
-boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, removeFilter }) => {
+boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams }) => {
   it(
     name,
     async () => {
       const user = userEvent.setup();
-      render(<BoxesView />, {
-        routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/1/boxes",
-        mocks,
-        cache,
-      });
+      render(
+        <ErrorBoundary
+          fallback={
+            <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+          }
+        >
+          <Suspense fallback={<TableSkeleton />}>
+            <Boxes />
+          </Suspense>
+        </ErrorBoundary>,
+        {
+          routePath: "/bases/:baseId/boxes",
+          initialUrl: `/bases/1/boxes${searchParams || ""}`,
+          mocks,
+          cache,
+        },
+      );
 
-      // if filters are passed
-      if (removeFilter) {
-        const stateFilter = await screen.findByTestId("filter-state");
-        expect(stateFilter).toBeInTheDocument();
-        user.click(stateFilter);
-        const inStockOption = await screen.findByRole("button", { name: /remove instock/i });
-        expect(inStockOption).toBeInTheDocument();
-        user.click(inStockOption);
-      }
+      // check loading state
+      expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       // Select the first box
       const checkboxes = await screen.findAllByRole("checkbox", { name: /toggle row selected/i });

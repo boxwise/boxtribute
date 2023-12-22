@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useTransition } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
+  Skeleton,
   Table,
   Tr,
   Tbody,
@@ -22,48 +23,51 @@ import {
   useRowSelect,
   usePagination,
   Row,
-  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { tableConfigsVar } from "queries/cache";
-import { useReactiveVar } from "@apollo/client";
+import { QueryReference, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMulipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
+import { IUseTableConfigReturnType } from "hooks/hooks";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
+import {
+  boxesRawDataToTableDataTransformer,
+  prepareBoxesForBoxesViewQueryVariables,
+} from "./transformers";
+import ColumnSelector from "./ColumnSelector";
 
 interface IBoxesTableProps {
-  tableConfigKey: string;
-  tableData: BoxRow[];
+  tableConfig: IUseTableConfigReturnType;
+  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
+  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
-  columnSelector: React.ReactNode;
   onBoxRowClick: (labelIdentified: string) => void;
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
+  selectedRowsArePending: boolean;
 }
 
 function BoxesTable({
-  tableConfigKey,
-  tableData,
+  tableConfig,
+  onRefetch,
+  boxesQueryRef,
   columns,
   actionButtons,
-  columnSelector,
   onBoxRowClick,
   setSelectedBoxes,
+  selectedRowsArePending,
 }: IBoxesTableProps) {
-  const tableConfigsState = useReactiveVar(tableConfigsVar);
-
-  const tableConfig = tableConfigsState?.get(tableConfigKey);
-  if (tableConfig == null) {
-    tableConfigsState.set(tableConfigKey, {
-      globalFilter: undefined,
-      columnFilters: [],
-    });
-    tableConfigsVar(tableConfigsState);
-  }
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseId = globalPreferences.selectedBase?.id!;
+  const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
+  const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
+  const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -75,22 +79,11 @@ function BoxesTable({
     [],
   );
 
-  // only set default filter to instock if there is at least one instock box
-  const columnFiltersDefault: Filters<any> = useMemo(() => {
-    if (tableConfig?.columnFilters) {
-      return tableConfig.columnFilters;
-    }
-    const hasInStockBox = tableData.some((box) => box.state === "InStock");
-    if (hasInStockBox) {
-      return [{ id: "state", value: ["InStock"] }];
-    }
-    return [];
-  }, [tableConfig?.columnFilters, tableData]);
-
   const {
     headerGroups,
     prepareRow,
-    state: { globalFilter, pageIndex, filters },
+    allColumns,
+    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     page,
     canPreviousPage,
@@ -98,7 +91,6 @@ function BoxesTable({
     pageOptions,
     nextPage,
     previousPage,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     selectedFlatRows,
   } = useTable(
     // TODO: remove this ts-ignore again and try to fix the type error properly
@@ -111,14 +103,13 @@ function BoxesTable({
       data: tableData,
       filterTypes,
       initialState: {
+        hiddenColumns: tableConfig.getHiddenColumns(),
+        sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
         pageSize: 20,
-        hiddenColumns: columns
-          .filter((col: any) => col.show === false)
-          .map((col) => col.id || col.accessor) as any,
-        filters: columnFiltersDefault,
-        ...(tableConfig?.globalFilter != null
-          ? { globalFilter: tableConfig?.globalFilter }
+        filters: tableConfig.getColumnFilters(),
+        ...(tableConfig.getGlobalFilter()
+          ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
     },
@@ -148,12 +139,29 @@ function BoxesTable({
   }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {
-    tableConfigsState.set(tableConfigKey, {
-      globalFilter,
-      columnFilters: filters,
-    });
-    tableConfigsVar(tableConfigsState);
-  }, [globalFilter, filters, tableConfig, tableConfigsState, tableConfigKey]);
+    // refetch
+    const newStateFilter = filters.find((filter) => filter.id === "state");
+    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    if (newStateFilter !== oldStateFilter) {
+      startRefetchBoxes(() => {
+        onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
+      });
+    }
+
+    // update tableConfig
+    if (globalFilter !== tableConfig.getGlobalFilter()) {
+      tableConfig.setGlobalFilter(globalFilter);
+    }
+    if (filters !== tableConfig.getColumnFilters()) {
+      tableConfig.setColumnFilters(filters);
+    }
+    if (sortBy !== tableConfig.getSortBy()) {
+      tableConfig.setSortBy(sortBy);
+    }
+    if (hiddenColumns !== tableConfig.getHiddenColumns()) {
+      tableConfig.setHiddenColumns(hiddenColumns);
+    }
+  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" height="100%">
@@ -161,7 +169,7 @@ function BoxesTable({
         <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
         <HStack spacing={2} mb={2}>
-          {columnSelector}
+          <ColumnSelector availableColumns={allColumns} />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
@@ -181,8 +189,31 @@ function BoxesTable({
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
+            {refetchBoxesIsPending && (
+              <Tr key="refetchIsPending1">
+                <Td colSpan={columns.length + 1}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+            )}
+            {refetchBoxesIsPending && (
+              <Tr key="refetchIsPending2">
+                <Td colSpan={columns.length + 1}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+            )}
             {page.map((row) => {
               prepareRow(row);
+              if (row.isSelected && selectedRowsArePending) {
+                return (
+                  <Tr key={row.original.labelIdentifier}>
+                    <Td colSpan={columns.length + 1}>
+                      <Skeleton height={5} />
+                    </Td>
+                  </Tr>
+                );
+              }
               return (
                 <Tr
                   cursor="pointer"

@@ -23,6 +23,7 @@ export const shipmentDetail1 = () => ({
         id: "1",
       },
     },
+    lastModifiedOn: "2023-01-09T17:24:29+00:00",
   },
   sourceProduct: product1,
   targetProduct: null,

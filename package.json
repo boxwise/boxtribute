@@ -3,5 +3,9 @@
   "workspaces": [
     "front",
     "statviz"
-  ]
+  ],
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.17"
+  }
 }
