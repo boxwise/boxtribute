@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
 import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
@@ -109,7 +108,6 @@ function App() {
                   component={
                     <ErrorBoundary
                       fallback={
-                        // eslint-disable-next-line max-len
                         <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
                       }
                     >
