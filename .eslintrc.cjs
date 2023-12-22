@@ -28,11 +28,7 @@ module.exports = {
   parserOptions: {
     tsconfigRootDir: __dirname,
     // TODO add statviz to this
-    project: [
-      "./tsconfig.json",
-      "./front/tsconfig.json",
-      "./shared-components/tsconfig.json",
-    ],
+    project: ["./tsconfig.json", "./front/tsconfig.json", "./shared-components/tsconfig.json"],
   },
   plugins: ["@typescript-eslint"],
   settings: {
@@ -53,11 +49,7 @@ module.exports = {
         // always try to resolve types
         alwaysTryTypes: true,
         // look here for tsconfig files
-        project: [
-          "./tsconfig.json",
-          "./front/tsconfig.json",
-          "./shared-components/tsconfig.json",
-        ],
+        project: ["./tsconfig.json", "./front/tsconfig.json", "./shared-components/tsconfig.json"],
       },
     },
   },
@@ -84,10 +76,7 @@ module.exports = {
     // matter of preference (allows to use props.propName instead of deconstructing props first)
     "react/destructuring-assignment": "off",
     // allow other than jsx extensions
-    "react/jsx-filename-extension": [
-      1,
-      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
-    ],
+    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".ts", ".tsx"] }],
     // --------- Import Plugin Rules ---------
     // ensure that all modules that are imported are actually declared in a package.json file
     "import/no-extraneous-dependencies": ["error"],

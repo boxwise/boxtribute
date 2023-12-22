@@ -7,7 +7,14 @@
   "scripts": {
     "dev": "yarn generate-graphql-ts-types --watch & vite",
     "build": "tsc && yarn generate-graphql-ts-types && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
+    "lint:all": "yarn lint .",
+    "lint:fix": "yarn lint --fix",
+    "lint:fix:all": "yarn lint:fix .",
+    "format:check:all": "yarn format:check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
+    "format:check": "prettier --check --ignore-path ../.eslintignore",
+    "format:write:all": "yarn format:write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "prettier --write --ignore-path ../.eslintignore",
     "preview": "vite preview",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
   },

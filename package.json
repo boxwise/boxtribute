@@ -7,13 +7,14 @@
     "shared-components"
   ],
   "scripts": {
-    "format:check:all": "yarn format:check \"+(front|shared-components)/**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
+    "format:check:all": "yarn format:check \"+(front|shared-components|statviz)/**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
     "format:check": "prettier --check --ignore-path .eslintignore",
-    "format:write:all": "yarn format:write \"+(front|shared-components)/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write:all": "yarn format:write \"+(front|shared-components|statviz)/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "format:write": "prettier --write --ignore-path .eslintignore",
     "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "yarn lint --fix",
-    "lint:all": "yarn lint shared-components front"
+    "lint:all": "yarn lint shared-components front statviz",
+    "lint:all:fix": "yarn lint:fix shared-components front statviz"
   },
   "dependencies": {
     "@apollo/client": "^3.8.1",
