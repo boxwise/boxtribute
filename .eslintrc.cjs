@@ -28,7 +28,7 @@ module.exports = {
   parserOptions: {
     tsconfigRootDir: __dirname,
     // TODO add statviz to this
-    project: ["./tsconfig.json", "./front/tsconfig.json", "./shared-components/tsconfig.json"],
+    project: ["./*/tsconfig.json"],
   },
   plugins: ["@typescript-eslint"],
   settings: {
@@ -49,7 +49,7 @@ module.exports = {
         // always try to resolve types
         alwaysTryTypes: true,
         // look here for tsconfig files
-        project: ["./tsconfig.json", "./front/tsconfig.json", "./shared-components/tsconfig.json"],
+        project: ["./*/tsconfig.json"],
       },
     },
   },

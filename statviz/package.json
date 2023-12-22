@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "yarn generate-graphql-ts-types --watch & vite",
     "build": "tsc && yarn generate-graphql-ts-types && vite build",
+    "tsc:check": "tsc --noEmit",
+    "tsc:precommit": "tsc-files --noEmit",
     "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
     "lint:all": "yarn lint .",
     "lint:fix": "yarn lint --fix",

@@ -48,6 +48,12 @@ repos:
         types_or: [javascript, jsx, ts, tsx]
         language: script
         require_serial: true
+      - id: tsc
+        name: Typecheck Typescript files
+        entry: ./invoke_yarn tsc
+        types_or: [ts, tsx]
+        language: script
+        require_serial: true
       - id: generate-graphql-ts-types
         name: Generate GraphQL Typescript definitions
         entry: ./invoke_yarn graphql-types

@@ -6,16 +6,34 @@
 mode=$1
 shift
 
-# strip front/ prefix from all given filepaths (pre-commit generates them from the repository root)
-files=("${@#front/}")
+declare -A file_collections
+
+# strip front/ prefix from all given filepaths and add to file_collections
+for file in "${@#front/}"; do
+    file_collections["front"]+="$file "
+done
+
+# strip statviz/ prefix from all given filepaths and add to file_collections
+for file in "${@#statviz/}"; do
+    file_collections["statviz"]+="$file "
+done
+
+# strip shared-components/ prefix from all given filepaths and add to file_collections
+for file in "${@#shared-components/}"; do
+    file_collections["shared-components"]+="$file "
+done
 
 # TODO: move this to the pre-commit config. Otherwise people need to install yarn
 if [[ "$mode" = "lint" ]]; then
     yarn run lint:fix "$@"
 elif [[ "$mode" = "format" ]]; then
     yarn run format:write "$@"
+elif [[ "$mode" = "tsc" ]]; then
+    yarn --cwd front run tsc:precommit --noEmit "${file_collections["front"]}"
+    yarn --cwd statviz run tsc:precommit --noEmit "${file_collections["statviz"]}"
+    yarn --cwd shared-components run tsc:precommit --noEmit "${file_collections["shared-components"]}"
 elif [[ "$mode" = "graphql-types" ]]; then
-    yarn --cwd front run generate-graphql-ts-types
+    yarn --cwd front run generate-graphql-ts-types && yarn --cwd statviz run generate-graphql-ts-types
 else
     echo "Unknown mode: $mode" >&2
     exit 1

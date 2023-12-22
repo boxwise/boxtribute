@@ -4,5 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Shared React components of Boxtribute FE Apps",
-  "main": "index.js"
+  "main": "index.js",
+  "scripts": {
+    "tsc:check": "tsc --noEmit",
+    "tsc:precommit": "tsc-files --noEmit"
+  }
 }

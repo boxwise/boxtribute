@@ -4,10 +4,6 @@
     /* imports are relative to the src/ directory */
     "baseUrl": "src",
 
-    /* Building */
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-
     /* The following linting settings we might want to get rid of in the future */
     "allowSyntheticDefaultImports": true,
     "strictFunctionTypes": false,

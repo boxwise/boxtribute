@@ -1,12 +1,5 @@
 {
   "extends": "../tsconfig.json",
-  "compilerOptions": {
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    /* not sure what this does*/
-    "allowImportingTsExtensions": true
-  },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
