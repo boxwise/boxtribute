@@ -78,7 +78,7 @@
     "msw": "^1.1.0",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^3.0.3",
-    "prettier-eslint": "^15.0.1",
+    "prettier-eslint": "^16.2.0",
     "prop-types": "^15.8.1",
     "regenerator-runtime": "^0.14.0",
     "typescript": "^4.8.4",
