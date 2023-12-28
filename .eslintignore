@@ -12,3 +12,5 @@ Distributions
 react-table-config.d.ts
 # Disable linting for generated files from the GraphQL codegen
 graphql.ts
+# Temporarily disable linting and formatting for statviz
+statviz

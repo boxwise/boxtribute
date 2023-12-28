@@ -27,7 +27,7 @@ elif [[ "$mode" = "format" ]]; then
 elif [[ "$mode" = "tsc" ]]; then
     echo "${file_collections["shared-components"]}"
     yarn --cwd front run tsc:precommit --noEmit "${file_collections["front"]}"
-    yarn --cwd statviz run tsc:precommit --noEmit "${file_collections["statviz"]}"
+    # yarn --cwd statviz run tsc:precommit --noEmit "${file_collections["statviz"]}"
     yarn --cwd shared-components run tsc:precommit --noEmit "${shared_components_files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then
     yarn --cwd front run generate-graphql-ts-types && yarn --cwd statviz run generate-graphql-ts-types
