@@ -1,12 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import {
-  CreatedBoxesData,
-  CreatedBoxesResult,
-  QueryCreatedBoxesArgs,
-} from "../types/generated/graphql";
-import { createdBoxesTable } from "../utils/table";
+import { CreatedBoxesData, QueryCreatedBoxesArgs } from "../types/generated/graphql";
 import useTimerange from "./useTimerange";
 import { filterListByInterval } from "../utils/helpers";
 
@@ -37,10 +32,10 @@ const CREATED_BOXES_QUERY = gql`
 
 export default function useCreatedBoxes() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery<
-    CreatedBoxesData,
-    QueryCreatedBoxesArgs
-  >(CREATED_BOXES_QUERY, { variables: { baseId: parseInt(baseId) } });
+  const { data, loading, error } = useQuery<CreatedBoxesData, QueryCreatedBoxesArgs>(
+    CREATED_BOXES_QUERY,
+    { variables: { baseId: parseInt(baseId, 10) } },
+  );
 
   const { timerange, interval } = useTimerange();
 

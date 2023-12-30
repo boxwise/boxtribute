@@ -1,11 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
-import {
-  MovedBoxesData,
-  QueryMovedBoxesArgs,
-} from "../types/generated/graphql";
-import NoDataCard from "../../NoDataCard";
+import { MovedBoxesData, QueryMovedBoxesArgs } from "../../../types/generated/graphql";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 
 const MOVED_BOXES_QUERY = gql`
@@ -37,12 +33,12 @@ const MOVED_BOXES_QUERY = gql`
 // the filter wrapper passes it to the Chart which maps the datacube to a VisX or nivo Chart
 export default function MovedBoxesDataContainer() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery<
-    { movedBoxes: MovedBoxesData },
-    QueryMovedBoxesArgs
-  >(MOVED_BOXES_QUERY, {
-    variables: { baseId: parseInt(baseId) },
-  });
+  const { data, loading, error } = useQuery<{ movedBoxes: MovedBoxesData }, QueryMovedBoxesArgs>(
+    MOVED_BOXES_QUERY,
+    {
+      variables: { baseId: parseInt(baseId, 10) },
+    },
+  );
 
   if (loading) {
     return <Spinner />;

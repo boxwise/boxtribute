@@ -1,10 +1,11 @@
+/* es-lint-disable */
+// TODO refactore to use tidy
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import { range } from "lodash";
 import { ApolloError } from "@apollo/client";
 import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import { HumanGender } from "../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
-import { table } from "../../../utils/table";
 import useDemographics from "../../../hooks/useDemographics";
 import getOnExport from "../../../utils/chartExport";
 
@@ -30,10 +31,7 @@ export interface IDemographicCube {
 const visId = "demographic-pyramid";
 const heading = "Demographic";
 
-export default function DemographicChart(params: {
-  width: number;
-  height: number;
-}) {
+export default function DemographicChart(params: { width: number; height: number }) {
   const { demographics, error, loading } = useDemographics();
   const onExport = getOnExport(BarChartCenterAxis);
 
@@ -51,9 +49,8 @@ export default function DemographicChart(params: {
         </CardHeader>
         <CardBody>
           <p>
-            No demographic data available for your base. Either you are a
-            sending base which is not registering people or the birth date is
-            not registered.
+            No demographic data available for your base. Either you are a sending base which is not
+            registering people or the birth date is not registered.
           </p>
         </CardBody>
       </Card>
@@ -64,13 +61,13 @@ export default function DemographicChart(params: {
     const dataXr = table(
       demographics
         .filter((value) => value.gender === HumanGender.Male)
-        .data.map((e) => ({ x: e.count, y: e.age }))
+        .data.map((e) => ({ x: e.count, y: e.age })),
     ).groupBySum("y", ["x"]).data;
 
     const dataXl = table(
       demographics
         .filter((value) => value.gender === HumanGender.Female)
-        .data.map((e) => ({ x: e.count, y: e.age }))
+        .data.map((e) => ({ x: e.count, y: e.age })),
     ).groupBySum("y", ["x"]).data;
 
     return [dataXr, dataXl];
@@ -112,7 +109,7 @@ export default function DemographicChart(params: {
         chartProps={chartProps}
         defaultHeight={800}
         defaultWidth={600}
-       />
+      />
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
         <BarChartCenterAxis {...chartProps} />
       </CardBody>

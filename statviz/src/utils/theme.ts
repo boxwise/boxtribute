@@ -3,8 +3,7 @@ import { Theme } from "@nivo/core";
 import { defaultStyles } from "@visx/tooltip";
 import { percent } from "./chart";
 
-export const getSelectionBackground = (selected: boolean) =>
-  selected ? "blue.100" : "white";
+export const getSelectionBackground = (selected: boolean) => (selected ? "blue.100" : "white");
 
 const colors = {
   brandRed: {
@@ -216,12 +215,7 @@ export const nivoScheme: Theme = {
   },
 };
 
-export const scaledNivoTheme = (
-  width: number,
-  height: number,
-  scaleFactor: number = 5
-): Theme => {
-  const hW = height + width;
+export const scaledNivoTheme = (width: number, height: number, scaleFactor: number = 5): Theme => {
   const strokeWidth = Math.ceil(height / 900);
   const fontSizeAxis = Math.ceil(height / 35);
   const fontSizeLegend = Math.ceil(height / 35);
@@ -352,29 +346,21 @@ export const graphMarginLeft = (width: number) => percent(width, 10);
 
 // Extra margins needed between the graph and top of the image to display additional information
 const getMarginHeader = (headingFontSize: number) => headingFontSize * 1.1;
-const getMarginTimerange = (timeRangeFontSize: number) =>
-  timeRangeFontSize * 1.1;
+const getMarginTimerange = (timeRangeFontSize: number) => timeRangeFontSize * 1.1;
 
 // Calculate font sizes in dependence of the image size
-const headingFontSize = (width: number, height: number) =>
-  Math.ceil((width + height) / 50);
+const headingFontSize = (width: number, height: number) => Math.ceil((width + height) / 50);
 
-const timeRangeFontSize = (width: number, height: number) =>
-  Math.ceil((width + height) / 90);
+const timeRangeFontSize = (width: number, height: number) => Math.ceil((width + height) / 90);
 
-const timeStampFontSize = (width: number, height: number) =>
-  Math.ceil((width + height) / 90);
+const timeStampFontSize = (width: number, height: number) => Math.ceil((width + height) / 90);
 
 const headingPosition = (width: number, height: number) => ({
-    y: -percent(height, 10),
-    x: 0,
-  });
+  y: -percent(height, 10),
+  x: 0,
+});
 
-const timeRangePosition = (
-  width: number,
-  height: number,
-  hasHeading: boolean
-) => {
+const timeRangePosition = (width: number, height: number, hasHeading: boolean) => {
   if (hasHeading) {
     const hP = headingPosition(width, height);
     return {
@@ -388,21 +374,17 @@ const timeRangePosition = (
   };
 };
 
-const timeStampPosition = (
-  width: number,
-  height: number,
-  marginTop: number
-) => ({
-    x: -graphMarginLeft(width) + percent(width, 1),
-    y: height - marginTop - percent(height, 1),
-  });
+const timeStampPosition = (width: number, height: number, marginTop: number) => ({
+  x: -graphMarginLeft(width) + percent(width, 1),
+  y: height - marginTop - percent(height, 1),
+});
 
 // Calculate margin between graph and top of the image needed
 export const getMarginTop = (
   height: number,
   width: number,
   header: boolean,
-  timerange: boolean
+  timerange: boolean,
 ) => {
   const marginTop = percent(height, 10);
   if (header && timerange) {
@@ -425,27 +407,27 @@ export const getScaledExportFields = (
   width: number,
   height: number,
   marginTop: number,
-  heading: boolean
+  heading: boolean,
 ) => ({
-    heading: {
-      style: {
-        fontSize: headingFontSize(width, height),
-      },
-      ...headingPosition(width, height),
+  heading: {
+    style: {
+      fontSize: headingFontSize(width, height),
     },
-    timerange: {
-      style: {
-        fontSize: timeRangeFontSize(width, height),
-      },
-      ...timeRangePosition(width, height, heading),
+    ...headingPosition(width, height),
+  },
+  timerange: {
+    style: {
+      fontSize: timeRangeFontSize(width, height),
     },
-    timestamp: {
-      style: {
-        fontSize: timeStampFontSize(width, height),
-      },
-      ...timeStampPosition(width, height, marginTop),
+    ...timeRangePosition(width, height, heading),
+  },
+  timestamp: {
+    style: {
+      fontSize: timeStampFontSize(width, height),
     },
-  });
+    ...timeStampPosition(width, height, marginTop),
+  },
+});
 
 export const scaleTick = (height: number) => height / 80;
 export const tooltipStyles = {

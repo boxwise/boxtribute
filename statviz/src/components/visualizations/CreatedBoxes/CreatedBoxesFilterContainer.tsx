@@ -1,43 +1,34 @@
-import { Wrap, WrapItem, FormLabel, Box, useInterval , Select } from "@chakra-ui/react";
+import { Wrap, WrapItem, FormLabel, Box, Select } from "@chakra-ui/react";
 import { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  CreatedBoxesData,
-  CreatedBoxesResult,
-} from "../../../types/generated/graphql";
+import { CreatedBoxesData, CreatedBoxesResult } from "../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";
 
 export type BoxesOrItems = "boxesCount" | "itemsCount";
 
-const isBoxesOrItemsCount = (x: any | undefined): x is BoxesOrItems => x == "boxesCount" || x == "itemsCount";
+const isBoxesOrItemsCount = (x: any | undefined): x is BoxesOrItems =>
+  x === "boxesCount" || x === "itemsCount";
 
-export default function CreatedBoxesFilterContainer(props: {
-  createdBoxes: CreatedBoxesData;
-}) {
+export default function CreatedBoxesFilterContainer(props: { createdBoxes: CreatedBoxesData }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { interval } = useTimerange();
 
-  const [selectedBoxesOrItems, setSelectedBoxesOrItems] =
-    useState<BoxesOrItems>("boxesCount");
+  const [selectedBoxesOrItems, setSelectedBoxesOrItems] = useState<BoxesOrItems>("boxesCount");
 
   useEffect(() => {
-    if (isBoxesOrItemsCount(searchParams.get("boi"))) {
-      setSelectedBoxesOrItems(searchParams.get("boi"));
+    const boi = searchParams.get("boi");
+    if (isBoxesOrItemsCount(boi)) {
+      setSelectedBoxesOrItems(boi);
     } else {
-      if (searchParams.get("boi") !== null) {
+      if (boi !== null) {
         searchParams.delete("boi");
       }
       searchParams.append("boi", selectedBoxesOrItems);
       setSearchParams(searchParams);
     }
-  }, [
-    selectedBoxesOrItems,
-    setSelectedBoxesOrItems,
-    searchParams,
-    setSearchParams,
-  ]);
+  }, [selectedBoxesOrItems, setSelectedBoxesOrItems, searchParams, setSearchParams]);
 
   const onBoxesItemsSelectChange = (event: ChangeEvent) => {
     const selected = event.target.selectedOptions.item(0).value as BoxesOrItems;
@@ -57,11 +48,12 @@ export default function CreatedBoxesFilterContainer(props: {
       return filterListByInterval(
         props.createdBoxes.facts as CreatedBoxesResult[],
         "createdOn",
-        interval
+        interval,
       ) as CreatedBoxesResult[];
     } catch (error) {
       console.log("invalid timerange in created boxes");
     }
+    return [];
   }, [interval, props.createdBoxes.facts]);
 
   const filteredCreatedBoxesCube = {
@@ -70,12 +62,7 @@ export default function CreatedBoxesFilterContainer(props: {
   };
   return (
     <>
-      <Wrap
-        borderWidth="1px"
-        borderRadius="12px"
-        padding="5"
-        marginBottom="30px"
-      >
+      <Wrap borderWidth="1px" borderRadius="12px" padding="5" marginBottom="30px">
         <WrapItem>
           <Box width="250px">
             <FormLabel htmlFor="box-item-select">Display by</FormLabel>
@@ -90,10 +77,7 @@ export default function CreatedBoxesFilterContainer(props: {
           </Box>
         </WrapItem>
       </Wrap>
-      <CreatedBoxesCharts
-        data={filteredCreatedBoxesCube}
-        boxesOrItems={selectedBoxesOrItems}
-      />
+      <CreatedBoxesCharts data={filteredCreatedBoxesCube} boxesOrItems={selectedBoxesOrItems} />
     </>
   );
 }

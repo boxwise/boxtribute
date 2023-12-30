@@ -7,13 +7,8 @@ import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
 import { isNumber } from "lodash";
 import { useEffect, useRef } from "react";
-import { tooltipStyles ,
-  getMarginTop,
-  getScaledExportFields,
-  scaledExportFieldsVisX,
-  tickProps,
-} from "../../utils/theme";
-import { IXY, labelProps, percent } from "../../utils/chart";
+import { tooltipStyles, getMarginTop, getScaledExportFields, tickProps } from "../../utils/theme";
+import { IXY, labelProps } from "../../utils/chart";
 
 type TooltipData = string;
 
@@ -89,18 +84,13 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
   const includeHeading = typeof chart.heading === "string";
   const includeTimerange = typeof chart.timerange === "string";
-  const marginTop = getMarginTop(
-    fields.height,
-    fields.width,
-    includeHeading,
-    includeTimerange
-  );
+  const marginTop = getMarginTop(fields.height, fields.width, includeHeading, includeTimerange);
 
   const exportInfoStyles = getScaledExportFields(
     fields.width,
     fields.height,
     marginTop,
-    includeHeading
+    includeHeading,
   );
 
   const chartWidth = fields.width - (marginLeft + marginRight);
@@ -109,13 +99,8 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   const halfWidth = chartWidth / 2;
 
   const minX = 0;
-  const maxX =
-    Math.max(
-      ...fields.dataXr.map((e) => e.x),
-      ...fields.dataXl.map((e) => e.x)
-    ) * 1.05;
+  const maxX = Math.max(...fields.dataXr.map((e) => e.x), ...fields.dataXl.map((e) => e.x)) * 1.05;
 
-  const minY = Math.min(...fields.dataY);
   const maxY = Math.max(...fields.dataY);
 
   let barHight = chartHeight / fields.dataY.length;
@@ -148,26 +133,12 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
   return (
     <div id={chart.visId}>
-      <svg
-        width={fields.width}
-        height={fields.height}
-        style={{ fontFamily: "Open Sans" }}
-      >
-        <rect
-          fill={fields.background}
-          width={fields.width}
-          height={fields.height}
-        />
+      <svg width={fields.width} height={fields.height} style={{ fontFamily: "Open Sans" }}>
+        <rect fill={fields.background} width={fields.width} height={fields.height} />
         <Group top={marginTop} left={marginLeft}>
-          {chart.heading && (
-            <text {...exportInfoStyles.heading}>{chart.heading}</text>
-          )}
-          {chart.timerange && (
-            <text {...exportInfoStyles.timerange}>{chart.timerange}</text>
-          )}
-          {chart.timestamp && (
-            <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>
-          )}
+          {chart.heading && <text {...exportInfoStyles.heading}>{chart.heading}</text>}
+          {chart.timerange && <text {...exportInfoStyles.timerange}>{chart.timerange}</text>}
+          {chart.timestamp && <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>}
           <Group>
             <Grid
               width={chartWidth / 2}
@@ -201,10 +172,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   x={x}
                   y={y - barHight / 2}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(
-                      () => hideTooltip(),
-                      300
-                    );
+                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
                   }}
                   onMouseMove={(event) => {
                     if (tooltipTimeout) clearTimeout(tooltipTimeout);
@@ -235,10 +203,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   y={y - barHight / 2}
                   fill={fields.colorBarRight}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(
-                      () => hideTooltip(),
-                      300
-                    );
+                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
                   }}
                   onMouseMove={(event) => {
                     if (tooltipTimeout) clearTimeout(tooltipTimeout);
@@ -286,12 +251,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       </svg>
       <div style={{ position: "relative" }}>
         {tooltipOpen && tooltipData && (
-          <Tooltip
-            key={Math.random()}
-            left={tooltipLeft}
-            top={tooltipTop}
-            style={tooltipStyles}
-          >
+          <Tooltip key={Math.random()} left={tooltipLeft} top={tooltipTop} style={tooltipStyles}>
             <span>{tooltipData}</span>
           </Tooltip>
         )}

@@ -1,14 +1,9 @@
 import { ResponsiveBar, BarDatum, BarLayer } from "@nivo/bar";
 import { useRef, useEffect } from "react";
-import {
-  getMarginTop,
-  getScaledExportFields,
-  scaleTick,
-  scaledNivoTheme,
-} from "../../utils/theme";
+import { getMarginTop, getScaledExportFields, scaleTick, scaledNivoTheme } from "../../utils/theme";
 import { percent } from "../../utils/chart";
 
-export interface BarChart {
+export interface IBarChart {
   width: string;
   height: string;
   data: Array<object>;
@@ -26,7 +21,7 @@ export interface BarChart {
   rendered?: () => void;
 }
 
-export default function BarChart(barChart: BarChart) {
+export default function BarChart(barChart: IBarChart) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,8 +31,8 @@ export default function BarChart(barChart: BarChart) {
     barChart.rendered();
   }, [ref]);
 
-  const height = parseInt(barChart.height);
-  const width = parseInt(barChart.width);
+  const height = parseInt(barChart.height, 10);
+  const width = parseInt(barChart.width, 10);
 
   const theme = scaledNivoTheme(width, height, barChart.data.length);
   const marginBottom = percent(height, 25);
@@ -53,19 +48,9 @@ export default function BarChart(barChart: BarChart) {
 
   const includeHeading = typeof barChart.heading === "string";
   const includeTimerange = typeof barChart.timerange === "string";
-  const marginTop = getMarginTop(
-    height,
-    width,
-    includeHeading,
-    includeTimerange
-  );
+  const marginTop = getMarginTop(height, width, includeHeading, includeTimerange);
 
-  const exportInfoStyles = getScaledExportFields(
-    width,
-    height,
-    marginTop,
-    includeHeading
-  );
+  const exportInfoStyles = getScaledExportFields(width, height, marginTop, includeHeading);
 
   if (includeHeading) {
     layers.push(() => <text {...exportInfoStyles.heading}>{barChart.heading}</text>);
@@ -106,11 +91,7 @@ export default function BarChart(barChart: BarChart) {
       : [];
 
   return (
-    <div
-      ref={ref}
-      id={barChart.visId}
-      style={{ width: barChart.width, height: barChart.height }}
-    >
+    <div ref={ref} id={barChart.visId} style={{ width: barChart.width, height: barChart.height }}>
       <ResponsiveBar
         data={barChart.data}
         keys={barChart.keys}
@@ -179,9 +160,7 @@ export default function BarChart(barChart: BarChart) {
         legends={legend}
         role="application"
         ariaLabel={barChart.ariaLabel}
-        barAriaLabel={(e) =>
-          `${e.id  }: ${  e.formattedValue  } in country: ${  e.indexValue}`
-        }
+        barAriaLabel={(e) => `${e.id}: ${e.formattedValue} in country: ${e.indexValue}`}
       />
     </div>
   );

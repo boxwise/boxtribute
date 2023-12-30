@@ -63,8 +63,8 @@ export default function VisHeader(params: {
   const download = (e) => {
     isChartExporting(true);
     params.onExport(
-      parseInt(inputWidth),
-      parseInt(inputHeight),
+      parseInt(inputWidth, 10),
+      parseInt(inputHeight, 10),
       value.indexOf("heading") !== -1 ? params.heading : undefined,
       value.indexOf("timerange") !== -1 ? timerange : undefined,
       value.indexOf("timestamp") !== -1 ? date2String(new Date()) : undefined,
@@ -76,7 +76,7 @@ export default function VisHeader(params: {
   const getMaxWidth = () => {
     const marginInPx = 50;
     if (typeof params.maxWidthPx === "string") {
-      return parseInt(params.maxWidthPx) + marginInPx;
+      return parseInt(params.maxWidthPx, 10) + marginInPx;
     }
     return params.maxWidthPx + marginInPx;
   };

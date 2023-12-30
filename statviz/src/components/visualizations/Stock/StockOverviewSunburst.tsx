@@ -1,39 +1,29 @@
 import { Card, CardBody } from "@chakra-ui/react";
-import {
-  filter,
-  groupBy,
-  innerJoin,
-  map,
-  sum,
-  summarize,
-  tidy,
-} from "@tidyjs/tidy";
+import { groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
 import VisHeader from "../../VisHeader";
 import Sunburst from "../../nivo-graphs/Sunburst";
 import { StockOverviewData } from "../../../types/generated/graphql";
 
 const heading = "Stock Overview";
 
-export default function StockOverviewSunburst(props: {
-  width: string;
-  height: string;
-  stockOverview: StockOverviewData;
-}) {
-  const { width, height, stockOverview } = { ...props };
+// es-lint rule disabled as it gives a false positive here
+// eslint-disable-next-line react/no-unused-prop-types
+export default function StockOverviewSunburst(props: { stockOverview: StockOverviewData }) {
+  const { stockOverview } = { ...props };
 
   const sizeDim = stockOverview.dimensions.size.map((size) => ({
-    sizeId: parseInt(size.id),
+    sizeId: parseInt(size.id, 10),
     sizeName: size.name,
   }));
   const categoryDim = stockOverview.dimensions.category.map((category) => ({
-    categoryId: parseInt(category.id),
+    categoryId: parseInt(category.id, 10),
     categoryName: category.name,
   }));
 
   const preparedStockData = tidy(
     stockOverview.facts,
     innerJoin(categoryDim, "categoryId"),
-    innerJoin(sizeDim, "sizeId")
+    innerJoin(sizeDim, "sizeId"),
   );
   let idCounter = 0;
 
@@ -52,8 +42,8 @@ export default function StockOverviewSunburst(props: {
         single: true,
         flat: false,
         mapEntry: (entry, level) => {
-          idCounter++;
-          if (level == 3) {
+          idCounter += 1;
+          if (level === 3) {
             return {
               name: entry[1].gender,
               id: idCounter,
@@ -66,8 +56,8 @@ export default function StockOverviewSunburst(props: {
             children: entry[1],
           };
         },
-      })
-    )
+      }),
+    ),
   );
 
   const test2 = {

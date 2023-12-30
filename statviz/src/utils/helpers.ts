@@ -1,18 +1,7 @@
-import {
-  complete,
-  expand,
-  filter,
-  leftJoin,
-  tidy,
-  fullSeqDateISOString,
-} from "@tidyjs/tidy";
-import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
-import { string } from "zod";
+import { complete, filter, tidy, fullSeqDateISOString } from "@tidyjs/tidy";
+import { Interval, isWithinInterval } from "date-fns";
 
-export const getISODateTimeFromDateAndTimeString = (
-  date: Date,
-  timeString: string
-) => {
+export const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => {
   const [hours, minutes] = timeString.split(":").map(Number);
   const dateTime = new Date(date);
   dateTime.setHours(hours);
@@ -50,14 +39,15 @@ export const generateDropappUrl = (
   oldLink: string,
   baseId: string | undefined,
   qrCode: string | undefined,
-  labelIdentifier: string | undefined
+  labelIdentifier: string | undefined,
 ) => {
-  const newLink = `${oldLink  }?camp=${  baseId  }&preference=classic`;
+  const newLink = `${oldLink}?camp=${baseId}&preference=classic`;
   if (oldLink.includes("mobile.php")) {
     if (labelIdentifier !== undefined) {
-      return `${newLink  }&boxid=${  labelIdentifier}`;
-    } if (qrCode !== undefined) {
-      return `${newLink  }&barcode=${  qrCode}`;
+      return `${newLink}&boxid=${labelIdentifier}`;
+    }
+    if (qrCode !== undefined) {
+      return `${newLink}&barcode=${qrCode}`;
     }
   }
   return newLink;
@@ -76,7 +66,7 @@ export const colorIsBright = (hex) => {
   const [r, g, b] = hex
     .replace(
       /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-      (m, r, g, b) => `#${  r  }${r  }${g  }${g  }${b  }${b}`
+      (m, rf, gf, bf) => `#${rf}${rf}${gf}${gf}${bf}${bf}`,
     )
     .substring(1)
     .match(/.{2}/g)
@@ -84,7 +74,9 @@ export const colorIsBright = (hex) => {
   return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
 };
 
-export const formatDateKey = (date: Date): string => `${date.toLocaleString("default", { month: "short" })}
+export const formatDateKey = (date: Date): string => `${date.toLocaleString("default", {
+  month: "short",
+})}
     ${date.getDate()}, ${date.getFullYear()}`;
 
 export const prepareBoxHistoryEntryText = (text: string): string => {
@@ -104,8 +96,7 @@ export const prepareBoxHistoryEntryText = (text: string): string => {
  * @return {string} The formatted time as a string in the format "HH:MM".
  */
 export const formatTime = (date: Date | string): string => {
-  const formattedDate =
-    typeof date === "string" && date !== "" ? new Date(date) : date;
+  const formattedDate = typeof date === "string" && date !== "" ? new Date(date) : date;
 
   if (formattedDate instanceof Date) {
     const hours = formattedDate.getHours().toString().padStart(2, "0");
@@ -121,22 +112,16 @@ type Table = Record<Key, Date>;
 
 // this function assumes that the data is already sorted by the date column in ascending order
 // Make sure data is sorted by date first, for createdBoxes this is done by the backend
-export const fillMissingDays = (
-  table: Table[],
-  column: Key,
-  filling: object
-) => tidy(
+export const fillMissingDays = (table: Table[], column: Key) =>
+  tidy(
     table,
     complete(column, {
       [column]: fullSeqDateISOString(table, column, "day", 1),
-    })
+    }),
   );
 
-export const filterListByInterval = (
-  list: Array<object>,
-  column: string,
-  interval: Interval
-) => tidy(
+export const filterListByInterval = (list: Array<object>, column: string, interval: Interval) =>
+  tidy(
     list,
-    filter((e) => isWithinInterval(new Date(e[column]), interval))
+    filter((e) => isWithinInterval(new Date(e[column]), interval)),
   );

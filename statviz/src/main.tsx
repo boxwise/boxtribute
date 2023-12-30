@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { BrowserRouter } from "react-router-dom";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
-import { theme } from "./utils/theme.ts";
-import App from "./App.tsx";
+import { theme } from "./utils/theme";
+import App from "./App";
 
 const client = new ApolloClient({
   uri: import.meta.env.STATVIZ_GRAPHQL_SERVER,
@@ -27,5 +27,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ApolloProvider>
       </BrowserRouter>
     </ChakraProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

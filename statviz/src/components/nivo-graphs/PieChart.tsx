@@ -1,13 +1,9 @@
 import { ResponsivePie } from "@nivo/pie";
 import { useEffect, useRef } from "react";
-import {
-  getMarginTop,
-  getScaledExportFields,
-  scaledNivoTheme,
-} from "../../utils/theme";
+import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../utils/theme";
 import { percent } from "../../utils/chart";
 
-export interface PieChart {
+export interface IPieChart {
   width: string;
   height: string;
   data: Array<object>;
@@ -19,7 +15,7 @@ export interface PieChart {
   onClick?: (node) => void;
 }
 
-export default function PieChart(chart: PieChart) {
+export default function PieChart(chart: IPieChart) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current === null) return;
@@ -28,8 +24,8 @@ export default function PieChart(chart: PieChart) {
     chart.rendered();
   }, [ref]);
 
-  const height = parseInt(chart.height);
-  const width = parseInt(chart.width);
+  const height = parseInt(chart.height, 10);
+  const width = parseInt(chart.width, 10);
 
   const theme = scaledNivoTheme(width, height, 10);
 
@@ -51,12 +47,7 @@ export default function PieChart(chart: PieChart) {
     left: percent(width, 20),
   };
 
-  const exportInfoStyles = getScaledExportFields(
-    width,
-    height,
-    margin.top,
-    includeHeading
-  );
+  const exportInfoStyles = getScaledExportFields(width, height, margin.top, includeHeading);
   const layers = ["arcs", "arcLinkLabels", "arcLabels", "legends"];
   if (includeHeading) {
     layers.push(() => <text {...exportInfoStyles.heading}>{chart.heading}</text>);

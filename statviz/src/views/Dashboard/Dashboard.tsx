@@ -1,14 +1,4 @@
-import {
-  Accordion,
-  Box,
-  Center,
-  FormLabel,
-  Heading,
-  Select,
-  Wrap,
-  WrapItem,
-} from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
+import { Accordion, Center, Heading, Wrap, WrapItem } from "@chakra-ui/react";
 import TimeRangeSelect from "../../components/form/TimeRangeSelect";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
@@ -22,11 +12,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ width: "80%", margin: "25px auto auto auto" }}>
-      <Heading
-        borderBottom="1px"
-        borderColor="gray.200"
-        style={{ marginBottom: "25px" }}
-      >
+      <Heading borderBottom="1px" borderColor="gray.200" style={{ marginBottom: "25px" }}>
         Dashboard
       </Heading>
 

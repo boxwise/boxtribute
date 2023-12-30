@@ -25,9 +25,7 @@ export const MovedBoxesFilterSchema = z.object({
 export type IMovedBoxesFilterInput = z.input<typeof MovedBoxesFilterSchema>;
 export type IMovedBoxesFilterOutput = z.output<typeof MovedBoxesFilterSchema>;
 
-export default function MovedBoxesFilterContainer(props: {
-  movedBoxes: MovedBoxesData;
-}) {
+export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxesData }) {
   const { interval } = useTimerange();
 
   const mapTargetToSelectableLocation = (target: TargetDimensionInfo) => ({
@@ -35,19 +33,13 @@ export default function MovedBoxesFilterContainer(props: {
     location: target.name,
   });
 
-  const locations = props.movedBoxes.dimensions?.target.map(
-    mapTargetToSelectableLocation
-  );
+  const locations = props.movedBoxes.dimensions?.target.map(mapTargetToSelectableLocation);
 
-  const {
-    control,
-    errors,
-    filteredElements: selectedLocations,
-  } = useListFilter(
+  const { control, errors } = useListFilter(
     "locations",
     "locations",
     locations,
-    zodResolver(MovedBoxesFilterSchema)
+    zodResolver(MovedBoxesFilterSchema),
   );
 
   const movedBoxesFacts = useMemo(() => {
@@ -55,11 +47,12 @@ export default function MovedBoxesFilterContainer(props: {
       return filterListByInterval(
         props.movedBoxes.facts as MovedBoxesResult[],
         "movedOn",
-        interval
+        interval,
       ) as MovedBoxesResult[];
     } catch (error) {
       console.log("invalid timerange in use boxes");
     }
+    return [];
   }, [interval, props.movedBoxes.facts]);
 
   const filteredMovedBoxesCube = {

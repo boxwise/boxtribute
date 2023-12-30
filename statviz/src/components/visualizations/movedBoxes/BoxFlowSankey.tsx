@@ -1,15 +1,9 @@
 import { Card, CardBody } from "@chakra-ui/react";
-import { ApolloError } from "@apollo/client";
-import { groupBy, innerJoin, sum, summarize, tidy, filter } from "@tidyjs/tidy";
+import { groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
 import VisHeader from "../../VisHeader";
 import SankeyChart from "../../nivo-graphs/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
-import useMovedBoxes from "../../../hooks/useMovedBoxes";
-import NoDataCard from "../../NoDataCard";
-import {
-  MovedBoxesData,
-  TargetDimensionInfo,
-} from "../../../types/generated/graphql";
+import { MovedBoxesData, TargetDimensionInfo } from "../../../types/generated/graphql";
 
 const heading = "Moved Boxes";
 
@@ -38,12 +32,12 @@ export default function BoxFlowSankey(props: {
     groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
     innerJoin(props.movedBoxes.dimensions.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
-    })
+    }),
   );
 
   const movedBoxesByTargetType = tidy(
     movedBoxes,
-    groupBy("type", [summarize({ boxesCount: sum("boxesCount") })])
+    groupBy("type", [summarize({ boxesCount: sum("boxesCount") })]),
   );
 
   const links = [
@@ -63,6 +57,7 @@ export default function BoxFlowSankey(props: {
             value: target.boxesCount,
           };
         }
+        return undefined;
       })
       .filter((e) => e !== undefined),
     ...movedBoxes.map((movedBox) => {
@@ -95,8 +90,7 @@ export default function BoxFlowSankey(props: {
     })),
   ];
 
-  const nodeIsTargetedByLink = (node) =>
-    links.findIndex((link) => link?.target === node.id) !== -1;
+  const nodeIsTargetedByLink = (node) => links.findIndex((link) => link?.target === node.id) !== -1;
 
   if (nodeIsTargetedByLink(selfReportedNode)) {
     nodes.push(selfReportedNode);

@@ -1,13 +1,9 @@
 import { ResponsiveSankey } from "@nivo/sankey";
 import { useEffect, useRef } from "react";
-import {
-  getMarginTop,
-  getScaledExportFields,
-  scaledNivoTheme,
-} from "../../utils/theme";
+import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../utils/theme";
 import { percent } from "../../utils/chart";
 
-export interface SankeyChart {
+export interface ISankeyChart {
   width: string;
   height: string;
   data: {
@@ -20,7 +16,7 @@ export interface SankeyChart {
   rendered?: () => void;
 }
 
-export default function SankeyChart(chart: SankeyChart) {
+export default function SankeyChart(chart: ISankeyChart) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,8 +26,8 @@ export default function SankeyChart(chart: SankeyChart) {
     chart.rendered();
   }, [ref]);
 
-  const width = parseInt(chart.width);
-  const height = parseInt(chart.height);
+  const width = parseInt(chart.width, 10);
+  const height = parseInt(chart.height, 10);
 
   const includeHeading = typeof chart.heading === "string";
   const includeTimerange = typeof chart.timerange === "string";
@@ -52,12 +48,7 @@ export default function SankeyChart(chart: SankeyChart) {
     },
   };
 
-  const exportInfoStyles = getScaledExportFields(
-    width,
-    height,
-    margin.top,
-    includeHeading
-  );
+  const exportInfoStyles = getScaledExportFields(width, height, margin.top, includeHeading);
 
   const layers = ["labels", "legend", "nodes", "links"];
 

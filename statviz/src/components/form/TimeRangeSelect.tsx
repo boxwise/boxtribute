@@ -23,14 +23,13 @@ export const FilterCreatedOnFormScheme = z.object({
 
 export type ITimeRangeSelection = z.infer<typeof FilterCreatedOnFormScheme>;
 
-export default function TimeRangeSelect(params: { onChange: (from: Date, to: Date) => void }) {
+export default function TimeRangeSelect() {
   const {
     register,
     watch,
     control,
-    getValues,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ITimeRangeSelection>({
     resolver: zodResolver(FilterCreatedOnFormScheme),
   });
