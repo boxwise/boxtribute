@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { GraphQLError } from "graphql";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";

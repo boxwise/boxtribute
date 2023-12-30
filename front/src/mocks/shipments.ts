@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import { BoxState, ShipmentState, TransferAgreementType } from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
@@ -175,8 +174,8 @@ export const generateMockShipment = ({
               state === ShipmentState.Receiving
                 ? BoxState.Receiving
                 : state === ShipmentState.Sent
-                ? BoxState.InTransit
-                : BoxState.MarkedForShipment,
+                  ? BoxState.InTransit
+                  : BoxState.MarkedForShipment,
             shipmentDetail: {
               __typename: "ShipmentDetail",
               id: "3",

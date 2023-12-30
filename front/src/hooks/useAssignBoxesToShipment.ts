@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { gql, useMutation } from "@apollo/client";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { useCallback, useState } from "react";
@@ -170,7 +169,6 @@ export const useAssignBoxesToShipment = () => {
           if (assignedBoxes.length) {
             if (showToasts)
               createToast({
-                // eslint-disable-next-line max-len
                 message: `${
                   assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
                 } successfully assigned to the shipment.`,
