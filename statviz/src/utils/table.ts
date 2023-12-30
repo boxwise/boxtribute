@@ -1,10 +1,10 @@
 import _, { join } from "lodash";
+import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
 import {
   BeneficiaryDemographicsResult,
   CreatedBoxesResult,
   MovedBoxesResult,
 } from "../types/generated/graphql";
-import { Interval, eachDayOfInterval, isWithinInterval } from "date-fns";
 
 type Fact = object;
 type Dim = object;
@@ -23,9 +23,7 @@ export function table<Row extends object>(f: Array<Row>) {
 
   return {
     data,
-    filter: (filter: (row: Row) => boolean) => {
-      return table(data.filter(filter));
-    },
+    filter: (filter: (row: Row) => boolean) => table(data.filter(filter)),
     groupBySum: (
       column: keyof Row,
       sumColumns: Array<keyof Row>,
@@ -61,16 +59,10 @@ export function table<Row extends object>(f: Array<Row>) {
       data.map((e) => (acc += parseInt(e[column])));
       return acc;
     },
-    orderBy: (column: keyof Row, sort: Sort) => {
-      return table(_.orderBy(data, [column], [sort]));
-    },
-    limit: (limit: number) => {
-      return table(data.slice(0, limit));
-    },
+    orderBy: (column: keyof Row, sort: Sort) => table(_.orderBy(data, [column], [sort])),
+    limit: (limit: number) => table(data.slice(0, limit)),
     filterFromTo: (interval: Interval, field: keyof Row) => {
-      const result = data.filter((row) => {
-        return isWithinInterval(new Date(row[field]), interval);
-      });
+      const result = data.filter((row) => isWithinInterval(new Date(row[field]), interval));
 
       return table(result);
     },
@@ -115,21 +107,15 @@ export function createdBoxesTable(createdBoxes: CreatedBoxesResult[]) {
 
   return {
     ...dataTable,
-    filterCreatedOn: (interval: Interval) => {
-      return createdBoxesTable(
+    filterCreatedOn: (interval: Interval) => createdBoxesTable(
         dataTable.filterFromTo(interval, "createdOn").data
-      );
-    },
-    groupByCreatedOn: () => {
-      return createdBoxesTable(
+      ),
+    groupByCreatedOn: () => createdBoxesTable(
         dataTable.groupBySum("createdOn", ["boxesCount", "itemsCount"]).data
-      );
-    },
-    removeMissingCreatedOn: () => {
-      return createdBoxesTable(
+      ),
+    removeMissingCreatedOn: () => createdBoxesTable(
         dataTable.data.filter((row) => row.createdOn !== null)
-      );
-    },
+      ),
 
     fillMissingDaysNew: () => {},
     groupByWeek: () => {
@@ -155,11 +141,9 @@ export const demographicTable = (
 
   return {
     ...dataTable,
-    filterCreatedOn: (interval: Interval) => {
-      return demographicTable(
+    filterCreatedOn: (interval: Interval) => demographicTable(
         dataTable.filterFromTo(interval, "createdOn").data
-      );
-    },
+      ),
   };
 };
 
@@ -168,8 +152,6 @@ export const movedBoxesTable = (movedBoxes: MovedBoxesResult[]) => {
 
   return {
     ...dataTable,
-    filterCreatedOn: (interval: Interval) => {
-      return movedBoxesTable(dataTable.filterFromTo(interval, "movedOn").data);
-    },
+    filterCreatedOn: (interval: Interval) => movedBoxesTable(dataTable.filterFromTo(interval, "movedOn").data),
   };
 };

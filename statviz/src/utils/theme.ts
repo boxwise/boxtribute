@@ -246,7 +246,7 @@ export const scaledNivoTheme = (
       domain: {
         line: {
           stroke: "#777777",
-          strokeWidth: strokeWidth,
+          strokeWidth,
         },
       },
       legend: {
@@ -260,7 +260,7 @@ export const scaledNivoTheme = (
       ticks: {
         line: {
           stroke: "#777777",
-          strokeWidth: strokeWidth,
+          strokeWidth,
         },
         text: {
           fontSize: fontSizeAxis,
@@ -273,7 +273,7 @@ export const scaledNivoTheme = (
     grid: {
       line: {
         stroke: "#dddddd",
-        strokeWidth: strokeWidth,
+        strokeWidth,
       },
     },
     legends: {
@@ -365,12 +365,10 @@ const timeRangeFontSize = (width: number, height: number) =>
 const timeStampFontSize = (width: number, height: number) =>
   Math.ceil((width + height) / 90);
 
-const headingPosition = (width: number, height: number) => {
-  return {
+const headingPosition = (width: number, height: number) => ({
     y: -percent(height, 10),
     x: 0,
-  };
-};
+  });
 
 const timeRangePosition = (
   width: number,
@@ -394,12 +392,10 @@ const timeStampPosition = (
   width: number,
   height: number,
   marginTop: number
-) => {
-  return {
+) => ({
     x: -graphMarginLeft(width) + percent(width, 1),
     y: height - marginTop - percent(height, 1),
-  };
-};
+  });
 
 // Calculate margin between graph and top of the image needed
 export const getMarginTop = (
@@ -430,8 +426,7 @@ export const getScaledExportFields = (
   height: number,
   marginTop: number,
   heading: boolean
-) => {
-  return {
+) => ({
     heading: {
       style: {
         fontSize: headingFontSize(width, height),
@@ -450,8 +445,7 @@ export const getScaledExportFields = (
       },
       ...timeStampPosition(width, height, marginTop),
     },
-  };
-};
+  });
 
 export const scaleTick = (height: number) => height / 80;
 export const tooltipStyles = {

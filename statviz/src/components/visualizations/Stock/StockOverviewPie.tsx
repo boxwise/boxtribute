@@ -15,9 +15,6 @@ import {
   WrapItem,
   useDisclosure,
 } from "@chakra-ui/react";
-import { StockOverviewData } from "../../../types/generated/graphql";
-import PieChart from "../../nivo-graphs/PieChart";
-import VisHeader from "../../VisHeader";
 import {
   filter,
   groupBy,
@@ -29,6 +26,9 @@ import {
 } from "@tidyjs/tidy";
 import { ChangeEvent, useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
+import { StockOverviewData } from "../../../types/generated/graphql";
+import PieChart from "../../nivo-graphs/PieChart";
+import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 
 const heading = "Stock Overview";
@@ -84,11 +84,9 @@ export default function StockOverviewPie(props: {
     }
   };
 
-  const drilldownFilters = drilldownValues.map((drilldownValue, index) => {
-    return filter(
+  const drilldownFilters = drilldownValues.map((drilldownValue, index) => filter(
       (stockData) => stockData[drilldownPath[index]] === drilldownValue
-    );
-  });
+    ));
 
   const availableGroupOptions = groupOptions.filter(
     (option) => drilldownPath.indexOf(option) === -1
@@ -133,8 +131,8 @@ export default function StockOverviewPie(props: {
   const chartProps = {
     onClick: onGroupSelect,
     data: chartData,
-    width: width,
-    height: height,
+    width,
+    height,
   };
   console.log(drilldownPath);
   return (
@@ -145,8 +143,7 @@ export default function StockOverviewPie(props: {
           <ModalCloseButton />
           <ModalHeader>Select next group</ModalHeader>
           <ModalBody>
-            {availableGroupOptions.map((groupOption) => {
-              return (
+            {availableGroupOptions.map((groupOption) => (
                 <Button
                   style={{ margin: "5px" }}
                   value={groupOption}
@@ -154,8 +151,7 @@ export default function StockOverviewPie(props: {
                 >
                   {groupOption}
                 </Button>
-              );
-            })}
+              ))}
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -171,7 +167,7 @@ export default function StockOverviewPie(props: {
       <CardBody>
         <Wrap>
           <WrapItem>
-            <FormLabel></FormLabel>
+            <FormLabel />
             <Select
               onChange={(event: ChangeEvent) => {
                 setNewDrilldownPath(
@@ -235,7 +231,7 @@ export default function StockOverviewPie(props: {
             );
           })}
         </Box>
-        <PieChart {...chartProps} animate={true} />
+        <PieChart {...chartProps} animate />
       </CardBody>
     </Card>
   );

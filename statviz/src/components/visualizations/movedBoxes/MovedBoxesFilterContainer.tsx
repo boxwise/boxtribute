@@ -1,4 +1,7 @@
 import { useMemo } from "react";
+import { Wrap, FormLabel, Box } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
+import { z } from "zod";
 import useTimerange from "../../../hooks/useTimerange";
 import {
   MovedBoxesData,
@@ -7,11 +10,8 @@ import {
 } from "../../../types/generated/graphql";
 import { filterListByInterval } from "../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
-import { Wrap, FormLabel, Box } from "@chakra-ui/react";
-import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import SelectField from "../../form/SelectField";
 import useListFilter from "../../../hooks/useListFilter";
-import { z } from "zod";
 
 const singleSelectOptionSchema = z.object({
   label: z.string(),

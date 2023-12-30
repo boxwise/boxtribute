@@ -52,12 +52,12 @@ export const generateDropappUrl = (
   qrCode: string | undefined,
   labelIdentifier: string | undefined
 ) => {
-  const newLink = oldLink + "?camp=" + baseId + "&preference=classic";
+  const newLink = `${oldLink  }?camp=${  baseId  }&preference=classic`;
   if (oldLink.includes("mobile.php")) {
     if (labelIdentifier !== undefined) {
-      return newLink + "&boxid=" + labelIdentifier;
-    } else if (qrCode !== undefined) {
-      return newLink + "&barcode=" + qrCode;
+      return `${newLink  }&boxid=${  labelIdentifier}`;
+    } if (qrCode !== undefined) {
+      return `${newLink  }&barcode=${  qrCode}`;
     }
   }
   return newLink;
@@ -76,7 +76,7 @@ export const colorIsBright = (hex) => {
   const [r, g, b] = hex
     .replace(
       /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-      (m, r, g, b) => "#" + r + r + g + g + b + b
+      (m, r, g, b) => `#${  r  }${r  }${g  }${g  }${b  }${b}`
     )
     .substring(1)
     .match(/.{2}/g)
@@ -84,10 +84,8 @@ export const colorIsBright = (hex) => {
   return (r * 299 + g * 587 + b * 114) / 1000 >= 128;
 };
 
-export const formatDateKey = (date: Date): string => {
-  return `${date.toLocaleString("default", { month: "short" })}
+export const formatDateKey = (date: Date): string => `${date.toLocaleString("default", { month: "short" })}
     ${date.getDate()}, ${date.getFullYear()}`;
-};
 
 export const prepareBoxHistoryEntryText = (text: string): string => {
   // Remove the last character if it is a semicolon
@@ -127,22 +125,18 @@ export const fillMissingDays = (
   table: Table[],
   column: Key,
   filling: object
-) => {
-  return tidy(
+) => tidy(
     table,
     complete(column, {
       [column]: fullSeqDateISOString(table, column, "day", 1),
     })
   );
-};
 
 export const filterListByInterval = (
   list: Array<object>,
   column: string,
   interval: Interval
-) => {
-  return tidy(
+) => tidy(
     list,
     filter((e) => isWithinInterval(new Date(e[column]), interval))
   );
-};

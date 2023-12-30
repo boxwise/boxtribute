@@ -1,4 +1,5 @@
 import { ResponsiveBar, BarDatum, BarLayer } from "@nivo/bar";
+import { useRef, useEffect } from "react";
 import {
   getMarginTop,
   getScaledExportFields,
@@ -6,7 +7,6 @@ import {
   scaledNivoTheme,
 } from "../../utils/theme";
 import { percent } from "../../utils/chart";
-import { useRef, useEffect } from "react";
 
 export interface BarChart {
   width: string;
@@ -68,19 +68,13 @@ export default function BarChart(barChart: BarChart) {
   );
 
   if (includeHeading) {
-    layers.push(() => {
-      return <text {...exportInfoStyles.heading}>{barChart.heading}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.heading}>{barChart.heading}</text>);
   }
   if (typeof barChart.timerange === "string") {
-    layers.push(() => {
-      return <text {...exportInfoStyles.timerange}>{barChart.timerange}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.timerange}>{barChart.timerange}</text>);
   }
   if (typeof barChart.timestamp === "string") {
-    layers.push(() => {
-      return <text {...exportInfoStyles.timestamp}>{barChart.timestamp}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.timestamp}>{barChart.timestamp}</text>);
   }
 
   const legend =
@@ -186,7 +180,7 @@ export default function BarChart(barChart: BarChart) {
         role="application"
         ariaLabel={barChart.ariaLabel}
         barAriaLabel={(e) =>
-          e.id + ": " + e.formattedValue + " in country: " + e.indexValue
+          `${e.id  }: ${  e.formattedValue  } in country: ${  e.indexValue}`
         }
       />
     </div>

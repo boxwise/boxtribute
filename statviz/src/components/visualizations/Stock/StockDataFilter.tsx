@@ -10,7 +10,7 @@ import useTimerange from "../../../hooks/useTimerange";
 export default function StockDataFilter(props: {
   stockOverview: StockOverviewData;
 }) {
-  //currently not affected by the selected timerange
+  // currently not affected by the selected timerange
 
   return <StockCharts stockOverview={props.stockOverview} />;
 }

@@ -1,11 +1,6 @@
 import { ApolloError } from "@apollo/client";
 import { Card, CardBody } from "@chakra-ui/react";
-import BarChart from "../../nivo-graphs/BarChart";
 import { useMemo } from "react";
-import { BoxesOrItemsCount } from "../../../views/Dashboard/Dashboard";
-import VisHeader from "../../VisHeader";
-import NoDataCard from "../../NoDataCard";
-import getOnExport from "../../../utils/chartExport";
 import {
   filter,
   sum,
@@ -16,8 +11,13 @@ import {
   fullSeqDateISOString,
   map,
 } from "@tidyjs/tidy";
-import { CreatedBoxesData } from "../../../types/generated/graphql";
 import { format, getISOWeek, getYear } from "date-fns";
+import BarChart from "../../nivo-graphs/BarChart";
+import { BoxesOrItemsCount } from "../../../views/Dashboard/Dashboard";
+import VisHeader from "../../VisHeader";
+import NoDataCard from "../../NoDataCard";
+import getOnExport from "../../../utils/chartExport";
+import { CreatedBoxesData } from "../../../types/generated/graphql";
 
 const visId = "created-boxes";
 
@@ -147,7 +147,7 @@ export default function CreatedBoxes(props: {
         defaultHeight={500}
         defaultWidth={1000}
         chartProps={chartProps}
-      ></VisHeader>
+       />
       <CardBody>
         <BarChart {...chartProps} />
       </CardBody>

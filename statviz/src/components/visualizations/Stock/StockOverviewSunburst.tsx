@@ -1,7 +1,4 @@
 import { Card, CardBody } from "@chakra-ui/react";
-import VisHeader from "../../VisHeader";
-import Sunburst from "../../nivo-graphs/Sunburst";
-import { StockOverviewData } from "../../../types/generated/graphql";
 import {
   filter,
   groupBy,
@@ -11,6 +8,9 @@ import {
   summarize,
   tidy,
 } from "@tidyjs/tidy";
+import VisHeader from "../../VisHeader";
+import Sunburst from "../../nivo-graphs/Sunburst";
+import { StockOverviewData } from "../../../types/generated/graphql";
 
 const heading = "Stock Overview";
 

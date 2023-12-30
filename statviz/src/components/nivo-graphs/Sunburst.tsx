@@ -34,7 +34,7 @@ export default function Sunburst(props: {
           }
           return `${e.data.name} ${e.value}`;
         }}
-        animate={true}
+        animate
         motionConfig="gentle"
         transitionMode="pushIn"
         onClick={(clickedData) => {
@@ -49,7 +49,7 @@ export default function Sunburst(props: {
           from: "color",
           modifiers: [["brighter", 0.1]],
         }}
-        enableArcLabels={true}
+        enableArcLabels
         arcLabelsSkipAngle={10}
         arcLabelsTextColor={{
           from: "color",

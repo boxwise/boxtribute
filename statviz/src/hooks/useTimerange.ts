@@ -15,10 +15,10 @@ export default function useTimerange() {
 
   const timerange = useMemo(
     () =>
-      "from " +
-      date2String(interval.start) +
-      " to " +
-      date2String(interval.end),
+      `from ${ 
+      date2String(interval.start) 
+      } to ${ 
+      date2String(interval.end)}`,
     [interval]
   );
 

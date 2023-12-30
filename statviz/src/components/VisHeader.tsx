@@ -26,11 +26,11 @@ import {
 } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import { useReactiveVar } from "@apollo/client";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
 import useTimerange from "../hooks/useTimerange";
 import { isChartExporting } from "../state/exportingCharts";
-import { useReactiveVar } from "@apollo/client";
 
 export default function VisHeader(params: {
   heading: string;
@@ -43,7 +43,7 @@ export default function VisHeader(params: {
     includeTimerange: boolean,
     includeTimestamp: boolean,
     chartProps: object,
-    imageFormat: ImageFormat
+    imageFormat: ImageFormat,
   ) => void;
   defaultWidth: number;
   defaultHeight: number;
@@ -69,7 +69,7 @@ export default function VisHeader(params: {
       value.indexOf("timerange") !== -1 ? timerange : undefined,
       value.indexOf("timestamp") !== -1 ? date2String(new Date()) : undefined,
       params.chartProps,
-      e.target.value
+      e.target.value,
     );
   };
 
@@ -87,7 +87,7 @@ export default function VisHeader(params: {
         <AccordionItem border="none">
           <Flex>
             <Heading size="md">{params.heading}</Heading>
-            <Spacer></Spacer>
+            <Spacer />
             <AccordionButton w="150px">
               <Box as="span" flex="1" textAlign="left">
                 Download
@@ -138,18 +138,13 @@ export default function VisHeader(params: {
                     <Box>
                       <FormLabel>Options</FormLabel>
                       <HStack spacing="24px">
-                        <Checkbox
-                          checked
-                          {...getCheckboxProps({ value: "heading" })}
-                        >
+                        <Checkbox checked {...getCheckboxProps({ value: "heading" })}>
                           Heading
                         </Checkbox>
                         <Checkbox {...getCheckboxProps({ value: "timerange" })}>
                           Time Range
                         </Checkbox>
-                        <Checkbox {...getCheckboxProps({ value: "timestamp" })}>
-                          Timestamp
-                        </Checkbox>
+                        <Checkbox {...getCheckboxProps({ value: "timestamp" })}>Timestamp</Checkbox>
                       </HStack>
                     </Box>
                   </CheckboxGroup>

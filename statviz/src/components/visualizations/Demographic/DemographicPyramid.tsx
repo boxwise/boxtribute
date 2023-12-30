@@ -1,11 +1,11 @@
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
-import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import { range } from "lodash";
+import { ApolloError } from "@apollo/client";
+import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import { HumanGender } from "../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import { table } from "../../../utils/table";
 import useDemographics from "../../../hooks/useDemographics";
-import { ApolloError } from "@apollo/client";
 import getOnExport from "../../../utils/chartExport";
 
 export interface IDemographicFact {
@@ -88,8 +88,8 @@ export default function DemographicChart(params: {
     labelXr: "Male",
     labelXl: "Female",
     dataY: range(-1, maxAge + 2),
-    dataXr: dataXr,
-    dataXl: dataXl,
+    dataXr,
+    dataXl,
     width: params.width,
     height: params.height,
     background: "#ffffff",
@@ -108,11 +108,11 @@ export default function DemographicChart(params: {
         heading={heading}
         visId={visId}
         onExport={onExport}
-        custom={true}
+        custom
         chartProps={chartProps}
         defaultHeight={800}
         defaultWidth={600}
-      ></VisHeader>
+       />
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
         <BarChartCenterAxis {...chartProps} />
       </CardBody>

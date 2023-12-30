@@ -1,11 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
+import { useMemo } from "react";
 import {
   BeneficiaryDemographicsQuery,
   BeneficiaryDemographicsQueryVariables,
   BeneficiaryDemographicsResult,
 } from "../types/generated/graphql";
-import { useMemo } from "react";
 import { demographicTable } from "../utils/table";
 import useTimerange from "./useTimerange";
 

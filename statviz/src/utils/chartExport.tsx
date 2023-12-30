@@ -2,6 +2,7 @@ import domtoimage from "dom-to-image-more";
 import { render } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { isChartExporting } from "../state/exportingCharts";
+
 const createOffScreenContainer = () => {
   const offScreenContainer = document.createElement("div");
   offScreenContainer.style.position = "absolute";
@@ -89,11 +90,11 @@ export default function getOnExport(ChartComponent: JSX.Element) {
   ) => {
     const props = {
       ...chartProps,
-      width: width,
-      height: height,
-      timestamp: timestamp,
-      timerange: timerange,
-      heading: heading,
+      width,
+      height,
+      timestamp,
+      timerange,
+      heading,
       animate: false,
     };
 

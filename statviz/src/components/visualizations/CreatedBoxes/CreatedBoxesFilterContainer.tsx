@@ -1,20 +1,17 @@
-import { Wrap, WrapItem, FormLabel, Box, useInterval } from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
+import { Wrap, WrapItem, FormLabel, Box, useInterval , Select } from "@chakra-ui/react";
+import { useState, useEffect, ChangeEvent, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   CreatedBoxesData,
   CreatedBoxesResult,
 } from "../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
-import { useState, useEffect, ChangeEvent, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
 import { filterListByInterval } from "../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";
 
 export type BoxesOrItems = "boxesCount" | "itemsCount";
 
-const isBoxesOrItemsCount = (x: any | undefined): x is BoxesOrItems => {
-  return x == "boxesCount" || x == "itemsCount";
-};
+const isBoxesOrItemsCount = (x: any | undefined): x is BoxesOrItems => x == "boxesCount" || x == "itemsCount";
 
 export default function CreatedBoxesFilterContainer(props: {
   createdBoxes: CreatedBoxesData;

@@ -1,12 +1,4 @@
 import { useTooltip, Tooltip } from "@visx/tooltip";
-import { IXY, labelProps, percent } from "../../utils/chart";
-import {
-  getMarginTop,
-  getScaledExportFields,
-  scaledExportFieldsVisX,
-  tickProps,
-} from "../../utils/theme";
-import { tooltipStyles } from "../../utils/theme";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { Grid } from "@visx/grid";
 import { Group } from "@visx/group";
@@ -15,6 +7,13 @@ import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
 import { isNumber } from "lodash";
 import { useEffect, useRef } from "react";
+import { tooltipStyles ,
+  getMarginTop,
+  getScaledExportFields,
+  scaledExportFieldsVisX,
+  tickProps,
+} from "../../utils/theme";
+import { IXY, labelProps, percent } from "../../utils/chart";
 
 type TooltipData = string;
 

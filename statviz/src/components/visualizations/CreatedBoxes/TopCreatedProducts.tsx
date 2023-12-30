@@ -1,9 +1,5 @@
-import BarChart from "../../nivo-graphs/BarChart";
-import { CreatedBoxesData } from "../../../types/generated/graphql";
 import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
-import VisHeader from "../../VisHeader";
-import getOnExport from "../../../utils/chartExport";
 import {
   arrange,
   desc,
@@ -14,6 +10,10 @@ import {
   summarize,
   tidy,
 } from "@tidyjs/tidy";
+import BarChart from "../../nivo-graphs/BarChart";
+import { CreatedBoxesData } from "../../../types/generated/graphql";
+import VisHeader from "../../VisHeader";
+import getOnExport from "../../../utils/chartExport";
 
 const visId = "top-products";
 
@@ -26,8 +26,7 @@ export default function TopCreatedProducts(props: {
   const onExport = getOnExport(BarChart);
   const { boxesOrItems, data } = { ...props };
 
-  const getChartData = () => {
-    return tidy(
+  const getChartData = () => tidy(
       data.facts,
       map((row) => ({ ...row, productId: row.productId.toString() })),
       groupBy(
@@ -47,7 +46,6 @@ export default function TopCreatedProducts(props: {
       })),
       arrange([desc("value")])
     ).splice(0, 5);
-  };
 
   const chartData = useMemo(getChartData, [data, boxesOrItems]);
 
@@ -59,7 +57,7 @@ export default function TopCreatedProducts(props: {
   };
 
   const topProductsHeading = boxesOrItems === "boxesCount" ? "boxes" : "items";
-  const heading = "Top Products by " + topProductsHeading;
+  const heading = `Top Products by ${  topProductsHeading}`;
 
   return (
     <Card>
@@ -71,7 +69,7 @@ export default function TopCreatedProducts(props: {
         defaultHeight={500}
         defaultWidth={500}
         chartProps={chartProps}
-      ></VisHeader>
+       />
       <CardBody>
         <BarChart {...chartProps} />
       </CardBody>

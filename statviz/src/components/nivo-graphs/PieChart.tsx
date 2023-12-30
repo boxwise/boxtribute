@@ -59,19 +59,13 @@ export default function PieChart(chart: PieChart) {
   );
   const layers = ["arcs", "arcLinkLabels", "arcLabels", "legends"];
   if (includeHeading) {
-    layers.push(() => {
-      return <text {...exportInfoStyles.heading}>{chart.heading}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.heading}>{chart.heading}</text>);
   }
   if (typeof chart.timerange === "string") {
-    layers.push(() => {
-      return <text {...exportInfoStyles.timerange}>{chart.timerange}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.timerange}>{chart.timerange}</text>);
   }
   if (typeof chart.timestamp === "string") {
-    layers.push(() => {
-      return <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
   return (
     <div ref={ref} style={{ width: chart.width, height: chart.height }}>
@@ -87,7 +81,7 @@ export default function PieChart(chart: PieChart) {
         animate={chart.animate === true || chart.animate === null}
         onClick={chart.onClick}
         theme={theme}
-        isInteractive={true}
+        isInteractive
         activeOuterRadiusOffset={2}
         arcLinkLabelsSkipAngle={10}
         arcLinkLabelsTextColor="#333333"

@@ -18,7 +18,7 @@ export default function MovedBoxesSunburst(props: {
           from: "color",
           modifiers: [["brighter", 0.1]],
         }}
-        enableArcLabels={true}
+        enableArcLabels
         arcLabelsSkipAngle={10}
         arcLabelsTextColor={{
           from: "color",

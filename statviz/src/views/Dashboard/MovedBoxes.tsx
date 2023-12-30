@@ -19,7 +19,7 @@ export default function MovedBoxes() {
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel>
-        <MovedBoxesDataContainer></MovedBoxesDataContainer>
+        <MovedBoxesDataContainer />
       </AccordionPanel>
     </AccordionItem>
   );

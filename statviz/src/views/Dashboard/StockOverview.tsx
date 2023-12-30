@@ -18,7 +18,7 @@ export default function StockOverview() {
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel>
-        <StockDataContainer></StockDataContainer>
+        <StockDataContainer />
       </AccordionPanel>
     </AccordionItem>
   );

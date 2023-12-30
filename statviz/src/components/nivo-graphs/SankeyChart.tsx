@@ -1,11 +1,11 @@
 import { ResponsiveSankey } from "@nivo/sankey";
+import { useEffect, useRef } from "react";
 import {
   getMarginTop,
   getScaledExportFields,
   scaledNivoTheme,
 } from "../../utils/theme";
 import { percent } from "../../utils/chart";
-import { useEffect, useRef } from "react";
 
 export interface SankeyChart {
   width: string;
@@ -62,19 +62,13 @@ export default function SankeyChart(chart: SankeyChart) {
   const layers = ["labels", "legend", "nodes", "links"];
 
   if (includeHeading) {
-    layers.push(() => {
-      return <text {...exportInfoStyles.heading}>{chart.heading}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.heading}>{chart.heading}</text>);
   }
   if (typeof chart.timerange === "string") {
-    layers.push(() => {
-      return <text {...exportInfoStyles.timerange}>{chart.timerange}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.timerange}>{chart.timerange}</text>);
   }
   if (typeof chart.timestamp === "string") {
-    layers.push(() => {
-      return <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>;
-    });
+    layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
 
   return (
@@ -97,7 +91,7 @@ export default function SankeyChart(chart: SankeyChart) {
         linkHoverOthersOpacity={0.1}
         linkContract={3}
         sort="auto"
-        enableLinkGradient={true}
+        enableLinkGradient
         label={(e) => `${e.name} ${e.value}`}
         labelPosition="inside"
         labelOrientation="horizontal"

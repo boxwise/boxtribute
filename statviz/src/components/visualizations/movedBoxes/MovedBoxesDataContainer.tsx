@@ -1,11 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
+import { Box, Spinner } from "@chakra-ui/react";
 import {
   MovedBoxesData,
   QueryMovedBoxesArgs,
 } from "../types/generated/graphql";
 import NoDataCard from "../../NoDataCard";
-import { Box, Spinner } from "@chakra-ui/react";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 
 const MOVED_BOXES_QUERY = gql`

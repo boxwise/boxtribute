@@ -1,15 +1,15 @@
-import VisHeader from "../../VisHeader";
 import { Card, CardBody } from "@chakra-ui/react";
+import { ApolloError } from "@apollo/client";
+import { groupBy, innerJoin, sum, summarize, tidy, filter } from "@tidyjs/tidy";
+import VisHeader from "../../VisHeader";
 import SankeyChart from "../../nivo-graphs/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
 import useMovedBoxes from "../../../hooks/useMovedBoxes";
-import { ApolloError } from "@apollo/client";
 import NoDataCard from "../../NoDataCard";
 import {
   MovedBoxesData,
   TargetDimensionInfo,
 } from "../../../types/generated/graphql";
-import { groupBy, innerJoin, sum, summarize, tidy, filter } from "@tidyjs/tidy";
 
 const heading = "Moved Boxes";
 
@@ -106,7 +106,7 @@ export default function BoxFlowSankey(props: {
   }
 
   const chartData = {
-    nodes: nodes,
+    nodes,
     links,
   };
 

@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
-import StockDataFilter from "./StockDataFilter";
 import { Box, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
+import StockDataFilter from "./StockDataFilter";
 import {
   QueryStockOverviewArgs,
   StockOverviewData,
