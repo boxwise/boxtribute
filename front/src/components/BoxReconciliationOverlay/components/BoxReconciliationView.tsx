@@ -56,10 +56,10 @@ interface IBoxReconciliationViewProps {
   onBoxUndelivered: (labelIdentifier: string) => void;
   onBoxDelivered: (
     labelIdentifier: string,
-    locationId: number | undefined,
-    productId: number | undefined,
-    sizeId: number | undefined,
-    numberOfItems: number | undefined,
+    locationId: number,
+    productId: number,
+    sizeId: number,
+    numberOfItems: number,
   ) => void;
 }
 

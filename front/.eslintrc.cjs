@@ -1,10 +1,11 @@
 const path = require("path");
 
+// PLEASE DO NOT ADD CONFIG HERE
+// Add config to ../.eslintrc.cjs instead
+// This file is just needed to resolve dependencies correctly
 module.exports = {
   extends: ["../.eslintrc.cjs"],
-  plugins: ["react-refresh"],
   rules: {
-    // This needed to resolve dependencies correctly
     "import/no-extraneous-dependencies": [
       "error",
       {
@@ -12,6 +13,5 @@ module.exports = {
         packageDir: [__dirname, path.join(__dirname, "../")],
       },
     ],
-    "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
   },
 };

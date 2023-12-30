@@ -1,5 +1,5 @@
 import { Box, HStack } from "@chakra-ui/react";
-import DateField from "./DateField";
+import { DateField } from "@boxtribute/shared-components";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
@@ -23,9 +23,7 @@ export const FilterCreatedOnFormScheme = z.object({
 
 export type ITimeRangeSelection = z.infer<typeof FilterCreatedOnFormScheme>;
 
-export default function TimeRangeSelect(params: {
-  onChange: (from: Date, to: Date) => void;
-}) {
+export default function TimeRangeSelect(params: { onChange: (from: Date, to: Date) => void }) {
   const {
     register,
     watch,

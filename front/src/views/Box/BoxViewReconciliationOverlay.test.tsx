@@ -1,7 +1,6 @@
 /* eslint-disable */
 import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
 import { cache } from "queries/cache";
 
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -137,8 +136,6 @@ beforeEach(() => {
 
 // Test case 4.7.4.1
 it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals Receiving", async () => {
-  const user = userEvent.setup();
-
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/123",
