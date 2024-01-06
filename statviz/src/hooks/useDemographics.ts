@@ -5,10 +5,11 @@ import { useParams } from "react-router-dom";
 import { useMemo } from "react";
 import { BeneficiaryDemographicsResult } from "../types/generated/graphql";
 import useTimerange from "./useTimerange";
+import { filterListByInterval } from "../utils/helpers";
 
 const DEMOGRAPHIC_QUERY = gql`
-  query BeneficiaryDemographics($baseIds: [Int!]!) {
-    beneficiaryDemographics(baseIds: $baseIds) {
+  query BeneficiaryDemographics($baseId: Int!) {
+    beneficiaryDemographics(baseId: $baseId) {
       facts {
         count
         createdOn
@@ -28,24 +29,24 @@ const DEMOGRAPHIC_QUERY = gql`
 export default function useDemographics() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(DEMOGRAPHIC_QUERY, {
-    variables: { baseIds: [parseInt(baseId)] },
+    variables: { baseId: parseInt(baseId, 10) },
   });
 
   const { timerange, interval } = useTimerange();
 
   return {
     demographics: useMemo(() => {
-      if (!data) return demographicTable([]);
+      if (!data) return [];
 
-      const demographicFacts = demographicTable(
-        data.beneficiaryDemographics.facts as BeneficiaryDemographicsResult[],
-      );
+      const demographicFacts = data.beneficiaryDemographics
+        .facts as BeneficiaryDemographicsResult[];
 
       try {
-        return demographicFacts.filterCreatedOn(interval);
+        return filterListByInterval(demographicFacts, "createdOn", interval);
       } catch (error) {
         console.log("invalid timerange in use demographics");
       }
+      return [];
     }, [data, interval]),
     data,
     loading,

@@ -1,8 +1,7 @@
-/* es-lint-disable */
-// TODO refactore to use tidy
 import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import { range } from "lodash";
 import { ApolloError } from "@apollo/client";
+import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
 import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import { HumanGender } from "../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
@@ -41,7 +40,7 @@ export default function DemographicChart(params: { width: number; height: number
   if (loading || typeof demographics === "undefined") {
     return <p>loading...</p>;
   }
-  if (demographics.data.length === 0) {
+  if (demographics.length === 0) {
     return (
       <Card w={params.width}>
         <CardHeader>
@@ -58,24 +57,26 @@ export default function DemographicChart(params: { width: number; height: number
   }
 
   const prepareFacts = () => {
-    const dataXr = table(
-      demographics
-        .filter((value) => value.gender === HumanGender.Male)
-        .data.map((e) => ({ x: e.count, y: e.age })),
-    ).groupBySum("y", ["x"]).data;
+    const dataXr = tidy(
+      demographics,
+      filter((value) => value.gender === HumanGender.Male),
+      groupBy("age", [summarize({ count: sum("count") })]),
+      map((value) => ({ x: value.count, y: value.age })),
+    );
 
-    const dataXl = table(
-      demographics
-        .filter((value) => value.gender === HumanGender.Female)
-        .data.map((e) => ({ x: e.count, y: e.age })),
-    ).groupBySum("y", ["x"]).data;
+    const dataXl = tidy(
+      demographics,
+      filter((value) => value.gender === HumanGender.Female),
+      groupBy("age", [summarize({ count: sum("count") })]),
+      map((value) => ({ x: value.count, y: value.age })),
+    );
 
     return [dataXr, dataXl];
   };
 
   const [dataXr, dataXl] = prepareFacts();
 
-  const maxAge: number = demographics.data.reduce((acc: number, current) => {
+  const maxAge: number = demographics.reduce((acc: number, current) => {
     if (current.age > acc) return current.age;
     return acc;
   }, 0);

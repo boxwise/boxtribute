@@ -45,7 +45,7 @@ const marginRight = 40;
 const marginBottom = 70;
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
-  const ref = useRef(true);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const firstRender = ref.current;
@@ -67,9 +67,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   } = useTooltip<TooltipData>({
     // initial tooltip state
     tooltipOpen: false,
-    tooltipLeft: Math.floor(fields.width / 3),
-    tooltipTop: Math.floor(fields.height / 3),
-    tooltipData: "",
   });
 
   let tooltipTimeout: number;
@@ -132,7 +129,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   });
 
   return (
-    <div id={chart.visId}>
+    <div ref={ref} id={chart.visId}>
       <svg width={fields.width} height={fields.height} style={{ fontFamily: "Open Sans" }}>
         <rect fill={fields.background} width={fields.width} height={fields.height} />
         <Group top={marginTop} left={marginLeft}>
@@ -170,7 +167,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   width={barWidth}
                   height={barHight}
                   x={x}
-                  y={y - barHight / 2}
+                  y={Math.round(y - barHight / 2)}
                   onMouseLeave={() => {
                     tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
                   }}
@@ -200,7 +197,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   width={barWidth}
                   height={barHight}
                   x={x}
-                  y={y - barHight / 2}
+                  y={Math.round(y - barHight / 2)}
                   fill={fields.colorBarRight}
                   onMouseLeave={() => {
                     tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
@@ -212,7 +209,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                     showTooltip({
                       tooltipData: tooltip,
                       tooltipTop: localY - fields.height,
-                      tooltipLeft: localPoint(event)?.x,
+                      tooltipLeft: localPoint(event)?.x ?? 0,
                     });
                   }}
                 />
@@ -251,8 +248,14 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       </svg>
       <div style={{ position: "relative" }}>
         {tooltipOpen && tooltipData && (
-          <Tooltip key={Math.random()} left={tooltipLeft} top={tooltipTop} style={tooltipStyles}>
-            <span>{tooltipData}</span>
+          <Tooltip
+            id="chart-tooltip"
+            key="1"
+            left={tooltipLeft}
+            top={tooltipTop}
+            style={tooltipStyles}
+          >
+            {tooltipData}
           </Tooltip>
         )}
       </div>

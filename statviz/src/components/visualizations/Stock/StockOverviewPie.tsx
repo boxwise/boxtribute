@@ -68,7 +68,6 @@ export default function StockOverviewPie(props: {
   } = useDisclosure();
 
   const onGroupSelect = (node) => {
-    console.log(node);
     setSelectedDrilldownValue(node.id);
     if (drilldownPath.length <= 3) {
       openGroupOptions();
@@ -115,7 +114,6 @@ export default function StockOverviewPie(props: {
       groupBy(drilldownPath, sumBoxes),
       mappingFunctions[drilldownPath[drilldownPath.length - 1]],
     );
-    console.log(grouped);
     setChartData(grouped);
   }, [drilldownPath, drilldownValues, stockOverview.facts]);
 
@@ -125,7 +123,6 @@ export default function StockOverviewPie(props: {
     width,
     height,
   };
-  console.log(drilldownPath);
   return (
     <Card>
       <Modal isOpen={showGroupOptions} onClose={closeGroupOptions}>
@@ -135,7 +132,12 @@ export default function StockOverviewPie(props: {
           <ModalHeader>Select next group</ModalHeader>
           <ModalBody>
             {availableGroupOptions.map((groupOption) => (
-              <Button style={{ margin: "5px" }} value={groupOption} onClick={onNextDrilldownChoice}>
+              <Button
+                style={{ margin: "5px" }}
+                key={groupOption}
+                value={groupOption}
+                onClick={onNextDrilldownChoice}
+              >
                 {groupOption}
               </Button>
             ))}
@@ -193,10 +195,10 @@ export default function StockOverviewPie(props: {
         <Box style={{ margin: "20px", fontSize: "20px" }}>
           {drilldownPath.map((value, index) => {
             if (index === drilldownPath.length - 1) {
-              return <span> {value}</span>;
+              return <span key={value}> {value}</span>;
             }
             return (
-              <span>
+              <span key={value}>
                 {" "}
                 {value}: &quot;{drilldownValues[index]}&quot; <ArrowForwardIcon />
               </span>

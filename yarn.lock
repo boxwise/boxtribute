@@ -3814,6 +3814,19 @@
     d3-time-format "^3.0.0"
     lodash "^4.17.21"
 
+"@nivo/sunburst@0.84.0":
+  version "0.84.0"
+  resolved "https://registry.yarnpkg.com/@nivo/sunburst/-/sunburst-0.84.0.tgz#02ad26c1f3465924fa122f9d39ae5b6985004b32"
+  integrity sha512-DGCZYqO+ojvIQ0JGlFSC4hEfEFuKocAgtgAsU757hOwcfY0MzRrdrDwtIZT+ESb0xiJHrtBGytLQkzDo281ysw==
+  dependencies:
+    "@nivo/arcs" "0.84.0"
+    "@nivo/colors" "0.84.0"
+    "@nivo/core" "0.84.0"
+    "@nivo/tooltip" "0.84.0"
+    "@types/d3-hierarchy" "^1.1.8"
+    d3-hierarchy "^1.1.8"
+    lodash "^4.17.21"
+
 "@nivo/tooltip@0.84.0":
   version "0.84.0"
   resolved "https://registry.yarnpkg.com/@nivo/tooltip/-/tooltip-0.84.0.tgz#f033798f1d09af5b2de7fa36ee91faa75543c5d8"
@@ -5954,6 +5967,11 @@
   integrity sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==
   dependencies:
     "@types/geojson" "*"
+
+"@types/d3-hierarchy@^1.1.8":
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/@types/d3-hierarchy/-/d3-hierarchy-1.1.11.tgz#c3bd70d025621f73cb3319e97e08ae4c9051c791"
+  integrity sha512-lnQiU7jV+Gyk9oQYk0GGYccuexmQPTp08E0+4BidgFdiJivjEvf+esPSdZqCZ2C7UwTWejWpqetVaU8A+eX3FA==
 
 "@types/d3-interpolate@3.0.1":
   version "3.0.1"
@@ -9823,6 +9841,11 @@ d3-geo@3.1.0:
   integrity sha512-JEo5HxXDdDYXCaWdwLRt79y7giK8SbhZJbFWXqbRTolCHFI5jRqteLzCsq51NKbUoX0PjBVSohxrx+NoOUujYA==
   dependencies:
     d3-array "2.5.0 - 3"
+
+d3-hierarchy@^1.1.8:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/d3-hierarchy/-/d3-hierarchy-1.1.9.tgz#2f6bee24caaea43f8dc37545fa01628559647a83"
+  integrity sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==
 
 "d3-interpolate@1 - 2", "d3-interpolate@1.2.0 - 2":
   version "2.0.1"

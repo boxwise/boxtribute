@@ -31,6 +31,7 @@
     "@nivo/core": "0.84.0",
     "@nivo/pie": "0.84.0",
     "@nivo/sankey": "0.84.0",
+    "@nivo/sunburst": "0.84.0",
     "@tidyjs/tidy": "^2.5.2",
     "@boxtribute/shared-components": "1.0.0",
     "@visx/axis": "^3.3.0",
