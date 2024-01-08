@@ -19,6 +19,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
+from .sql import MOVED_BOXES_QUERY
 
 
 def use_db_replica(f):
@@ -318,88 +319,12 @@ def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, product category, and box state.
     """
-    # Similar to example from
-    # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
-    # Subquery to select record IDs and latest dates when box state was changed from
-    # InStock to Donated.
-    LatestMoved = DbChangeHistory.alias()
-    LatestMovedSubQuery = (
-        LatestMoved.select(
-            LatestMoved.record_id,
-            fn.MAX(LatestMoved.change_date).alias("move_date"),
-        )
-        .where(
-            (LatestMoved.table_name == Box._meta.table_name),
-            (LatestMoved.changes == Box.state.column_name),
-            (LatestMoved.from_int == BoxState.InStock),
-            (LatestMoved.to_int == BoxState.Donated),
-        )
-        .group_by(LatestMoved.record_id)
-        .alias("sq")
-    )
+    # https://stackoverflow.com/a/56219996/3865876
+    cursor = db.database.execute_sql(MOVED_BOXES_QUERY)
+    column_names = [x[0] for x in cursor.description]
+    donated_boxes_facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
 
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
-    # This selects only information of boxes that were moved from InStock to Donated
-    # state, and are now in the base of given base ID. It is NOT taken into account that
-    # boxes can be moved back from Donated to InStock, nor that the product or other
-    # attributes of the box change after having been donated
-    selection = (
-        DbChangeHistory.select(
-            DbChangeHistory.change_date.alias("moved_on"),
-            Location.name.alias("target_id"),
-            Product.category.alias("category_id"),
-            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
-            Product.gender.alias("gender"),
-            Size.id.alias("size_id"),
-            tag_ids.alias("tag_ids"),
-            fn.COUNT(Box.id).alias("boxes_count"),
-            fn.SUM(Box.number_of_items).alias("items_count"),
-        )
-        .join(
-            LatestMovedSubQuery,
-            on=(
-                (DbChangeHistory.record_id == LatestMovedSubQuery.c.record_id)
-                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.move_date)
-            ),
-        )
-        .join(
-            Box,
-            on=((DbChangeHistory.record_id == Box.id)),
-            src=DbChangeHistory,
-        )
-        .join(
-            Product,
-            on=((Box.product == Product.id) & (Product.base == base_id)),
-        )
-        .join(
-            Location,
-            src=Box,
-            on=((Box.location == Location.id) & (Location.base == base_id)),
-        )
-        .join(
-            Size,
-            src=Box,
-            on=(Box.size == Size.id),
-        )
-        .join(
-            TagsRelation,
-            JOIN.LEFT_OUTER,
-            src=Box,
-            on=(
-                (TagsRelation.object_id == Box.id)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-            ),
-        )
-    )
-    donated_boxes_facts = selection.group_by(
-        SQL("moved_on"),
-        SQL("target_id"),
-        SQL("category_id"),
-        SQL("product_name"),
-        SQL("gender"),
-        SQL("size_id"),
-    ).dicts()
-
     # Select information about all boxes sent from the specified base as source, that
     # were not removed from the shipment during preparation
     shipped_boxes_facts = (
