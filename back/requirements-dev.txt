@@ -9,4 +9,4 @@ pytest-clarity==1.0.1
 mypy==1.8.0
 types-Flask-Cors==4.0.0.20240106
 types-peewee==3.17.0.0
-types-python-jose==3.3.4.8
+types-python-jose==3.3.4.20240106
