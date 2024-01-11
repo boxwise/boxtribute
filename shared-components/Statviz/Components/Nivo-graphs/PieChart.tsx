@@ -22,6 +22,7 @@ export default function PieChart(chart: IPieChart) {
     if (!chart.rendered) return;
 
     chart.rendered();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
   const height = parseInt(chart.height, 10);

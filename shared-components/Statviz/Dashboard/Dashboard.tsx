@@ -6,10 +6,6 @@ import ItemsAndBoxes from "./ItemsAndBoxes";
 import StockOverview from "./StockOverview";
 
 export default function Dashboard() {
-  const onTimeRangeChange = (from: Date, to: Date) => {
-    console.log("Time range changed:", from, to);
-  };
-
   return (
     <div style={{ width: "80%", margin: "25px auto auto auto" }}>
       <Heading borderBottom="1px" borderColor="gray.200" style={{ marginBottom: "25px" }}>
@@ -26,7 +22,7 @@ export default function Dashboard() {
       >
         <WrapItem w="350px">
           <Center>
-            <TimeRangeSelect onChange={onTimeRangeChange} />
+            <TimeRangeSelect />
           </Center>
         </WrapItem>
       </Wrap>

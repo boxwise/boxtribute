@@ -24,6 +24,7 @@ export default function SankeyChart(chart: ISankeyChart) {
     if (!chart.rendered) return;
 
     chart.rendered();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
   const width = parseInt(chart.width, 10);

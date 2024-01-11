@@ -34,6 +34,7 @@ export default function BarChart(barChart: IBarChart) {
     if (!barChart.rendered) return;
 
     barChart.rendered();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
   const height = parseInt(barChart.height, 10);

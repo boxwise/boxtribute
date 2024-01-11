@@ -114,6 +114,7 @@ export default function StockOverviewPie(props: {
       mappingFunctions[drilldownPath[drilldownPath.length - 1]],
     );
     setChartData(grouped);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drilldownPath, drilldownValues, stockOverview.facts]);
 
   const chartProps = {
