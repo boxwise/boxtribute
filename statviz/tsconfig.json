@@ -1,5 +1,11 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["src"],
+  "include": [
+    "src",
+    "../shared-components/Form/NumberField.tsx",
+    "../shared-components/Form/RadioGroupField.tsx",
+    "../shared-components/Form/SelectField.tsx",
+    "../shared-components/Form/TimeRangeSelect.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
