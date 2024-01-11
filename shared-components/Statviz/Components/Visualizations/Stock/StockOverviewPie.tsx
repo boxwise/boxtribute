@@ -88,7 +88,6 @@ export default function StockOverviewPie(props: {
   };
 
   const onNextDrilldownChoice = (event) => {
-    console.log(event.target.value);
     setDrilldownPath([...drilldownPath, event.target.value]);
     setDrilldownValues([...drilldownValues, selectedDrilldownValue]);
     closeGroupOptions();

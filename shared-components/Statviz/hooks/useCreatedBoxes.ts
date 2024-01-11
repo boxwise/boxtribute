@@ -46,7 +46,8 @@ export default function useCreatedBoxes() {
       try {
         return filterListByInterval(data.facts, "createdOn", interval);
       } catch (e) {
-        console.log("invalid timerange");
+        // TODO show toast with error message?
+
         return [];
       }
     }, [data, interval]),

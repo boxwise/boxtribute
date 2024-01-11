@@ -44,7 +44,7 @@ export default function useDemographics() {
       try {
         return filterListByInterval(demographicFacts, "createdOn", interval);
       } catch (error) {
-        console.log("invalid timerange in use demographics");
+        // TODO show toast with error message?
       }
       return [];
     }, [data, interval]),

@@ -51,7 +51,7 @@ export default function CreatedBoxesFilterContainer(props: { createdBoxes: Creat
         interval,
       ) as CreatedBoxesResult[];
     } catch (error) {
-      console.log("invalid timerange in created boxes");
+      // TODO show toast with error message?
     }
     return [];
   }, [interval, props.createdBoxes.facts]);

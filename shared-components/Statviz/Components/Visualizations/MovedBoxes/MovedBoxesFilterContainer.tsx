@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Wrap, FormLabel, Box } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { z } from "zod";
-import SelectField from "@boxtribute/shared-components/Form/SelectField";
+import SelectField from "../../../../Form/SelectField";
 import useTimerange from "../../../hooks/useTimerange";
 import {
   MovedBoxesData,
@@ -50,7 +50,7 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
         interval,
       ) as MovedBoxesResult[];
     } catch (error) {
-      console.log("invalid timerange in use boxes");
+      // TODO show toast with error message?
     }
     return [];
   }, [interval, props.movedBoxes.facts]);

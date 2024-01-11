@@ -51,7 +51,7 @@ export default function useMovedBoxes() {
           interval,
         ) as MovedBoxesResult[];
       } catch (timerangeError) {
-        console.log("invalid timerange in use boxes");
+        // TODO show toast with error message?
       }
       return [];
     }, [data, interval]),

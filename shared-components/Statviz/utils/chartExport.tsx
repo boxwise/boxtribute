@@ -33,7 +33,6 @@ const exportChartWithSettings = (
     };
 
     const handleError = () => {
-      console.log("something went wrong");
       document.body.removeChild(link);
       document.body.removeChild(exportContainer);
       isChartExporting(false);
@@ -67,7 +66,6 @@ const exportChartWithSettings = (
       }
     };
 
-    // exportImage();
     setTimeout(exportImage, 1);
   };
 

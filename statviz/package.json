@@ -20,6 +20,9 @@
     "preview": "vite preview",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
   },
+  "dependencies": {
+    "@boxtribute/shared-components": "1.0.0"
+  },
   "devDependencies": {
     "@graphql-codegen/client-preset": "^4.1.0",
     "@vitejs/plugin-react": "^4.0.3",

@@ -12,7 +12,7 @@ import {
 } from "@tidyjs/tidy";
 import { format, getISOWeek, getYear } from "date-fns";
 import BarChart from "../../Nivo-graphs/BarChart";
-import { BoxesOrItemsCount } from "../../../views/Dashboard/ItemsAndBoxes";
+import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
