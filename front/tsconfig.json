@@ -11,5 +11,6 @@
   },
   /* "types": ["vite/client"], not sure if needed */
   "include": ["src"],
+  /* exclude Distributions from type checking */
   "exclude": ["src/views/Distributions"]
 }
