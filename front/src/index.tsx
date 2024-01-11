@@ -35,7 +35,6 @@ if (sentryDsn) {
   });
 }
 
-// TODO: move cra to vite
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <ChakraProvider theme={theme}>
@@ -48,7 +47,4 @@ root.render(
   </ChakraProvider>,
 );
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-// serviceWorker.unregister();
+// TODO: PWA with vite-plugin-pwa
