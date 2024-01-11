@@ -52,14 +52,12 @@
     "@types/w3c-image-capture": "^1.0.6",
     "autoprefixer": "^10.4.14",
     "babel-plugin-named-exports-order": "^0.0.2",
-    "chromatic": "^6.11.4",
     "jest-junit": "^15.0.0",
     "msw": "^1.1.0",
     "mutationobserver-shim": "^0.3.7",
     "prop-types": "^15.8.1"
   },
   "scripts": {
-    "chromatic": "npx chromatic --project-token=2763da0ce36c",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
     "build": "yarn generate-graphql-ts-types && tsc && vite build",
     "dev": "yarn generate-graphql-ts-types --watch && vite ",
