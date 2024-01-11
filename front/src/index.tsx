@@ -20,7 +20,7 @@ const ProtectedApp = withAuthenticationRequired(() => (
 
 const SentryProfiledProtectedApp = Sentry.withProfiler(ProtectedApp);
 
-const sentryDsn = process.env.REACT_APP_SENTRY_FE_DSN;
+const sentryDsn = import.meta.env.FRONT_SENTRY_FE_DSN;
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
@@ -30,8 +30,8 @@ if (sentryDsn) {
       }),
       new Sentry.BrowserTracing(),
     ],
-    tracesSampleRate: parseFloat(process.env.REACT_APP_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
-    environment: process.env.REACT_APP_SENTRY_ENVIRONMENT,
+    tracesSampleRate: parseFloat(import.meta.env.FRONT_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
+    environment: import.meta.env.FRONT_SENTRY_ENVIRONMENT,
   });
 }
 

@@ -14,7 +14,7 @@ function HeaderMenuContainer() {
 
   // TODO: do this at route definition
   const menuItems: IMenuItemsGroupData[] = useMemo(() => {
-    const oldAppUrlWithBase = `${process.env.REACT_APP_OLD_APP_BASE_URL}/?camp=${baseId}`;
+    const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
     return [
       {
         text: "Inventory",
