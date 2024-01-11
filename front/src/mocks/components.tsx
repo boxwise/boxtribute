@@ -22,6 +22,7 @@ export function mockImplementationOfQrReader(
   multiScan: boolean = false,
 ) {
   mockedQrReader.mockImplementation((props) => (
+    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <button
       type="button"
       data-testid="ReturnScannedQr"
