@@ -8,7 +8,7 @@ import {
   MovedBoxesData,
   MovedBoxesResult,
   TargetDimensionInfo,
-} from "../../../types/generated/graphql";
+} from "../../../../types/generated/graphql";
 import { filterListByInterval } from "../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
 import useListFilter from "../../../hooks/useListFilter";

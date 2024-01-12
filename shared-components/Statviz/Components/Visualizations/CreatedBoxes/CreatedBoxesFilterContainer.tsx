@@ -1,7 +1,7 @@
 import { Wrap, WrapItem, FormLabel, Box, Select } from "@chakra-ui/react";
 import { useState, useEffect, ChangeEvent, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { CreatedBoxesData, CreatedBoxesResult } from "../../../types/generated/graphql";
+import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";

@@ -1,4 +1,4 @@
-import { ResponsiveBar, BarDatum, BarLayer } from "@nivo/bar";
+import { ResponsiveBar, BarDatum, BarLayer, BarLegendProps } from "@nivo/bar";
 import { useRef, useEffect } from "react";
 import {
   getMarginTop,
@@ -11,7 +11,7 @@ import { percent } from "../../utils/chart";
 export interface IBarChart {
   width: string;
   height: string;
-  data: Array<object>;
+  data: BarDatum[];
   visId: string;
   heading?: string | false;
   timestamp?: string | false;
@@ -68,7 +68,7 @@ export default function BarChart(barChart: IBarChart) {
     layers.push(() => <text {...exportInfoStyles.timestamp}>{barChart.timestamp}</text>);
   }
 
-  const legend =
+  const legend: BarLegendProps[] =
     barChart.legend === true
       ? [
           {

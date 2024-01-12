@@ -13,9 +13,14 @@ const createOffScreenContainer = () => {
 
 export type ImageFormat = "svg" | "png" | "jpg";
 
+export interface IExportableChartProps {
+  width: number;
+  height: number;
+}
+
 const exportChartWithSettings = (
-  ChartComponent: JSX.Element,
-  chartProps: object,
+  ChartComponent: (props: any) => JSX.Element,
+  chartProps: IExportableChartProps,
   exportFormat: ImageFormat,
 ) => {
   const exportContainer = createOffScreenContainer();
@@ -76,7 +81,7 @@ const exportChartWithSettings = (
   document.body.appendChild(link);
 };
 
-export default function getOnExport(ChartComponent: JSX.Element) {
+export default function getOnExport(ChartComponent: (props: any) => JSX.Element) {
   const onExport = (
     width: number,
     height: number,

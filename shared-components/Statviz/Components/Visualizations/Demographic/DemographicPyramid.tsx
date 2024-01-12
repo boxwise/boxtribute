@@ -3,7 +3,7 @@ import { range } from "lodash";
 import { ApolloError } from "@apollo/client";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
 import BarChartCenterAxis from "../../Custom-graphs/BarChartCenterAxis";
-import { HumanGender } from "../../../types/generated/graphql";
+import { HumanGender } from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import useDemographics from "../../../hooks/useDemographics";
 import getOnExport from "../../../utils/chartExport";

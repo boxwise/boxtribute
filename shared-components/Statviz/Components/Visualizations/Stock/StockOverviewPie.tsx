@@ -18,7 +18,7 @@ import {
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { ChangeEvent, useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
-import { StockOverviewData } from "../../../types/generated/graphql";
+import { StockOverviewQuery } from "../../../../types/generated/graphql";
 import PieChart from "../../Nivo-graphs/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
@@ -51,7 +51,7 @@ const groupOptions = ["categoryName", "productName", "gender", "sizeName"];
 export default function StockOverviewPie(props: {
   width: string;
   height: string;
-  stockOverview: StockOverviewData;
+  stockOverview: StockOverviewQuery;
 }) {
   const { width, height, stockOverview } = { ...props };
   const [chartData, setChartData] = useState<object[]>([]);

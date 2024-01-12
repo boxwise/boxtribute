@@ -10,12 +10,12 @@ import { date2String } from "../Statviz/utils/chart";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z
-    .date({
+    .string({
       invalid_type_error: "Please enter a valid date",
     })
     .optional(),
   to: z
-    .date({
+    .string({
       invalid_type_error: "Please enter a valid date",
     })
     .optional(),
@@ -58,14 +58,14 @@ export default function TimeRangeSelect() {
       setValue("from", date2String(from));
     }
 
-    if (toFormValue && toFormValue.getDate() !== to.getDate()) {
+    if (toFormValue && new Date(toFormValue).getDate() !== to.getDate()) {
       searchParams.delete("to");
-      searchParams.append("to", date2String(toFormValue));
+      searchParams.append("to", date2String(new Date(toFormValue)));
     }
 
-    if (fromFormValue && fromFormValue.getDate() !== from.getDate()) {
+    if (fromFormValue && new Date(fromFormValue).getDate() !== from.getDate()) {
       searchParams.delete("from");
-      searchParams.append("from", date2String(fromFormValue));
+      searchParams.append("from", date2String(new Date(fromFormValue)));
     }
 
     if (searchParams.toString() !== currentQuery) {

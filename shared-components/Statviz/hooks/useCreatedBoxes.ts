@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { CreatedBoxesData, QueryCreatedBoxesArgs } from "../types/generated/graphql";
+import { CreatedBoxesData, QueryCreatedBoxesArgs } from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
 import { filterListByInterval } from "../utils/helpers";
 

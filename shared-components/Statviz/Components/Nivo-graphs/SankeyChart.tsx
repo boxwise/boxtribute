@@ -1,15 +1,23 @@
-import { ResponsiveSankey } from "@nivo/sankey";
+import { ResponsiveSankey, SankeyLayerId } from "@nivo/sankey";
 import { useEffect, useRef } from "react";
 import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../../Utils/theme";
 import { percent } from "../../utils/chart";
 
+interface ILink {
+  source: string;
+  target: string;
+  value: number;
+}
+
+interface IData {
+  nodes: { id: string; name: string }[];
+  links: ILink[];
+}
+
 export interface ISankeyChart {
   width: string;
   height: string;
-  data: {
-    nodes: Array<{ id: string }>;
-    links: Array<{ source: string; target: string; value: number }>;
-  };
+  data: IData;
   heading?: string | false;
   timestamp?: string | false;
   timerange?: string | false;
@@ -51,15 +59,18 @@ export default function SankeyChart(chart: ISankeyChart) {
 
   const exportInfoStyles = getScaledExportFields(width, height, margin.top, includeHeading);
 
-  const layers = ["labels", "legend", "nodes", "links"];
+  const layers: SankeyLayerId[] = ["labels", "legends", "nodes", "links"];
 
   if (includeHeading) {
+    // @ts-ignore incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.heading}>{chart.heading}</text>);
   }
   if (typeof chart.timerange === "string") {
+    // @ts-ignore incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.timerange}>{chart.timerange}</text>);
   }
   if (typeof chart.timestamp === "string") {
+    // @ts-ignore incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
 
@@ -69,7 +80,6 @@ export default function SankeyChart(chart: ISankeyChart) {
         colors={{ scheme: "category10" }}
         layers={layers}
         margin={{ ...margin }}
-        nodeOpacity={1}
         nodeHoverOthersOpacity={0.35}
         nodeThickness={18}
         nodeSpacing={24}

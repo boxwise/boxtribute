@@ -39,9 +39,9 @@ export default function VisHeader(params: {
   onExport: (
     width: number,
     height: number,
-    includeHeading: boolean,
-    includeTimerange: boolean,
-    includeTimestamp: boolean,
+    includeHeading: string | undefined,
+    includeTimerange: string | undefined,
+    includeTimestamp: string | undefined,
     chartProps: object,
     imageFormat: ImageFormat,
   ) => void;
@@ -62,9 +62,10 @@ export default function VisHeader(params: {
 
   const download = (e) => {
     isChartExporting(true);
+
     params.onExport(
-      parseInt(inputWidth, 10),
-      parseInt(inputHeight, 10),
+      inputWidth,
+      inputHeight,
       value.indexOf("heading") !== -1 ? params.heading : undefined,
       value.indexOf("timerange") !== -1 ? timerange : undefined,
       value.indexOf("timestamp") !== -1 ? date2String(new Date()) : undefined,
@@ -106,7 +107,7 @@ export default function VisHeader(params: {
                     step={10}
                     size="sm"
                     value={inputWidth}
-                    onChange={setInputWidth}
+                    onChange={(_valueString, valueNumber) => setInputWidth(valueNumber)}
                   >
                     <NumberInputField />
                     <NumberInputStepper>
@@ -123,7 +124,7 @@ export default function VisHeader(params: {
                     step={10}
                     size="sm"
                     value={inputHeight}
-                    onChange={setInputHeight}
+                    onChange={(_valueString, valueNumber) => setInputHeight(valueNumber)}
                   >
                     <NumberInputField />
                     <NumberInputStepper>

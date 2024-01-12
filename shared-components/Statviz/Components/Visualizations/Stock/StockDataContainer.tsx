@@ -1,9 +1,10 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Box, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
+import { gql } from "../../../../types/generated/gql";
 import StockDataFilter from "./StockDataFilter";
 
-const STOCK_QUERY = gql`
+const STOCK_QUERY = gql(`
   query stockOverview($baseId: Int!) {
     stockOverview(baseId: $baseId) {
       facts {
@@ -37,12 +38,12 @@ const STOCK_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export default function StockDataContainer() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(STOCK_QUERY, {
-    variables: { baseId: parseInt(baseId, 10) },
+    variables: { baseId: parseInt(baseId ?? "", 10) },
   });
 
   if (loading) {
@@ -50,6 +51,9 @@ export default function StockDataContainer() {
   }
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;
+  }
+  if (baseId === undefined) {
+    return <Box>BaseID not provided</Box>;
   }
   return <StockDataFilter stockOverview={data.stockOverview} />;
 }

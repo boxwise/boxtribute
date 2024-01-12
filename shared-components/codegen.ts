@@ -6,11 +6,14 @@ const config: CodegenConfig = {
     "../back/boxtribute_server/graph_ql/definitions/public/*.graphql",
     "../back/boxtribute_server/graph_ql/definitions/basic/*.graphql",
   ],
-  documents: "src/**/*.tsx",
+  documents: "./**/*.{ts,tsx}",
   generates: {
-    "src/types/generated/": {
+    "types/generated/": {
       preset: "client",
       plugins: [],
+      presetConfig: {
+        gqlTagName: "gql",
+      },
     },
   },
 };

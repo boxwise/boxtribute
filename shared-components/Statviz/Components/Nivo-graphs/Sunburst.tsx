@@ -1,7 +1,18 @@
 import { ResponsiveSunburst } from "@nivo/sunburst";
 import { useState } from "react";
 
-export default function Sunburst(props: { width: string; height: string; chartData: object }) {
+export interface ISunburstData {
+  name: string;
+  color?: string;
+  value?: string;
+  children?: ISunburstData[];
+}
+
+export default function Sunburst(props: {
+  width: string;
+  height: string;
+  chartData: ISunburstData;
+}) {
   const [data, setData] = useState(props.chartData);
 
   return (
@@ -14,6 +25,7 @@ export default function Sunburst(props: { width: string; height: string; chartDa
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
         id="id"
         value="value"
+        // @ts-ignore Nivo return type definition incomplete
         tooltip={(e) => {
           if (e.data.value) {
             return `${e.data.name} ${e.data.value}`;

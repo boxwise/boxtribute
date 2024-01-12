@@ -3,7 +3,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useMemo } from "react";
-import { BeneficiaryDemographicsResult } from "../types/generated/graphql";
+import { BeneficiaryDemographicsResult } from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
 import { filterListByInterval } from "../utils/helpers";
 

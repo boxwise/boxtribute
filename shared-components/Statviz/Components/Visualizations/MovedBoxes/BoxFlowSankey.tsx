@@ -3,10 +3,11 @@ import { groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
 import VisHeader from "../../VisHeader";
 import SankeyChart from "../../Nivo-graphs/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
-import { MovedBoxesData, TargetDimensionInfo } from "../../../types/generated/graphql";
+import { MovedBoxesData, TargetDimensionInfo } from "../../../../types/generated/graphql";
 
 const heading = "Moved Boxes";
 
+// random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
   name: "shipments",

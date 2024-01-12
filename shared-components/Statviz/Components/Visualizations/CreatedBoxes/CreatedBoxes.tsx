@@ -16,7 +16,7 @@ import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
-import { CreatedBoxesData } from "../../../types/generated/graphql";
+import { CreatedBoxesData } from "../../../../types/generated/graphql";
 
 const visId = "created-boxes";
 
