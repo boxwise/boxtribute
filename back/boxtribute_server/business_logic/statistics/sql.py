@@ -264,25 +264,25 @@ select
     t.size_id,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
-    count(DISTINCT t.box_id) AS boxes_count,
-    0 AS items_count,
     sum(
         CASE
             WHEN t.prev_box_state_id = 1 AND t.box_state_id = 5 THEN 1
             WHEN t.prev_box_state_id = 5 AND t.box_state_id = 1 THEN -1
             ELSE 0
         END
-    ) AS state_change_box_count,
+    ) AS boxes_count,
     sum(
         CASE
             WHEN t.prev_box_state_id = 1 AND t.box_state_id = 5 THEN 1 * t.number_of_items
             WHEN t.prev_box_state_id = 5 AND t.box_state_id = 1 THEN -1 * t.number_of_items
             ELSE 0
         END
-    ) AS state_change_items
+    ) AS items_count
 FROM FinalResult t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"
+WHERE (t.prev_box_state_id = 1 AND t.box_state_id = 5) OR
+      (t.prev_box_state_id = 5 AND t.box_state_id = 1)
 GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label;
 """
