@@ -3,8 +3,7 @@ MOVED_BOXES_QUERY = """\
 WITH recursive ValidLocations AS (
     SELECT id, box_state_id
     FROM locations
-    -- change the base to id
-    WHERE camp_id = :base_id AND deleted IS NULL
+    WHERE camp_id = %s AND deleted IS NULL
 ),
 ValidBoxes AS (
     SELECT
@@ -21,11 +20,10 @@ ValidBoxes AS (
     FROM stock s
     JOIN ValidLocations l ON s.location_id = l.id
     WHERE s.deleted IS null
-    -- Considering boxes whose state changed after the year 2021,
+    -- Considering boxes whose state changed from 2023-01-01 onwards,
     -- since the changes in box_state_id are not recorded in the history table beforehand.
     -- Additionally, use the stock id instead of the creation timestamp to filter the data.
-    -- AND s.created > '2021-01-01'
-    AND s.id > 34714
+    AND s.id >= %s
 ),
 BoxHistory AS (
     -- CTE to retrieve box history
@@ -48,7 +46,7 @@ BoxHistory AS (
         h.id AS id
     FROM history h
     JOIN ValidBoxes s ON h.record_id = s.id AND h.to_int IS NOT null
-    AND h.id > 751116 AND h.tablename = 'stock'
+    AND h.id >= %s AND h.tablename = 'stock'
     ORDER BY record_id, effective_from DESC, id DESC
 ),
 HistoryReconstruction AS (
@@ -251,24 +249,25 @@ FinalResult AS (
         h.effective_from,
         h.effective_to,
         h.items AS number_of_items,
-        h.location_id AS location,
-        p.category_id AS product_category,
+        h.location_id,
+        p.category_id,
         h.product_id AS product,
-        h.size_id AS size,
+        h.size_id,
         p.gender_id AS gender
     FROM HistoryReconstruction h
     JOIN products p ON p.id = h.product_id
     WHERE h.changes = 'box_state_id'
 )
-
 -- Main query to select the final result
 select
     t.moved_on,
-    t.product_category,
-    p.name,
+    t.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
     t.gender,
-    t.size,
-    count(DISTINCT t.box_id) AS box_count,
+    t.size_id,
+    loc.label AS target_id,
+    count(DISTINCT t.box_id) AS boxes_count,
+    0 AS items_count,
     sum(
         CASE
             WHEN t.prev_box_state_id = 1 AND t.box_state_id = 5 THEN 1
@@ -285,6 +284,7 @@ select
     ) AS state_change_items
 FROM FinalResult t
 JOIN products p ON p.id = t.product
-JOIN sizes s ON s.id = t.size
-GROUP BY moved_on, t.product_category, p.name, t.gender, t.size;
+JOIN sizes s ON s.id = t.size_id
+JOIN locations loc ON loc.id = t.location_id
+GROUP BY moved_on, t.category_id, p.name, t.gender, t.size_id, loc.label;
 """

@@ -19,6 +19,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
+from ...utils import in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
 
@@ -319,10 +320,21 @@ def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, product category, and box state.
     """
+    min_box_id = 1
+    min_history_id = 1
+    if in_production_environment():
+        # Earliest row ID in tables in 2023
+        min_box_id = 87_423
+        min_history_id = 1_324_559
     # https://stackoverflow.com/a/56219996/3865876
-    cursor = db.database.execute_sql(MOVED_BOXES_QUERY)
+    cursor = db.database.execute_sql(
+        MOVED_BOXES_QUERY,
+        (base_id, min_box_id, min_history_id),
+    )
     column_names = [x[0] for x in cursor.description]
     donated_boxes_facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+    for fact in donated_boxes_facts:
+        fact["tag_ids"] = []
 
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # Select information about all boxes sent from the specified base as source, that
@@ -453,7 +465,11 @@ def compute_moved_boxes(base_id):
 
     # Conversions for GraphQL interface
     for row in facts:
-        row["moved_on"] = row["moved_on"].date()
+        try:
+            # Only datetimes returned from peewee queries have the .date() attribute
+            row["moved_on"] = row["moved_on"].date()
+        except AttributeError:
+            pass
 
     dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
