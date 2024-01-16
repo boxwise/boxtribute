@@ -8,7 +8,7 @@ WITH recursive ValidLocations AS (
 ValidBoxes AS (
     SELECT
         s.id,
-        s.box_id,
+        s.box_id AS label_identifier,
         s.items,
         s.location_id,
         l.box_state_id as default_box_state_id,
@@ -28,7 +28,7 @@ ValidBoxes AS (
 BoxHistory AS (
     -- CTE to retrieve box history
     SELECT
-        s.id AS stock_id,
+        s.id AS box_id,
         s.items AS stock_items,
         s.location_id AS stock_location_id,
         s.product_id AS stock_product_id,
@@ -39,7 +39,7 @@ BoxHistory AS (
         h.record_id,
         h.changes,
         h.changedate,
-        s.box_id,
+        s.label_identifier,
         h.from_int,
         h.to_int,
         h.changedate AS effective_from,
@@ -262,6 +262,7 @@ select
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
+    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
     count(DISTINCT t.box_id) AS boxes_count,
     0 AS items_count,
@@ -282,5 +283,6 @@ select
 FROM FinalResult t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"
 GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label;
 """

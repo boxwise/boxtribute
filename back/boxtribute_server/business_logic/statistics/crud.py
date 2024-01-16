@@ -334,7 +334,7 @@ def compute_moved_boxes(base_id):
     column_names = [x[0] for x in cursor.description]
     donated_boxes_facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     for fact in donated_boxes_facts:
-        fact["tag_ids"] = []
+        fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # Select information about all boxes sent from the specified base as source, that
