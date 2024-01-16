@@ -250,20 +250,17 @@ FinalResult AS (
         h.effective_to,
         h.items AS number_of_items,
         h.location_id,
-        p.category_id,
         h.product_id AS product,
-        h.size_id,
-        p.gender_id AS gender
+        h.size_id
     FROM HistoryReconstruction h
-    JOIN products p ON p.id = h.product_id
     WHERE h.changes = 'box_state_id'
 )
 -- Main query to select the final result
 select
     t.moved_on,
-    t.category_id,
+    p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
-    t.gender,
+    p.gender_id AS gender,
     t.size_id,
     loc.label AS target_id,
     count(DISTINCT t.box_id) AS boxes_count,
@@ -284,7 +281,6 @@ select
     ) AS state_change_items
 FROM FinalResult t
 JOIN products p ON p.id = t.product
-JOIN sizes s ON s.id = t.size_id
 JOIN locations loc ON loc.id = t.location_id
-GROUP BY moved_on, t.category_id, p.name, t.gender, t.size_id, loc.label;
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label;
 """
