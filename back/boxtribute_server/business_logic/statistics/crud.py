@@ -27,23 +27,7 @@ def use_db_replica(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if db.replica is not None:
-            with db.replica.bind_ctx(
-                [
-                    Base,
-                    Beneficiary,
-                    Box,
-                    DbChangeHistory,
-                    Location,
-                    Product,
-                    ProductCategory,
-                    Shipment,
-                    ShipmentDetail,
-                    Size,
-                    Tag,
-                    TagsRelation,
-                    Transaction,
-                ]
-            ):
+            with db.replica.bind_ctx(db.Model.__subclasses__()):
                 return f(*args, **kwargs)
 
         return f(*args, **kwargs)
