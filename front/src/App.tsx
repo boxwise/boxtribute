@@ -22,6 +22,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
 import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
+import DashboardView from "views/Statviz/Dashboard/DashboardView";
 
 interface IProtectedRouteProps {
   component: ReactElement;
@@ -99,6 +100,9 @@ function App() {
           <Route path="qrreader">
             <Route index element={<QrReaderView />} />
             <Route path=":hash" element={<ResolveHash />} />
+          </Route>
+          <Route path="statviz">
+            <Route index path="dashboard" element={<DashboardView />} />
           </Route>
           <Route path="boxes">
             <Route
