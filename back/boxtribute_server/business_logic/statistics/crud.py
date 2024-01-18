@@ -1,3 +1,5 @@
+from functools import wraps
+
 from peewee import JOIN, SQL, fn
 
 from ...db import db
@@ -17,6 +19,20 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
+
+
+def use_db_replica(f):
+    """Decorator for a resolver that should use the DB replica for database selects."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if db.replica is not None:
+            with db.replica.bind_ctx(db.Model.__subclasses__()):
+                return f(*args, **kwargs)
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def _generate_dimensions(*names, target_type=None, facts):
