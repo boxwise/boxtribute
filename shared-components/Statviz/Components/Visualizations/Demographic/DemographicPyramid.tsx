@@ -27,10 +27,15 @@ export interface IDemographicCube {
   };
 }
 
+interface IDemographicChartProps {
+  width: number;
+  height: number;
+}
+
 const visId = "demographic-pyramid";
 const heading = "Demographic";
 
-export default function DemographicChart(params: { width: number; height: number }) {
+export default function DemographicChart({ width, height }: IDemographicChartProps) {
   const { demographics, error, loading } = useDemographics();
   const onExport = getOnExport(BarChartCenterAxis);
 
@@ -42,7 +47,7 @@ export default function DemographicChart(params: { width: number; height: number
   }
   if (demographics.length === 0) {
     return (
-      <Card w={params.width}>
+      <Card w={width}>
         <CardHeader>
           <Heading size="md">{heading}</Heading>
         </CardHeader>
@@ -61,14 +66,14 @@ export default function DemographicChart(params: { width: number; height: number
       demographics,
       filter((value) => value.gender === HumanGender.Male),
       groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age })),
+      map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
 
     const dataXl = tidy(
       demographics,
       filter((value) => value.gender === HumanGender.Female),
       groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age })),
+      map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
 
     return [dataXr, dataXl];
@@ -76,10 +81,12 @@ export default function DemographicChart(params: { width: number; height: number
 
   const [dataXr, dataXl] = prepareFacts();
 
-  const maxAge: number = demographics.reduce((acc: number, current) => {
-    if (current.age > acc) return current.age;
-    return acc;
-  }, 0);
+  const maxAge: number =
+    demographics.reduce((acc: number, current) => {
+      if (!current.age) return acc;
+      if (current.age > acc) return current.age;
+      return acc;
+    }, 0) ?? 100;
 
   const chartProps = {
     labelY: "Age",
@@ -88,8 +95,8 @@ export default function DemographicChart(params: { width: number; height: number
     dataY: range(-1, maxAge + 2),
     dataXr,
     dataXl,
-    width: params.width,
-    height: params.height,
+    width,
+    height,
     background: "#ffffff",
     colorBarLeft: "#ec5063",
     colorBarRight: "#31cab5",
@@ -102,7 +109,7 @@ export default function DemographicChart(params: { width: number; height: number
   return (
     <Card>
       <VisHeader
-        maxWidthPx={params.width}
+        maxWidthPx={width}
         heading={heading}
         visId={visId}
         onExport={onExport}

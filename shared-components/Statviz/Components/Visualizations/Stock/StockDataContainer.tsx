@@ -46,11 +46,11 @@ export default function StockDataContainer() {
     variables: { baseId: parseInt(baseId ?? "", 10) },
   });
 
-  if (loading) {
-    return <Spinner />;
-  }
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;
+  }
+  if (loading || !data?.stockOverview) {
+    return <Spinner />;
   }
   if (baseId === undefined) {
     return <Box>BaseID not provided</Box>;

@@ -38,7 +38,7 @@ export default function useMovedBoxes() {
   const { data, loading, error } = useQuery<{ movedBoxes: MovedBoxesData }, QueryMovedBoxesArgs>(
     MOVED_BOXES_QUERY,
     {
-      variables: { baseId: parseInt(baseId, 10) },
+      variables: { baseId: parseInt(baseId ?? "", 10) },
     },
   );
 

@@ -1,13 +1,12 @@
-/* eslint-disable */
-// TODO: refactoring
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useMemo } from "react";
+import { gql } from "../../types/generated/gql";
 import { BeneficiaryDemographicsResult } from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
 import { filterListByInterval } from "../utils/helpers";
 
-const DEMOGRAPHIC_QUERY = gql`
+const DEMOGRAPHIC_QUERY = gql(`
   query BeneficiaryDemographics($baseId: Int!) {
     beneficiaryDemographics(baseId: $baseId) {
       facts {
@@ -24,12 +23,12 @@ const DEMOGRAPHIC_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export default function useDemographics() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(DEMOGRAPHIC_QUERY, {
-    variables: { baseId: parseInt(baseId, 10) },
+    variables: { baseId: parseInt(baseId ?? "", 10) },
   });
 
   const { timerange, interval } = useTimerange();
@@ -39,11 +38,11 @@ export default function useDemographics() {
       if (!data) return [];
 
       const demographicFacts = data.beneficiaryDemographics
-        .facts as BeneficiaryDemographicsResult[];
+        ?.facts as BeneficiaryDemographicsResult[];
 
       try {
         return filterListByInterval(demographicFacts, "createdOn", interval);
-      } catch (error) {
+      } catch (intervalFilterError) {
         // TODO show toast with error message?
       }
       return [];

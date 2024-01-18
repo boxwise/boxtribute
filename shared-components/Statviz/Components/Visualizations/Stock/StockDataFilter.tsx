@@ -1,8 +1,12 @@
-import { StockOverviewQuery } from "../../../../types/generated/graphql";
+import { StockOverviewData } from "../../../../types/generated/graphql";
 import StockCharts from "./StockCharts";
 
-export default function StockDataFilter(props: { stockOverview: StockOverviewQuery }) {
+interface IStockDataFilterProps {
+  stockOverview: StockOverviewData;
+}
+
+export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
   // currently not affected by the selected timerange
 
-  return <StockCharts stockOverview={props.stockOverview} />;
+  return <StockCharts stockOverview={stockOverview} />;
 }

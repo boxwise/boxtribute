@@ -1,10 +1,11 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
+import { gql } from "../../../../types/generated";
 import { MovedBoxesData, QueryMovedBoxesArgs } from "../../../../types/generated/graphql";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 
-const MOVED_BOXES_QUERY = gql`
+const MOVED_BOXES_QUERY = gql(`
   query movedBoxes($baseId: Int!) {
     movedBoxes(baseId: $baseId) {
       facts {
@@ -26,7 +27,7 @@ const MOVED_BOXES_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 // The data wrapper collects data and passes it to the filter-wrapper
 // which applys filters to the data
@@ -36,15 +37,15 @@ export default function MovedBoxesDataContainer() {
   const { data, loading, error } = useQuery<{ movedBoxes: MovedBoxesData }, QueryMovedBoxesArgs>(
     MOVED_BOXES_QUERY,
     {
-      variables: { baseId: parseInt(baseId, 10) },
+      variables: { baseId: parseInt(baseId ?? "", 10) },
     },
   );
 
-  if (loading) {
-    return <Spinner />;
-  }
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;
+  }
+  if (loading || data === undefined) {
+    return <Spinner />;
   }
   return <MovedBoxesFilterContainer movedBoxes={data.movedBoxes} />;
 }

@@ -29,11 +29,11 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
   const { interval } = useTimerange();
 
   const mapTargetToSelectableLocation = (target: TargetDimensionInfo) => ({
-    id: target.id,
-    location: target.name,
+    value: target.id ?? "",
+    label: target.name ?? "",
   });
 
-  const locations = props.movedBoxes.dimensions?.target.map(mapTargetToSelectableLocation);
+  const locations = props.movedBoxes.dimensions?.target?.map(mapTargetToSelectableLocation) ?? [];
 
   const { control, errors } = useListFilter(
     "locations",

@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 export default function useListFilter(
   filterName: string,
   filterKey: string,
-  elements: Array<object>,
+  elements: Array<object & { value: string }>,
   resolver: Resolver,
 ) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,31 +51,3 @@ export default function useListFilter(
     isSubmitting,
   };
 }
-
-/*
-  const {
-    control,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(MovedBoxesFilterSchema),
-    defaultValues: {
-      locations: locations?.filter(
-        (loc) => selectedLocations?.indexOf(loc.value) !== -1
-      ),
-    },
-  });
-
-  watch((test: IMovedBoxesFilterOutput) => {
-    const locations = searchParams.get("locations");
-    if (test.locations.length > 0) {
-      const locationsParams = test.locations.map((e) => e.value).join('","');
-      searchParams.delete("locations");
-      searchParams.append("locations", locationsParams);
-      setSearchParams(searchParams);
-    } else {
-      searchParams.delete("locations");
-      setSearchParams(searchParams);
-    }
-  });
-*/

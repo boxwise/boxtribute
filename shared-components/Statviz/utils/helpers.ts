@@ -118,8 +118,12 @@ export const fillMissingDays = (table: object[], column: string) =>
     }),
   );
 
-export const filterListByInterval = (list: Array<object>, column: string, interval: Interval) =>
+export const filterListByInterval = <T extends object[]>(
+  list: T,
+  column: string,
+  interval: Interval,
+): T =>
   tidy(
     list,
     filter((e) => isWithinInterval(new Date(e[column]), interval)),
-  );
+  ) as T;
