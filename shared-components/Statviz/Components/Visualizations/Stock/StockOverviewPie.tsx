@@ -16,31 +16,39 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
-import { ChangeEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
-import { StockOverviewQuery } from "../../../../types/generated/graphql";
+import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import PieChart from "../../Nivo-graphs/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 
 const heading = "Stock Overview";
 
-const sumBoxes = summarize({
-  boxesCount: sum("boxesCount"),
-  itemsCount: sum("itemsCount"),
-});
+interface ISizeDim {
+  sizeId: number;
+  sizeName: Maybe<string> | undefined;
+}
+
+interface ICategoryDim {
+  categoryId: number;
+  categoryName: Maybe<string> | undefined;
+}
+
+type PreparedStock = StockOverviewResult & ICategoryDim & ISizeDim;
+type PreparedStockAttributes = keyof PreparedStock;
 
 const mappingFunctions = {
-  categoryName: map((category) => ({
+  categoryName: map((category: PreparedStock) => ({
     id: category.categoryName,
     value: category.boxesCount,
   })),
-  gender: map((gender) => ({
+  gender: map((gender: PreparedStock) => ({
     id: gender.gender,
     value: gender.boxesCount,
   })),
-  sizeName: map((size) => ({ id: size.sizeName, value: size.boxesCount })),
-  productName: map((product) => ({
+  sizeName: map((size: PreparedStock) => ({ id: size.sizeName, value: size.boxesCount })),
+  productName: map((product: PreparedStock) => ({
     id: product.productName,
     value: product.boxesCount,
   })),
@@ -48,14 +56,15 @@ const mappingFunctions = {
 
 const groupOptions = ["categoryName", "productName", "gender", "sizeName"];
 
-export default function StockOverviewPie(props: {
+interface IStockOverviewPieProps {
   width: string;
   height: string;
-  stockOverview: StockOverviewQuery;
-}) {
-  const { width, height, stockOverview } = { ...props };
+  data: StockOverviewData;
+}
+
+export default function StockOverviewPie({ width, height, data }: IStockOverviewPieProps) {
   const [chartData, setChartData] = useState<object[]>([]);
-  const [drilldownPath, setDrilldownPath] = useState(["categoryName"]);
+  const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>(["categoryName"]);
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
   const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
 
@@ -79,10 +88,10 @@ export default function StockOverviewPie(props: {
   );
 
   const availableGroupOptions = groupOptions.filter(
-    (option) => drilldownPath.indexOf(option) === -1,
+    (option: PreparedStockAttributes) => drilldownPath.indexOf(option) === -1,
   );
 
-  const setNewDrilldownPath = (base: string, newDrilldownValues: string[]) => {
+  const setNewDrilldownPath = (base: PreparedStockAttributes, newDrilldownValues: string[]) => {
     setDrilldownPath([base]);
     setDrilldownValues(newDrilldownValues);
   };
@@ -94,28 +103,38 @@ export default function StockOverviewPie(props: {
   };
 
   useMemo(() => {
-    const sizeDim = stockOverview.dimensions.size.map((size) => ({
-      sizeId: parseInt(size.id, 10),
+    const sizeDim = data.dimensions.size.map((size) => ({
+      sizeId: parseInt(size.id ?? "0", 10),
       sizeName: size.name,
     }));
-    const categoryDim = stockOverview.dimensions.category.map((category) => ({
-      categoryId: parseInt(category.id, 10),
+
+    const categoryDim = data.dimensions.category.map((category) => ({
+      categoryId: parseInt(category.id ?? "0", 10),
       categoryName: category.name,
     }));
+
     const preparedStockData = tidy(
-      stockOverview.facts,
-      innerJoin(categoryDim, "categoryId"),
-      innerJoin(sizeDim, "sizeId"),
+      data.facts as StockOverviewResult[],
+      innerJoin<StockOverviewResult, ICategoryDim>(categoryDim, { by: "categoryId" }),
+      innerJoin<StockOverviewResult & ICategoryDim, ISizeDim>(sizeDim, {
+        by: "sizeId",
+      }),
+      // @ts-ignore
       ...drilldownFilters,
-    );
+    ) as PreparedStock[];
+
     const grouped = tidy(
       preparedStockData,
-      groupBy(drilldownPath, sumBoxes),
+      groupBy(
+        drilldownPath,
+        summarize({ boxesCount: sum("boxesCount"), itemsCount: sum("itemsCount") }),
+      ),
       mappingFunctions[drilldownPath[drilldownPath.length - 1]],
     );
+
     setChartData(grouped);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drilldownPath, drilldownValues, stockOverview.facts]);
+  }, [drilldownPath, drilldownValues, data.facts]);
 
   const chartProps = {
     onClick: onGroupSelect,
@@ -158,8 +177,11 @@ export default function StockOverviewPie(props: {
           <WrapItem>
             <FormLabel />
             <Select
-              onChange={(event: ChangeEvent) => {
-                setNewDrilldownPath(event.target.selectedOptions.item(0).value, []);
+              onChange={(event) => {
+                setNewDrilldownPath(
+                  event.target.selectedOptions.item(0)?.value as PreparedStockAttributes,
+                  [],
+                );
               }}
               name="stock-overview-by"
               defaultValue={drilldownPath[0]}

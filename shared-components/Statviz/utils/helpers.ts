@@ -66,7 +66,7 @@ export const colorIsBright = (hex) => {
   const [r, g, b] = hex
     .replace(
       /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-      (m, rf, gf, bf) => `#${rf}${rf}${gf}${gf}${bf}${bf}`,
+      (_, rf, gf, bf) => `#${rf}${rf}${gf}${gf}${bf}${bf}`,
     )
     .substring(1)
     .match(/.{2}/g)
@@ -107,16 +107,13 @@ export const formatTime = (date: Date | string): string => {
   return "";
 };
 
-type Key = string;
-type Table = Record<Key, Date>;
-
 // this function assumes that the data is already sorted by the date column in ascending order
 // Make sure data is sorted by date first, for createdBoxes this is done by the backend
-export const fillMissingDays = (table: Table[], column: Key) =>
+export const fillMissingDays = (table: object[], column: string) =>
   tidy(
     table,
     complete(column, {
-      /* tslint:disable-next-line */ // tidyjs type declaration seems top be incomplete
+      // @ts-ignore tidy type definition seems to miss an overload
       [column]: fullSeqDateISOString(table, column, "day", 1),
     }),
   );

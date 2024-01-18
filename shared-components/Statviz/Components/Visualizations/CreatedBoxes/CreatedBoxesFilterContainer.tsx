@@ -1,5 +1,5 @@
 import { Wrap, WrapItem, FormLabel, Box, Select } from "@chakra-ui/react";
-import { useState, useEffect, ChangeEvent, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
@@ -30,7 +30,7 @@ export default function CreatedBoxesFilterContainer(props: { createdBoxes: Creat
     }
   }, [selectedBoxesOrItems, setSelectedBoxesOrItems, searchParams, setSearchParams]);
 
-  const onBoxesItemsSelectChange = (event: ChangeEvent) => {
+  const onBoxesItemsSelectChange = (event) => {
     const selected = event.target.selectedOptions.item(0).value as BoxesOrItems;
 
     // boi short for boxes or items (see type BoxesOrItems)

@@ -3,21 +3,26 @@ import { useEffect, useRef } from "react";
 import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../../Utils/theme";
 import { percent } from "../../utils/chart";
 
-interface ILink {
+export interface ISankeyLink {
   source: string;
   target: string;
   value: number;
 }
 
-interface IData {
+export interface ISankeyNode {
+  id: string;
+  name: string;
+}
+
+export interface ISankeyData {
   nodes: { id: string; name: string }[];
-  links: ILink[];
+  links: ISankeyLink[];
 }
 
 export interface ISankeyChart {
   width: string;
   height: string;
-  data: IData;
+  data: ISankeyData;
   heading?: string | false;
   timestamp?: string | false;
   timerange?: string | false;

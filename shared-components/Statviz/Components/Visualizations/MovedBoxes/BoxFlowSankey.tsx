@@ -1,9 +1,13 @@
 import { Card, CardBody } from "@chakra-ui/react";
 import { groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
 import VisHeader from "../../VisHeader";
-import SankeyChart from "../../Nivo-graphs/SankeyChart";
+import SankeyChart, { ISankeyData } from "../../Nivo-graphs/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
-import { MovedBoxesData, TargetDimensionInfo } from "../../../../types/generated/graphql";
+import {
+  MovedBoxesData,
+  MovedBoxesResult,
+  TargetDimensionInfo,
+} from "../../../../types/generated/graphql";
 
 const heading = "Moved Boxes";
 
@@ -21,17 +25,21 @@ const outgoingNode = {
   name: "outgoing boxes",
 };
 
-export default function BoxFlowSankey(props: {
+interface IBoxFlowSankeyProps {
   width: string;
   height: string;
-  movedBoxes: MovedBoxesData;
-}) {
+  data: MovedBoxesData;
+}
+
+export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
+  const movedBoxesFacts = data.facts as MovedBoxesResult[];
+
   const movedBoxes = tidy(
-    props.movedBoxes.facts,
+    movedBoxesFacts,
     groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
-    innerJoin(props.movedBoxes.dimensions.target as TargetDimensionInfo[], {
+    innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
     }),
   );
@@ -103,11 +111,11 @@ export default function BoxFlowSankey(props: {
   const chartData = {
     nodes,
     links,
-  };
+  } as ISankeyData;
 
   const chartProps = {
-    width: props.width,
-    height: props.height,
+    width,
+    height,
     data: chartData,
   };
 

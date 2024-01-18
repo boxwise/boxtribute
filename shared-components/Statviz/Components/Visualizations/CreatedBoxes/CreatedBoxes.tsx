@@ -16,20 +16,24 @@ import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
-import { CreatedBoxesData } from "../../../../types/generated/graphql";
+import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 
 const visId = "created-boxes";
 
-export default function CreatedBoxes(props: {
+interface ICreatedBoxesProps {
   width: string;
   height: string;
   data: CreatedBoxesData;
   boxesOrItems: BoxesOrItemsCount;
-}) {
+}
+
+export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICreatedBoxesProps) {
   const onExport = getOnExport(BarChart);
+  const facts = data.facts as CreatedBoxesResult[];
+
   const getChartData = () => {
     const createdBoxes = tidy(
-      props.data.facts,
+      facts,
       filter((row) => row.createdOn !== null),
       groupBy("createdOn", [
         summarize({
@@ -41,7 +45,7 @@ export default function CreatedBoxes(props: {
         ...row,
         createdOn: new Date(row.createdOn).toISOString(),
       })),
-      complete(
+      complete<{ createdOn: string; boxesCount: number; itemsCount: number }>(
         // fill days without new boxes
         {
           createdOn: fullSeqDateISOString("createdOn", "day", 1),
@@ -116,9 +120,11 @@ export default function CreatedBoxes(props: {
     );
   };
 
-  const createdBoxesPerDay = useMemo(getChartData, [props.data]);
+  // should only execute if data changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const createdBoxesPerDay = useMemo(getChartData, [data]);
 
-  const heading = props.boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
+  const heading = boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
 
   if (createdBoxesPerDay.length === 0) {
     return <NoDataCard header={heading} />;
@@ -128,15 +134,15 @@ export default function CreatedBoxes(props: {
     visId: "preview-created-boxes",
     data: createdBoxesPerDay,
     indexBy: "createdOn",
-    keys: [props.boxesOrItems],
-    width: props.width,
-    height: props.height,
+    keys: [boxesOrItems],
+    width,
+    height,
   };
 
   return (
     <Card>
       <VisHeader
-        maxWidthPx={props.width}
+        maxWidthPx={width}
         heading={heading}
         visId={visId}
         onExport={onExport}

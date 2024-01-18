@@ -6,7 +6,7 @@ export default function MovedBoxesCharts(props: { movedBoxes: MovedBoxesData }) 
   return (
     <Wrap gap={6}>
       <WrapItem overflow="auto" padding="5px">
-        <BoxFlowSankey movedBoxes={props.movedBoxes} width="1000px" height="600px" />
+        <BoxFlowSankey data={props.movedBoxes} width="1000px" height="600px" />
       </WrapItem>
     </Wrap>
   );

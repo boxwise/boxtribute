@@ -6,11 +6,11 @@ import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
 export default function CreatedBoxesDataContainer() {
   const { data, loading, error } = useCreatedBoxes();
 
-  if (loading) {
-    return <Spinner />;
-  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }
-  return <CreatedBoxesFilterContainer createdBoxes={data.createdBoxes} />;
+  if (loading || data === undefined) {
+    return <Spinner />;
+  }
+  return <CreatedBoxesFilterContainer createdBoxes={data} />;
 }

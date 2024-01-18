@@ -2,7 +2,11 @@ import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { arrange, desc, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import BarChart from "../../Nivo-graphs/BarChart";
-import { CreatedBoxesData } from "../../../../types/generated/graphql";
+import {
+  CreatedBoxesData,
+  CreatedBoxesResult,
+  ProductDimensionInfo,
+} from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 
@@ -19,8 +23,8 @@ export default function TopCreatedProducts(props: {
 
   const getChartData = () =>
     tidy(
-      data.facts,
-      map((row) => ({ ...row, productId: row.productId.toString() })),
+      data.facts as CreatedBoxesResult[],
+      map((row) => ({ ...row, productId: row.productId?.toString() })),
       groupBy(
         ["productId", "gender"],
         [
@@ -30,7 +34,7 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      innerJoin(data.dimensions?.product, { by: { id: "productId" } }),
+      innerJoin(data.dimensions?.product as ProductDimensionInfo[], { by: { id: "productId" } }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],

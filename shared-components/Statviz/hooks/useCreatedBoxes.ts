@@ -1,7 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { CreatedBoxesData, QueryCreatedBoxesArgs } from "../../types/generated/graphql";
+import {
+  CreatedBoxesData,
+  CreatedBoxesResult,
+  QueryCreatedBoxesArgs,
+} from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
 import { filterListByInterval } from "../utils/helpers";
 
@@ -34,7 +38,7 @@ export default function useCreatedBoxes() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery<CreatedBoxesData, QueryCreatedBoxesArgs>(
     CREATED_BOXES_QUERY,
-    { variables: { baseId: parseInt(baseId, 10) } },
+    { variables: { baseId: parseInt(baseId ?? "", 10) } },
   );
 
   const { timerange, interval } = useTimerange();
@@ -44,7 +48,7 @@ export default function useCreatedBoxes() {
       if (!data) return [];
 
       try {
-        return filterListByInterval(data.facts, "createdOn", interval);
+        return filterListByInterval(data.facts as CreatedBoxesResult[], "createdOn", interval);
       } catch (e) {
         // TODO show toast with error message?
 
