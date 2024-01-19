@@ -1,11 +1,15 @@
+from flask import request
 from peewee import MySQLDatabase
 from playhouse.flask_utils import FlaskDB  # type: ignore
+
+from .business_logic.statistics import statistics_queries
 
 
 class DatabaseManager(FlaskDB):
     """Custom class to glue Flask and Peewee together.
-    If configured accordingly, connect to a database replica, and use it in all SELECT
-    SQL queries.
+    If configured accordingly, connect to a database replica for statistics-related
+    GraphQL queries. To use the replica for database queries, wrap the calling code in
+    `with db.replica.bind_ctx`.
     """
 
     def __init__(self, *args, **kwargs):
@@ -17,34 +21,27 @@ class DatabaseManager(FlaskDB):
         super().init_app(app)
 
     def connect_db(self):
-        super().connect_db()
-        if self.replica:
+        if request.method.upper() != "POST":
+            # GraphQL queries are sent as POST requests. Don't open database connection
+            # on other requests (e.g. CORS pre-flight OPTIONS request)
+            return
+        if self._excluded_routes and request.endpoint in self._excluded_routes:
+            return
+        self.database.connect()
+
+        # Provide fallback for non-JSON and non-GraphQL requests
+        payload = request.get_json(silent=True) or {"query": []}
+        if self.replica and any([q in payload["query"] for q in statistics_queries()]):
             self.replica.connect()
 
     def close_db(self, exc):
-        super().close_db(exc)
+        if self._excluded_routes and request.endpoint in self._excluded_routes:
+            return
+        if not self.database.is_closed():
+            self.database.close()
+
         if self.replica and not self.replica.is_closed():
             self.replica.close()
-
-    def get_model_class(self):
-        """Whenever a database model (representing a table) is defined, it must derive
-        from `db.Model` which calls this method.
-        """
-        if self.database is None:
-            raise RuntimeError("Database must be initialized.")
-
-        class BaseModel(self.base_model_class):
-            @classmethod
-            def select(cls, *args, **kwargs):
-                if self.replica:
-                    with cls.bind_ctx(self.replica):
-                        return super().select(*args, **kwargs)
-                return super().select(*args, **kwargs)
-
-            class Meta:
-                database = self.database
-
-        return BaseModel
 
 
 db = DatabaseManager()
