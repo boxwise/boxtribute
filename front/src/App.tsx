@@ -102,7 +102,7 @@ function App() {
             <Route path=":hash" element={<ResolveHash />} />
           </Route>
           <Route path="statviz">
-            <Route index path="dashboard" element={<DashboardView />} />
+            <Route index element={<DashboardView />} />
           </Route>
           <Route path="boxes">
             <Route

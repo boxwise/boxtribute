@@ -17,6 +17,18 @@ function HeaderMenuContainer() {
     const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
     return [
       {
+        text: "Statistics",
+        requiredAbp: [],
+        links: [
+          {
+            link: `/bases/${baseId}/statviz`,
+            name: "Dashboard",
+            requiredAbp: [],
+            beta: true,
+          },
+        ],
+      },
+      {
         text: "Inventory",
         requiredAbp: ["create_label"],
         links: [

@@ -7,20 +7,17 @@ import StockOverview from "./StockOverview";
 
 export default function Dashboard() {
   return (
-    <div style={{ width: "80%", margin: "25px auto auto auto" }}>
-      <Heading borderBottom="1px" borderColor="gray.200" style={{ marginBottom: "25px" }}>
-        Dashboard
-      </Heading>
+    <div>
+      <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
 
       <Wrap
-        borderWidth="1px"
-        borderRadius="12px"
-        spacing="10px"
+        borderWidth="1"
+        spacing="10"
         direction={["column", "row"]}
-        style={{ padding: "20px", marginBottom: "40px" }}
+        style={{ padding: "15px", marginBottom: "15px" }}
         shadow="md"
       >
-        <WrapItem w="350px">
+        <WrapItem w="350">
           <Center>
             <TimeRangeSelect />
           </Center>

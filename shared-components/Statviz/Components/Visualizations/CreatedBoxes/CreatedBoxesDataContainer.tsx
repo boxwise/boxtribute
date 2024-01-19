@@ -12,5 +12,5 @@ export default function CreatedBoxesDataContainer() {
   if (loading || data === undefined) {
     return <Spinner />;
   }
-  return <CreatedBoxesFilterContainer createdBoxes={data} />;
+  return <CreatedBoxesFilterContainer createdBoxes={data.createdBoxes ?? {}} />;
 }
