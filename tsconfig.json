@@ -3,7 +3,7 @@
     /* transpile to ES2020 Javascript syntax */
     "target": "ES2020",
     /* use these built-in type declarations */
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     /* generate js modules using the latest syntax */
     "module": "ESNext",
     /* tell the compiler how to handle jsx syntax */

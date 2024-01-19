@@ -15,10 +15,10 @@ handlers:
   - url: /heapanalytics.js
     static_files: front-build/heapanalytics.js
     upload: front-build/heapanalytics.js
-  - url: /static/(.*)
+  - url: /assets/(.*)
     secure: always
-    static_files: front-build/static/\1
-    upload: front-build/static/(.*)
+    static_files: front-build/assets/\1
+    upload: front-build/assets/(.*)
   - url: /(.*\.(ico|png|svg))$
     secure: always
     static_files: front-build/\1

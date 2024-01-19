@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Intended for public Boxtribute visualization sharing",
   "scripts": {
-    "dev": "yarn generate-graphql-ts-types --watch & vite",
-    "build": "tsc && yarn generate-graphql-ts-types && vite build",
+    "dev": "yarn generate-graphql-ts-types --watch && vite",
+    "build": "yarn generate-graphql-ts-types && tsc && vite build",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
     "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
@@ -25,8 +25,6 @@
   },
   "devDependencies": {
     "@graphql-codegen/client-preset": "^4.1.0",
-    "@vitejs/plugin-react": "^4.0.3",
-    "ts-node": "^10.9.1",
-    "vite": "^4.4.5"
+    "ts-node": "^10.9.1"
   }
 }
