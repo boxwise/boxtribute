@@ -6832,10 +6832,10 @@
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.9.tgz#72e164381659a49557b0a078b28308f2c6a3e1ce"
   integrity sha512-zC0iXxAv1C1ERURduJueYzkzZ2zaGyc+P2c95hgkikHPr3z8EdUZOlgEQ5X0DRmwDZn+hekycQnoeiiRVrmilQ==
 
-"@types/w3c-image-capture@^1.0.6":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@types/w3c-image-capture/-/w3c-image-capture-1.0.9.tgz#e336aefc73a9172ca353b0eb5a634d8ca0e27ff2"
-  integrity sha512-s0ALuhMrOPin6Q3e2dauamHTgMFgA8ex1axROWqJwVcytbLbgcb1M1lr6T6YZeGptshqPdouexmaPSJUAAxWvQ==
+"@types/w3c-image-capture@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@types/w3c-image-capture/-/w3c-image-capture-1.0.10.tgz#561eda78b438a29f52e1c3bc53070288f7787130"
+  integrity sha512-7DR36sb0os7qVy2HI9wW6BV9oFjZVA8xnKM0cZGdL5XKa6ZgurA+U8T8xUNccERiWkvk641bAItMWCU++1B7jg==
   dependencies:
     "@types/webrtc" "*"
 
