@@ -19,7 +19,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
-from ...utils import in_production_environment
+from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
 
@@ -315,11 +315,11 @@ def compute_moved_boxes(base_id):
     _validate_existing_base(base_id)
     min_box_id = 1
     min_history_id = 1
-    if in_production_environment():
+    if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
         min_box_id = 87_423
         min_history_id = 1_324_559
-    # https://stackoverflow.com/a/56219996/3865876
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
     cursor = db.database.execute_sql(
         MOVED_BOXES_QUERY,
         (base_id, min_box_id, min_history_id),
