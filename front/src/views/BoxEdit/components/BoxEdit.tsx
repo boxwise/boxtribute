@@ -108,10 +108,9 @@ function BoxEdit({
 }: IBoxEditProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id;
-  const { labelIdentifier } =
-    useParams<{
-      labelIdentifier: string;
-    }>();
+  const { labelIdentifier } = useParams<{
+    labelIdentifier: string;
+  }>();
   const navigate = useNavigate();
 
   // Form Default Values

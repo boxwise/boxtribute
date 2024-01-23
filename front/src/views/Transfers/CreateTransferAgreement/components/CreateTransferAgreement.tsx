@@ -102,7 +102,6 @@ function CreateTransferAgreement({
     }));
 
   const onSubmit: SubmitHandler<ITransferAgreementFormData> = (data) => {
-    // eslint-disable-next-line no-console
     onSubmitCreateTransferAgreementForm(data);
   };
 

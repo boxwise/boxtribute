@@ -80,7 +80,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
 };
 
 // Test case 4.7.2
-// eslint-disable-next-line max-len
+
 it("4.7.2 - Query for shipment, box, available products, sizes and locations returns an error ", async () => {
   boxReconciliationOverlayVar({
     isOpen: true,
@@ -238,7 +238,7 @@ describe("No Delivery Tests", () => {
 });
 
 // Test case 4.7.1
-// eslint-disable-next-line max-len
+
 it("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
   const user = userEvent.setup();
   boxReconciliationOverlayVar({

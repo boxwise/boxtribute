@@ -39,6 +39,11 @@
     /* These settings ensures that you don't accidentally fall through from one case to another in a switch */
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false
+    "allowUnusedLabels": false,
+
+    /* The following linting settings we might want to get rid of in the future */
+    "allowSyntheticDefaultImports": true,
+    "strictFunctionTypes": false,
+    "noImplicitAny": false
   }
 }

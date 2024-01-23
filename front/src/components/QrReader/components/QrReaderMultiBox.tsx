@@ -62,9 +62,10 @@ function QrReaderMultiBox({
   onAssignBoxesToShipment,
 }: IQrReaderMultiBoxProps) {
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
-  const [selectedLocationOption, setSelectedLocationOption] =
-    useState<IDropdownOption | undefined>(undefined);
-  // eslint-disable-next-line max-len
+  const [selectedLocationOption, setSelectedLocationOption] = useState<IDropdownOption | undefined>(
+    undefined,
+  );
+
   const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
   const [selectedShipmentOption, setSelectedShipmentOption] = useState<IDropdownOption | undefined>(
     shipmentOptions.find(

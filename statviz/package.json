@@ -21,20 +21,7 @@
     "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
-    "@boxtribute/shared-components": "1.0.0",
-    "@visx/axis": "^3.3.0",
-    "@visx/event": "^3.3.0",
-    "@visx/grid": "^3.3.0",
-    "@visx/group": "^3.3.0",
-    "@visx/mock-data": "^3.3.0",
-    "@visx/responsive": "^3.3.0",
-    "@visx/scale": "^3.3.0",
-    "@visx/shape": "^3.3.0",
-    "@visx/tooltip": "^3.3.0",
-    "@nivo/core": "0.83.0",
-    "@nivo/bar": "0.83.0",
-    "@nivo/sankey": "0.83.0",
-    "@nivo/pie": "0.83.0"
+    "@boxtribute/shared-components": "1.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/client-preset": "^4.1.0",

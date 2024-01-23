@@ -12,6 +12,7 @@ Distributions
 # Disabled until we move to tanStack table v8
 react-table-config.d.ts
 # Disable linting for generated files from the GraphQL codegen
+generated
 graphql.ts
-# Temporarily disable linting and formatting for statviz
-statviz
+codegen.ts
+vite.config.ts
