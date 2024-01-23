@@ -1,8 +1,8 @@
 /**
  * Mocking the return value of the useAuth0 hook. This is needed to mock the authentication of a test user
  * To mock an authenticated user you have to
- * - add a mock of the path for imports by adding `jest.mock("@auth0/auth0-react")` at the top of your test file.
- * - mock the acctual hook by adding `const mockedUseAuth0 = jest.mocked(useAuth0);` in your testfile
+ * - add a mock of the path for imports by adding `vi.mock("@auth0/auth0-react")` at the top of your test file.
+ * - mock the acctual hook by adding `const mockedUseAuth0 = vi.mocked(useAuth0);` in your testfile
  * - set the return value of useAuth0 by passing mockedUseAuth0 to the function below.
  *
  * @param mockedUseAuth0 - The mocked useAuth0 hook whose return value needs to be set
@@ -10,7 +10,7 @@
  * @returns mocked `Auth0ContextInterface<TUser>` for an authenticated user. Check https://auth0.github.io/auth0-react/functions/useAuth0.html for the definition.
  */
 
-export function mockAuthenticatedUser(mockedUseAuth0: jest.MockedFunctionDeep<any>, email: string) {
+export function mockAuthenticatedUser(mockedUseAuth0: vi.MockedFunctionDeep<any>, email: string) {
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
     user: {
@@ -18,15 +18,15 @@ export function mockAuthenticatedUser(mockedUseAuth0: jest.MockedFunctionDeep<an
       "https://www.boxtribute.com/actions": ["be_user"],
       "https://www.boxtribute.com/beta_user": "0",
     },
-    logout: jest.fn(),
-    loginWithRedirect: jest.fn(),
-    getAccessTokenWithPopup: jest.fn(),
-    getAccessTokenSilently: jest.fn(),
-    getIdTokenClaims: jest.fn(),
-    loginWithPopup: jest.fn(),
+    logout: vi.fn(),
+    loginWithRedirect: vi.fn(),
+    getAccessTokenWithPopup: vi.fn(),
+    getAccessTokenSilently: vi.fn(),
+    getIdTokenClaims: vi.fn(),
+    loginWithPopup: vi.fn(),
     isLoading: false,
-    buildAuthorizeUrl: jest.fn(),
-    buildLogoutUrl: jest.fn(),
-    handleRedirectCallback: jest.fn(),
+    buildAuthorizeUrl: vi.fn(),
+    buildLogoutUrl: vi.fn(),
+    handleRedirectCallback: vi.fn(),
   });
 }
