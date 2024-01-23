@@ -1,22 +1,18 @@
 MOVED_BOXES_QUERY = """\
 -- Common Table Expressions (CTEs) to identify valid locations and boxes
 WITH recursive ValidLocations AS (
-    SELECT id, box_state_id
+    SELECT id
     FROM locations
     WHERE camp_id = %s AND deleted IS NULL
 ),
 ValidBoxes AS (
     SELECT
         s.id,
-        s.box_id AS label_identifier,
         s.items,
         s.location_id,
-        l.box_state_id as default_box_state_id,
         s.size_id,
         s.box_state_id,
-        s.product_id,
-        s.created,
-        s.modified
+        s.product_id
     FROM stock s
     JOIN ValidLocations l ON s.location_id = l.id
     WHERE s.deleted IS null
@@ -34,12 +30,9 @@ BoxHistory AS (
         s.product_id AS stock_product_id,
         s.size_id AS stock_size_id,
         s.box_state_id AS stock_box_state_id,
-        s.default_box_state_id,
-        s.created AS stock_created,
         h.record_id,
         h.changes,
         h.changedate,
-        s.label_identifier,
         h.from_int,
         h.to_int,
         h.id AS id
@@ -51,16 +44,11 @@ BoxHistory AS (
 HistoryReconstruction AS (
     -- CTE to reconstruct history
     SELECT
-        h.id,
-        h.record_id,
         h.box_id,
-        COALESCE(
-            LEAD(h.changedate, 1) OVER (PARTITION BY h.record_id ORDER BY h.id),
-            NOW()
-        ) AS effective_to,
         h.from_int,
         h.to_int,
         h.changes,
+        h.changedate,
         COALESCE(
             IF(h.changes <> 'items',
                 COALESCE(
@@ -220,27 +208,17 @@ HistoryReconstruction AS (
                 LIMIT 1),
                 h.stock_size_id
             )
-        ) AS size_id,
-        h.default_box_state_id AS stock_location_box_state_id,
-        h.stock_items,
-        h.stock_location_id,
-        h.stock_product_id,
-        h.stock_size_id,
-        h.stock_box_state_id,
-        h.stock_created,
-        h.changedate
+        ) AS size_id
     FROM BoxHistory h
     ORDER BY id DESC
 ),
 FinalResult AS (
     -- CTE for the final result
     SELECT
-        h.id,
         h.box_id,
         h.box_state_id,
         date(h.changedate) as moved_on,
         if(h.from_int <> h.box_state_id, h.from_int, h.box_state_id) AS prev_box_state_id,
-        h.effective_to,
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
