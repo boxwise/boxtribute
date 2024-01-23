@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import { Table, TableContainer, Tbody, Td, Tr } from "@chakra-ui/react";
 import {
   includesOneOfMulipleStringsFilterFn,

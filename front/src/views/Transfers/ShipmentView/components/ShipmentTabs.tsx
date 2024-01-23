@@ -62,13 +62,12 @@ function ShipmentTabs({
               size: group[0]?.sourceSize,
               numberOfItems: shipment.sourceQuantity,
               product: group[0]?.sourceProduct,
-            } as Box),
+            }) as Box,
         ),
       }))
       .orderBy((value) => value.totalLosts, "asc")
       .mapKeys(
         (value) =>
-          // eslint-disable-next-line max-len
           `${value.product?.sizeRange?.label}_${value.product?.gender}_${value.product?.name}_(${value.totalItems}x)_${value.totalBoxes}_Boxes`,
       )
       .value(),
