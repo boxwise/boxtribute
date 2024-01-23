@@ -105,7 +105,7 @@ def compute_beneficiary_demographics(base_id):
     demographics = (
         Beneficiary.select(
             gender.alias("gender"),
-            created_on.alias("created_on"),
+            fn.DATE(created_on).alias("created_on"),
             age.alias("age"),
             tag_ids.alias("tag_ids"),
             fn.COUNT(Beneficiary.id.distinct()).alias("count"),
@@ -129,8 +129,6 @@ def compute_beneficiary_demographics(base_id):
     # Conversions for GraphQL interface
     for row in demographics:
         row["gender"] = HumanGender(row["gender"])
-        if row["created_on"] is not None:
-            row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
@@ -243,7 +241,7 @@ def compute_top_products_checked_out(base_id):
     with rank included, grouped by distribution date and product category.
     """
     selection = Transaction.select(
-        Transaction.created_on.alias("checked_out_on"),
+        fn.DATE(Transaction.created_on).alias("checked_out_on"),
         Transaction.product.alias("product_id"),
         Product.category.alias("category_id"),
         fn.SUM(Transaction.count).alias("items_count"),
@@ -259,7 +257,6 @@ def compute_top_products_checked_out(base_id):
     # Data transformations
     for rank, row in enumerate(facts, start=1):
         row["rank"] = rank
-        row["checked_out_on"] = row["checked_out_on"].date()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
     dimensions["size"] = None
@@ -272,8 +269,8 @@ def compute_top_products_donated(base_id):
     """
     selection = (
         DbChangeHistory.select(
-            Box.created_on.alias("created_on"),
-            DbChangeHistory.change_date.alias("donated_on"),
+            fn.DATE(Box.created_on).alias("created_on"),
+            fn.DATE(DbChangeHistory.change_date).alias("donated_on"),
             Box.size.alias("size_id"),
             Box.product.alias("product_id"),
             Product.category.alias("category_id"),
@@ -309,8 +306,6 @@ def compute_top_products_donated(base_id):
     # Data transformations
     for rank, row in enumerate(facts, start=1):
         row["rank"] = rank
-        row["donated_on"] = row["donated_on"].date()
-        row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
@@ -341,7 +336,7 @@ def compute_moved_boxes(base_id):
     # were not removed from the shipment during preparation
     shipped_boxes_facts = (
         ShipmentDetail.select(
-            Shipment.sent_on.alias("moved_on"),
+            fn.DATE(Shipment.sent_on).alias("moved_on"),
             Product.category.alias("category_id"),
             fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
             Product.gender.alias("gender"),
@@ -399,7 +394,7 @@ def compute_moved_boxes(base_id):
     # specified base
     lost_scrap_box_facts = (
         DbChangeHistory.select(
-            DbChangeHistory.change_date.alias("moved_on"),
+            fn.DATE(DbChangeHistory.change_date).alias("moved_on"),
             Product.category.alias("category_id"),
             fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
             Product.gender.alias("gender"),
@@ -462,14 +457,6 @@ def compute_moved_boxes(base_id):
         + list(shipped_boxes_facts)
         + list(lost_scrap_box_facts)
     )
-
-    # Conversions for GraphQL interface
-    for row in facts:
-        try:
-            # Only datetimes returned from peewee queries have the .date() attribute
-            row["moved_on"] = row["moved_on"].date()
-        except AttributeError:
-            pass
 
     dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
