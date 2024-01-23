@@ -112,7 +112,7 @@ def compute_beneficiary_demographics(base_id):
 
     demographics = (
         Beneficiary.select(
-            gender.alias("gender"),
+            gender.python_value(HumanGender).alias("gender"),
             fn.DATE(created_on).alias("created_on"),
             age.alias("age"),
             tag_ids.alias("tag_ids"),
@@ -133,10 +133,6 @@ def compute_beneficiary_demographics(base_id):
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
         .dicts()
     )
-
-    # Conversions for GraphQL interface
-    for row in demographics:
-        row["gender"] = HumanGender(row["gender"])
 
     dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
