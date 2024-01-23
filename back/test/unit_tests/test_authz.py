@@ -222,6 +222,9 @@ def test_check_beta_feature_access(mocker):
     for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
         payload = f"mutation {{ {mutation} }}"
         assert check_beta_feature_access(payload, current_user=current_user)
+    for query in statistics_queries():
+        payload = f"query {{ {query} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
     assert check_beta_feature_access(
         "query { base(id: 1) { name } }", current_user=current_user
     )
@@ -235,6 +238,12 @@ def test_check_beta_feature_access(mocker):
     for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
         payload = f"mutation {{ {mutation} }}"
         assert check_beta_feature_access(payload, current_user=current_user)
+    for query in statistics_queries():
+        payload = f"query {{ {query} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
+    assert check_beta_feature_access(
+        "query { base(id: 1) { name } }", current_user=current_user
+    )
 
     # User with scope 2 can additionally access Transfers pages
     beta_feature_scope = 2
@@ -252,6 +261,18 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
+    # User with scope 3 can additionally access statviz data
+    beta_feature_scope = 3
+    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    for mutation in ["createTag"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
+    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        payload = f"mutation {{ {mutation} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
+    for query in statistics_queries():
+        payload = f"query {{ {query} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
     assert check_beta_feature_access(
         "query { base(id: 1) { name } }", current_user=current_user
     )

@@ -5,6 +5,7 @@ from flask import g
 from peewee import Model
 
 from .auth import CurrentUser
+from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
 from .exceptions import Forbidden
 from .models.definitions.base import Base
@@ -291,6 +292,7 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
         "moveNotDeliveredBoxesInStock",
     ),
 }
+ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2]
 ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
@@ -315,7 +317,7 @@ ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
 def check_beta_feature_access(
     payload: Dict[str, Any], *, current_user: Optional[CurrentUser] = None
 ) -> bool:
-    """Check whether the current user wants to execute a beta-feature mutation, and
+    """Check whether the current user wants to execute a beta-feature request, and
     whether they have sufficient beta-feature scope to run it.
     """
     if in_ci_environment() or in_development_environment():
@@ -325,6 +327,9 @@ def check_beta_feature_access(
     current_user = current_user or g.user
     if current_user.is_god:
         return True
+
+    if "query" in payload and any([q in payload for q in statistics_queries()]):
+        return current_user.beta_feature_scope >= 3
 
     if "mutation" not in payload:
         return True
