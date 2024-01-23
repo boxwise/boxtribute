@@ -42,12 +42,11 @@ BoxHistory AS (
         s.label_identifier,
         h.from_int,
         h.to_int,
-        h.changedate AS effective_from,
         h.id AS id
     FROM history h
     JOIN ValidBoxes s ON h.record_id = s.id AND h.to_int IS NOT null
     AND h.id >= %s AND h.tablename = 'stock'
-    ORDER BY record_id, effective_from DESC, id DESC
+    ORDER BY record_id, changedate DESC, id DESC
 ),
 HistoryReconstruction AS (
     -- CTE to reconstruct history
@@ -55,11 +54,6 @@ HistoryReconstruction AS (
         h.id,
         h.record_id,
         h.box_id,
-        IF(
-            LAG(h.changedate, 1) OVER (PARTITION BY h.record_id ORDER BY h.id) IS NULL,
-            h.stock_created,
-            h.changedate
-        ) AS effective_from,
         COALESCE(
             LEAD(h.changedate, 1) OVER (PARTITION BY h.record_id ORDER BY h.id),
             NOW()
@@ -244,9 +238,8 @@ FinalResult AS (
         h.id,
         h.box_id,
         h.box_state_id,
-        date(effective_from) as moved_on,
+        date(h.changedate) as moved_on,
         if(h.from_int <> h.box_state_id, h.from_int, h.box_state_id) AS prev_box_state_id,
-        h.effective_from,
         h.effective_to,
         h.items AS number_of_items,
         h.location_id,
