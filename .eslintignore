@@ -3,7 +3,6 @@ dist
 coverage
 node_modules
 public
-craco.config.cjs
 *.js
 *.old.*
 *.stories.*

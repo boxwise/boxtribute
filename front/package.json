@@ -58,7 +58,7 @@
     "dev": "yarn generate-graphql-ts-types --watch && vite ",
     "preview": "yarn generate-graphql-ts-types && vite preview",
     "test": "vitest",
-    "test:coverage": "yarn test --env=jsdom --coverage --watchAll=false",
+    "test:coverage": "vitest run --coverage",
     "upload:test-report": "./node_modules/.bin/codecov",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
