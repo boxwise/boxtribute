@@ -783,6 +783,18 @@ def test_shipment_mutations_on_target_side(
             ),
         )
 
+    # Test case 3.2.37
+    assert_bad_user_input(
+        client,
+        _create_mutation(
+            detail_id=removed_detail_id,
+            target_product_id=target_product_id,
+            target_location_id=target_location_id,
+            target_size_id=target_size_id,
+            target_quantity=target_quantity,
+        ),
+    )
+
     # Test case 3.2.40, 3.2.34b
     box_label_identifier = another_in_transit_box["label_identifier"]
     mutation = f"""mutation {{ updateShipmentWhenReceiving( updateInput: {{
