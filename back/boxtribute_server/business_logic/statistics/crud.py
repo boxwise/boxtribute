@@ -245,18 +245,15 @@ def compute_top_products_checked_out(base_id):
         Transaction.product.alias("product_id"),
         Product.category.alias("category_id"),
         fn.SUM(Transaction.count).alias("items_count"),
+        fn.RANK().over(order_by=[fn.SUM(Transaction.count).desc()]).alias("rank"),
     ).join(
         Product, on=((Product.base == base_id) & (Transaction.product == Product.id))
     )
-    facts = (
-        selection.group_by(SQL("product_id"), SQL("category_id"), SQL("checked_out_on"))
-        .order_by(SQL("items_count").desc())
-        .dicts()
-    )
-
-    # Data transformations
-    for rank, row in enumerate(facts, start=1):
-        row["rank"] = rank
+    facts = selection.group_by(
+        SQL("product_id"),
+        SQL("category_id"),
+        SQL("checked_out_on"),
+    ).dicts()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
     dimensions["size"] = None
@@ -275,6 +272,7 @@ def compute_top_products_donated(base_id):
             Box.product.alias("product_id"),
             Product.category.alias("category_id"),
             fn.SUM(Box.number_of_items).alias("items_count"),
+            fn.RANK().over(order_by=[fn.SUM(Box.number_of_items).desc()]).alias("rank"),
         )
         .join(
             Box,
@@ -291,21 +289,13 @@ def compute_top_products_donated(base_id):
             on=((Box.product == Product.id) & (Product.base == base_id)),
         )
     )
-    facts = (
-        selection.group_by(
-            SQL("created_on"),
-            SQL("donated_on"),
-            SQL("size_id"),
-            SQL("product_id"),
-            SQL("category_id"),
-        )
-        .order_by(SQL("items_count").desc())
-        .dicts()
-    )
-
-    # Data transformations
-    for rank, row in enumerate(facts, start=1):
-        row["rank"] = rank
+    facts = selection.group_by(
+        SQL("created_on"),
+        SQL("donated_on"),
+        SQL("size_id"),
+        SQL("product_id"),
+        SQL("category_id"),
+    ).dicts()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
