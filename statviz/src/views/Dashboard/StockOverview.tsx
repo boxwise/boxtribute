@@ -4,27 +4,21 @@ import {
   Heading,
   AccordionIcon,
   AccordionPanel,
-  Wrap,
-  WrapItem,
   Box,
 } from "@chakra-ui/react";
-import DemographicChart from "../../components/visualizations/Demographic/DemographicPyramid";
+import StockDataContainer from "../../components/visualizations/Stock/StockDataContainer";
 
-export default function Demographics() {
+export default function StockOverview() {
   return (
     <AccordionItem>
       <AccordionButton padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
-          <Heading size="lg">Demographics</Heading>
+          <Heading size="lg">Stock Overview</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel>
-        <Wrap gap={6}>
-          <WrapItem overflow="auto" padding="5px">
-            <DemographicChart width={800} height={900} />
-          </WrapItem>
-        </Wrap>
+        <StockDataContainer />
       </AccordionPanel>
     </AccordionItem>
   );

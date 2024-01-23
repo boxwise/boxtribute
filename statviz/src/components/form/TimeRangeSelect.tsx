@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { subMonths } from "date-fns";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { date2String } from "../../utils/chart";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z
@@ -22,24 +23,18 @@ export const FilterCreatedOnFormScheme = z.object({
 
 export type ITimeRangeSelection = z.infer<typeof FilterCreatedOnFormScheme>;
 
-export default function TimeRangeSelect(params: {
-  onChange: (from: Date, to: Date) => void;
-}) {
+export default function TimeRangeSelect() {
   const {
     register,
     watch,
     control,
-    getValues,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ITimeRangeSelection>({
     resolver: zodResolver(FilterCreatedOnFormScheme),
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const date2String = (date: Date) => date.toISOString().substring(0, 10);
-
   const toFormValue = watch("to");
   const fromFormValue = watch("from");
 

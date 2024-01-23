@@ -586,7 +586,7 @@ export type MovedBoxesResult = {
   movedOn: Scalars['Date'];
   productName: Scalars['String'];
   sizeId: Scalars['Int'];
-  tagIds?: Maybe<Array<Scalars['Int']['output']>>;
+  tagIds?: Maybe<Array<Scalars['Int']>>;
   targetId: Scalars['ID'];
 };
 

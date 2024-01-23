@@ -1,18 +1,9 @@
-import {
-  Accordion,
-  Box,
-  Center,
-  FormLabel,
-  Heading,
-  Select,
-  Wrap,
-  WrapItem,
-} from "@chakra-ui/react";
-import TimeRangeSelect from "../Statistics/components/filter/TimeRangeSelect";
-import { useSearchParams } from "react-router-dom";
+import { Accordion, Center, Heading, Wrap, WrapItem } from "@chakra-ui/react";
+import TimeRangeSelect from "../../components/form/TimeRangeSelect";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
+import StockOverview from "./StockOverview";
 
 export default function Dashboard() {
   const onTimeRangeChange = (from: Date, to: Date) => {
@@ -21,11 +12,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ width: "80%", margin: "25px auto auto auto" }}>
-      <Heading
-        borderBottom="1px"
-        borderColor="gray.200"
-        style={{ marginBottom: "25px" }}
-      >
+      <Heading borderBottom="1px" borderColor="gray.200" style={{ marginBottom: "25px" }}>
         Dashboard
       </Heading>
 
@@ -44,10 +31,11 @@ export default function Dashboard() {
         </WrapItem>
       </Wrap>
 
-      <Accordion defaultIndex={[0, 1]} allowMultiple marginBottom="100px">
+      <Accordion defaultIndex={[3]} allowMultiple marginBottom="100px">
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />
+        <StockOverview />
       </Accordion>
     </div>
   );

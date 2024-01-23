@@ -1,7 +1,7 @@
 import { FormControl, FormErrorMessage, FormLabel } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
-import { colorIsBright } from "utils/helpers";
+import { colorIsBright } from "../../utils/helpers";
 
 export interface IDropdownOption extends OptionBase {
   value: string;
@@ -13,7 +13,10 @@ export interface IDropdownOption extends OptionBase {
 export interface ISelectFieldProps {
   fieldId: string;
   fieldLabel: string;
-  options: IDropdownOption[] | { label: string; options: IDropdownOption[] }[] | undefined;
+  options:
+    | IDropdownOption[]
+    | { label: string; options: IDropdownOption[] }[]
+    | undefined;
   errors: object;
   control: any;
   // eslint-disable-next-line react/require-default-props
@@ -44,7 +47,11 @@ function SelectField({
   isRequired = true,
 }: ISelectFieldProps) {
   return (
-    <FormControl isRequired={isRequired} isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl
+      isRequired={isRequired}
+      isInvalid={!!errors[fieldId]}
+      id={fieldId}
+    >
       {showLabel && <FormLabel htmlFor={fieldId}>{fieldLabel}</FormLabel>}
       <Controller
         control={control}
@@ -81,7 +88,9 @@ function SelectField({
                 borderColor: colorIsBright(state.data?.color ?? "#fff")
                   ? "gray.300"
                   : state.data?.color,
-                color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
+                color: colorIsBright(state.data?.color ?? "#fff")
+                  ? "black"
+                  : "white",
                 background: state.data?.color || "gray.100",
                 borderRadius: "20",
               }),
@@ -90,7 +99,9 @@ function SelectField({
         )}
       />
       {showError && (
-        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+        <FormErrorMessage>
+          {!!errors[fieldId] && errors[fieldId].message}
+        </FormErrorMessage>
       )}
     </FormControl>
   );

@@ -1,3 +1,6 @@
+import { complete, filter, tidy, fullSeqDateISOString } from "@tidyjs/tidy";
+import { Interval, isWithinInterval } from "date-fns";
+
 export const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => {
   const [hours, minutes] = timeString.split(":").map(Number);
   const dateTime = new Date(date);
@@ -32,6 +35,24 @@ export const getDateNormalizedDateTime = (dateTime: Date) => {
   return newDate;
 };
 
+export const generateDropappUrl = (
+  oldLink: string,
+  baseId: string | undefined,
+  qrCode: string | undefined,
+  labelIdentifier: string | undefined,
+) => {
+  const newLink = `${oldLink}?camp=${baseId}&preference=classic`;
+  if (oldLink.includes("mobile.php")) {
+    if (labelIdentifier !== undefined) {
+      return `${newLink}&boxid=${labelIdentifier}`;
+    }
+    if (qrCode !== undefined) {
+      return `${newLink}&barcode=${qrCode}`;
+    }
+  }
+  return newLink;
+};
+
 export const redirectToExternalUrl = (url) => {
   window.location.replace(url);
 };
@@ -45,7 +66,7 @@ export const colorIsBright = (hex) => {
   const [r, g, b] = hex
     .replace(
       /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-      (_m, _r, _g, _b) => `#${_r}${_r}${_g}${_g}${_b}${_b}`,
+      (m, rf, gf, bf) => `#${rf}${rf}${gf}${gf}${bf}${bf}`,
     )
     .substring(1)
     .match(/.{2}/g)
@@ -85,3 +106,22 @@ export const formatTime = (date: Date | string): string => {
 
   return "";
 };
+
+type Key = string;
+type Table = Record<Key, Date>;
+
+// this function assumes that the data is already sorted by the date column in ascending order
+// Make sure data is sorted by date first, for createdBoxes this is done by the backend
+export const fillMissingDays = (table: Table[], column: Key) =>
+  tidy(
+    table,
+    complete(column, {
+      [column]: fullSeqDateISOString(table, column, "day", 1),
+    }),
+  );
+
+export const filterListByInterval = (list: Array<object>, column: string, interval: Interval) =>
+  tidy(
+    list,
+    filter((e) => isWithinInterval(new Date(e[column]), interval)),
+  );

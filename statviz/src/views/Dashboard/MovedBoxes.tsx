@@ -4,11 +4,9 @@ import {
   Heading,
   AccordionIcon,
   AccordionPanel,
-  Wrap,
-  WrapItem,
   Box,
 } from "@chakra-ui/react";
-import BoxFlowSankey from "../Statistics/components/BoxFlowSankey";
+import MovedBoxesDataContainer from "../../components/visualizations/movedBoxes/MovedBoxesDataContainer";
 
 export default function MovedBoxes() {
   return (
@@ -20,11 +18,7 @@ export default function MovedBoxes() {
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel>
-        <Wrap gap={6}>
-          <WrapItem overflow="auto" padding="5px">
-            <BoxFlowSankey />
-          </WrapItem>
-        </Wrap>
+        <MovedBoxesDataContainer />
       </AccordionPanel>
     </AccordionItem>
   );
