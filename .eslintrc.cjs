@@ -27,7 +27,6 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     tsconfigRootDir: __dirname,
-    // TODO add statviz to this
     project: ["./*/tsconfig.json"],
   },
   plugins: ["@typescript-eslint"],

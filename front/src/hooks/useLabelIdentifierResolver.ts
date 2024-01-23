@@ -65,7 +65,7 @@ export const useLabelIdentifierResolver = () => {
               kind: ILabelIdentifierResolverResultKind.FAIL,
               labelIdentifier,
               error: err,
-            } as ILabelIdentifierResolvedValue),
+            }) as ILabelIdentifierResolvedValue,
         );
       setLoading(false);
       return labelIdentifierResolvedValue;
