@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { BrowserRouter } from "react-router-dom";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
-import { theme } from "./utils/theme";
+import { theme } from "@boxtribute/shared-components/Utils/theme";
 import App from "./App";
 
 const client = new ApolloClient({
