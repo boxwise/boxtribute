@@ -68,6 +68,9 @@
     "eslint-plugin-testing-library": "^6.2.0",
     "prettier": "^3.1.1",
     "tsc-files": "^1.1.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.11",
+    "vite-tsconfig-paths": "^4.2.3"
   }
 }

@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
 
 function Auth0ProviderWithHistory({ children }) {
-  const domain = process.env.REACT_APP_AUTH0_DOMAIN as string;
-  const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID as string;
-  const audience = process.env.REACT_APP_AUTH0_AUDIENCE as string;
+  const domain = import.meta.env.FRONT_AUTH0_DOMAIN as string;
+  const clientId = import.meta.env.FRONT_AUTH0_CLIENT_ID as string;
+  const audience = import.meta.env.FRONT_AUTH0_AUDIENCE as string;
 
   const navigate = useNavigate();
 
