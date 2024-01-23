@@ -37,6 +37,13 @@ def use_db_replica(f):
     return decorated
 
 
+def _validate_existing_base(base_id):
+    """Raise a `peewee.DoesNotExist` exception if base with given ID does not exist in
+    the database. This will be reported as a BAD_USER_INPUT error.
+    """
+    Base.select(Base.id).where(Base.id == base_id).get()
+
+
 def _generate_dimensions(*names, target_type=None, facts):
     """Return a dictionary holding information (ID, name) about dimensions with
     specified names.
@@ -95,6 +102,7 @@ def compute_beneficiary_demographics(base_id):
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
     """
+    _validate_existing_base(base_id)
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.IF(
@@ -140,6 +148,7 @@ def compute_created_boxes(base_id):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
+    _validate_existing_base(base_id)
     cte = (
         Location.select(Location.id).where(Location.base == base_id).cte("location_ids")
     )
@@ -240,6 +249,7 @@ def compute_top_products_checked_out(base_id):
     """Return list of most-checked-out products (i.e. highest count in transactions)
     with rank included, grouped by distribution date and product category.
     """
+    _validate_existing_base(base_id)
     selection = Transaction.select(
         fn.DATE(Transaction.created_on).alias("checked_out_on"),
         Transaction.product.alias("product_id"),
@@ -264,6 +274,7 @@ def compute_top_products_donated(base_id):
     """Return list of most-donated products with rank included, grouped by distribution
     date, creation date, size, and product category.
     """
+    _validate_existing_base(base_id)
     selection = (
         DbChangeHistory.select(
             fn.DATE(Box.created_on).alias("created_on"),
@@ -305,6 +316,7 @@ def compute_moved_boxes(base_id):
     """Count all boxes moved to locations in the given base, grouped by date of
     movement, product category, and box state.
     """
+    _validate_existing_base(base_id)
     min_box_id = 1
     min_history_id = 1
     if in_production_environment():
@@ -471,6 +483,7 @@ def compute_stock_overview(base_id):
     given base. The result can be filtered by size, location, box state, product
     category, product name, and product gender.
     """
+    _validate_existing_base(base_id)
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     facts = (
