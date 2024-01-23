@@ -24,7 +24,7 @@
     "@boxtribute/shared-components": "1.0.0",
     "@visx/axis": "^3.3.0",
     "@visx/event": "^3.3.0",
-    "@visx/grid": "^3.3.0",
+    "@visx/grid": "^3.5.0",
     "@visx/group": "^3.3.0",
     "@visx/mock-data": "^3.3.0",
     "@visx/responsive": "^3.3.0",
