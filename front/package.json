@@ -1,9 +1,9 @@
 {
   "name": "@boxtribute/front",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Boxtribute FE",
+  "description": "Boxtribute v2 FE",
   "dependencies": {
     "@boxtribute/shared-components": "1.0.0",
     "@auth0/auth0-react": "^2.2.1",

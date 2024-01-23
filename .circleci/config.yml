@@ -115,8 +115,8 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            yarn lint
-            yarn format:write
+            yarn lint:fix:all
+            yarn format:write:all
       - run:
           name: Build front
           command: |
