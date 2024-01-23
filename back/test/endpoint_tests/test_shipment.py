@@ -11,6 +11,7 @@ from utils import (
 
 # Define common prefix for change messages for shorter line length
 change_prefix = "changed box state from"
+today = date.today().isoformat()
 
 
 def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
@@ -156,7 +157,7 @@ def test_shipment_mutations_on_source_side(
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
     shipment_id = str(shipment.pop("id"))
-    assert shipment.pop("startedOn").startswith(date.today().isoformat())
+    assert shipment.pop("startedOn").startswith(today)
     assert shipment == {
         "sourceBase": {"id": str(source_base_id)},
         "targetBase": {"id": str(target_base_id)},
@@ -207,6 +208,8 @@ def test_shipment_mutations_on_source_side(
                             state
                             shipmentDetail {{ id }}
                             history {{ changes }}
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
                         }}
                         sourceProduct {{ id }}
                         targetProduct {{ id }}
@@ -223,8 +226,9 @@ def test_shipment_mutations_on_source_side(
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment["details"][0].pop("createdOn").startswith(date.today().isoformat())
-    assert shipment["details"][1].pop("createdOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("createdOn").startswith(today)
+    assert shipment["details"][1].pop("createdOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     shipment_detail_id = shipment["details"][1].pop("id")
     prepared_shipment_detail_id = str(prepared_shipment_detail["id"])
     assert shipment == {
@@ -242,6 +246,11 @@ def test_shipment_mutations_on_source_side(
                         {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                     ],
+                    "lastModifiedOn": another_marked_for_shipment_box[
+                        "last_modified_on"
+                    ].isoformat()
+                    + "+00:00",
+                    "lastModifiedBy": {"id": "1"},
                 },
                 "sourceProduct": {
                     "id": str(another_marked_for_shipment_box["product"])
@@ -269,6 +278,7 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": "created record"},
                     ],
+                    "lastModifiedBy": {"id": "8"},
                 },
                 "sourceProduct": {"id": str(default_box["product"])},
                 "targetProduct": None,
@@ -319,12 +329,19 @@ def test_shipment_mutations_on_source_side(
                         id
                         removedOn
                         removedBy {{ id }}
-                        box {{ state history {{ changes }} }}
+                        box {{
+                            state
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
+                            history {{ changes }}
+                        }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
-    assert shipment["details"][1].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment["details"][0].pop("removedOn").startswith(today)
+    assert shipment["details"][1].pop("removedOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert len(shipment["details"][0]["box"].pop("history")) == 3
     assert len(shipment["details"][1]["box"].pop("history")) == 3
     assert shipment == {
@@ -334,7 +351,10 @@ def test_shipment_mutations_on_source_side(
             {
                 "id": i,
                 "removedBy": {"id": "8"},
-                "box": {"state": BoxState.InStock.name},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "lastModifiedBy": {"id": "8"},
+                },
             }
             for i in [prepared_shipment_detail_id, shipment_detail_id]
         ],
@@ -414,11 +434,16 @@ def test_shipment_mutations_on_source_side(
                         id
                         box {{
                             state
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
                             history {{ changes }}
                         }}
                     }} }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("sentOn").startswith(date.today().isoformat())
+    assert shipment.pop("sentOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][2]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Sent.name,
@@ -429,6 +454,7 @@ def test_shipment_mutations_on_source_side(
                 "id": prepared_shipment_detail_id,
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedBy": {"id": "8"},
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": "created record"},
@@ -440,6 +466,7 @@ def test_shipment_mutations_on_source_side(
                 "id": shipment_detail_id,
                 "box": {
                     "state": BoxState.InTransit.name,
+                    "lastModifiedBy": {"id": "8"},
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
@@ -453,6 +480,7 @@ def test_shipment_mutations_on_source_side(
                 "id": newest_shipment_detail_id,
                 "box": {
                     "state": BoxState.InTransit.name,
+                    "lastModifiedBy": {"id": "8"},
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
@@ -485,12 +513,18 @@ def test_shipment_mutations_cancel(
                         id
                         removedOn
                         removedBy {{ id }}
-                        box {{ state history {{ changes }} }}
+                        box {{
+                            state
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
+                            history {{ changes }}
+                        }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("canceledOn").startswith(date.today().isoformat())
-    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment.pop("canceledOn").startswith(today)
+    assert shipment["details"][0].pop("removedOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Canceled.name,
@@ -501,6 +535,7 @@ def test_shipment_mutations_cancel(
                 "removedBy": {"id": "8"},
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedBy": {"id": "8"},
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": "created record"},
@@ -542,6 +577,7 @@ def test_shipment_mutations_on_target_side(
     another_size,
     default_product,
     default_location,
+    default_box,
     in_transit_box,
     another_in_transit_box,
 ):
@@ -609,6 +645,8 @@ def test_shipment_mutations_on_target_side(
                             targetQuantity
                             box {{
                                 state
+                                lastModifiedOn
+                                lastModifiedBy {{ id }}
                                 history {{ changes }}
                             }}
                         }}
@@ -624,11 +662,15 @@ def test_shipment_mutations_on_target_side(
                         id
                         box {{
                             state
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
                             history {{ changes }}
                         }}
                     }} }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("receivingStartedOn").startswith(date.today().isoformat())
+    assert shipment.pop("receivingStartedOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Receiving.name,
@@ -638,6 +680,7 @@ def test_shipment_mutations_on_target_side(
                 "id": detail_id,
                 "box": {
                     "state": BoxState.Receiving.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": "created record"},
@@ -648,6 +691,7 @@ def test_shipment_mutations_on_target_side(
                 "id": another_detail_id,
                 "box": {
                     "state": BoxState.Receiving.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": "created record"},
@@ -658,6 +702,9 @@ def test_shipment_mutations_on_target_side(
                 "id": removed_detail_id,
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedOn": default_box["last_modified_on"].isoformat()
+                    + "+00:00",
+                    "lastModifiedBy": {"id": "1"},
                     "history": [{"changes": "created record"}],
                 },
             },
@@ -675,6 +722,8 @@ def test_shipment_mutations_on_target_side(
             target_quantity=target_quantity,
         ),
     )
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     expected_shipment = {
         "id": shipment_id,
         "state": ShipmentState.Receiving.name,
@@ -685,6 +734,7 @@ def test_shipment_mutations_on_target_side(
                 "id": detail_id,
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {
                             "changes": f"{change_prefix} Receiving to InStock",
@@ -722,6 +772,7 @@ def test_shipment_mutations_on_target_side(
                 "id": another_detail_id,
                 "box": {
                     "state": BoxState.Receiving.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": "created record"},
@@ -740,6 +791,9 @@ def test_shipment_mutations_on_target_side(
                 "id": removed_detail_id,
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedOn": default_box["last_modified_on"].isoformat()
+                    + "+00:00",
+                    "lastModifiedBy": {"id": "1"},
                     "history": [{"changes": "created record"}],
                 },
                 "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
@@ -810,11 +864,18 @@ def test_shipment_mutations_on_target_side(
                     removedBy {{ id }}
                     lostBy {{ id }}
                     receivedBy {{ id }}
-                    box {{ state history {{ changes }} }}
+                    box {{
+                        state
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
+                        history {{ changes }}
+                    }}
                 }}
             }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment.pop("completedOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     # box history has been verified before; skip it for brevity
     assert shipment["details"][0]["box"].pop("history") is not None
     assert shipment == {
@@ -827,7 +888,10 @@ def test_shipment_mutations_on_target_side(
                 "removedBy": None,
                 "lostBy": None,
                 "receivedBy": {"id": "2"},
-                "box": {"state": BoxState.InStock.name},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "lastModifiedBy": {"id": "2"},
+                },
             },
             {
                 "id": another_detail_id,
@@ -836,6 +900,7 @@ def test_shipment_mutations_on_target_side(
                 "receivedBy": None,
                 "box": {
                     "state": BoxState.NotDelivered.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {"changes": f"{change_prefix} Receiving to NotDelivered"},
                         {"changes": f"{change_prefix} InTransit to Receiving"},
@@ -850,6 +915,9 @@ def test_shipment_mutations_on_target_side(
                 "receivedBy": None,
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedOn": default_box["last_modified_on"].isoformat()
+                    + "+00:00",
+                    "lastModifiedBy": {"id": "1"},
                     "history": [{"changes": "created record"}],
                 },
             },
@@ -887,6 +955,7 @@ def test_shipment_mutations_on_target_side(
 def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     mocker,
     client,
+    default_box,
     in_transit_box,
     sent_shipment,
     default_shipment_detail,
@@ -904,11 +973,18 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                         id
                         removedBy {{ id }}
                         lostBy {{ id }}
-                        box {{ state history {{ changes }} }}
+                        box {{
+                            state
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
+                            history {{ changes }}
+                        }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment.pop("completedOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment == {
         "state": ShipmentState.Lost.name,
         "completedBy": {"id": "2"},
@@ -919,6 +995,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "lostBy": {"id": "2"},
                 "box": {
                     "state": BoxState.NotDelivered.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to NotDelivered"},
                         {"changes": "created record"},
@@ -931,6 +1008,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "lostBy": {"id": "2"},
                 "box": {
                     "state": BoxState.NotDelivered.name,
+                    "lastModifiedBy": {"id": "2"},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to NotDelivered"},
                         {"changes": "created record"},
@@ -943,6 +1021,9 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                 "lostBy": None,
                 "box": {
                     "state": BoxState.InStock.name,
+                    "lastModifiedOn": default_box["last_modified_on"].isoformat()
+                    + "+00:00",
+                    "lastModifiedBy": {"id": "1"},
                     "history": [{"changes": "created record"}],
                 },
             },
@@ -964,6 +1045,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
 def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
     mocker,
     client,
+    default_box,
     in_transit_box,
     another_in_transit_box,
     sent_shipment,
@@ -995,11 +1077,17 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
                         removedBy {{ id }}
                         receivedBy {{ id }}
                         lostBy {{ id }}
-                        box {{ state }}
+                        box {{
+                            state
+                            lastModifiedOn
+                            lastModifiedBy {{ id }}
+                        }}
                     }}
                 }} }}"""
     shipment = assert_successful_request(client, query)
-    assert shipment.pop("completedOn").startswith(date.today().isoformat())
+    assert shipment.pop("completedOn").startswith(today)
+    assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment == {
         "state": ShipmentState.Lost.name,
         "completedBy": {"id": "2"},
@@ -1009,21 +1097,32 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
                 "removedBy": None,
                 "receivedBy": None,
                 "lostBy": {"id": "2"},
-                "box": {"state": BoxState.NotDelivered.name},
+                "box": {
+                    "state": BoxState.NotDelivered.name,
+                    "lastModifiedBy": {"id": "2"},
+                },
             },
             {
                 "id": str(another_shipment_detail["id"]),
                 "removedBy": None,
                 "receivedBy": None,
                 "lostBy": {"id": "2"},
-                "box": {"state": BoxState.NotDelivered.name},
+                "box": {
+                    "state": BoxState.NotDelivered.name,
+                    "lastModifiedBy": {"id": "2"},
+                },
             },
             {
                 "id": str(removed_shipment_detail["id"]),
                 "removedBy": {"id": "2"},
                 "receivedBy": None,
                 "lostBy": None,
-                "box": {"state": BoxState.InStock.name},
+                "box": {
+                    "state": BoxState.InStock.name,
+                    "lastModifiedOn": default_box["last_modified_on"].isoformat()
+                    + "+00:00",
+                    "lastModifiedBy": {"id": "1"},
+                },
             },
         ],
     }
@@ -1328,8 +1427,8 @@ def test_move_not_delivered_box_instock_in_source_base(
     user_id = "8"
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("completedOn").startswith(date.today().isoformat())
-    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment.pop("completedOn").startswith(today)
+    assert shipment["details"][0].pop("removedOn").startswith(today)
     assert shipment == {
         "id": str(completed_shipment["id"]),
         "completedBy": {"id": "1"},
@@ -1365,8 +1464,8 @@ def test_move_not_delivered_box_instock_in_source_base(
     box_id = str(not_delivered_box["id"])
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
     shipment = assert_successful_request(client, mutation)
-    assert shipment.pop("completedOn").startswith(date.today().isoformat())
-    assert shipment["details"][0].pop("removedOn").startswith(date.today().isoformat())
+    assert shipment.pop("completedOn").startswith(today)
+    assert shipment["details"][0].pop("removedOn").startswith(today)
     assert shipment == {
         "id": str(receiving_shipment["id"]),
         "completedBy": {"id": user_id},
