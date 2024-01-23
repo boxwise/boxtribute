@@ -471,7 +471,6 @@ function BTBox() {
         });
       } else {
         triggerError({
-          // eslint-disable-next-line max-len
           message: `Could not ${type} the box from the shipment ${shipmentId}. Try again?`,
           status: "error",
         });
@@ -499,7 +498,6 @@ function BTBox() {
           handelAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
         } else {
           createToast({
-            // eslint-disable-next-line max-len
             message: `Box has successfully assigned to the shipment ${shipmentId}.`,
             status: "success",
           });
@@ -536,7 +534,6 @@ function BTBox() {
               handelAssignBoxToShipmentError(shipmentId, reassignedResult.kind, "reassign");
             } else {
               createToast({
-                // eslint-disable-next-line max-len
                 message: `Box has successfully reassigned from shipment ${currentShipmentId} to the shipment ${shipmentId}`,
                 status: "success",
               });

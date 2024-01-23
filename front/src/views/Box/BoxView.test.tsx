@@ -414,7 +414,7 @@ it("3.1.1 - Initial load of Page", async () => {
 }, 10000);
 
 // Test case 3.1.1.7
-// eslint-disable-next-line max-len
+
 it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy location", async () => {
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
@@ -438,7 +438,6 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
   expect(screen.getByRole("alert")).toBeInTheDocument();
   expect(
     screen.getByText(
-      // eslint-disable-next-line max-len
       /To edit this box, please move it to an InStock warehouse location\. Boxtribute no longer supports LOST and SCRAP locations\./i,
     ),
   ).toBeInTheDocument();
@@ -921,7 +920,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
 }, 10000);
 
 // Test case 4.6.1.3
-// eslint-disable-next-line max-len
+
 it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in preparing state", async () => {
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
