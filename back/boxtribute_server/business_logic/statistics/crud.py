@@ -1,3 +1,5 @@
+from functools import wraps
+
 from peewee import JOIN, SQL, fn
 
 from ...db import db
@@ -17,6 +19,20 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
+
+
+def use_db_replica(f):
+    """Decorator for a resolver that should use the DB replica for database selects."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if db.replica is not None:
+            with db.replica.bind_ctx(db.Model.__subclasses__()):
+                return f(*args, **kwargs)
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def _generate_dimensions(*names, target_type=None, facts):
@@ -82,7 +98,7 @@ def compute_beneficiary_demographics(base_id):
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
 
     demographics = (
         Beneficiary.select(
@@ -124,30 +140,97 @@ def compute_created_boxes(base_id):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    selection = (
+    cte = (
+        Location.select(Location.id).where(Location.base == base_id).cte("location_ids")
+    )
+    location_ids = cte.select(cte.c.id)
+    created_on = db.database.truncate_date("day", Box.created_on)
+    LocationHistory = DbChangeHistory.alias()
+    ProductHistory = DbChangeHistory.alias()
+    ItemsHistory = DbChangeHistory.alias()
+
+    def oldest_rows(field):
+        # Find the change with smallest ID (i.e. the oldest) corresponding to the given
+        # field of the Box model
+        HistoryAlias = DbChangeHistory.alias()
+        return HistoryAlias.select(fn.MIN(HistoryAlias.id)).where(
+            HistoryAlias.record_id == Box.id,
+            HistoryAlias.table_name == Box._meta.table_name,
+            HistoryAlias.changes == field.column_name,
+        )
+
+    # Select all boxes, that were in the given base at creation, and their initial
+    # properties
+    boxes = (
         Box.select(
-            Box.created_on.alias("created_on"),
+            Box.id,
+            created_on.alias("created_on"),
+            fn.IFNULL(ItemsHistory.from_int, Box.number_of_items).alias("items"),
+            fn.IFNULL(ProductHistory.from_int, Box.product).alias("product_id"),
+        )
+        .join(
+            LocationHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (LocationHistory.record_id == Box.id)
+                & (LocationHistory.table_name == Box._meta.table_name)
+                & (LocationHistory.changes == Box.location.column_name)
+                & (LocationHistory.id == oldest_rows(Box.location))
+            ),
+        )
+        .join(
+            ProductHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (ProductHistory.record_id == Box.id)
+                & (ProductHistory.table_name == Box._meta.table_name)
+                & (ProductHistory.changes == Box.product.column_name)
+                & (ProductHistory.id == oldest_rows(Box.product))
+            ),
+        )
+        .join(
+            ItemsHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (ItemsHistory.record_id == Box.id)
+                & (ItemsHistory.table_name == Box._meta.table_name)
+                & (ItemsHistory.changes == Box.number_of_items.column_name)
+                & (ItemsHistory.id == oldest_rows(Box.number_of_items))
+            ),
+        )
+        .where(
+            Box.created_on.is_null(False),
+            (LocationHistory.from_int << location_ids)
+            | (LocationHistory.from_int.is_null() & (Box.location << location_ids)),
+        )
+    )
+
+    # Group and aggregate these results. No Box.alias() needed since `from_` is used
+    facts = (
+        Box.select(
+            boxes.c.created_on,
+            fn.COUNT(boxes.c.id).alias("boxes_count"),
+            fn.SUM(boxes.c.items).alias("items_count"),
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
             Product.category.alias("category_id"),
-            fn.COUNT(Box.id).alias("boxes_count"),
-            fn.SUM(Box.number_of_items).alias("items_count"),
         )
-        .join(Product)
-        .order_by(Box.created_on.asc())
-    )
-
-    if base_id is not None:
-        selection = selection.join(Location, src=Box).where(Location.base == base_id)
-
-    facts = selection.group_by(
-        SQL("product_id"), SQL("category_id"), SQL("gender"), SQL("created_on")
+        .from_(boxes)
+        .join(
+            Product,
+            on=(boxes.c.product_id == Product.id),
+        )
+        .group_by(
+            SQL("product_id"),
+            SQL("category_id"),
+            SQL("gender"),
+            SQL("created_on"),
+        )
+        .with_cte(cte)
     ).dicts()
-
-    # Conversions for GraphQL interface
-    for row in facts:
-        if row["created_on"] is not None:
-            row["created_on"] = row["created_on"].date()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
@@ -255,6 +338,7 @@ def compute_moved_boxes(base_id):
         .alias("sq")
     )
 
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # This selects only information of boxes that were moved from InStock to Donated
     # state, and are now in the base of given base ID. It is NOT taken into account that
     # boxes can be moved back from Donated to InStock, nor that the product or other
@@ -264,7 +348,12 @@ def compute_moved_boxes(base_id):
             DbChangeHistory.change_date.alias("moved_on"),
             Location.name.alias("target_id"),
             Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            Size.id.alias("size_id"),
+            tag_ids.alias("tag_ids"),
             fn.COUNT(Box.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
         )
         .join(
             LatestMovedSubQuery,
@@ -287,11 +376,28 @@ def compute_moved_boxes(base_id):
             src=Box,
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
+        .join(
+            Size,
+            src=Box,
+            on=(Box.size == Size.id),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (TagsRelation.object_id == Box.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
+        )
     )
     donated_boxes_facts = selection.group_by(
         SQL("moved_on"),
         SQL("target_id"),
         SQL("category_id"),
+        SQL("product_name"),
+        SQL("gender"),
+        SQL("size_id"),
     ).dicts()
 
     # Select information about all boxes sent from the specified base as source, that
@@ -300,8 +406,13 @@ def compute_moved_boxes(base_id):
         ShipmentDetail.select(
             Shipment.sent_on.alias("moved_on"),
             Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            Size.id.alias("size_id"),
+            tag_ids.alias("tag_ids"),
             Base.name.alias("target_id"),
             fn.COUNT(ShipmentDetail.box).alias("boxes_count"),
+            fn.SUM(ShipmentDetail.source_quantity).alias("items_count"),
         )
         .join(
             Shipment,
@@ -321,10 +432,27 @@ def compute_moved_boxes(base_id):
             src=ShipmentDetail,
             on=(ShipmentDetail.source_product == Product.id),
         )
+        .join(
+            Size,
+            src=ShipmentDetail,
+            on=(ShipmentDetail.source_size == Size.id),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            src=ShipmentDetail,
+            on=(
+                (TagsRelation.object_id == ShipmentDetail.box)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
+        )
         .group_by(
             SQL("moved_on"),
             SQL("target_id"),
             SQL("category_id"),
+            SQL("product_name"),
+            SQL("gender"),
+            SQL("size_id"),
         )
         .dicts()
     )
@@ -336,8 +464,13 @@ def compute_moved_boxes(base_id):
         DbChangeHistory.select(
             DbChangeHistory.change_date.alias("moved_on"),
             Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            Size.id.alias("size_id"),
+            tag_ids.alias("tag_ids"),
             BoxStateModel.label.alias("target_id"),
             fn.COUNT(DbChangeHistory.id).alias("boxes_count"),
+            fn.SUM(Box.number_of_items).alias("items_count"),
         )
         .join(
             Box,
@@ -359,6 +492,20 @@ def compute_moved_boxes(base_id):
             on=((Box.location == Location.id) & (Location.base == base_id)),
         )
         .join(
+            Size,
+            src=Box,
+            on=(Box.size == Size.id),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (TagsRelation.object_id == Box.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
+        )
+        .join(
             BoxStateModel,
             src=DbChangeHistory,
             on=(DbChangeHistory.to_int == BoxStateModel.id),
@@ -367,6 +514,9 @@ def compute_moved_boxes(base_id):
             SQL("moved_on"),
             SQL("target_id"),
             SQL("category_id"),
+            SQL("product_name"),
+            SQL("gender"),
+            SQL("size_id"),
         )
         .dicts()
     )
@@ -380,7 +530,7 @@ def compute_moved_boxes(base_id):
     for row in facts:
         row["moved_on"] = row["moved_on"].date()
 
-    dimensions = _generate_dimensions("category", facts=facts)
+    dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
         _generate_dimensions(
             target_type=TargetType.OutgoingLocation,

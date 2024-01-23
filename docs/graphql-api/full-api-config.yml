@@ -254,7 +254,7 @@ info:
         1. Use the `fetch_token` script to obtain a test user JWT. See the back-end README for details.
         1. Copy the content of the `access_token` field of the response JSON
         1. Paste the token into the HTTP headers when sending a request to the API, like `{"Authorization": "Bearer TOKEN"}`
-        1. When using the GraphQL Playground, paste the header into the respective field in the bottom left.
+        1. When using the GraphQL explorer, paste the header into the respective field in the bottom left.
 
   # If you really want to hide the "Documentation by" at the bottom of your output, you can do so here
   # Default: false

@@ -225,9 +225,9 @@ info:
   description: |
     These pages contain the documentation for the boxtribute GraphQL API (queries only). Have fun exploring!
 
-    You can interact with the API the following ways:
-    1. Open the endpoint address in your browser. This launches GraphQL Playground
-    1. Send POST requests to the endpoint from a script or the command line, passing your GraphQL query in the `query` field of the request JSON
+    You can interact with the API in either of the following ways:
+    - Open the endpoint address in your browser. This launches the GraphQL explorer
+    - Send POST requests to the endpoint from a script or the command line, passing your GraphQL query in the `query` field of the request JSON
   # Don't change the version number manually. It's substituted at deploy time in CircleCI
   version: 0.0.1
   title: Welcome!
@@ -263,7 +263,7 @@ info:
         1. You need your username and password that you log in to `app.boxtribute.org` with. Pass it in the JSON part of a POST response to `api.boxtribute.org/token`, like `{"username": "my-email-address", "password": "PASSWORD"}`
         1. Copy the content of the `access_token` field of the response JSON
         1. Paste the token into the HTTP headers when sending a request to the API, like `{"Authorization": "Bearer TOKEN"}`
-        1. When using the GraphQL Playground, paste the header into the respective field in the bottom left.
+        1. When using the GraphQL explorer, paste the header into the respective field in the bottom left.
 
   # If you really want to hide the "Documentation by" at the bottom of your output, you can do so here
   # Default: false

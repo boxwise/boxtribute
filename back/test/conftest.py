@@ -78,11 +78,11 @@ def _create_app(database_interface, *blueprints):
         db.database.drop_tables(MODELS)
         db.database.create_tables(MODELS)
         setup_models()
-        db.close_db(None)
+        db.database.close()
         with app.app_context():
             yield app
 
-    db.close_db(None)
+    db.database.close()
 
 
 @pytest.fixture(scope="session")
@@ -131,7 +131,9 @@ def dropapp_dev_client(monkeypatch):
 
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
-        db.close_db(None)
+        db.database.close()
+        db.replica.close()
         with app.app_context():
             yield app.test_client()
-    db.close_db(None)
+    db.database.close()
+    db.replica.close()

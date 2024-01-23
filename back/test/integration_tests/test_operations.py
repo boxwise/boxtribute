@@ -38,6 +38,10 @@ def test_queries(auth0_client, endpoint):
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) > 0
 
+    query = "query { beneficiaryDemographics(baseId: 1) { facts { age count } } }"
+    demographics = _assert_successful_request(auth0_client, query)
+    assert len(demographics["facts"]) == 154
+
 
 def test_mutations(auth0_client):
     mutation = "mutation { createQrCode { id } }"
