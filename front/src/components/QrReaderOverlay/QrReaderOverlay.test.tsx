@@ -1,5 +1,5 @@
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen, render } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
@@ -13,13 +13,13 @@ import {
 } from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
 
-jest.mock("@auth0/auth0-react");
-jest.mock("components/QrReader/components/QrReaderScanner");
+vi.mock("@auth0/auth0-react");
+vi.mock("components/QrReader/components/QrReaderScanner");
 
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
-const mockedQrReader = jest.mocked(QrReaderScanner);
+const mockedUseAuth0 = vi.mocked(useAuth0);
+const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");

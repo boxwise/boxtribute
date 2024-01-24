@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, afterEach, it, describe, expect } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
@@ -19,7 +19,7 @@ import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
 // extracting a cacheObject to reset the cache correctly later
 const emptyCache = cache.extract();
 
-jest.setTimeout(12000);
+vi.setConfig({ testTimeout: 12_000 });
 
 afterEach(() => {
   cache.restore(emptyCache);
@@ -151,7 +151,7 @@ it("4.3.1 - Initial load of Page", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -187,7 +187,7 @@ it("4.3.2 - Input Validations", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -238,7 +238,7 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     addTypename: true,
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -279,7 +279,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
     mocks: [initialQuery, mutationNetworkError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -315,7 +315,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
     mocks: [initialQuery, mutationGraphQLError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -351,7 +351,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       mocks: [initialQueryNetworkError],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -376,7 +376,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       mocks: [initialQueryWithoutAgreement],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,

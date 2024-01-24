@@ -1,5 +1,5 @@
+import { vi, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import { screen, render, cleanup, fireEvent } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/organisations";
@@ -110,7 +110,7 @@ it("4.1.1 - Initial load of Page", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -156,7 +156,7 @@ it("4.1.2 - Input Validations", async () => {
     mocks: [initialQuery, successfulMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -205,7 +205,7 @@ it("4.1.3 - Click on Submit Button", async () => {
     mocks: [initialQuery, successfulMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -234,7 +234,7 @@ it("4.1.3 - Click on Submit Button", async () => {
     mocks: [initialQuery, mutationNetworkError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -259,7 +259,7 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     mocks: [initialQueryNetworkError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -287,7 +287,7 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
     mocks: [initialQuery, mutationIdenticalAgreementError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,

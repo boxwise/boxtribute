@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, beforeEach, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -34,15 +34,15 @@ const mockSuccessfulTransferAgreementsQuery = ({
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
 // Therefore, we need to mock them since otherwise we easily get false negatives
 // Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
+const mockedTriggerError = vi.fn();
+const mockedCreateToast = vi.fn();
+vi.mock("hooks/useErrorHandling");
+vi.mock("hooks/useNotification");
 
 beforeEach(() => {
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
+  const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 

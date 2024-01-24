@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, beforeEach, afterEach, it, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
@@ -25,20 +25,20 @@ const emptyCache = cache.extract();
 // Everywhere where we have more than one occation of a toast we should do this.
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-jest.mock("@auth0/auth0-react");
+vi.mock("hooks/useErrorHandling");
+vi.mock("hooks/useNotification");
+vi.mock("@auth0/auth0-react");
 window.scrollTo = jest.fn();
 
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
+const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
+  const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 

@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, beforeEach, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
@@ -12,10 +12,10 @@ import { mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
 
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
+const mockedTriggerError = vi.fn();
+const mockedCreateToast = vi.fn();
+vi.mock("hooks/useErrorHandling");
+vi.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -153,9 +153,9 @@ const initialRecevingUIAsTargetOrgQuery = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
+  const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
@@ -174,7 +174,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -214,7 +214,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialWithoutBoxQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -244,7 +244,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialWithGroupedItemQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -292,7 +292,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialQueryNetworkError],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -314,7 +314,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialRecevingUIAsTargetOrgQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -343,7 +343,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialRecevingUIAsSourceOrgQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -369,7 +369,7 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     mocks: [initialCompletedShipemntQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,

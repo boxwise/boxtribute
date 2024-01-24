@@ -1,5 +1,5 @@
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -39,23 +39,23 @@ const mockSuccessfulQrQuery = ({
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
 // Therefore, we need to mock them since otherwise we easily get false negatives
 // Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-jest.mock("@auth0/auth0-react");
-jest.mock("components/QrReader/components/QrReaderScanner");
+const mockedTriggerError = vi.fn();
+const mockedCreateToast = vi.fn();
+vi.mock("hooks/useErrorHandling");
+vi.mock("hooks/useNotification");
+vi.mock("@auth0/auth0-react");
+vi.mock("components/QrReader/components/QrReaderScanner");
 
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
-const mockedQrReader = jest.mocked(QrReaderScanner);
+const mockedUseAuth0 = vi.mocked(useAuth0);
+const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
+  const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 

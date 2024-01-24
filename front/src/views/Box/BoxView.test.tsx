@@ -1,5 +1,5 @@
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { cache } from "queries/cache";
@@ -24,8 +24,8 @@ import BTBox, {
 
 const mockedTriggerError = jest.fn();
 const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
+vi.mock("hooks/useErrorHandling");
+vi.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -360,9 +360,9 @@ const moveLocationOfBoxNetworkFailedMutation = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
+  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
+  const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 

@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, it, describe, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
@@ -421,7 +421,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
@@ -451,7 +451,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [initialQueryNetworkError, actionsQuery],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
@@ -483,7 +483,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
@@ -517,7 +517,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
