@@ -61,12 +61,12 @@ export const CreateBoxFormDataSchema = z.object({
     .nullable()
     // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
     .refine(Boolean, { message: "Please select a product" })
-    // since the expected return type is an object of strings we have to add this transform at the end.
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+    // since the expected return type should not have a null we add this transform at the en.
+    .transform((selectedOption) => selectedOption || z.NEVER),
   sizeId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { message: "Please select a size" })
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+    .transform((selectedOption) => selectedOption || z.NEVER),
   numberOfItems: z
     .number({
       required_error: "Please enter a number of items",
@@ -77,7 +77,7 @@ export const CreateBoxFormDataSchema = z.object({
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { message: "Please select a location" })
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+    .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
 });
