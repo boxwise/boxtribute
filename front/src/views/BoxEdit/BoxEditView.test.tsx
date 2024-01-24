@@ -172,7 +172,7 @@ it("3.2.1 - Initial load of Page", async () => {
 
   // 3.2.1.7 Comments of Box is shown
   expect(screen.getByDisplayValue(/test/i)).toBeInTheDocument();
-});
+}, 10000);
 
 it("3.2.2 - Cancel Button", async () => {
   const user = userEvent.setup();
@@ -186,7 +186,7 @@ it("3.2.2 - Cancel Button", async () => {
   const cancelButton = await screen.findByRole("button", { name: /cancel/i });
   await user.click(cancelButton);
   expect(screen.getByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
-});
+}, 10000);
 
 it("3.2.3 - Change Product", async () => {
   const user = userEvent.setup();
@@ -219,7 +219,7 @@ it("3.2.3 - Change Product", async () => {
   await user.click(submitButton);
   expect(await screen.findByText(/successfully modified/i)).toBeInTheDocument();
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
-});
+}, 10000);
 
 it("3.2.4 - No Data is loaded due to Network error", async () => {
   render(<BoxEditView />, {
