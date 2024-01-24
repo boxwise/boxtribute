@@ -112,7 +112,7 @@ function HeaderMenuMobile(props: IHeaderMenuProps) {
     <HeaderMenuMobileContainer>
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <Logo />
-        <Menu matchWidth strategy="fixed" computePositionOnMount closeOnBlur>
+        <Menu strategy="fixed" computePositionOnMount closeOnBlur placement="bottom-end">
           <MenuButton
             as={IconButton}
             aria-label="Options"
