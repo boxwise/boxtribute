@@ -14,5 +14,12 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/tests/setupTests.ts",
+    reporters: ["junit"],
+    outputFile: {
+      junit: "./coverage/junit.xml",
+    },
+    // coverage: {
+    //   reporters:
+    // }
   },
 });

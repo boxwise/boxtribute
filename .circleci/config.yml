@@ -138,11 +138,9 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: reports
+            DEBUG_PRINT_LIMIT=10000 yarn test:coverage
       - store_test_results:
-          path: reports
+          path: coverage/junit.xml
       - store_artifacts:
           path: coverage
           destination: coverage
