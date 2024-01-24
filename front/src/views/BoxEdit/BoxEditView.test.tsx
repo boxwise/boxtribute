@@ -157,24 +157,24 @@ it("3.2.1 - Initial load of Page", async () => {
   // 3.2.1.3.1 Size Options are shown correctly
   await assertOptionsInSelectField(user, /Size/, ["M", "L"], title);
 
-  // // 3.2.1.4 NumberofItems of Box is shown
-  // expect(await screen.findByDisplayValue(/62/i)).toBeInTheDocument();
+  // 3.2.1.4 NumberofItems of Box is shown
+  expect(await screen.findByDisplayValue(/62/i)).toBeInTheDocument();
 
-  // // 3.2.1.5 Location of Box is shown
-  // expect(screen.getByText("Warehouse")).toBeInTheDocument();
-  // // 3.2.1.5.1 Location Options are shown correctly
-  // await assertOptionsInSelectField(user, /Location/, [/Shop.*Donated/], title);
+  // 3.2.1.5 Location of Box is shown
+  expect(screen.getByText("Warehouse")).toBeInTheDocument();
+  // 3.2.1.5.1 Location Options are shown correctly
+  await assertOptionsInSelectField(user, /Location/, [/Shop.*Donated/], title);
 
-  // // 3.2.1.6 Tag of Box is shown
-  // expect(await screen.findByText(/tag1/i)).toBeInTheDocument();
-  // // 3.2.1.6.1 Tag Options are shown correctly
-  // await assertOptionsInSelectField(user, /Tags/, [/tag2/i], title);
+  // 3.2.1.6 Tag of Box is shown
+  expect(await screen.findByText(/tag1/i)).toBeInTheDocument();
+  // 3.2.1.6.1 Tag Options are shown correctly
+  await assertOptionsInSelectField(user, /Tags/, [/tag2/i], title);
 
-  // // 3.2.1.7 Comments of Box is shown
-  // expect(await screen.findByDisplayValue(/test/i)).toBeInTheDocument();
+  // 3.2.1.7 Comments of Box is shown
+  expect(await screen.findByDisplayValue(/test/i)).toBeInTheDocument();
 }, 20000);
 
-it.skip("3.2.2 - Cancel Button", async () => {
+it("3.2.2 - Cancel Button", async () => {
   const user = userEvent.setup();
   render(<BoxEditView />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
@@ -188,7 +188,7 @@ it.skip("3.2.2 - Cancel Button", async () => {
   expect(screen.getByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
 }, 10000);
 
-it.skip("3.2.3 - Change Product", async () => {
+it("3.2.3 - Change Product", async () => {
   const user = userEvent.setup();
   render(<BoxEditView />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
