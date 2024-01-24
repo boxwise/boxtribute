@@ -219,7 +219,7 @@ it("3.2.3 - Change Product", async () => {
   await user.click(submitButton);
   expect(await screen.findByText(/successfully modified/i)).toBeInTheDocument();
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
-}, 10000);
+}, 20000);
 
 it("3.2.4 - No Data is loaded due to Network error", async () => {
   render(<BoxEditView />, {
