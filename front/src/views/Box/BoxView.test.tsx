@@ -22,8 +22,8 @@ import BTBox, {
   UPDATE_BOX_MUTATION,
 } from "./BoxView";
 
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
+const mockedTriggerError = vi.fn();
+const mockedCreateToast = vi.fn();
 vi.mock("hooks/useErrorHandling");
 vi.mock("hooks/useNotification");
 
@@ -374,7 +374,7 @@ it("3.1.1 - Initial load of Page", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -422,7 +422,7 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
     mocks: [initialQueryForBoxInLegacyLostLocation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -451,7 +451,7 @@ it("3.1.1.8 - Content: Display an info alert if a box status is Lost", async () 
     mocks: [initialQueryForBoxLostState],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -476,7 +476,7 @@ it("3.1.1.9 - Content: Display an info alert if a box status is Scrap", async ()
     mocks: [initialQueryForBoxScrapState],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -504,7 +504,7 @@ it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipme
     mocks: [initialQueryForBoxMarkedForShipmentState],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -533,7 +533,7 @@ it("3.1.2 - Change Number of Items", async () => {
     cache,
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -601,7 +601,7 @@ it("3.1.3.1 - Change State to Scrap", async () => {
     cache,
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -633,7 +633,7 @@ it("3.1.3.2 - Change State to Lost", async () => {
     addTypename: true,
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -670,7 +670,7 @@ it("3.1.4 - Move location", async () => {
     cache,
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -717,7 +717,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
     mocks: [initialQueryBeforeRedirect, boxEditInitialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -762,7 +762,7 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
     mocks: [initialForFailedQuery, updateNumberOfItemsFailedMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -801,7 +801,7 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
     mocks: [initialForFailedQuery, moveLocationOfBoxFailedMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -836,7 +836,7 @@ it("3.1.8 - Error When Move Locations", async () => {
     mocks: [initialForFailedQuery, moveLocationOfBoxNetworkFailedMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -871,7 +871,7 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
     mocks: [initialFailedQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -884,7 +884,7 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
 
 // Test case 3.1.10
 it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", async () => {
-  const mockFunction = jest.fn();
+  const mockFunction = vi.fn();
   render(
     <BoxDetails
       boxData={undefined}
@@ -907,7 +907,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       mocks: [initialFailedQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -928,7 +928,7 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
     mocks: [initialWithoutShipmentQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -966,7 +966,7 @@ it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be vis
     mocks: [initialWithoutShipmentQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,

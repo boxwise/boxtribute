@@ -1,3 +1,4 @@
+import { expect } from "vitest";
 import { screen } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 

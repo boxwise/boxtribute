@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach, it, expect } from "vitest";
+import { vi, beforeEach, afterEach, it, expect, describe } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
@@ -23,12 +23,13 @@ const emptyCache = cache.extract();
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
 // Therefore, we need to mock them since otherwise we easily get false negatives
 // Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
+const mockedTriggerError = vi.fn();
+const mockedCreateToast = vi.fn();
 vi.mock("hooks/useErrorHandling");
 vi.mock("hooks/useNotification");
 vi.mock("@auth0/auth0-react");
-window.scrollTo = jest.fn();
+// @ts-ignore
+window.scrollTo = vi.fn();
 
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
@@ -93,7 +94,7 @@ it("4.7.2 - Query for shipment, box, available products, sizes and locations ret
     mocks: [failedQueryShipmentDetailForBoxReconciliation],
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -179,7 +180,7 @@ describe("No Delivery Tests", () => {
           mocks,
           cache,
           globalPreferences: {
-            dispatch: jest.fn(),
+            dispatch: vi.fn(),
             globalPreferences: {
               organisation: { id: organisation1.id, name: organisation1.name },
               availableBases: organisation1.bases,
@@ -252,7 +253,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
     mocks: [queryShipmentDetailForBoxReconciliation],
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,

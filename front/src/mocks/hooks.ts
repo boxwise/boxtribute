@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 /**
  * Mocking the return value of the useAuth0 hook. This is needed to mock the authentication of a test user
  * To mock an authenticated user you have to
@@ -10,7 +11,7 @@
  * @returns mocked `Auth0ContextInterface<TUser>` for an authenticated user. Check https://auth0.github.io/auth0-react/functions/useAuth0.html for the definition.
  */
 
-export function mockAuthenticatedUser(mockedUseAuth0: vi.MockedFunctionDeep<any>, email: string) {
+export function mockAuthenticatedUser(mockedUseAuth0: any, email: string) {
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
     user: {

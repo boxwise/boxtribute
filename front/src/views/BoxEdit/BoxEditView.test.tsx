@@ -1,5 +1,5 @@
+import { it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen, render } from "tests/test-utils";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
