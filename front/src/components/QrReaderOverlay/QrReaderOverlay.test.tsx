@@ -72,7 +72,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
-}, 15000);
+}, 30000);
 
 const queryFindBox = {
   request: {

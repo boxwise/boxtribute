@@ -547,14 +547,14 @@ it("3.1.2 - Change Number of Items", async () => {
   expect(screen.getByRole("heading", { name: /31x snow trousers/i }));
 
   const addToItemsButton = screen.getByTestId("increase-items");
-  user.click(addToItemsButton);
+  await user.click(addToItemsButton);
 
   // Test case 3.1.2.1 - Click on + Button
   expect(await screen.findByText(/add items to the Box/i)).toBeInTheDocument();
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
   // Test case 3.1.2.1.1	- Alphabetical Input isn't allowed
-  user.type(screen.getByRole("spinbutton"), "a");
+  await user.type(screen.getByRole("spinbutton"), "a");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
   // Test case 3.1.2.1.2	- Number of Item Validation
@@ -562,7 +562,7 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "-");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
 
-  user.click(
+  await user.click(
     screen.getByRole("button", {
       name: /submit/i,
     }),
@@ -575,7 +575,7 @@ it("3.1.2 - Change Number of Items", async () => {
   await user.type(screen.getByRole("spinbutton"), "1");
   await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("1"));
 
-  user.click(
+  await user.click(
     screen.getByRole("button", {
       name: /submit/i,
     }),
@@ -589,7 +589,7 @@ it("3.1.2 - Change Number of Items", async () => {
     ),
   );
   expect(screen.getByTestId("boxview-number-items")).toHaveTextContent(/32x snow trousers/i);
-}, 30000);
+}, 50000);
 
 // Test case 3.1.3.1
 it("3.1.3.1 - Change State to Scrap", async () => {

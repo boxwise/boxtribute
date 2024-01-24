@@ -146,6 +146,7 @@ jobs:
           destination: coverage
       - codecov/upload:
           flags: frontend
+          file: coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
 
