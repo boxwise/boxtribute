@@ -309,8 +309,22 @@ def compute_top_products_donated(base_id):
 
 
 def compute_moved_boxes(base_id):
-    """Count all boxes moved to locations in the given base, grouped by date of
-    movement, product category, and box state.
+    """Count all boxes that were
+    1. shipped to other bases from given base as source
+    2. moved between the box states InStock and Donated within the given base
+    3. marked as Lost or Scrap within the given base
+    Results are grouped by date of movement, product category, product name, product
+    gender, size ID, and target name (target types for the enumeration above are
+    Shipment (1.), OutgoingLocation (2.), and BoxState (3.).
+
+    Details for 2.:
+    - boxes moved from state InStock to Donated are counted positively, incl. the
+    contained items. For the opposite direction, they're counted negatively. Hence boxes
+    that are moved back and forth are not counted into the statistics. Same for a box
+    that has items taken out in a Donated location, and then is moved back.
+    - in production, only data from 2023 and newer is taken into account. Previously
+    boxes didn't have states assigned, instead box state was dictated by the type of
+    location the box was stored in
     """
     _validate_existing_base(base_id)
     min_box_id = 1
