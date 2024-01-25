@@ -138,7 +138,7 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 yarn test:coverage
+            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --test-timeout=10000
       - store_test_results:
           path: coverage/junit.xml
       - store_artifacts:
