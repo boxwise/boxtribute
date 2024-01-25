@@ -1,7 +1,7 @@
 from utils import assert_successful_request
 
 
-def test_bases_query(read_only_client, default_bases, default_beneficiaries):
+def test_bases_query(read_only_client, default_base, default_beneficiaries):
     # Test case 99.1.1
     query = """query {
                 bases {
@@ -12,22 +12,21 @@ def test_bases_query(read_only_client, default_bases, default_beneficiaries):
                 }
             }"""
 
-    all_bases = assert_successful_request(read_only_client, query)
-    assert len(all_bases) == 1
-
-    queried_base = all_bases[0]
-    queried_base_id = int(queried_base["id"])
-    expected_base = default_bases[queried_base_id]
-
-    assert queried_base_id == expected_base["id"]
-    assert queried_base["name"] == expected_base["name"]
-    assert queried_base["currencyName"] == expected_base["currency_name"]
-    assert len(queried_base["beneficiaries"]["elements"]) == len(default_beneficiaries)
+    bases = assert_successful_request(read_only_client, query)
+    assert len(bases[0]["beneficiaries"].pop("elements")) == len(default_beneficiaries)
+    assert bases == [
+        {
+            "id": str(default_base["id"]),
+            "name": default_base["name"],
+            "currencyName": default_base["currency_name"],
+            "beneficiaries": {},
+        }
+    ]
 
 
 def test_base_query(
     read_only_client,
-    default_bases,
+    default_base,
     default_distribution_event,
     default_tracking_group,
     distribution_spot,
@@ -39,7 +38,8 @@ def test_base_query(
     base1_undeleted_products,
 ):
     # Test case 99.1.2
-    test_id = 1
+    expected_base = default_base
+    test_id = default_base["id"]
     query = f"""query Base {{
                 base(id: {test_id}) {{
                     id
@@ -59,7 +59,6 @@ def test_base_query(
             }}"""
 
     base = assert_successful_request(read_only_client, query)
-    expected_base = default_bases[test_id]
     assert int(base["id"]) == expected_base["id"]
     assert base["name"] == expected_base["name"]
     assert base["currencyName"] == expected_base["currency_name"]

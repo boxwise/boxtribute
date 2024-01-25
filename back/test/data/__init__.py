@@ -4,7 +4,7 @@ import pathlib
 
 from boxtribute_server.db import db
 
-from .base import default_base, default_bases
+from .base import another_base, default_base, default_bases
 from .beneficiary import (
     another_beneficiary,
     default_beneficiaries,
@@ -92,6 +92,7 @@ from .transfer_agreement import (
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
+    "another_base",
     "another_beneficiary",
     "another_box",
     "another_in_transit_box",

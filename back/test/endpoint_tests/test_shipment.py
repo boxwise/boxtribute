@@ -17,10 +17,10 @@ target_base_user_id = "2"
 
 
 @pytest.fixture
-def mock_default_target_base_user(mocker, default_bases, another_organisation):
+def mock_default_target_base_user(mocker, another_base, another_organisation):
     mock_user_for_request(
         mocker,
-        base_ids=[default_bases[3]["id"]],
+        base_ids=[another_base["id"]],
         organisation_id=another_organisation["id"],
         user_id=target_base_user_id,
     )
@@ -132,7 +132,8 @@ def test_source_base_box_product_as_null_for_target_side(
 
 def test_shipment_mutations_on_source_side(
     client,
-    default_bases,
+    default_base,
+    another_base,
     default_transfer_agreement,
     default_shipment,
     default_box,
@@ -143,8 +144,8 @@ def test_shipment_mutations_on_source_side(
     prepared_shipment_detail,
 ):
     # Test case 3.2.1a
-    source_base_id = default_bases[1]["id"]
-    target_base_id = default_bases[3]["id"]
+    source_base_id = default_base["id"]
+    target_base_id = another_base["id"]
     agreement_id = default_transfer_agreement["id"]
     creation_input = f"""sourceBaseId: {source_base_id},
                          targetBaseId: {target_base_id},
@@ -580,7 +581,8 @@ def test_shipment_mutations_on_target_side(
     mock_default_target_base_user,
     default_transfer_agreement,
     unidirectional_transfer_agreement,
-    default_bases,
+    default_base,
+    another_base,
     sent_shipment,
     default_shipment_detail,
     another_shipment_detail,
@@ -596,8 +598,8 @@ def test_shipment_mutations_on_target_side(
 ):
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
-        source_base_id = str(default_bases[3]["id"])
-        target_base_id = str(default_bases[1]["id"])
+        source_base_id = str(another_base["id"])
+        target_base_id = str(default_base["id"])
         agreement_id = agreement["id"]
         creation_input = f"""sourceBaseId: {source_base_id},
                              targetBaseId: {target_base_id},
@@ -1189,14 +1191,14 @@ def assert_bad_user_input_when_updating_shipment(client, **kwargs):
 
 
 def test_shipment_mutations_create_with_non_accepted_agreement(
-    read_only_client, default_bases, expired_transfer_agreement
+    read_only_client, default_base, another_base, expired_transfer_agreement
 ):
     # Test case 3.2.2
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
         # base IDs don't matter because validation for agreement state comes first
-        source_base=default_bases[1],
-        target_base=default_bases[3],
+        source_base=default_base,
+        target_base=another_base,
         agreement=expired_transfer_agreement,
     )
 
@@ -1207,8 +1209,8 @@ def test_shipment_mutations_create_with_invalid_base(
     # Test case 3.2.3
     assert_bad_user_input_when_creating_shipment(
         read_only_client,
-        source_base=default_bases[1],
-        target_base=default_bases[4],  # not part of agreement
+        source_base=default_bases[0],
+        target_base=default_bases[3],  # not part of agreement
         agreement=default_transfer_agreement,
     )
 
@@ -1220,8 +1222,8 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
     # The default user (see auth_service fixture) is member of organisation 1 which is
     # the target organisation in the unidirectional_transfer_agreement fixture
     mutation = _generate_create_shipment_mutation(
-        source_base=default_bases[3],
-        target_base=default_bases[2],
+        source_base=default_bases[2],
+        target_base=default_bases[1],
         agreement=unidirectional_transfer_agreement,
     )
     assert_forbidden_request(read_only_client, mutation)
@@ -1292,7 +1294,7 @@ def test_shipment_mutations_update_with_invalid_target_base(
     # This will use updateShipmentWhenPreparing
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
-        target_base=default_bases[4],  # not part of agreement
+        target_base=default_bases[3],  # not part of agreement
         shipment=default_shipment,
     )
 
@@ -1305,7 +1307,7 @@ def test_shipment_mutations_update_in_non_preparing_state(
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
         shipment=canceled_shipment,
-        target_base=default_bases[2],
+        target_base=default_bases[1],
     )
 
 
@@ -1318,7 +1320,7 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
     # This will use updateShipmentWhenPreparing
     mutation = _generate_update_shipment_mutation(
         shipment=another_shipment,
-        target_base=default_bases[2],
+        target_base=default_bases[1],
     )
     assert_forbidden_request(read_only_client, mutation)
 
@@ -1390,12 +1392,12 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
 
 
 def test_shipment_mutations_create_non_existent_resource(
-    read_only_client, default_bases
+    read_only_client, default_base, another_base
 ):
     # Test case 3.2.5
     mutation = _generate_create_shipment_mutation(
-        source_base=default_bases[1],
-        target_base=default_bases[3],
+        source_base=default_base,
+        target_base=another_base,
         agreement={"id": 0},
     )
     assert_bad_user_input(read_only_client, mutation)

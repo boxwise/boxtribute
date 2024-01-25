@@ -37,14 +37,19 @@ def data():
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_base():
     return data()[0]
 
 
-@pytest.fixture()
+@pytest.fixture
+def another_base():
+    return data()[2]
+
+
+@pytest.fixture
 def default_bases():
-    return {b["id"]: b for b in data()}
+    return data()
 
 
 def create():
