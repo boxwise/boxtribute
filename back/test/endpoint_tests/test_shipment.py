@@ -16,6 +16,16 @@ source_base_user_id = "8"
 target_base_user_id = "2"
 
 
+@pytest.fixture
+def mock_default_target_base_user(mocker, default_bases, another_organisation):
+    mock_user_for_request(
+        mocker,
+        base_ids=[default_bases[3]["id"]],
+        organisation_id=another_organisation["id"],
+        user_id=target_base_user_id,
+    )
+
+
 def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
     # Test case 3.1.2
     shipment_id = str(default_shipment["id"])
@@ -567,6 +577,7 @@ def test_shipment_mutations_cancel(
 def test_shipment_mutations_on_target_side(
     client,
     mocker,
+    mock_default_target_base_user,
     default_transfer_agreement,
     unidirectional_transfer_agreement,
     default_bases,
@@ -583,8 +594,6 @@ def test_shipment_mutations_on_target_side(
     in_transit_box,
     another_in_transit_box,
 ):
-    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
-
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
         source_base_id = str(default_bases[3]["id"])
@@ -956,6 +965,7 @@ def test_shipment_mutations_on_target_side(
 
 def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     mocker,
+    mock_default_target_base_user,
     client,
     default_box,
     in_transit_box,
@@ -964,8 +974,6 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
     another_shipment_detail,
     removed_shipment_detail,
 ):
-    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
-
     shipment_id = str(sent_shipment["id"])
     mutation = f"""mutation {{ markShipmentAsLost(id: {shipment_id}) {{
                     state
@@ -1045,7 +1053,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
 
 
 def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
-    mocker,
+    mock_default_target_base_user,
     client,
     default_box,
     in_transit_box,
@@ -1055,8 +1063,6 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
     another_shipment_detail,
     removed_shipment_detail,
 ):
-    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
-
     shipment_id = str(sent_shipment["id"])
     mutation = f"""mutation {{ startReceivingShipment(id: {shipment_id}) {{
                     state }} }}"""
@@ -1363,7 +1369,7 @@ def test_shipment_mutations_update_without_arguments(
 
 def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_state(
     read_only_client,
-    mocker,
+    mock_default_target_base_user,
     default_shipment,
     prepared_shipment_detail,
     another_location,
@@ -1371,7 +1377,6 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     another_size,
 ):
     # Test case 3.2.36
-    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     # This will use updateShipmentWhenReceiving
     assert_bad_user_input_when_updating_shipment(
         read_only_client,
@@ -1414,7 +1419,6 @@ def _create_move_not_delivered_boxes_in_stock_mutation(box_id):
 
 def test_move_not_delivered_box_instock_in_source_base(
     client,
-    mocker,
     not_delivered_box,
     another_not_delivered_box,
     another_box,
@@ -1499,14 +1503,13 @@ def test_move_not_delivered_box_instock_in_source_base(
 
 def test_move_not_delivered_box_instock_in_target_base(
     client,
-    mocker,
+    mock_default_target_base_user,
     not_delivered_box,
     another_not_delivered_box,
     another_box,
     receiving_shipment,
     completed_shipment,
 ):
-    mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     # The shipment is Receiving. Person A on the target side has extracted a box from
     # the shipment without registering. Person B on the target side can't find the box
     # and marks it as NotDelivered. The target side finds the box again.
