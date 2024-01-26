@@ -6,6 +6,8 @@
   "description": "Shared React components of Boxtribute FE Apps",
   "main": "index.js",
   "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
