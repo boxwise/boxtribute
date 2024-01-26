@@ -398,7 +398,24 @@ const initialQueryNetworkError = {
       },
     },
   },
+
+  error: new Error(),
+};
+
+const initialQueryGraphQLError = {
+  request: {
+    query: BOXES_FOR_BOXESVIEW_QUERY,
+    variables: {
+      baseId: "2",
+      filterInput: {
+        states: ["InStock"],
+      },
+    },
+  },
   result: {
+    data: {
+      boxes: null,
+    },
     errors: [new GraphQLError("Error!")],
   },
 };
@@ -434,36 +451,49 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(screen.getByTestId("TableSkeleton")).toBeInTheDocument();
   });
 
-  it("4.8.1.2 - Failed to Fetch Initial Data", async () => {
-    render(
-      <ErrorBoundary
-        fallback={
-          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-        }
-      >
-        <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
-        </Suspense>
-      </ErrorBoundary>,
-      {
-        routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
-        mocks: [initialQueryNetworkError, actionsQuery],
-        addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
+  const failingTests = [
+    {
+      name: "4.8.1.2 - Failed to Fetch Initial Data (GraphQL Error)",
+      mocks: [initialQueryGraphQLError, actionsQuery],
+    },
+    {
+      name: "4.8.1.2 - Failed to Fetch Initial Data (Network Error)",
+      mocks: [initialQueryNetworkError, actionsQuery],
+    },
+  ];
+
+  failingTests.forEach(({ name, mocks }) => {
+    it(name, async () => {
+      render(
+        <ErrorBoundary
+          fallback={
+            <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+          }
+        >
+          <Suspense fallback={<TableSkeleton />}>
+            <Boxes />
+          </Suspense>
+        </ErrorBoundary>,
+        {
+          routePath: "/bases/:baseId/boxes",
+          initialUrl: "/bases/2/boxes",
+          mocks,
+          addTypename: true,
           globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
+            dispatch: vi.fn(),
+            globalPreferences: {
+              organisation: { id: organisation2.id, name: organisation2.name },
+              availableBases: organisation1.bases,
+              selectedBase: { id: base2.id, name: base2.name },
+            },
           },
         },
-      },
-    );
-    // Test case 4.8.1.2
-    expect(
-      await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
-    ).toBeInTheDocument();
+      );
+      // Test case 4.8.1.2
+      expect(
+        await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
+      ).toBeInTheDocument();
+    });
   });
 
   it("4.8.1.3 - The Boxes Table is shown", async () => {
