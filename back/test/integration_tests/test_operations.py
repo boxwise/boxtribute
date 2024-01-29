@@ -40,7 +40,7 @@ def test_queries(auth0_client, endpoint):
 
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age count } } }"
     demographics = _assert_successful_request(auth0_client, query)
-    assert len(demographics["facts"]) == 154
+    assert sum(group["count"] for group in demographics["facts"]) == 970
 
 
 def test_mutations(auth0_client):
