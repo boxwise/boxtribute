@@ -239,8 +239,8 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.MarkedForShipment.name,
                     "shipmentDetail": {"id": prepared_shipment_detail_id},
                     "history": [
-                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
                 "sourceProduct": {
@@ -431,8 +431,8 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.InStock.name,
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -503,8 +503,8 @@ def test_shipment_mutations_cancel(
                     "state": BoxState.InStock.name,
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
             }
@@ -758,7 +758,7 @@ def test_shipment_mutations_on_target_side(
     # Verify that another_detail_id is not updated (invalid product)
     # Test cases 3.2.39ab
     for product in [default_product, {"id": 0}]:
-        shipment = assert_successful_request(
+        shipment = assert_bad_user_input(
             client,
             _create_mutation(
                 detail_id=another_detail_id,
@@ -768,12 +768,11 @@ def test_shipment_mutations_on_target_side(
                 target_quantity=target_quantity,
             ),
         )
-        assert shipment == expected_shipment
 
     # Verify that another_detail_id is not updated (invalid location)
     # Test cases 3.2.38ab
     for location in [default_location, {"id": 0}]:
-        shipment = assert_successful_request(
+        assert_bad_user_input(
             client,
             _create_mutation(
                 detail_id=another_detail_id,
@@ -783,7 +782,18 @@ def test_shipment_mutations_on_target_side(
                 target_quantity=target_quantity,
             ),
         )
-        assert shipment == expected_shipment
+
+    # Test case 3.2.37
+    assert_bad_user_input(
+        client,
+        _create_mutation(
+            detail_id=removed_detail_id,
+            target_product_id=target_product_id,
+            target_location_id=target_location_id,
+            target_size_id=target_size_id,
+            target_quantity=target_quantity,
+        ),
+    )
 
     # Test case 3.2.40, 3.2.34b
     box_label_identifier = another_in_transit_box["label_identifier"]

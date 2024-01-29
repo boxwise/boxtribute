@@ -137,6 +137,15 @@ class InvalidShipmentState(_InvalidResourceState):
         )
 
 
+class InvalidShipmentDetailUpdateInput(Exception):
+    def __init__(self, *args, model, detail, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"Input {model.__class__.__name__} is not valid for base of"
+            f"shipment detail {detail.id}",
+        }
+
+
 class NotEnoughItemsInBox(Exception):
     def __init__(
         self,

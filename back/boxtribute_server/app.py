@@ -57,7 +57,7 @@ def main(*blueprints):
 
         error_class, error, _ = exc_info
         if issubclass(error_class, GraphQLError) and not error.extensions:
-            # Don't send GraphQLErrors from the Query API caused by GraphQL Playground
+            # Don't send GraphQLErrors from the Query API caused by GraphQL explorer
             # users during experimenting/typing. Authz and validation errors (custom
             # back-end exceptions) are still reported because they have the 'extensions'
             # attribute
