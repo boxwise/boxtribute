@@ -1,5 +1,5 @@
 import { vi, it, describe, expect } from "vitest";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import userEvent from "@testing-library/user-event";
@@ -10,6 +10,7 @@ import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
 import { gql } from "@apollo/client";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateShipmentView, {
   ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
   CREATE_SHIPMENT_MUTATION,
@@ -255,7 +256,13 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
   expect(await screen.findByText("Samos")).toBeInTheDocument();
 
   await user.click(submitButton);
-  expect(await screen.findByText(/successfully created a new shipment/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully created a new shipment/i),
+      }),
+    ),
+  );
 
   // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
   expect(
@@ -294,9 +301,13 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitStartButton);
-  expect(
-    await screen.findByText(/error while trying to create a new shipment/i),
-  ).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/error while trying to create a new shipment/i),
+      }),
+    ),
+  );
 });
 
 // Test case 4.3.3.4
@@ -330,9 +341,13 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitShipmentStartButton);
-  expect(
-    (await screen.findAllByText(/error while trying to create a new shipment/i)).length,
-  ).toBeGreaterThanOrEqual(1);
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/error while trying to create a new shipment/i),
+      }),
+    ),
+  );
 });
 
 // Test case 4.3.4

@@ -1,13 +1,14 @@
 import { it, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { box123 } from "mocks/boxes";
 import { products } from "mocks/products";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import BoxEditView, {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY,
   UPDATE_CONTENT_OF_BOX_MUTATION,
@@ -217,7 +218,13 @@ it("3.2.3 - Change Product", async () => {
   await selectOptionInSelectField(user, /Size/, "M");
   expect(await screen.findByText("M")).toBeInTheDocument();
   await user.click(submitButton);
-  expect(await screen.findByText(/successfully modified/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully modified/i),
+      }),
+    ),
+  );
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
 }, 20000);
 
@@ -229,9 +236,27 @@ it("3.2.4 - No Data is loaded due to Network error", async () => {
     addTypename: true,
   });
   // The correct error notifications appear
-  expect(await screen.findByText(/could not fetch Box Data/i)).toBeInTheDocument();
-  expect(await screen.findByText(/no products are available/i)).toBeInTheDocument();
-  expect(await screen.findByText(/no locations are available/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/could not fetch Box Data/i),
+      }),
+    ),
+  );
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/no products are available/i),
+      }),
+    ),
+  );
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/no locations are available/i),
+      }),
+    ),
+  );
   // an empty div is rendered
   expect(screen.queryByRole("heading")).not.toBeInTheDocument();
 });
@@ -244,14 +269,28 @@ it("3.2.5 - No Data is loaded due to GraphQL error", async () => {
     addTypename: true,
   });
   // The correct error notifications appear
-  expect(await screen.findByText(/could not fetch Box Data/i)).toBeInTheDocument();
-  // TODO it seems that multiple error toasts pop up for graphQL Errors
-  expect((await screen.findAllByText(/no products are available/i)).length).toBeGreaterThanOrEqual(
-    1,
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/could not fetch Box Data/i),
+      }),
+    ),
   );
-  expect((await screen.findAllByText(/no locations are available/i)).length).toBeGreaterThanOrEqual(
-    1,
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/no products are available/i),
+      }),
+    ),
   );
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/no locations are available/i),
+      }),
+    ),
+  );
+
   // an empty div is rendered
   expect(screen.queryByRole("heading")).not.toBeInTheDocument();
 });
@@ -268,7 +307,13 @@ it("3.2.6 - Mutation Failure due to Network Error", async () => {
 
   const submitButton = await screen.findByRole("button", { name: /update box/i });
   await user.click(submitButton);
-  expect(await screen.findByText(/could not update Box/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/could not update Box/i),
+      }),
+    ),
+  );
   expect(screen.getByRole("heading", { name: "Box 123" })).toBeInTheDocument();
 });
 
@@ -284,7 +329,12 @@ it("3.2.7 - Mutation failure due to GraphQL Error", async () => {
 
   const submitButton = await screen.findByRole("button", { name: /update box/i });
   await user.click(submitButton);
-  // TODO: Why are there multiple errors shown for GrqphQL errors
-  expect((await screen.findAllByText(/could not update Box/i)).length).toBeGreaterThanOrEqual(1);
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/could not update Box/i),
+      }),
+    ),
+  );
   expect(await screen.findByRole("heading", { name: "Box 123" })).toBeInTheDocument();
 });
