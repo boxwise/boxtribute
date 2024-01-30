@@ -1,10 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { cache } from "queries/cache";
-
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
-
 import {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY,
@@ -17,13 +13,6 @@ import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
 import { mockMatchMediaQuery } from "mocks/functions";
 import BTBox from "./BoxView";
-
-const mockedTriggerError = vi.fn();
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useErrorHandling");
-vi.mock("hooks/useNotification");
-
-cache.reset();
 
 const initialQueryForBoxInReceivingState = {
   request: {
@@ -127,10 +116,6 @@ const queryShipmentDetailForBoxReconciliation = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 // Test case 4.7.4.1

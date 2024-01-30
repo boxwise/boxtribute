@@ -3,8 +3,6 @@ import { GraphQLError } from "graphql";
 import { screen, render, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { cache } from "queries/cache";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState } from "types/generated/graphql";
 import { generateMockLocationWithBase, locations } from "mocks/locations";
@@ -15,17 +13,13 @@ import { textContentMatcher } from "tests/helpers";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import BoxDetails from "./components/BoxDetails";
 import BTBox, {
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
   UPDATE_STATE_IN_BOX_MUTATION,
   UPDATE_BOX_MUTATION,
 } from "./BoxView";
-
-const mockedTriggerError = vi.fn();
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useErrorHandling");
-vi.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -360,10 +354,6 @@ const moveLocationOfBoxNetworkFailedMutation = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 // Test case 3.1.1

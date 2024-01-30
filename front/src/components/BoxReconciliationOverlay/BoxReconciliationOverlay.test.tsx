@@ -14,16 +14,8 @@ import { tag1, tag2 } from "mocks/tags";
 import userEvent from "@testing-library/user-event";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = vi.fn();
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useErrorHandling");
-vi.mock("hooks/useNotification");
 vi.mock("@auth0/auth0-react");
 // @ts-ignore
 window.scrollTo = vi.fn();
@@ -34,10 +26,6 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 const queryShipmentDetailForBoxReconciliation = {
@@ -262,14 +250,14 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   const matchProductButton = screen.getByRole("button", {
     name: /1\. match products/i,
   });
-  user.click(matchProductButton);
+  await user.click(matchProductButton);
 
   expect((await screen.findAllByText(/Long Sleeves/i)).length).toBeGreaterThanOrEqual(1);
   expect((await screen.findAllByText(/sender product & gender/i)).length).toBeGreaterThanOrEqual(1);
   const selectProductControlInput = screen.getByText(/save product as\.\.\./i);
   // check if source product renders correctly
   expect(screen.getByText(/Long Sleeves \(Women\)/i)).toBeInTheDocument();
-  user.click(selectProductControlInput);
+  await user.click(selectProductControlInput);
   [/Winter Jackets \(Men\)/, /Long Sleeves \(Women\)/].forEach(async (option) => {
     expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
   });
@@ -277,13 +265,11 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   const receiveLocationButton = screen.getByRole("button", {
     name: /2\. receive location/i,
   });
-  user.click(receiveLocationButton);
+  await user.click(receiveLocationButton);
 
   expect((await screen.findAllByText(/select location/i)).length).toBeGreaterThanOrEqual(1);
 
   const selectLocationControlInput = screen.getByText(/select location/i);
-  user.click(selectLocationControlInput);
-  [/WH Men/].forEach(async (option) => {
-    expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
-  });
+  await user.click(selectLocationControlInput);
+  expect(await screen.findByRole("option", { name: /WH Men/i })).toBeInTheDocument();
 }, 20000);

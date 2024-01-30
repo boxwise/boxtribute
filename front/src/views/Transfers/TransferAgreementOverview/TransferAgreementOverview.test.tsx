@@ -1,11 +1,10 @@
-import { vi, beforeEach, it, expect } from "vitest";
+import { it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import TransferAgreementOverviewView, {
   ACCEPT_TRANSFER_AGREEMENT,
   ALL_TRANSFER_AGREEMENTS_QUERY,
@@ -29,21 +28,6 @@ const mockSuccessfulTransferAgreementsQuery = ({
       transferAgreements: [generateMockTransferAgreement({ state, type, isInitiator })],
     },
   },
-});
-
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = vi.fn();
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useErrorHandling");
-vi.mock("hooks/useNotification");
-
-beforeEach(() => {
-  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {

@@ -7,8 +7,6 @@ import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner"
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
 import { generateMockBox } from "mocks/boxes";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
@@ -16,6 +14,7 @@ import {
 import { BoxState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { locations } from "mocks/locations";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
 
 const mockSuccessfulQrQuery = ({
@@ -53,27 +52,13 @@ const mockEmptyLocationsTagsShipmentsQuery = {
   },
 };
 
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = vi.fn();
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useErrorHandling");
-vi.mock("hooks/useNotification");
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
-
-// .mocked() is a nice helper function from jest for typescript support
-// https://jestjs.io/docs/mock-function-api/#typescript-usage
 const mockedUseAuth0 = vi.mocked(useAuth0);
 const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 const qrScanningInMultiBoxTabTests = [

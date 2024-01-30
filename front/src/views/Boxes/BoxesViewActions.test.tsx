@@ -1,11 +1,10 @@
-import { vi, beforeEach, afterEach, it, expect } from "vitest";
+import { vi, beforeEach, it, expect } from "vitest";
 import { basicShipment, generateMockShipment } from "mocks/shipments";
 import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState } from "types/generated/graphql";
 import { shipmentDetail1 } from "mocks/shipmentDetail";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useNotification } from "hooks/useNotification";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
@@ -17,6 +16,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { ErrorBoundary } from "@sentry/react";
+import { mockedCreateToast } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
 const boxesQuery = ({
@@ -97,24 +97,11 @@ const mutation = ({
   error: networkError ? new Error() : undefined,
 });
 
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useNotification");
 vi.mock("@auth0/auth0-react");
-
-// .mocked() is a nice helper function from jest for typescript support
-// https://jestjs.io/docs/mock-function-api/#typescript-usage
 const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
-});
-
-afterEach(() => {
   tableConfigsVar(new Map());
 });
 

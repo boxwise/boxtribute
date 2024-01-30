@@ -5,17 +5,10 @@ import { GraphQLError } from "graphql";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState, ShipmentState } from "types/generated/graphql";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import userEvent from "@testing-library/user-event";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
-
-const mockedTriggerError = vi.fn();
-const mockedCreateToast = vi.fn();
-vi.mock("hooks/useErrorHandling");
-vi.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -153,10 +146,6 @@ const initialRecevingUIAsTargetOrgQuery = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = vi.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = vi.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 describe("4.5 Test Cases", () => {
@@ -226,7 +215,7 @@ describe("4.5 Test Cases", () => {
       expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
     });
 
-    const title = screen.getByText(/prepare shipment/i);
+    const title = await screen.findByText(/prepare shipment/i);
     expect(title).toBeInTheDocument();
     // Test case 4.5.1.4 - Content: When shipment does not contains any products display correct message
     expect(
