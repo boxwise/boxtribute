@@ -246,40 +246,40 @@ def test_box_mutations(
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "120",
+            "id": "119",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "119",
+            "id": "118",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "117",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "116",
             "changes": f"changed the number of items from None to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
+            "id": "115",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "115",
+            "id": "114",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "113",
+            "id": "112",
             "changes": "created record",
             "user": {"name": "coord"},
         },
@@ -300,7 +300,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[20:] == [
+    assert history[19:] == [
         {
             "changes": "Record created",
             "from_int": None,

@@ -15,7 +15,7 @@ export default function ItemsAndBoxes() {
     <AccordionItem>
       <AccordionButton padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
-          <Heading size="lg">Items and Boxes</Heading>
+          <Heading size="md">Items and Boxes</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>

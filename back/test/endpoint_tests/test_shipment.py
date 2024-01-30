@@ -239,8 +239,8 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.MarkedForShipment.name,
                     "shipmentDetail": {"id": prepared_shipment_detail_id},
                     "history": [
-                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
                 "sourceProduct": {
@@ -431,8 +431,8 @@ def test_shipment_mutations_on_source_side(
                     "state": BoxState.InStock.name,
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
             },
@@ -503,8 +503,8 @@ def test_shipment_mutations_cancel(
                     "state": BoxState.InStock.name,
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": "created record"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "created record"},
                     ],
                 },
             }

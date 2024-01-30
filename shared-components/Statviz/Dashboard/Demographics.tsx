@@ -15,7 +15,7 @@ export default function Demographics() {
     <AccordionItem>
       <AccordionButton padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
-          <Heading size="lg">Demographics</Heading>
+          <Heading size="md">Demographics</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
