@@ -97,9 +97,6 @@ const mutation = ({
   error: networkError ? new Error() : undefined,
 });
 
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
-
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
 // Therefore, we need to mock them since otherwise we easily get false negatives
 // Everywhere where we have more than one occation of a toast we should do this.
@@ -119,7 +116,6 @@ beforeEach(() => {
 
 afterEach(() => {
   tableConfigsVar(new Map());
-  cache.restore(emptyCache);
 });
 
 const moveBoxesGQLRequest = gql`

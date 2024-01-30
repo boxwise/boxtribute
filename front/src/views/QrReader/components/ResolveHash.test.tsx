@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach, it, expect } from "vitest";
+import { vi, beforeEach, it, expect } from "vitest";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 import { GraphQLError } from "graphql";
@@ -11,9 +11,6 @@ import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BoxState } from "types/generated/graphql";
 import { render, screen, waitFor } from "tests/test-utils";
 import ResolveHash from "./ResolveHash";
-
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
 
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
 // Therefore, we need to mock them since otherwise we easily get false negatives
@@ -32,10 +29,6 @@ beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
   const mockedUseErrorHandling = vi.mocked(useErrorHandling);
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-});
-
-afterEach(() => {
-  cache.restore(emptyCache);
 });
 
 const mockSuccessfulQrQuery = ({

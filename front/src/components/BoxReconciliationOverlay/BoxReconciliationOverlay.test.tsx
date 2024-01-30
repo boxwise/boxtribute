@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach, it, expect, describe } from "vitest";
+import { vi, beforeEach, it, expect, describe } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
@@ -16,9 +16,6 @@ import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/querie
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
 
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
 // Therefore, we need to mock them since otherwise we easily get false negatives
@@ -41,10 +38,6 @@ beforeEach(() => {
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
   const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
-});
-
-afterEach(() => {
-  cache.restore(emptyCache);
 });
 
 const queryShipmentDetailForBoxReconciliation = {

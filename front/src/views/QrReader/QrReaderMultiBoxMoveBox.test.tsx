@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach, it, expect } from "vitest";
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
@@ -21,9 +21,6 @@ import { locations } from "mocks/locations";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { tags } from "mocks/tags";
 import QrReaderView from "./QrReaderView";
-
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
 
 const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
@@ -143,10 +140,6 @@ beforeEach(() => {
   mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
   const mockedUseNotification = vi.mocked(useNotification);
   mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
-});
-
-afterEach(() => {
-  cache.restore(emptyCache);
 });
 
 const moveBoxesMutationTests = [

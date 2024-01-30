@@ -1,4 +1,4 @@
-import { vi, afterEach, it, describe, expect } from "vitest";
+import { vi, it, describe, expect } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
@@ -16,14 +16,7 @@ import CreateShipmentView, {
 } from "./CreateShipmentView";
 import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
 
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
-
 vi.setConfig({ testTimeout: 12_000 });
-
-afterEach(() => {
-  cache.restore(emptyCache);
-});
 
 const initialQuery = {
   request: {
