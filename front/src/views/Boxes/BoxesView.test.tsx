@@ -569,18 +569,18 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     if (checkbox1 && checkbox2) {
       expect(checkbox1).not.toBeChecked();
-      user.click(checkbox1);
+      await user.click(checkbox1);
       await waitFor(() => expect(checkbox1).toBeChecked());
 
       expect(checkbox2).not.toBeChecked();
-      user.click(checkbox2);
+      await user.click(checkbox2);
       await waitFor(() => expect(checkbox2).toBeChecked());
 
       const moveBoxesButton = screen.getByRole("button", {
         name: /move to/i,
       });
 
-      user.click(moveBoxesButton);
+      await user.click(moveBoxesButton);
 
       expect(
         await screen.findByRole("menuitem", {
@@ -588,7 +588,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }),
       ).toBeInTheDocument();
 
-      user.click(
+      await user.click(
         screen.getByRole("menuitem", {
           name: /wh2/i,
         }),
