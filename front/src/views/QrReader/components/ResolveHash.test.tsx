@@ -70,8 +70,6 @@ SuccessfulQrScanningTests.forEach(({ name, hash, mocks, endRoute }) => {
       cache,
     });
 
-    expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
-
     expect(await screen.findByTestId("box-sections")).toBeInTheDocument();
 
     expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
