@@ -167,12 +167,12 @@ failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, to
     // click the button in the state column
     const stateButton = await screen.findByRole("button", { name: stateButtonText });
     expect(stateButton).toBeInTheDocument();
-    user.click(stateButton);
+    await user.click(stateButton);
 
     // click the button in the modal
     const modalButton = await screen.findByRole("button", { name: modalButtonText });
     expect(modalButton).toBeInTheDocument();
-    user.click(modalButton);
+    await user.click(modalButton);
 
     // error toast shown and overlay is still open
     await waitFor(() =>
@@ -275,12 +275,12 @@ successfulMutationTests.forEach(
         // click the button in the state column
         const stateButton = await screen.findByRole("button", { name: stateButtonTextBefore });
         expect(stateButton).toBeInTheDocument();
-        user.click(stateButton);
+        await user.click(stateButton);
 
         // click the button in the modal
         const modalButton = await screen.findByRole("button", { name: modalButtonText });
         expect(modalButton).toBeInTheDocument();
-        user.click(modalButton);
+        await user.click(modalButton);
 
         // success toast is shown and state Button changed
         await waitFor(() =>

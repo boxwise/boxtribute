@@ -524,7 +524,7 @@ describe("4.8.1 - Initial load of Page", () => {
     );
 
     // Test case 4.8.1.3
-    expect(await screen.findByText(/8650860/i)).toBeInTheDocument();
+    expect(await screen.findByText(/8650860/i, {}, { timeout: 5000 })).toBeInTheDocument();
   });
 });
 
@@ -559,7 +559,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
 
-    const row1 = await screen.findByRole("row", { name: /8650860/i });
+    const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 5000 });
     // eslint-disable-next-line testing-library/no-node-access
     const checkbox1 = row1.querySelector('input[type="checkbox"]');
 

@@ -176,13 +176,13 @@ describe("No Delivery Tests", () => {
         // Click trashIcon Button
         const noDeliveryIconButton = screen.getByTestId("NoDeliveryIcon");
         expect(noDeliveryIconButton).toBeInTheDocument();
-        user.click(noDeliveryIconButton);
+        await user.click(noDeliveryIconButton);
 
         // AYS is open
         expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
         const noButton = screen.getByRole("button", { name: /nevermind/i });
         expect(noButton).toBeInTheDocument();
-        user.click(noButton);
+        await user.click(noButton);
 
         // BoxReconciliation is visible
         expect(await screen.findByText(/box 123/i)).toBeInTheDocument();
@@ -192,16 +192,16 @@ describe("No Delivery Tests", () => {
           name: /1\. match products/i,
         });
         expect(matchProductButton).toBeInTheDocument();
-        user.click(matchProductButton);
+        await user.click(matchProductButton);
         const noDeliveryButton = screen.getByTestId("NoDeliveryButton");
         expect(noDeliveryButton).toBeInTheDocument();
-        user.click(noDeliveryButton);
+        await user.click(noDeliveryButton);
 
         // AYS is open
         expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
         const yesButton = screen.getByTestId("AYSRightButton");
         expect(yesButton).toBeInTheDocument();
-        user.click(yesButton);
+        await user.click(yesButton);
 
         // toast shown
         await waitFor(

@@ -28,7 +28,7 @@ const mockSuccessfulQrQuery = ({
   labelIdentifier = "123",
   state = BoxState.InStock,
 }) => ({
-  delay: 200,
+  delay: 400,
   request: {
     query,
     variables: { qrCode: hash },

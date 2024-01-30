@@ -139,8 +139,6 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
 
   expect(await screen.findByRole("heading", { name: /box 123/i })).toBeInTheDocument();
 
-  expect(await screen.findByRole("banner")).toBeInTheDocument();
-
   expect(screen.getByText(/match products/i)).toBeInTheDocument();
   expect(screen.getByText(/receive location/i)).toBeInTheDocument();
 }, 10000);

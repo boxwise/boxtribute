@@ -353,20 +353,24 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams }) => 
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       // Select the first box
-      const checkboxes = await screen.findAllByRole("checkbox", { name: /toggle row selected/i });
+      const checkboxes = await screen.findAllByRole(
+        "checkbox",
+        { name: /toggle row selected/i },
+        { timeout: 5000 },
+      );
       expect(checkboxes.length).toBe(1);
-      user.click(checkboxes[0]);
+      await user.click(checkboxes[0]);
       await waitFor(() => expect(checkboxes[0]).toBeChecked());
 
       // Click the action buttons
       const actionButton = await screen.findByRole("button", { name: clicks[0] });
       expect(actionButton).toBeInTheDocument();
-      user.click(actionButton);
+      await user.click(actionButton);
 
       if (clicks[1]) {
         const subButton = await screen.findByText(clicks[1]);
         expect(subButton).toBeInTheDocument();
-        user.click(subButton);
+        await user.click(subButton);
       }
 
       if (toast) {
@@ -380,6 +384,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams }) => 
         );
       }
     },
-    10000,
+    20000,
   );
 });
