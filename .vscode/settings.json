@@ -8,46 +8,14 @@
 
   // prettier
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.stylelintIntegration": true,
-  "prettier.eslintIntegration": true,
-
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    }
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    }
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": true
-    }
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": true
-    }
-  },
-  // eslint
-  "eslint.workingDirectories": ["./react"],
   "editor.formatOnPaste": false, // required
   "editor.formatOnType": false, // required
   "editor.formatOnSave": true,
-  "eslint.alwaysShowStatus": true,
-  "files.autoSave": "onFocusChange",
-  "eslint.packageManager": "yarn", // optional but recommended
+
+  // eslint
+  "eslint.workingDirectories": ["./", "./front", "./shared-components", "./statviz"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  },
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.python"
   },
   "[javascript][javascriptreact]": {
     "editor.codeActionsOnSave": {

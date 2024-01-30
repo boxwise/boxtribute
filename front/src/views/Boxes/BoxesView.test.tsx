@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, it, describe, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
@@ -398,7 +398,24 @@ const initialQueryNetworkError = {
       },
     },
   },
+
+  error: new Error(),
+};
+
+const initialQueryGraphQLError = {
+  request: {
+    query: BOXES_FOR_BOXESVIEW_QUERY,
+    variables: {
+      baseId: "2",
+      filterInput: {
+        states: ["InStock"],
+      },
+    },
+  },
   result: {
+    data: {
+      boxes: null,
+    },
     errors: [new GraphQLError("Error!")],
   },
 };
@@ -421,7 +438,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
@@ -434,36 +451,49 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(screen.getByTestId("TableSkeleton")).toBeInTheDocument();
   });
 
-  it("4.8.1.2 - Failed to Fetch Initial Data", async () => {
-    render(
-      <ErrorBoundary
-        fallback={
-          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-        }
-      >
-        <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
-        </Suspense>
-      </ErrorBoundary>,
-      {
-        routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
-        mocks: [initialQueryNetworkError, actionsQuery],
-        addTypename: true,
-        globalPreferences: {
-          dispatch: jest.fn(),
+  const failingTests = [
+    {
+      name: "4.8.1.2 - Failed to Fetch Initial Data (GraphQL Error)",
+      mocks: [initialQueryGraphQLError, actionsQuery],
+    },
+    {
+      name: "4.8.1.2 - Failed to Fetch Initial Data (Network Error)",
+      mocks: [initialQueryNetworkError, actionsQuery],
+    },
+  ];
+
+  failingTests.forEach(({ name, mocks }) => {
+    it(name, async () => {
+      render(
+        <ErrorBoundary
+          fallback={
+            <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+          }
+        >
+          <Suspense fallback={<TableSkeleton />}>
+            <Boxes />
+          </Suspense>
+        </ErrorBoundary>,
+        {
+          routePath: "/bases/:baseId/boxes",
+          initialUrl: "/bases/2/boxes",
+          mocks,
+          addTypename: true,
           globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
+            dispatch: vi.fn(),
+            globalPreferences: {
+              organisation: { id: organisation2.id, name: organisation2.name },
+              availableBases: organisation1.bases,
+              selectedBase: { id: base2.id, name: base2.name },
+            },
           },
         },
-      },
-    );
-    // Test case 4.8.1.2
-    expect(
-      await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
-    ).toBeInTheDocument();
+      );
+      // Test case 4.8.1.2
+      expect(
+        await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
+      ).toBeInTheDocument();
+    });
   });
 
   it("4.8.1.3 - The Boxes Table is shown", async () => {
@@ -483,7 +513,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
@@ -494,7 +524,7 @@ describe("4.8.1 - Initial load of Page", () => {
     );
 
     // Test case 4.8.1.3
-    expect(await screen.findByText(/8650860/i)).toBeInTheDocument();
+    expect(await screen.findByText(/8650860/i, {}, { timeout: 5000 })).toBeInTheDocument();
   });
 });
 
@@ -517,7 +547,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
         addTypename: true,
         globalPreferences: {
-          dispatch: jest.fn(),
+          dispatch: vi.fn(),
           globalPreferences: {
             organisation: { id: organisation2.id, name: organisation2.name },
             availableBases: organisation1.bases,
@@ -529,7 +559,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
 
-    const row1 = await screen.findByRole("row", { name: /8650860/i });
+    const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 5000 });
     // eslint-disable-next-line testing-library/no-node-access
     const checkbox1 = row1.querySelector('input[type="checkbox"]');
 

@@ -1,17 +1,20 @@
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render, waitFor, act } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
 import { generateMockBox } from "mocks/boxes";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
-import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
+import {
+  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
+} from "queries/queries";
 import { BoxState } from "types/generated/graphql";
 import { cache } from "queries/cache";
+import { locations } from "mocks/locations";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
 
 const mockSuccessfulQrQuery = ({
@@ -36,34 +39,36 @@ const mockSuccessfulQrQuery = ({
   },
 });
 
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-jest.mock("@auth0/auth0-react");
-jest.mock("components/QrReader/components/QrReaderScanner");
+const mockEmptyLocationsTagsShipmentsQuery = {
+  request: {
+    query: MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
+    variables: { baseId: "1" },
+  },
+  result: {
+    data: {
+      shipments: [],
+      base: { locations, tags: null },
+    },
+  },
+};
 
-// .mocked() is a nice helper function from jest for typescript support
-// https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
-const mockedQrReader = jest.mocked(QrReaderScanner);
+vi.mock("@auth0/auth0-react");
+vi.mock("components/QrReader/components/QrReaderScanner");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 const qrScanningInMultiBoxTabTests = [
   {
     name: "3.4.3.2 - user scans QR code of same org with associated box",
     hash: "QrWithBoxFromSameBase",
-    mocks: [mockSuccessfulQrQuery({ hash: "QrWithBoxFromSameBase" })],
+    mocks: [
+      mockSuccessfulQrQuery({ hash: "QrWithBoxFromSameBase" }),
+      mockEmptyLocationsTagsShipmentsQuery,
+    ],
     boxCount: 1,
     toasts: [{ message: /Box 123 was added/i, isError: false }],
   },
@@ -103,7 +108,9 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    user.click(multiBoxTab);
+    await act(async () => {
+      await user.click(multiBoxTab);
+    });
 
     // 3.4.3.1 - no QR-codes were successfully scanned yet.
     const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -115,7 +122,9 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
-    await user.click(scanButton);
+    await act(async () => {
+      await user.click(scanButton);
+    });
 
     // toast shown
     await waitFor(() =>
@@ -128,7 +137,9 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 
     // second scan?
     if (toasts.length === 2) {
-      await user.click(scanButton);
+      await act(async () => {
+        await user.click(scanButton);
+      });
       // toast shown
       await waitFor(() =>
         expect(toasts[1].isError ? mockedTriggerError : mockedCreateToast).toHaveBeenCalledWith(
@@ -151,7 +162,9 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
       expect(deleteScannedBoxesButton).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /undo last scan/i })).toBeInTheDocument();
       // 3.4.4.1 - Pressing the delete button
-      user.click(deleteScannedBoxesButton);
+      await act(async () => {
+        await user.click(deleteScannedBoxesButton);
+      });
       expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
     }
   });
@@ -192,6 +205,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
     hash: "QrWithBoxFromOtherOrganisation",
     isBoxtributeQr: true,
     mocks: [
+      mockEmptyLocationsTagsShipmentsQuery,
       mockFailedQrQuery({
         hash: "QrWithBoxFromOtherOrganisation",
         resultQrCode: "QrWithBoxFromOtherBase",
@@ -261,7 +275,9 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    user.click(multiBoxTab);
+    await act(async () => {
+      await user.click(multiBoxTab);
+    });
 
     // 3.4.3.1 - no QR-codes were successfully scanned yet.
     const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -273,7 +289,9 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
-    await user.click(scanButton);
+    await act(async () => {
+      await user.click(scanButton);
+    });
 
     // toast shown
     await waitFor(() =>

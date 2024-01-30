@@ -1,27 +1,16 @@
-/* eslint-disable */
-import "@testing-library/jest-dom";
+import { vi, beforeEach, it, expect, describe } from "vitest";
 import { screen, render } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { cache } from "queries/cache";
 
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
-
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
-import BTBox from "./BoxView";
 
 import { BoxState } from "types/generated/graphql";
 import { history1, history2 } from "mocks/histories";
 import { generateMockBox } from "mocks/boxes";
 import { mockMatchMediaQuery } from "mocks/functions";
-
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-
-cache.reset();
+import BTBox from "./BoxView";
 
 const initialQueryForBoxWithHistory = {
   request: {
@@ -47,10 +36,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
   beforeEach(() => {
     // setting the screensize to
     mockMatchMediaQuery(true);
-    const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-    mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-    const mockedUseNotification = jest.mocked(useNotification);
-    mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
   });
 
   // Test case 3.1.12.1
@@ -63,7 +48,7 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       addTypename: true,
       cache,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -94,7 +79,7 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       addTypename: true,
       cache,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
