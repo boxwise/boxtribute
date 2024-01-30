@@ -11,7 +11,13 @@ export type BoxesOrItems = "boxesCount" | "itemsCount";
 const isBoxesOrItemsCount = (x: any | undefined): x is BoxesOrItems =>
   x === "boxesCount" || x === "itemsCount";
 
-export default function CreatedBoxesFilterContainer(props: { createdBoxes: CreatedBoxesData }) {
+interface ICreatedBoxesFilterContainerProps {
+  createdBoxes: CreatedBoxesData;
+}
+
+export default function CreatedBoxesFilterContainer({
+  createdBoxes,
+}: ICreatedBoxesFilterContainerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { interval } = useTimerange();
 
@@ -46,20 +52,20 @@ export default function CreatedBoxesFilterContainer(props: { createdBoxes: Creat
   const createdBoxesFacts = useMemo(() => {
     try {
       return filterListByInterval(
-        props.createdBoxes.facts as CreatedBoxesResult[],
+        (createdBoxes.facts as CreatedBoxesResult[]) ?? [],
         "createdOn",
         interval,
       ) as CreatedBoxesResult[];
     } catch (error) {
-      // TODO show toast with error message?
+      // TODO useError
     }
     return [];
-  }, [interval, props.createdBoxes.facts]);
-
+  }, [interval, createdBoxes]);
   const filteredCreatedBoxesCube = {
     facts: createdBoxesFacts,
-    dimensions: props.createdBoxes.dimensions,
+    dimensions: createdBoxes.dimensions,
   };
+
   return (
     <>
       <Wrap borderWidth="1px" borderRadius="12px" padding="5" marginBottom="30px">

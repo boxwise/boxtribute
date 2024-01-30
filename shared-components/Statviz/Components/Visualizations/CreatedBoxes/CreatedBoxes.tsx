@@ -43,7 +43,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
       ]),
       map((row) => ({
         ...row,
-        createdOn: new Date(row.createdOn).toISOString(),
+        createdOn: new Date(`${row.createdOn}Z`).toISOString(),
       })),
       complete<{ createdOn: string; boxesCount: number; itemsCount: number }>(
         // fill days without new boxes

@@ -1,4 +1,4 @@
-import { complete, filter, tidy, fullSeqDateISOString } from "@tidyjs/tidy";
+import { filter, tidy } from "@tidyjs/tidy";
 import { Interval, isWithinInterval } from "date-fns";
 
 export const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => {
@@ -106,17 +106,6 @@ export const formatTime = (date: Date | string): string => {
 
   return "";
 };
-
-// this function assumes that the data is already sorted by the date column in ascending order
-// Make sure data is sorted by date first, for createdBoxes this is done by the backend
-export const fillMissingDays = (table: object[], column: string) =>
-  tidy(
-    table,
-    complete(column, {
-      // @ts-ignore tidy type definition seems to miss an overload
-      [column]: fullSeqDateISOString(table, column, "day", 1),
-    }),
-  );
 
 export const filterListByInterval = <T extends object[]>(
   list: T,
