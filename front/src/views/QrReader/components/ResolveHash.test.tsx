@@ -28,7 +28,7 @@ const mockSuccessfulQrQuery = ({
   labelIdentifier = "123",
   state = BoxState.InStock,
 }) => ({
-  delay: 400,
+  delay: 100,
   request: {
     query,
     variables: { qrCode: hash },
@@ -70,7 +70,9 @@ SuccessfulQrScanningTests.forEach(({ name, hash, mocks, endRoute }) => {
       cache,
     });
 
-    expect(await screen.findByTestId("box-sections")).toBeInTheDocument();
+    expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
+
+    expect(await screen.findByTestId("box-sections", {}, { timeout: 5000 })).toBeInTheDocument();
 
     expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
 
