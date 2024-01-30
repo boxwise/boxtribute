@@ -132,6 +132,7 @@ jobs:
   test-front:
     executor: node-executor
     working_directory: ~/front
+    resource_class: medium+
     steps:
       - attach_workspace:
           at: ~/
@@ -150,7 +151,7 @@ jobs:
       - slack/notify-on-failure:
           only_for_branches: master,production
       - run:
-          name: Show memory usage of FE tests
+          name: Show memory usage of FE tests in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
 
