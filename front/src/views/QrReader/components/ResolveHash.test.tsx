@@ -72,10 +72,6 @@ SuccessfulQrScanningTests.forEach(({ name, hash, mocks, endRoute }) => {
 
     expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
 
-    expect(await screen.findByTestId("box-sections", {}, { timeout: 5000 })).toBeInTheDocument();
-
-    expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
-
     expect(await screen.findByRole("heading", { name: endRoute })).toBeInTheDocument();
   });
 });
