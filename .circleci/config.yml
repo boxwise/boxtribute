@@ -149,6 +149,10 @@ jobs:
           file: coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
+      - run:
+          name: Show memory usage of FE tests
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
