@@ -102,7 +102,12 @@ function App() {
             <Route path=":hash" element={<ResolveHash />} />
           </Route>
           <Route path="statviz">
-            <Route index element={<DashboardView />} />
+            <Route
+              index
+              element={
+                <Protected component={<DashboardView />} redirectPath={prevLocation} minBeta={3} />
+              }
+            />
           </Route>
           <Route path="boxes">
             <Route

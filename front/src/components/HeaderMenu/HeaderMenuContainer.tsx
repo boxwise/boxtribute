@@ -24,6 +24,7 @@ function HeaderMenuContainer() {
             link: `/bases/${baseId}/statviz`,
             name: "Dashboard",
             requiredAbp: [],
+            minBeta: 3,
             beta: true,
           },
         ],
