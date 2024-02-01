@@ -1,4 +1,4 @@
-# ADR: How to do etl in the backend for the DSEE100x project "StatViz"?
+# ADR: How to do ETL in the backend for the DSEE100x project "StatViz"?
 
 Decision Deadline:
 
@@ -18,7 +18,7 @@ Currently, data meant for these visualizations is planned to be served through a
 
 While we are committed to implementing visualizations, several questions related to data extraction, transformation, loading (ETL), hosting, and caching need to be addressed:
 
-- **Hosting**: How do we host the public backend for the Statviz project so that it does not interefere with the performance of the Boxtribute app?
+- **Hosting**: How do we host the public backend for the Statviz project so that it does not interfere with the performance of the Boxtribute app?
 
 - **Data Structure and Transformation**: Our existing data structure's compatibility needs assessment. Can we efficiently extract the necessary data for all the proposed visualizations using the present structure? Or is there a need to modify or extend our data schema, as suggested [here](https://github.com/boxwise/boxtribute/blob/master/docs/adr/adr_database-history.md)? If we need an additional data structure when is this data written. What transformations are needed?
 
@@ -107,7 +107,7 @@ beneficiaryDemographics {
   facts: [{
     gender: String,
     age: Int,
-    tagIds: Int[],
+    tagIds: [Int],
     count: Int
   }, ...],
   dimensions: {
@@ -141,7 +141,7 @@ For instance, when a box transitions from one warehouse to an external location,
 ```
 (..., tablename, record_id, changes, ..., changedate, from_int, to_int, ...)
 (..., "stock", "Box1", "location_id", ..., "2023-08-07 12:00:00", 1, 2) // change from WH1 to Free Shop
-(..., "stock", "Box1", "box_state_id", ..., "2023-08-07 12:00:00", 1, 2) // change from InStock to Donated
+(..., "stock", "Box1", "box_state_id", ..., "2023-08-07 12:00:00", 1, 5) // change from InStock to Donated
 ```
 
 This data structure efficiently captures transactional data changes, but extracting historical snapshots (like warehouse stock at a particular time) is more complex.
@@ -165,7 +165,7 @@ Therefore, to reduce the latency of such queries we consider adding data structu
 
 #### B.1.1 Adding Bi-temporal / Shadow Tables
 
-One considered approach is to add (Bi-)temporal Table (we called them Shadow Tables [here](https://github.com/boxwise/boxtribute/blob/master/docs/adr/adr_database-history.md)) for certain entities, e.g. boxes(stock table) and beneficiaries(people table), with a structure similar to
+One considered approach is to add (Bi-)temporal Table (we called them Shadow Tables [here](https://github.com/boxwise/boxtribute/blob/master/docs/adr/adr_database-history.md)) for certain entities, e.g. boxes (stock table) and beneficiaries(people table), with a structure similar to
 
 ```
 (..., box_id, location, box_state, ..., time_lower, time_upper, ...)
@@ -187,7 +187,7 @@ One considered approach is to add (Bi-)temporal Table (we called them Shadow Tab
 
 Instead of adding new tables to the db schema, we also have the option to extend the existing "history" table. This could be done by adding columns that hold information about the state of the changed entity before or after the transaction.
 
-Currently, we do not have a good idea to implement such an apporach since we save changes of different entities (e.g. stock and people) with different structures in the same "history" table.
+Currently, we do not have a good idea to implement such an approach since we save changes of different entities (e.g. stock and people) with different structures in the same "history" table.
 
 A straight-forward way would be to create tables like proposed in B.1.1 (for e.g. people and stock) and to add a column in the "history" table that references the corresponding state of the different entities in the corresponding shadow tables.
 
@@ -207,7 +207,7 @@ In general, we have the following options for **Update Strategies**:
 
   Cons: adding business logic in the db layer; out-of-mind out-of-sight problem.
 
-- _Batch update on request_: When the graphQL request is comming in to query the analytical data, update the shadow table with data since the last request.
+- _Batch update on request_: When the graphQL request is coming in to query the analytical data, update the shadow table with data since the last request.
 
   Pros: implementation only needs to happen on Statviz BE
 
@@ -249,11 +249,11 @@ The question when and how the cache is populated is similar to B.1.3.
 
 ## Decisions
 
-1. **[DONE] Data Format - Incorporation of User Filters**:We will integrate User Filters as dimensions in the returned data.
+1. **[DONE] Data Format - Incorporation of User Filters**: We will integrate User Filters as dimensions in the returned data.
 
    We assume that including these dimensions will not bloat the data to a size where the Front End cannot handle it. No reloads and dynamic filtering for the user are the attractive factors for this decision.
 
-2. **[DONE] Data Format - Handling of URL Filters**:URL Filters will be implemented as variables in the GraphQL queries rather than dimensions in the returned data.
+2. **[DONE] Data Format - Handling of URL Filters**: URL Filters will be implemented as variables in the GraphQL queries rather than dimensions in the returned data.
 
    Visualizations are typically embedded via URLs. This design means users won't have dynamic control over these filter values within embedded visualizations. Consequently, embedding URL filters as query variables suffices without burdening the system with additional dimensions that offer no direct user benefit.
 
