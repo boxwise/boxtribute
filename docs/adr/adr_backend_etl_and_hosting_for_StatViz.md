@@ -154,9 +154,9 @@ We learned (see PR #1013) that
 
   --> the data structure is compatible to respond to (probably) all queries.
 
-- However, it comes at a great cost (see PR #1013). Even with a small sample size the latency of recreating old states of the data with the transactional data from the "history" table lead to an unacceptable latency of >10s.
+- However, it comes at a great cost when the computation-heavy part is executed in pure Python (see PR #1013). Even with a small sample size the latency of recreating old states of the data with the transactional data from the "history" table lead to an unacceptable latency of >1s.
 
-  -->**We need to add a cache or extend the schema** to make the analytical queries run faster.
+  -->**We need to add a cache, or extend the schema, or use optimized SQL queries** to make the analytical queries run faster.
 
 ### B.1 Extending the DB schema
 
@@ -247,6 +247,19 @@ The question when and how the cache is populated is similar to B.1.3.
 
 - probably each query needs a cache
 
+### B.3 Pure SQL queries
+
+SQL alone is a very powerful to extract and transform data, especially with appropriate indexing of tables. The largest tables by far are the history table (1.5M rows) and the stock table (100k rows) which is considered fairly small for any production database.
+
+**Pros**:
+
+- queries can be integrated in pure SQL (previously tested via SQL IDE or similar)
+
+**Cons**:
+
+- advanced SQL knowledge required
+- query performance might deteriorate by time (increasing data size)
+
 ## Decisions
 
 1. **[DONE] Data Format - Incorporation of User Filters**: We will integrate User Filters as dimensions in the returned data.
@@ -257,23 +270,24 @@ The question when and how the cache is populated is similar to B.1.3.
 
    Visualizations are typically embedded via URLs. This design means users won't have dynamic control over these filter values within embedded visualizations. Consequently, embedding URL filters as query variables suffices without burdening the system with additional dimensions that offer no direct user benefit.
 
-3. **[DONE] Data structure - We need to add caching or extend the db schema to speed up certain analysis queries**:
+3. **[DONE] Data structure - We need a way to speed up certain analysis queries**:
 
    See section B.
 
-4. **[OPEN] We rather extend the db schema than cache the result of each query in a cache storage**:
+4. **[DONE] ~~We rather extend the db schema than cache the result of each query in a cache storage~~ We use advanced SQL queries**:
 
-   Extending the db schema is the solution that creates less duplication of data and is less complex to implement and maintain. File-system and Redis caching would additionally increase complexity and probably cost.
-   We currently work on a concrete proposal for the data schema, but it will most likely be additional shadow tables for stock and people with inter-linking to the "history" table.
+   We avoid the additional complexity that would be introduced by adjusting the software architecture and/or database structure.
+   ~~Extending the db schema is the solution that creates less duplication of data and is less complex to implement and maintain. File-system and Redis caching would additionally increase complexity and probably cost. We currently work on a concrete proposal for the data schema, but it will most likely be additional shadow tables for stock and people with inter-linking to the "history" table.~~
 
 5. **[DONE] Hosting - We will implement read-only replicas and host the public endpoint on a separate service**:
 
-   With our visualizations accessible via a public endpoint and the anticipation of embedding them on public channels, there's potential for a rapid increase in backend requests. This might peak especially during promotional campaigns by our users. To prevent any disruption to the Boxtribute app (most important decision driver):
+   ~~With our visualizations accessible via a public endpoint and the anticipation of embedding them on public channels, there's potential for a rapid increase in backend requests. This might peak especially during promotional campaigns by our users.~~ To prevent any disruption to the Boxtribute app (most important decision driver):
 
-   - We host the public GraphQL API endpoint on a distinct Google service, separate from the Boxtribute backend.
+   - we make visualizations accessible only to Boxtribute users. Public exposure is postponed, also for data privacy concerns.
+   - ~~We host the public GraphQL API endpoint on a distinct Google service, separate from the Boxtribute backend.~~
    - we will query analytical data only from a read-only replica
 
-6. **[OPEN] Security measurements to separate public from private personal data**:
+6. **[POSTPONED] ~~Security measurements to separate public from private personal data~~**:
 
    During the creation of this ADR, we also touched how we can ensure that no personal data - data that identifies a person - is passed through the public endpoint:
 
@@ -281,20 +295,21 @@ The question when and how the cache is populated is similar to B.1.3.
    - this db user has no access to the db tables people or cms_users
    - if data from these tables are needed we need to create db views of these tables that do not contain personal information.
 
-7. **[OPEN] Data Transformation - update on change through Boxtribute app**
+7. **[IRRELEVANT] ~~Data Transformation - update on change through Boxtribute app~~**
+
    see B.1.3.
 
-   Even though that we have to touch dropapp, it is the cleanest solution that does not add comlexity and probably will be the easiest to maintain in the long run since we have no out-of-sight, out-of-mind problem.
+   Even though that we have to touch dropapp, it is the cleanest solution that does not add complexity and probably will be the easiest to maintain in the long run since we have no out-of-sight, out-of-mind problem.
 
    Since we keep historical data in parallel in two separate places, there exists a potential risk of the shadow table and the history becoming unsynchronized. Such discrepancies might arise from deleted history entries, direct edits to the db or actions that do not save changes to the history table. To counteract this, we intend to introduce tests to cross-check the shadow table against the history table.
 
 ## Next steps
 
-- [Data Format] We should define a rough threshold for the data size to be returned from BE to FE and monitor it.
-- [Data Format] Monitor performance on FE for dynamic filtering.
-- [Hosting] have the graphQL endpoint hosted on its own service.
-- [Hosting] Figure out read-only replicas.
-- [Security] Implement new db user for statviz BE.
-- [Data Structure] figure out which transactions are tracked incorrectly or not at all in the history table.
-- [Data Structure] create C4 diagrams for data structure proposal.
-- [Data Transformation] estimate work on dropapp
+- [ ] [Data Format] We should define a rough threshold for the data size to be returned from BE to FE and monitor it.
+- [ ] [Data Format] Monitor performance on FE for dynamic filtering.
+- [x] [Hosting] ~~have the graphQL endpoint hosted on its own service.~~
+- [x] [Hosting] Figure out read-only replicas.
+- [x] [Security] ~~Implement new db user for statviz BE.~~
+- [x] [Data Structure] ~~figure out which transactions are tracked incorrectly or not at all in the history table.~~
+- [x] [Data Structure] ~~create C4 diagrams for data structure proposal.~~
+- [x] [Data Transformation] ~~estimate work on dropapp~~
