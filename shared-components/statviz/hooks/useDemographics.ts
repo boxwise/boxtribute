@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { gql } from "../../types/generated/gql";
 import { BeneficiaryDemographicsResult } from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
-import { filterListByInterval } from "../utils/helpers";
+import { filterListByInterval } from "../../utils/helpers";
 
 const DEMOGRAPHIC_QUERY = gql(`
   query BeneficiaryDemographics($baseId: Int!) {
@@ -28,7 +28,7 @@ const DEMOGRAPHIC_QUERY = gql(`
 export default function useDemographics() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(DEMOGRAPHIC_QUERY, {
-    variables: { baseId: parseInt(baseId ?? "", 10) },
+    variables: { baseId: parseInt(baseId!, 10) },
   });
 
   const { timerange, interval } = useTimerange();

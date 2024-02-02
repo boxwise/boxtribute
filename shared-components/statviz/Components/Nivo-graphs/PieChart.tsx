@@ -1,6 +1,6 @@
 import { ResponsivePie, PieLayer } from "@nivo/pie";
 import { useEffect, useRef } from "react";
-import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../../Utils/theme";
+import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../../utils/theme";
 import { percent } from "../../utils/chart";
 
 export interface IPieChart {

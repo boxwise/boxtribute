@@ -31,7 +31,7 @@ const CREATED_BOXES_QUERY = gql(`
 export default function useCreatedBoxes() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(CREATED_BOXES_QUERY, {
-    variables: { baseId: parseInt(baseId ?? "", 10) },
+    variables: { baseId: parseInt(baseId!, 10) },
   });
 
   const { timerange, interval } = useTimerange();

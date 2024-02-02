@@ -16,6 +16,8 @@ export const getISODateTimeFromDateAndTime = (date: Date, time: Date) => {
   return dateTime;
 };
 
+export const date2String = (date: Date) => date.toISOString().substring(0, 10);
+
 export const weekDayNumberToWeekDayName = (weekDayNumber: number) => {
   const weekDayNames = [
     "Sunday",

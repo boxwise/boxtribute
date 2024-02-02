@@ -5,7 +5,7 @@ import {
   getScaledExportFields,
   scaleTick,
   scaledNivoTheme,
-} from "../../../Utils/theme";
+} from "../../../utils/theme";
 import { percent } from "../../utils/chart";
 
 export interface IBarChart {

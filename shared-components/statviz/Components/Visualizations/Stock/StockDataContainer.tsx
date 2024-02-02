@@ -3,6 +3,7 @@ import { Box, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import { gql } from "../../../../types/generated/gql";
 import StockDataFilter from "./StockDataFilter";
+import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 
 const STOCK_QUERY = gql(`
   query stockOverview($baseId: Int!) {
@@ -43,17 +44,17 @@ const STOCK_QUERY = gql(`
 export default function StockDataContainer() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(STOCK_QUERY, {
-    variables: { baseId: parseInt(baseId ?? "", 10) },
+    variables: { baseId: parseInt(baseId!, 10) },
   });
 
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;
   }
-  if (loading || !data?.stockOverview) {
+  if (loading) {
     return <Spinner />;
   }
-  if (baseId === undefined) {
-    return <Box>BaseID not provided</Box>;
+  if (data === undefined) {
+    return <ErrorCard error={predefinedErrors.noData} />;
   }
-  return <StockDataFilter stockOverview={data.stockOverview} />;
+  return <StockDataFilter stockOverview={data.stockOverview!} />;
 }

@@ -6,7 +6,7 @@ import { subMonths } from "date-fns";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateField } from "..";
-import { date2String } from "../Statviz/utils/chart";
+import { date2String } from "../utils/helpers";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z

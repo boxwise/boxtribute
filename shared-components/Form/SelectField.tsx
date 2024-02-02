@@ -1,7 +1,7 @@
 import { FormControl, FormErrorMessage, FormLabel } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
-import { colorIsBright } from "../Statviz/utils/helpers";
+import { colorIsBright } from "../utils/helpers";
 
 export interface IDropdownOption extends OptionBase {
   value: string;

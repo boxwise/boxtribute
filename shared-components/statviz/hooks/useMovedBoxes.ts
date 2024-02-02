@@ -7,7 +7,7 @@ import {
   QueryMovedBoxesArgs,
 } from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
-import { filterListByInterval } from "../utils/helpers";
+import { filterListByInterval } from "../../utils/helpers";
 
 const MOVED_BOXES_QUERY = gql`
   query movedBoxes($baseId: Int!) {
@@ -38,7 +38,7 @@ export default function useMovedBoxes() {
   const { data, loading, error } = useQuery<{ movedBoxes: MovedBoxesData }, QueryMovedBoxesArgs>(
     MOVED_BOXES_QUERY,
     {
-      variables: { baseId: parseInt(baseId ?? "", 10) },
+      variables: { baseId: parseInt(baseId!, 10) },
     },
   );
 

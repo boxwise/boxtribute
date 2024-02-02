@@ -1,7 +1,7 @@
 import { extendTheme } from "@chakra-ui/react";
 import { Theme } from "@nivo/core";
 import { defaultStyles } from "@visx/tooltip";
-import { percent } from "../Statviz/utils/chart";
+import { percent } from "../statviz/utils/chart";
 
 export const getSelectionBackground = (selected: boolean) => (selected ? "blue.100" : "white");
 

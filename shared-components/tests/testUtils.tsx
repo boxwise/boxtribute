@@ -7,7 +7,7 @@ import { onError } from "@apollo/client/link/error";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloLink, DefaultOptions } from "@apollo/client";
-import { theme } from "../Utils/theme";
+import { theme } from "../utils/theme";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {

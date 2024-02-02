@@ -12,7 +12,7 @@ import {
   getMarginTop,
   getScaledExportFields,
   tickProps,
-} from "../../../Utils/theme";
+} from "../../../utils/theme";
 import { IXY, labelProps } from "../../utils/chart";
 
 type TooltipData = string;
