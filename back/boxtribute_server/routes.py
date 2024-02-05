@@ -1,4 +1,5 @@
 """Construction of routes for web app and API"""
+
 import os
 
 from ariadne.explorer import ExplorerGraphiQL

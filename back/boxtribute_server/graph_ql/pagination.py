@@ -36,6 +36,7 @@ The algorithm
 
 For backward pagination, the procedure works in reverse.
 """
+
 import base64
 
 from ..exceptions import InvalidPaginationInput
