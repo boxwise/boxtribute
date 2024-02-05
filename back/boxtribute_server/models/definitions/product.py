@@ -24,7 +24,7 @@ class Product(db.Model):
         model=ProductCategory,
         on_delete="RESTRICT",
     )
-    comments = CharField(null=True)
+    comment = CharField(column_name="comments", null=True)
     created_on = DateTimeField(column_name="created", null=True)
     created_by = UIntForeignKeyField(
         model=User,

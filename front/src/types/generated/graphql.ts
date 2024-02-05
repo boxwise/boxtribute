@@ -1107,6 +1107,7 @@ export type Product = {
   __typename?: 'Product';
   base?: Maybe<Base>;
   category: ProductCategory;
+  comment?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
   deletedOn?: Maybe<Scalars['Datetime']>;
