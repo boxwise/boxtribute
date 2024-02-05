@@ -174,7 +174,7 @@ jobs:
           name: run style checks on Python files
           command: |
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
-            pre-commit run --files **/*.py
+            pre-commit run --files ./**/*.py
       - save_cache:
           key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
