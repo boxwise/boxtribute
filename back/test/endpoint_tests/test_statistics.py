@@ -165,7 +165,7 @@ def test_query_top_products(
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
-def test_query_moved_boxes(read_only_client, default_location, default_bases, endpoint):
+def test_query_moved_boxes(read_only_client, default_location, another_base, endpoint):
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
@@ -175,7 +175,7 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     location_name = default_location["name"]
-    base_name = default_bases[3]["name"]
+    base_name = another_base["name"]
     assert data == {
         "facts": [
             {
