@@ -4,6 +4,7 @@ import pytest
 from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
 from boxtribute_server.authz import (
     ALL_ALLOWED_MUTATIONS,
+    DEFAULT_BETA_FEATURE_SCOPE,
     _authorize,
     authorize,
     authorize_cross_organisation_access,
@@ -257,6 +258,23 @@ def test_check_beta_feature_access(mocker):
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
+    assert check_beta_feature_access(
+        "query { base(id: 1) { name } }", current_user=current_user
+    )
+
+    # Scope 2 is the default, hence users with unregistered scope have the same
+    # permissions, plus the ones for users with scope >=3
+    beta_feature_scope = 50
+    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    for mutation in ["createTag"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
+    for mutation in ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]:
+        payload = f"mutation {{ {mutation} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
+    for query in statistics_queries():
+        payload = f"query {{ {query} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
     assert check_beta_feature_access(
         "query { base(id: 1) { name } }", current_user=current_user
     )

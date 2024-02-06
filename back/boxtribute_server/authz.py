@@ -269,6 +269,7 @@ def authorize_cross_organisation_access(
     raise Forbidden(reason=f"base={base_id}")
 
 
+DEFAULT_BETA_FEATURE_SCOPE = 2
 ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
@@ -320,6 +321,8 @@ def check_beta_feature_access(
 ) -> bool:
     """Check whether the current user wants to execute a beta-feature request, and
     whether they have sufficient beta-feature scope to run it.
+    Fall back to default beta-feature scope if the one assigned to the user is not
+    registered.
     """
     if in_ci_environment() or in_development_environment():
         # Skip check when running tests in CircleCI, or during local development
@@ -335,5 +338,8 @@ def check_beta_feature_access(
     if "mutation" not in payload:
         return True
 
-    allowed_mutations = ALL_ALLOWED_MUTATIONS[current_user.beta_feature_scope]
+    try:
+        allowed_mutations = ALL_ALLOWED_MUTATIONS[current_user.beta_feature_scope]
+    except KeyError:
+        allowed_mutations = ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]
     return any([m in payload for m in allowed_mutations])
