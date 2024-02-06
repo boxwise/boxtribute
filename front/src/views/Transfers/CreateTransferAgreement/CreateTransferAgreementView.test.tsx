@@ -1,12 +1,13 @@
+import { vi, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
-import { screen, render, cleanup, fireEvent } from "tests/test-utils";
+import { screen, render, cleanup, fireEvent, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { TransferAgreementType } from "types/generated/graphql";
 import { addDays } from "date-fns";
 import { base1 } from "mocks/bases";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
   CREATE_AGREEMENT_MUTATION,
@@ -110,7 +111,7 @@ it("4.1.1 - Initial load of Page", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -156,7 +157,7 @@ it("4.1.2 - Input Validations", async () => {
     mocks: [initialQuery, successfulMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -205,7 +206,7 @@ it("4.1.3 - Click on Submit Button", async () => {
     mocks: [initialQuery, successfulMutation],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -220,7 +221,13 @@ it("4.1.3 - Click on Submit Button", async () => {
   // Test case 4.1.3.1 - Form data was valid and mutation was successful
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
   await user.click(submitButton);
-  expect(await screen.findByText(/successfully created a transfer agreement/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully created a transfer agreement/i),
+      }),
+    ),
+  );
   // Test case 4.1.3.2 - Redirect to Transfers Agreements Page
   expect(
     await screen.findByRole("heading", { name: "/bases/1/transfers/agreements" }),
@@ -234,7 +241,7 @@ it("4.1.3 - Click on Submit Button", async () => {
     mocks: [initialQuery, mutationNetworkError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -247,7 +254,13 @@ it("4.1.3 - Click on Submit Button", async () => {
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
   await user.click(rerenderedSubmitButton);
-  expect(await screen.findByText(/your changes could not be saved!/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/your changes could not be saved!/i),
+      }),
+    ),
+  );
 });
 
 // Test case 4.1.4
@@ -259,7 +272,7 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     mocks: [initialQueryNetworkError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -287,7 +300,7 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
     mocks: [initialQuery, mutationIdenticalAgreementError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -301,9 +314,13 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
 
   await user.click(rerenderedSubmitButton);
-  expect(
-    await screen.findByText(/error while trying to create transfer agreement/i),
-  ).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/error while trying to create transfer agreement/i),
+      }),
+    ),
+  );
   expect(
     await screen.findByText(/Can’t create agreement, an active identical agreement exists/i),
   ).toBeInTheDocument();

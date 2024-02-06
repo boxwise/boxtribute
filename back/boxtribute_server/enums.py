@@ -1,4 +1,5 @@
 """Enumeration types used in the application."""
+
 import enum
 
 

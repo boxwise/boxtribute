@@ -12,6 +12,9 @@ node_modules
 .env
 .envrc
 
+# test results
+coverage
+
 # OS files
 **/.DS_Store
 **/Thumbs.db

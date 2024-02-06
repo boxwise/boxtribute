@@ -1,5 +1,5 @@
-import "@testing-library/jest-dom";
-import { screen, render } from "tests/test-utils";
+import { vi, it, describe, expect } from "vitest";
+import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import userEvent from "@testing-library/user-event";
@@ -10,20 +10,14 @@ import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
 import { gql } from "@apollo/client";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateShipmentView, {
   ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
   CREATE_SHIPMENT_MUTATION,
 } from "./CreateShipmentView";
 import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
 
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
-
-jest.setTimeout(12000);
-
-afterEach(() => {
-  cache.restore(emptyCache);
-});
+vi.setConfig({ testTimeout: 12_000 });
 
 const initialQuery = {
   request: {
@@ -151,7 +145,7 @@ it("4.3.1 - Initial load of Page", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -187,7 +181,7 @@ it("4.3.2 - Input Validations", async () => {
     mocks: [initialQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -238,7 +232,7 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     addTypename: true,
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -262,7 +256,13 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
   expect(await screen.findByText("Samos")).toBeInTheDocument();
 
   await user.click(submitButton);
-  expect(await screen.findByText(/successfully created a new shipment/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully created a new shipment/i),
+      }),
+    ),
+  );
 
   // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
   expect(
@@ -279,7 +279,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
     mocks: [initialQuery, mutationNetworkError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -301,9 +301,13 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitStartButton);
-  expect(
-    await screen.findByText(/error while trying to create a new shipment/i),
-  ).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/error while trying to create a new shipment/i),
+      }),
+    ),
+  );
 });
 
 // Test case 4.3.3.4
@@ -315,7 +319,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
     mocks: [initialQuery, mutationGraphQLError],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -337,9 +341,13 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitShipmentStartButton);
-  expect(
-    (await screen.findAllByText(/error while trying to create a new shipment/i)).length,
-  ).toBeGreaterThanOrEqual(1);
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/error while trying to create a new shipment/i),
+      }),
+    ),
+  );
 });
 
 // Test case 4.3.4
@@ -351,7 +359,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       mocks: [initialQueryNetworkError],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -376,7 +384,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       mocks: [initialQueryWithoutAgreement],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,

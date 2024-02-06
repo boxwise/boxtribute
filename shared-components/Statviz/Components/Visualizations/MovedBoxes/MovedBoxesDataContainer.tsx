@@ -5,7 +5,7 @@ import { gql } from "../../../../types/generated";
 import { MovedBoxesData, QueryMovedBoxesArgs } from "../../../../types/generated/graphql";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 
-const MOVED_BOXES_QUERY = gql(`
+export const MOVED_BOXES_QUERY = gql(`
   query movedBoxes($baseId: Int!) {
     movedBoxes(baseId: $baseId) {
       facts {

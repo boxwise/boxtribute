@@ -1,4 +1,5 @@
 """Utilities for handling authorization"""
+
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from flask import g

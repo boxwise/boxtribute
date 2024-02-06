@@ -165,7 +165,7 @@ def test_query_top_products(
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
-def test_query_moved_boxes(read_only_client, default_location, default_bases, endpoint):
+def test_query_moved_boxes(read_only_client, default_location, another_base, endpoint):
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
@@ -175,26 +175,26 @@ def test_query_moved_boxes(read_only_client, default_location, default_bases, en
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     location_name = default_location["name"]
-    base_name = default_bases[3]["name"]
+    base_name = another_base["name"]
     assert data == {
         "facts": [
-            {
-                "boxesCount": 2,
-                "itemsCount": 22,
-                "categoryId": 1,
-                "productName": "indigestion tablets",
-                "sizeId": 1,
-                "gender": "Women",
-                "targetId": location_name,
-                "movedOn": "2022-12-05",
-                "tagIds": [],
-            },
             {
                 "boxesCount": 1,
                 "itemsCount": 12,
                 "categoryId": 1,
                 "productName": "jackets",
                 "sizeId": 2,
+                "gender": "Women",
+                "targetId": location_name,
+                "movedOn": "2022-12-05",
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 2,
+                "itemsCount": 22,
+                "categoryId": 1,
+                "productName": "indigestion tablets",
+                "sizeId": 1,
                 "gender": "Women",
                 "targetId": location_name,
                 "movedOn": "2022-12-05",

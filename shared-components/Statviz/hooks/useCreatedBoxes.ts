@@ -1,15 +1,9 @@
-import { gql, useQuery } from "@apollo/client";
-import { useMemo } from "react";
+import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import {
-  CreatedBoxesData,
-  CreatedBoxesResult,
-  QueryCreatedBoxesArgs,
-} from "../../types/generated/graphql";
 import useTimerange from "./useTimerange";
-import { filterListByInterval } from "../utils/helpers";
+import { gql } from "../../types/generated";
 
-const CREATED_BOXES_QUERY = gql`
+const CREATED_BOXES_QUERY = gql(`
   query createdBoxes($baseId: Int!) {
     createdBoxes(baseId: $baseId) {
       facts {
@@ -32,29 +26,17 @@ const CREATED_BOXES_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export default function useCreatedBoxes() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery<CreatedBoxesData, QueryCreatedBoxesArgs>(
-    CREATED_BOXES_QUERY,
-    { variables: { baseId: parseInt(baseId ?? "", 10) } },
-  );
+  const { data, loading, error } = useQuery(CREATED_BOXES_QUERY, {
+    variables: { baseId: parseInt(baseId ?? "", 10) },
+  });
 
   const { timerange, interval } = useTimerange();
 
   return {
-    createdBoxes: useMemo(() => {
-      if (!data) return [];
-
-      try {
-        return filterListByInterval(data.facts as CreatedBoxesResult[], "createdOn", interval);
-      } catch (e) {
-        // TODO show toast with error message?
-
-        return [];
-      }
-    }, [data, interval]),
     data,
     loading,
     error,
