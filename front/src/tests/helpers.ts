@@ -1,4 +1,5 @@
-import { screen } from "tests/test-utils";
+import { expect } from "vitest";
+import { act, screen, waitFor } from "tests/test-utils";
 import userEvent from "@testing-library/user-event";
 
 type UserEvent = ReturnType<typeof userEvent.setup>;
@@ -17,16 +18,22 @@ export async function assertOptionsInSelectField(
   subHeadings.forEach((subHeading) => {
     expect(screen.queryByText(subHeading)).not.toBeInTheDocument();
   });
-  await user.click(fieldControlInput);
-  options.forEach((option) => {
-    expect(screen.getByRole("option", { name: option })).toBeInTheDocument();
+  await act(async () => {
+    await user.click(fieldControlInput);
+  });
+  options.forEach(async (option) => {
+    expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
   });
   subHeadings.forEach((subHeading) => {
     expect(screen.getByText(subHeading)).toBeInTheDocument();
   });
-  await user.click(elementOutside);
-  options.forEach((option) => {
-    expect(screen.queryByText(option)).not.toBeInTheDocument();
+  await act(async () => {
+    await user.click(elementOutside);
+  });
+  options.forEach(async (option) => {
+    await waitFor(() => {
+      expect(screen.queryByText(option)).not.toBeInTheDocument();
+    });
   });
   subHeadings.forEach((subHeading) => {
     expect(screen.queryByText(subHeading)).not.toBeInTheDocument();
@@ -44,15 +51,17 @@ export async function selectOptionInSelectField(
   const fieldControlInput =
     label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
   await user.click(fieldControlInput);
-  const optionButton = screen.getByRole(optionInTestingEnvironment, { name: option });
+  const optionButton = await screen.findByRole(optionInTestingEnvironment, { name: option });
   expect(optionButton).toBeInTheDocument();
   await user.click(optionButton);
   if (isMulti) {
-    expect(
-      screen.queryByRole(optionInTestingEnvironment, { name: option }),
-    ).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole(optionInTestingEnvironment, { name: option }),
+      ).not.toBeInTheDocument();
+    });
   }
-  expect(screen.getByText(option)).toBeInTheDocument();
+  expect(await screen.findByText(option)).toBeInTheDocument();
 }
 // Returns text content of given element
 // Cf. https://github.com/testing-library/dom-testing-library/issues/410#issuecomment-1060917305

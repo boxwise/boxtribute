@@ -424,7 +424,7 @@ def test_invalid_permission_for_metrics(read_only_client, mocker):
         "delete-implies-read",
     ],
 )
-def test_permission_scope(read_only_client, mocker, default_bases, method):
+def test_permission_scope(read_only_client, mocker, method):
     mock_user_for_request(mocker, permissions=[f"base:{method}"])
     query = "query { bases { id } }"
     bases = assert_successful_request(read_only_client, query)

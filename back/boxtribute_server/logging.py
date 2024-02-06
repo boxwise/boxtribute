@@ -1,4 +1,5 @@
 """Setup for logging in Google Cloud."""
+
 from flask import request
 
 from .utils import in_ci_environment, in_development_environment

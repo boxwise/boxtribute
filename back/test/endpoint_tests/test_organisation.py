@@ -25,13 +25,13 @@ def test_organisation_query(
         "name": default_organisation["name"],
         "bases": [
             {
-                "id": str(default_bases[1]["id"]),
-                "name": default_bases[1]["name"],
+                "id": str(default_bases[0]["id"]),
+                "name": default_bases[0]["name"],
                 "beneficiaries": {"totalCount": len(default_beneficiaries)},
             },
             {
-                "id": str(default_bases[2]["id"]),
-                "name": default_bases[2]["name"],
+                "id": str(default_bases[1]["id"]),
+                "name": default_bases[1]["name"],
                 "beneficiaries": None,
             },
         ],
@@ -53,7 +53,7 @@ def test_organisation_query(
         "id": organisation_id,
         "bases": [
             {"id": str(base["id"]), "name": base["name"], "beneficiaries": None}
-            for base in [default_bases[3], default_bases[4]]
+            for base in [default_bases[2], default_bases[3]]
         ],
     }
 

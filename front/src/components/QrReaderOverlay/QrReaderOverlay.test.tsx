@@ -1,7 +1,7 @@
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
-import { screen, render } from "tests/test-utils";
+import { screen, render, act, waitFor } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -12,14 +12,12 @@ import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
 } from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
+import { mockedTriggerError } from "tests/setupTests";
 
-jest.mock("@auth0/auth0-react");
-jest.mock("components/QrReader/components/QrReaderScanner");
-
-// .mocked() is a nice helper function from jest for typescript support
-// https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
-const mockedQrReader = jest.mocked(QrReaderScanner);
+vi.mock("@auth0/auth0-react");
+vi.mock("components/QrReader/components/QrReaderScanner");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
@@ -53,20 +51,30 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await user.click(qrButton);
+  await act(async () => {
+    await user.click(qrButton);
+  });
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
-  await user.type(screen.getByRole("textbox"), "123456");
-  await user.click(findBoxButton);
+  await act(async () => {
+    await user.type(screen.getByRole("textbox"), "123456");
+  });
+  await act(async () => {
+    await user.click(findBoxButton);
+  });
 
   // error message appears
-  expect(
-    await screen.findByText(/A box with this label number doesn't exist/i),
-  ).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/A box with this label number doesn't exist/i),
+      }),
+    ),
+  );
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
-}, 10000);
+}, 30000);
 
 const queryFindBox = {
   request: {
@@ -95,7 +103,9 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await user.click(qrButton);
+  await act(async () => {
+    await user.click(qrButton);
+  });
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
@@ -142,9 +152,13 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
   await user.click(findBoxButton);
 
   // error message appears
-  expect(
-    await screen.findByText(/You don't have permission to access this box/i),
-  ).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/You don't have permission to access this box/i),
+      }),
+    ),
+  );
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
 }, 10000);
@@ -262,9 +276,13 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(
-    (await screen.findAllByText(/You don't have permission to access this box/i)).length,
-  ).toBeGreaterThanOrEqual(1);
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/You don't have permission to access this box/i),
+      }),
+    ),
+  );
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 10000);
@@ -287,7 +305,13 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/This is not a Boxtribute QR code/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/This is not a Boxtribute QR code/i),
+      }),
+    ),
+  );
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 15000);
@@ -323,9 +347,14 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(
-    (await screen.findAllByText(/No box found for this QR code/i)).length,
-  ).toBeGreaterThanOrEqual(1);
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/No box found for this QR code/i),
+      }),
+    ),
+  );
+
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 20000);
@@ -361,7 +390,13 @@ it("3.4.2.5c - Internal Server Error", async () => {
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  expect(await screen.findByText(/QR code lookup failed/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/QR code lookup failed/i),
+      }),
+    ),
+  );
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 20000);

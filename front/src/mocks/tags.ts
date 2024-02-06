@@ -4,6 +4,8 @@ export const tag1 = {
   color: "#20963f",
   label: "tag1",
   value: "1",
+  id: "1",
+  name: "tag1",
   type: TagType.All,
   description: "tag1",
   __typename: "Tag",

@@ -1,5 +1,4 @@
-import "@testing-library/jest-dom";
-// import userEvent from "@testing-library/user-event";
+import { it, expect } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";

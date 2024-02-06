@@ -101,8 +101,9 @@ def _retrieve_shipment_details(shipment_id, *conditions, model=Box):
     )
 
 
-def _bulk_update_box_state(*, boxes, state):
+def _bulk_update_box_state(*, boxes, state, user_id, now):
     """Update state of given boxes, and track these changes in the history table.
+    Also update last_modified_on and last_modified_by fields.
     Must be placed inside a `with db.database.atomic()` context.
     """
     if not boxes:
@@ -119,7 +120,9 @@ def _bulk_update_box_state(*, boxes, state):
             )
         )
         box.state = state
-    Box.bulk_update(boxes, [Box.state])
+        box.last_modified_on = now
+        box.last_modified_by = user_id
+    Box.bulk_update(boxes, [Box.state, Box.last_modified_on, Box.last_modified_by])
     DbChangeHistory.bulk_create(history_entries)
 
 
@@ -150,7 +153,12 @@ def cancel_shipment(*, shipment, user):
         detail.removed_on = now
 
     with db.database.atomic():
-        _bulk_update_box_state(boxes=[d.box for d in details], state=BoxState.InStock)
+        _bulk_update_box_state(
+            boxes=[d.box for d in details],
+            state=BoxState.InStock,
+            user_id=user.id,
+            now=now,
+        )
         if details:
             ShipmentDetail.bulk_update(
                 details, [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
@@ -169,9 +177,10 @@ def send_shipment(*, shipment, user):
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
+    now = utcnow()
     shipment.state = ShipmentState.Sent
     shipment.sent_by = user.id
-    shipment.sent_on = utcnow()
+    shipment.sent_on = now
 
     boxes = [
         detail.box
@@ -184,7 +193,9 @@ def send_shipment(*, shipment, user):
 
     with db.database.atomic():
         shipment.save(only=[Shipment.state, Shipment.sent_by, Shipment.sent_on])
-        _bulk_update_box_state(boxes=boxes, state=BoxState.InTransit)
+        _bulk_update_box_state(
+            boxes=boxes, state=BoxState.InTransit, user_id=user.id, now=now
+        )
     return shipment
 
 
@@ -197,9 +208,10 @@ def start_receiving_shipment(*, shipment, user):
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Sent], actual_state=shipment.state
         )
+    now = utcnow()
     shipment.state = ShipmentState.Receiving
     shipment.receiving_started_by = user.id
-    shipment.receiving_started_on = utcnow()
+    shipment.receiving_started_on = now
 
     boxes = [
         detail.box
@@ -218,7 +230,9 @@ def start_receiving_shipment(*, shipment, user):
                 Shipment.receiving_started_on,
             ]
         )
-        _bulk_update_box_state(boxes=boxes, state=BoxState.Receiving)
+        _bulk_update_box_state(
+            boxes=boxes, state=BoxState.Receiving, user_id=user.id, now=now
+        )
     return shipment
 
 
@@ -253,7 +267,9 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
         for box in boxes
     ]
 
-    _bulk_update_box_state(boxes=boxes, state=BoxState.MarkedForShipment)
+    _bulk_update_box_state(
+        boxes=boxes, state=BoxState.MarkedForShipment, user_id=user_id, now=utcnow()
+    )
     ShipmentDetail.insert_many(details).execute()
 
 
@@ -287,7 +303,9 @@ def _remove_boxes_from_shipment(
         details.append(detail)
 
     if details:
-        _bulk_update_box_state(boxes=[d.box for d in details], state=box_state)
+        _bulk_update_box_state(
+            boxes=[d.box for d in details], state=box_state, user_id=user_id, now=now
+        )
         ShipmentDetail.bulk_update(details, fields=fields)
 
 

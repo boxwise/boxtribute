@@ -1,5 +1,6 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable no-console */
+import { vi } from "vitest";
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
@@ -90,7 +91,7 @@ function render(
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
 
   const globalPreferencesMock: IGlobalPreferencesContext = {
-    dispatch: jest.fn(),
+    dispatch: vi.fn(),
     globalPreferences: {
       selectedBase: { id: base1.id, name: base1.name },
       organisation: { id: organisation1.id, name: organisation1.name },

@@ -1,4 +1,5 @@
 """Utility functions to support data model definitions."""
+
 from datetime import date, datetime, timezone
 from functools import wraps
 

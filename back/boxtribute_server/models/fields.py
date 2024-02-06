@@ -1,4 +1,5 @@
 """Custom peewee field types for data model definitions."""
+
 import enum
 
 from peewee import SQL, CharField, DateField, DateTimeField, ForeignKeyField

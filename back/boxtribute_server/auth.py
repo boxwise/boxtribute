@@ -1,4 +1,5 @@
 """Utilities for handling authentication"""
+
 import json
 import os
 import urllib

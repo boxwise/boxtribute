@@ -1,4 +1,5 @@
 """Configuration and instantiation of web app and peewee-managed database"""
+
 import os
 
 import sentry_sdk

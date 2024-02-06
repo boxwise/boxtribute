@@ -1,4 +1,4 @@
-import { FormControl, FormErrorMessage, FormLabel } from "@chakra-ui/react";
+import { FormControl, FormErrorMessage, FormLabel, chakra } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
 import { colorIsBright } from "utils/helpers";
@@ -17,15 +17,10 @@ export interface ISelectFieldProps {
   options: IDropdownOption[] | { label: string; options: IDropdownOption[] }[] | undefined;
   errors: object;
   control: any;
-  // eslint-disable-next-line react/require-default-props
-  placeholder?: string;
-  // eslint-disable-next-line react/require-default-props
+  placeholder: string;
   isMulti?: boolean;
-  // eslint-disable-next-line react/require-default-props
   isRequired?: boolean;
-  // eslint-disable-next-line react/require-default-props
   showLabel?: boolean;
-  // eslint-disable-next-line react/require-default-props
   showError?: boolean;
 }
 
@@ -36,17 +31,22 @@ function SelectField({
   fieldId,
   fieldLabel,
   placeholder,
-  showLabel = true,
-  showError = true,
+  showLabel,
+  showError,
   options,
   errors,
   control,
-  isMulti = false,
-  isRequired = true,
+  isMulti,
+  isRequired,
 }: ISelectFieldProps) {
   return (
-    <FormControl isRequired={isRequired} isInvalid={!!errors[fieldId]} id={fieldId}>
-      {showLabel && <FormLabel htmlFor={fieldId}>{fieldLabel}</FormLabel>}
+    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+      {showLabel && (
+        <FormLabel htmlFor={fieldId}>
+          {fieldLabel}
+          {isRequired && <chakra.span color="red.500"> *</chakra.span>}
+        </FormLabel>
+      )}
       <Controller
         control={control}
         name={fieldId}
@@ -96,4 +96,12 @@ function SelectField({
     </FormControl>
   );
 }
+
+SelectField.defaultProps = {
+  isMulti: false,
+  isRequired: true,
+  showLabel: true,
+  showError: true,
+};
+
 export default SelectField;

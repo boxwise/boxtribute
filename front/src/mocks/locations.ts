@@ -7,6 +7,11 @@ export const location1 = {
   name: "Warehouse",
   defaultBoxState: "InStock",
   __typename: "ClassicLocation",
+  base: {
+    __typename: "Base",
+    id: "1",
+    name: "Lesvos",
+  },
 };
 
 const location2 = {

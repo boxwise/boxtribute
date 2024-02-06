@@ -107,9 +107,6 @@ module.exports = {
         "**/mocks/**/*.[jt]s?(x)",
       ],
       extends: ["plugin:testing-library/react"],
-      rules: {
-        "no-undef": "off",
-      },
     },
   ],
 };
