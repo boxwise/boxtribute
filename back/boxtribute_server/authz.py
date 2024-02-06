@@ -1,10 +1,12 @@
 """Utilities for handling authorization"""
+
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from flask import g
 from peewee import Model
 
 from .auth import CurrentUser
+from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
 from .exceptions import Forbidden
 from .models.definitions.base import Base
@@ -267,6 +269,7 @@ def authorize_cross_organisation_access(
     raise Forbidden(reason=f"base={base_id}")
 
 
+DEFAULT_BETA_FEATURE_SCOPE = 2
 ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
@@ -290,48 +293,36 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
         "markShipmentAsLost",
         "moveNotDeliveredBoxesInStock",
     ),
-    # + mutations for mobile distribution pages
-    99: (
-        "updateBox",
-        "createBox",
-        "createQrCode",
-        "createTransferAgreement",
-        "acceptTransferAgreement",
-        "rejectTransferAgreement",
-        "cancelTransferAgreement",
-        "createShipment",
-        "updateShipmentWhenPreparing",
-        "updateShipmentWhenReceiving",
-        "cancelShipment",
-        "sendShipment",
-        "startReceivingShipment",
-        "markShipmentAsLost",
-        "moveNotDeliveredBoxesInStock",
-        "createDistributionSpot",
-        "createDistributionEvent",
-        "addPackingListEntryToDistributionEvent",
-        "removePackingListEntryFromDistributionEvent",
-        "removeAllPackingListEntriesFromDistributionEventForProduct",
-        "updatePackingListEntry",
-        "updateSelectedProductsForDistributionEventPackingList",
-        "changeDistributionEventState",
-        "assignBoxToDistributionEvent",
-        "unassignBoxFromDistributionEvent",
-        "moveItemsFromBoxToDistributionEvent",
-        "removeItemsFromUnboxedItemsCollection",
-        "startDistributionEventsTrackingGroup",
-        "setReturnedNumberOfItemsForDistributionEventsTrackingGroup",
-        "moveItemsFromReturnTrackingGroupToBox",
-        "completeDistributionEventsTrackingGroup",
-    ),
 }
+ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2]
+ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
+    # + mutations for mobile distribution pages
+    "createDistributionSpot",
+    "createDistributionEvent",
+    "addPackingListEntryToDistributionEvent",
+    "removePackingListEntryFromDistributionEvent",
+    "removeAllPackingListEntriesFromDistributionEventForProduct",
+    "updatePackingListEntry",
+    "updateSelectedProductsForDistributionEventPackingList",
+    "changeDistributionEventState",
+    "assignBoxToDistributionEvent",
+    "unassignBoxFromDistributionEvent",
+    "moveItemsFromBoxToDistributionEvent",
+    "removeItemsFromUnboxedItemsCollection",
+    "startDistributionEventsTrackingGroup",
+    "setReturnedNumberOfItemsForDistributionEventsTrackingGroup",
+    "moveItemsFromReturnTrackingGroupToBox",
+    "completeDistributionEventsTrackingGroup",
+)
 
 
 def check_beta_feature_access(
     payload: Dict[str, Any], *, current_user: Optional[CurrentUser] = None
 ) -> bool:
-    """Check whether the current user wants to execute a beta-feature mutation, and
+    """Check whether the current user wants to execute a beta-feature request, and
     whether they have sufficient beta-feature scope to run it.
+    Fall back to default beta-feature scope if the one assigned to the user is not
+    registered.
     """
     if in_ci_environment() or in_development_environment():
         # Skip check when running tests in CircleCI, or during local development
@@ -341,8 +332,14 @@ def check_beta_feature_access(
     if current_user.is_god:
         return True
 
+    if "query" in payload and any([q in payload for q in statistics_queries()]):
+        return current_user.beta_feature_scope >= 3
+
     if "mutation" not in payload:
         return True
 
-    allowed_mutations = ALL_ALLOWED_MUTATIONS[current_user.beta_feature_scope]
+    try:
+        allowed_mutations = ALL_ALLOWED_MUTATIONS[current_user.beta_feature_scope]
+    except KeyError:
+        allowed_mutations = ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]
     return any([m in payload for m in allowed_mutations])

@@ -1,9 +1,10 @@
 """Utility functions to support data model definitions."""
+
 from datetime import date, datetime, timezone
 from functools import wraps
 
 from flask import g
-from peewee import ForeignKeyField, IntegerField
+from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
 from ..db import db
 from .definitions.history import DbChangeHistory
@@ -30,6 +31,12 @@ def compute_age(date_of_birth):
     """Compute today's age given a person's date of birth."""
     if date_of_birth is None:
         return
+
+    if isinstance(date_of_birth, DateField):
+        # https://dev.mysql.com/doc/refman/8.0/en/date-calculations.html
+        return fn.TIMESTAMPDIFF(SQL("YEAR"), date_of_birth, today.strftime("%Y-%m-%d"))
+
+    # `date_of_birth` is a datetime.date instance.
     # Subtract 1 if current day is before birthday in current year
     return (
         today.year

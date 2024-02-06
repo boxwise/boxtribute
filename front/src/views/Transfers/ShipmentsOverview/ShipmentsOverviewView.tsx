@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import { useContext, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";

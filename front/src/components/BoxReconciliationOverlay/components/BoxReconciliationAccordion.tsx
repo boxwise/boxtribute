@@ -15,10 +15,10 @@ interface IBoxReconcilationAccordionProps {
   onBoxUndelivered: (labelIdentifier: string) => void;
   onBoxDelivered: (
     labelIdentifier: string,
-    locationId: number | undefined,
-    productId: number | undefined,
-    sizeId: number | undefined,
-    numberOfItems: number | undefined,
+    locationId: number,
+    productId: number,
+    sizeId: number,
+    numberOfItems: number,
   ) => void;
 }
 
@@ -113,9 +113,9 @@ export function BoxReconcilationAccordion({
               onBoxDelivered(
                 shipmentDetail.box.labelIdentifier,
                 parseInt(receiveLocationFormData.locationId.value, 10),
-                productFormData.productId,
-                productFormData.sizeId,
-                productFormData.numberOfItems,
+                productFormData.productId!,
+                productFormData.sizeId!,
+                productFormData.numberOfItems!,
               );
             }}
           />

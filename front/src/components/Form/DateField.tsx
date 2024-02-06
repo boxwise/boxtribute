@@ -1,10 +1,10 @@
 import { FormControl, FormErrorMessage, FormLabel, Input, Text } from "@chakra-ui/react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldErrors } from "react-hook-form";
 
 export interface IDateFieldProps {
   fieldId: string;
   fieldLabel: string;
-  errors: object;
+  errors: FieldErrors;
   control: any;
   register: any;
   // eslint-disable-next-line react/require-default-props
@@ -61,7 +61,7 @@ function DateField({
           />
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      <FormErrorMessage>{errors[fieldId]?.message?.toString() ?? undefined}</FormErrorMessage>
     </FormControl>
   );
 }

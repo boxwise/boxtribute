@@ -94,11 +94,18 @@ type MovedBoxesResult {
   movedOn: Date!
   targetId: ID!
   categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  sizeId: Int!
+  tagIds: [Int!]
+  itemsCount: Int!
   boxesCount: Int!
 }
 
 type MovedBoxDataDimensions {
   category: [DimensionInfo]
+  size: [DimensionInfo]
+  tag: [TagDimensionInfo!]!
   target: [TargetDimensionInfo]
 }
 

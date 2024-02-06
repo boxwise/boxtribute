@@ -1,11 +1,10 @@
-import "@testing-library/jest-dom";
+import { it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import TransferAgreementOverviewView, {
   ACCEPT_TRANSFER_AGREEMENT,
   ALL_TRANSFER_AGREEMENTS_QUERY,
@@ -29,21 +28,6 @@ const mockSuccessfulTransferAgreementsQuery = ({
       transferAgreements: [generateMockTransferAgreement({ state, type, isInitiator })],
     },
   },
-});
-
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-
-beforeEach(() => {
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 it("4.2.2a - Failed to Fetch Initial Data (GraphQlError)", async () => {
@@ -183,12 +167,12 @@ failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, to
     // click the button in the state column
     const stateButton = await screen.findByRole("button", { name: stateButtonText });
     expect(stateButton).toBeInTheDocument();
-    user.click(stateButton);
+    await user.click(stateButton);
 
     // click the button in the modal
     const modalButton = await screen.findByRole("button", { name: modalButtonText });
     expect(modalButton).toBeInTheDocument();
-    user.click(modalButton);
+    await user.click(modalButton);
 
     // error toast shown and overlay is still open
     await waitFor(() =>
@@ -291,12 +275,12 @@ successfulMutationTests.forEach(
         // click the button in the state column
         const stateButton = await screen.findByRole("button", { name: stateButtonTextBefore });
         expect(stateButton).toBeInTheDocument();
-        user.click(stateButton);
+        await user.click(stateButton);
 
         // click the button in the modal
         const modalButton = await screen.findByRole("button", { name: modalButtonText });
         expect(modalButton).toBeInTheDocument();
-        user.click(modalButton);
+        await user.click(modalButton);
 
         // success toast is shown and state Button changed
         await waitFor(() =>

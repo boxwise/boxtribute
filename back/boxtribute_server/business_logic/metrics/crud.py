@@ -1,4 +1,5 @@
 """Computation of various metrics"""
+
 from peewee import JOIN, fn
 
 from ...models.definitions.base import Base

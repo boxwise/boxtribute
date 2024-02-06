@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { Thead, Tr, Th, chakra, HStack } from "@chakra-ui/react";
 import { HeaderGroup } from "react-table";

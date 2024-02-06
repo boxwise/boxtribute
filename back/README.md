@@ -335,16 +335,16 @@ For building a static web documentation of the schema, see [this directory](../d
 
 For the production schema, documentation can be found online at `api.boxtribute.org/docs`.
 
-### Playground
+### GraphQL API explorer
 
-You can experiment with the API in the GraphQL playground.
+You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
 1. Activate the virtual environment
 1. Start the required services by `docker-compose up webapp`
-1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statistics API, then the next steps can be skipped)
+1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
 1. Copy the displayed token
-1. Insert the access token in the following format on the playground in the section on the bottom left of the playground called HTTP Headers.
+1. Insert the access token in the following format in the section called 'Headers' on the bottom left of the explorer.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
@@ -400,7 +400,7 @@ Launch the production server by
 
     ENVIRONMENT=production docker-compose up --build webapp
 
-In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to run the GraphQL playground.
+In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to use auto-completion the GraphQL explorer.
 
 ## Performance evaluation
 
@@ -409,6 +409,8 @@ In production mode, inspection of the GraphQL server is disabled, i.e. it's not 
 Used in combination with [k6](https://k6.io/docs/). See the example [script](./scripts/load-test.js) for instructions.
 
 ### Profiling
+
+#### Execution time
 
 1. Add profiling middleware by extending `main.py`
 
@@ -432,6 +434,18 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
         snakeviz back/stats/some.profile
 
 1. Inspect the stack visualization in your web browser.
+
+#### Memory
+
+Several tools exist, e.g. [memray](https://github.com/bloomberg/memray) or [scalene](https://github.com/plasma-umass/scalene). Setting them up for analysing a complex application is not straightforward, and has only worked when running the Flask app outside of Docker, directly on the host machine.
+
+For using memray,
+
+1. the Flask app has to be registered in `setup.py` to be invoked from the CLI. Add the following to the `console_scripts` list: `"bserve = boxtribute_server.dev_main:run"`
+1. Install the new CLI command: `pip install -U -e back/`
+1. Start the server while recording profiling data: `memray run $(which bserve)`
+1. Make requests to the server. Eventually stop the server.
+1. Generate graphs with `memray flamegraph` or `memray table` and inspect them in your web browser.
 
 ## Authentication and Authorization
 
