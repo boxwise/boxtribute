@@ -111,6 +111,9 @@ def graphql_server():
     if not check_beta_feature_access(request.get_json()["query"]):
         return {"error": "No permission to access beta feature"}, 401
 
+    from .utils import activate_logging
+
+    activate_logging()
     return execute_async(schema=full_api_schema)
 
 
