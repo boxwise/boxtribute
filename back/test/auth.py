@@ -61,6 +61,7 @@ def _create_jwt_payload(
     organisation_id=1,
     roles=("Coordinator",),
     user_id=8,
+    is_god=False,
     permissions=None,
     timezone="Europe/London",
 ):
@@ -81,6 +82,7 @@ def _create_jwt_payload(
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
         f"{JWT_CLAIM_PREFIX}/roles": roles,
         f"{JWT_CLAIM_PREFIX}/timezone": timezone,
+        f"{JWT_CLAIM_PREFIX}/is_god": "1" if is_god else "0",
         "sub": f"auth0|{user_id}",
     }
 

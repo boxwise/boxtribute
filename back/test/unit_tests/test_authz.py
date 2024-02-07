@@ -172,6 +172,18 @@ def test_god_user():
     for permission in ALL_PERMISSIONS:
         assert authorize(user, permission=permission)
 
+    payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/permissions": [],
+        f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/is_god": "1",
+        "sub": "auth0|1",
+    }
+    user = CurrentUser.from_jwt(payload)
+    assert user.is_god
+    assert user.organisation_id is None
+
 
 def test_user_with_multiple_roles():
     permission = "stock:write"
@@ -181,6 +193,7 @@ def test_user_with_multiple_roles():
         f"{JWT_CLAIM_PREFIX}/base_ids": [2],
         f"{JWT_CLAIM_PREFIX}/permissions": [permission, f"base_1/{permission}"],
         f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/is_god": "0",
         "sub": "auth0|42",
     }
     user = CurrentUser.from_jwt(payload)
@@ -188,6 +201,7 @@ def test_user_with_multiple_roles():
 
     assert authorize(user, permission=permission, base_id=1)
     assert authorize(user, permission=permission, base_id=2)
+    assert not user.is_god
 
 
 def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
@@ -199,12 +213,14 @@ def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
             "base_4/stock:edit",
             "base_4/stock:read",
         ],
+        f"{JWT_CLAIM_PREFIX}/is_god": "0",
         "sub": "auth0|42",
     }
     user = CurrentUser.from_jwt(payload)
     assert sorted(user.authorized_base_ids("stock:read")) == [3, 4]
     assert sorted(user.authorized_base_ids("stock:write")) == [3]
     assert sorted(user.authorized_base_ids("stock:edit")) == [4]
+    assert not user.is_god
 
 
 def test_check_beta_feature_access(mocker):

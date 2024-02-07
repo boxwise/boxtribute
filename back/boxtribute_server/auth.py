@@ -161,19 +161,10 @@ class CurrentUser:
         - base_1/stock:read, stock:read, base_ids = [2]
                                  -> {"stock:read": [1, 2]}
 
-        If the permissions custom claim is a list with a single entry "*", it indicates
-        that the current user is a god user.
+        If the `is_god` custom claim is the string "1", it indicates that the current
+        user is a god user.
         """
-        try:
-            is_god = payload[f"{JWT_CLAIM_PREFIX}/permissions"] == ["*"]
-        except KeyError:  # pragma: no cover
-            raise AuthenticationFailed(
-                {
-                    "code": "missing_claims",
-                    "description": f"Missing custom claim '{JWT_CLAIM_PREFIX}/"
-                    "permissions' in JWT. Please check the user's roles in Auth0.",
-                },
-            )
+        is_god = payload[f"{JWT_CLAIM_PREFIX}/is_god"] == "1"
 
         # Use set to collect base IDs, thus avoiding duplicates if both read and write
         # permission are specified for the same resource

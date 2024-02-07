@@ -162,7 +162,7 @@ The current user is programmatically represented by the `auth.CurrentUser` class
 
 The decoded JWT payload is converted into a `CurrentUser` instance with the following procedure:
 
-- if the `permissions` custom claim is a list with a single entry `"*"`, the attribute `is_god` is set to true
+- if the `is_god` custom claim is the string `"1"`, the attribute `is_god` is set to true
 - the `organisation_id` custom claim is copied to the eponymous attribute
 - the user ID is extracted from the `sub` claim and assigned to `id`
 - if `is_god` is false, the permissions custom claim is parsed:
