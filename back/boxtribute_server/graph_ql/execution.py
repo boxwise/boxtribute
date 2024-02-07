@@ -4,6 +4,7 @@ from ariadne import graphql
 from flask import current_app, jsonify, request
 
 from ..exceptions import format_database_errors
+from ..utils import activate_logging
 from .loaders import (
     BaseLoader,
     BoxLoader,
@@ -33,6 +34,7 @@ def execute_async(*, schema, introspection=None):
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
     """
+    logger = activate_logging()
 
     async def run():
         # Create DataLoaders and persist them for the time of processing the request.
@@ -73,5 +75,6 @@ def execute_async(*, schema, introspection=None):
 
     success, result = asyncio.run(run())
 
+    logger.warning("done")
     status_code = 200 if success else 400
     return jsonify(result), status_code
