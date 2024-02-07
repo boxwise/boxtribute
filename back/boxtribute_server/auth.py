@@ -14,6 +14,7 @@ from sentry_sdk import set_user as set_sentry_user
 from .exceptions import AuthenticationFailed
 
 JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
+REQUIRED_CLAIMS = ("is_god", "permissions", "base_ids", "organisation_id")
 
 
 def get_auth_string_from_header():
@@ -163,7 +164,22 @@ class CurrentUser:
 
         If the `is_god` custom claim is the string "1", it indicates that the current
         user is a god user.
+
+        It is validated that all required claims are present in the JWT. If not, an
+        AuthenticationFailed exception is raised.
         """
+        missing_claims = [
+            cl for cl in REQUIRED_CLAIMS if f"{JWT_CLAIM_PREFIX}/{cl}" not in payload
+        ]
+        if missing_claims:
+            raise AuthenticationFailed(
+                {
+                    "code": "missing_claims",
+                    "description": "Missing custom claims in JWT: "
+                    f"{', '.join(missing_claims)}. Please check Auth0.",
+                },
+            )
+
         is_god = payload[f"{JWT_CLAIM_PREFIX}/is_god"] == "1"
 
         # Use set to collect base IDs, thus avoiding duplicates if both read and write

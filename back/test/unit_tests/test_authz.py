@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
+from boxtribute_server.auth import JWT_CLAIM_PREFIX, REQUIRED_CLAIMS, CurrentUser
 from boxtribute_server.authz import (
     ALL_ALLOWED_MUTATIONS,
     DEFAULT_BETA_FEATURE_SCOPE,
@@ -11,7 +11,7 @@ from boxtribute_server.authz import (
     check_beta_feature_access,
 )
 from boxtribute_server.business_logic.statistics import statistics_queries
-from boxtribute_server.exceptions import Forbidden
+from boxtribute_server.exceptions import AuthenticationFailed, Forbidden
 
 BASE_ID = 1
 BASE_RELATED_PERMISSIONS = {
@@ -185,6 +185,22 @@ def test_god_user():
     assert user.organisation_id is None
 
 
+def test_missing_claims():
+    correct_payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/permissions": [],
+        f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/is_god": "1",
+        "sub": "auth0|1",
+    }
+    for claim in REQUIRED_CLAIMS:
+        payload = correct_payload.copy()
+        payload.pop(f"{JWT_CLAIM_PREFIX}/{claim}")
+        with pytest.raises(AuthenticationFailed, match=f"JWT: {claim}."):
+            CurrentUser.from_jwt(payload)
+
+
 def test_user_with_multiple_roles():
     permission = "stock:write"
     # User is Head-of-Ops for base 2 but coordinator for base 1
@@ -207,6 +223,7 @@ def test_user_with_multiple_roles():
 def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
     payload = {
         f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [3, 4],
         f"{JWT_CLAIM_PREFIX}/permissions": [
             "base_3/stock:read",
             "base_3/stock:write",
