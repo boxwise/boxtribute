@@ -10,14 +10,16 @@ import { date2String } from "../utils/helpers";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z
-    .string({
+    .date({
       invalid_type_error: "Please enter a valid date",
     })
+    .transform((value) => value?.toISOString().substring(0, 10))
     .optional(),
   to: z
-    .string({
+    .date({
       invalid_type_error: "Please enter a valid date",
     })
+    .transform((value) => value?.toISOString().substring(0, 10))
     .optional(),
 });
 
@@ -47,8 +49,8 @@ export default function TimeRangeSelect() {
     if (!searchParams.get("to")) {
       searchParams.append("to", date2String(new Date()));
     }
-    const from = new Date(searchParams.get("from") as string);
-    const to = new Date(searchParams.get("to") as string);
+    const from = new Date(searchParams.get("from")!);
+    const to = new Date(searchParams.get("to")!);
 
     if (toFormValue === undefined) {
       setValue("to", date2String(to));
@@ -58,12 +60,12 @@ export default function TimeRangeSelect() {
       setValue("from", date2String(from));
     }
 
-    if (toFormValue && new Date(toFormValue).getDate() !== to.getDate()) {
+    if (toFormValue && new Date(toFormValue) !== to) {
       searchParams.delete("to");
       searchParams.append("to", date2String(new Date(toFormValue)));
     }
 
-    if (fromFormValue && new Date(fromFormValue).getDate() !== from.getDate()) {
+    if (fromFormValue && new Date(fromFormValue) !== from) {
       searchParams.delete("from");
       searchParams.append("from", date2String(new Date(fromFormValue)));
     }
@@ -85,8 +87,8 @@ export default function TimeRangeSelect() {
               control={control}
               register={register}
               isRequired={false}
-              maxDate="2080-01-01"
-              minDate="1910-01-01"
+              maxDate={date2String(new Date())}
+              minDate="2023-01-01"
             />
           </Box>
           <Box>
@@ -97,8 +99,8 @@ export default function TimeRangeSelect() {
               control={control}
               register={register}
               isRequired={false}
-              maxDate="2080-01-01"
-              minDate="1910-01-01"
+              maxDate={date2String(new Date())}
+              minDate="2023-01-01"
             />
           </Box>
         </HStack>
