@@ -283,5 +283,34 @@ ON
 JOIN camps c ON c.id = sh.target_base_id
 JOIN products p ON p.id = d.source_product_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock"
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name;
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name
+
+UNION ALL
+
+SELECT
+    DATE(h.changedate) AS moved_on,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    p.gender_id AS gender,
+    b.size_id,
+    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    bs.label AS target_id,
+    %s AS target_type,
+    COUNT(h.id) AS boxes_count,
+    SUM(b.items) AS items_count
+FROM
+    history h
+JOIN
+    stock b
+ON
+    h.tablename = "stock" AND
+    h.changes = "box_state_id" AND
+    h.record_id = b.id AND
+    h.from_int = 1 AND
+    h.to_int IN (2, 6)
+JOIN products p ON p.id = b.product_id AND p.camp_id = %s
+JOIN box_state bs on bs.id = h.to_int
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock"
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, b.size_id, bs.label
+;
 """

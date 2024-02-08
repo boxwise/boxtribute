@@ -7,7 +7,6 @@ from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
-from ...models.definitions.box_state import BoxState as BoxStateModel
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
@@ -353,96 +352,36 @@ def compute_moved_boxes(base_id):
             TargetType.OutgoingLocation.name,
             TargetType.Shipment.name,
             base_id,
+            TargetType.BoxState.name,
+            base_id,
         ),
     )
     column_names = [x[0] for x in cursor.description]
-    donated_boxes_facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
-    for fact in donated_boxes_facts:
+    facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+    for fact in facts:
         fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
     # Select information about all boxes sent from the specified base as source, that
     # were not removed from the shipment during preparation
 
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # Collect information about boxes that were turned into Lost/Scrap state; it is
     # assumed that these boxes have not been further moved but still are part of the
     # specified base
-    lost_scrap_box_facts = (
-        DbChangeHistory.select(
-            fn.DATE(DbChangeHistory.change_date).alias("moved_on"),
-            Product.category.alias("category_id"),
-            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
-            Product.gender.alias("gender"),
-            Size.id.alias("size_id"),
-            tag_ids.alias("tag_ids"),
-            BoxStateModel.label.alias("target_id"),
-            fn.COUNT(DbChangeHistory.id).alias("boxes_count"),
-            fn.SUM(Box.number_of_items).alias("items_count"),
-        )
-        .join(
-            Box,
-            on=(
-                (DbChangeHistory.table_name == Box._meta.table_name)
-                & (DbChangeHistory.changes == Box.state.column_name)
-                & (DbChangeHistory.record_id == Box.id)
-                & (DbChangeHistory.from_int == BoxState.InStock)
-                & (DbChangeHistory.to_int << [BoxState.Lost, BoxState.Scrap])
-            ),
-        )
-        .join(
-            Product,
-            on=((Box.product == Product.id) & (Product.base == base_id)),
-        )
-        .join(
-            Location,
-            src=Box,
-            on=((Box.location == Location.id) & (Location.base == base_id)),
-        )
-        .join(
-            Size,
-            src=Box,
-            on=(Box.size == Size.id),
-        )
-        .join(
-            TagsRelation,
-            JOIN.LEFT_OUTER,
-            src=Box,
-            on=(
-                (TagsRelation.object_id == Box.id)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-            ),
-        )
-        .join(
-            BoxStateModel,
-            src=DbChangeHistory,
-            on=(DbChangeHistory.to_int == BoxStateModel.id),
-        )
-        .group_by(
-            SQL("moved_on"),
-            SQL("target_id"),
-            SQL("category_id"),
-            SQL("product_name"),
-            SQL("gender"),
-            SQL("size_id"),
-        )
-        .dicts()
-    )
-    facts = list(donated_boxes_facts) + list(lost_scrap_box_facts)
 
     dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
         _generate_dimensions(
             target_type=TargetType.OutgoingLocation,
-            facts=donated_boxes_facts,
+            facts=facts,
         )["target"]
         + _generate_dimensions(
             target_type=TargetType.Shipment,
-            facts=donated_boxes_facts,
+            facts=facts,
         )["target"]
-        # + _generate_dimensions(
-        #     target_type=TargetType.BoxState,
-        #     facts=lost_scrap_box_facts,
-        # )["target"]
+        + _generate_dimensions(
+            target_type=TargetType.BoxState,
+            facts=facts,
+        )["target"]
     )
     return {"facts": facts, "dimensions": dimensions}
 
