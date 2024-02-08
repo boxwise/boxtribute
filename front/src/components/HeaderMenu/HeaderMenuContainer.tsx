@@ -19,6 +19,7 @@ function HeaderMenuContainer() {
       {
         text: "Statistics",
         requiredAbp: [],
+        minBeta: 3,
         links: [
           {
             link: `/bases/${baseId}/statviz`,

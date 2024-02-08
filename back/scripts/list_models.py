@@ -1,6 +1,7 @@
 """Iterate over all peewee models, and output their names and fields incl. the
 corresponding MySQL table names and columns to file.
 """
+
 import subprocess
 import sys
 from pathlib import Path

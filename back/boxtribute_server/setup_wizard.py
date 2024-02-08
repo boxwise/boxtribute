@@ -13,7 +13,7 @@ Help for commands:
 
 Command: import-products
 - the input CSV file must have the columns name, category, gender, size_range, base,
-price, in_shop, comments. The order is not relevant
+price, in_shop, comment. The order is not relevant
 - the CSV file is to be formatted according to the 'csv.excel' dialect, i.e. comma as
 delimiter and double-quote as quote char.
 """
@@ -37,7 +37,7 @@ PRODUCT_COLUMN_NAMES = {
     "base",
     "price",
     "in_shop",
-    "comments",
+    "comment",
 }
 
 
@@ -50,7 +50,7 @@ PRODUCT_COLUMN_TYPES = {
     "base": int,
     "price": int,
     "in_shop": int,
-    "comments": str,
+    "comment": str,
 }
 
 

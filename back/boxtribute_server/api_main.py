@@ -1,4 +1,5 @@
 """Main entry point for query API"""
+
 from .app import main
 from .routes import api_bp
 
