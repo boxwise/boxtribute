@@ -235,6 +235,7 @@ select
     t.size_id,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
+    %s AS target_type,
     sum(
         CASE
             WHEN t.prev_box_state_id = 1 AND t.box_state_id = 5 THEN 1
@@ -255,5 +256,32 @@ JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"
 WHERE (t.prev_box_state_id = 1 AND t.box_state_id = 5) OR
       (t.prev_box_state_id = 5 AND t.box_state_id = 1)
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label;
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+
+UNION ALL
+
+SELECT
+    DATE(sh.sent_on) AS moved_on,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    p.gender_id AS gender,
+    d.source_size_id AS size_id,
+    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    c.name AS target_id,
+    %s AS target_type,
+    COUNT(d.box_id) AS boxes_count,
+    SUM(d.source_quantity) AS items_count
+FROM
+    shipment_detail d
+JOIN
+    shipment sh
+ON
+    d.shipment_id = sh.id AND
+    d.removed_on IS NULL AND
+    sh.source_base_id = %s AND
+    sh.sent_on IS NOT NULL
+JOIN camps c ON c.id = sh.target_base_id
+JOIN products p ON p.id = d.source_product_id
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock"
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name;
 """

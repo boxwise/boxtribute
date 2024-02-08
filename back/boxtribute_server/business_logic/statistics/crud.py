@@ -12,8 +12,6 @@ from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
-from ...models.definitions.shipment import Shipment
-from ...models.definitions.shipment_detail import ShipmentDetail
 from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
@@ -88,7 +86,9 @@ def _generate_dimensions(*names, target_type=None, facts):
         )
 
     if target_type is not None:
-        target_ids = {f["target_id"] for f in facts}
+        target_ids = {
+            f["target_id"] for f in facts if TargetType[f["target_type"]] == target_type
+        }
         # Target ID and name are identical for now
         dimensions["target"] = [
             {"id": i, "name": i, "type": target_type} for i in target_ids
@@ -346,71 +346,24 @@ def compute_moved_boxes(base_id):
     # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
     cursor = db.database.execute_sql(
         MOVED_BOXES_QUERY,
-        (base_id, min_box_id, min_history_id),
+        (
+            base_id,
+            min_box_id,
+            min_history_id,
+            TargetType.OutgoingLocation.name,
+            TargetType.Shipment.name,
+            base_id,
+        ),
     )
     column_names = [x[0] for x in cursor.description]
     donated_boxes_facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     for fact in donated_boxes_facts:
         fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # Select information about all boxes sent from the specified base as source, that
     # were not removed from the shipment during preparation
-    shipped_boxes_facts = (
-        ShipmentDetail.select(
-            fn.DATE(Shipment.sent_on).alias("moved_on"),
-            Product.category.alias("category_id"),
-            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
-            Product.gender.alias("gender"),
-            Size.id.alias("size_id"),
-            tag_ids.alias("tag_ids"),
-            Base.name.alias("target_id"),
-            fn.COUNT(ShipmentDetail.box).alias("boxes_count"),
-            fn.SUM(ShipmentDetail.source_quantity).alias("items_count"),
-        )
-        .join(
-            Shipment,
-            on=(
-                (ShipmentDetail.shipment == Shipment.id)
-                & (ShipmentDetail.removed_on.is_null())
-                & (Shipment.source_base == base_id)
-                & (Shipment.sent_on.is_null(False))
-            ),
-        )
-        .join(
-            Base,
-            on=(Shipment.target_base == Base.id),
-        )
-        .join(
-            Product,
-            src=ShipmentDetail,
-            on=(ShipmentDetail.source_product == Product.id),
-        )
-        .join(
-            Size,
-            src=ShipmentDetail,
-            on=(ShipmentDetail.source_size == Size.id),
-        )
-        .join(
-            TagsRelation,
-            JOIN.LEFT_OUTER,
-            src=ShipmentDetail,
-            on=(
-                (TagsRelation.object_id == ShipmentDetail.box)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-            ),
-        )
-        .group_by(
-            SQL("moved_on"),
-            SQL("target_id"),
-            SQL("category_id"),
-            SQL("product_name"),
-            SQL("gender"),
-            SQL("size_id"),
-        )
-        .dicts()
-    )
 
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # Collect information about boxes that were turned into Lost/Scrap state; it is
     # assumed that these boxes have not been further moved but still are part of the
     # specified base
@@ -474,11 +427,7 @@ def compute_moved_boxes(base_id):
         )
         .dicts()
     )
-    facts = (
-        list(donated_boxes_facts)
-        + list(shipped_boxes_facts)
-        + list(lost_scrap_box_facts)
-    )
+    facts = list(donated_boxes_facts) + list(lost_scrap_box_facts)
 
     dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
@@ -488,12 +437,12 @@ def compute_moved_boxes(base_id):
         )["target"]
         + _generate_dimensions(
             target_type=TargetType.Shipment,
-            facts=shipped_boxes_facts,
+            facts=donated_boxes_facts,
         )["target"]
-        + _generate_dimensions(
-            target_type=TargetType.BoxState,
-            facts=lost_scrap_box_facts,
-        )["target"]
+        # + _generate_dimensions(
+        #     target_type=TargetType.BoxState,
+        #     facts=lost_scrap_box_facts,
+        # )["target"]
     )
     return {"facts": facts, "dimensions": dimensions}
 
