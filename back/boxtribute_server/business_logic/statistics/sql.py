@@ -53,171 +53,101 @@ HistoryReconstruction AS (
         h.to_int,
         h.changes,
         h.changedate,
-        COALESCE(
-            IF(h.changes <> 'items',
-                -- The current change is NOT about number of items.
-                -- The correct number of items of the box at this time must be inferred
+        IF(h.changes <> 'items',
+                -- The current change is NOT about number of items, hence the correct number of items
+                -- of the box at this time must be inferred
                 COALESCE(
                     -- Look for the next change in number of items related to the box and use 'from_int' value
-                    (SELECT IFNULL(his.from_int, 0)
+                    (SELECT his.from_int
                     FROM history his
                     WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id > h.id
                     ORDER BY his.id ASC
                     LIMIT 1),
-                    IF(
-                        h.changes = 'items',
-                        IF(h.from_int IS NULL, 0, h.to_int),
-                        -- Look for the previous change in number of items related to the box and use 'to_int' value
-                        COALESCE(
-                            (SELECT IF(his.from_int IS NULL, 0, his.to_int)
-                            FROM history his
-                            WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id < h.id
-                            ORDER BY his.id DESC
-                            LIMIT 1),
-                            -- No change in number of items ever happened to the box
-                            h.stock_items
-                        )
+                    -- Look for the previous change in number of items related to the box and use 'to_int' value
+                    COALESCE(
+                        (SELECT his.to_int
+                        FROM history his
+                        WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id < h.id
+                        ORDER BY his.id DESC
+                        LIMIT 1),
+                        -- No change in number of items ever happened to the box
+                        h.stock_items
                     )
                 ),
                 -- The current change is about number of items
                 h.to_int
-            ),
-            IFNULL(
-                (SELECT IF(his.from_int IS NOT NULL, his.to_int, 0)
-                FROM history his
-                WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id < h.id
-                ORDER BY his.id DESC
-                LIMIT 1),
-                h.stock_items
-            )
         ) AS items,
-        COALESCE(
-            IF(h.changes <> 'location_id',
+        IF(h.changes <> 'location_id',
                 COALESCE(
-                    (SELECT IFNULL(his.from_int, 0)
+                    (SELECT his.from_int
                     FROM history his
                     WHERE his.record_id = h.record_id AND his.changes = 'location_id' AND his.id > h.id
                     ORDER BY his.id ASC
                     LIMIT 1),
-                    IF(
-                        h.changes = 'location_id',
-                        IF(h.from_int IS NULL, 0, h.to_int),
-                        COALESCE(
-                            (SELECT IF(his.from_int IS NULL, 0, his.to_int)
-                            FROM history his
-                            WHERE his.record_id = h.record_id AND his.changes = 'location_id' AND his.id < h.id
-                            ORDER BY his.id DESC
-                            LIMIT 1),
-                            h.stock_location_id
-                        )
+                    COALESCE(
+                        (SELECT his.to_int
+                        FROM history his
+                        WHERE his.record_id = h.record_id AND his.changes = 'location_id' AND his.id < h.id
+                        ORDER BY his.id DESC
+                        LIMIT 1),
+                        h.stock_location_id
                     )
                 ),
                 h.to_int
-            ),
-            IFNULL(
-                (SELECT IF(his.from_int IS NOT NULL, his.to_int, 0)
-                FROM history his
-                WHERE his.record_id = h.record_id AND his.changes = 'location_id' AND his.id < h.id
-                ORDER BY his.id DESC
-                LIMIT 1),
-                h.stock_location_id
-            )
         ) AS location_id,
-        COALESCE(
-            IF(h.changes <> 'box_state_id',
+        IF(h.changes <> 'box_state_id',
                 COALESCE(
-                    (SELECT IFNULL(his.from_int, 0)
+                    (SELECT his.from_int
                     FROM history his
                     WHERE his.record_id = h.record_id AND his.changes = 'box_state_id' AND his.id > h.id
                     ORDER BY his.id ASC
                     LIMIT 1),
-                    IF(
-                        h.changes = 'box_state_id',
-                        IF(h.from_int IS NULL, 0, h.to_int),
-                        COALESCE(
-                            (SELECT IF(his.from_int IS NULL, 0, his.to_int)
-                            FROM history his
-                            WHERE his.record_id = h.record_id AND his.changes = 'box_state_id' AND his.id < h.id
-                            ORDER BY his.id DESC
-                            LIMIT 1),
-                            h.stock_box_state_id
-                        )
+                    COALESCE(
+                        (SELECT his.to_int
+                        FROM history his
+                        WHERE his.record_id = h.record_id AND his.changes = 'box_state_id' AND his.id < h.id
+                        ORDER BY his.id DESC
+                        LIMIT 1),
+                        h.stock_box_state_id
                     )
                 ),
                 h.to_int
-            ),
-            IFNULL(
-                (SELECT IF(his.from_int IS NOT NULL, his.to_int, 0)
-                FROM history his
-                WHERE his.record_id = h.record_id AND his.changes = 'box_state_id' AND his.id < h.id
-                ORDER BY his.id DESC
-                LIMIT 1),
-                h.stock_box_state_id
-            )
         ) AS box_state_id,
-        COALESCE(
-            IF(h.changes <> 'product_id',
+        IF(h.changes <> 'product_id',
                 COALESCE(
-                    (SELECT IFNULL(his.from_int, 0)
+                    (SELECT his.from_int
                     FROM history his
                     WHERE his.record_id = h.record_id AND his.changes = 'product_id' AND his.id > h.id
                     ORDER BY his.id ASC
                     LIMIT 1),
-                    IF(
-                        h.changes = 'product_id',
-                        IF(h.from_int IS NULL, 0, h.to_int),
-                        COALESCE(
-                            (SELECT IF(his.from_int IS NULL, 0, his.to_int)
-                            FROM history his
-                            WHERE his.record_id = h.record_id AND his.changes = 'product_id' AND his.id < h.id
-                            ORDER BY his.id DESC
-                            LIMIT 1),
-                            h.stock_product_id
-                        )
+                    COALESCE(
+                        (SELECT his.to_int
+                        FROM history his
+                        WHERE his.record_id = h.record_id AND his.changes = 'product_id' AND his.id < h.id
+                        ORDER BY his.id DESC
+                        LIMIT 1),
+                        h.stock_product_id
                     )
                 ),
                 h.to_int
-            ),
-            IFNULL(
-                (SELECT IF(his.from_int IS NOT NULL, his.to_int, 0)
-                FROM history his
-                WHERE his.record_id = h.record_id AND his.changes = 'product_id' AND his.id < h.id
-                ORDER BY his.id DESC
-                LIMIT 1),
-                h.stock_product_id
-            )
         ) AS product_id,
-        COALESCE(
-            IF(h.changes <> 'size_id',
+        IF(h.changes <> 'size_id',
                 COALESCE(
-                    (SELECT IFNULL(his.from_int, 0)
+                    (SELECT his.from_int
                     FROM history his
                     WHERE his.record_id = h.record_id AND his.changes = 'size_id' AND his.id > h.id
                     ORDER BY his.id ASC
                     LIMIT 1),
-                    IF(
-                        h.changes = 'size_id',
-                        IF(h.from_int IS NULL, 0, h.to_int),
-                        COALESCE(
-                            (SELECT IF(his.from_int IS NULL, 0, his.to_int)
-                            FROM history his
-                            WHERE his.record_id = h.record_id AND his.changes = 'size_id' AND his.id < h.id
-                            ORDER BY his.id DESC
-                            LIMIT 1),
-                            h.stock_size_id
-                        )
+                    COALESCE(
+                        (SELECT his.to_int
+                        FROM history his
+                        WHERE his.record_id = h.record_id AND his.changes = 'size_id' AND his.id < h.id
+                        ORDER BY his.id DESC
+                        LIMIT 1),
+                        h.stock_size_id
                     )
                 ),
                 h.to_int
-            ),
-            IFNULL(
-                (SELECT IF(his.from_int IS NOT NULL, his.to_int, 0)
-                FROM history his
-                WHERE his.record_id = h.record_id AND his.changes = 'size_id' AND his.id < h.id
-                ORDER BY his.id DESC
-                LIMIT 1),
-                h.stock_size_id
-            )
         ) AS size_id
     FROM BoxHistory h
     ORDER BY id DESC
