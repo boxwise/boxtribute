@@ -14,7 +14,8 @@ from sentry_sdk import set_user as set_sentry_user
 from .exceptions import AuthenticationFailed
 
 JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
-REQUIRED_CLAIMS = ("is_god", "permissions", "base_ids", "organisation_id")
+REQUIRED_CLAIMS = ("roles", "permissions", "base_ids", "organisation_id")
+GOD_ROLE = "boxtribute_god"
 
 
 def get_auth_string_from_header():
@@ -162,8 +163,8 @@ class CurrentUser:
         - base_1/stock:read, stock:read, base_ids = [2]
                                  -> {"stock:read": [1, 2]}
 
-        If the `is_god` custom claim is the string "1", it indicates that the current
-        user is a god user.
+        If the list in the `roles` custom claim contains "boxtribute_god", the user is a
+        god user.
 
         It is validated that all required claims are present in the JWT. If not, an
         AuthenticationFailed exception is raised.
@@ -180,12 +181,11 @@ class CurrentUser:
                 },
             )
 
-        is_god = payload[f"{JWT_CLAIM_PREFIX}/is_god"] == "1"
-
         # Use set to collect base IDs, thus avoiding duplicates if both read and write
         # permission are specified for the same resource
         base_ids = defaultdict(set)
 
+        is_god = GOD_ROLE in payload[f"{JWT_CLAIM_PREFIX}/roles"]
         if not is_god:
             for raw_permission in payload[f"{JWT_CLAIM_PREFIX}/permissions"]:
                 try:
