@@ -361,13 +361,6 @@ def compute_moved_boxes(base_id):
     for fact in facts:
         fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
-    # Select information about all boxes sent from the specified base as source, that
-    # were not removed from the shipment during preparation
-
-    # Collect information about boxes that were turned into Lost/Scrap state; it is
-    # assumed that these boxes have not been further moved but still are part of the
-    # specified base
-
     dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
         _generate_dimensions(

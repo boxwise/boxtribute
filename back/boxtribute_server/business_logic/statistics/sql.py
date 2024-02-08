@@ -22,7 +22,9 @@ ValidBoxes AS (
     AND s.id >= %s
 ),
 BoxHistory AS (
-    -- CTE to retrieve box history
+    -- CTE to retrieve box history (only include changes in FK fields such as
+    -- product, size, location, box state, as well as number of items).
+    -- Select only changes from 2023-01-01 and newer
     SELECT
         s.id AS box_id,
         s.items AS stock_items,
@@ -42,7 +44,9 @@ BoxHistory AS (
     ORDER BY record_id, changedate DESC, id DESC
 ),
 HistoryReconstruction AS (
-    -- CTE to reconstruct history
+    -- CTE to reconstruct box versions
+    -- For each change in product, size, location, box state, or number of items,
+    -- reconstruct the box version at that time
     SELECT
         h.box_id,
         h.from_int,
@@ -51,7 +55,10 @@ HistoryReconstruction AS (
         h.changedate,
         COALESCE(
             IF(h.changes <> 'items',
+                -- The current change is NOT about number of items.
+                -- The correct number of items of the box at this time must be inferred
                 COALESCE(
+                    -- Look for the next change in number of items related to the box and use 'from_int' value
                     (SELECT IFNULL(his.from_int, 0)
                     FROM history his
                     WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id > h.id
@@ -60,16 +67,19 @@ HistoryReconstruction AS (
                     IF(
                         h.changes = 'items',
                         IF(h.from_int IS NULL, 0, h.to_int),
+                        -- Look for the previous change in number of items related to the box and use 'to_int' value
                         COALESCE(
                             (SELECT IF(his.from_int IS NULL, 0, his.to_int)
                             FROM history his
                             WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id < h.id
                             ORDER BY his.id DESC
                             LIMIT 1),
+                            -- No change in number of items ever happened to the box
                             h.stock_items
                         )
                     )
                 ),
+                -- The current change is about number of items
                 h.to_int
             ),
             IFNULL(
@@ -213,7 +223,7 @@ HistoryReconstruction AS (
     ORDER BY id DESC
 ),
 FinalResult AS (
-    -- CTE for the final result
+    -- CTE for selecting all box versions at the time of box state changes
     SELECT
         h.box_id,
         h.box_state_id,
@@ -226,7 +236,9 @@ FinalResult AS (
     FROM HistoryReconstruction h
     WHERE h.changes = 'box_state_id'
 )
--- Main query to select the final result
+
+-- Main query to perform aggregation and grouping of boxes being moved between states
+-- InStock and Donated
 select
     t.moved_on,
     p.category_id,
@@ -260,6 +272,8 @@ GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
 
 UNION ALL
 
+-- Collect information about all boxes sent from the specified base as source, that
+-- were not removed from the shipment during preparation
 SELECT
     DATE(sh.sent_on) AS moved_on,
     p.category_id,
@@ -287,6 +301,9 @@ GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name
 
 UNION ALL
 
+-- Collect information about boxes that were turned into Lost/Scrap state; it is
+-- assumed that these boxes have not been further moved but still are part of the
+-- specified base
 SELECT
     DATE(h.changedate) AS moved_on,
     p.category_id,
@@ -307,7 +324,7 @@ ON
     h.changes = "box_state_id" AND
     h.record_id = b.id AND
     h.from_int = 1 AND
-    h.to_int IN (2, 6)
+    h.to_int IN (2, 6) -- (Lost, Scrap)
 JOIN products p ON p.id = b.product_id AND p.camp_id = %s
 JOIN box_state bs on bs.id = h.to_int
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock"
