@@ -10,7 +10,6 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Select,
   Wrap,
   WrapItem,
   useDisclosure,
@@ -18,6 +17,10 @@ import {
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
+import SelectField from "../../../../Form/SelectField";
 import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import PieChart from "../../Nivo-graphs/PieChart";
 import VisHeader from "../../VisHeader";
@@ -54,25 +57,35 @@ const mappingFunctions = {
   })),
 };
 
-const groupOptionsDisplayName = [
+const groupOptions = [
   {
     value: "categoryName",
-    displayName: "Category",
+    label: "Category",
   },
   {
     value: "productName",
-    displayName: "Product",
+    label: "Product",
   },
   {
     value: "gender",
-    displayName: "Gender",
+    label: "Gender",
   },
   {
     value: "sizeName",
-    displayName: "Size",
+    label: "Size",
   },
 ];
-const groupOptions = groupOptionsDisplayName.map((e) => e.value);
+
+const singleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+export const StockOverviewFilterSchema = z.object({
+  groupOptions: singleSelectOptionSchema.array().default(groupOptions),
+});
+
+const groupOptionValues = groupOptions.map((e) => e.value);
 
 interface IStockOverviewPieProps {
   width: string;
@@ -85,6 +98,14 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
   const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>(["categoryName"]);
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
   const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
+
+  const {
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(StockOverviewFilterSchema),
+    defaultValues: groupOptions,
+  });
 
   const onExport = getOnExport(PieChart);
 
@@ -105,7 +126,7 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
     filter((stockData) => stockData[drilldownPath[index]] === drilldownValue),
   );
 
-  const availableGroupOptions = groupOptions.filter(
+  const availableGroupOptions = groupOptionValues.filter(
     (option: PreparedStockAttributes) => drilldownPath.indexOf(option) === -1,
   );
 
@@ -175,7 +196,7 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
                 value={groupOption}
                 onClick={onNextDrilldownChoice}
               >
-                {groupOptionsDisplayName.find((ago) => ago.value === groupOption)!.displayName}
+                {groupOptions.find((ago) => ago.value === groupOption)!.label}
               </Button>
             ))}
           </ModalBody>
@@ -191,23 +212,19 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
         visId="ts"
       />
       <CardBody>
-        <Wrap>
+        <Wrap align="end">
           <WrapItem>
             <FormLabel />
-            <Select
-              onChange={(event) => {
-                setNewDrilldownPath(
-                  event.target.selectedOptions.item(0)?.value as PreparedStockAttributes,
-                  [],
-                );
-              }}
-              name="stock-overview-by"
-              defaultValue={drilldownPath[0]}
-            >
-              {groupOptionsDisplayName.map((option) => (
-                <option value={option.value}>{option.displayName}</option>
-              ))}
-            </Select>
+            <SelectField
+              fieldId="locations"
+              fieldLabel="locations"
+              placeholder="Select Type"
+              onChangeProp={(event) => setNewDrilldownPath(event.value, [])}
+              isRequired={false}
+              options={groupOptions}
+              errors={errors}
+              control={control}
+            />
           </WrapItem>
           <WrapItem>
             <Box>

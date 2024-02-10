@@ -22,6 +22,7 @@ export interface ISelectFieldProps {
   isRequired?: boolean;
   showLabel?: boolean;
   showError?: boolean;
+  onChangeProp?: ((event) => void) | undefined;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -38,6 +39,7 @@ function SelectField({
   control,
   isMulti,
   isRequired,
+  onChangeProp,
 }: ISelectFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
@@ -54,7 +56,14 @@ function SelectField({
           <Select
             name={name}
             ref={ref}
-            onChange={onChange}
+            onChange={
+              onChangeProp
+                ? (event) => {
+                    onChange(event);
+                    onChangeProp(event);
+                  }
+                : onChange
+            }
             onBlur={onBlur}
             value={value}
             options={options}
@@ -102,6 +111,7 @@ SelectField.defaultProps = {
   isRequired: true,
   showLabel: true,
   showError: true,
+  onChangeProp: undefined,
 };
 
 export default SelectField;
