@@ -1,5 +1,5 @@
 import { Card, CardBody } from "@chakra-ui/react";
-import { groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
+import { filter, groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
 import VisHeader from "../../VisHeader";
 import SankeyChart, { ISankeyData } from "../../Nivo-graphs/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
@@ -38,6 +38,7 @@ export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyPro
 
   const movedBoxes = tidy(
     movedBoxesFacts,
+    filter((item) => item.boxesCount > 0),
     groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
     innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
