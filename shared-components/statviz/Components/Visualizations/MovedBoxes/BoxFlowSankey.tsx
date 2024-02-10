@@ -38,8 +38,8 @@ export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyPro
 
   const movedBoxes = tidy(
     movedBoxesFacts,
-    filter((item) => item.boxesCount > 0),
     groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
+    filter((item) => item.boxesCount > 0),
     innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
     }),
