@@ -143,12 +143,12 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
 
   useMemo(() => {
     const sizeDim = data.dimensions.size.map((size) => ({
-      sizeId: parseInt(size.id ?? "0", 10),
+      sizeId: parseInt(size.id!, 10),
       sizeName: size.name,
     }));
 
     const categoryDim = data.dimensions.category.map((category) => ({
-      categoryId: parseInt(category.id ?? "0", 10),
+      categoryId: parseInt(category.id!, 10),
       categoryName: category.name,
     }));
 
@@ -191,6 +191,8 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
           <ModalBody>
             {availableGroupOptions.map((groupOption) => (
               <Button
+                borderRadius="0px"
+                border="2px"
                 style={{ margin: "5px" }}
                 key={groupOption}
                 value={groupOption}
@@ -216,8 +218,8 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
           <WrapItem>
             <FormLabel />
             <SelectField
-              fieldId="locations"
-              fieldLabel="locations"
+              fieldId="group"
+              fieldLabel="display stock by"
               placeholder="Select Type"
               onChangeProp={(event) => setNewDrilldownPath(event.value, [])}
               isRequired={false}
@@ -228,13 +230,21 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
           </WrapItem>
           <WrapItem>
             <Box>
-              <Button onClick={() => setNewDrilldownPath(drilldownPath[0], [])}>Reset</Button>
+              <Button
+                borderRadius="0px"
+                border="2px"
+                onClick={() => setNewDrilldownPath(drilldownPath[0], [])}
+              >
+                Reset
+              </Button>
             </Box>
           </WrapItem>
           <WrapItem>
             <Box>
               <Button
                 isDisabled={drilldownPath.length < 2}
+                borderRadius="0px"
+                border="2px"
                 onClick={() => {
                   const newDrilldownPath = drilldownPath.slice(0, drilldownPath.length - 1);
                   const newDrilldownValues = drilldownValues.slice(0, drilldownValues.length - 1);
@@ -251,12 +261,18 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
         <Box style={{ margin: "20px", fontSize: "20px" }}>
           {drilldownPath.map((value, index) => {
             if (index === drilldownPath.length - 1) {
-              return <span key={value}> {value}</span>;
+              return (
+                <span key={value}>
+                  {" "}
+                  {groupOptions.find((option) => value === option.value)?.label}
+                </span>
+              );
             }
             return (
               <span key={value}>
                 {" "}
-                {value}: &quot;{drilldownValues[index]}&quot; <ArrowForwardIcon />
+                {groupOptions.find((option) => value === option.value)?.label}: &quot;
+                {drilldownValues[index]}&quot; <ArrowForwardIcon />
               </span>
             );
           })}

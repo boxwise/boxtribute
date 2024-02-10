@@ -1,3 +1,4 @@
+import { Button } from "@chakra-ui/react";
 import { ResponsiveSunburst } from "@nivo/sunburst";
 import { useState } from "react";
 
@@ -17,9 +18,9 @@ export default function Sunburst(props: {
 
   return (
     <div style={{ width: props.width, height: props.height }}>
-      <button type="button" onClick={() => setData(props.chartData)}>
-        reset
-      </button>
+      <Button onClick={() => setData(props.chartData)} borderRadius="0px" border="2px">
+        Reset
+      </Button>
       <ResponsiveSunburst
         data={data}
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}

@@ -156,6 +156,8 @@ export default function VisHeader(params: {
                     <FormLabel>Downloads</FormLabel>
                     <HStack>
                       <Button
+                        borderRadius="0px"
+                        border="2px"
                         isLoading={isExporting}
                         backgroundColor="white"
                         value="jpg"
@@ -165,6 +167,8 @@ export default function VisHeader(params: {
                         <DownloadIcon marginLeft="10px" />
                       </Button>
                       <Button
+                        borderRadius="0px"
+                        border="2px"
                         isLoading={isExporting}
                         backgroundColor="white"
                         value="svg"

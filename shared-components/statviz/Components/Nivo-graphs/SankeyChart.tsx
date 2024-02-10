@@ -37,6 +37,11 @@ export default function SankeyChart(chart: ISankeyChart) {
     if (!chart.rendered) return;
 
     chart.rendered();
+
+    /**
+     * TODO: Exhaustive Deps disabled as we use useEffect as a watcher for "ref" only
+     * which is an anti pattern and we need to investigate better solutions
+     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 

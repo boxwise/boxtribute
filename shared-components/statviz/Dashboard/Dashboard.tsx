@@ -14,7 +14,8 @@ export default function Dashboard() {
         borderWidth="1"
         spacing="10"
         direction={["column", "row"]}
-        style={{ padding: "15px", marginBottom: "15px" }}
+        padding="15"
+        marginBottom="15"
         shadow="md"
       >
         <WrapItem w="350">

@@ -1,10 +1,14 @@
-import { Wrap, WrapItem, FormLabel, Box, Select } from "@chakra-ui/react";
+import { Wrap, WrapItem, Box } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";
+import SelectField from "../../../../Form/SelectField";
 
 export type BoxesOrItems = "boxesCount" | "itemsCount";
 
@@ -15,6 +19,26 @@ interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxesData;
 }
 
+const displayByOptions: { value: BoxesOrItems; label: string }[] = [
+  {
+    value: "boxesCount",
+    label: "Boxes",
+  },
+  {
+    value: "itemsCount",
+    label: "Items",
+  },
+];
+
+const singleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+export const CreatedBoxesFilterSchema = z.object({
+  displayByOptions: singleSelectOptionSchema.array().default(displayByOptions),
+});
+
 export default function CreatedBoxesFilterContainer({
   createdBoxes,
 }: ICreatedBoxesFilterContainerProps) {
@@ -22,6 +46,15 @@ export default function CreatedBoxesFilterContainer({
   const { interval } = useTimerange();
 
   const [selectedBoxesOrItems, setSelectedBoxesOrItems] = useState<BoxesOrItems>("boxesCount");
+
+  const {
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(CreatedBoxesFilterSchema),
+    defaultValues: displayByOptions,
+  });
 
   useEffect(() => {
     const boi = searchParams.get("boi");
@@ -34,10 +67,12 @@ export default function CreatedBoxesFilterContainer({
       searchParams.append("boi", selectedBoxesOrItems);
       setSearchParams(searchParams);
     }
-  }, [selectedBoxesOrItems, setSelectedBoxesOrItems, searchParams, setSearchParams]);
+    // @ts-ignore ts(2345) i have no idea why the fieldId is not accepted as an input, but it works
+    setValue("displayby", displayByOptions.find((dbo) => dbo.value === boi)!);
+  }, [selectedBoxesOrItems, setSelectedBoxesOrItems, searchParams, setSearchParams, setValue]);
 
   const onBoxesItemsSelectChange = (event) => {
-    const selected = event.target.selectedOptions.item(0).value as BoxesOrItems;
+    const selected = event.value as BoxesOrItems;
 
     // boi short for boxes or items (see type BoxesOrItems)
     if (searchParams.get("boi")) {
@@ -71,15 +106,17 @@ export default function CreatedBoxesFilterContainer({
       <Wrap borderWidth="1px" borderRadius="12px" padding="5" marginBottom="30px">
         <WrapItem>
           <Box width="250px">
-            <FormLabel htmlFor="box-item-select">Display by</FormLabel>
-            <Select
-              onChange={onBoxesItemsSelectChange}
-              name="box-item-select"
-              defaultValue={selectedBoxesOrItems}
-            >
-              <option value="boxesCount">Boxes</option>
-              <option value="itemsCount">Items</option>
-            </Select>
+            <SelectField
+              fieldId="displayby"
+              fieldLabel="display by"
+              placeholder="Boxes"
+              defaultValue="boxesCount"
+              onChangeProp={onBoxesItemsSelectChange}
+              isRequired={false}
+              options={displayByOptions}
+              errors={errors}
+              control={control}
+            />
           </Box>
         </WrapItem>
       </Wrap>
