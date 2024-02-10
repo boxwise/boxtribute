@@ -54,7 +54,25 @@ const mappingFunctions = {
   })),
 };
 
-const groupOptions = ["categoryName", "productName", "gender", "sizeName"];
+const groupOptionsDisplayName = [
+  {
+    value: "categoryName",
+    displayName: "Category",
+  },
+  {
+    value: "productName",
+    displayName: "Product",
+  },
+  {
+    value: "gender",
+    displayName: "Gender",
+  },
+  {
+    value: "sizeName",
+    displayName: "Size",
+  },
+];
+const groupOptions = groupOptionsDisplayName.map((e) => e.value);
 
 interface IStockOverviewPieProps {
   width: string;
@@ -148,7 +166,7 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
-          <ModalHeader>Select next group</ModalHeader>
+          <ModalHeader>Select the next grouping</ModalHeader>
           <ModalBody>
             {availableGroupOptions.map((groupOption) => (
               <Button
@@ -157,7 +175,7 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
                 value={groupOption}
                 onClick={onNextDrilldownChoice}
               >
-                {groupOption}
+                {groupOptionsDisplayName.find((ago) => ago.value === groupOption)!.displayName}
               </Button>
             ))}
           </ModalBody>
@@ -186,10 +204,9 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
               name="stock-overview-by"
               defaultValue={drilldownPath[0]}
             >
-              <option value="categoryName">Category</option>
-              <option value="gender">Gender</option>
-              <option value="sizeName">Size</option>
-              <option value="productName">Product</option>
+              {groupOptionsDisplayName.map((option) => (
+                <option value={option.value}>{option.displayName}</option>
+              ))}
             </Select>
           </WrapItem>
           <WrapItem>
