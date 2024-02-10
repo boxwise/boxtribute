@@ -1,5 +1,5 @@
 import { Accordion, Center, Heading, Wrap, WrapItem } from "@chakra-ui/react";
-import TimeRangeSelect from "../../Form/TimeRangeSelect";
+import TimeRangeSelect from "../../form/TimeRangeSelect";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";

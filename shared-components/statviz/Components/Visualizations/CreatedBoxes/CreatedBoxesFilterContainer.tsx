@@ -8,7 +8,7 @@ import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generate
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";
-import SelectField from "../../../../Form/SelectField";
+import SelectField from "../../../../form/SelectField";
 
 export type BoxesOrItems = "boxesCount" | "itemsCount";
 

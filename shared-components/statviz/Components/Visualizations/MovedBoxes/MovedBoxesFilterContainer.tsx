@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Wrap, FormLabel, Box } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { z } from "zod";
-import SelectField from "../../../../Form/SelectField";
+import SelectField from "../../../../form/SelectField";
 import useTimerange from "../../../hooks/useTimerange";
 import {
   MovedBoxesData,

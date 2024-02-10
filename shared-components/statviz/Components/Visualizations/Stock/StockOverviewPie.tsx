@@ -20,7 +20,7 @@ import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
-import SelectField from "../../../../Form/SelectField";
+import SelectField from "../../../../form/SelectField";
 import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import PieChart from "../../Nivo-graphs/PieChart";
 import VisHeader from "../../VisHeader";
