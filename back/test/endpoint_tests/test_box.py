@@ -125,10 +125,12 @@ def test_box_mutations(
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
     product_id = str(products[0]["id"])
+    original_number_of_items = 10
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
+                    numberOfItems: {original_number_of_items},
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
@@ -149,7 +151,7 @@ def test_box_mutations(
             }}
         }}"""
     created_box = assert_successful_request(client, mutation)
-    assert created_box["numberOfItems"] is None
+    assert created_box["numberOfItems"] == original_number_of_items
     assert created_box["state"] == BoxState.InStock.name
     assert created_box["location"]["id"] == location_id
     assert created_box["product"]["id"] == product_id
@@ -263,7 +265,8 @@ def test_box_mutations(
         },
         {
             "id": "116",
-            "changes": f"changed the number of items from None to {nr_items}",
+            "changes": f"changed the number of items from {original_number_of_items} "
+            + f"to {nr_items}",
             "user": {"name": "coord"},
         },
         {
@@ -339,7 +342,7 @@ def test_box_mutations(
         },
         {
             "changes": "items",
-            "from_int": None,
+            "from_int": original_number_of_items,
             "to_int": nr_items,
             "record_id": box_id,
             "table_name": "stock",
