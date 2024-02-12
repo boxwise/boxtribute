@@ -78,7 +78,7 @@ export type BaseTagsArgs = {
 };
 
 export type BasicDimensionInfo = {
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -309,7 +309,7 @@ export type DataCube = {
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -1141,7 +1141,7 @@ export type ProductCategoryProductsArgs = {
 export type ProductDimensionInfo = BasicDimensionInfo & {
   __typename?: 'ProductDimensionInfo';
   gender?: Maybe<ProductGender>;
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -1537,7 +1537,7 @@ export type TagDimensionInfo = BasicDimensionInfo & {
   __typename?: 'TagDimensionInfo';
   /**  Hex color code  */
   color?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -1571,7 +1571,7 @@ export enum TaggableResourceType {
   Box = 'Box'
 }
 
-export type TargetDimensionInfo = BasicDimensionInfo & {
+export type TargetDimensionInfo = {
   __typename?: 'TargetDimensionInfo';
   id?: Maybe<Scalars['ID']>;
   name?: Maybe<Scalars['String']>;

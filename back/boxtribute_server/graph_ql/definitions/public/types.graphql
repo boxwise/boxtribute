@@ -134,29 +134,29 @@ type StockOverviewDataDimensions {
 }
 
 interface BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
 }
 
 type DimensionInfo implements BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
 }
 
 type TagDimensionInfo implements BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
   " Hex color code "
   color: String
 }
 
 type ProductDimensionInfo implements BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
   gender: ProductGender
 }
 
-type TargetDimensionInfo implements BasicDimensionInfo {
+type TargetDimensionInfo {
   id: ID
   name: String
   type: TargetType

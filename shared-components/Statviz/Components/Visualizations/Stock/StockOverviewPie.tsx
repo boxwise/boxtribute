@@ -104,12 +104,12 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
 
   useMemo(() => {
     const sizeDim = data.dimensions.size.map((size) => ({
-      sizeId: parseInt(size.id ?? "0", 10),
+      sizeId: size.id ?? 0,
       sizeName: size.name,
     }));
 
     const categoryDim = data.dimensions.category.map((category) => ({
-      categoryId: parseInt(category.id ?? "0", 10),
+      categoryId: category.id ?? 0,
       categoryName: category.name,
     }));
 
