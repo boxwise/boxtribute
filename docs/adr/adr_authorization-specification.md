@@ -70,6 +70,8 @@ Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:
 
 The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0).
 
+> **NOTE**: The God user has a single ABP `be_god`.
+
 ### User management in Auth0
 
 [Auth0](https://auth0.com) is a service for managing user authentication and authorization. It serves as single source of truth. An authenticated user gets issued a JSON Web Token (JWT) in one of two variants holding their information: the ID token with authentication information, and the access token with authorization information. For signing the JWT we use the RS256 algorithm: the token will be signed with our private signing key and can be verified using our public signing key.
@@ -82,7 +84,6 @@ Cf. [related ADR](./adr_auth0.md)
 
 Any user registered for boxtribute has their authorization data (`app_metadata`) stored in the Auth0 database. The user attributes are:
 
-- `is_god`: `"1"` for god user, `"0"` otherwise
 - `usergroup_id`: the ID of the usergroup the user belongs to
 - `base_ids`: a list of base IDs that the user has access to
 - `organisation_id`: the ID of the organisation the user belongs to
