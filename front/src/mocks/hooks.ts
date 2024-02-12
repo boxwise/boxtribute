@@ -18,6 +18,7 @@ export function mockAuthenticatedUser(mockedUseAuth0: any, email: string) {
       email,
       "https://www.boxtribute.com/actions": ["be_user"],
       "https://www.boxtribute.com/beta_user": "0",
+      "https://www.boxtribute.com/roles": ["administrator"],
     },
     logout: vi.fn(),
     loginWithRedirect: vi.fn(),

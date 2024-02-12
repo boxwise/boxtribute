@@ -128,7 +128,7 @@ def test_metrics_query_for_god_user(
     number_of_families_served,
     number_of_sales,
 ):
-    mock_user_for_request(mocker, permissions=["*"], organisation_id=None)
+    mock_user_for_request(mocker, is_god=True)
     query = f"""query {{ metrics(organisationId: {organisation_id}) {{
                 numberOfFamiliesServed numberOfSales }} }}"""
     response = assert_successful_request(read_only_client, query, field="metrics")
