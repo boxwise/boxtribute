@@ -209,6 +209,19 @@ def test_usergroup_cross_organisation_permissions(
         assert all(i not in granted_base_ids for i in expected_forbidden_base_ids)
 
 
+def test_god_user(dropapp_dev_client):
+    username = "some.admin@boxtribute.org"
+    domain = TEST_AUTH0_DOMAIN
+    payload = decode_jwt(
+        token=fetch_token(username),
+        public_key=get_public_key(domain),
+        domain=domain,
+        audience=TEST_AUTH0_AUDIENCE,
+    )
+    user = CurrentUser.from_jwt(payload)
+    assert user.is_god
+
+
 def test_check_beta_feature_access(dropapp_dev_client, mocker):
     # Enable testing of check_beta_feature_access() function
     env_variables = os.environ.copy()

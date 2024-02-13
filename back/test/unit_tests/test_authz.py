@@ -1,7 +1,12 @@
 import os
 
 import pytest
-from boxtribute_server.auth import JWT_CLAIM_PREFIX, CurrentUser
+from boxtribute_server.auth import (
+    GOD_ROLE,
+    JWT_CLAIM_PREFIX,
+    REQUIRED_CLAIMS,
+    CurrentUser,
+)
 from boxtribute_server.authz import (
     ALL_ALLOWED_MUTATIONS,
     DEFAULT_BETA_FEATURE_SCOPE,
@@ -11,7 +16,7 @@ from boxtribute_server.authz import (
     check_beta_feature_access,
 )
 from boxtribute_server.business_logic.statistics import statistics_queries
-from boxtribute_server.exceptions import Forbidden
+from boxtribute_server.exceptions import AuthenticationFailed, Forbidden
 
 BASE_ID = 1
 BASE_RELATED_PERMISSIONS = {
@@ -172,6 +177,34 @@ def test_god_user():
     for permission in ALL_PERMISSIONS:
         assert authorize(user, permission=permission)
 
+    payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/permissions": [],
+        f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/roles": [GOD_ROLE],
+        "sub": "auth0|1",
+    }
+    user = CurrentUser.from_jwt(payload)
+    assert user.is_god
+    assert user.organisation_id is None
+
+
+def test_missing_claims():
+    correct_payload = {
+        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/permissions": [],
+        f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/roles": [GOD_ROLE],
+        "sub": "auth0|1",
+    }
+    for claim in REQUIRED_CLAIMS:
+        payload = correct_payload.copy()
+        payload.pop(f"{JWT_CLAIM_PREFIX}/{claim}")
+        with pytest.raises(AuthenticationFailed, match=f"JWT: {claim}."):
+            CurrentUser.from_jwt(payload)
+
 
 def test_user_with_multiple_roles():
     permission = "stock:write"
@@ -181,6 +214,7 @@ def test_user_with_multiple_roles():
         f"{JWT_CLAIM_PREFIX}/base_ids": [2],
         f"{JWT_CLAIM_PREFIX}/permissions": [permission, f"base_1/{permission}"],
         f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/roles": ["base_2_coordinator"],
         "sub": "auth0|42",
     }
     user = CurrentUser.from_jwt(payload)
@@ -188,23 +222,27 @@ def test_user_with_multiple_roles():
 
     assert authorize(user, permission=permission, base_id=1)
     assert authorize(user, permission=permission, base_id=2)
+    assert not user.is_god
 
 
 def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
     payload = {
         f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
+        f"{JWT_CLAIM_PREFIX}/base_ids": [3, 4],
         f"{JWT_CLAIM_PREFIX}/permissions": [
             "base_3/stock:read",
             "base_3/stock:write",
             "base_4/stock:edit",
             "base_4/stock:read",
         ],
+        f"{JWT_CLAIM_PREFIX}/roles": ["base_3_coordinator", "base_4_coordinator"],
         "sub": "auth0|42",
     }
     user = CurrentUser.from_jwt(payload)
     assert sorted(user.authorized_base_ids("stock:read")) == [3, 4]
     assert sorted(user.authorized_base_ids("stock:write")) == [3]
     assert sorted(user.authorized_base_ids("stock:edit")) == [4]
+    assert not user.is_god
 
 
 def test_check_beta_feature_access(mocker):
