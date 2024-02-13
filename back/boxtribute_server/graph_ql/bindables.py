@@ -68,7 +68,11 @@ from ..business_logic.tag.mutations import mutation as tag_mutation
 from ..business_logic.tag.queries import query as tag_query
 from ..business_logic.user.fields import user
 from ..business_logic.user.queries import query as user_query
-from ..business_logic.warehouse.box.fields import box, unboxed_items_collection
+from ..business_logic.warehouse.box.fields import (
+    box,
+    history_entry,
+    unboxed_items_collection,
+)
 from ..business_logic.warehouse.box.mutations import mutation as box_mutation
 from ..business_logic.warehouse.box.queries import query as box_query
 from ..business_logic.warehouse.location.fields import classic_location
@@ -125,6 +129,7 @@ object_types = (
     distribution_spot,
     distribution_event,
     distribution_events_tracking_group,
+    history_entry,
     metrics,
     organisation,
     packing_list_entry,
