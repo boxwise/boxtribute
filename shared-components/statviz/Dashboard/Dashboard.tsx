@@ -4,6 +4,7 @@ import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
 import StockOverview from "./StockOverview";
+import BoxesOrItemsSelect from "../../form/BoxesOrItemsSelect";
 
 export default function Dashboard() {
   return (
@@ -21,6 +22,11 @@ export default function Dashboard() {
         <WrapItem w="350">
           <Center>
             <TimeRangeSelect />
+          </Center>
+        </WrapItem>
+        <WrapItem w="350">
+          <Center>
+            <BoxesOrItemsSelect />
           </Center>
         </WrapItem>
       </Wrap>
