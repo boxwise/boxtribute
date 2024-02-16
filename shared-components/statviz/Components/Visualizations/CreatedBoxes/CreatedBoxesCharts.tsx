@@ -2,7 +2,7 @@ import { Wrap, WrapItem, Box } from "@chakra-ui/react";
 import { CreatedBoxesData } from "../../../../types/generated/graphql";
 import CreatedBoxes from "./CreatedBoxes";
 import TopCreatedProducts from "./TopCreatedProducts";
-import { BoxesOrItems } from "../../../../form/BoxesOrItemsSelect";
+import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 
 export default function CreatedBoxesCharts(props: {
   data: CreatedBoxesData;

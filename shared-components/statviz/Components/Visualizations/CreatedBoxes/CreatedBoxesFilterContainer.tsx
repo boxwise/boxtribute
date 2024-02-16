@@ -4,7 +4,11 @@ import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";
 import useValueFilter from "../../../hooks/useValueFilter";
-import { IBoxesOrItemsFilter, boxesOrItemsFilterValues } from "../../../../form/BoxesOrItemsSelect";
+import {
+  IBoxesOrItemsFilter,
+  boxesOrItemsFilterValues,
+  defaultBoxesOrItems,
+} from "../../filter/BoxesOrItemsSelect";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxesData;
@@ -17,7 +21,7 @@ export default function CreatedBoxesFilterContainer({
 
   const { filterValue } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
-    boxesOrItemsFilterValues[0],
+    defaultBoxesOrItems,
     "boi",
   );
 

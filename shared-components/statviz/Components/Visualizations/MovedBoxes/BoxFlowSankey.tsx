@@ -8,6 +8,7 @@ import {
   MovedBoxesResult,
   TargetDimensionInfo,
 } from "../../../../types/generated/graphql";
+import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 
 const heading = "Moved Boxes";
 
@@ -29,17 +30,18 @@ interface IBoxFlowSankeyProps {
   width: string;
   height: string;
   data: MovedBoxesData;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
-export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyProps) {
+export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
   const movedBoxesFacts = data.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
     movedBoxesFacts,
-    groupBy("targetId", [summarize({ boxesCount: sum("boxesCount") })]),
-    filter((item) => item.boxesCount > 0),
+    groupBy("targetId", [summarize({ count: sum(boxesOrItems) })]),
+    filter((item) => item.count > 0),
     innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
     }),
@@ -47,7 +49,7 @@ export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyPro
 
   const movedBoxesByTargetType = tidy(
     movedBoxes,
-    groupBy("type", [summarize({ boxesCount: sum("boxesCount") })]),
+    groupBy("type", [summarize({ count: sum("count") })]),
   );
 
   const links = [
@@ -57,14 +59,14 @@ export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyPro
           return {
             source: outgoingNode.id,
             target: selfReportedNode.id,
-            value: target.boxesCount,
+            value: target.count,
           };
         }
         if (target.type === "Shipment") {
           return {
             source: outgoingNode.id,
             target: shipmentNode.id,
-            value: target.boxesCount,
+            value: target.count,
           };
         }
         return undefined;
@@ -75,20 +77,20 @@ export default function BoxFlowSankey({ width, height, data }: IBoxFlowSankeyPro
         return {
           source: selfReportedNode.id,
           target: movedBox.targetId,
-          value: movedBox.boxesCount,
+          value: movedBox.count,
         };
       }
       if (movedBox.type === "Shipment") {
         return {
           source: shipmentNode.id,
           target: movedBox.targetId,
-          value: movedBox.boxesCount,
+          value: movedBox.count,
         };
       }
       return {
         source: outgoingNode.id,
         target: movedBox.targetId,
-        value: movedBox.boxesCount,
+        value: movedBox.count,
       };
     }),
   ];
