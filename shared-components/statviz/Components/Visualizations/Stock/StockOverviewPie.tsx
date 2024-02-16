@@ -27,8 +27,6 @@ import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 
-const heading = "Stock Overview";
-
 interface ISizeDim {
   sizeId: number;
   sizeName: Maybe<string> | undefined;
@@ -105,6 +103,8 @@ export default function StockOverviewPie({
   const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>(["categoryName"]);
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
   const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
+
+  const heading = boxesOrItems === "boxesCount" ? "Stock by boxes" : "Stock by items";
 
   const {
     control,

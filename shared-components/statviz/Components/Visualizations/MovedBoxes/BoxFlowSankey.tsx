@@ -10,8 +10,6 @@ import {
 } from "../../../../types/generated/graphql";
 import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 
-const heading = "Moved Boxes";
-
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
@@ -36,6 +34,7 @@ interface IBoxFlowSankeyProps {
 export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
+  const heading = boxesOrItems === "boxesCount" ? "shipped boxes" : "shipped items";
   const movedBoxesFacts = data.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
