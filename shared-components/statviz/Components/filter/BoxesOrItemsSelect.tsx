@@ -21,13 +21,15 @@ export const boxesOrItemsFilterValues: (IFilterValue & IBoxesOrItemsFilter)[] = 
   },
 ];
 
+export const boxesOrItemsUrlId = "boi";
+
 export const defaultBoxesOrItems = boxesOrItemsFilterValues[0];
 
 export default function BoxesOrItemsSelect() {
   const { onFilterChange } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
     boxesOrItemsFilterValues[0],
-    "boi",
+    boxesOrItemsUrlId,
   );
 
   return (
@@ -39,7 +41,7 @@ export default function BoxesOrItemsSelect() {
             defaultFilterValue={boxesOrItemsFilterValues[0]}
             placeholder="test"
             onFilterChange={onFilterChange}
-            filterId="boi"
+            filterId={boxesOrItemsUrlId}
           />
         </Box>
       </HStack>

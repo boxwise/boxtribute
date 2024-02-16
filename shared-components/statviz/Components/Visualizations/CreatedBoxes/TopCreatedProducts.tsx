@@ -24,7 +24,7 @@ export default function TopCreatedProducts(props: {
   const getChartData = () =>
     tidy(
       data.facts as CreatedBoxesResult[],
-      map((row) => ({ ...row, productId: row.productId?.toString() })),
+      map((row) => ({ ...row, productId: row.productId })),
       groupBy(
         ["productId", "gender"],
         [

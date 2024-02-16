@@ -4,12 +4,20 @@ import { MovedBoxesData, MovedBoxesResult } from "../../../../types/generated/gr
 import { filterListByInterval } from "../../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
 import useValueFilter from "../../../hooks/useValueFilter";
-import { boxesOrItemsFilterValues, defaultBoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import {
+  boxesOrItemsFilterValues,
+  boxesOrItemsUrlId,
+  defaultBoxesOrItems,
+} from "../../filter/BoxesOrItemsSelect";
 
 export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxesData }) {
   const { interval } = useTimerange();
 
-  const { filterValue } = useValueFilter(boxesOrItemsFilterValues, defaultBoxesOrItems, "boi");
+  const { filterValue } = useValueFilter(
+    boxesOrItemsFilterValues,
+    defaultBoxesOrItems,
+    boxesOrItemsUrlId,
+  );
 
   const movedBoxesFacts = useMemo(() => {
     try {

@@ -25,6 +25,7 @@ import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types
 import PieChart from "../../Nivo-graphs/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
+import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 
 const heading = "Stock Overview";
 
@@ -91,9 +92,15 @@ interface IStockOverviewPieProps {
   width: string;
   height: string;
   data: StockOverviewData;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
-export default function StockOverviewPie({ width, height, data }: IStockOverviewPieProps) {
+export default function StockOverviewPie({
+  width,
+  height,
+  data,
+  boxesOrItems,
+}: IStockOverviewPieProps) {
   const [chartData, setChartData] = useState<object[]>([]);
   const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>(["categoryName"]);
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
@@ -144,12 +151,12 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
   useMemo(() => {
     const sizeDim = data.dimensions.size.map((size) => ({
       sizeId: size.id!,
-      sizeName: size.name,
+      sizeName: size.name!,
     }));
 
     const categoryDim = data.dimensions.category.map((category) => ({
       categoryId: category.id!,
-      categoryName: category.name,
+      categoryName: category.name!,
     }));
 
     const preparedStockData = tidy(
@@ -164,16 +171,13 @@ export default function StockOverviewPie({ width, height, data }: IStockOverview
 
     const grouped = tidy(
       preparedStockData,
-      groupBy(
-        drilldownPath,
-        summarize({ boxesCount: sum("boxesCount"), itemsCount: sum("itemsCount") }),
-      ),
+      groupBy(drilldownPath, summarize({ boxesCount: sum(boxesOrItems) })),
       mappingFunctions[drilldownPath[drilldownPath.length - 1]],
     );
 
     setChartData(grouped);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drilldownPath, drilldownValues, data.facts]);
+  }, [drilldownPath, drilldownValues, data.facts, boxesOrItems]);
 
   const chartProps = {
     onClick: onGroupSelect,

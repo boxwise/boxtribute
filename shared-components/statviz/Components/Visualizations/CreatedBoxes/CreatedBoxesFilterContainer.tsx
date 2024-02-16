@@ -7,6 +7,7 @@ import useValueFilter from "../../../hooks/useValueFilter";
 import {
   IBoxesOrItemsFilter,
   boxesOrItemsFilterValues,
+  boxesOrItemsUrlId,
   defaultBoxesOrItems,
 } from "../../filter/BoxesOrItemsSelect";
 
@@ -22,7 +23,7 @@ export default function CreatedBoxesFilterContainer({
   const { filterValue } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
     defaultBoxesOrItems,
-    "boi",
+    boxesOrItemsUrlId,
   );
 
   const createdBoxesFacts = useMemo(() => {

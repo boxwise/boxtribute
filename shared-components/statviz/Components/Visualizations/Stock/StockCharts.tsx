@@ -1,16 +1,23 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import { StockOverviewData } from "../../../../types/generated/graphql";
 import StockOverviewPie from "./StockOverviewPie";
+import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
 
 interface IStockChartProps {
   stockOverview: StockOverviewData;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
-export default function StockCharts({ stockOverview }: IStockChartProps) {
+export default function StockCharts({ stockOverview, boxesOrItems }: IStockChartProps) {
   return (
     <Wrap gap={6}>
       <WrapItem>
-        <StockOverviewPie width="800px" height="800px" data={stockOverview} />
+        <StockOverviewPie
+          width="800px"
+          height="800px"
+          boxesOrItems={boxesOrItems}
+          data={stockOverview}
+        />
       </WrapItem>
     </Wrap>
   );
