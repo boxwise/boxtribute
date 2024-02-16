@@ -19,7 +19,7 @@ export type Scalars = {
 };
 
 export type BasicDimensionInfo = {
-  id?: Maybe<Scalars['ID']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -84,7 +84,7 @@ export type DataCube = {
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
-  id?: Maybe<Scalars['ID']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -171,7 +171,7 @@ export enum PackingListEntryState {
 export type ProductDimensionInfo = BasicDimensionInfo & {
   __typename?: 'ProductDimensionInfo';
   gender?: Maybe<ProductGender>;
-  id?: Maybe<Scalars['ID']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -271,7 +271,7 @@ export type TagDimensionInfo = BasicDimensionInfo & {
   __typename?: 'TagDimensionInfo';
   /**  Hex color code  */
   color?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -288,7 +288,7 @@ export enum TaggableResourceType {
   Box = 'Box'
 }
 
-export type TargetDimensionInfo = BasicDimensionInfo & {
+export type TargetDimensionInfo = {
   __typename?: 'TargetDimensionInfo';
   id?: Maybe<Scalars['ID']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -360,28 +360,28 @@ export type MovedBoxesQueryVariables = Exact<{
 }>;
 
 
-export type MovedBoxesQuery = { __typename?: 'Query', movedBoxes?: { __typename?: 'MovedBoxesData', facts?: Array<{ __typename?: 'MovedBoxesResult', movedOn: any, targetId: string, categoryId: number, boxesCount: number } | null> | null, dimensions?: { __typename?: 'MovedBoxDataDimensions', category?: Array<{ __typename?: 'DimensionInfo', id?: string | null, name?: string | null } | null> | null, target?: Array<{ __typename?: 'TargetDimensionInfo', id?: string | null, name?: string | null, type?: TargetType | null } | null> | null } | null } | null };
+export type MovedBoxesQuery = { __typename?: 'Query', movedBoxes?: { __typename?: 'MovedBoxesData', facts?: Array<{ __typename?: 'MovedBoxesResult', movedOn: any, targetId: string, categoryId: number, boxesCount: number } | null> | null, dimensions?: { __typename?: 'MovedBoxDataDimensions', category?: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null } | null> | null, target?: Array<{ __typename?: 'TargetDimensionInfo', id?: string | null, name?: string | null, type?: TargetType | null } | null> | null } | null } | null };
 
 export type StockOverviewQueryVariables = Exact<{
   baseId: Scalars['Int']['input'];
 }>;
 
 
-export type StockOverviewQuery = { __typename?: 'Query', stockOverview?: { __typename?: 'StockOverviewData', facts: Array<{ __typename?: 'StockOverviewResult', productName: string, categoryId: number, gender: ProductGender, boxesCount: number, itemsCount: number, sizeId: number, tagIds?: Array<number> | null, boxState: BoxState, locationId: number }>, dimensions: { __typename?: 'StockOverviewDataDimensions', category: Array<{ __typename?: 'DimensionInfo', id?: string | null, name?: string | null }>, size: Array<{ __typename?: 'DimensionInfo', id?: string | null, name?: string | null }>, tag: Array<{ __typename?: 'TagDimensionInfo', id?: string | null, name?: string | null }>, location: Array<{ __typename?: 'DimensionInfo', id?: string | null, name?: string | null }> } } | null };
+export type StockOverviewQuery = { __typename?: 'Query', stockOverview?: { __typename?: 'StockOverviewData', facts: Array<{ __typename?: 'StockOverviewResult', productName: string, categoryId: number, gender: ProductGender, boxesCount: number, itemsCount: number, sizeId: number, tagIds?: Array<number> | null, boxState: BoxState, locationId: number }>, dimensions: { __typename?: 'StockOverviewDataDimensions', category: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }>, size: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }>, tag: Array<{ __typename?: 'TagDimensionInfo', id?: number | null, name?: string | null }>, location: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }> } } | null };
 
 export type CreatedBoxesQueryVariables = Exact<{
   baseId: Scalars['Int']['input'];
 }>;
 
 
-export type CreatedBoxesQuery = { __typename?: 'Query', createdBoxes?: { __typename?: 'CreatedBoxesData', facts?: Array<{ __typename?: 'CreatedBoxesResult', boxesCount?: number | null, productId?: number | null, categoryId?: number | null, createdOn?: any | null, gender?: ProductGender | null, itemsCount?: number | null } | null> | null, dimensions?: { __typename?: 'CreatedBoxDataDimensions', product?: Array<{ __typename?: 'ProductDimensionInfo', id?: string | null, name?: string | null } | null> | null, category?: Array<{ __typename?: 'DimensionInfo', id?: string | null, name?: string | null } | null> | null } | null } | null };
+export type CreatedBoxesQuery = { __typename?: 'Query', createdBoxes?: { __typename?: 'CreatedBoxesData', facts?: Array<{ __typename?: 'CreatedBoxesResult', boxesCount?: number | null, productId?: number | null, categoryId?: number | null, createdOn?: any | null, gender?: ProductGender | null, itemsCount?: number | null } | null> | null, dimensions?: { __typename?: 'CreatedBoxDataDimensions', product?: Array<{ __typename?: 'ProductDimensionInfo', id?: number | null, name?: string | null } | null> | null, category?: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null } | null> | null } | null } | null };
 
 export type BeneficiaryDemographicsQueryVariables = Exact<{
   baseId: Scalars['Int']['input'];
 }>;
 
 
-export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null } | null> | null, dimensions?: { __typename?: 'BeneficiaryDemographicsDimensions', tag?: Array<{ __typename?: 'TagDimensionInfo', name?: string | null, id?: string | null } | null> | null } | null } | null };
+export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null } | null> | null, dimensions?: { __typename?: 'BeneficiaryDemographicsDimensions', tag?: Array<{ __typename?: 'TagDimensionInfo', name?: string | null, id?: number | null } | null> | null } | null } | null };
 
 
 export const MovedBoxesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"movedBoxes"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"baseId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"movedBoxes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"baseId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"baseId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"facts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"movedOn"}},{"kind":"Field","name":{"kind":"Name","value":"targetId"}},{"kind":"Field","name":{"kind":"Name","value":"categoryId"}},{"kind":"Field","name":{"kind":"Name","value":"boxesCount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"dimensions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"target"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]}}]}}]} as unknown as DocumentNode<MovedBoxesQuery, MovedBoxesQueryVariables>;
