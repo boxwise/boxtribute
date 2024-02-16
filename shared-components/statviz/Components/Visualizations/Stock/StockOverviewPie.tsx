@@ -15,17 +15,15 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
-import SelectField from "../../../../form/SelectField";
 import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import PieChart from "../../Nivo-graphs/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
+import useValueFilter from "../../../hooks/useValueFilter";
+import ValueFilter from "../../../filter/ValueFilter";
 
 interface ISizeDim {
   sizeId: number;
@@ -60,29 +58,27 @@ const groupOptions = [
   {
     value: "categoryName",
     label: "Category",
+    urlId: "cn",
   },
   {
     value: "productName",
     label: "Product",
+    urlId: "pn",
   },
   {
     value: "gender",
     label: "Gender",
+    urlId: "g",
   },
   {
     value: "sizeName",
     label: "Size",
+    urlId: "s",
   },
 ];
 
-const singleSelectOptionSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-});
-
-export const StockOverviewFilterSchema = z.object({
-  groupOptions: singleSelectOptionSchema.array().default(groupOptions),
-});
+// stg = stock group
+const filterId = "stg";
 
 const groupOptionValues = groupOptions.map((e) => e.value);
 
@@ -106,13 +102,7 @@ export default function StockOverviewPie({
 
   const heading = boxesOrItems === "boxesCount" ? "Stock by boxes" : "Stock by items";
 
-  const {
-    control,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(StockOverviewFilterSchema),
-    defaultValues: groupOptions,
-  });
+  const { onFilterChange, filterValue } = useValueFilter(groupOptions, groupOptions[0], filterId);
 
   const onExport = getOnExport(PieChart);
 
@@ -141,6 +131,10 @@ export default function StockOverviewPie({
     setDrilldownPath([base]);
     setDrilldownValues(newDrilldownValues);
   };
+
+  useEffect(() => {
+    setNewDrilldownPath(filterValue.value as PreparedStockAttributes, []);
+  }, [filterValue]);
 
   const onNextDrilldownChoice = (event) => {
     setDrilldownPath([...drilldownPath, event.target.value]);
@@ -221,15 +215,11 @@ export default function StockOverviewPie({
         <Wrap align="end">
           <WrapItem>
             <FormLabel />
-            <SelectField
-              fieldId="group"
-              fieldLabel="display stock by"
-              placeholder="Select Type"
-              onChangeProp={(event) => setNewDrilldownPath(event.value, [])}
-              isRequired={false}
-              options={groupOptions}
-              errors={errors}
-              control={control}
+            <ValueFilter
+              values={groupOptions}
+              defaultFilterValue={groupOptions[0]}
+              onFilterChange={onFilterChange}
+              filterId={filterId}
             />
           </WrapItem>
           <WrapItem>
