@@ -32,6 +32,8 @@ import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
 
+const randomId = () => (Math.random() + 1).toString(36).substring(2);
+
 export default function VisHeader(params: {
   heading: string;
   visId: string;
@@ -102,6 +104,7 @@ export default function VisHeader(params: {
                 <Box width="100px">
                   <FormLabel>Width</FormLabel>
                   <NumberInput
+                    id={randomId()}
                     max={5000}
                     min={100}
                     step={10}
@@ -119,6 +122,7 @@ export default function VisHeader(params: {
                 <Box width="100px">
                   <FormLabel>Height</FormLabel>
                   <NumberInput
+                    id={randomId()}
                     max={5000}
                     min={100}
                     step={10}
@@ -139,10 +143,14 @@ export default function VisHeader(params: {
                     <Box>
                       <FormLabel>Options</FormLabel>
                       <HStack spacing="24px">
-                        <Checkbox checked {...getCheckboxProps({ value: "heading" })}>
+                        <Checkbox
+                          id={randomId()}
+                          checked
+                          {...getCheckboxProps({ value: "heading" })}
+                        >
                           Heading
                         </Checkbox>
-                        <Checkbox {...getCheckboxProps({ value: "timerange" })}>
+                        <Checkbox id={randomId()} {...getCheckboxProps({ value: "timerange" })}>
                           Time Range
                         </Checkbox>
                         <Checkbox {...getCheckboxProps({ value: "timestamp" })}>Timestamp</Checkbox>
