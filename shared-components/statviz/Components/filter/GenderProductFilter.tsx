@@ -7,6 +7,7 @@ import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 
 interface IProductFilterValue extends IFilterValue {
   id: number;
+  name: string;
   gender: ProductGender;
 }
 
@@ -70,7 +71,8 @@ export const products = makeVar<IProductFilterValue[]>([]);
 
 export const productToFilterValue = (product: ProductDimensionInfo): IProductFilterValue => ({
   id: product.id!,
-  value: product.name!,
+  value: product.id!.toString(),
+  name: product.name!,
   label: `${product.name!} (${product.gender!})`,
   urlId: product.id!.toString(),
   gender: product.gender!,

@@ -64,8 +64,9 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
       filters.push(
         filter(
           (fact: MovedBoxesResult) =>
-            productsFilter.find((fBP) => fBP?.value.toLowerCase() === fact.productName!) !==
-            undefined,
+            productsFilter.find(
+              (fBP) => fBP?.name.toLowerCase() === fact.productName! && fBP.gender === fact.gender,
+            ) !== undefined,
         ),
       );
     }
