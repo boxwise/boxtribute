@@ -9,6 +9,7 @@ import {
 } from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
+import NoDataCard from "../../NoDataCard";
 
 const visId = "top-products";
 
@@ -54,6 +55,10 @@ export default function TopCreatedProducts(props: {
 
   const topProductsHeading = boxesOrItems === "boxesCount" ? "boxes" : "items";
   const heading = `Top Products by ${topProductsHeading}`;
+
+  if (chartData.length === 0) {
+    return <NoDataCard header={heading} />;
+  }
 
   return (
     <Card>

@@ -15,6 +15,8 @@ export const MOVED_BOXES_QUERY = gql(`
         categoryId
         boxesCount
         itemsCount
+        gender
+        productName
       }
       dimensions {
         category {

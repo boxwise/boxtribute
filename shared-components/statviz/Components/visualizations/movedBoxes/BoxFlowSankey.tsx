@@ -9,6 +9,7 @@ import {
   TargetDimensionInfo,
 } from "../../../../types/generated/graphql";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
+import NoDataCard from "../../NoDataCard";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
@@ -120,6 +121,10 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
     height,
     data: chartData,
   };
+
+  if (chartData.nodes.length < 2) {
+    return <NoDataCard header={heading} />;
+  }
 
   return (
     <Card>

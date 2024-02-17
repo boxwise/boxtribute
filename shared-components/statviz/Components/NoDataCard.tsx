@@ -6,7 +6,7 @@ export default function NoDataCard(props: { header: string }) {
       <CardHeader>
         <Heading size="md">{props.header}</Heading>
       </CardHeader>
-      <CardHeader>No data for the selected time range</CardHeader>
+      <CardHeader>No data for the selected time range or selected filters</CardHeader>
     </Card>
   );
 }
