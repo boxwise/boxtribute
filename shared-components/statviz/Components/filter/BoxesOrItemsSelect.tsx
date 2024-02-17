@@ -1,4 +1,3 @@
-import { HStack, Box } from "@chakra-ui/react";
 import ValueFilter, { IFilterValue } from "./ValueFilter";
 import useValueFilter from "../../hooks/useValueFilter";
 
@@ -33,18 +32,12 @@ export default function BoxesOrItemsSelect() {
   );
 
   return (
-    <Box>
-      <HStack>
-        <Box width="250px">
-          <ValueFilter
-            values={boxesOrItemsFilterValues}
-            defaultFilterValue={boxesOrItemsFilterValues[0]}
-            placeholder="test"
-            onFilterChange={onFilterChange}
-            filterId={boxesOrItemsUrlId}
-          />
-        </Box>
-      </HStack>
-    </Box>
+    <ValueFilter
+      values={boxesOrItemsFilterValues}
+      defaultFilterValue={boxesOrItemsFilterValues[0]}
+      placeholder="Boxes"
+      onFilterChange={onFilterChange}
+      filterId={boxesOrItemsUrlId}
+    />
   );
 }

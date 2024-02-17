@@ -1,4 +1,4 @@
-import { Box, HStack } from "@chakra-ui/react";
+import { Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
@@ -76,35 +76,33 @@ export default function TimeRangeSelect() {
   }, [searchParams, setValue, setSearchParams, fromFormValue, toFormValue]);
 
   return (
-    <Box>
-      <form id="filter">
-        <HStack>
-          <Box>
-            <DateField
-              fieldId="from"
-              fieldLabel="from"
-              errors={errors}
-              control={control}
-              register={register}
-              isRequired={false}
-              maxDate={date2String(new Date())}
-              minDate="2023-01-01"
-            />
-          </Box>
-          <Box>
-            <DateField
-              fieldId="to"
-              fieldLabel="to"
-              errors={errors}
-              control={control}
-              register={register}
-              isRequired={false}
-              maxDate={date2String(new Date())}
-              minDate="2023-01-01"
-            />
-          </Box>
-        </HStack>
-      </form>
-    </Box>
+    <form id="filter">
+      <Wrap>
+        <WrapItem>
+          <DateField
+            fieldId="from"
+            fieldLabel="from"
+            errors={errors}
+            control={control}
+            register={register}
+            isRequired={false}
+            maxDate={date2String(new Date())}
+            minDate="2023-01-01"
+          />
+        </WrapItem>
+        <WrapItem>
+          <DateField
+            fieldId="to"
+            fieldLabel="to"
+            errors={errors}
+            control={control}
+            register={register}
+            isRequired={false}
+            maxDate={date2String(new Date())}
+            minDate="2023-01-01"
+          />
+        </WrapItem>
+      </Wrap>
+    </form>
   );
 }

@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useEffect } from "react";
 import SelectField from "../../../form/SelectField";
-import { urlFilterValuesEncode, urlFilterValuesDecode } from "../../hooks/useMultiSelectFilter";
+import { urlFilterValuesEncode } from "../../hooks/useMultiSelectFilter";
 
 export interface IFilterValue {
   value: string;
@@ -16,6 +16,8 @@ interface IValueFilterProps {
   values: IFilterValue[];
   filterId: string;
   onFilterChange: (event) => void;
+  filterValue: IFilterValue[];
+  fieldLabel?: string;
   placeholder?: string;
   defaultFilterValues?: IFilterValue[];
 }
@@ -34,6 +36,8 @@ export default function MultiSelectFilter({
   values,
   filterId,
   placeholder,
+  filterValue,
+  fieldLabel,
   onFilterChange,
   defaultFilterValues,
 }: IValueFilterProps) {
@@ -47,27 +51,24 @@ export default function MultiSelectFilter({
     resolver: zodResolver(ValueFilterSchema),
     defaultValues: values,
   });
-
   useEffect(() => {
-    const filterValue = searchParams.get(filterId);
     if (filterValue) {
       // @ts-expect-error ts(2345)
-      setValue(filterId, urlFilterValuesDecode(filterValue, values));
-    } else {
-      if (filterValue !== null) {
-        searchParams.delete(filterId);
-      }
-      if (defaultFilterValues) {
-        searchParams.append(filterId, urlFilterValuesEncode(defaultFilterValues));
-      }
+      setValue(filterId, filterValue);
+    }
+  }, [filterId, filterValue, setValue]);
+
+  useEffect(() => {
+    if (defaultFilterValues && searchParams.get(filterId) === null) {
+      searchParams.append(filterId, urlFilterValuesEncode(defaultFilterValues));
       setSearchParams(searchParams);
     }
-  }, [defaultFilterValues, filterId, searchParams, setSearchParams, setValue, values]);
-
+  });
   return (
     <SelectField
       fieldId={filterId}
-      fieldLabel="display by"
+      fieldLabel={fieldLabel ?? ""}
+      isMulti
       placeholder={placeholder ?? ""}
       onChangeProp={onFilterChange}
       isRequired={false}
@@ -80,5 +81,6 @@ export default function MultiSelectFilter({
 
 MultiSelectFilter.defaultProps = {
   defaultFilterValues: undefined,
+  fieldLabel: "display by",
   placeholder: undefined,
 };

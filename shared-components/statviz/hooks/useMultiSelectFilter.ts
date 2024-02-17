@@ -21,20 +21,25 @@ export default function useMultiSelectFilter<T>(
 
   useEffect(() => {
     const param = searchParams.get(filterId);
-    if (param) {
+    if (param !== null) {
       setFilterValue(urlFilterValuesDecode(param, values));
+    } else {
+      setFilterValue([]);
     }
-  }, [searchParams, filterId, values, defaultFilterValues]);
+    if (param === "") {
+      searchParams.delete(filterId);
+    }
+    setSearchParams(searchParams);
+  }, [searchParams, filterId, values, defaultFilterValues, setSearchParams]);
 
   const onFilterChange = (event) => {
     const selected = event as (IFilterValue & T)[];
-
-    if (searchParams.get(filterId)) {
+    if (searchParams.get(filterId) !== null || selected.length === 0) {
       searchParams.delete(filterId);
     }
-
-    searchParams.append(filterId, urlFilterValuesEncode(selected));
-
+    if (selected.length > 0) {
+      searchParams.append(filterId, urlFilterValuesEncode(selected));
+    }
     setSearchParams(searchParams);
   };
 

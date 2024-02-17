@@ -5,6 +5,7 @@ import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
 import StockOverview from "./StockOverview";
 import BoxesOrItemsSelect from "../Components/filter/BoxesOrItemsSelect";
+import GenderProductFilter from "../Components/filter/GenderProductFilter";
 
 export default function Dashboard() {
   return (
@@ -24,9 +25,14 @@ export default function Dashboard() {
             <TimeRangeSelect />
           </Center>
         </WrapItem>
-        <WrapItem w="350">
+        <WrapItem w="150">
           <Center>
             <BoxesOrItemsSelect />
+          </Center>
+        </WrapItem>
+        <WrapItem w="700">
+          <Center>
+            <GenderProductFilter />
           </Center>
         </WrapItem>
       </Wrap>
