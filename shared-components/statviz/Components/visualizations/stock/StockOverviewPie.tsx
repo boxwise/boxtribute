@@ -18,12 +18,12 @@ import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/t
 import { useEffect, useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
 import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
-import PieChart from "../../Nivo-graphs/PieChart";
+import PieChart from "../../nivo/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
-import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
+import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import useValueFilter from "../../../hooks/useValueFilter";
-import ValueFilter from "../../../filter/ValueFilter";
+import ValueFilter from "../../filter/ValueFilter";
 
 interface ISizeDim {
   sizeId: number;

@@ -6,7 +6,7 @@ import {
   AccordionIcon,
   AccordionPanel,
 } from "@chakra-ui/react";
-import CreatedBoxesDataContainer from "../Components/Visualizations/CreatedBoxes/CreatedBoxesDataContainer";
+import CreatedBoxesDataContainer from "../Components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 
 export type BoxesOrItemsCount = "boxesCount" | "itemsCount";
 

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useEffect } from "react";
-import SelectField from "../../form/SelectField";
+import SelectField from "../../../form/SelectField";
 
 export interface IFilterValue {
   value: string;

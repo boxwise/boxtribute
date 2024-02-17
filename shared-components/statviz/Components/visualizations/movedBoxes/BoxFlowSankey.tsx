@@ -1,14 +1,14 @@
 import { Card, CardBody } from "@chakra-ui/react";
 import { filter, groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
 import VisHeader from "../../VisHeader";
-import SankeyChart, { ISankeyData } from "../../Nivo-graphs/SankeyChart";
+import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
 import {
   MovedBoxesData,
   MovedBoxesResult,
   TargetDimensionInfo,
 } from "../../../../types/generated/graphql";
-import { BoxesOrItemsCount } from "../../../Dashboard/ItemsAndBoxes";
+import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {

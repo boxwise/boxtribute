@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { IFilterValue } from "../filter/ValueFilter";
+import { IFilterValue } from "../Components/filter/ValueFilter";
 
 export default function useValueFilter<T>(
   values: (IFilterValue & T)[],

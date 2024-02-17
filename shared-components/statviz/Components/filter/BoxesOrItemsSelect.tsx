@@ -1,5 +1,5 @@
 import { HStack, Box } from "@chakra-ui/react";
-import ValueFilter, { IFilterValue } from "../../filter/ValueFilter";
+import ValueFilter, { IFilterValue } from "./ValueFilter";
 import useValueFilter from "../../hooks/useValueFilter";
 
 export type BoxesOrItems = "boxesCount" | "itemsCount";

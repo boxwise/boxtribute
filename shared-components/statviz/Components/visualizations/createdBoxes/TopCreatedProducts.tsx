@@ -1,7 +1,7 @@
 import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { arrange, desc, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
-import BarChart from "../../Nivo-graphs/BarChart";
+import BarChart from "../../nivo/BarChart";
 import {
   CreatedBoxesData,
   CreatedBoxesResult,
