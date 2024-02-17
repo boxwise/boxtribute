@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
+import { useReactiveVar } from "@apollo/client";
 import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../../utils/helpers";
@@ -11,7 +12,13 @@ import {
   boxesOrItemsUrlId,
   defaultBoxesOrItems,
 } from "../../filter/BoxesOrItemsSelect";
-import { genderFilterId, genders } from "../../filter/GenderProductFilter";
+import {
+  genderFilterId,
+  genders,
+  productFilterId,
+  productToFilterValue,
+  products,
+} from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 
 interface ICreatedBoxesFilterContainerProps {
@@ -28,8 +35,32 @@ export default function CreatedBoxesFilterContainer({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
+  const productFilterValues = useReactiveVar(products);
 
   const { filterValue: filterProductGenders } = useMultiSelectFilter(genders, genderFilterId);
+  const { filterValue: filterProducts } = useMultiSelectFilter(
+    productFilterValues,
+    productFilterId,
+  );
+
+  // use products from the createdBoxes query to feed the global products filter
+  // and filter the product filter by filtered product genders
+  useEffect(() => {
+    const p = createdBoxes.dimensions!.product!.map((e) => productToFilterValue(e!));
+    if (filterProductGenders.length > 0) {
+      products([
+        ...filterProducts,
+        ...p.filter(
+          (product) => filterProductGenders.findIndex((fPG) => fPG.value === product.gender) !== -1,
+        ),
+      ]);
+    } else {
+      products(p);
+    }
+    // we only need to update products if the product gender selection is updated
+    // including filterProducts would cause unnecessary rerenders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdBoxes.dimensions, filterProductGenders]);
 
   const createdBoxesFacts = useMemo(() => {
     try {
@@ -54,13 +85,21 @@ export default function CreatedBoxesFilterContainer({
         ),
       );
     }
+    if (filterProducts.length > 0) {
+      filters.push(
+        filter(
+          (fact: CreatedBoxesResult) =>
+            filterProducts.find((fBP) => fBP?.id === fact.productId!) !== undefined,
+        ),
+      );
+    }
 
     if (filters.length > 0) {
       // @ts-expect-error
       return tidy(createdBoxesFacts, ...filters);
     }
     return createdBoxesFacts;
-  }, [createdBoxesFacts, filterProductGenders]);
+  }, [createdBoxesFacts, filterProductGenders, filterProducts]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,

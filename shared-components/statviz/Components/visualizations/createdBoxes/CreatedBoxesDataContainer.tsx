@@ -20,6 +20,7 @@ const CREATED_BOXES_QUERY = gql(`
         product {
           id
           name
+          gender
         }
         category {
           id

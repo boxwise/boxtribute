@@ -64,21 +64,22 @@ export const genders: IFilterValue[] = [
 ];
 
 export const genderFilterId = "gf";
+export const productFilterId = "pf";
 
 export const products = makeVar<IProductFilterValue[]>([]);
 
 export const productToFilterValue = (product: ProductDimensionInfo): IProductFilterValue => ({
   id: product.id!,
   value: product.name!,
-  label: product.name!,
+  label: `${product.name!} (${product.gender!})`,
   urlId: product.id!.toString(),
   gender: product.gender!,
 });
 
 export default function GenderProductFilter() {
-  const multiSelectOptions = useReactiveVar(products);
+  const productFilterOptions = useReactiveVar(products);
   const { onFilterChange: onProductFilterChange, filterValue: productFilterValue } =
-    useMultiSelectFilter<IProductFilterValue>(multiSelectOptions, "tagFilter");
+    useMultiSelectFilter<IProductFilterValue>(productFilterOptions, productFilterId);
 
   const { onFilterChange: onGenderFilterChange, filterValue: genderFilterValue } =
     useMultiSelectFilter(genders, genderFilterId);
@@ -90,7 +91,7 @@ export default function GenderProductFilter() {
           onFilterChange={onGenderFilterChange}
           filterValue={genderFilterValue}
           placeholder="Filter Gender"
-          filterId="pg"
+          filterId={genderFilterId}
           fieldLabel="filter gender"
           values={genders}
         />
@@ -100,9 +101,9 @@ export default function GenderProductFilter() {
           onFilterChange={onProductFilterChange}
           filterValue={productFilterValue}
           placeholder="Filter Products"
-          filterId="productFilter"
+          filterId={productFilterId}
           fieldLabel="filter products"
-          values={multiSelectOptions}
+          values={productFilterOptions}
         />
       </WrapItem>
     </Wrap>
