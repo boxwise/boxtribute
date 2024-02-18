@@ -45,19 +45,22 @@ def test_query_beneficiary_demographics(
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
-def test_query_created_boxes(read_only_client, products, product_categories, endpoint):
+def test_query_created_boxes(
+    read_only_client, products, product_categories, tags, endpoint
+):
     query = """query { createdBoxes(baseId: 1) {
         facts {
-            createdOn categoryId productId gender boxesCount itemsCount
+            createdOn categoryId productId gender boxesCount itemsCount tagIds
         }
         dimensions {
             product { id name gender }
             category { id name }
+            tag { id }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
     assert len(facts) == 2
-    assert facts[0]["boxesCount"] == 11
+    assert facts[0]["boxesCount"] == 12
     assert facts[1]["boxesCount"] == 1
     assert data == {
         "dimensions": {
@@ -73,6 +76,7 @@ def test_query_created_boxes(read_only_client, products, product_categories, end
                 {"id": c["id"], "name": c["name"]}
                 for c in sorted(product_categories, key=lambda c: c["id"])
             ],
+            "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
         }
     }
 
