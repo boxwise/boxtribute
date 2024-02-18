@@ -20,6 +20,7 @@ import {
   products,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
+import { tagFilter, tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxesData;
@@ -35,15 +36,18 @@ export default function CreatedBoxesFilterContainer({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const productFilterValues = useReactiveVar(products);
+  const productFilterOptions = useReactiveVar(products);
 
   const { filterValue: filterProductGenders } = useMultiSelectFilter(genders, genderFilterId);
   const { filterValue: filterProducts } = useMultiSelectFilter(
-    productFilterValues,
+    productFilterOptions,
     productFilterId,
   );
 
-  // use products from the createdBoxes query to feed the global products filter
+  const tagFilterOptions = useReactiveVar(tagFilter);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterOptions, tagFilterId);
+
+  // use products from the createdBoxes query to feed the global products and tags filter
   // and filter the product filter by filtered product genders
   useEffect(() => {
     const p = createdBoxes.dimensions!.product!.map((e) => productToFilterValue(e!));
@@ -57,6 +61,10 @@ export default function CreatedBoxesFilterContainer({
     } else {
       products(p);
     }
+
+    const tags = createdBoxes.dimensions!.tag!.map((e) => tagToFilterValue(e!));
+    tagFilter(tags);
+
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,13 +101,20 @@ export default function CreatedBoxesFilterContainer({
         ),
       );
     }
+    if (filteredTags.length > 0) {
+      filters.push(
+        filter((fact: CreatedBoxesResult) =>
+          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
+        ),
+      );
+    }
 
     if (filters.length > 0) {
       // @ts-expect-error
       return tidy(createdBoxesFacts, ...filters);
     }
     return createdBoxesFacts;
-  }, [createdBoxesFacts, filterProductGenders, filterProducts]);
+  }, [createdBoxesFacts, filterProductGenders, filterProducts, filteredTags]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,
