@@ -213,6 +213,7 @@ def compute_created_boxes(base_id):
         )
     )
 
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
     # Group and aggregate these results. No Box.alias() needed since `from_` is used
     facts = (
         Box.select(
@@ -222,11 +223,20 @@ def compute_created_boxes(base_id):
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
             Product.category.alias("category_id"),
+            tag_ids.alias("tag_ids"),
         )
         .from_(boxes)
         .join(
             Product,
             on=(boxes.c.product_id == Product.id),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            on=(
+                (TagsRelation.object_id == boxes.c.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
         )
         .group_by(
             SQL("product_id"),
@@ -237,7 +247,7 @@ def compute_created_boxes(base_id):
         .with_cte(cte)
     ).dicts()
 
-    dimensions = _generate_dimensions("category", "product", facts=facts)
+    dimensions = _generate_dimensions("category", "product", "tag", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
 
 
