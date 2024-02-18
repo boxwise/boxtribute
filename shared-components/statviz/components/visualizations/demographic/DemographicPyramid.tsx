@@ -2,7 +2,7 @@ import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 import { range } from "lodash";
 import { ApolloError } from "@apollo/client";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
-import BarChartCenterAxis from "../../Custom-graphs/BarChartCenterAxis";
+import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import { HumanGender } from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import useDemographics from "../../../hooks/useDemographics";

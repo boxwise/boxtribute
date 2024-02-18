@@ -1,11 +1,11 @@
 import { Accordion, Center, Heading, Wrap, WrapItem } from "@chakra-ui/react";
-import TimeRangeSelect from "../Components/filter/TimeRangeSelect";
+import TimeRangeSelect from "../components/filter/TimeRangeSelect";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
 import StockOverview from "./StockOverview";
-import BoxesOrItemsSelect from "../Components/filter/BoxesOrItemsSelect";
-import GenderProductFilter from "../Components/filter/GenderProductFilter";
+import BoxesOrItemsSelect from "../components/filter/BoxesOrItemsSelect";
+import GenderProductFilter from "../components/filter/GenderProductFilter";
 
 export default function Dashboard() {
   return (
