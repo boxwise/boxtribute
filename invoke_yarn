@@ -1,36 +1,41 @@
 #!/usr/bin/env bash
-# Utility script to invoke front-end style checks in the front directory, or other
+# Utility script to invoke style checks in front-end directories, or other
 # tools in the repository using yarn
-# Usage: ./invoke_yarn lint|format|graphql-types FILE [FILE...]
+# Requires statviz docker-compose service running.
+# Usage: ./invoke_yarn lint|format|tsc|graphql-types FILE [FILE...]
 
 mode=$1
 shift
 
 declare -a front_files statviz_files shared_components_files
 
-# strip prefix from all given filepaths and add to file_collections
+# strip prefix from all given filepaths and add to *_files arrays
 for file in "$@"; do
     if [[ $file == front/* ]]; then
-        file_collections["front"]+=("${file#front/}")
+        front_files+=("${file#front/}")
     elif [[ $file == statviz/* ]]; then
-        file_collections["statviz"]+=("${file#statviz/}")
+        statviz_files+=("${file#statviz/}")
     elif [[ $file == shared-components/* ]]; then
         shared_components_files+=("${file#shared-components/}")
     fi
 done
 
-# TODO: move this to the pre-commit config. Otherwise people need to install yarn
+yarn() {
+    docker-compose exec -w /app statviz yarn "$@"
+}
+
 if [[ "$mode" = "lint" ]]; then
     yarn run lint:fix "$@"
 elif [[ "$mode" = "format" ]]; then
     yarn run format:write "$@"
 elif [[ "$mode" = "tsc" ]]; then
-    echo "${file_collections["shared-components"]}"
-    yarn --cwd front run tsc:precommit --noEmit "${file_collections["front"]}"
-    yarn --cwd statviz run tsc:precommit --noEmit "${file_collections["statviz"]}"
+    yarn --cwd front run tsc:precommit --noEmit "${front_files[@]}"
+    yarn --cwd statviz run tsc:precommit --noEmit "${statviz_files[@]}"
     yarn --cwd shared-components run tsc:precommit --noEmit "${shared_components_files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then
-    yarn --cwd front run generate-graphql-ts-types && yarn --cwd statviz run generate-graphql-ts-types
+    # yarn --cwd front run generate-graphql-ts-types
+    yarn --cwd statviz run generate-graphql-ts-types
+    yarn --cwd shared-components run generate-graphql-ts-types
 else
     echo "Unknown mode: $mode" >&2
     exit 1
