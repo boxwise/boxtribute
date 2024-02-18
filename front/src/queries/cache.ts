@@ -17,6 +17,9 @@ export const cache = new InMemoryCache({
       // DimensionInfos must be normalized by id and name
       keyFields: ["id", "name"],
     },
+    TagDimensionInfo: {
+      keyFields: ["id", "name"],
+    },
   },
 });
 
