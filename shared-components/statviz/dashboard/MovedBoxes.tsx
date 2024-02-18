@@ -6,7 +6,7 @@ import {
   AccordionPanel,
   Box,
 } from "@chakra-ui/react";
-import MovedBoxesDataContainer from "../Components/visualizations/movedBoxes/MovedBoxesDataContainer";
+import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
 
 export default function MovedBoxes() {
   return (

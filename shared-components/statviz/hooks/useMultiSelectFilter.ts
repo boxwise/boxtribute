@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { IFilterValue } from "../Components/filter/ValueFilter";
+import { IFilterValue } from "../components/filter/ValueFilter";
 
 export const urlFilterValuesEncode = <T>(array: (IFilterValue & T)[]): string =>
   array.map((e) => encodeURIComponent(e.urlId)).join(",");

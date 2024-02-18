@@ -8,7 +8,7 @@ import {
   WrapItem,
   Box,
 } from "@chakra-ui/react";
-import DemographicChart from "../Components/visualizations/demographic/DemographicPyramid";
+import DemographicChart from "../components/visualizations/demographic/DemographicPyramid";
 
 export default function Demographics() {
   return (

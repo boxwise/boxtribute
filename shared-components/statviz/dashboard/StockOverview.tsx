@@ -6,7 +6,7 @@ import {
   AccordionPanel,
   Box,
 } from "@chakra-ui/react";
-import StockDataContainer from "../Components/visualizations/stock/StockDataContainer";
+import StockDataContainer from "../components/visualizations/stock/StockDataContainer";
 
 export default function StockOverview() {
   return (
