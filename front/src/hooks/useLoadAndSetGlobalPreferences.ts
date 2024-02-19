@@ -19,22 +19,14 @@ export const useLoadAndSetGlobalPreferences = () => {
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
     if (user && !globalPreferences.selectedBase?.id) {
-      runOrganisationAndBasesQuery({
-        variables: { organisationId: user["https://www.boxtribute.com/organisation_id"] },
-      });
+      runOrganisationAndBasesQuery();
     }
   }, [runOrganisationAndBasesQuery, user, globalPreferences.selectedBase?.id]);
 
   // set available bases
   useEffect(() => {
     if (!isOrganisationAndBasesQueryLoading && data != null) {
-      const { bases, organisation } = data;
-      if (organisation) {
-        dispatch({
-          type: "setOrganisation",
-          payload: organisation,
-        });
-      }
+      const { bases } = data;
 
       if (bases.length > 0) {
         dispatch({
@@ -43,15 +35,20 @@ export const useLoadAndSetGlobalPreferences = () => {
         });
 
         // retrieve base id from the url
-        const baseId = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+        const baseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
         // validate if requested base is in the array of available bases
-        if (baseId != null) {
-          const matchingBase = bases.find((base) => base.id === baseId[1]);
+        if (baseIdInput != null) {
+          const matchingBase = bases.find((base) => base.id === baseIdInput[1]);
           if (matchingBase) {
             // set selected base
             dispatch({
               type: "setSelectedBase",
               payload: matchingBase,
+            });
+            // set organisation for selected base
+            dispatch({
+              type: "setOrganisation",
+              payload: matchingBase.organisation,
             });
           } else {
             // this error is set if the requested base is not part of the available bases

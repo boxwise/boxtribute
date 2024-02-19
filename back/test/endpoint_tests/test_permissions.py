@@ -439,7 +439,7 @@ def test_permission_for_god_user(
     shipments,
     transfer_agreements,
 ):
-    mock_user_for_request(mocker, permissions=["*"], organisation_id=None)
+    mock_user_for_request(mocker, is_god=True)
     # Test case 10.1.1
     query = "query { users { id } }"
     users = assert_successful_request(read_only_client, query)

@@ -38,41 +38,45 @@ def test_query_beneficiary_demographics(
     ]
     assert response["dimensions"] == {
         "tag": [
-            {"id": str(tag["id"]), "name": tag["name"], "color": tag["color"]}
+            {"id": tag["id"], "name": tag["name"], "color": tag["color"]}
             for tag in [tags[0], tags[2]]
         ]
     }
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
-def test_query_created_boxes(read_only_client, products, product_categories, endpoint):
+def test_query_created_boxes(
+    read_only_client, products, product_categories, tags, endpoint
+):
     query = """query { createdBoxes(baseId: 1) {
         facts {
-            createdOn categoryId productId gender boxesCount itemsCount
+            createdOn categoryId productId gender boxesCount itemsCount tagIds
         }
         dimensions {
             product { id name gender }
             category { id name }
+            tag { id }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
     assert len(facts) == 2
-    assert facts[0]["boxesCount"] == 11
+    assert facts[0]["boxesCount"] == 12
     assert facts[1]["boxesCount"] == 1
     assert data == {
         "dimensions": {
             "product": [
                 {
-                    "id": str(p["id"]),
+                    "id": p["id"],
                     "name": p["name"],
                     "gender": ProductGender(p["gender"]).name,
                 }
                 for p in [products[0], products[2]]
             ],
             "category": [
-                {"id": str(c["id"]), "name": c["name"]}
+                {"id": c["id"], "name": c["name"]}
                 for c in sorted(product_categories, key=lambda c: c["id"])
             ],
+            "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
         }
     }
 
@@ -120,8 +124,7 @@ def test_query_top_products(
         ],
         "dimensions": {
             "product": [
-                {"id": str(products[i]["id"]), "name": products[i]["name"]}
-                for i in [0, 2]
+                {"id": products[i]["id"], "name": products[i]["name"]} for i in [0, 2]
             ],
         },
     }
@@ -153,11 +156,10 @@ def test_query_top_products(
         ],
         "dimensions": {
             "product": [
-                {"id": str(products[i]["id"]), "name": products[i]["name"]}
-                for i in [0, 2]
+                {"id": products[i]["id"], "name": products[i]["name"]} for i in [0, 2]
             ],
             "size": [
-                {"id": str(s["id"]), "name": s["label"]}
+                {"id": s["id"], "name": s["label"]}
                 for s in [default_size, another_size]
             ],
         },
@@ -268,9 +270,7 @@ def test_query_stock_overview(
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     product_name = default_product["name"].strip().lower()
     assert data["dimensions"] == {
-        "location": [
-            {"id": str(default_location["id"]), "name": default_location["name"]}
-        ]
+        "location": [{"id": default_location["id"], "name": default_location["name"]}]
     }
     assert data["facts"] == [
         {
