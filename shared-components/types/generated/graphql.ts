@@ -59,6 +59,7 @@ export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
   product?: Maybe<Array<Maybe<ProductDimensionInfo>>>;
+  tag?: Maybe<Array<Maybe<TagDimensionInfo>>>;
 };
 
 export type CreatedBoxesData = DataCube & {
@@ -75,6 +76,7 @@ export type CreatedBoxesResult = {
   gender?: Maybe<ProductGender>;
   itemsCount?: Maybe<Scalars['Int']['output']>;
   productId?: Maybe<Scalars['Int']['output']>;
+  tagIds?: Maybe<Array<Scalars['Int']['output']>>;
 };
 
 export type DataCube = {

@@ -25,7 +25,17 @@ class DbChangeHistory(db.Model):
 
     class Meta:
         table_name = "history"
-        indexes = (
-            (("record_id", "change_date"), False),
-            (("table_name", "record_id", "change_date"), False),
-        )
+
+
+DbChangeHistory.add_index(
+    DbChangeHistory.record_id,
+    DbChangeHistory.change_date,
+    name="recordid_changedate_composite_index",
+)
+DbChangeHistory.add_index(
+    DbChangeHistory.table_name,
+    DbChangeHistory.record_id,
+    DbChangeHistory.change_date,
+    name="tablename_recordid_changedate_composite_index",
+)
+DbChangeHistory.add_index(DbChangeHistory.user, name="user_id")

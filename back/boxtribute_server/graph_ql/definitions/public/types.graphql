@@ -33,6 +33,7 @@ type CreatedBoxesResult {
   categoryId: Int
   productId: Int
   gender: ProductGender
+  tagIds: [Int!]
   boxesCount: Int
   itemsCount: Int
 }
@@ -40,6 +41,7 @@ type CreatedBoxesResult {
 type CreatedBoxDataDimensions {
   product: [ProductDimensionInfo]
   category: [DimensionInfo]
+  tag: [TagDimensionInfo]
 }
 
 type TopProductsCheckedOutData implements DataCube {
