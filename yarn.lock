@@ -6209,10 +6209,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@>=16", "@types/react@>=16.9.11", "@types/react@^18.2.15":
-  version "18.2.48"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.48.tgz#11df5664642d0bd879c1f58bc1d37205b064e8f1"
-  integrity sha512-qboRCl6Ie70DQQG9hhNREz81jqC1cs9EVNcjQ1AU+jH6NFfSAhVVbrrY/+nSF+Bsk4AOwm9Qa61InvMCyV+H3w==
+"@types/react@*", "@types/react@>=16", "@types/react@>=16.9.11", "@types/react@^18.2.56":
+  version "18.2.56"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.56.tgz#2d3e9021a0b6eb5bfc227761cc61b1c6dc6e0cd8"
+  integrity sha512-NpwHDMkS/EFZF2dONFQHgkPRwhvgq/OAvIaGQzxGSBmaeR++kTg6njr15Vatz0/2VcCEwJQFi6Jf4Q0qBu0rLA==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
