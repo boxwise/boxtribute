@@ -1,7 +1,7 @@
 import { FormControl, FormErrorMessage, FormLabel, chakra } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
-import { colorIsBright } from "utils/helpers";
+import { colorIsBright } from "../utils/helpers";
 
 export interface IDropdownOption extends OptionBase {
   value: string;
@@ -22,7 +22,8 @@ export interface ISelectFieldProps {
   isRequired?: boolean;
   showLabel?: boolean;
   showError?: boolean;
-  onChangeProp?: ((event) => void) | undefined;
+  defaultValue?: string;
+  onChangeProp?: (event) => void;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -39,6 +40,7 @@ function SelectField({
   control,
   isMulti,
   isRequired,
+  defaultValue,
   onChangeProp,
 }: ISelectFieldProps) {
   return (
@@ -52,6 +54,7 @@ function SelectField({
       <Controller
         control={control}
         name={fieldId}
+        defaultValue={defaultValue}
         render={({ field: { onChange, onBlur, value, name, ref } }) => (
           <Select
             name={name}
@@ -112,6 +115,7 @@ SelectField.defaultProps = {
   showLabel: true,
   showError: true,
   onChangeProp: undefined,
+  defaultValue: undefined,
 };
 
 export default SelectField;
