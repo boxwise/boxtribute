@@ -22,7 +22,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
 import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
-import DashboardView from "views/Statviz/Dashboard/DashboardView";
+import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 
 interface IProtectedRouteProps {
   component: ReactElement;
@@ -105,7 +105,7 @@ function App() {
             <Route
               index
               element={
-                <Protected component={<DashboardView />} redirectPath={prevLocation} minBeta={3} />
+                <Protected component={<Dashboard />} redirectPath={prevLocation} minBeta={3} />
               }
             />
           </Route>
