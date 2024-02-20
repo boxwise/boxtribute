@@ -15,7 +15,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [auth0Token, setAuth0Token] = useState<String>("");
   const httpLink = new HttpLink({
-    uri: process.env.REACT_APP_GRAPHQL_SERVER,
+    uri: import.meta.env.FRONT_GRAPHQL_SERVER,
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const client = new ApolloClient({
     cache,
-    connectToDevTools: process.env.REACT_APP_ENVIRONMENT !== "production",
+    connectToDevTools: import.meta.env.FRONT_ENVIRONMENT !== "production",
     link: auth0Link.concat(errorLink).concat(httpLink),
     defaultOptions,
   });

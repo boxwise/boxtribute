@@ -1,6 +1,5 @@
-/* eslint-disable max-len */
+import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -8,8 +7,6 @@ import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner"
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { mockImplementationOfQrReader } from "mocks/components";
 import { generateMockBox } from "mocks/boxes";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
@@ -21,10 +18,8 @@ import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { tags } from "mocks/tags";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
-
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
 
 const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
@@ -123,31 +118,13 @@ const mockMoveBoxesMutation = ({
   error: networkError ? new Error() : undefined,
 });
 
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-jest.mock("@auth0/auth0-react");
-jest.mock("components/QrReader/components/QrReaderScanner");
-
-// .mocked() is a nice helper function from jest for typescript support
-// https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
-const mockedQrReader = jest.mocked(QrReaderScanner);
+vi.mock("@auth0/auth0-react");
+vi.mock("components/QrReader/components/QrReaderScanner");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
-});
-
-afterEach(() => {
-  cache.restore(emptyCache);
 });
 
 const moveBoxesMutationTests = [

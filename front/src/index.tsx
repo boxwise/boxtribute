@@ -20,7 +20,7 @@ const ProtectedApp = withAuthenticationRequired(() => (
 
 const SentryProfiledProtectedApp = Sentry.withProfiler(ProtectedApp);
 
-const sentryDsn = process.env.REACT_APP_SENTRY_FE_DSN;
+const sentryDsn = import.meta.env.FRONT_SENTRY_FE_DSN;
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
@@ -30,12 +30,11 @@ if (sentryDsn) {
       }),
       new Sentry.BrowserTracing(),
     ],
-    tracesSampleRate: parseFloat(process.env.REACT_APP_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
-    environment: process.env.REACT_APP_SENTRY_ENVIRONMENT,
+    tracesSampleRate: parseFloat(import.meta.env.FRONT_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
+    environment: import.meta.env.FRONT_SENTRY_ENVIRONMENT,
   });
 }
 
-// TODO: move cra to vite
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <ChakraProvider theme={theme}>
@@ -48,7 +47,4 @@ root.render(
   </ChakraProvider>,
 );
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-// serviceWorker.unregister();
+// TODO: PWA with vite-plugin-pwa

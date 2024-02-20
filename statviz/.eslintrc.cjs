@@ -1,18 +1,18 @@
+const path = require("path");
+
 module.exports = {
-  root: true,
-  env: { browser: true, es2020: true },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended',
-  ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
-  parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
+  extends: ["../.eslintrc.cjs"],
+  // TODO: move up to root
+  plugins: ["react-refresh"],
   rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
+    // This needed to resolve dependencies correctly
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        // look for package.json files also in the parent directory
+        packageDir: [__dirname, path.join(__dirname, "../")],
+      },
     ],
+    "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
   },
-}
+};

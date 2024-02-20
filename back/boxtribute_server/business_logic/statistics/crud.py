@@ -1,3 +1,5 @@
+from functools import wraps
+
 from peewee import JOIN, SQL, fn
 
 from ...db import db
@@ -5,18 +7,38 @@ from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
-from ...models.definitions.box_state import BoxState as BoxStateModel
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
-from ...models.definitions.shipment import Shipment
-from ...models.definitions.shipment_detail import ShipmentDetail
 from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids
+from ...utils import in_ci_environment, in_production_environment
+from .sql import MOVED_BOXES_QUERY
+
+
+def use_db_replica(f):
+    """Decorator for a resolver that should use the DB replica for database selects."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if db.replica is not None:
+            with db.replica.bind_ctx(db.Model.__subclasses__()):
+                return f(*args, **kwargs)
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def _validate_existing_base(base_id):
+    """Raise a `peewee.DoesNotExist` exception if base with given ID does not exist in
+    the database. This will be reported as a BAD_USER_INPUT error.
+    """
+    Base.select(Base.id).where(Base.id == base_id).get()
 
 
 def _generate_dimensions(*names, target_type=None, facts):
@@ -63,7 +85,9 @@ def _generate_dimensions(*names, target_type=None, facts):
         )
 
     if target_type is not None:
-        target_ids = {f["target_id"] for f in facts}
+        target_ids = {
+            f["target_id"] for f in facts if TargetType[f["target_type"]] == target_type
+        }
         # Target ID and name are identical for now
         dimensions["target"] = [
             {"id": i, "name": i, "type": target_type} for i in target_ids
@@ -77,17 +101,18 @@ def compute_beneficiary_demographics(base_id):
     beneficiaries in the bases with specified IDs (default: all bases) and return
     results as list.
     """
+    _validate_existing_base(base_id)
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = db.database.truncate_date("day", Beneficiary.created_on)
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
 
     demographics = (
         Beneficiary.select(
-            gender.alias("gender"),
-            created_on.alias("created_on"),
+            gender.python_value(HumanGender).alias("gender"),
+            fn.DATE(created_on).alias("created_on"),
             age.alias("age"),
             tag_ids.alias("tag_ids"),
             fn.COUNT(Beneficiary.id.distinct()).alias("count"),
@@ -108,12 +133,6 @@ def compute_beneficiary_demographics(base_id):
         .dicts()
     )
 
-    # Conversions for GraphQL interface
-    for row in demographics:
-        row["gender"] = HumanGender(row["gender"])
-        if row["created_on"] is not None:
-            row["created_on"] = row["created_on"].date()
-
     dimensions = _generate_dimensions("tag", facts=demographics)
     return {"facts": demographics, "dimensions": dimensions}
 
@@ -124,32 +143,110 @@ def compute_created_boxes(base_id):
     base with the specified ID.
     Return fact and dimension tables in the result.
     """
-    selection = (
+    _validate_existing_base(base_id)
+    cte = (
+        Location.select(Location.id).where(Location.base == base_id).cte("location_ids")
+    )
+    location_ids = cte.select(cte.c.id)
+    created_on = db.database.truncate_date("day", Box.created_on)
+    LocationHistory = DbChangeHistory.alias()
+    ProductHistory = DbChangeHistory.alias()
+    ItemsHistory = DbChangeHistory.alias()
+
+    def oldest_rows(field):
+        # Find the change with smallest ID (i.e. the oldest) corresponding to the given
+        # field of the Box model
+        HistoryAlias = DbChangeHistory.alias()
+        return HistoryAlias.select(fn.MIN(HistoryAlias.id)).where(
+            HistoryAlias.record_id == Box.id,
+            HistoryAlias.table_name == Box._meta.table_name,
+            HistoryAlias.changes == field.column_name,
+        )
+
+    # Select all boxes, that were in the given base at creation, and their initial
+    # properties
+    boxes = (
         Box.select(
-            Box.created_on.alias("created_on"),
+            Box.id,
+            created_on.alias("created_on"),
+            fn.IFNULL(ItemsHistory.from_int, Box.number_of_items).alias("items"),
+            fn.IFNULL(ProductHistory.from_int, Box.product).alias("product_id"),
+        )
+        .join(
+            LocationHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (LocationHistory.record_id == Box.id)
+                & (LocationHistory.table_name == Box._meta.table_name)
+                & (LocationHistory.changes == Box.location.column_name)
+                & (LocationHistory.id == oldest_rows(Box.location))
+            ),
+        )
+        .join(
+            ProductHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (ProductHistory.record_id == Box.id)
+                & (ProductHistory.table_name == Box._meta.table_name)
+                & (ProductHistory.changes == Box.product.column_name)
+                & (ProductHistory.id == oldest_rows(Box.product))
+            ),
+        )
+        .join(
+            ItemsHistory,
+            JOIN.LEFT_OUTER,
+            src=Box,
+            on=(
+                (ItemsHistory.record_id == Box.id)
+                & (ItemsHistory.table_name == Box._meta.table_name)
+                & (ItemsHistory.changes == Box.number_of_items.column_name)
+                & (ItemsHistory.id == oldest_rows(Box.number_of_items))
+            ),
+        )
+        .where(
+            Box.created_on.is_null(False),
+            (LocationHistory.from_int << location_ids)
+            | (LocationHistory.from_int.is_null() & (Box.location << location_ids)),
+        )
+    )
+
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
+    # Group and aggregate these results. No Box.alias() needed since `from_` is used
+    facts = (
+        Box.select(
+            boxes.c.created_on,
+            fn.COUNT(boxes.c.id).alias("boxes_count"),
+            fn.SUM(boxes.c.items).alias("items_count"),
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
             Product.category.alias("category_id"),
-            fn.COUNT(Box.id).alias("boxes_count"),
-            fn.SUM(Box.number_of_items).alias("items_count"),
+            tag_ids.alias("tag_ids"),
         )
-        .join(Product)
-        .order_by(Box.created_on.asc())
-    )
-
-    if base_id is not None:
-        selection = selection.join(Location, src=Box).where(Location.base == base_id)
-
-    facts = selection.group_by(
-        SQL("product_id"), SQL("category_id"), SQL("gender"), SQL("created_on")
+        .from_(boxes)
+        .join(
+            Product,
+            on=(boxes.c.product_id == Product.id),
+        )
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            on=(
+                (TagsRelation.object_id == boxes.c.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+            ),
+        )
+        .group_by(
+            SQL("product_id"),
+            SQL("category_id"),
+            SQL("gender"),
+            SQL("created_on"),
+        )
+        .with_cte(cte)
     ).dicts()
 
-    # Conversions for GraphQL interface
-    for row in facts:
-        if row["created_on"] is not None:
-            row["created_on"] = row["created_on"].date()
-
-    dimensions = _generate_dimensions("category", "product", facts=facts)
+    dimensions = _generate_dimensions("category", "product", "tag", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
 
 
@@ -157,24 +254,21 @@ def compute_top_products_checked_out(base_id):
     """Return list of most-checked-out products (i.e. highest count in transactions)
     with rank included, grouped by distribution date and product category.
     """
+    _validate_existing_base(base_id)
     selection = Transaction.select(
-        Transaction.created_on.alias("checked_out_on"),
+        fn.DATE(Transaction.created_on).alias("checked_out_on"),
         Transaction.product.alias("product_id"),
         Product.category.alias("category_id"),
         fn.SUM(Transaction.count).alias("items_count"),
+        fn.RANK().over(order_by=[fn.SUM(Transaction.count).desc()]).alias("rank"),
     ).join(
         Product, on=((Product.base == base_id) & (Transaction.product == Product.id))
     )
-    facts = (
-        selection.group_by(SQL("product_id"), SQL("category_id"), SQL("checked_out_on"))
-        .order_by(SQL("items_count").desc())
-        .dicts()
-    )
-
-    # Data transformations
-    for rank, row in enumerate(facts, start=1):
-        row["rank"] = rank
-        row["checked_out_on"] = row["checked_out_on"].date()
+    facts = selection.group_by(
+        SQL("product_id"),
+        SQL("category_id"),
+        SQL("checked_out_on"),
+    ).dicts()
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
     dimensions["size"] = None
@@ -185,14 +279,16 @@ def compute_top_products_donated(base_id):
     """Return list of most-donated products with rank included, grouped by distribution
     date, creation date, size, and product category.
     """
+    _validate_existing_base(base_id)
     selection = (
         DbChangeHistory.select(
-            Box.created_on.alias("created_on"),
-            DbChangeHistory.change_date.alias("donated_on"),
+            fn.DATE(Box.created_on).alias("created_on"),
+            fn.DATE(DbChangeHistory.change_date).alias("donated_on"),
             Box.size.alias("size_id"),
             Box.product.alias("product_id"),
             Product.category.alias("category_id"),
             fn.SUM(Box.number_of_items).alias("items_count"),
+            fn.RANK().over(order_by=[fn.SUM(Box.number_of_items).desc()]).alias("rank"),
         )
         .join(
             Box,
@@ -209,190 +305,75 @@ def compute_top_products_donated(base_id):
             on=((Box.product == Product.id) & (Product.base == base_id)),
         )
     )
-    facts = (
-        selection.group_by(
-            SQL("created_on"),
-            SQL("donated_on"),
-            SQL("size_id"),
-            SQL("product_id"),
-            SQL("category_id"),
-        )
-        .order_by(SQL("items_count").desc())
-        .dicts()
-    )
-
-    # Data transformations
-    for rank, row in enumerate(facts, start=1):
-        row["rank"] = rank
-        row["donated_on"] = row["donated_on"].date()
-        row["created_on"] = row["created_on"].date()
+    facts = selection.group_by(
+        SQL("created_on"),
+        SQL("donated_on"),
+        SQL("size_id"),
+        SQL("product_id"),
+        SQL("category_id"),
+    ).dicts()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
     return {"facts": facts, "dimensions": dimensions}
 
 
 def compute_moved_boxes(base_id):
-    """Count all boxes moved to locations in the given base, grouped by date of
-    movement, product category, and box state.
+    """Count all boxes that were
+    1. shipped to other bases from given base as source
+    2. moved between the box states InStock and Donated within the given base
+    3. marked as Lost or Scrap within the given base
+    Results are grouped by date of movement, product category, product name, product
+    gender, size ID, and target name (target types for the enumeration above are
+    Shipment (1.), OutgoingLocation (2.), and BoxState (3.).
+
+    Details for 2.:
+    - boxes moved from state InStock to Donated are counted positively, incl. the
+    contained items. For the opposite direction, they're counted negatively. Hence boxes
+    that are moved back and forth are not counted into the statistics. Same for a box
+    that has items taken out in a Donated location, and then is moved back.
+    - in production, only data from 2023 and newer is taken into account. Previously
+    boxes didn't have states assigned, instead box state was dictated by the type of
+    location the box was stored in
     """
-    # Similar to example from
-    # https://docs.peewee-orm.com/en/latest/peewee/relationships.html#subqueries
-    # Subquery to select record IDs and latest dates when box state was changed from
-    # InStock to Donated.
-    LatestMoved = DbChangeHistory.alias()
-    LatestMovedSubQuery = (
-        LatestMoved.select(
-            LatestMoved.record_id,
-            fn.MAX(LatestMoved.change_date).alias("move_date"),
-        )
-        .where(
-            (LatestMoved.table_name == Box._meta.table_name),
-            (LatestMoved.changes == Box.state.column_name),
-            (LatestMoved.from_int == BoxState.InStock),
-            (LatestMoved.to_int == BoxState.Donated),
-        )
-        .group_by(LatestMoved.record_id)
-        .alias("sq")
+    _validate_existing_base(base_id)
+    min_box_id = 1
+    min_history_id = 1
+    if in_production_environment() and not in_ci_environment():  # pragma: no cover
+        # Earliest row ID in tables in 2023
+        min_box_id = 87_423
+        min_history_id = 1_324_559
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
+    cursor = db.database.execute_sql(
+        MOVED_BOXES_QUERY,
+        (
+            base_id,
+            min_box_id,
+            min_history_id,
+            TargetType.OutgoingLocation.name,
+            TargetType.Shipment.name,
+            base_id,
+            TargetType.BoxState.name,
+            base_id,
+        ),
     )
+    column_names = [x[0] for x in cursor.description]
+    facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+    for fact in facts:
+        fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
-    # This selects only information of boxes that were moved from InStock to Donated
-    # state, and are now in the base of given base ID. It is NOT taken into account that
-    # boxes can be moved back from Donated to InStock, nor that the product or other
-    # attributes of the box change after having been donated
-    selection = (
-        DbChangeHistory.select(
-            DbChangeHistory.change_date.alias("moved_on"),
-            Location.name.alias("target_id"),
-            Product.category.alias("category_id"),
-            fn.COUNT(Box.id).alias("boxes_count"),
-        )
-        .join(
-            LatestMovedSubQuery,
-            on=(
-                (DbChangeHistory.record_id == LatestMovedSubQuery.c.record_id)
-                & (DbChangeHistory.change_date == LatestMovedSubQuery.c.move_date)
-            ),
-        )
-        .join(
-            Box,
-            on=((DbChangeHistory.record_id == Box.id)),
-            src=DbChangeHistory,
-        )
-        .join(
-            Product,
-            on=((Box.product == Product.id) & (Product.base == base_id)),
-        )
-        .join(
-            Location,
-            src=Box,
-            on=((Box.location == Location.id) & (Location.base == base_id)),
-        )
-    )
-    donated_boxes_facts = selection.group_by(
-        SQL("moved_on"),
-        SQL("target_id"),
-        SQL("category_id"),
-    ).dicts()
-
-    # Select information about all boxes sent from the specified base as source, that
-    # were not removed from the shipment during preparation
-    shipped_boxes_facts = (
-        ShipmentDetail.select(
-            Shipment.sent_on.alias("moved_on"),
-            Product.category.alias("category_id"),
-            Base.name.alias("target_id"),
-            fn.COUNT(ShipmentDetail.box).alias("boxes_count"),
-        )
-        .join(
-            Shipment,
-            on=(
-                (ShipmentDetail.shipment == Shipment.id)
-                & (ShipmentDetail.removed_on.is_null())
-                & (Shipment.source_base == base_id)
-                & (Shipment.sent_on.is_null(False))
-            ),
-        )
-        .join(
-            Base,
-            on=(Shipment.target_base == Base.id),
-        )
-        .join(
-            Product,
-            src=ShipmentDetail,
-            on=(ShipmentDetail.source_product == Product.id),
-        )
-        .group_by(
-            SQL("moved_on"),
-            SQL("target_id"),
-            SQL("category_id"),
-        )
-        .dicts()
-    )
-
-    # Collect information about boxes that were turned into Lost/Scrap state; it is
-    # assumed that these boxes have not been further moved but still are part of the
-    # specified base
-    lost_scrap_box_facts = (
-        DbChangeHistory.select(
-            DbChangeHistory.change_date.alias("moved_on"),
-            Product.category.alias("category_id"),
-            BoxStateModel.label.alias("target_id"),
-            fn.COUNT(DbChangeHistory.id).alias("boxes_count"),
-        )
-        .join(
-            Box,
-            on=(
-                (DbChangeHistory.table_name == Box._meta.table_name)
-                & (DbChangeHistory.changes == Box.state.column_name)
-                & (DbChangeHistory.record_id == Box.id)
-                & (DbChangeHistory.from_int == BoxState.InStock)
-                & (DbChangeHistory.to_int << [BoxState.Lost, BoxState.Scrap])
-            ),
-        )
-        .join(
-            Product,
-            on=((Box.product == Product.id) & (Product.base == base_id)),
-        )
-        .join(
-            Location,
-            src=Box,
-            on=((Box.location == Location.id) & (Location.base == base_id)),
-        )
-        .join(
-            BoxStateModel,
-            src=DbChangeHistory,
-            on=(DbChangeHistory.to_int == BoxStateModel.id),
-        )
-        .group_by(
-            SQL("moved_on"),
-            SQL("target_id"),
-            SQL("category_id"),
-        )
-        .dicts()
-    )
-    facts = (
-        list(donated_boxes_facts)
-        + list(shipped_boxes_facts)
-        + list(lost_scrap_box_facts)
-    )
-
-    # Conversions for GraphQL interface
-    for row in facts:
-        row["moved_on"] = row["moved_on"].date()
-
-    dimensions = _generate_dimensions("category", facts=facts)
+    dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
     dimensions["target"] = (
         _generate_dimensions(
             target_type=TargetType.OutgoingLocation,
-            facts=donated_boxes_facts,
+            facts=facts,
         )["target"]
         + _generate_dimensions(
             target_type=TargetType.Shipment,
-            facts=shipped_boxes_facts,
+            facts=facts,
         )["target"]
         + _generate_dimensions(
             target_type=TargetType.BoxState,
-            facts=lost_scrap_box_facts,
+            facts=facts,
         )["target"]
     )
     return {"facts": facts, "dimensions": dimensions}
@@ -403,6 +384,7 @@ def compute_stock_overview(base_id):
     given base. The result can be filtered by size, location, box state, product
     category, product name, and product gender.
     """
+    _validate_existing_base(base_id)
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     facts = (

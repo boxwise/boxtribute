@@ -256,7 +256,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
 
 def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.2
-    base_id = default_bases[2]["id"]
+    base_id = default_bases[1]["id"]
     creation_input = f"""{{
         name: "new tag",
         color: "#112233",

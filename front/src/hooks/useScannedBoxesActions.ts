@@ -45,12 +45,15 @@ export const useScannedBoxesActions = () => {
   );
 
   const flushAllBoxes = useCallback(() => {
-    apolloClient.writeQuery({
-      query: GET_SCANNED_BOXES,
-      data: {
-        scannedBoxes: [],
-      } as IScannedBoxesData,
-    });
+    apolloClient.cache.updateQuery(
+      {
+        query: GET_SCANNED_BOXES,
+      },
+      () =>
+        ({
+          scannedBoxes: [],
+        }) as IScannedBoxesData,
+    );
   }, [apolloClient]);
 
   const undoLastBox = useCallback(() => {

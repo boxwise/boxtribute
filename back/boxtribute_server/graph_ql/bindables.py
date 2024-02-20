@@ -1,6 +1,7 @@
 """Definition of ariadne bindables (special types for binding Python callables and
 values to the GraphQL schema).
 """
+
 from ariadne import InterfaceType, UnionType
 
 from ..business_logic.beneficiary.fields import beneficiary

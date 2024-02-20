@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.json",
+  "basePath": ".",
+  "include": ["**/*.ts", "**/*.tsx"],
+}

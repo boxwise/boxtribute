@@ -33,6 +33,7 @@ type CreatedBoxesResult {
   categoryId: Int
   productId: Int
   gender: ProductGender
+  tagIds: [Int!]
   boxesCount: Int
   itemsCount: Int
 }
@@ -40,6 +41,7 @@ type CreatedBoxesResult {
 type CreatedBoxDataDimensions {
   product: [ProductDimensionInfo]
   category: [DimensionInfo]
+  tag: [TagDimensionInfo]
 }
 
 type TopProductsCheckedOutData implements DataCube {
@@ -94,11 +96,18 @@ type MovedBoxesResult {
   movedOn: Date!
   targetId: ID!
   categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  sizeId: Int!
+  tagIds: [Int!]
+  itemsCount: Int!
   boxesCount: Int!
 }
 
 type MovedBoxDataDimensions {
   category: [DimensionInfo]
+  size: [DimensionInfo]
+  tag: [TagDimensionInfo!]!
   target: [TargetDimensionInfo]
 }
 
@@ -127,29 +136,29 @@ type StockOverviewDataDimensions {
 }
 
 interface BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
 }
 
 type DimensionInfo implements BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
 }
 
 type TagDimensionInfo implements BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
   " Hex color code "
   color: String
 }
 
 type ProductDimensionInfo implements BasicDimensionInfo {
-  id: ID
+  id: Int
   name: String
   gender: ProductGender
 }
 
-type TargetDimensionInfo implements BasicDimensionInfo {
+type TargetDimensionInfo {
   id: ID
   name: String
   type: TargetType

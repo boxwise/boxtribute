@@ -3,8 +3,8 @@ import { Result } from "@zxing/library";
 /**
  * Mocking the QrReader component in components/QrReader/QrReader by overriding the implemention of the component with a button.
  * To mock the QrReader component you have to
- * - add a mock of the path for imports by adding `jest.mock("components/QrReader/QrReader")` at the top of your test file.
- * - mock the acctual component by adding `const mockedQrReader = jest.mocked(QrReader);` in your testfile
+ * - add a mock of the path for imports by adding `vi.mock("components/QrReader/QrReader")` at the top of your test file.
+ * - mock the acctual component by adding `const mockedQrReader = vi.mocked(QrReader);` in your testfile
  * - to override the implementation of the component you need to pass the mockedQrReader above into the function below.
  *
  * If you then call this function, e.g. `mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");` in a test a
@@ -16,12 +16,13 @@ import { Result } from "@zxing/library";
  * @returns An component including a button that fires the onResult event of the QrReader component when it is clicked.
  */
 export function mockImplementationOfQrReader(
-  mockedQrReader: jest.MockedFunctionDeep<any>,
+  mockedQrReader: any,
   hash: string,
   isBoxtributeQr: boolean = true,
   multiScan: boolean = false,
 ) {
   mockedQrReader.mockImplementation((props) => (
+    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <button
       type="button"
       data-testid="ReturnScannedQr"

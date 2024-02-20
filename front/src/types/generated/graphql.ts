@@ -78,7 +78,7 @@ export type BaseTagsArgs = {
 };
 
 export type BasicDimensionInfo = {
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -309,7 +309,7 @@ export type DataCube = {
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -558,6 +558,8 @@ export type MetricsNumberOfSalesArgs = {
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  size?: Maybe<Array<Maybe<DimensionInfo>>>;
+  tag: Array<TagDimensionInfo>;
   target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
 };
 
@@ -579,7 +581,12 @@ export type MovedBoxesResult = {
   __typename?: 'MovedBoxesResult';
   boxesCount: Scalars['Int'];
   categoryId: Scalars['Int'];
+  gender: ProductGender;
+  itemsCount: Scalars['Int'];
   movedOn: Scalars['Date'];
+  productName: Scalars['String'];
+  sizeId: Scalars['Int'];
+  tagIds?: Maybe<Array<Scalars['Int']>>;
   targetId: Scalars['ID'];
 };
 
@@ -1100,6 +1107,7 @@ export type Product = {
   __typename?: 'Product';
   base?: Maybe<Base>;
   category: ProductCategory;
+  comment?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
   deletedOn?: Maybe<Scalars['Datetime']>;
@@ -1133,7 +1141,7 @@ export type ProductCategoryProductsArgs = {
 export type ProductDimensionInfo = BasicDimensionInfo & {
   __typename?: 'ProductDimensionInfo';
   gender?: Maybe<ProductGender>;
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -1529,7 +1537,7 @@ export type TagDimensionInfo = BasicDimensionInfo & {
   __typename?: 'TagDimensionInfo';
   /**  Hex color code  */
   color?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
 };
 
@@ -1563,7 +1571,7 @@ export enum TaggableResourceType {
   Box = 'Box'
 }
 
-export type TargetDimensionInfo = BasicDimensionInfo & {
+export type TargetDimensionInfo = {
   __typename?: 'TargetDimensionInfo';
   id?: Maybe<Scalars['ID']>;
   name?: Maybe<Scalars['String']>;
@@ -1771,12 +1779,10 @@ export type UpdateShipmentWhenReceivingMutationVariables = Exact<{
 
 export type UpdateShipmentWhenReceivingMutation = { __typename?: 'Mutation', updateShipmentWhenReceiving?: { __typename?: 'Shipment', id: string, labelIdentifier: string, state?: ShipmentState | null, startedOn: any, sentOn?: any | null, receivingStartedOn?: any | null, completedOn?: any | null, canceledOn?: any | null, details: Array<{ __typename?: 'ShipmentDetail', id: string, sourceQuantity?: number | null, targetQuantity?: number | null, createdOn: any, removedOn?: any | null, lostOn?: any | null, receivedOn?: any | null, box: { __typename?: 'Box', labelIdentifier: string, state: BoxState, comment?: string | null, lastModifiedOn?: any | null, location?: { __typename?: 'ClassicLocation', id: string, base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', id: string, base?: { __typename?: 'Base', id: string } | null } | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null }, sourceProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, deletedOn?: any | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, targetProduct?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, deletedOn?: any | null, category: { __typename?: 'ProductCategory', name: string }, sizeRange: { __typename?: 'SizeRange', id: string, label: string, sizes: Array<{ __typename?: 'Size', id: string, label: string }> } } | null, sourceSize?: { __typename?: 'Size', id: string, label: string } | null, targetSize?: { __typename?: 'Size', id: string, label: string } | null, sourceLocation?: { __typename?: 'ClassicLocation', defaultBoxState?: BoxState | null, id: string, name?: string | null } | null, createdBy: { __typename?: 'User', id: string, name?: string | null }, removedBy?: { __typename?: 'User', id: string, name?: string | null } | null, lostBy?: { __typename?: 'User', id: string, name?: string | null } | null, receivedBy?: { __typename?: 'User', id: string, name?: string | null } | null }>, sourceBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, targetBase: { __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }, transferAgreement: { __typename?: 'TransferAgreement', id: string, comment?: string | null, type: TransferAgreementType }, startedBy: { __typename?: 'User', id: string, name?: string | null }, sentBy?: { __typename?: 'User', id: string, name?: string | null } | null, receivingStartedBy?: { __typename?: 'User', id: string, name?: string | null } | null, completedBy?: { __typename?: 'User', id: string, name?: string | null } | null, canceledBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
 
-export type OrganisationAndBasesQueryVariables = Exact<{
-  organisationId: Scalars['ID'];
-}>;
+export type OrganisationAndBasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrganisationAndBasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string }>, organisation?: { __typename?: 'Organisation', id: string, name: string } | null };
+export type OrganisationAndBasesQuery = { __typename?: 'Query', bases: Array<{ __typename?: 'Base', id: string, name: string, organisation: { __typename?: 'Organisation', id: string, name: string } }> };
 
 export type BoxDetailsQueryVariables = Exact<{
   labelIdentifier: Scalars['String'];

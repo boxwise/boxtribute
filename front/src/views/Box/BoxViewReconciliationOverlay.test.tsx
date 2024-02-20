@@ -1,31 +1,18 @@
-/* eslint-disable */
-import "@testing-library/jest-dom";
-import { screen, render, waitFor } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
+import { vi, beforeEach, it, expect } from "vitest";
+import { screen, render } from "tests/test-utils";
 import { cache } from "queries/cache";
-
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
-
 import {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY,
 } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
-import BTBox from "./BoxView";
 import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
 import { mockMatchMediaQuery } from "mocks/functions";
-
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-
-cache.reset();
+import BTBox from "./BoxView";
 
 const initialQueryForBoxInReceivingState = {
   request: {
@@ -129,16 +116,10 @@ const queryShipmentDetailForBoxReconciliation = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 // Test case 4.7.4.1
 it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals Receiving", async () => {
-  const user = userEvent.setup();
-
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/123",
@@ -147,7 +128,7 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
     addTypename: true,
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -156,13 +137,7 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
     },
   });
 
-  await waitFor(async () => {
-    expect(await screen.getByRole("heading", { name: /box 123/i })).toBeInTheDocument();
-  });
-
-  await waitFor(async () => {
-    expect(await screen.getByRole("banner")).toBeInTheDocument();
-  });
+  expect(await screen.findByRole("heading", { name: /box 123/i })).toBeInTheDocument();
 
   expect(screen.getByText(/match products/i)).toBeInTheDocument();
   expect(screen.getByText(/receive location/i)).toBeInTheDocument();

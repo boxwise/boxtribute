@@ -1,4 +1,5 @@
 """Configuration and instantiation of web app and peewee-managed database"""
+
 import os
 
 import sentry_sdk
@@ -24,6 +25,7 @@ def configure_app(
         app.register_blueprint(blueprint)
 
     app.config["DATABASE"] = database_interface or create_db_interface(**mysql_kwargs)
+    app.config["FLASKDB_EXCLUDED_ROUTES"] = ["api_bp.api_token"]
 
     if replica_socket or mysql_kwargs:
         # In deployed environment: replica_socket is set
@@ -56,7 +58,7 @@ def main(*blueprints):
 
         error_class, error, _ = exc_info
         if issubclass(error_class, GraphQLError) and not error.extensions:
-            # Don't send GraphQLErrors from the Query API caused by GraphQL Playground
+            # Don't send GraphQLErrors from the Query API caused by GraphQL explorer
             # users during experimenting/typing. Authz and validation errors (custom
             # back-end exceptions) are still reported because they have the 'extensions'
             # attribute

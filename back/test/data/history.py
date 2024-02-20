@@ -13,8 +13,32 @@ def data():
     return (
         [
             {
+                "id": i,
+                "changes": "Record created",
+                "record_id": box["id"],
+                "change_date": box["created_on"],
+                "table_name": "stock",
+                "from_int": None,
+                "to_int": None,
+            }
+            for i, box in enumerate(box_data(), start=1)
+        ]
+        + [
+            {
+                "id": i,
+                "changes": "box_state_id",
+                "record_id": box["id"],
+                "change_date": "2022-12-05",
+                "table_name": "stock",
+                "from_int": BoxState.InStock,
+                "to_int": BoxState.Donated,
+            }
+            for i, box in enumerate(donated_boxes_data(), start=1 + len(box_data()))
+        ]
+        + [
+            {
                 # corresponding box was added to a shipment
-                "id": 1,
+                "id": 110,
                 "changes": "box_state_id",
                 "from_int": 1,
                 "to_int": 3,
@@ -31,29 +55,6 @@ def data():
                 "change_date": datetime(2023, 2, 1),
                 "table_name": "stock",
             },
-            {"id": 112, "changes": "Changes"},
-        ]
-        + [
-            {
-                "id": i,
-                "changes": "Record created",
-                "record_id": box["id"],
-                "change_date": box["created_on"],
-                "table_name": "stock",
-            }
-            for i, box in enumerate(box_data(), start=2)
-        ]
-        + [
-            {
-                "id": i,
-                "changes": "box_state_id",
-                "record_id": box["id"],
-                "change_date": "2022-12-05",
-                "table_name": "stock",
-                "from_int": BoxState.InStock,
-                "to_int": BoxState.Donated,
-            }
-            for i, box in enumerate(donated_boxes_data(), start=3 + len(box_data()))
         ]
     )
 

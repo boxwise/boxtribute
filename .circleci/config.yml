@@ -100,23 +100,23 @@ jobs:
           name: Generate .env File
           command: |
             echo "
-              REACT_APP_AUTH0_DOMAIN=${AUTH0_DOMAIN}
-              REACT_APP_AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
-              REACT_APP_AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
-              REACT_APP_REDIRECT=${REACT_APP_REDIRECT}
-              REACT_APP_LOGOUT_URL=${REACT_APP_LOGOUT_URL}
-              REACT_APP_GRAPHQL_SERVER=${REACT_APP_GRAPHQL_SERVER}
-              REACT_APP_OLD_APP_BASE_URL=${OLD_APP_BASE_URL}
-              REACT_APP_SENTRY_FE_DSN=${SENTRY_FE_DSN}
-              REACT_APP_SENTRY_ENVIRONMENT=${ENVIRONMENT}
-              REACT_APP_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
-              REACT_APP_ENVIRONMENT=${ENVIRONMENT}
+              FRONT_AUTH0_DOMAIN=${AUTH0_DOMAIN}
+              FRONT_AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+              FRONT_AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+              FRONT_REDIRECT=${FRONT_REDIRECT}
+              FRONT_LOGOUT_URL=${FRONT_LOGOUT_URL}
+              FRONT_GRAPHQL_SERVER=${FRONT_GRAPHQL_SERVER}
+              FRONT_OLD_APP_BASE_URL=${OLD_APP_BASE_URL}
+              FRONT_SENTRY_FE_DSN=${SENTRY_FE_DSN}
+              FRONT_SENTRY_ENVIRONMENT=${ENVIRONMENT}
+              FRONT_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              FRONT_ENVIRONMENT=${ENVIRONMENT}
             " > .env
       - run:
           name: Run style checks
           command: |
-            yarn lint
-            yarn format:write
+            yarn lint:fix:all
+            yarn format:write:all
       - run:
           name: Build front
           command: |
@@ -127,29 +127,33 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - front/build
+            - front/dist
 
   test-front:
     executor: node-executor
     working_directory: ~/front
+    resource_class: medium+
     steps:
       - attach_workspace:
           at: ~/
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --ci --runInBand --reporters=default --reporters=jest-junit
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: reports
+            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --test-timeout=40000
       - store_test_results:
-          path: reports
+          path: coverage/junit.xml
       - store_artifacts:
           path: coverage
           destination: coverage
       - codecov/upload:
           flags: frontend
+          file: coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
+      - run:
+          name: Show memory usage of FE tests in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
@@ -170,7 +174,7 @@ jobs:
           name: run style checks on Python files
           command: |
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
-            pre-commit run --files **/*.py
+            pre-commit run --files ./**/*.py
       - save_cache:
           key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
@@ -199,9 +203,9 @@ jobs:
           command: |
             source $(pyenv root)/versions/3.10.4/envs/env/bin/activate
             # overwrite environment variable because it must not depend on the CircleCI context
-            ENVIRONMENT=development MYSQL_PORT=3306 pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server
+            ENVIRONMENT=development MYSQL_PORT=3306 pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml
       - store_test_results:
-          path: test-results
+          path: test-results/junit.xml
       - store_artifacts:
           path: test-results
       - slack/notify-on-failure:
@@ -225,11 +229,11 @@ jobs:
       - run:
           name: Inject Heap Analytics Script to index.html
           command: |
-            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../front/build/heapanalytics.js
-            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../front/build/index.html
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../front/dist/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../front/dist/index.html
       - run:
           name: Copy react build into flask app for deployment
-          command: mv ../front/build front-build
+          command: mv ../front/dist front-build
       - run:
           name: Create version.txt
           command: |

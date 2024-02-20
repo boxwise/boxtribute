@@ -25,7 +25,7 @@ def valid_data():
             "base": 1,
             "price": 20,
             "in_shop": 0,
-            "comments": "",
+            "comment": "",
         },
         {
             "name": "umbrellas",
@@ -35,7 +35,7 @@ def valid_data():
             "base": 2,
             "price": 10,
             "in_shop": 0,
-            "comments": "yellow color",
+            "comment": "yellow color",
         },
     ]
 
@@ -97,7 +97,7 @@ def invalid_typed_data_filepath():
                     "base": 1,
                     "price": 20,
                     "in_shop": 0,
-                    "comments": "",
+                    "comment": "",
                 }
             ],
             fieldnames=PRODUCT_COLUMN_NAMES,

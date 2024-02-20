@@ -16,6 +16,7 @@ RUN yarn policies set-version $YARN_VERSION
 # Copy the root package.json and yarn.lock.
 COPY package.json .
 COPY yarn.lock .
+COPY shared-components shared-components
 
 # Copy the service package.json and yarn.lock.
 COPY ./${SERVICE_DIR}/package.json ${SERVICE_DIR}/

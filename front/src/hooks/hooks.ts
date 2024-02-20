@@ -20,9 +20,10 @@ export const useHandleLogout = () => {
 
   const handleLogout = () => {
     // only redirect in staging and production environments
-    if (process.env.REACT_APP_ENVIRONMENT !== "development") {
-      // eslint-disable-next-line max-len
-      window.location.href = `${process.env.REACT_APP_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
+    if (import.meta.env.FRONT_ENVIRONMENT !== "development") {
+      window.location.href = `${
+        import.meta.env.FRONT_OLD_APP_BASE_URL
+      }/index.php?action=logoutfromv2`;
     } else {
       logout();
     }

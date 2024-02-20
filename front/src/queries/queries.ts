@@ -14,14 +14,14 @@ import {
 
 // very first query that is always executed
 export const ORGANISATION_AND_BASES_QUERY = gql`
-  query OrganisationAndBases($organisationId: ID!) {
+  query OrganisationAndBases {
     bases {
       id
       name
-    }
-    organisation(id: $organisationId) {
-      id
-      name
+      organisation {
+        id
+        name
+      }
     }
   }
 `;

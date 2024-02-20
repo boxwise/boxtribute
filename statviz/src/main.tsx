@@ -1,14 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
-import { theme } from "./utils/theme";
 import { BrowserRouter } from "react-router-dom";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
-import App from "./App.tsx";
+import { theme } from "@boxtribute/shared-components/Utils/theme";
+import App from "./App";
 
 const client = new ApolloClient({
   uri: import.meta.env.STATVIZ_GRAPHQL_SERVER,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      DimensionInfo: {
+        keyFields: ["id", "name"],
+      },
+    },
+  }),
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -21,5 +27,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ApolloProvider>
       </BrowserRouter>
     </ChakraProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

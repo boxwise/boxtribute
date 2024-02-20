@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import "regenerator-runtime/runtime";
 import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
@@ -9,15 +8,6 @@ import Layout from "components/Layout";
 import Boxes from "views/Boxes/BoxesView";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
-import DistroSpotsView from "views/Distributions/DistroSpotsView/DistroSpotsView";
-import DistrosDashboardView from "views/Distributions/DistrosDashboardView/DistrosDashboardView";
-import DistroEventView from "views/Distributions/DistroEventView/DistroEventView";
-import DistroSpotView from "views/Distributions/DistroSpotView/DistroSpotView";
-import CreateDistributionEventView from "views/Distributions/CreateDistributionEventView/CreateDistributionEventView";
-import CreateDistributionSpotView from "views/Distributions/CreateDistributionSpotView/CreateDistributionSpotView";
-import DistrosReturnTrackingGroupView from "views/Distributions/DistributionReturnTrackings/DistrosReturnTrackingGroupView/DistrosReturnTrackingGroupView";
-import DistributionReturnTrackingsView from "views/Distributions/DistributionReturnTrackings/DistributionReturnTrackingsView/DistributionReturnTrackingsView";
-import CreateDirectDistributionEventView from "views/Distributions/CreateDirectDistributionEventView/CreateDirectDistributionEventView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
 import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
@@ -32,6 +22,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
 import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
+import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 
 interface IProtectedRouteProps {
   component: ReactElement;
@@ -110,6 +101,14 @@ function App() {
             <Route index element={<QrReaderView />} />
             <Route path=":hash" element={<ResolveHash />} />
           </Route>
+          <Route path="statviz">
+            <Route
+              index
+              element={
+                <Protected component={<Dashboard />} redirectPath={prevLocation} minBeta={3} />
+              }
+            />
+          </Route>
           <Route path="boxes">
             <Route
               index
@@ -118,7 +117,6 @@ function App() {
                   component={
                     <ErrorBoundary
                       fallback={
-                        // eslint-disable-next-line max-len
                         <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
                       }
                     >
@@ -224,35 +222,6 @@ function App() {
                   />
                 }
               />
-            </Route>
-          </Route>
-          <Route
-            path="distributions"
-            element={<Protected component={<Outlet />} redirectPath={prevLocation} minBeta={999} />}
-          >
-            <Route index element={<DistrosDashboardView />} />
-            <Route path="return-trackings">
-              <Route index element={<DistributionReturnTrackingsView />} />
-              <Route path=":trackingGroupId" element={<DistrosReturnTrackingGroupView />} />
-            </Route>
-            <Route path="events">
-              <Route path="create" element={<CreateDirectDistributionEventView />} />
-              <Route path=":eventId">
-                <Route index element={<DistroEventView />} />
-              </Route>
-            </Route>
-            <Route path="spots">
-              <Route index element={<DistroSpotsView />} />
-              <Route path="create" element={<CreateDistributionSpotView />} />
-              <Route path=":distributionSpotId">
-                <Route index element={<DistroSpotView />} />
-                <Route path="events">
-                  <Route path=":eventId">
-                    <Route index element={<DistroEventView />} />
-                  </Route>
-                  <Route path="create" element={<CreateDistributionEventView />} />
-                </Route>
-              </Route>
             </Route>
           </Route>
         </Route>

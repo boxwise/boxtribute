@@ -1,6 +1,6 @@
 import os
 
-from boxtribute_server.auth import JWT_CLAIM_PREFIX, request_jwt
+from boxtribute_server.auth import GOD_ROLE, JWT_CLAIM_PREFIX, request_jwt
 
 TEST_AUTH0_DOMAIN = "boxtribute-dev.eu.auth0.com"
 TEST_AUTH0_AUDIENCE = "boxtribute-dev-api"
@@ -59,8 +59,8 @@ def _create_jwt_payload(
     email="dev_coordinator@boxaid.org",
     base_ids=(1,),
     organisation_id=1,
-    roles=("Coordinator",),
     user_id=8,
+    is_god=False,
     permissions=None,
     timezone="Europe/London",
 ):
@@ -79,8 +79,10 @@ def _create_jwt_payload(
         f"{JWT_CLAIM_PREFIX}/email": email,
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
-        f"{JWT_CLAIM_PREFIX}/roles": roles,
         f"{JWT_CLAIM_PREFIX}/timezone": timezone,
+        f"{JWT_CLAIM_PREFIX}/roles": (
+            [GOD_ROLE] if is_god else [f"base_{base_ids[0]}_coordinator"]
+        ),
         "sub": f"auth0|{user_id}",
     }
 

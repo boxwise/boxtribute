@@ -43,7 +43,10 @@ and then checking the Y component (luma). Cf. https://stackoverflow.com/a/946734
 */
 export const colorIsBright = (hex) => {
   const [r, g, b] = hex
-    .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
+    .replace(
+      /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
+      (_m, _r, _g, _b) => `#${_r}${_r}${_g}${_g}${_b}${_b}`,
+    )
     .substring(1)
     .match(/.{2}/g)
     .map((x) => parseInt(x, 16));

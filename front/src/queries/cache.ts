@@ -13,6 +13,10 @@ export const cache = new InMemoryCache({
       // QR-Codes should be normalized by their hash
       keyFields: ["code"],
     },
+    DimensionInfo: {
+      // DimensionInfos must be normalized by id and name
+      keyFields: ["id", "name"],
+    },
   },
 });
 

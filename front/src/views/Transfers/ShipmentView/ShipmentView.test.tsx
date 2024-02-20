@@ -1,21 +1,14 @@
-import "@testing-library/jest-dom";
+import { vi, beforeEach, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { GraphQLError } from "graphql";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState, ShipmentState } from "types/generated/graphql";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import userEvent from "@testing-library/user-event";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
-
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
 
 const initialQuery = {
   request: {
@@ -81,7 +74,6 @@ const initialCompletedShipemntQuery = {
       shipment: generateMockShipmentWithCustomDetails({
         state: ShipmentState.Completed,
         details: [
-          // eslint-disable-next-line no-undef
           generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
           generateMockShipmentDetail({
             id: "2",
@@ -154,10 +146,6 @@ const initialRecevingUIAsTargetOrgQuery = {
 beforeEach(() => {
   // setting the screensize to
   mockMatchMediaQuery(true);
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 });
 
 describe("4.5 Test Cases", () => {
@@ -175,7 +163,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -183,7 +171,6 @@ describe("4.5 Test Cases", () => {
       },
     });
 
-    // eslint-disable-next-line testing-library/prefer-presence-queries
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     await waitFor(() => {
@@ -208,7 +195,7 @@ describe("4.5 Test Cases", () => {
   }, 10000);
 
   // Test case 4.5.1.4
-  // eslint-disable-next-line max-len
+
   it("4.5.1.4 - Content: When shipment does not contains any products display correct message", async () => {
     render(<ShipmentView />, {
       routePath: "/bases/:baseId/transfers/shipments/:id",
@@ -216,7 +203,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialWithoutBoxQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -228,7 +215,7 @@ describe("4.5 Test Cases", () => {
       expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
     });
 
-    const title = screen.getByText(/prepare shipment/i);
+    const title = await screen.findByText(/prepare shipment/i);
     expect(title).toBeInTheDocument();
     // Test case 4.5.1.4 - Content: When shipment does not contains any products display correct message
     expect(
@@ -237,7 +224,7 @@ describe("4.5 Test Cases", () => {
   }, 10000);
 
   // Test case 4.5.1.6
-  // eslint-disable-next-line max-len
+
   it("4.5.1.6 - Show the number of items per box and the sum of the items grouped together", async () => {
     const user = userEvent.setup();
     render(<ShipmentView />, {
@@ -246,7 +233,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialWithGroupedItemQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -294,7 +281,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialQueryNetworkError],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -316,7 +303,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialRecevingUIAsTargetOrgQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -324,7 +311,6 @@ describe("4.5 Test Cases", () => {
       },
     });
 
-    // eslint-disable-next-line testing-library/prefer-presence-queries
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     await waitFor(() => {
@@ -332,7 +318,6 @@ describe("4.5 Test Cases", () => {
       expect(title);
     });
 
-    // eslint-disable-next-line max-len
     expect(
       screen.getByRole("cell", { name: /124 long sleeves \(12x\) size: mixed/i }),
     ).toBeInTheDocument();
@@ -347,7 +332,7 @@ describe("4.5 Test Cases", () => {
       mocks: [initialRecevingUIAsSourceOrgQuery],
       addTypename: true,
       globalPreferences: {
-        dispatch: jest.fn(),
+        dispatch: vi.fn(),
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
@@ -355,7 +340,6 @@ describe("4.5 Test Cases", () => {
       },
     });
 
-    // eslint-disable-next-line testing-library/prefer-presence-queries
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     await waitFor(() => {
@@ -374,7 +358,7 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     mocks: [initialCompletedShipemntQuery],
     addTypename: true,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -382,7 +366,6 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     },
   });
 
-  // eslint-disable-next-line testing-library/prefer-presence-queries
   expect(screen.getByTestId("loader")).toBeInTheDocument();
 
   await waitFor(() => {

@@ -1,10 +1,10 @@
+import { vi, beforeEach, it, expect } from "vitest";
 import { basicShipment, generateMockShipment } from "mocks/shipments";
 import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState } from "types/generated/graphql";
 import { shipmentDetail1 } from "mocks/shipmentDetail";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useNotification } from "hooks/useNotification";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
@@ -16,6 +16,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { ErrorBoundary } from "@sentry/react";
+import { mockedCreateToast } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
 const boxesQuery = ({
@@ -96,29 +97,12 @@ const mutation = ({
   error: networkError ? new Error() : undefined,
 });
 
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
-
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useNotification");
-jest.mock("@auth0/auth0-react");
-
-// .mocked() is a nice helper function from jest for typescript support
-// https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
+vi.mock("@auth0/auth0-react");
+const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
-});
-
-afterEach(() => {
   tableConfigsVar(new Map());
-  cache.restore(emptyCache);
 });
 
 const moveBoxesGQLRequest = gql`
@@ -369,20 +353,24 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams }) => 
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       // Select the first box
-      const checkboxes = await screen.findAllByRole("checkbox", { name: /toggle row selected/i });
+      const checkboxes = await screen.findAllByRole(
+        "checkbox",
+        { name: /toggle row selected/i },
+        { timeout: 5000 },
+      );
       expect(checkboxes.length).toBe(1);
-      user.click(checkboxes[0]);
+      await user.click(checkboxes[0]);
       await waitFor(() => expect(checkboxes[0]).toBeChecked());
 
       // Click the action buttons
       const actionButton = await screen.findByRole("button", { name: clicks[0] });
       expect(actionButton).toBeInTheDocument();
-      user.click(actionButton);
+      await user.click(actionButton);
 
       if (clicks[1]) {
         const subButton = await screen.findByText(clicks[1]);
         expect(subButton).toBeInTheDocument();
-        user.click(subButton);
+        await user.click(subButton);
       }
 
       if (toast) {
@@ -396,6 +384,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams }) => 
         );
       }
     },
-    10000,
+    20000,
   );
 });

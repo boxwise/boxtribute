@@ -1,34 +1,16 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
+    /* imports are relative to the src/ directory */
     "baseUrl": "src",
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+
+    /* The following linting settings we might want to get rid of in the future */
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "strictNullChecks": true,
     "strictFunctionTypes": false,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    // https://engineering.zalando.com/posts/2019/02/typescript-best-practices.html
-    "noImplicitAny": false,
-    "noUnusedLocals": false,
-    // https://github.com/google/gts/blob/main/tsconfig-google.json
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "declaration": true,
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "pretty": true,
-    "sourceMap": true
+    "noImplicitAny": false
   },
-  "include": ["src"]
+  /* "types": ["vite/client"], not sure if needed */
+  "include": ["src"],
+  /* exclude Distributions from type checking */
+  "exclude": ["src/views/Distributions"]
 }

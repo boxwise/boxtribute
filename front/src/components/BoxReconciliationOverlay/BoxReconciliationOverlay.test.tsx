@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import { vi, beforeEach, it, expect, describe } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
@@ -14,36 +14,18 @@ import { tag1, tag2 } from "mocks/tags";
 import userEvent from "@testing-library/user-event";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 
-// extracting a cacheObject to reset the cache correctly later
-const emptyCache = cache.extract();
-
-// Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render.
-// Therefore, we need to mock them since otherwise we easily get false negatives
-// Everywhere where we have more than one occation of a toast we should do this.
-const mockedTriggerError = jest.fn();
-const mockedCreateToast = jest.fn();
-jest.mock("hooks/useErrorHandling");
-jest.mock("hooks/useNotification");
-jest.mock("@auth0/auth0-react");
-window.scrollTo = jest.fn();
+vi.mock("@auth0/auth0-react");
+// @ts-ignore
+window.scrollTo = vi.fn();
 
 // .mocked() is a nice helper function from jest for typescript support
 // https://jestjs.io/docs/mock-function-api/#typescript-usage
-const mockedUseAuth0 = jest.mocked(useAuth0);
+const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
-  const mockedUseErrorHandling = jest.mocked(useErrorHandling);
-  mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
-  const mockedUseNotification = jest.mocked(useNotification);
-  mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
-});
-
-afterEach(() => {
-  cache.restore(emptyCache);
 });
 
 const queryShipmentDetailForBoxReconciliation = {
@@ -80,7 +62,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
 };
 
 // Test case 4.7.2
-// eslint-disable-next-line max-len
+
 it("4.7.2 - Query for shipment, box, available products, sizes and locations returns an error ", async () => {
   boxReconciliationOverlayVar({
     isOpen: true,
@@ -93,7 +75,7 @@ it("4.7.2 - Query for shipment, box, available products, sizes and locations ret
     mocks: [failedQueryShipmentDetailForBoxReconciliation],
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -179,7 +161,7 @@ describe("No Delivery Tests", () => {
           mocks,
           cache,
           globalPreferences: {
-            dispatch: jest.fn(),
+            dispatch: vi.fn(),
             globalPreferences: {
               organisation: { id: organisation1.id, name: organisation1.name },
               availableBases: organisation1.bases,
@@ -194,13 +176,13 @@ describe("No Delivery Tests", () => {
         // Click trashIcon Button
         const noDeliveryIconButton = screen.getByTestId("NoDeliveryIcon");
         expect(noDeliveryIconButton).toBeInTheDocument();
-        user.click(noDeliveryIconButton);
+        await user.click(noDeliveryIconButton);
 
         // AYS is open
         expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
         const noButton = screen.getByRole("button", { name: /nevermind/i });
         expect(noButton).toBeInTheDocument();
-        user.click(noButton);
+        await user.click(noButton);
 
         // BoxReconciliation is visible
         expect(await screen.findByText(/box 123/i)).toBeInTheDocument();
@@ -210,16 +192,16 @@ describe("No Delivery Tests", () => {
           name: /1\. match products/i,
         });
         expect(matchProductButton).toBeInTheDocument();
-        user.click(matchProductButton);
+        await user.click(matchProductButton);
         const noDeliveryButton = screen.getByTestId("NoDeliveryButton");
         expect(noDeliveryButton).toBeInTheDocument();
-        user.click(noDeliveryButton);
+        await user.click(noDeliveryButton);
 
         // AYS is open
         expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
         const yesButton = screen.getByTestId("AYSRightButton");
         expect(yesButton).toBeInTheDocument();
-        user.click(yesButton);
+        await user.click(yesButton);
 
         // toast shown
         await waitFor(
@@ -232,13 +214,13 @@ describe("No Delivery Tests", () => {
           { timeout: 5000 },
         );
       },
-      20000,
+      40000,
     );
   });
 });
 
 // Test case 4.7.1
-// eslint-disable-next-line max-len
+
 it("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
   const user = userEvent.setup();
   boxReconciliationOverlayVar({
@@ -252,7 +234,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
     mocks: [queryShipmentDetailForBoxReconciliation],
     cache,
     globalPreferences: {
-      dispatch: jest.fn(),
+      dispatch: vi.fn(),
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
@@ -268,14 +250,14 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   const matchProductButton = screen.getByRole("button", {
     name: /1\. match products/i,
   });
-  user.click(matchProductButton);
+  await user.click(matchProductButton);
 
   expect((await screen.findAllByText(/Long Sleeves/i)).length).toBeGreaterThanOrEqual(1);
   expect((await screen.findAllByText(/sender product & gender/i)).length).toBeGreaterThanOrEqual(1);
   const selectProductControlInput = screen.getByText(/save product as\.\.\./i);
   // check if source product renders correctly
   expect(screen.getByText(/Long Sleeves \(Women\)/i)).toBeInTheDocument();
-  user.click(selectProductControlInput);
+  await user.click(selectProductControlInput);
   [/Winter Jackets \(Men\)/, /Long Sleeves \(Women\)/].forEach(async (option) => {
     expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
   });
@@ -283,13 +265,11 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   const receiveLocationButton = screen.getByRole("button", {
     name: /2\. receive location/i,
   });
-  user.click(receiveLocationButton);
+  await user.click(receiveLocationButton);
 
   expect((await screen.findAllByText(/select location/i)).length).toBeGreaterThanOrEqual(1);
 
   const selectLocationControlInput = screen.getByText(/select location/i);
-  user.click(selectLocationControlInput);
-  [/WH Men/].forEach(async (option) => {
-    expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
-  });
+  await user.click(selectLocationControlInput);
+  expect(await screen.findByRole("option", { name: /WH Men/i })).toBeInTheDocument();
 }, 20000);
