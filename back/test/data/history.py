@@ -7,6 +7,9 @@ from boxtribute_server.models.definitions.history import DbChangeHistory
 from .box import another_marked_for_shipment_box_data
 from .box import data as box_data
 from .box import donated_boxes_data, lost_box_data
+from .user import default_user_data
+
+USER_ID = default_user_data()["id"]
 
 
 def data():
@@ -18,6 +21,7 @@ def data():
                 "record_id": box["id"],
                 "change_date": box["created_on"],
                 "table_name": "stock",
+                "user": USER_ID,
                 "from_int": None,
                 "to_int": None,
             }
@@ -30,6 +34,7 @@ def data():
                 "record_id": box["id"],
                 "change_date": "2022-12-05",
                 "table_name": "stock",
+                "user": USER_ID,
                 "from_int": BoxState.InStock,
                 "to_int": BoxState.Donated,
             }
@@ -45,6 +50,7 @@ def data():
                 "record_id": another_marked_for_shipment_box_data()["id"],
                 "change_date": datetime(2023, 6, 21),
                 "table_name": "stock",
+                "user": USER_ID,
             },
             {
                 "id": 111,
@@ -54,6 +60,7 @@ def data():
                 "record_id": lost_box_data()["id"],
                 "change_date": datetime(2023, 2, 1),
                 "table_name": "stock",
+                "user": USER_ID,
             },
         ]
     )

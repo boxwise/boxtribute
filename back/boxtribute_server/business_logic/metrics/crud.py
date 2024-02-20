@@ -6,8 +6,6 @@ from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.location import Location
-from ...models.definitions.product import Product
-from ...models.definitions.product_category import ProductCategory
 from ...models.definitions.transaction import Transaction
 
 
@@ -115,43 +113,3 @@ def compute_stock_overview(*, organisation_id):
         .get()
     )
     return {n: getattr(overview, n) for n in ["number_of_boxes", "number_of_items"]}
-
-
-def compute_moved_stock_overview(*, organisation_id, after, before):
-    """Construct filter for date range, if at least one of `after` or `before` is given.
-    Compute number of boxes, and contained items, moved by `organisation_id` that were
-    served in that date range (default to all time). Group by ProductCategory.
-    """
-    date_filter = _build_range_filter(Box.last_modified_on, low=after, high=before)
-
-    boxes = (
-        Box.select(
-            ProductCategory.name,
-            fn.sum(Box.number_of_items).alias("number_of_items"),
-            fn.Count(Box.id).alias("number_of_boxes"),
-        )
-        .join(Location)
-        .join(Base)
-        .switch(Box)
-        .join(Product)
-        .join(ProductCategory)
-        .where(
-            (Base.organisation == organisation_id)
-            & (date_filter)
-            & (Location.visible == 1)
-            & (Location.is_lost != 1)
-            & (Location.is_scrap != 1)
-        )
-        .group_by(ProductCategory.name)
-    )
-
-    overview = []
-    for box in boxes:
-        overview.append(
-            {
-                "product_category_name": box.product.category.name,
-                "number_of_boxes": box.number_of_boxes,
-                "number_of_items": box.number_of_items,
-            }
-        )
-    return overview

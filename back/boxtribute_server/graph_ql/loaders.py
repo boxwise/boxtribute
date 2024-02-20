@@ -1,11 +1,16 @@
 from collections import defaultdict
+from datetime import datetime
+from functools import partial
 
 from aiodataloader import DataLoader as _DataLoader
+from peewee import SQL, Case, NodeList, fn
 
 from ..authz import authorize, authorized_bases_filter
 from ..enums import TaggableObjectType
 from ..models.definitions.base import Base
 from ..models.definitions.box import Box
+from ..models.definitions.box_state import BoxState
+from ..models.definitions.history import DbChangeHistory
 from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
@@ -18,6 +23,7 @@ from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
+from ..models.utils import convert_ids
 from ..utils import convert_pascal_to_snake_case
 
 
@@ -147,6 +153,196 @@ class TagsForBoxLoader(DataLoader):
 
         # Keys are in fact box IDs. Return empty list if box has no tags assigned
         return [tags.get(i, []) for i in keys]
+
+
+class HistoryForBoxLoader(DataLoader):
+    async def batch_load_fn(self, box_ids):
+        History = DbChangeHistory.alias()
+        ToProduct = Product.alias()
+        ToLocation = Location.alias()
+        ToSize = Size.alias()
+        ToBoxState = BoxState.alias()
+
+        # Return formatted history entries of boxes with given IDs, sorted by most
+        # recent first.
+        # Group history entry IDs, change dates, user IDs, and formatted messages for
+        # each box. Convert these into Python lists of appropriate data type
+        result = (
+            History.select(
+                # This translates to 'GROUP_CONCAT(h.id ORDER BY h.id DESC)'
+                fn.GROUP_CONCAT(
+                    NodeList(((History.id, SQL("ORDER BY"), History.id.desc())))
+                )
+                .python_value(convert_ids)
+                .alias("ids"),
+                fn.GROUP_CONCAT(
+                    NodeList(
+                        ((History.change_date, SQL("ORDER BY"), History.id.desc()))
+                    )
+                )
+                .python_value(partial(convert_ids, converter=datetime.fromisoformat))
+                .alias("change_dates"),
+                fn.GROUP_CONCAT(
+                    NodeList(
+                        (
+                            (
+                                fn.IFNULL(History.user, SQL("NULL")),
+                                SQL("ORDER BY"),
+                                History.id.desc(),
+                            )
+                        )
+                    )
+                )
+                .python_value(convert_ids)
+                .alias("user_ids"),
+                fn.GROUP_CONCAT(
+                    NodeList(
+                        (
+                            (
+                                Case(
+                                    None,
+                                    (
+                                        (
+                                            (History.changes == "location_id"),
+                                            fn.CONCAT(
+                                                "changed box location from ",
+                                                Location.name,
+                                                " to ",
+                                                ToLocation.name,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "product_id"),
+                                            fn.CONCAT(
+                                                "changed product type from ",
+                                                Product.name,
+                                                " to ",
+                                                ToProduct.name,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "size_id"),
+                                            fn.CONCAT(
+                                                "changed size from ",
+                                                Size.label,
+                                                " to ",
+                                                ToSize.label,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "box_state_id"),
+                                            fn.CONCAT(
+                                                "changed box state from ",
+                                                BoxState.label,
+                                                " to ",
+                                                ToBoxState.label,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "items"),
+                                            fn.CONCAT(
+                                                "changed the number of items from ",
+                                                History.from_int,
+                                                " to ",
+                                                History.to_int,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes.startswith("comments")),
+                                            fn.REPLACE(
+                                                History.changes,
+                                                "comments changed",
+                                                "changed comments",
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes.startswith("Record")),
+                                            fn.REPLACE(
+                                                History.changes,
+                                                "Record created",
+                                                "created record",
+                                            ),
+                                        ),
+                                    ),
+                                    History.changes,
+                                ),
+                                SQL("ORDER BY"),
+                                History.id.desc(),
+                            )
+                        )
+                    )
+                )
+                .python_value(partial(convert_ids, converter=str))
+                .alias("messages"),
+                History.record_id,
+            )
+            .left_outer_join(
+                Product,
+                on=(
+                    (Product.id == History.from_int) & (History.changes == "product_id")
+                ),
+            )
+            .left_outer_join(
+                ToProduct,
+                on=(
+                    (ToProduct.id == History.to_int) & (History.changes == "product_id")
+                ),
+            )
+            .left_outer_join(
+                Location,
+                on=(
+                    (Location.id == History.from_int)
+                    & (History.changes == "location_id")
+                ),
+            )
+            .left_outer_join(
+                ToLocation,
+                on=(
+                    (ToLocation.id == History.to_int)
+                    & (History.changes == "location_id")
+                ),
+            )
+            .left_outer_join(
+                Size,
+                on=((Size.id == History.from_int) & (History.changes == "size_id")),
+            )
+            .left_outer_join(
+                ToSize,
+                on=((ToSize.id == History.to_int) & (History.changes == "size_id")),
+            )
+            .left_outer_join(
+                BoxState,
+                on=(
+                    (BoxState.id == History.from_int)
+                    & (History.changes == "box_state_id")
+                ),
+            )
+            .left_outer_join(
+                ToBoxState,
+                on=(
+                    (ToBoxState.id == History.to_int)
+                    & (History.changes == "box_state_id")
+                ),
+            )
+            .where(History.table_name == "stock", History.record_id << box_ids)
+            .group_by(History.record_id)
+            .dicts()
+        )
+
+        # Construct mapping of box IDs and their history information
+        box_histories = {}
+        for row in result:
+            box_histories[row["record_id"]] = [
+                DbChangeHistory(id=i, user=u, changes=c, change_date=d)
+                for i, u, c, d in zip(
+                    row["ids"],
+                    row["user_ids"],
+                    row["messages"],
+                    row["change_dates"],
+                )
+            ]
+
+        return [box_histories.get(i, []) for i in box_ids]
 
 
 class ShipmentDetailsForShipmentLoader(DataLoader):

@@ -508,11 +508,6 @@ export type LocationBoxesArgs = {
 
 export type Metrics = {
   __typename?: 'Metrics';
-  /**
-   * Return number of boxes, and contained items, moved by client's organisation in optional date range. Sorted by product category.
-   * See `numberOfFamiliesServed` about using the `after` and `before` parameters.
-   */
-  movedStockOverview?: Maybe<Array<Maybe<StockOverview>>>;
   /**  Like `numberOfFamiliesServed` but add up all members of served families  */
   numberOfBeneficiariesServed?: Maybe<Scalars['Int']>;
   /**
