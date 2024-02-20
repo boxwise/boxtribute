@@ -1,12 +1,12 @@
 # [Statviz] What options of sharing should we allow and what comes with it?
 
-Decision Deadline:
+Last Updated: 2024-02-20
 
 Discussion Participants: @haguesto, @aerinsol, maik
 
 ## Status
 
-proposed
+accepted
 
 ## Context or Problem Statement
 
@@ -14,13 +14,17 @@ In the DSEE 100x project titled "StatViz", our goal is to construct data visuali
 
 We are giving here an overview over possible options for the user to share these visualizations - csv, svg, jpeg, iframe - and how much development and maintenance effort is needed in order to decide which options we should offer we should offer.
 
-Currently, we are planning to build these visualizations in a React FE with a D3.js library and query the underlying data from a GraphQL endpoint.
+Currently, we are planning to build these visualizations in a React FE with Nivo and Visx (libraries based on D3) and query the underlying data from a GraphQL endpoint.
 
 ## Decision Drivers
 
 1. **Keep it simple**: Let's try to not add complexity to our codebase, especially for low maintenance sake.
 
 2. **Minimal development effort**: Keeping it simple might sometimes involve more effort to develop something.
+
+3. Create an effective foundation / re-usability for the planned future availability / aid ordering project
+
+4. Stay within DSEE 100x budget and avoid drawing from too many other resources (e.g. earmarked for other projects in Boxtribute) as much as possible
 
 ## Considered options to share data
 
@@ -47,7 +51,7 @@ Atm the filtering and grouping is happening on the FE side. The BE just returns 
 
 1. Steps 1, 2, 3 from CSV.
 2. There should be an input at least for the aspect ratio (or width and height) of the exported svg. This input could also just be given the window size of the current view. All other properties like axis label font size, axis thickness,... could be calculated based on this input. However, I can imagine that they might want more styling options that they can directly control. At the same time they could easily change the style in the exported svg through Adobe or any coding IDE.
-3. There needs to be a function transforming the data from the graphQL query into the svg. Since an svg can be easily included in the DOM, it makes sense to combine this with a preview view that is directly shown in the fancy graphs view even before the download. (Maik is doing this atm)
+3. There needs to be a function transforming the data from the graphQL query into the svg. Since an svg can be easily included in the DOM, it makes sense to combine this with a preview view that is directly shown in the fancy graphs view even before the download.
 
 #### What (minimal) work needs to be done on the BE side?
 
@@ -107,7 +111,7 @@ Most likely the embed will get large since data and js (maybe even React code) m
 #### comments
 
 - lots of new complexity especially around storing, updating, deleting static data in the frontend.
-- in comparison to D, we the data is stored somewhere in the FE and we do not just directly pass it through an html file. --> probably a small cost increase since we will need more Bucket storage.
+- in comparison to D, the data is stored somewhere in the FE and we do not just directly pass it through an html file. --> probably a small cost increase since we will need more Bucket storage.
 
 ### F. LIVE and DYNAMIC iframe embed
 
@@ -119,10 +123,9 @@ Most likely the embed will get large since data and js (maybe even React code) m
 
 1. same steps as for SVG.
 2. We create a separate public React FE which is hosted on some Google Bucket and whose route is used for the embed.
-3. We make a shared components out of the svg generation and probably filtering between the Boxtribute v2 and the Statviz public FE.
-4. We need to add a way in Boxtribute v2 to enable / disable public sharing of certain visualizations (only possible with the right permissions)
-5. The embed is then just a link to the public statviz frontend and the data is coming from a public graphQL endpoint.
-6. (Maybe we want to limit the filtering/grouping options/range somehow)
+3. We need to add a way in Boxtribute v2 to enable / disable public sharing of certain visualizations (only possible with the right permissions).
+4. The embed is then just a link to the public statviz frontend and the data is coming from a public graphQL endpoint.
+5. (Maybe we want to limit the filtering/grouping options/range somehow)
 
 #### What (minimal) work needs to be done on the BE side?
 
@@ -130,14 +133,16 @@ Most likely the embed will get large since data and js (maybe even React code) m
 2. adding a db table that is tracking which visualization is publically available for which base.
 3. a mutation/query that updates/reads which visualization is publically available for which base.
 4. creation of a public graphQL endpoint. (done)
-5. The public graphQL endpoint should query the data from a read-only replica so that it does not interfere with the Boxtribute v2 app.
+5. The public graphQL endpoint should query the data from a read-only replica so that it does not interfere with the Boxtribute v2 app. (done)
 6. We need to make the queries for the visualizations available through the public endpoint, too. (tiny)
 7. We need to add some authorization that only when the visualization is enabled for a base then the data is returned.
 
 #### comments
 
+We will need this set-up or a similar set-up for the availability map.
+
 ## Decision
 
-I suggest that we start with A,B,C and focus on this for now. I actually realized that there is a way that the second Statviz FE never needs an authentication layer as long as we move all the (sharing) controls into the Boxtribute app. The separate Stativiz FE would only be needed for iframe embeds in whatever way. I should discuss this in detail with Maik though,
+We start with A,B,C and focus on this for now. I actually realized that there is a way that the second Statviz FE never needs an authentication layer as long as we move all the (sharing) controls into the Boxtribute app. The separate Stativiz FE would only be needed for iframe embeds in whatever way.
 
 ## Consequences
