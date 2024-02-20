@@ -543,11 +543,6 @@ type Metrics {
   Return number of boxes, and number of contained items, managed by client's organisation.
   """
   stockOverview: StockOverview
-  """
-  Return number of boxes, and contained items, moved by client's organisation in optional date range. Sorted by product category.
-  See `numberOfFamiliesServed` about using the `after` and `before` parameters.
-  """
-  movedStockOverview(after: Date, before: Date): [StockOverview]
 }
 
 type StockOverview {
