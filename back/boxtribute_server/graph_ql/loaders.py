@@ -3,7 +3,7 @@ from datetime import datetime
 from functools import partial
 
 from aiodataloader import DataLoader as _DataLoader
-from peewee import SQL, Case, fn
+from peewee import SQL, Case, NodeList, fn
 
 from ..authz import authorize, authorized_bases_filter
 from ..enums import TaggableObjectType
@@ -169,80 +169,107 @@ class HistoryForBoxLoader(DataLoader):
         # each box. Convert these into Python lists of appropriate data type
         result = (
             History.select(
-                fn.GROUP_CONCAT(History.id).python_value(convert_ids).alias("ids"),
-                fn.GROUP_CONCAT(History.change_date)
+                # This translates to 'GROUP_CONCAT(h.id ORDER BY h.id DESC)'
+                fn.GROUP_CONCAT(
+                    NodeList(((History.id, SQL("ORDER BY"), History.id.desc())))
+                )
+                .python_value(convert_ids)
+                .alias("ids"),
+                fn.GROUP_CONCAT(
+                    NodeList(
+                        ((History.change_date, SQL("ORDER BY"), History.id.desc()))
+                    )
+                )
                 .python_value(partial(convert_ids, converter=datetime.fromisoformat))
                 .alias("change_dates"),
-                fn.GROUP_CONCAT(fn.IFNULL(History.user, SQL("NULL")))
+                fn.GROUP_CONCAT(
+                    NodeList(
+                        (
+                            (
+                                fn.IFNULL(History.user, SQL("NULL")),
+                                SQL("ORDER BY"),
+                                History.id.desc(),
+                            )
+                        )
+                    )
+                )
                 .python_value(convert_ids)
                 .alias("user_ids"),
                 fn.GROUP_CONCAT(
-                    Case(
-                        None,
+                    NodeList(
                         (
                             (
-                                (History.changes == "location_id"),
-                                fn.CONCAT(
-                                    "changed box location from ",
-                                    Location.name,
-                                    " to ",
-                                    ToLocation.name,
-                                ),
-                            ),
-                            (
-                                (History.changes == "product_id"),
-                                fn.CONCAT(
-                                    "changed product type from ",
-                                    Product.name,
-                                    " to ",
-                                    ToProduct.name,
-                                ),
-                            ),
-                            (
-                                (History.changes == "size_id"),
-                                fn.CONCAT(
-                                    "changed size from ",
-                                    Size.label,
-                                    " to ",
-                                    ToSize.label,
-                                ),
-                            ),
-                            (
-                                (History.changes == "box_state_id"),
-                                fn.CONCAT(
-                                    "changed box state from ",
-                                    BoxState.label,
-                                    " to ",
-                                    ToBoxState.label,
-                                ),
-                            ),
-                            (
-                                (History.changes == "items"),
-                                fn.CONCAT(
-                                    "changed the number of items from ",
-                                    History.from_int,
-                                    " to ",
-                                    History.to_int,
-                                ),
-                            ),
-                            (
-                                (History.changes.startswith("comments")),
-                                fn.REPLACE(
+                                Case(
+                                    None,
+                                    (
+                                        (
+                                            (History.changes == "location_id"),
+                                            fn.CONCAT(
+                                                "changed box location from ",
+                                                Location.name,
+                                                " to ",
+                                                ToLocation.name,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "product_id"),
+                                            fn.CONCAT(
+                                                "changed product type from ",
+                                                Product.name,
+                                                " to ",
+                                                ToProduct.name,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "size_id"),
+                                            fn.CONCAT(
+                                                "changed size from ",
+                                                Size.label,
+                                                " to ",
+                                                ToSize.label,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "box_state_id"),
+                                            fn.CONCAT(
+                                                "changed box state from ",
+                                                BoxState.label,
+                                                " to ",
+                                                ToBoxState.label,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes == "items"),
+                                            fn.CONCAT(
+                                                "changed the number of items from ",
+                                                History.from_int,
+                                                " to ",
+                                                History.to_int,
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes.startswith("comments")),
+                                            fn.REPLACE(
+                                                History.changes,
+                                                "comments changed",
+                                                "changed comments",
+                                            ),
+                                        ),
+                                        (
+                                            (History.changes.startswith("Record")),
+                                            fn.REPLACE(
+                                                History.changes,
+                                                "Record created",
+                                                "created record",
+                                            ),
+                                        ),
+                                    ),
                                     History.changes,
-                                    "comments changed",
-                                    "changed comments",
                                 ),
-                            ),
-                            (
-                                (History.changes.startswith("Record")),
-                                fn.REPLACE(
-                                    History.changes,
-                                    "Record created",
-                                    "created record",
-                                ),
-                            ),
-                        ),
-                        History.changes,
+                                SQL("ORDER BY"),
+                                History.id.desc(),
+                            )
+                        )
                     )
                 )
                 .python_value(partial(convert_ids, converter=str))
@@ -305,19 +332,15 @@ class HistoryForBoxLoader(DataLoader):
         # Construct mapping of box IDs and their history information
         box_histories = {}
         for row in result:
-            box_histories[row["record_id"]] = list(
-                reversed(
-                    [
-                        DbChangeHistory(id=i, user=u, changes=c, change_date=d)
-                        for i, u, c, d in zip(
-                            row["ids"],
-                            row["user_ids"],
-                            row["messages"],
-                            row["change_dates"],
-                        )
-                    ]
+            box_histories[row["record_id"]] = [
+                DbChangeHistory(id=i, user=u, changes=c, change_date=d)
+                for i, u, c, d in zip(
+                    row["ids"],
+                    row["user_ids"],
+                    row["messages"],
+                    row["change_dates"],
                 )
-            )
+            ]
 
         return [box_histories.get(i, []) for i in box_ids]
 
