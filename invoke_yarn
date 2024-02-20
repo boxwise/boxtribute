@@ -39,9 +39,9 @@ if [[ "$mode" = "lint" ]]; then
 elif [[ "$mode" = "format" ]]; then
     yarn statviz run format:write "$@"
 elif [[ "$mode" = "tsc" ]]; then
-    yarn front --cwd front run tsc:precommit --noEmit "${front_files[@]}"
-    yarn statviz --cwd statviz run tsc:precommit --noEmit "${statviz_files[@]}"
-    yarn statviz --cwd shared-components run tsc:precommit --noEmit "${shared_components_files[@]}"
+    yarn front --cwd front run tsc:precommit "${front_files[@]}"
+    yarn statviz --cwd statviz run tsc:precommit "${statviz_files[@]}"
+    yarn statviz --cwd shared-components run tsc:precommit "${shared_components_files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then
     yarn front --cwd front run generate-graphql-ts-types
     yarn statviz --cwd statviz run generate-graphql-ts-types
