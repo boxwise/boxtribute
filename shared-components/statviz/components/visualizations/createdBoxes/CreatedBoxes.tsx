@@ -1,4 +1,4 @@
-import { Card, CardBody } from "@chakra-ui/react";
+import { Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
 import { useMemo } from "react";
 import {
   filter,
@@ -17,6 +17,12 @@ import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
 import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
+import CreatedBoxesGrouping, {
+  createdBoxesGroupingOptions,
+  createdBoxesUrlId,
+  defaultCreatedBoxesGrouping,
+} from "../../filter/CreatedBoxesGrouping";
+import useValueFilter from "../../../hooks/useValueFilter";
 
 const visId = "created-boxes";
 
@@ -30,6 +36,12 @@ interface ICreatedBoxesProps {
 export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICreatedBoxesProps) {
   const onExport = getOnExport(BarChart);
   const facts = data.facts as CreatedBoxesResult[];
+
+  const { filterValue: createdBoxesGrouping } = useValueFilter(
+    createdBoxesGroupingOptions,
+    defaultCreatedBoxesGrouping,
+    createdBoxesUrlId,
+  );
 
   const getChartData = () => {
     const createdBoxes = tidy(
@@ -58,10 +70,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
       })),
     );
 
-    const LIMIT_GROUP_BY_DAYS = 29;
-    const LIMIT_GROUP_BY_WEEK = 197;
-    const LIMIT_GROUP_BY_MONTH = 10960;
-    if (createdBoxes.length < LIMIT_GROUP_BY_DAYS) {
+    if (createdBoxesGrouping.value === "day") {
       return tidy(
         createdBoxes,
         map((row) => ({
@@ -70,7 +79,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
         })),
       );
     }
-    if (createdBoxes.length < LIMIT_GROUP_BY_WEEK) {
+    if (createdBoxesGrouping.value === "week") {
       // group by week
       return tidy(
         createdBoxes,
@@ -86,7 +95,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
         ]),
       );
     }
-    if (createdBoxes.length < LIMIT_GROUP_BY_MONTH) {
+    if (createdBoxesGrouping.value === "month") {
       // group by month
       return tidy(
         createdBoxes,
@@ -122,7 +131,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
 
   // should only execute if data changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const createdBoxesPerDay = useMemo(getChartData, [data]);
+  const createdBoxesPerDay = useMemo(getChartData, [data, createdBoxesGrouping]);
 
   const heading = boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
 
@@ -150,7 +159,12 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
         defaultWidth={1000}
         chartProps={chartProps}
       />
-      <CardBody>
+      <CardBody mt="-25">
+        <Wrap>
+          <WrapItem>
+            <CreatedBoxesGrouping />
+          </WrapItem>
+        </Wrap>
         <BarChart {...chartProps} />
       </CardBody>
     </Card>
