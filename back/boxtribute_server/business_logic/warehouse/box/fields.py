@@ -2,10 +2,10 @@ from ariadne import ObjectType
 
 from ....authz import authorize
 from ....exceptions import Forbidden
-from .crud import get_box_history
 
 box = ObjectType("Box")
 unboxed_items_collection = ObjectType("UnboxedItemsCollection")
+history_entry = ObjectType("HistoryEntry")
 
 
 @box.field("qrCode")
@@ -20,9 +20,9 @@ def resolve_box_tags(box_obj, info):
 
 
 @box.field("history")
-def resolve_box_history(box_obj, _):
+def resolve_box_history(box_obj, info):
     authorize(permission="history:read")
-    return get_box_history(box_obj.id)
+    return info.context["history_for_box_loader"].load(box_obj.id)
 
 
 @box.field("product")
@@ -65,3 +65,8 @@ def resolve_box_state(box_obj, _):
 def resolve_box_shipment_detail(box_obj, info):
     authorize(permission="shipment_detail:read")
     return info.context["shipment_detail_for_box_loader"].load(box_obj.id)
+
+
+@history_entry.field("user")
+def resolve_history_entry_user(history_entry_obj, info):
+    return info.context["user_loader"].load(history_entry_obj.user_id)
