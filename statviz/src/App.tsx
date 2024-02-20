@@ -1,11 +1,16 @@
 import { Route, Routes } from "react-router-dom";
-import StatisticsView from "./views/Statistics/StatisticsView";
+import Dashboard from "@boxtribute/shared-components/Statviz/Dashboard/Dashboard";
 
+// test precommit
 function App() {
   return (
     <Routes>
       <Route index />
-      <Route path="demographic" element={<StatisticsView />} />
+      <Route path="bases">
+        <Route path=":baseId">
+          <Route index element={<Dashboard />} />
+        </Route>
+      </Route>
     </Routes>
   );
 }

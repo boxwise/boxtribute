@@ -36,6 +36,7 @@ The algorithm
 
 For backward pagination, the procedure works in reverse.
 """
+
 import base64
 
 from ..exceptions import InvalidPaginationInput
@@ -105,9 +106,7 @@ class Cursor:
         else:
             base_condition = model.id > elements[-1].id
 
-        for condition in conditions:
-            base_condition = (base_condition) & (condition)
-        return selection.where(base_condition).get_or_none() is not None
+        return selection.where(base_condition, *conditions).get_or_none() is not None
 
 
 def _encode_id(element):
@@ -158,10 +157,9 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
 
 def _compute_total_count(*conditions, selection):
     """Compute total count, taking given conditions and model selection into account."""
-    base_condition = True
-    for condition in conditions:
-        base_condition = (base_condition) & (condition)
-    return selection.where(base_condition).count()
+    if conditions:
+        selection = selection.where(*conditions)
+    return selection.count()
 
 
 def generate_page(*conditions, elements, cursor, selection, **page_info_kwargs):
@@ -196,13 +194,14 @@ def load_into_page(model, *conditions, selection=None, pagination_input):
     """
     cursor, limit = pagination_parameters(pagination_input)
     pagination_condition = cursor.pagination_condition(model)
-    for condition in conditions:
-        pagination_condition = (condition) & (pagination_condition)
 
     if selection is None:
         selection = model.select()
-    query_result = (
-        selection.where(pagination_condition).order_by(model.id).limit(limit + 1)
+    query_result = list(
+        selection.where(pagination_condition, *conditions)
+        .order_by(model.id)
+        .limit(limit + 1)
+        .iterator()
     )
     return generate_page(
         *conditions,

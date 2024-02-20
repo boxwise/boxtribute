@@ -81,15 +81,15 @@ def test_metrics_query_stock_overview(
 @pytest.mark.parametrize(
     "filters,box_ids",
     [
-        ["", [2, 3, 5, 6, 7, 9, 10, 11, 12, 13]],
+        ["", [2, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]],
         ["""(after: "2021-01-01")""", [6, 7]],
         ["""(after: "2022-01-01")""", []],
-        ["""(before: "2022-01-01")""", [2, 3, 5, 6, 7, 9, 10, 11, 12, 13]],
-        ["""(before: "2021-01-01")""", [2, 3, 5, 9, 10, 11, 12, 13]],
+        ["""(before: "2022-01-01")""", [2, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]],
+        ["""(before: "2021-01-01")""", [2, 3, 5, 9, 10, 11, 12, 13, 14, 15]],
         ["""(before: "2019-01-01")""", []],
         [
             """(after: "2020-01-01", before: "2021-01-01")""",
-            [2, 3, 5, 9, 10, 11, 12, 13],
+            [2, 3, 5, 9, 10, 11, 12, 13, 14, 15],
         ],
         ["""(after: "2021-01-01", before: "2022-01-01")""", [6, 7]],
         ["""(after: "2022-01-01", before: "2023-01-01")""", []],
@@ -128,7 +128,7 @@ def test_metrics_query_for_god_user(
     number_of_families_served,
     number_of_sales,
 ):
-    mock_user_for_request(mocker, permissions=["*"], organisation_id=None)
+    mock_user_for_request(mocker, is_god=True)
     query = f"""query {{ metrics(organisationId: {organisation_id}) {{
                 numberOfFamiliesServed numberOfSales }} }}"""
     response = assert_successful_request(read_only_client, query, field="metrics")

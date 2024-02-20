@@ -25,6 +25,7 @@ enum BoxState {
   Donated
   Scrap
   InTransit
+  NotDelivered
 }
 
 """
@@ -83,6 +84,12 @@ enum ShipmentState {
   Completed
   Canceled
   Lost
+}
+
+enum TargetType {
+  Shipment
+  OutgoingLocation
+  BoxState
 }
 
 """

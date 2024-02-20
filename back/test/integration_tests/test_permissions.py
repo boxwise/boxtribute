@@ -209,6 +209,19 @@ def test_usergroup_cross_organisation_permissions(
         assert all(i not in granted_base_ids for i in expected_forbidden_base_ids)
 
 
+def test_god_user(dropapp_dev_client):
+    username = "some.admin@boxtribute.org"
+    domain = TEST_AUTH0_DOMAIN
+    payload = decode_jwt(
+        token=fetch_token(username),
+        public_key=get_public_key(domain),
+        domain=domain,
+        audience=TEST_AUTH0_AUDIENCE,
+    )
+    user = CurrentUser.from_jwt(payload)
+    assert user.is_god
+
+
 def test_check_beta_feature_access(dropapp_dev_client, mocker):
     # Enable testing of check_beta_feature_access() function
     env_variables = os.environ.copy()
@@ -236,7 +249,7 @@ def test_check_public_api_access(dropapp_dev_client, mocker):
     env_variables["ENVIRONMENT"] = "production"
     mocker.patch("os.environ", env_variables)
 
-    query = "query { beneficiaryDemographics(baseIds: [1]) { count } }"
+    query = "query { beneficiaryDemographics(baseId: 1) { count } }"
     data = {"query": query}
     response = dropapp_dev_client.post("/public", json=data)
     assert response.status_code == 401

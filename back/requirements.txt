@@ -1,11 +1,11 @@
-ariadne==0.20.1
-Flask==2.3.3
+ariadne==0.22
+Flask==3.0.2
 Flask-Cors==4.0.0
-sentry-sdk[flask]==1.30.0
+sentry-sdk[flask]==1.40.4
 PyMySQL==1.1.0
-peewee==3.16.3
+peewee==3.17.1
 peewee-moves==2.1.0
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 python-jose==3.3.0
 aiodataloader==0.4.0
 gunicorn

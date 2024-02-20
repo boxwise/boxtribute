@@ -84,10 +84,12 @@ type Product {
   base: Base
   price: Float
   gender: ProductGender
+  comment: String
   createdBy: User
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  deletedOn: Datetime
 }
 
 """
@@ -433,6 +435,10 @@ input FilterBoxInput {
   lastModifiedUntil: Date
   productGender: ProductGender
   productCategoryId: Int
+  productId: Int
+  sizeId: Int
+  " Filter for all boxes that have *at least one* of the specified tags. "
+  tagIds: [Int!]
 }
 
 """
@@ -478,6 +484,7 @@ type TransferAgreement {
 
 type Shipment {
   id: ID!
+  labelIdentifier: String!
   sourceBase: Base!
   targetBase: Base!
   state: ShipmentState

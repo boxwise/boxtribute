@@ -91,7 +91,7 @@ OR:
 #### Pros/Cons
 
 ##### Pros
-* more user friendliness / easier documentation when users interact with the API via the GraphQL Playground
+* more user friendliness / easier documentation when users interact with the API via the GraphQL explorer
 * potentially a slightly better performance (but probably not making a difference for the User Experience)
 
 ##### Cons
@@ -161,7 +161,7 @@ Boxes Table
 * full freedom regarding the naming of the size values (no mapping needed from Enum values to user friendly names)
 ##### Cons
 * potentially a (very small) performance disadvantage compared to Option 1 (additional reference table when querying boxes)
-* no auto complete/suggestions for the possible values when users interact with the API in the GraphQL playground
+* no auto complete/suggestions for the possible values when users interact with the API in the GraphQL explorer
 
 ### 3. Alternative: Variation of 2, to support more fine grained details about sizes (e.g. differentiating between non-numeric and numeric sizes, adding units to numeric sizes) - more for a potential extension of 2 for the future
 

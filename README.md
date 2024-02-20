@@ -9,14 +9,15 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # boxtribute
 
-This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). We support the distribution of over 1 million items each year and are deployed in over 15 locations across Europe and the Middle East (check our website for the most current list of partners). 
+This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). We support the distribution of over 1 million items each year and are deployed in over 15 locations across Europe and the Middle East (check our website for the most current list of partners).
 
 Built by aid workers for aid workers, it is designed with three top priorities in mind:
-1. Quick deployment into crisis situations,  including easy integration into z large range of relief operations, whether they're new or already up and running.
+
+1. Quick deployment into crisis situations, including easy integration into a large range of relief operations, whether they're being newly set up or already up and running.
 2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
 3. Dignity and choice-based distribution as a first priority for vulnerable individuals.
 
-The web app consists of a [React front-end](/react) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+The web app consists of a [React front-end](/front) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
@@ -59,18 +60,18 @@ In (Linux) Docker there is no UI to set the memory limits globally. In that case
 version: "2.4"
 services:
     [...]
-    react:
+    front:
         mem_limit: 4G
 ```
 
 ### Further Steps
 
-- [for front-end including react-testing-library, eslint, prettier](/react/README.md)
+- [for front-end including react-testing-library, eslint, prettier](/front/README.md)
 - [for back-end including pytest, venv, formatting and debugging](/back/README.md)
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `react`.
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `front`.
 
 ## Development Database Seed
 
@@ -216,7 +217,7 @@ See the [LICENSE file](./LICENSE.md) for license rights and limitations (Apache 
 
 ## Sponsors
 
-This project is funded by the German Federal Ministry of Education and Research (BMBF). Read more here (German only):
+This project was funded 3x by the German Federal Ministry of Education and Research (BMBF) via the [Prototype Fund](https://prototypefund.de/). Read more here (German only):
 
 - [API für Datenbankzugriff und optimerten Austausch von Hilfsgütern](https://prototypefund.de/project/boxtribute-api-fuer-datenbankzugriff-und-optimierten-austausch-von-hilfsguetern/)
 - [Erweiterung zur Unterstützung von Transient Refugees](https://prototypefund.de/project/erweiterung-von-boxtribute-zur-unterstuetzung-von-transient-refugees/)

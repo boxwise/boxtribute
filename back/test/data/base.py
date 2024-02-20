@@ -15,14 +15,14 @@ def data():
         },
         {
             "id": 2,
-            "name": "the second best name",
+            "name": "Aßlar",
             "currency_name": "monster munch",
             "seq": 1,
             "organisation": organisation_data()[0]["id"],
         },
         {
             "id": 3,
-            "name": "harold",
+            "name": "Würzburg",
             "currency_name": "mustard",
             "seq": 1,
             "organisation": organisation_data()[1]["id"],
@@ -37,14 +37,19 @@ def data():
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_base():
     return data()[0]
 
 
-@pytest.fixture()
+@pytest.fixture
+def another_base():
+    return data()[2]
+
+
+@pytest.fixture
 def default_bases():
-    return {b["id"]: b for b in data()}
+    return data()
 
 
 def create():

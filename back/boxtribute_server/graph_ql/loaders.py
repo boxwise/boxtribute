@@ -16,6 +16,7 @@ from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
+from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.user import User
 from ..utils import convert_pascal_to_snake_case
 
@@ -43,9 +44,6 @@ class SimpleDataLoader(DataLoader):
     async def batch_load_fn(self, ids):
         if not self.skip_authorize:
             resource = convert_pascal_to_snake_case(self.model.__name__)
-            # work-around for inconsistent RBP naming
-            if resource == "product_category":
-                resource = "category"
             permission = f"{resource}:read"
             authorize(permission=permission)
 
@@ -71,6 +69,11 @@ class LocationLoader(SimpleDataLoader):
 class BoxLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(Box, skip_authorize=True)
+
+
+class TransferAgreementLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(TransferAgreement, skip_authorize=True)
 
 
 class SizeLoader(SimpleDataLoader):
@@ -110,23 +113,58 @@ class ShipmentLoader(DataLoader):
         return [shipments.get(i) for i in keys]
 
 
+class ShipmentsForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        # Select all shipments with given agreement IDs that the user is authorized for,
+        # and group them by agreement ID
+        shipments = defaultdict(list)
+        for shipment in Shipment.select().where(
+            Shipment.transfer_agreement << agreement_ids,
+            authorized_bases_filter(Shipment, base_fk_field_name="source_base")
+            | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
+        ):
+            shipments[shipment.transfer_agreement_id].append(shipment)
+        # Return empty list if agreement has no shipments attached
+        return [shipments.get(i, []) for i in agreement_ids]
+
+
 class TagsForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         tags = defaultdict(list)
         # maybe need different join type
-        for relation in (
-            TagsRelation.select(TagsRelation.object_type, TagsRelation.object_id, Tag)
-            .join(Tag)
-            .where(
-                TagsRelation.object_type == TaggableObjectType.Box,
-                TagsRelation.object_id << keys,
-                authorized_bases_filter(Tag),
-            )
+        for relation in TagsRelation.select(
+            TagsRelation.object_type, TagsRelation.object_id, Tag
+        ).join(
+            Tag,
+            on=(
+                (TagsRelation.tag == Tag.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.object_id << keys)
+                & (authorized_bases_filter(Tag))
+            ),
         ):
             tags[relation.object_id].append(relation.tag)
 
         # Keys are in fact box IDs. Return empty list if box has no tags assigned
         return [tags.get(i, []) for i in keys]
+
+
+class ShipmentDetailsForShipmentLoader(DataLoader):
+    async def batch_load_fn(self, shipment_ids):
+        authorize(permission="shipment_detail:read")
+        # Select all details with given shipments IDs that the user is authorized for,
+        # and group them by shipment ID.
+        # Join with Shipment model, such that authorization in ShipmentDetail resolvers
+        # (detail.shipment.source_base_id) don't create additional DB queries
+        details = defaultdict(list)
+        for detail in (
+            ShipmentDetail.select(ShipmentDetail, Shipment)
+            .join(Shipment)
+            .where(ShipmentDetail.shipment << shipment_ids)
+        ):
+            details[detail.shipment_id].append(detail)
+        # Return empty list if shipment has no details attached
+        return [details.get(i, []) for i in shipment_ids]
 
 
 class ShipmentDetailForBoxLoader(DataLoader):

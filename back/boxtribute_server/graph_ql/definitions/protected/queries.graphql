@@ -15,6 +15,7 @@ type Query {
   " Return all [`Users`]({{Types.User}}) that the client is authorized to view. "
   users: [User!]!
   box(labelIdentifier: String!): Box
+  boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
   location(id: ID!): ClassicLocation
@@ -46,4 +47,14 @@ type Query {
   shipments: [Shipment!]!
   " Return various metrics about stock and beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
+
+  # Redundant definition of statviz-related queries (see ../public/queries.graphql).
+  # ariadne's GraphQL parser does not allow to define multiple 'type Query's
+  # and import them into one schema
+  beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
+  createdBoxes(baseId: Int!): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
+  movedBoxes(baseId: Int!): MovedBoxesData
+  stockOverview(baseId: Int!): StockOverviewData
 }

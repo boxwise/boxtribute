@@ -57,7 +57,12 @@ def test_box_query_by_label_identifier(
                 "id": str(tags[1]["id"]),
                 "name": tags[1]["name"],
                 "color": tags[1]["color"],
-            }
+            },
+            {
+                "id": str(tags[2]["id"]),
+                "name": tags[2]["name"],
+                "color": tags[2]["color"],
+            },
         ],
         "shipmentDetail": None,
     }
@@ -82,6 +87,28 @@ def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
             }}"""
     queried_box = assert_successful_request(read_only_client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
+
+
+def test_boxes_query(read_only_client, default_location_boxes):
+    base_id = 1
+    query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": len(default_location_boxes)}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{productGender: Men}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 0}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2]}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 1}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2, 3]}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(read_only_client, query)
+    assert boxes == {"totalCount": 2}
 
 
 def test_box_mutations(
@@ -219,40 +246,40 @@ def test_box_mutations(
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "120",
+            "id": "119",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "119",
+            "id": "118",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "117",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "116",
             "changes": f"changed the number of items from None to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
+            "id": "115",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "115",
+            "id": "114",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "113",
+            "id": "112",
             "changes": "created record",
             "user": {"name": "coord"},
         },
@@ -273,7 +300,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[17:] == [
+    assert history[19:] == [
         {
             "changes": "Record created",
             "from_int": None,
@@ -414,17 +441,22 @@ def _format(parameter):
         [[{"states": "[MarkedForShipment]"}], 3],
         [[{"states": "[InTransit]"}], 2],
         [[{"states": "[Receiving]"}], 0],
+        [[{"states": "[NotDelivered]"}], 2],
         [[{"states": "[InStock,Lost]"}], 2],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 10],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 12],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 10],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 8],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 12],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 10],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 10],
+        [[{"productGender": "Women"}], 12],
         [[{"productGender": "Men"}], 0],
-        [[{"productCategoryId": "1"}], 10],
+        [[{"productId": "1"}], 11],
+        [[{"productId": "2"}], 0],
+        [[{"sizeId": "1"}], 11],
+        [[{"sizeId": "2"}], 1],
+        [[{"productCategoryId": "1"}], 12],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
@@ -608,20 +640,51 @@ def test_create_box_with_used_qr_code(
     assert_bad_user_input(read_only_client, mutation)
 
 
-def test_access_in_transit_box(read_only_client, mocker, in_transit_box):
-    label_identifier = in_transit_box["label_identifier"]
-    box_id = str(in_transit_box["id"])
-    query = f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
+def test_access_in_transit_or_not_delivered_box(
+    read_only_client,
+    mocker,
+    in_transit_box,
+    not_delivered_box,
+    qr_code_for_not_delivered_box,
+    qr_code_for_in_transit_box,
+):
+    def _create_query(label_identifier):
+        return f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
+
+    def _create_qr_query(qr_code):
+        return f"""query {{ qrCode(qrCode: "{qr_code['code']}") {{ box {{ id }} }} }}"""
+
+    queries = {
+        str(in_transit_box["id"]): _create_query(in_transit_box["label_identifier"]),
+        str(not_delivered_box["id"]): _create_query(
+            not_delivered_box["label_identifier"]
+        ),
+    }
+    qr_queries = {
+        str(in_transit_box["id"]): _create_qr_query(qr_code_for_in_transit_box),
+        str(not_delivered_box["id"]): _create_qr_query(qr_code_for_not_delivered_box),
+    }
 
     # Default user is in the shipment source base (ID 1) and able to view the box
-    box = assert_successful_request(read_only_client, query)
-    assert box == {"id": box_id}
+    for box_id, query in queries.items():
+        box = assert_successful_request(read_only_client, query)
+        assert box == {"id": box_id}
+    for box_id, query in qr_queries.items():
+        qr_code = assert_successful_request(read_only_client, query)
+        assert qr_code == {"box": {"id": box_id}}
 
     # user is in the shipment target base (ID 3) and able to view the box
     mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
-    box = assert_successful_request(read_only_client, query)
-    assert box == {"id": box_id}
+    for box_id, query in queries.items():
+        box = assert_successful_request(read_only_client, query)
+        assert box == {"id": box_id}
+    for box_id, query in qr_queries.items():
+        qr_code = assert_successful_request(read_only_client, query)
+        assert qr_code == {"box": {"id": box_id}}
 
     # user is in unrelated base (ID 2) and NOT permitted to view the box
     mock_user_for_request(mocker, base_ids=[2], organisation_id=2, user_id=3)
-    assert_forbidden_request(read_only_client, query)
+    for box_id, query in queries.items():
+        assert_forbidden_request(read_only_client, query)
+    for box_id, query in qr_queries.items():
+        assert_forbidden_request(read_only_client, query, value={"box": None})

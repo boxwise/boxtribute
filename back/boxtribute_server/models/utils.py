@@ -1,9 +1,10 @@
 """Utility functions to support data model definitions."""
-from datetime import datetime, timezone
+
+from datetime import date, datetime, timezone
 from functools import wraps
 
 from flask import g
-from peewee import ForeignKeyField, IntegerField
+from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
 from ..db import db
 from .definitions.history import DbChangeHistory
@@ -21,6 +22,27 @@ def convert_ids(concat_ids):
     list of integers.
     """
     return [int(i) for i in (concat_ids or "").split(",") if i]
+
+
+today = date.today()
+
+
+def compute_age(date_of_birth):
+    """Compute today's age given a person's date of birth."""
+    if date_of_birth is None:
+        return
+
+    if isinstance(date_of_birth, DateField):
+        # https://dev.mysql.com/doc/refman/8.0/en/date-calculations.html
+        return fn.TIMESTAMPDIFF(SQL("YEAR"), date_of_birth, today.strftime("%Y-%m-%d"))
+
+    # `date_of_birth` is a datetime.date instance.
+    # Subtract 1 if current day is before birthday in current year
+    return (
+        today.year
+        - date_of_birth.year
+        - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+    )
 
 
 def save_creation_to_history(f):
@@ -96,8 +118,16 @@ def create_history_entries(*, old_resource, new_resource, fields):
     now = utcnow()
     entries = []
     for field in fields:
-        old_value = getattr(old_resource, field.name)
-        new_value = getattr(new_resource, field.name)
+        field_class = field.__class__
+        field_name = (
+            # For ForeignKeyFields, avoid an additional DB lookup triggered by accessing
+            # the field via getattr(resource, field.name)
+            field.object_id_name
+            if issubclass(field_class, ForeignKeyField)
+            else field.name
+        )
+        old_value = getattr(old_resource, field_name)
+        new_value = getattr(new_resource, field_name)
 
         if old_value == new_value:
             continue  # no change in value, hence no need for history entry
@@ -109,7 +139,7 @@ def create_history_entries(*, old_resource, new_resource, fields):
         entry.ip = None
         entry.change_date = now
 
-        if issubclass(field.__class__, (IntegerField, ForeignKeyField)):
+        if issubclass(field_class, (IntegerField, ForeignKeyField)):
             entry.from_int = old_value
             entry.to_int = new_value
             entry.changes = field.column_name

@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 from boxtribute_server.enums import HumanGender
+from boxtribute_server.models.utils import compute_age
 from utils import assert_successful_request
 
 
@@ -11,6 +12,7 @@ def _generate_beneficiary_query(id):
             firstName
             lastName
             dateOfBirth
+            age
             comment
             base {{ id }}
             groupIdentifier
@@ -58,6 +60,7 @@ def test_beneficiary_query(
         "firstName": default_beneficiary["first_name"],
         "lastName": default_beneficiary["last_name"],
         "dateOfBirth": default_beneficiary["date_of_birth"].isoformat(),
+        "age": compute_age(default_beneficiary["date_of_birth"]),
         "comment": default_beneficiary["comment"],
         "base": {"id": str(default_beneficiary["base"])},
         "groupIdentifier": default_beneficiary["group_identifier"],
@@ -199,7 +202,8 @@ def test_beneficiary_mutations(client):
     assert updated_beneficiary == {"id": beneficiary_id}
 
     first_name = "Foo"
-    dob = "2001-01-01"
+    dob = date(2001, 1, 1)
+    formatted_dob = dob.strftime("%Y-%m-%d")
     group_id = "1235"
     gender = "Male"
     comment = "cool dude"
@@ -209,7 +213,7 @@ def test_beneficiary_mutations(client):
                     id: {beneficiary_id},
                     firstName: "{first_name}",
                     groupIdentifier: "{group_id}",
-                    dateOfBirth: "{dob}",
+                    dateOfBirth: "{formatted_dob}",
                     comment: "{comment}",
                     gender: {gender},
                     familyHeadId: {beneficiary_id}
@@ -224,7 +228,8 @@ def test_beneficiary_mutations(client):
     assert queried_beneficiary == {
         "firstName": first_name,
         "lastName": last_name,
-        "dateOfBirth": dob,
+        "dateOfBirth": formatted_dob,
+        "age": compute_age(dob),
         "comment": comment,
         "base": {"id": str(base_id)},
         "groupIdentifier": group_id,

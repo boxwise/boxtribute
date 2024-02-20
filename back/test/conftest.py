@@ -14,7 +14,7 @@ from contextlib import contextmanager
 
 import pymysql
 import pytest
-from boxtribute_server.app import configure_app, create_app
+from boxtribute_server.app import configure_app, create_app, main
 from boxtribute_server.db import create_db_interface, db
 from boxtribute_server.routes import api_bp, app_bp
 
@@ -28,7 +28,7 @@ MYSQL_CONNECTION_PARAMETERS = dict(
     # - db:3306         when testing in container on local machine
     # - 127.0.0.1:3306  when testing in CircleCI
     host=os.getenv("MYSQL_HOST", "127.0.0.1"),
-    port=int(os.getenv("MYSQL_PORT", 3306)),
+    port=int(os.getenv("MYSQL_PORT", 32000)),
     user="root",
     password="dropapp_root",
 )
@@ -78,11 +78,11 @@ def _create_app(database_interface, *blueprints):
         db.database.drop_tables(MODELS)
         db.database.create_tables(MODELS)
         setup_models()
-        db.close_db(None)
+        db.database.close()
         with app.app_context():
             yield app
 
-    db.close_db(None)
+    db.database.close()
 
 
 @pytest.fixture(scope="session")
@@ -110,7 +110,7 @@ def client(mysql_testing_database):
 
 
 @pytest.fixture
-def dropapp_dev_client():
+def dropapp_dev_client(monkeypatch):
     """Function fixture for any tests that include read-only operations on the
     `dropapp_dev` database. Use for testing the integration of the webapp (and the
     underlying ORM) with the format of the dropapp production database.
@@ -118,19 +118,22 @@ def dropapp_dev_client():
     to connect to the `dropapp_dev` MySQL database, and returns a client that simulates
     sending requests to the app.
     """
-    app = create_app()
+    monkeypatch.setenv("MYSQL_HOST", MYSQL_CONNECTION_PARAMETERS["host"])
+    monkeypatch.setenv("MYSQL_PORT", str(MYSQL_CONNECTION_PARAMETERS["port"]))
+    monkeypatch.setenv("MYSQL_USER", MYSQL_CONNECTION_PARAMETERS["user"])
+    monkeypatch.setenv("MYSQL_PASSWORD", MYSQL_CONNECTION_PARAMETERS["password"])
+    monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
+    monkeypatch.setenv("MYSQL_SOCKET", "")
+    monkeypatch.setenv("MYSQL_REPLICA_SOCKET", "")
+
+    app = main(api_bp, app_bp)
     app.testing = True
-    configure_app(
-        app,
-        api_bp,
-        app_bp,
-        **MYSQL_CONNECTION_PARAMETERS,
-        database="dropapp_dev",
-    )
 
     with db.database.bind_ctx(MODELS):
         db.database.create_tables(MODELS)
-        db.close_db(None)
+        db.database.close()
+        db.replica.close()
         with app.app_context():
             yield app.test_client()
-    db.close_db(None)
+    db.database.close()
+    db.replica.close()

@@ -1,7 +1,8 @@
 """Construction of routes for web app and API"""
+
 import os
 
-from ariadne.explorer import ExplorerPlayground
+from ariadne.explorer import ExplorerGraphiQL
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 
@@ -22,6 +23,9 @@ app_bp = Blueprint("app_bp", __name__)
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
 
+EXPLORER_TITLE = "boxtribute API"
+EXPLORER_HTML = ExplorerGraphiQL(title=EXPLORER_TITLE).html(None)
+
 
 @api_bp.errorhandler(AuthenticationFailed)
 @app_bp.errorhandler(AuthenticationFailed)
@@ -31,20 +35,9 @@ def handle_auth_error(ex):
     return response
 
 
-@app_bp.route("/public", methods=["GET"])
-def public():
-    response = (
-        "Hello from a public endpoint! You don't need to be authenticated to see this."
-    )
-    return jsonify(message=response)
-
-
-PLAYGROUND_HTML = ExplorerPlayground(title="boxtribute API").html(None)
-
-
 @api_bp.route("/", methods=["GET"])
-def query_api_playground():
-    return PLAYGROUND_HTML, 200
+def query_api_explorer():
+    return EXPLORER_HTML, 200
 
 
 @api_bp.route("/", methods=["POST"])
@@ -56,17 +49,13 @@ def query_api_server():
 
 @api_bp.route("/public", methods=["POST"])
 @cross_origin(
-    # Allow dev localhost ports, and boxtribute subdomains as origins
+    # Allow dev localhost ports, and in staging
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
         "http://localhost:5173",
         "https://v2-staging.boxtribute.org",
-        "https://v2-demo.boxtribute.org",
-        "https://v2.boxtribute.org",
         "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
-        "https://v2-demo-dot-dropapp-242214.ew.r.appspot.com",
-        "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
@@ -104,6 +93,7 @@ def api_token():
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
+        "http://localhost:5173",
         "https://v2-staging.boxtribute.org",
         "https://v2-demo.boxtribute.org",
         "https://v2.boxtribute.org",
@@ -126,8 +116,9 @@ def graphql_server():
 
 @app_bp.route("/graphql", methods=["GET"])
 def graphql_playgroud():
-    # On GET request serve GraphQL Playground
-    # You don't need to provide Playground if you don't want to
-    # but keep on mind this will not prohibit clients from
-    # exploring your API using desktop GraphQL Playground app.
-    return PLAYGROUND_HTML, 200
+    return EXPLORER_HTML, 200
+
+
+@api_bp.route("/public", methods=["GET"])
+def public():
+    return EXPLORER_HTML, 200

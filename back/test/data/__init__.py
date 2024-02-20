@@ -4,7 +4,7 @@ import pathlib
 
 from boxtribute_server.db import db
 
-from .base import default_base, default_bases
+from .base import another_base, default_base, default_bases
 from .beneficiary import (
     another_beneficiary,
     default_beneficiaries,
@@ -15,6 +15,7 @@ from .box import (
     another_box,
     another_in_transit_box,
     another_marked_for_shipment_box,
+    another_not_delivered_box,
     box_without_qr_code,
     default_box,
     default_boxes,
@@ -22,6 +23,7 @@ from .box import (
     in_transit_box,
     lost_box,
     marked_for_shipment_box,
+    not_delivered_box,
 )
 from .box_state import default_box_state
 from .distribution_event import (
@@ -53,11 +55,19 @@ from .product import (
 )
 from .product_category import default_product_category, product_categories
 from .product_gender import default_product_gender
-from .qr_code import another_qr_code_with_box, default_qr_code, qr_code_without_box
+from .qr_code import (
+    another_qr_code_with_box,
+    default_qr_code,
+    qr_code_for_in_transit_box,
+    qr_code_for_not_delivered_box,
+    qr_code_without_box,
+)
 from .shipment import (
     another_shipment,
     canceled_shipment,
+    completed_shipment,
     default_shipment,
+    receiving_shipment,
     sent_shipment,
     shipments,
 )
@@ -82,11 +92,13 @@ from .transfer_agreement import (
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
+    "another_base",
     "another_beneficiary",
     "another_box",
     "another_in_transit_box",
     "another_location",
     "another_marked_for_shipment_box",
+    "another_not_delivered_box",
     "another_organisation",
     "another_product",
     "another_qr_code_with_box",
@@ -102,6 +114,7 @@ __all__ = [
     "base1_undeleted_products",
     "box_without_qr_code",
     "canceled_shipment",
+    "completed_shipment",
     "default_beneficiary",
     "default_beneficiaries",
     "default_base",
@@ -138,13 +151,17 @@ __all__ = [
     "lost_box",
     "marked_for_shipment_box",
     "non_default_box_state_location",
+    "not_delivered_box",
     "null_box_state_location",
     "organisations",
     "packing_list_entry",
     "prepared_shipment_detail",
     "product_categories",
     "products",
+    "qr_code_for_in_transit_box",
+    "qr_code_for_not_delivered_box",
     "qr_code_without_box",
+    "receiving_shipment",
     "receiving_transfer_agreement",
     "relative_beneficiary",
     "relative_transaction",

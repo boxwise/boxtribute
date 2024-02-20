@@ -14,7 +14,9 @@ def test_product_query(read_only_client, default_product, default_size, another_
                     base {{ id }}
                     price
                     gender
+                    comment
                     createdBy {{ id }}
+                    deletedOn
                 }}
             }}"""
     queried_product = assert_successful_request(read_only_client, query)
@@ -28,8 +30,10 @@ def test_product_query(read_only_client, default_product, default_size, another_
         },
         "base": {"id": str(default_product["base"])},
         "price": default_product["price"],
+        "comment": default_product["comment"],
         "gender": "Women",
         "createdBy": {"id": str(default_product["created_by"])},
+        "deletedOn": default_product["deleted_on"],
     }
 
 

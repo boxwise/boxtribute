@@ -1,4 +1,5 @@
 """Enumeration types used in the application."""
+
 import enum
 
 
@@ -70,6 +71,7 @@ class BoxState(enum.IntEnum):
     Donated = enum.auto()
     Scrap = enum.auto()
     InTransit = enum.auto()
+    NotDelivered = enum.auto()
 
 
 class ProductGender(enum.IntEnum):
@@ -113,3 +115,9 @@ class TagType(enum.Enum):
 class TaggableObjectType(enum.Enum):
     Box = "Stock"
     Beneficiary = "People"
+
+
+class TargetType(enum.IntEnum):
+    Shipment = 1
+    OutgoingLocation = enum.auto()
+    BoxState = enum.auto()

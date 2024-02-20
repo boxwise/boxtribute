@@ -7,6 +7,7 @@ from .crud import (
     cancel_shipment,
     create_shipment,
     mark_shipment_as_lost,
+    move_not_delivered_boxes_in_stock,
     send_shipment,
     start_receiving_shipment,
     update_shipment_when_preparing,
@@ -24,18 +25,22 @@ def resolve_create_shipment(*_, creation_input):
 
 @mutation.field("updateShipmentWhenPreparing")
 def resolve_update_shipment_when_preparing(*_, update_input):
-    shipment = Shipment.get_by_id(update_input["id"])
+    shipment = Shipment.get_by_id(update_input.pop("id"))
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
     authorize(permission="shipment_detail:write")
-    return update_shipment_when_preparing(**update_input, user=g.user)
+    return update_shipment_when_preparing(
+        **update_input, shipment=shipment, user=g.user
+    )
 
 
 @mutation.field("updateShipmentWhenReceiving")
 def resolve_update_shipment_when_receiving(*_, update_input):
-    shipment = Shipment.get_by_id(update_input["id"])
+    shipment = Shipment.get_by_id(update_input.pop("id"))
     authorize(permission="shipment:edit", base_id=shipment.target_base_id)
     authorize(permission="shipment_detail:write")
-    return update_shipment_when_receiving(**update_input, user=g.user)
+    return update_shipment_when_receiving(
+        **update_input, shipment=shipment, user=g.user
+    )
 
 
 @mutation.field("cancelShipment")
@@ -46,21 +51,21 @@ def resolve_cancel_shipment(*_, id):
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
     authorize(permission="shipment_detail:write")
-    return cancel_shipment(id=id, user=g.user)
+    return cancel_shipment(shipment=shipment, user=g.user)
 
 
 @mutation.field("sendShipment")
 def resolve_send_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
-    return send_shipment(id=id, user=g.user)
+    return send_shipment(shipment=shipment, user=g.user)
 
 
 @mutation.field("startReceivingShipment")
 def resolve_start_receiving_shipment(*_, id):
     shipment = Shipment.get_by_id(id)
     authorize(permission="shipment:edit", base_id=shipment.target_base_id)
-    return start_receiving_shipment(id=id, user=g.user)
+    return start_receiving_shipment(shipment=shipment, user=g.user)
 
 
 @mutation.field("markShipmentAsLost")
@@ -71,4 +76,10 @@ def resolve_mark_shipment_as_lost(*_, id):
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
     authorize(permission="shipment_detail:write")
-    return mark_shipment_as_lost(id=id, user=g.user)
+    return mark_shipment_as_lost(shipment=shipment, user=g.user)
+
+
+@mutation.field("moveNotDeliveredBoxesInStock")
+def resolve_move_not_delivered_boxes_in_stock(*_, box_ids):
+    # Authorization is complex and hence takes place in the inner function
+    return move_not_delivered_boxes_in_stock(box_ids=box_ids, user=g.user)
