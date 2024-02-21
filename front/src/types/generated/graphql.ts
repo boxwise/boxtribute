@@ -284,6 +284,7 @@ export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
   product?: Maybe<Array<Maybe<ProductDimensionInfo>>>;
+  tag?: Maybe<Array<Maybe<TagDimensionInfo>>>;
 };
 
 export type CreatedBoxesData = DataCube & {
@@ -300,6 +301,7 @@ export type CreatedBoxesResult = {
   gender?: Maybe<ProductGender>;
   itemsCount?: Maybe<Scalars['Int']>;
   productId?: Maybe<Scalars['Int']>;
+  tagIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 export type DataCube = {
@@ -524,12 +526,6 @@ export type Metrics = {
   numberOfSales?: Maybe<Scalars['Int']>;
   /** Return number of boxes, and number of contained items, managed by client's organisation. */
   stockOverview?: Maybe<StockOverview>;
-};
-
-
-export type MetricsMovedStockOverviewArgs = {
-  after?: InputMaybe<Scalars['Date']>;
-  before?: InputMaybe<Scalars['Date']>;
 };
 
 
