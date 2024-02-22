@@ -1,6 +1,7 @@
 import csv
 import pathlib
 import tempfile
+from datetime import date
 
 import peewee
 import pytest
@@ -10,7 +11,17 @@ from boxtribute_server.cli.products import (
     clone_products,
     import_products,
 )
+from boxtribute_server.cli.remove_base_access import (
+    AUTH0_ADMIN_ROLE_ID,
+    _get_admin_usergroup_id,
+    _get_non_admin_role_ids,
+    _get_non_admin_user_ids,
+    _get_non_admin_usergroup_ids,
+    remove_base_access,
+)
+from boxtribute_server.db import db
 from boxtribute_server.models.definitions.product import Product
+from boxtribute_server.models.definitions.user import User
 
 
 @pytest.fixture
@@ -190,3 +201,170 @@ def test_clone_products(default_product):
         clone_products(source_base_id=0, target_base_id=1)
     with pytest.raises(ValueError):
         clone_products(source_base_id=1, target_base_id=0)
+
+
+@pytest.fixture
+def usergroup_data():
+    # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
+    db.database.execute_sql(
+        """\
+DROP TABLE IF EXISTS `cms_usergroups`;
+"""
+    )
+    db.database.execute_sql(
+        """\
+CREATE TABLE `cms_usergroups` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `label` varchar(255) NOT NULL,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(11) unsigned DEFAULT NULL,
+  `organisation_id` int(11) unsigned NOT NULL,
+  `deleted` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `organisation_id` (`organisation_id`),
+  KEY `created_by` (`created_by`),
+  KEY `modified_by` (`modified_by`),
+  CONSTRAINT `cms_usergroups_ibfk_1` FOREIGN KEY (`organisation_id`)
+  REFERENCES `organisations` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `cms_usergroups_ibfk_3` FOREIGN KEY (`created_by`)
+  REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `cms_usergroups_ibfk_4` FOREIGN KEY (`modified_by`)
+  REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+"""
+    )
+
+    db.database.execute_sql(
+        """\
+INSERT INTO `cms_usergroups` VALUES
+    (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
+    (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
+    (3,'Base 1 - Warehouse Volunteer',NULL,NULL,NULL,NULL,1,NULL),
+    (4,'Base 1 - Freeshop Volunteer',NULL,NULL,NULL,NULL,1,NULL),
+    (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL);
+"""
+    )
+
+    db.database.execute_sql(
+        """\
+DROP TABLE IF EXISTS `cms_usergroups_camps`;
+"""
+    )
+    db.database.execute_sql(
+        """\
+CREATE TABLE `cms_usergroups_camps` (
+  `camp_id` int(11) unsigned NOT NULL,
+  `cms_usergroups_id` int(11) unsigned NOT NULL,
+  UNIQUE KEY `usergroups_camps_unique` (`camp_id`,`cms_usergroups_id`),
+  KEY `cms_usergroups_id` (`cms_usergroups_id`),
+  KEY `camp_id` (`camp_id`),
+  CONSTRAINT `cms_usergroups_camps_ibfk_1` FOREIGN KEY (`cms_usergroups_id`)
+  REFERENCES `cms_usergroups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cms_usergroups_camps_ibfk_2` FOREIGN KEY (`camp_id`)
+  REFERENCES `camps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+"""
+    )
+
+    db.database.execute_sql(
+        """\
+INSERT INTO `cms_usergroups_camps` VALUES
+    (1,1),
+    (1,2),
+    (1,3),
+    (1,4),
+    (1,5),
+    (2,1);
+"""
+    )
+
+    db.database.execute_sql(
+        """\
+DROP TABLE IF EXISTS `cms_usergroups_roles`;
+"""
+    )
+    db.database.execute_sql(
+        """\
+CREATE TABLE `cms_usergroups_roles` (
+  `cms_usergroups_id` int(11) unsigned NOT NULL,
+  `auth0_role_id` varchar(255) NOT NULL,
+  `auth0_role_name` varchar(255) NOT NULL,
+  UNIQUE KEY `cms_usergroups_id_2` (`cms_usergroups_id`,`auth0_role_id`),
+  KEY `cms_usergroups_id` (`cms_usergroups_id`),
+  CONSTRAINT `cms_usergroups_roles_ibfk_1` FOREIGN KEY (`cms_usergroups_id`)
+  REFERENCES `cms_usergroups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+"""
+    )
+
+    db.database.execute_sql(
+        """\
+INSERT INTO `cms_usergroups_roles` VALUES
+    (1,%s,'administrator'),
+    (2,'rol_b','base_1_coordinator'),
+    (3,'rol_c','base_1_warehouse_volunteer'),
+    (4,'rol_d','base_1_free_shop_volunteer'),
+    (5,'rol_e','base_1_library_volunteer');
+""",
+        (AUTH0_ADMIN_ROLE_ID,),
+    )
+
+    yield
+
+    # drop tables after test has run; otherwise in model_tests.conftest the referenced
+    # camps and organisations tables can't be dropped
+    for table in ["cms_usergroups_roles", "cms_usergroups_camps", "cms_usergroups"]:
+        db.database.execute_sql(f"DROP TABLE {table};")
+
+
+def test_remove_base_access_functions(usergroup_data):
+    base_id = 1
+    assert _get_admin_usergroup_id(base_id, AUTH0_ADMIN_ROLE_ID) == 1
+    non_admin_usergroup_ids = [2, 3, 4, 5]
+    assert (
+        _get_non_admin_usergroup_ids(base_id, AUTH0_ADMIN_ROLE_ID)
+        == non_admin_usergroup_ids
+    )
+    assert _get_non_admin_user_ids(non_admin_usergroup_ids) == [1, 2, 8]
+    assert _get_non_admin_role_ids(non_admin_usergroup_ids) == [
+        f"rol_{x}" for x in "bcde"
+    ]
+
+
+def test_remove_base_access(usergroup_data):
+    admin_usergroup_id = 1
+    base_id = 1
+    remove_base_access(base_id=base_id)
+
+    # Verify that User._usergroup field is set to NULL
+    assert User.select(User.id, User._usergroup).dicts() == [
+        {"id": 1, "_usergroup": None},
+        {"id": 2, "_usergroup": None},
+        {"id": 3, "_usergroup": None},
+        {"id": 8, "_usergroup": None},
+    ]
+
+    # Verify that cms_usergroups.deleted is set
+    cursor = db.database.execute_sql("SELECT id,deleted FROM cms_usergroups;")
+    column_names = [x[0] for x in cursor.description]
+    usergroups = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+    assert usergroups[0] == {"id": admin_usergroup_id, "deleted": None}
+    today = date.today().isoformat()
+    for i, usergroup in enumerate(usergroups[1:], start=2):
+        assert usergroup["id"] == i
+        assert usergroup["deleted"].isoformat().startswith(today)
+
+    # Verify that all entries related to base 1 are removed from cms_usergroups_camps
+    cursor = db.database.execute_sql(
+        "SELECT camp_id,cms_usergroups_id from cms_usergroups_camps;"
+    )
+    assert cursor.fetchall() == ((2, admin_usergroup_id),)
+
+    # Verify that all entries related to non-admin usergroups are removed from
+    # cms_usergroups_roles
+    cursor = db.database.execute_sql(
+        "SELECT cms_usergroups_id,auth0_role_name from cms_usergroups_roles;"
+    )
+    assert cursor.fetchall() == ((admin_usergroup_id, "administrator"),)
