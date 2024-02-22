@@ -24,6 +24,7 @@ def default_user_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
+        "_usergroup": 3,
     }
 
 
@@ -32,6 +33,7 @@ def second_user_data():
     data["id"] = 2
     data["name"] = "trainer"
     data["email"] = "alarm@bedpost.com"
+    data["_usergroup"] = 4
     return data
 
 
@@ -43,6 +45,7 @@ def god_user_data():
     data["is_admin"] = 1
     data["valid_first_day"] = None
     data["valid_last_day"] = None
+    data["_usergroup"] = None
     return data
 
 
@@ -51,6 +54,7 @@ def another_user_data():
     data["id"] = 8
     data["name"] = "coord"
     data["email"] = "dev_coordinator@boxaid.org"
+    data["_usergroup"] = 2
     return data
 
 
