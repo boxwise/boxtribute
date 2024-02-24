@@ -3,12 +3,13 @@ import { GraphQLError } from "graphql";
 import userEvent from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render, waitFor, within } from "tests/test-utils";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
+import { cache } from "queries/cache";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 
 const boxesQuery = {
@@ -356,7 +357,7 @@ const actionsQuery = {
   },
 };
 
-const gqlRequestPrep = generateMoveBoxRequest(["4495955", "1481666"], 17);
+const gqlRequestPrep = generateMoveBoxRequest(["8650860", "1481666"], 17);
 
 const moveBoxesMutation = {
   request: {
@@ -366,9 +367,9 @@ const moveBoxesMutation = {
   result: {
     data: {
       // TODO: the data should be placed in the mocks
-      moveBox4495955: {
+      moveBox8650860: {
         __typename: "Box",
-        labelIdentifier: "4495955",
+        labelIdentifier: "8650860",
         location: {
           __typename: "ClassicLocation",
           id: "17",
@@ -436,6 +437,7 @@ describe("4.8.1 - Initial load of Page", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes",
         mocks: [boxesQuery, actionsQuery],
+        cache,
         addTypename: true,
         globalPreferences: {
           dispatch: vi.fn(),
@@ -478,6 +480,7 @@ describe("4.8.1 - Initial load of Page", () => {
           routePath: "/bases/:baseId/boxes",
           initialUrl: "/bases/2/boxes",
           mocks,
+          cache,
           addTypename: true,
           globalPreferences: {
             dispatch: vi.fn(),
@@ -511,6 +514,7 @@ describe("4.8.1 - Initial load of Page", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes",
         mocks: [boxesQuery, actionsQuery],
+        cache,
         addTypename: true,
         globalPreferences: {
           dispatch: vi.fn(),
@@ -545,6 +549,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes",
         mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
+        cache,
         addTypename: true,
         globalPreferences: {
           dispatch: vi.fn(),
@@ -558,14 +563,15 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     );
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
-
     const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 5000 });
-    // eslint-disable-next-line testing-library/no-node-access
-    const checkbox1 = row1.querySelector('input[type="checkbox"]');
+    const checkbox1 = within(row1).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
 
     const row2 = await screen.findByRole("row", { name: /1481666/i });
-    // eslint-disable-next-line testing-library/no-node-access
-    const checkbox2 = row2.querySelector('input[type="checkbox"]');
+    const checkbox2 = within(row2).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
 
     if (checkbox1 && checkbox2) {
       expect(checkbox1).not.toBeChecked();
@@ -576,7 +582,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       await user.click(checkbox2);
       await waitFor(() => expect(checkbox2).toBeChecked());
 
-      const moveBoxesButton = screen.getByRole("button", {
+      const moveBoxesButton = await screen.findByRole("button", {
         name: /move to/i,
       });
 
@@ -584,17 +590,18 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
       expect(
         await screen.findByRole("menuitem", {
-          name: /wh2/i,
+          name: /wh1/i,
         }),
       ).toBeInTheDocument();
 
       await user.click(
         screen.getByRole("menuitem", {
-          name: /wh2/i,
+          name: /wh1/i,
         }),
       );
 
-      expect((await screen.findAllByText(/wh2/i)).length).toBe(2);
+      expect(await within(row1).findByText(/wh1/i)).toBeInTheDocument();
+      expect(await within(row2).findByText(/wh1/i)).toBeInTheDocument();
     }
   }, 15000);
 });
