@@ -6,10 +6,11 @@ import {
   BeneficiaryDemographicsResult,
 } from "../../../../types/generated/graphql";
 import DemographicCharts from "./DemographicCharts";
-import { tagFilter, tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
+import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
+import { tagFilterValuesVar } from "../../../state/filter";
 
 interface IDemographicFilterContainerProps {
   demographics: BeneficiaryDemographicsData;
@@ -20,8 +21,8 @@ export default function DemographicFilterContainer({
 }: IDemographicFilterContainerProps) {
   const { interval } = useTimerange();
 
-  const tagFilterOptions = useReactiveVar(tagFilter);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterOptions, tagFilterId);
+  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
 
   // merge Beneficiary tags to Box and All tags
   useEffect(() => {
@@ -31,11 +32,11 @@ export default function DemographicFilterContainer({
 
     if (beneficiaryTagFilterValues.length > 0) {
       const distinctTagFilterValues = tidy(
-        [...tagFilterOptions, ...beneficiaryTagFilterValues],
+        [...tagFilterValues, ...beneficiaryTagFilterValues],
         distinct(["id"]),
       );
 
-      tagFilter(distinctTagFilterValues);
+      tagFilterValuesVar(distinctTagFilterValues);
     }
     // including tagFilterOptions in the dependencies can lead to infinite update loops
     // between CreatedBoxes updating the TagFilter and DemographicFilter updating the TagFilter

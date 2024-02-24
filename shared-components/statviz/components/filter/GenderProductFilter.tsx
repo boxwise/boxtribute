@@ -1,15 +1,10 @@
-import { makeVar, useReactiveVar } from "@apollo/client";
+import { useReactiveVar } from "@apollo/client";
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";
 import { ProductDimensionInfo, ProductGender } from "../../../types/generated/graphql";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
-
-interface IProductFilterValue extends IFilterValue {
-  id: number;
-  name: string;
-  gender: ProductGender;
-}
+import { IProductFilterValue, productFilterValuesVar } from "../../state/filter";
 
 export const genders: IFilterValue[] = [
   {
@@ -67,8 +62,6 @@ export const genders: IFilterValue[] = [
 export const genderFilterId = "gf";
 export const productFilterId = "pf";
 
-export const products = makeVar<IProductFilterValue[]>([]);
-
 export const productToFilterValue = (product: ProductDimensionInfo): IProductFilterValue => ({
   id: product.id!,
   value: product.id!.toString(),
@@ -79,9 +72,9 @@ export const productToFilterValue = (product: ProductDimensionInfo): IProductFil
 });
 
 export default function GenderProductFilter() {
-  const productFilterOptions = useReactiveVar(products);
+  const productFilterValues = useReactiveVar(productFilterValuesVar);
   const { onFilterChange: onProductFilterChange, filterValue: productFilterValue } =
-    useMultiSelectFilter<IProductFilterValue>(productFilterOptions, productFilterId);
+    useMultiSelectFilter<IProductFilterValue>(productFilterValues, productFilterId);
 
   const { onFilterChange: onGenderFilterChange, filterValue: genderFilterValue } =
     useMultiSelectFilter(genders, genderFilterId);
@@ -105,7 +98,7 @@ export default function GenderProductFilter() {
           placeholder="products"
           filterId={productFilterId}
           fieldLabel="products"
-          values={productFilterOptions}
+          values={productFilterValues}
         />
       </WrapItem>
     </Wrap>

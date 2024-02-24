@@ -12,13 +12,9 @@ import {
   defaultBoxesOrItems,
 } from "../../filter/BoxesOrItemsSelect";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import {
-  genderFilterId,
-  genders,
-  productFilterId,
-  products,
-} from "../../filter/GenderProductFilter";
-import { tagFilter, tagFilterId } from "../../filter/TagFilter";
+import { genderFilterId, genders, productFilterId } from "../../filter/GenderProductFilter";
+import { tagFilterId } from "../../filter/TagFilter";
+import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
 
 export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxesData }) {
   const { interval } = useTimerange();
@@ -29,8 +25,8 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
     boxesOrItemsUrlId,
   );
 
-  const productsFilterValues = useReactiveVar(products);
-  const tagFilterValues = useReactiveVar(tagFilter);
+  const productsFilterValues = useReactiveVar(productFilterValuesVar);
+  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
 
   const { filterValue: productsFilter } = useMultiSelectFilter(
     productsFilterValues,

@@ -17,10 +17,10 @@ import {
   genders,
   productFilterId,
   productToFilterValue,
-  products,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagFilter, tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
+import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
+import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxesData;
@@ -36,16 +36,16 @@ export default function CreatedBoxesFilterContainer({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const productFilterOptions = useReactiveVar(products);
+  const productFilterValues = useReactiveVar(productFilterValuesVar);
 
   const { filterValue: filterProductGenders } = useMultiSelectFilter(genders, genderFilterId);
   const { filterValue: filterProducts } = useMultiSelectFilter(
-    productFilterOptions,
+    productFilterValues,
     productFilterId,
   );
 
-  const tagFilterOptions = useReactiveVar(tagFilter);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterOptions, tagFilterId);
+  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
 
   // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
   // Beneficiary and All Tags are merged inside the DemographicFilterContainer
@@ -53,21 +53,21 @@ export default function CreatedBoxesFilterContainer({
   useEffect(() => {
     const p = createdBoxes.dimensions!.product!.map((e) => productToFilterValue(e!));
     if (filterProductGenders.length > 0) {
-      products([
+      productFilterValuesVar([
         ...filterProducts,
         ...p.filter(
           (product) => filterProductGenders.findIndex((fPG) => fPG.value === product.gender) !== -1,
         ),
       ]);
     } else {
-      products(p);
+      productFilterValuesVar(p);
     }
 
     const boxTags = createdBoxes.dimensions!.tag!.map((e) => tagToFilterValue(e!));
     if (boxTags.length > 0) {
-      const distinctTagFilterValues = tidy([...tagFilterOptions, ...boxTags], distinct(["id"]));
+      const distinctTagFilterValues = tidy([...tagFilterValues, ...boxTags], distinct(["id"]));
 
-      tagFilter(distinctTagFilterValues);
+      tagFilterValuesVar(distinctTagFilterValues);
     }
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders

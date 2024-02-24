@@ -10,7 +10,8 @@ import {
 } from "../../filter/BoxesOrItemsSelect";
 import useValueFilter from "../../../hooks/useValueFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagFilter, tagFilterId } from "../../filter/TagFilter";
+import { tagFilterId } from "../../filter/TagFilter";
+import { tagFilterValuesVar } from "../../../state/filter";
 
 interface IStockDataFilterProps {
   stockOverview: StockOverviewData;
@@ -19,7 +20,7 @@ interface IStockDataFilterProps {
 export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
   // currently not affected by the selected timerange
 
-  const tagFilerValues = useReactiveVar(tagFilter);
+  const tagFilerValues = useReactiveVar(tagFilterValuesVar);
 
   const { filterValue } = useValueFilter(
     boxesOrItemsFilterValues,
