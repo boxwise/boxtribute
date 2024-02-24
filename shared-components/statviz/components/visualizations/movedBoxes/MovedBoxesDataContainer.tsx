@@ -17,6 +17,7 @@ export const MOVED_BOXES_QUERY = gql(`
         itemsCount
         gender
         productName
+        tagIds
       }
       dimensions {
         category {
@@ -35,7 +36,7 @@ export const MOVED_BOXES_QUERY = gql(`
 
 // The data wrapper collects data and passes it to the filter-wrapper
 // which applys filters to the data
-// the filter wrapper passes it to the Chart which maps the datacube to a VisX or nivo Chart
+// the filter wrapper passes it to the Chart which maps the Datacube to a VisX or Nivo Chart
 export default function MovedBoxesDataContainer() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery<{ movedBoxes: MovedBoxesData }, QueryMovedBoxesArgs>(

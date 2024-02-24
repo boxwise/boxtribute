@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { TidyFn, filter, tidy } from "@tidyjs/tidy";
+import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
 import { useReactiveVar } from "@apollo/client";
 import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
@@ -47,7 +47,8 @@ export default function CreatedBoxesFilterContainer({
   const tagFilterOptions = useReactiveVar(tagFilter);
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterOptions, tagFilterId);
 
-  // use products from the createdBoxes query to feed the global products and tags filter
+  // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
+  // Beneficiary and All Tags are merged inside the DemographicFilterContainer
   // and filter the product filter by filtered product genders
   useEffect(() => {
     const p = createdBoxes.dimensions!.product!.map((e) => productToFilterValue(e!));
@@ -62,9 +63,12 @@ export default function CreatedBoxesFilterContainer({
       products(p);
     }
 
-    const tags = createdBoxes.dimensions!.tag!.map((e) => tagToFilterValue(e!));
-    tagFilter(tags);
+    const boxTags = createdBoxes.dimensions!.tag!.map((e) => tagToFilterValue(e!));
+    if (boxTags.length > 0) {
+      const distinctTagFilterValues = tidy([...tagFilterOptions, ...boxTags], distinct(["id"]));
 
+      tagFilter(distinctTagFilterValues);
+    }
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders
     // eslint-disable-next-line react-hooks/exhaustive-deps

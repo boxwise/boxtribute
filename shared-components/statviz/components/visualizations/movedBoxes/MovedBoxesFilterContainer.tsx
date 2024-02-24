@@ -18,6 +18,7 @@ import {
   productFilterId,
   products,
 } from "../../filter/GenderProductFilter";
+import { tagFilter, tagFilterId } from "../../filter/TagFilter";
 
 export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxesData }) {
   const { interval } = useTimerange();
@@ -29,6 +30,7 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
   );
 
   const productsFilterValues = useReactiveVar(products);
+  const tagFilterValues = useReactiveVar(tagFilter);
 
   const { filterValue: productsFilter } = useMultiSelectFilter(
     productsFilterValues,
@@ -36,6 +38,7 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
   );
 
   const { filterValue: genderFilter } = useMultiSelectFilter(genders, genderFilterId);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
 
   const movedBoxesFacts = useMemo(() => {
     try {
@@ -70,13 +73,18 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
         ),
       );
     }
+    if (filteredTags.length > 0) {
+      filters.push(
+        filter((fact: MovedBoxesResult) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))),
+      );
+    }
 
     if (filters.length > 0) {
       // @ts-expect-error
       return tidy(movedBoxesFacts, ...filters);
     }
     return movedBoxesFacts;
-  }, [genderFilter, movedBoxesFacts, productsFilter]);
+  }, [filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
 
   const filteredMovedBoxesCube = {
     facts: filteredFacts as MovedBoxesResult[],

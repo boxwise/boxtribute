@@ -92,9 +92,9 @@ export default function GenderProductFilter() {
         <MultiSelectFilter
           onFilterChange={onGenderFilterChange}
           filterValue={genderFilterValue}
-          placeholder="Filter Gender"
+          placeholder="products gender"
           filterId={genderFilterId}
-          fieldLabel="filter gender"
+          fieldLabel="products gender"
           values={genders}
         />
       </WrapItem>
@@ -102,9 +102,9 @@ export default function GenderProductFilter() {
         <MultiSelectFilter
           onFilterChange={onProductFilterChange}
           filterValue={productFilterValue}
-          placeholder="Filter Products"
+          placeholder="products"
           filterId={productFilterId}
-          fieldLabel="filter products"
+          fieldLabel="products"
           values={productFilterOptions}
         />
       </WrapItem>

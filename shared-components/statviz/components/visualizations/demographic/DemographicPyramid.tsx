@@ -1,12 +1,16 @@
-import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
+import { Card, CardBody } from "@chakra-ui/react";
 import { range } from "lodash";
-import { ApolloError } from "@apollo/client";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
+import { useMemo } from "react";
 import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
-import { HumanGender } from "../../../../types/generated/graphql";
+import {
+  BeneficiaryDemographicsData,
+  BeneficiaryDemographicsResult,
+  HumanGender,
+} from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
-import useDemographics from "../../../hooks/useDemographics";
 import getOnExport from "../../../utils/chartExport";
+import NoDataCard from "../../NoDataCard";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -28,6 +32,7 @@ export interface IDemographicCube {
 }
 
 interface IDemographicChartProps {
+  demographics: BeneficiaryDemographicsData;
   width: number;
   height: number;
 }
@@ -35,42 +40,23 @@ interface IDemographicChartProps {
 const visId = "demographic-pyramid";
 const heading = "Demographic";
 
-export default function DemographicChart({ width, height }: IDemographicChartProps) {
-  const { demographics, error, loading } = useDemographics();
+export default function DemographicPyramid({
+  demographics,
+  width,
+  height,
+}: IDemographicChartProps) {
   const onExport = getOnExport(BarChartCenterAxis);
-
-  if (error instanceof ApolloError) {
-    return <p>{error.message}</p>;
-  }
-  if (loading || typeof demographics === "undefined") {
-    return <p>loading...</p>;
-  }
-  if (demographics.length === 0) {
-    return (
-      <Card w={width}>
-        <CardHeader>
-          <Heading size="md">{heading}</Heading>
-        </CardHeader>
-        <CardBody>
-          <p>
-            No demographic data available for your base. Either you are a sending base which is not
-            registering people or the birth date is not registered.
-          </p>
-        </CardBody>
-      </Card>
-    );
-  }
 
   const prepareFacts = () => {
     const dataXr = tidy(
-      demographics,
+      demographics.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === HumanGender.Male),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
 
     const dataXl = tidy(
-      demographics,
+      demographics.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === HumanGender.Female),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
@@ -79,12 +65,16 @@ export default function DemographicChart({ width, height }: IDemographicChartPro
     return [dataXr, dataXl];
   };
 
-  const [dataXr, dataXl] = prepareFacts();
+  const [dataXr, dataXl] = useMemo(prepareFacts, [demographics.facts]);
+
+  if (dataXr.length === 0 && dataXl.length === 0) {
+    return <NoDataCard header={heading} />;
+  }
 
   const maxAge: number =
-    demographics.reduce((acc: number, current) => {
-      if (!current.age) return acc;
-      if (current.age > acc) return current.age;
+    demographics.facts!.reduce((acc: number, current: BeneficiaryDemographicsResult) => {
+      if (!current!.age) return acc;
+      if (current!.age > acc) return current!.age;
       return acc;
     }, 0) ?? 100;
 

@@ -1,5 +1,5 @@
-import { makeVar, useReactiveVar } from "@apollo/client";
 import { Box } from "@chakra-ui/react";
+import { makeVar, useReactiveVar } from "@apollo/client";
 import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";
 import { TagDimensionInfo } from "../../../types/generated/graphql";
@@ -34,9 +34,9 @@ export default function TagFilter() {
       <MultiSelectFilter
         onFilterChange={onFilterChange}
         filterValue={filterValue}
-        placeholder="Filter Tags"
+        placeholder="tags"
         filterId={tagFilterId}
-        fieldLabel="filter tags"
+        fieldLabel="tags"
         values={tagFilterOptions}
       />
     </Box>

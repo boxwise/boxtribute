@@ -1,9 +1,9 @@
 import { useQuery } from "@apollo/client";
 import { Box, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import { gql } from "../../../../types/generated/gql";
 import StockDataFilter from "./StockDataFilter";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
+import { gql } from "../../../../types/generated";
 
 const STOCK_QUERY = gql(`
   query stockOverview($baseId: Int!) {
@@ -29,8 +29,7 @@ const STOCK_QUERY = gql(`
           name
         }
         tag {
-          id
-          name
+          ...TagFragment
         }
         location {
           id
