@@ -21,17 +21,11 @@ for file in "$@"; do
 done
 
 yarn() {
-    local service container
+    local service
     service="$1"
-    container=boxtribute-"$service"-1
     shift
 
-    if ! [ "$(docker inspect -f '{{.State.Running}}' "$container")" = "true" ]; then
-        echo "$service not running"
-        docker-compose up -d "$service"
-    fi
-
-    docker exec -w /app "$container" yarn "$@"
+    docker-compose run --rm -w /app "$service" yarn "$@"
 }
 
 if [[ "$mode" = "lint" ]]; then
