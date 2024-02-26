@@ -6,6 +6,7 @@ from aiodataloader import DataLoader as _DataLoader
 from peewee import SQL, Case, NodeList, fn
 
 from ..authz import authorize, authorized_bases_filter
+from ..db import db
 from ..enums import TaggableObjectType
 from ..models.definitions.base import Base
 from ..models.definitions.box import Box
@@ -163,6 +164,9 @@ class HistoryForBoxLoader(DataLoader):
         ToSize = Size.alias()
         ToBoxState = BoxState.alias()
 
+        # Increase the default of 1024 (would be exceeded for concat'ing the change_date
+        # column of a box with 54 or more history entries).
+        db.database.execute_sql("SET SESSION group_concat_max_len = 10000;")
         # Return formatted history entries of boxes with given IDs, sorted by most
         # recent first.
         # Group history entry IDs, change dates, user IDs, and formatted messages for

@@ -691,3 +691,26 @@ def test_access_in_transit_or_not_delivered_box(
         assert_forbidden_request(read_only_client, query)
     for box_id, query in qr_queries.items():
         assert_forbidden_request(read_only_client, query, value={"box": None})
+
+
+def test_box_with_large_history(
+    client, default_product, default_size, default_location
+):
+    creation_input = f"""{{
+                    productId: {default_product["id"]},
+                    locationId: {default_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    box = assert_successful_request(client, mutation)
+    for i in range(1, 60):
+        mutation = f"""mutation {{
+                updateBox(
+                    updateInput : {{
+                        numberOfItems: {i},
+                        labelIdentifier: "{box["labelIdentifier"]}"
+                    }} )
+                {{ history {{ changeDate changes }} }} }}"""
+        assert_successful_request(client, mutation)
