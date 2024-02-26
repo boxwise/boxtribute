@@ -2,9 +2,9 @@
 
 Last Updated: 2024-02-20
 
-Author: Hans
+Author: @HaGuesto
 
-Discussion Participants: Maik, Vahid, James
+Discussion Participants: @MaikNeubert, @vahidbazzaz, @jamescrowley
 
 ## Status
 
@@ -43,4 +43,4 @@ Additionally, create-react-app is deprecated.
 
 - spend an hour on the migration process from cra to vite and see how far we get there. Then finally evaluate if it makes sense to go through with it. (done)
 - migration to vite seemed easiest at first and we executed it. (done)
-- Unfortunately, I overlooked what the migration meant for the front-end tests. Since vite does not provide an out of the box provide test runner, we also had to dig into using vitest vs. jest. We decided to migrate the test runner to vitest since it worked best with vite and I did not manage a quick solution for integrating jest with vite which was my first approach. Even though the migration from jest to vitest seemed to be straight forward ( the syntax is almost the same), I ran into problems since quite a tests not were not isolated and I had to refactor many tests.
+- Unfortunately, I overlooked what the migration meant for the front-end tests. Since vite does not provide an out of the box provide test runner, we also had to dig into using vitest vs. jest. We decided to migrate the test runner to vitest since it worked best with vite and I did not manage a quick solution for integrating jest with vite which was my first approach (took me about 2hrs). Even though the migration from jest to vitest seemed to be straight forward (the syntax is almost the same), I ran into problems since quite a tests not were not isolated and I had to refactor many tests. The migration from jest to vitest was done within one hour, but refactoring all our tests took me at least a whole day.
