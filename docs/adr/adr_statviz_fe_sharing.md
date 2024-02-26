@@ -28,7 +28,7 @@ Currently, we are planning to build these visualizations in a React FE with Nivo
 
 ## Considered options to share data
 
-### A. CSV
+### A. CSV download
 
 #### What (minimal) work needs to be done on the FE side?
 
@@ -45,13 +45,13 @@ Currently, we are planning to build these visualizations in a React FE with Nivo
 
 Atm the filtering and grouping is happening on the FE side. The BE just returns all available data in the smallest granularity. There is the posibility to move filtering and grouping to the BE by making filters and grouping part of the graphQL query. This might make sense if we only allow the csv export.
 
-### B. SVG
+### B. SVG download
 
 #### What (minimal) work needs to be done on the FE side?
 
 1. Steps 1, 2, 3 from CSV.
 2. There should be an input at least for the aspect ratio (or width and height) of the exported svg. This input could also just be given the window size of the current view. All other properties like axis label font size, axis thickness,... could be calculated based on this input. However, I can imagine that they might want more styling options that they can directly control. At the same time they could easily change the style in the exported svg through Adobe or any coding IDE.
-3. There needs to be a function transforming the data from the graphQL query into the svg. Since an svg can be easily included in the DOM, it makes sense to combine this with a preview view that is directly shown in the fancy graphs view even before the download.
+3. Nivo and VisX generate svgs inside the DOM, e.g. for the preview. To download an svg, a second svg in the dom must be created and then taken out of the DOM to create a downloadable svg.
 
 #### What (minimal) work needs to be done on the BE side?
 
@@ -63,7 +63,7 @@ Atm the filtering and grouping is happening on the FE side. The BE just returns 
 
 - When importing the svg into an email campaign, the svg can be responsive (through CSS) and even basic tooltips and animations (svg SMIL features) should be possible. However, not all email clients support this and probably a fallback bitmap image should be added. At the same time, I'm not sure how well the email editor in mailchimp works and probably you need to add the svg through the code editor of mailchimp.
 
-### C. bitmap (aka PNG)
+### C. bitmap (aka PNG) download
 
 #### What (minimal) work needs to be done on the FE side?
 
@@ -77,7 +77,7 @@ Atm the filtering and grouping is happening on the FE side. The BE just returns 
 
 #### comments
 
-- I prefer png to jpeg since the background can be transparent if they want it.
+- Since we use a library for the conversion of svg to bitmap I hope we can offer multiple formats like png, jpeg, but also more modern ones like AVIF and WebP.
 
 ### D. STATIC iframe embed directly generating html docs for the iframe
 
@@ -103,10 +103,12 @@ Most likely the embed will get large since data and js (maybe even React code) m
 3. We make a shared components out of the svg generation and probably filtering between the Boxtribute v2 and the Statviz public FE.
 4. We create a function that stores the data that should be used for the embedable iframe somewhere in the same Google Bucket where the FE is hosted. (similar approach like forestry for our landing page)
 5. The embed is then just a link to the public statviz frontend and the data that is used for the visualization is also statically stored somewhere in the FE.
+6. We need to add a way in Boxtribute v2 to enable / disable public sharing of certain visualizations (only possible with the right permissions).
 
 #### What (minimal) work needs to be done on the BE side?
 
 1. same steps as for CSV
+2. We need to add a way in Boxtribute v2 to enable / disable public sharing of certain visualizations (only possible with the right permissions).
 
 #### comments
 
