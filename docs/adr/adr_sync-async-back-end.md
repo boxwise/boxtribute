@@ -43,8 +43,44 @@ From the [ariadne GitHub forum](https://github.com/mirumee/ariadne/discussions/1
 - hypercorn + starlette, aiodataloader without ORM
 - starlette/FastAPI/Mangum, aiodataloader, ORM: encode-databases or SQLAlchemy 2
 
-From James' CTO friends:
-- to do
+<details>
+  <summary>From James' CTO friends:</summary>
+
+**PRO SYNC**
+> On async vs sync python: I kinda feel like you need a good reason to go async right now, it doesn’t feel mature. In a very I/O heavy environment sure, but in middleware code I just haven’t seen that need (generally the DB is doing the I/O lifting). There seems to be a push to go that route - uvicorn or whatever in front, and then Dj channels, Starlette, et al as you said - but there’s a lot of novelty and not much payback.
+
+> Second the hesitance on using async python. I tried to dive into using async falcon for a little LLM thing the other day as a way to use python libs while not blocking threads forever waiting for the models. Felt like that scene from the simpsons with Sideshow Bob and the rakes. Edgecases, wrapped values etc everywhere. Libraries that claimed to be async but had just forgotten to wrap parts of themselves leading to hours long debugging. I’m sure it can be nice, but if you need something async use node or Elixir or something else where the ideas are more mature (I assume C# and Java these days as well, just really not my scene so can’t comment).
+
+**PRO ASYNC**
+> I’ve been happily using async python in production for years. I’m happy to talk details I’d you want to migrate from Flask to Quart (which should be the easiest path). I would agree that either an entirely sync or async codebase is best, mixing the two is difficult to reason about. As a disclaimer I’m a maintainer of Flask and Quart.
+
+> “I would agree that either an entirely sync or async codebase is best, mixing the two is difficult to reason about. Came here to say this. Straddling the middle ground feels like a recipe for divided teams, knowledge, and understanding. I’m a big fan of Ariadne’s schema first approach. It feels right to me, in that you have a pre-agreed contract for the transport layer, in the same way that you would expect to agree a relational database table structure. Any teams that depend on it can work to it, and have confidence that it’ll be adhered to by providers/consumers. If not, you have bigger problems.
+
+> Refactoring sync to async is clearly a bit of a pain, but I would argue it’s relatively mechanical and you can call out to async code pretty safely while you’re transitioning. Calling sync within async, on the other hand, is a world of potential mystery and intrigue that I would prefer to avoid - so e.g. the falcon uses are all sync, and falcon.sync_to_async() and friends all have a lot of caveats and therefore we decided not to use them.
+
+</details>
+
+<details>
+  <summary>From Python subreddit (it seems like this sub is not really used by senior devs running apps in production)</summary>
+
+1. 1y/o [If you could choose any Python web framework to build APIs for a startup, which one would you choose and why?](https://www.reddit.com/r/Python/comments/xs7s6a/if_you_could_choose_any_python_web_framework_to/):
+    - Django for monoliths and CRUD apps: built-in database support and auth/authz
+    - FastAPI for micro-services
+    - but: FastAPI [maintenance](https://github.com/tiangolo/fastapi/discussions/3970) [concerns](https://github.com/tiangolo/fastapi/issues/4263)
+    - and: criticism on usability of FastAPI in production and its scalability
+    - FastAPI alternative: [litestar](https://github.com/litestar-org/litestar). Very interesting for mixing [sync&async code](https://docs.litestar.dev/latest/migration/flask.html)
+    - for data-heavy projects: skip ORM and use [aiosql](https://github.com/nackjicholson/aiosql)
+    - Flask and Quart, both maintained by the pallets org. Great frameworks with strong backing
+    - Starlette: simple ASGI done right. No extra bells and whistles
+1. 4y/o [What's your Python production stack look like](https://www.reddit.com/r/Python/comments/ddb1lh/whats_your_production_stack_look_like/):
+    - not mentioning GraphQL in the replies
+1. 5y/o [Which api framework (Flask, DRF, Sanic, Falcon, FastAPI, Vibora, Starlette, etc) would you use today for a large team](https://www.reddit.com/r/Python/comments/c37w6j/which_api_framework_flask_drf_sanic_falcon/)
+    - someone switched from Flask to Starlette; others positively mention Starlette, too
+    - Django used often
+    - not really comfortable with testing/debugging in async env, hence sticking with Django but considering using FastAPI for micro-services
+    - FastAPI: use it for building a REST API with automatic validation and doc generation
+
+</details>
 
 ## Consequences
 
