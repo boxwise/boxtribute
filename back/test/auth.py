@@ -51,7 +51,7 @@ def mock_user_for_request(mocker, **attributes):
     a JWT payload according to the given attributes, and mock the result of the internal
     JWT decoding library to return this payload.
     """
-    mocker.patch("jose.jwt.decode").return_value = _create_jwt_payload(**attributes)
+    mocker.patch("jwt.decode").return_value = _create_jwt_payload(**attributes)
 
 
 def _create_jwt_payload(

@@ -7,8 +7,8 @@ from collections import defaultdict
 from functools import wraps
 from typing import Dict, Tuple
 
+import jwt
 from flask import g, request
-from jose import JOSEError, jwt
 from sentry_sdk import set_user as set_sentry_user
 
 from .exceptions import AuthenticationFailed
@@ -84,19 +84,20 @@ def decode_jwt(*, token, public_key, domain, audience):
             audience=audience,
             issuer=f"https://{domain}/",
         )
-    except jwt.ExpiredSignatureError:
+    except jwt.exceptions.ExpiredSignatureError:
         raise AuthenticationFailed(
             {"code": "token_expired", "description": "token is expired"}
         )
-    except jwt.JWTClaimsError:
+    except jwt.exceptions.InvalidTokenError as e:
         raise AuthenticationFailed(
             {
                 "code": "invalid_claims",
                 "description": "incorrect claims, "
                 "please check the audience and issuer",
+                "message": str(e),
             },
         )
-    except JOSEError as e:
+    except jwt.exceptions.PyJWTError as e:
         raise AuthenticationFailed(
             {
                 "code": "invalid_header",
