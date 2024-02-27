@@ -4,14 +4,13 @@ import tempfile
 
 import peewee
 import pytest
-from boxtribute_server.models.definitions.product import Product
-from boxtribute_server.setup_wizard import (
+from boxtribute_server.cli.main import _create_db_interface, _parse_options
+from boxtribute_server.cli.products import (
     PRODUCT_COLUMN_NAMES,
-    _clone_products,
-    _create_db_interface,
-    _import_products,
-    _parse_options,
+    clone_products,
+    import_products,
 )
+from boxtribute_server.models.definitions.product import Product
 
 
 @pytest.fixture
@@ -149,7 +148,7 @@ def test_import_products(
     invalid_data_filepath,
     invalid_typed_data_filepath,
 ):
-    _import_products(data_filepath=valid_data_filepath)
+    import_products(data_filepath=valid_data_filepath)
     products = list(Product.select().dicts())
 
     # Verify that result is superset of original test data
@@ -157,22 +156,22 @@ def test_import_products(
     assert products[-1].items() >= valid_data[1].items()
 
     with pytest.raises(RuntimeError):
-        _import_products(data_filepath=empty_filepath)
+        import_products(data_filepath=empty_filepath)
 
     with pytest.raises(RuntimeError):
-        _import_products(data_filepath=only_header_filepath)
+        import_products(data_filepath=only_header_filepath)
 
     with pytest.raises(ValueError):
-        _import_products(data_filepath=invalid_data_filepath)
+        import_products(data_filepath=invalid_data_filepath)
 
     with pytest.raises(ValueError) as exc_info:
-        _import_products(data_filepath=invalid_typed_data_filepath)
+        import_products(data_filepath=invalid_typed_data_filepath)
     assert exc_info.value.args[0] == "Invalid fields:\nRow   1: category"
 
 
 def test_clone_products(default_product):
     target_base_id = 2
-    _clone_products(source_base_id=1, target_base_id=target_base_id)
+    clone_products(source_base_id=1, target_base_id=target_base_id)
 
     # Verify that source and target product are identical apart from ID, base, and price
     products = list(Product.select().dicts())
@@ -188,6 +187,6 @@ def test_clone_products(default_product):
         assert cloned_product == original_product
 
     with pytest.raises(ValueError):
-        _clone_products(source_base_id=0, target_base_id=1)
+        clone_products(source_base_id=0, target_base_id=1)
     with pytest.raises(ValueError):
-        _clone_products(source_base_id=1, target_base_id=0)
+        clone_products(source_base_id=1, target_base_id=0)
