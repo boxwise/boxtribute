@@ -2,6 +2,7 @@ import csv
 import pathlib
 import tempfile
 from datetime import date
+from unittest.mock import MagicMock
 
 import peewee
 import pytest
@@ -19,6 +20,8 @@ from boxtribute_server.cli.remove_base_access import (
     _get_non_admin_usergroup_ids,
     remove_base_access,
 )
+from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
+from boxtribute_server.cli.utils import Struct
 from boxtribute_server.db import db
 from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.models.definitions.user import User
@@ -332,11 +335,44 @@ def test_remove_base_access_functions(usergroup_data):
         f"rol_{x}" for x in "bcde"
     ]
 
+    user_id = 1
+    users = [Struct({"user_id": user_id, "app_metadata": {}})]
+    assert _user_data_without_base_id(users, base_id) == {}
+
+    base_id = "1"
+    users = [Struct({"user_id": user_id, "app_metadata": {"base_ids": [base_id]}})]
+    assert _user_data_without_base_id(users, base_id) == {
+        user_id: {"app_metadata": {"base_ids": []}}
+    }
+
+    another_base_id = "2"
+    base_ids = [base_id, another_base_id]
+    users = [Struct({"user_id": user_id, "app_metadata": {"base_ids": base_ids}})]
+    assert _user_data_without_base_id(users, base_id) == {
+        user_id: {"app_metadata": {"base_ids": [another_base_id]}}
+    }
+
+    non_present_base_id = "0"
+    assert _user_data_without_base_id(users, non_present_base_id) == {}
+
+
+class Service(Auth0Service):
+    def __init__(self):
+        self._interface = MagicMock()
+        self._interface.users = MagicMock()
+        self._interface.roles = MagicMock()
+        self._interface.users.list.return_value = {
+            "users": [
+                {"app_metadata": {"base_ids": [1, 2]}, "user_id": 1, "name": "admin"},
+            ]
+        }
+
 
 def test_remove_base_access(usergroup_data):
     admin_usergroup_id = 1
     base_id = 1
-    remove_base_access(base_id=base_id)
+    service = Service()
+    remove_base_access(base_id=base_id, service=service)
 
     # Verify that User._usergroup field is set to NULL
     assert User.select(User.id, User._usergroup).dicts() == [
@@ -368,3 +404,8 @@ def test_remove_base_access(usergroup_data):
         "SELECT cms_usergroups_id,auth0_role_name from cms_usergroups_roles;"
     )
     assert cursor.fetchall() == ((admin_usergroup_id, "administrator"),)
+
+    interface = service._interface
+    interface.users.list.assert_called_once()
+    interface.users.update.assert_called_once()
+    assert interface.roles.delete.call_count == 4
