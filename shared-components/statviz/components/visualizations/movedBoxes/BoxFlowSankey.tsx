@@ -1,5 +1,6 @@
-import { Card, CardBody } from "@chakra-ui/react";
-import { filter, groupBy, innerJoin, sum, summarize, tidy } from "@tidyjs/tidy";
+import { Box, Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
+import { groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
+import { sample } from "lodash";
 import VisHeader from "../../VisHeader";
 import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
@@ -10,19 +11,23 @@ import {
 } from "../../../../types/generated/graphql";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
+import Targetfilter from "../../filter/LocationFilter";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
   name: "shipments",
+  nodeColor: "#2c4fdb",
 };
 const selfReportedNode = {
   id: "selfreportedYp9WMJiNbEvi",
   name: "self reported",
+  nodeColor: "#db662c",
 };
 const outgoingNode = {
   id: "outgoingYp9WMJiNbEvi",
   name: "outgoing boxes",
+  nodeColor: "#1fcc30",
 };
 
 interface IBoxFlowSankeyProps {
@@ -41,7 +46,19 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   const movedBoxes = tidy(
     movedBoxesFacts,
     groupBy("targetId", [summarize({ count: sum(boxesOrItems) })]),
-    filter((item) => item.count > 0),
+    map((item) => {
+      if (item.count < 0) {
+        return {
+          ...item,
+          count: Math.abs(item.count),
+          isNegative: true,
+        };
+      }
+      return {
+        ...item,
+        isNegative: false,
+      };
+    }),
     innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
       by: { id: "targetId" },
     }),
@@ -50,6 +67,16 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   const movedBoxesByTargetType = tidy(
     movedBoxes,
     groupBy("type", [summarize({ count: sum("count") })]),
+    map((movedBox) => {
+      if (movedBox.count < 0) {
+        return {
+          ...movedBox,
+          count: Math.abs(movedBox.count),
+          isNegative: true,
+        };
+      }
+      return { ...movedBox, isNegative: false };
+    }),
   );
 
   const links = [
@@ -60,6 +87,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
             source: outgoingNode.id,
             target: selfReportedNode.id,
             value: target.count,
+            isNegative: target.isNegative,
           };
         }
         if (target.type === "Shipment") {
@@ -67,6 +95,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
             source: outgoingNode.id,
             target: shipmentNode.id,
             value: target.count,
+            isNegative: target.isNegative,
           };
         }
         return undefined;
@@ -78,6 +107,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
           source: selfReportedNode.id,
           target: movedBox.targetId,
           value: movedBox.count,
+          isNegative: movedBox.isNegative,
         };
       }
       if (movedBox.type === "Shipment") {
@@ -85,20 +115,26 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
           source: shipmentNode.id,
           target: movedBox.targetId,
           value: movedBox.count,
+          isNegative: movedBox.isNegative,
         };
       }
       return {
         source: outgoingNode.id,
         target: movedBox.targetId,
         value: movedBox.count,
+        isNegative: movedBox.isNegative,
       };
     }),
   ];
+
   const nodes = [
     outgoingNode,
     ...movedBoxes.map((movedBox) => ({
       id: movedBox.targetId,
-      name: movedBox.name,
+      name: movedBox.isNegative ? `${movedBox.name} removed` : movedBox.name,
+      nodeColor: movedBox.isNegative
+        ? "red"
+        : sample(["#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22"]),
     })),
   ];
 
@@ -138,7 +174,18 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         visId="bf"
       />
       <CardBody>
+        <Wrap>
+          <WrapItem>
+            <Targetfilter />
+          </WrapItem>
+        </Wrap>
         <SankeyChart {...chartProps} />
+        <Wrap align="center">
+          <WrapItem>
+            <Box w="15px" h="15px" backgroundColor="red" />
+          </WrapItem>
+          <WrapItem color="red">Negative Box Flow</WrapItem>
+        </Wrap>
       </CardBody>
     </Card>
   );

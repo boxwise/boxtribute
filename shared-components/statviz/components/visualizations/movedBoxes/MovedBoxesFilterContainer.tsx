@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useReactiveVar } from "@apollo/client";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import useTimerange from "../../../hooks/useTimerange";
@@ -14,9 +14,18 @@ import {
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { genderFilterId, genders, productFilterId } from "../../filter/GenderProductFilter";
 import { tagFilterId } from "../../filter/TagFilter";
-import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
+import {
+  targetFilterValuesVar,
+  productFilterValuesVar,
+  tagFilterValuesVar,
+} from "../../../state/filter";
+import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 
-export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxesData }) {
+interface IMovedBoxesFilterContainerProps {
+  movedBoxes: MovedBoxesData;
+}
+
+export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFilterContainerProps) {
   const { interval } = useTimerange();
 
   const { filterValue } = useValueFilter(
@@ -27,6 +36,7 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
 
   const productsFilterValues = useReactiveVar(productFilterValuesVar);
   const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const targetFilterValues = useReactiveVar(targetFilterValuesVar);
 
   const { filterValue: productsFilter } = useMultiSelectFilter(
     productsFilterValues,
@@ -35,11 +45,18 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
 
   const { filterValue: genderFilter } = useMultiSelectFilter(genders, genderFilterId);
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
+  const { filterValue: excludedTargets } = useMultiSelectFilter(targetFilterValues, targetFilterId);
+
+  // fill target filter with data
+  useEffect(() => {
+    const targets = movedBoxes.dimensions!.target!.map((t) => targetToFilterValue(t!));
+    targetFilterValuesVar(targets);
+  }, [movedBoxes.dimensions]);
 
   const movedBoxesFacts = useMemo(() => {
     try {
       return filterListByInterval(
-        props.movedBoxes.facts as MovedBoxesResult[],
+        movedBoxes.facts as MovedBoxesResult[],
         "movedOn",
         interval,
       ) as MovedBoxesResult[];
@@ -47,7 +64,7 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
       // TODO show toast with error message?
     }
     return [];
-  }, [interval, props.movedBoxes.facts]);
+  }, [interval, movedBoxes.facts]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
@@ -69,6 +86,16 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
         ),
       );
     }
+    if (excludedTargets.length > 0) {
+      filters.push(
+        filter(
+          (fact: MovedBoxesResult) =>
+            excludedTargets.find((filteredTarget) => filteredTarget.id! === fact.targetId!) ===
+            undefined,
+        ),
+      );
+    }
+
     if (filteredTags.length > 0) {
       filters.push(
         filter((fact: MovedBoxesResult) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))),
@@ -80,11 +107,11 @@ export default function MovedBoxesFilterContainer(props: { movedBoxes: MovedBoxe
       return tidy(movedBoxesFacts, ...filters);
     }
     return movedBoxesFacts;
-  }, [filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
+  }, [excludedTargets, filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
 
   const filteredMovedBoxesCube = {
     facts: filteredFacts as MovedBoxesResult[],
-    dimensions: props.movedBoxes.dimensions,
+    dimensions: movedBoxes.dimensions,
   };
   return <MovedBoxesCharts movedBoxes={filteredMovedBoxesCube} boxesOrItems={filterValue.value} />;
 }

@@ -1,5 +1,5 @@
 import { makeVar } from "@apollo/client";
-import { ProductGender } from "../../types/generated/graphql";
+import { ProductGender, TargetType } from "../../types/generated/graphql";
 import { IFilterValue } from "../components/filter/ValueFilter";
 
 export interface IProductFilterValue extends IFilterValue {
@@ -15,7 +15,8 @@ export interface ITagFilterValue extends IFilterValue {
 }
 export const tagFilterValuesVar = makeVar<ITagFilterValue[]>([]);
 
-export interface ILocationFilterValue extends IFilterValue {
-  id: number;
+export interface ITargetFilterValue extends IFilterValue {
+  id: string;
+  type: TargetType;
 }
-export const locationFilterValuesVar = makeVar<ILocationFilterValue[]>([]);
+export const targetFilterValuesVar = makeVar<ITargetFilterValue[]>([]);

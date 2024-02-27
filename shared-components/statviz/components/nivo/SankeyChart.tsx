@@ -15,7 +15,7 @@ export interface ISankeyNode {
 }
 
 export interface ISankeyData {
-  nodes: { id: string; name: string }[];
+  nodes: { id: string; name: string; nodeColor?: string }[];
   links: ISankeyLink[];
 }
 
@@ -84,21 +84,20 @@ export default function SankeyChart(chart: ISankeyChart) {
     layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
 
+  const colors = chart.data.nodes.map((e) => e.nodeColor ?? "green");
+
   return (
     <div ref={ref} style={{ width: chart.width, height: chart.height }}>
       <ResponsiveSankey
-        colors={{ scheme: "category10" }}
+        colors={colors}
         layers={layers}
         margin={{ ...margin }}
         nodeHoverOthersOpacity={0.35}
         nodeThickness={18}
         nodeSpacing={24}
         nodeBorderWidth={0}
-        nodeBorderColor={{
-          from: "color",
-          modifiers: [["darker", 0.8]],
-        }}
         nodeBorderRadius={3}
+        nodeBorderColor={{ from: "nodeColor" }}
         linkOpacity={0.5}
         linkHoverOthersOpacity={0.1}
         linkContract={3}
