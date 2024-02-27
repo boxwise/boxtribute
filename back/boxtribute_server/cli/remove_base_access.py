@@ -59,13 +59,16 @@ WHERE cms_usergroups_id IN %s;""",
     return [row[0] for row in cursor.fetchall()]
 
 
-def remove_base_access(*, base_id):
+def remove_base_access(*, base_id, service):
     # validate that base exists
 
     # confirm to delete base with name
 
     with db.database.atomic():
-        _update_database(base_id)
+        admin_usergroup_id, non_admin_role_ids = _update_database(base_id)
+        _update_user_management_service(
+            service, admin_usergroup_id, base_id, non_admin_role_ids
+        )
 
 
 def _update_database(base_id):
@@ -106,9 +109,11 @@ def _update_database(base_id):
     return admin_usergroup_id, non_admin_role_ids
 
 
-def _update_auth0(admin_usergroup_id, base_id, non_admin_role_ids):
-    # update all users in the admin usergroup in auth0 and remove the base_ids in their
-    # app_metadata
-    # ...copy from other script
-    # Remove all non-admin roles and the users in Auth0
-    pass
+def _update_user_management_service(
+    service, admin_usergroup_id, base_id, non_admin_role_ids
+):
+    users = service.get_admin_users(admin_usergroup_id)
+
+    service.update_admin_users(users=users, base_id=base_id)
+
+    service.remove_non_admin_roles(non_admin_role_ids)
