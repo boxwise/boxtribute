@@ -104,6 +104,15 @@ What becomes easier or more difficult to do because of this change?
 - (o) little team experience with development of async Python
 - (-) risk and expense of replacing web-framework (Flask) and ORM (peewee) with async counterparts
 
+### Details: Move to fully async BE
+
+The most straightforward way seems to [replace Flask by its async counterpart Quart](https://quart.palletsprojects.com/en/latest/how_to_guides/flask_migration.html). This includes:
+- async route definitions (no-brainer)
+- add await to `request.get_json()` and similar (no-brainer)
+- add await to testing client (simple since it's centrally defined)
+- switch CORS package: instead of flask-cors, [quart-cors](https://github.com/pgjones/quart-cors) (maintained but only ~20 stars on GitHub; flask-cors has 850 stars)
+- switch ORM integration: we use peewee's builtin `FlaskDB` utility to tie Flask and the ORM together. I couldn't find a similar utility for Quart and peewee-async. Implementing it ourselves is not too tedious I suppose (borrowing from [quart-db](https://github.com/pgjones/quart-db)) but I'd prefer to use a community-proven package
+
 ## Further reading
 
 * [peewee author's criticizing asyncio](https://charlesleifer.com/blog/asyncio/)
