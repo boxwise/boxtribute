@@ -6,6 +6,7 @@ import ItemsAndBoxes from "./ItemsAndBoxes";
 import StockOverview from "./StockOverview";
 import BoxesOrItemsSelect from "../components/filter/BoxesOrItemsSelect";
 import GenderProductFilter from "../components/filter/GenderProductFilter";
+import TagFilter from "../components/filter/TagFilter";
 
 export default function Dashboard() {
   return (
@@ -33,6 +34,11 @@ export default function Dashboard() {
         <WrapItem w="700">
           <Center>
             <GenderProductFilter />
+          </Center>
+        </WrapItem>
+        <WrapItem w="350">
+          <Center>
+            <TagFilter />
           </Center>
         </WrapItem>
       </Wrap>

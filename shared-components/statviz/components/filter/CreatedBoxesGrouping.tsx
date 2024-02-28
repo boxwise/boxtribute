@@ -9,14 +9,9 @@ export interface ICreatedBoxesTimeGroupOption {
 
 export const createdBoxesGroupingOptions: (IFilterValue & ICreatedBoxesTimeGroupOption)[] = [
   {
-    value: "day",
-    urlId: "d",
-    label: "day",
-  },
-  {
-    value: "week",
-    urlId: "w",
-    label: "week",
+    value: "year",
+    urlId: "y",
+    label: "year",
   },
   {
     value: "month",
@@ -24,9 +19,14 @@ export const createdBoxesGroupingOptions: (IFilterValue & ICreatedBoxesTimeGroup
     label: "month",
   },
   {
-    value: "year",
-    urlId: "y",
-    label: "year",
+    value: "week",
+    urlId: "w",
+    label: "week",
+  },
+  {
+    value: "day",
+    urlId: "d",
+    label: "day",
   },
 ];
 

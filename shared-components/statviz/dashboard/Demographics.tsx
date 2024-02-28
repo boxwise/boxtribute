@@ -8,7 +8,7 @@ import {
   WrapItem,
   Box,
 } from "@chakra-ui/react";
-import DemographicChart from "../components/visualizations/demographic/DemographicPyramid";
+import DemographicDataContainer from "../components/visualizations/demographic/DemographicDataContainer";
 
 export default function Demographics() {
   return (
@@ -22,7 +22,7 @@ export default function Demographics() {
       <AccordionPanel>
         <Wrap gap={6}>
           <WrapItem overflow="auto" padding="5px">
-            <DemographicChart width={800} height={900} />
+            <DemographicDataContainer />
           </WrapItem>
         </Wrap>
       </AccordionPanel>

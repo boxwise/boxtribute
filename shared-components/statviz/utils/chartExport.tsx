@@ -71,7 +71,9 @@ const exportChartWithSettings = (
       }
     };
 
-    setTimeout(exportImage, 1);
+    // increase to 250ms to see if it fixes download issues in safari.
+    // a better solution must be researched
+    setTimeout(exportImage, 250);
   };
 
   const root = createRoot(exportContainer);

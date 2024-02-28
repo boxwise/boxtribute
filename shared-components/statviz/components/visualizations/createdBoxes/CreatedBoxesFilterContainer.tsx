@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { TidyFn, filter, tidy } from "@tidyjs/tidy";
+import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
 import { useReactiveVar } from "@apollo/client";
 import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
@@ -17,9 +17,10 @@ import {
   genders,
   productFilterId,
   productToFilterValue,
-  products,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
+import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
+import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxesData;
@@ -35,7 +36,7 @@ export default function CreatedBoxesFilterContainer({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const productFilterValues = useReactiveVar(products);
+  const productFilterValues = useReactiveVar(productFilterValuesVar);
 
   const { filterValue: filterProductGenders } = useMultiSelectFilter(genders, genderFilterId);
   const { filterValue: filterProducts } = useMultiSelectFilter(
@@ -43,19 +44,30 @@ export default function CreatedBoxesFilterContainer({
     productFilterId,
   );
 
-  // use products from the createdBoxes query to feed the global products filter
+  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
+
+  // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
+  // Beneficiary and All Tags are merged inside the DemographicFilterContainer
   // and filter the product filter by filtered product genders
   useEffect(() => {
     const p = createdBoxes.dimensions!.product!.map((e) => productToFilterValue(e!));
     if (filterProductGenders.length > 0) {
-      products([
+      productFilterValuesVar([
         ...filterProducts,
         ...p.filter(
           (product) => filterProductGenders.findIndex((fPG) => fPG.value === product.gender) !== -1,
         ),
       ]);
     } else {
-      products(p);
+      productFilterValuesVar(p);
+    }
+
+    const boxTags = createdBoxes.dimensions!.tag!.map((e) => tagToFilterValue(e!));
+    if (boxTags.length > 0) {
+      const distinctTagFilterValues = tidy([...tagFilterValues, ...boxTags], distinct(["id"]));
+
+      tagFilterValuesVar(distinctTagFilterValues);
     }
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders
@@ -93,13 +105,20 @@ export default function CreatedBoxesFilterContainer({
         ),
       );
     }
+    if (filteredTags.length > 0) {
+      filters.push(
+        filter((fact: CreatedBoxesResult) =>
+          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
+        ),
+      );
+    }
 
     if (filters.length > 0) {
       // @ts-expect-error
       return tidy(createdBoxesFacts, ...filters);
     }
     return createdBoxesFacts;
-  }, [createdBoxesFacts, filterProductGenders, filterProducts]);
+  }, [createdBoxesFacts, filterProductGenders, filterProducts, filteredTags]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,

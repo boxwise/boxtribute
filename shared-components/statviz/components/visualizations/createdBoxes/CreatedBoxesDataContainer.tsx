@@ -13,6 +13,7 @@ const CREATED_BOXES_QUERY = gql(`
         productId
         categoryId
         createdOn
+        tagIds
         gender
         itemsCount
       }
@@ -25,6 +26,11 @@ const CREATED_BOXES_QUERY = gql(`
         category {
           id
           name
+        }
+        tag {
+          id
+          name
+          color
         }
       }
     }
