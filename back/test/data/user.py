@@ -49,6 +49,24 @@ def god_user_data():
     return data
 
 
+def base2_coordinator_data():
+    data = default_user_data()
+    data["id"] = 4
+    data["name"] = "coordinator"
+    data["email"] = "coordinator@basetwo.org"
+    data["_usergroup"] = 6
+    return data
+
+
+def base2_volunteer_data():
+    data = default_user_data()
+    data["id"] = 5
+    data["name"] = "volunteer"
+    data["email"] = "volunteer@basetwo.org"
+    data["_usergroup"] = 7
+    return data
+
+
 def another_user_data():
     data = default_user_data()
     data["id"] = 8
@@ -64,6 +82,8 @@ def data():
         god_user_data(),
         second_user_data(),
         another_user_data(),
+        base2_coordinator_data(),
+        base2_volunteer_data(),
     ]
 
 
