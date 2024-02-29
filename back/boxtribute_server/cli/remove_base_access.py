@@ -60,10 +60,6 @@ WHERE cms_usergroups_id IN %s;""",
 
 
 def remove_base_access(*, base_id, service):
-    # validate that base exists
-
-    # confirm to delete base with name
-
     with db.database.atomic():
         admin_usergroup_id, non_admin_role_ids = _update_database(base_id)
         _update_user_management_service(
