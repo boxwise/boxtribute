@@ -176,3 +176,9 @@ class NegativeNumberOfItems(Exception):
         "code": "BAD_USER_INPUT",
         "description": "Invalid input: negative value for 'numberOfItems'",
     }
+
+
+class ServiceError(Exception):
+    def __init__(self, *, code, message):
+        self.code = code
+        self.message = message

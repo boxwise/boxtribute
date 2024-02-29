@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 import peewee
 import pytest
+from auth0 import Auth0Error
 from boxtribute_server.cli.main import _create_db_interface, _parse_options
 from boxtribute_server.cli.products import (
     PRODUCT_COLUMN_NAMES,
@@ -23,6 +24,7 @@ from boxtribute_server.cli.remove_base_access import (
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
 from boxtribute_server.cli.utils import Struct
 from boxtribute_server.db import db
+from boxtribute_server.exceptions import ServiceError
 from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.models.definitions.user import User
 
@@ -409,3 +411,13 @@ def test_remove_base_access(usergroup_data):
     interface.users.list.assert_called_once()
     interface.users.update.assert_called_once()
     assert interface.roles.delete.call_count == 4
+
+    # Verify error handling
+    code = 401
+    message = "You shall not pass"
+    error = Auth0Error(code, "Unauthorized", message)
+    interface.users.list.side_effect = error
+    with pytest.raises(ServiceError) as exc_info:
+        service.get_admin_users(1)
+    assert exc_info.value.code == code
+    assert exc_info.value.message == message
