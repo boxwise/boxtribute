@@ -298,7 +298,9 @@ INSERT INTO `cms_usergroups` VALUES
     (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
     (3,'Base 1 - Warehouse Volunteer',NULL,NULL,NULL,NULL,1,NULL),
     (4,'Base 1 - Freeshop Volunteer',NULL,NULL,NULL,NULL,1,NULL),
-    (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL);
+    (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL),
+    (6,'Coordinator',NULL,NULL,NULL,NULL,1,NULL),
+    (7,'Volunteer',NULL,NULL,NULL,NULL,1,NULL);
 """
     )
 
@@ -310,7 +312,11 @@ INSERT INTO `cms_usergroups_camps` VALUES
     (1,3),
     (1,4),
     (1,5),
-    (2,1);
+    (1,6),
+    (1,7),
+    (2,1),
+    (2,6),
+    (2,7);
 """
     )
 
@@ -321,7 +327,9 @@ INSERT INTO `cms_usergroups_roles` VALUES
     (2,'rol_b','base_1_coordinator'),
     (3,'rol_c','base_1_warehouse_volunteer'),
     (4,'rol_d','base_1_free_shop_volunteer'),
-    (5,'rol_e','base_1_library_volunteer');
+    (5,'rol_e','base_1_library_volunteer'),
+    (6,'rol_f','base_2_coordinator'),
+    (7,'rol_g','base_2_volunteer');
 """,
         (AUTH0_ADMIN_ROLE_ID,),
     )
@@ -330,13 +338,13 @@ INSERT INTO `cms_usergroups_roles` VALUES
 def test_remove_base_access_functions(usergroup_tables, usergroup_data):
     base_id = 1
     assert _get_admin_usergroup_id(base_id, AUTH0_ADMIN_ROLE_ID) == 1
-    non_admin_usergroup_ids = [2, 3, 4, 5]
+    non_admin_usergroup_ids = [2, 3, 4, 5, 6, 7]
     assert (
         _get_non_admin_usergroup_ids(base_id, AUTH0_ADMIN_ROLE_ID)
         == non_admin_usergroup_ids
     )
-    assert _get_non_admin_user_ids(non_admin_usergroup_ids) == [1, 2, 8]
-    assert _get_non_admin_role_ids(non_admin_usergroup_ids) == [
+    assert _get_non_admin_user_ids(base_id, non_admin_usergroup_ids) == [1, 2, 8]
+    assert _get_non_admin_role_ids(base_id, non_admin_usergroup_ids) == [
         f"rol_{x}" for x in "bcde"
     ]
 

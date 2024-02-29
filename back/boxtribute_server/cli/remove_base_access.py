@@ -29,7 +29,7 @@ AND cuc.camp_id = %s;""",
 def _get_non_admin_usergroup_ids(base_id, admin_role_id):
     cursor = db.database.execute_sql(
         """\
-SELECT cu.id FROM cms_usergroups cu
+SELECT DISTINCT cu.id FROM cms_usergroups cu
 JOIN cms_usergroups_roles cur
 ON cur.cms_usergroups_id = cu.id
 AND cur.auth0_role_id <> %s
@@ -41,26 +41,32 @@ AND cuc.camp_id = %s;""",
     return [row[0] for row in cursor.fetchall()]
 
 
-def _get_non_admin_user_ids(non_admin_usergroup_ids):
+def _get_non_admin_user_ids(base_id, non_admin_usergroup_ids):
     if not non_admin_usergroup_ids:
         return []
     cursor = db.database.execute_sql(
         """\
-SELECT id FROM cms_users
-WHERE cms_usergroups_id IN %s;""",
-        (non_admin_usergroup_ids,),
+SELECT cu.id FROM cms_users cu
+INNER JOIN cms_usergroups_camps cuc
+ON cu.cms_usergroups_id = cuc.cms_usergroups_id
+AND cuc.camp_id = %s
+AND cu.cms_usergroups_id IN %s;""",
+        (base_id, non_admin_usergroup_ids),
     )
     return [row[0] for row in cursor.fetchall()]
 
 
-def _get_non_admin_role_ids(non_admin_usergroup_ids):
+def _get_non_admin_role_ids(base_id, non_admin_usergroup_ids):
     if not non_admin_usergroup_ids:
         return []
     cursor = db.database.execute_sql(
         """\
-SELECT auth0_role_id FROM cms_usergroups_roles
-WHERE cms_usergroups_id IN %s;""",
-        (non_admin_usergroup_ids,),
+SELECT DISTINCT auth0_role_id FROM cms_usergroups_roles cur
+INNER JOIN cms_usergroups_camps cuc
+ON cur.cms_usergroups_id = cuc.cms_usergroups_id
+AND cuc.camp_id = %s
+AND cur.cms_usergroups_id IN %s;""",
+        (base_id, non_admin_usergroup_ids),
     )
     return [row[0] for row in cursor.fetchall()]
 
@@ -78,8 +84,8 @@ def _update_database(base_id):
     # base
     admin_usergroup_id = _get_admin_usergroup_id(base_id, AUTH0_ADMIN_ROLE_ID)
     non_admin_usergroup_ids = _get_non_admin_usergroup_ids(base_id, AUTH0_ADMIN_ROLE_ID)
-    non_admin_user_ids = _get_non_admin_user_ids(non_admin_usergroup_ids)
-    non_admin_role_ids = _get_non_admin_role_ids(non_admin_usergroup_ids)
+    non_admin_user_ids = _get_non_admin_user_ids(base_id, non_admin_usergroup_ids)
+    non_admin_role_ids = _get_non_admin_role_ids(base_id, non_admin_usergroup_ids)
 
     # !!!
     # Destructive operations below
