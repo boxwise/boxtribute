@@ -26,12 +26,13 @@ import os
 from boxtribute_server.db import create_db_interface, db
 
 from .products import clone_products, import_products
+from .remove_base_access import LOGGER as RBA_LOGGER
 from .remove_base_access import remove_base_access
+from .service import LOGGER as SERVICE_LOGGER
 from .service import Auth0Service
+from .utils import setup_logger
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.INFO)
+LOGGER = setup_logger(__name__)
 
 
 def _parse_options(args=None):
@@ -111,7 +112,12 @@ def main(args=None):
         peewee_logger = logging.getLogger("peewee")
         peewee_logger.setLevel(logging.DEBUG)
         peewee_logger.parent = LOGGER  # propagate messages to module logger
+        urllib_logger = logging.getLogger("urllib3")
+        urllib_logger.setLevel(logging.DEBUG)
+        urllib_logger.parent = LOGGER
         LOGGER.setLevel(logging.DEBUG)
+        RBA_LOGGER.setLevel(logging.DEBUG)
+        SERVICE_LOGGER.setLevel(logging.DEBUG)
 
     db.database = _create_db_interface(
         **{n: options.pop(n) for n in ["host", "port", "password", "database", "user"]}

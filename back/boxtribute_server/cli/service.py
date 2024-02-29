@@ -3,7 +3,9 @@ from auth0.authentication import GetToken
 from auth0.management import Auth0
 
 from ..exceptions import ServiceError
-from .utils import Struct
+from .utils import Struct, setup_logger
+
+LOGGER = setup_logger(__name__)
 
 
 class Auth0Service:
@@ -19,6 +21,9 @@ class Auth0Service:
                     q=f"app_metadata.usergroup_id:{admin_usergroup_id}",
                     fields=["app_metadata", "user_id", "name"],
                 )
+            )
+            LOGGER.info(
+                f"Fetched first page of user data of total {result.total} users."
             )
             return result.users
         except Auth0Error as e:
@@ -59,6 +64,7 @@ class Auth0Service:
         """Connect to Management API, following
         https://github.com/auth0/auth0-python?tab=readme-ov-file#management-sdk
         """
+        LOGGER.info("Fetching Auth0 Management API token...")
         getter = GetToken(domain, client_id, client_secret=secret)
         token = getter.client_credentials(f"https://{domain}/api/v2/")["access_token"]
         interface = Auth0(domain, token)
