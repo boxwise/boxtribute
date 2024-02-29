@@ -1,4 +1,7 @@
 
+from auth0 import Auth0Error
+
+from ..exceptions import ServiceError
 from .utils import Struct
 
 
@@ -9,27 +12,46 @@ class Auth0Service:
     def get_admin_users(self, admin_usergroup_id):
         """Fetch all users of the admin usergroup."""
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
-        result = Struct(
-            self._interface.users.list(
-                q=f"app_metadata.usergroup_id:{admin_usergroup_id}",
-                fields=["app_metadata", "user_id", "name"],
+        try:
+            result = Struct(
+                self._interface.users.list(
+                    q=f"app_metadata.usergroup_id:{admin_usergroup_id}",
+                    fields=["app_metadata", "user_id", "name"],
+                )
             )
-        )
-        return result.users
+            return result.users
+        except Auth0Error as e:
+            raise ServiceError(code=e.status_code, message=e.message)
 
     def update_admin_users(self, *, base_id, users):
+        """Remove access to base with given ID from users."""
         updated_users = _user_data_without_base_id(users, base_id)
+        errors = {}
         for user_id, data in updated_users.items():
-            # might throw some Auth0Error
             # https://auth0.com/docs/api/management/v2/users/patch-users-by-id
             # app_metadata field will be upserted
-            self._interface.users.update(user_id, data)
+            try:
+                self._interface.users.update(user_id, data)
+            except Auth0Error as e:
+                errors[user_id] = e
+        if errors:
+            # dump and/or log
+            pass
 
     def remove_non_admin_roles(self, role_ids):
-        # Remove all non-admin roles and the users in Auth0
+        """Remove given non-admin roles. Users with this role have it automatically
+        unassigned.
+        """
+        errors = {}
         for role_id in role_ids:
-            # https://auth0.com/docs/api/management/v2/roles/delete-roles-by-id
-            self._interface.roles.delete(role_id)
+            try:
+                # https://auth0.com/docs/api/management/v2/roles/delete-roles-by-id
+                self._interface.roles.delete(role_id)
+            except Auth0Error as e:
+                errors[role_id] = e
+        if errors:
+            # dump and/or log
+            pass
 
 
 def _user_data_without_base_id(users, base_id):
