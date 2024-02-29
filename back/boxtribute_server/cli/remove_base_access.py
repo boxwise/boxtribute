@@ -1,10 +1,8 @@
-import logging
-
 from boxtribute_server.db import db
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.INFO)
+from .utils import setup_logger
+
+LOGGER = setup_logger(__name__)
 
 AUTH0_ADMIN_ROLE_ID = "rol_tP8t9gMxhO1Odtdw"  # dev
 

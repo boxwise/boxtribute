@@ -1,11 +1,10 @@
 import csv
-import logging
 
 from boxtribute_server.db import db
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.INFO)
+from .utils import setup_logger
+
+LOGGER = setup_logger(__name__)
 
 
 PRODUCT_COLUMN_NAMES = {

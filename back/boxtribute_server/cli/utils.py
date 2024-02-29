@@ -1,3 +1,6 @@
+import logging
+
+
 # https://stackoverflow.com/a/6993694/3865876
 class Struct:
     def __init__(self, data):
@@ -20,3 +23,13 @@ class Struct:
             return super().__getattr__(key)
         except AttributeError:
             return
+
+
+def setup_logger(name):
+    logger = logging.getLogger(name)
+    formatter = logging.Formatter("%(name)s | %(levelname)s | %(message)s")
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    return logger
