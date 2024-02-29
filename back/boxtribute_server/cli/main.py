@@ -21,10 +21,13 @@ delimiter and double-quote as quote char.
 import argparse
 import getpass
 import logging
+import os
 
 from boxtribute_server.db import create_db_interface, db
 
 from .products import clone_products, import_products
+from .remove_base_access import remove_base_access
+from .service import Auth0Service
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
@@ -63,6 +66,10 @@ def _parse_options(args=None):
         "-t", "--target-base-id", type=int, required=True
     )
 
+    remove_base_access_parser = subparsers.add_parser(
+        "remove-base-access", help="Remove access to base from users"
+    )
+    remove_base_access_parser.add_argument("-b", "--base-id", type=int, required=True)
     return vars(parser.parse_args(args=args))
 
 
@@ -71,6 +78,29 @@ def _create_db_interface(**connection_parameters):
         "MySQL password: "
     )
     return create_db_interface(password=password, **connection_parameters)
+
+
+def _connect_to_auth0():
+    domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
+    client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
+    secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
+    return Auth0Service.connect(domain=domain, client_id=client_id, secret=secret)
+
+
+def _confirm_removal(base_id):
+    from ..models.definitions.base import Base
+
+    # Validate that base exists
+    base = Base.select(Base.name).where(Base.id == base_id).get_or_none()
+    if base is None:
+        raise ValueError(f"Base {base_id} does not exist.")
+
+    reply = input(
+        f"Type YES to confirm removing access to base '{base.name}' (ID: {base_id}) "
+        "for all affected users: "
+    )
+    if reply != "YES":
+        raise RuntimeError("Operation was not confirmed, cancelling.")
 
 
 def main(args=None):
@@ -93,6 +123,10 @@ def main(args=None):
             import_products(**options)
         elif command == "clone-products":
             clone_products(**options)
+        elif command == "remove-base-access":
+            _confirm_removal(options["base_id"])
+            service = _connect_to_auth0()
+            remove_base_access(**options, service=service)
     except Exception as e:
         LOGGER.exception(e) if verbose else LOGGER.error(e)
         raise SystemExit("Exiting due to above error.")

@@ -1,5 +1,6 @@
-
 from auth0 import Auth0Error
+from auth0.authentication import GetToken
+from auth0.management import Auth0
 
 from ..exceptions import ServiceError
 from .utils import Struct
@@ -52,6 +53,16 @@ class Auth0Service:
         if errors:
             # dump and/or log
             pass
+
+    @classmethod
+    def connect(cls, *, domain, client_id, secret):
+        """Connect to Management API, following
+        https://github.com/auth0/auth0-python?tab=readme-ov-file#management-sdk
+        """
+        getter = GetToken(domain, client_id, client_secret=secret)
+        token = getter.client_credentials(f"https://{domain}/api/v2/")["access_token"]
+        interface = Auth0(domain, token)
+        return cls(interface)
 
 
 def _user_data_without_base_id(users, base_id):
