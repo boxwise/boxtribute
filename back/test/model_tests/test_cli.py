@@ -209,7 +209,7 @@ def test_clone_products(default_product):
 
 
 @pytest.fixture
-def usergroup_data():
+def usergroup_tables():
     # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
     db.database.execute_sql(
         """\
@@ -243,17 +243,6 @@ CREATE TABLE `cms_usergroups` (
 
     db.database.execute_sql(
         """\
-INSERT INTO `cms_usergroups` VALUES
-    (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
-    (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
-    (3,'Base 1 - Warehouse Volunteer',NULL,NULL,NULL,NULL,1,NULL),
-    (4,'Base 1 - Freeshop Volunteer',NULL,NULL,NULL,NULL,1,NULL),
-    (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL);
-"""
-    )
-
-    db.database.execute_sql(
-        """\
 DROP TABLE IF EXISTS `cms_usergroups_camps`;
 """
     )
@@ -270,18 +259,6 @@ CREATE TABLE `cms_usergroups_camps` (
   CONSTRAINT `cms_usergroups_camps_ibfk_2` FOREIGN KEY (`camp_id`)
   REFERENCES `camps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-"""
-    )
-
-    db.database.execute_sql(
-        """\
-INSERT INTO `cms_usergroups_camps` VALUES
-    (1,1),
-    (1,2),
-    (1,3),
-    (1,4),
-    (1,5),
-    (2,1);
 """
     )
 
@@ -304,6 +281,39 @@ CREATE TABLE `cms_usergroups_roles` (
 """
     )
 
+    yield
+
+    # drop tables after test has run; otherwise in model_tests.conftest the referenced
+    # camps and organisations tables can't be dropped
+    for table in ["cms_usergroups_roles", "cms_usergroups_camps", "cms_usergroups"]:
+        db.database.execute_sql(f"DROP TABLE {table};")
+
+
+@pytest.fixture
+def usergroup_data():
+    db.database.execute_sql(
+        """\
+INSERT INTO `cms_usergroups` VALUES
+    (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
+    (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
+    (3,'Base 1 - Warehouse Volunteer',NULL,NULL,NULL,NULL,1,NULL),
+    (4,'Base 1 - Freeshop Volunteer',NULL,NULL,NULL,NULL,1,NULL),
+    (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL);
+"""
+    )
+
+    db.database.execute_sql(
+        """\
+INSERT INTO `cms_usergroups_camps` VALUES
+    (1,1),
+    (1,2),
+    (1,3),
+    (1,4),
+    (1,5),
+    (2,1);
+"""
+    )
+
     db.database.execute_sql(
         """\
 INSERT INTO `cms_usergroups_roles` VALUES
@@ -316,15 +326,8 @@ INSERT INTO `cms_usergroups_roles` VALUES
         (AUTH0_ADMIN_ROLE_ID,),
     )
 
-    yield
 
-    # drop tables after test has run; otherwise in model_tests.conftest the referenced
-    # camps and organisations tables can't be dropped
-    for table in ["cms_usergroups_roles", "cms_usergroups_camps", "cms_usergroups"]:
-        db.database.execute_sql(f"DROP TABLE {table};")
-
-
-def test_remove_base_access_functions(usergroup_data):
+def test_remove_base_access_functions(usergroup_tables, usergroup_data):
     base_id = 1
     assert _get_admin_usergroup_id(base_id, AUTH0_ADMIN_ROLE_ID) == 1
     non_admin_usergroup_ids = [2, 3, 4, 5]
@@ -421,3 +424,15 @@ def test_remove_base_access(usergroup_data):
         service.get_admin_users(1)
     assert exc_info.value.code == code
     assert exc_info.value.message == message
+
+
+def test_remove_base_access_without_usergroups(usergroup_tables):
+    base_id = 1
+    service = Service()
+    remove_base_access(base_id=base_id, service=service)
+    assert User.select(User.id, User._usergroup).dicts() == [
+        {"id": 1, "_usergroup": 3},
+        {"id": 2, "_usergroup": 4},
+        {"id": 3, "_usergroup": None},
+        {"id": 8, "_usergroup": 2},
+    ]

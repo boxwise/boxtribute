@@ -19,7 +19,11 @@ ON cuc.cms_usergroups_id = cu.id
 AND cuc.camp_id = %s;""",
         (admin_role_id, base_id),
     )
-    return cursor.fetchall()[0][0]
+    try:
+        return cursor.fetchall()[0][0]
+    except IndexError:
+        # No admin usergroup registered for base
+        return
 
 
 def _get_non_admin_usergroup_ids(base_id, admin_role_id):
@@ -38,6 +42,8 @@ AND cuc.camp_id = %s;""",
 
 
 def _get_non_admin_user_ids(non_admin_usergroup_ids):
+    if not non_admin_usergroup_ids:
+        return []
     cursor = db.database.execute_sql(
         """\
 SELECT id FROM cms_users
@@ -48,6 +54,8 @@ WHERE cms_usergroups_id IN %s;""",
 
 
 def _get_non_admin_role_ids(non_admin_usergroup_ids):
+    if not non_admin_usergroup_ids:
+        return []
     cursor = db.database.execute_sql(
         """\
 SELECT auth0_role_id FROM cms_usergroups_roles
@@ -87,6 +95,9 @@ def _update_database(base_id):
 
     # also set deleted?
     User.update(_usergroup=None).where(User.id << non_admin_user_ids).execute()
+
+    if not non_admin_role_ids:
+        return admin_usergroup_id, []
 
     # soft-delete the coordinator and volunteer usergroups from the cms_usergroups table
     db.database.execute_sql(
