@@ -14,6 +14,8 @@ class Auth0Service:
 
     def get_admin_users(self, admin_usergroup_id):
         """Fetch all users of the admin usergroup."""
+        if admin_usergroup_id is None:
+            return []
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         try:
             result = Struct(
