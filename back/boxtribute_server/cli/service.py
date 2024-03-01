@@ -20,7 +20,7 @@ class Auth0Service:
         try:
             result = Struct(
                 self._interface.users.list(
-                    q=f"app_metadata.usergroup_id:{admin_usergroup_id}",
+                    q=f'app_metadata.usergroup_id:"{admin_usergroup_id}"',
                     fields=["app_metadata", "user_id", "name"],
                 )
             )
