@@ -81,6 +81,9 @@ def decode_jwt(*, token, public_key, domain, audience):
             algorithms=["RS256"],
             audience=audience,
             issuer=f"https://{domain}/",
+            # Disable verification of issuing date (goes against JWT spec)
+            # cf. https://github.com/jpadilla/pyjwt/issues/939
+            options={"verify_iat": False},
         )
     except jwt.exceptions.ExpiredSignatureError:
         raise AuthenticationFailed(
