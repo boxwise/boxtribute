@@ -10,9 +10,8 @@ import pytest
 from auth import (
     TEST_AUTH0_AUDIENCE,
     TEST_AUTH0_DOMAIN,
-    TEST_AUTH0_JWKS_KID,
-    TEST_AUTH0_JWKS_N,
     TEST_AUTH0_PASSWORD,
+    TEST_AUTH0_PUBLIC_KEY,
     TEST_AUTH0_USERNAME,
     get_authorization_header,
 )
@@ -38,13 +37,13 @@ def test_invalid_jwt_claims(auth0_client, monkeypatch):
     response = auth0_client.post("/graphql")
     assert response.status_code == 401
     assert response.json["code"] == "invalid_claims"
+    assert response.json["message"] == "Audience doesn't match"
 
 
 def test_decode_valid_jwt(monkeypatch):
-    # Simulate AUTH0_JWKS_* variable being set. This skips reaching out to the Auth0
+    # Simulate AUTH0_PUBLIC_KEY variable being set. This skips reaching out to the Auth0
     # service in get_public_key()
-    monkeypatch.setenv("AUTH0_JWKS_KID", TEST_AUTH0_JWKS_KID)
-    monkeypatch.setenv("AUTH0_JWKS_N", TEST_AUTH0_JWKS_N)
+    monkeypatch.setenv("AUTH0_PUBLIC_KEY", TEST_AUTH0_PUBLIC_KEY)
 
     token = get_token_from_auth_header(get_authorization_header(TEST_AUTH0_USERNAME))
     key = get_public_key(TEST_AUTH0_DOMAIN)

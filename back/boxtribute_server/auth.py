@@ -2,6 +2,7 @@
 
 import json
 import os
+import subprocess
 import urllib
 from collections import defaultdict
 from functools import wraps
@@ -60,19 +61,16 @@ def get_token_from_auth_header(header_string):
 
 
 def get_public_key(domain):
-    kid = os.getenv("AUTH0_JWKS_KID")
-    n = os.getenv("AUTH0_JWKS_N")
-    if kid and n:  # pragma: no cover
-        return {
-            "kty": "RSA",
-            "e": "AQAB",
-            "use": "sig",
-            "kid": kid,
-            "n": n,
-        }
-    url = urllib.request.urlopen(f"https://{domain}/.well-known/jwks.json")
-    jwks = json.loads(url.read())
-    return jwks["keys"][0]
+    if key := os.getenv("AUTH0_PUBLIC_KEY"):
+        return key
+
+    # https://community.auth0.com/t/how-to-get-public-key-pem-from-jwks-json/60355/4
+    response = urllib.request.urlopen(f"https://{domain}/pem")
+    cert = response.read()
+    p = subprocess.run(
+        ["openssl", "x509", "-pubkey", "-noout"], input=cert, capture_output=True
+    )
+    return p.stdout.decode()
 
 
 def decode_jwt(*, token, public_key, domain, audience):
@@ -105,11 +103,12 @@ def decode_jwt(*, token, public_key, domain, audience):
                 "message": str(e),
             },
         )
-    except Exception:
+    except Exception as e:
         raise AuthenticationFailed(
             {
                 "code": "internal_server_error",
                 "description": "The server could not process the request.",
+                "message": str(e),
             },
             500,
         )

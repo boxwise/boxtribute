@@ -78,8 +78,9 @@ For the integration tests authentication information is fetched from the [Auth0]
 
 Furthermore Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-dev tenant run
 
-    echo "AUTH0_JWKS_KID=$(curl https://boxtribute-dev.eu.auth0.com/.well-known/jwks.json | jq -r .keys[0].kid)" >> .env
-    echo "AUTH0_JWKS_N=$(curl https://boxtribute-dev.eu.auth0.com/.well-known/jwks.json | jq -r .keys[0].n)" >> .env
+    echo "AUTH0_PUBLIC_KEY=$(curl https://boxtribute-dev.eu.auth0.com/pem | openssl x509 -pubkey -noout | tr -d '\n')" >> .env
+
+For other environments (staging, demo, production), replace the URL with the resp. Auth0 domain.
 
 ### Linting and Formatting in VSCode
 
