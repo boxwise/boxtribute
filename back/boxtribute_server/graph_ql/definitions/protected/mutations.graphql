@@ -30,6 +30,10 @@ type Mutation {
   markShipmentAsLost(id: ID!): Shipment
   moveNotDeliveredBoxesInStock(boxIds: [String!]!): Shipment
 
+  createCustomProduct(creationInput: CustomProductCreationInput): CreateCustomProductResult
+  editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
+  deleteProduct(id: ID!): DeleteProductResult
+
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
 
