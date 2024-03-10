@@ -28,8 +28,8 @@ export default function useMultiSelectFilter<T>(
     }
     if (param === "") {
       searchParams.delete(filterId);
+      setSearchParams(searchParams);
     }
-    setSearchParams(searchParams);
   }, [searchParams, filterId, values, defaultFilterValues, setSearchParams]);
 
   const onFilterChange = (event) => {
