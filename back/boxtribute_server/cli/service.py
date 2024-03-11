@@ -3,7 +3,7 @@ from auth0.authentication import GetToken
 from auth0.management import Auth0
 
 from ..exceptions import ServiceError
-from .utils import Struct, setup_logger
+from .utils import setup_logger
 
 LOGGER = setup_logger(__name__)
 
@@ -12,26 +12,56 @@ class Auth0Service:
     def __init__(self, interface):
         self._interface = interface
 
-    def get_admin_users(self, admin_usergroup_id):
-        """Fetch all users of the admin usergroup."""
-        if admin_usergroup_id is None:
-            return []
+    def get_users_of_base(self, base_id):
+        """Fetch all users of the given base. Return lists of users sorted by
+        single-base/multi-base type.
+        """
+        base_id = str(base_id)
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         try:
-            result = Struct(
-                self._interface.users.list(
-                    q=f'app_metadata.usergroup_id:"{admin_usergroup_id}"',
-                    fields=["app_metadata", "user_id", "name"],
-                )
+            response = self._interface.users.list(
+                q=f'app_metadata.base_ids:"{base_id}" AND blocked:"false"',
+                fields=["app_metadata", "user_id", "name"],
             )
             LOGGER.info(
-                f"Fetched first page of user data of total {result.total} users."
+                f"Fetched first page of user data of total {response['total']} users."
             )
-            return result.users
+
+            result = {"single_base": [], "multi_base": []}
+            for user in response["users"]:
+                metadata = user["app_metadata"]
+                base_ids = metadata.get("base_ids")
+                if base_id not in base_ids:
+                    print(
+                        f"Base ID {base_id} not present in metadata base IDs: "
+                        f"{', '.join(base_ids)}"
+                    )
+                    continue
+                if len(base_ids) == 1:
+                    result["single_base"].append(user)
+                else:
+                    result["multi_base"].append(user)
+
+            return result
         except Auth0Error as e:
             raise ServiceError(code=e.status_code, message=e.message)
 
-    def update_admin_users(self, *, base_id, users):
+    def get_single_base_user_roles(self, users):
+        errors = {}
+        role_ids = set()
+        for user in users:
+            user_id = user["user_id"]
+            try:
+                response = self._interface.users.list_roles(user_id)
+                role_ids.update({r["id"] for r in response["roles"]})
+            except Auth0Error as e:
+                errors[user_id] = e
+        if errors:
+            # dump and/or log
+            pass
+        return sorted(role_ids)
+
+    def remove_base_id_from_multi_base_users_metadata(self, *, base_id, users):
         """Remove access to base with given ID from users."""
         updated_users = _user_data_without_base_id(users, base_id)
         errors = {}
@@ -46,10 +76,20 @@ class Auth0Service:
             # dump and/or log
             pass
 
-    def remove_non_admin_roles(self, role_ids):
-        """Remove given non-admin roles. Users with this role have it automatically
-        unassigned.
-        """
+    def block_single_base_users(self, users):
+        errors = {}
+        for user in users:
+            user_id = user["user_id"]
+            try:
+                self._interface.users.update(user_id, {"blocked": True})
+            except Auth0Error as e:
+                errors[user_id] = e
+        if errors:
+            # dump and/or log
+            pass
+
+    def remove_roles(self, role_ids):
+        """Remove given roles. Users with this role have it automatically unassigned."""
         errors = {}
         for role_id in role_ids:
             try:
@@ -78,21 +118,20 @@ def _user_data_without_base_id(users, base_id):
     list. This is specific to the data structure in Auth0.
     Return dict of updated app_metadata for each user ID.
     """
+    base_id = str(base_id)
     updated_users = {}
     for user in users:
-        metadata = user.app_metadata
-        base_ids = metadata.base_ids
-        if base_ids is None:
-            print("No base_ids found, skipping")
-            continue
+        metadata = user["app_metadata"]
 
-        updated_base_ids = [str(i) for i in base_ids]
+        updated_base_ids = [str(i) for i in metadata.get("base_ids", [])]
         try:
-            updated_base_ids.remove(str(base_id))
+            updated_base_ids.remove(base_id)
         except ValueError:
             # An inconsistency between the database and the service happened: the user
             # should have been granted access to the base acc. to their usergroup but it
             # was not properly registered in their app_metadata
             continue
-        updated_users[user.user_id] = {"app_metadata": {"base_ids": updated_base_ids}}
+        updated_users[user["user_id"]] = {
+            "app_metadata": {"base_ids": updated_base_ids}
+        }
     return updated_users

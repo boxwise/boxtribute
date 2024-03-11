@@ -2,7 +2,7 @@ import csv
 import pathlib
 import tempfile
 from datetime import date
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 import peewee
 import pytest
@@ -13,16 +13,8 @@ from boxtribute_server.cli.products import (
     clone_products,
     import_products,
 )
-from boxtribute_server.cli.remove_base_access import (
-    AUTH0_ADMIN_ROLE_ID,
-    _get_admin_usergroup_id,
-    _get_non_admin_role_ids,
-    _get_non_admin_user_ids,
-    _get_non_admin_usergroup_ids,
-    remove_base_access,
-)
+from boxtribute_server.cli.remove_base_access import remove_base_access
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
-from boxtribute_server.cli.utils import Struct
 from boxtribute_server.db import db
 from boxtribute_server.exceptions import ServiceError
 from boxtribute_server.models.definitions.product import Product
@@ -290,7 +282,7 @@ CREATE TABLE `cms_usergroups_roles` (
 
 
 @pytest.fixture
-def usergroup_data():
+def usergroup_data(usergroup_tables):
     db.database.execute_sql(
         """\
 INSERT INTO `cms_usergroups` VALUES
@@ -323,7 +315,7 @@ INSERT INTO `cms_usergroups_camps` VALUES
     db.database.execute_sql(
         """\
 INSERT INTO `cms_usergroups_roles` VALUES
-    (1,%s,'administrator'),
+    (1,'rol_a','administrator'),
     (2,'rol_b','base_1_coordinator'),
     (3,'rol_c','base_1_warehouse_volunteer'),
     (4,'rol_d','base_1_free_shop_volunteer'),
@@ -331,36 +323,55 @@ INSERT INTO `cms_usergroups_roles` VALUES
     (6,'rol_f','base_2_coordinator'),
     (7,'rol_g','base_2_volunteer');
 """,
-        (AUTH0_ADMIN_ROLE_ID,),
     )
 
 
-def test_remove_base_access_functions(usergroup_tables, usergroup_data):
-    base_id = 1
-    assert _get_admin_usergroup_id(base_id, AUTH0_ADMIN_ROLE_ID) == 1
-    non_admin_usergroup_ids = [2, 3, 4, 5, 6, 7]
-    assert (
-        _get_non_admin_usergroup_ids(base_id, AUTH0_ADMIN_ROLE_ID)
-        == non_admin_usergroup_ids
-    )
-    assert _get_non_admin_user_ids(base_id, non_admin_usergroup_ids) == [1, 2, 8]
-    assert _get_non_admin_role_ids(base_id, non_admin_usergroup_ids) == [
-        f"rol_{x}" for x in "bcde"
+def test_remove_base_access_functions(usergroup_data):
+    base_id = "1"
+    users = [
+        {
+            "app_metadata": {"base_ids": [base_id, "2"]},
+            "name": "admin",
+            "user_id": "auth0|1",
+        },
+        {
+            "app_metadata": {"base_ids": [base_id]},
+            "name": "coordinator",
+            "user_id": "auth0|2",
+        },
     ]
+    service = Service()
+    interface = service._interface
+    interface.users.list.return_value = {"users": users, "total": len(users)}
+    base_users = service.get_users_of_base(base_id)
+    assert base_users == {"single_base": [users[1]], "multi_base": [users[0]]}
+    interface.users.list.assert_called_once()
+
+    roles = [
+        {
+            "id": "rol_6UTsIPfIXEKc1Crb",
+            "name": "base_1_warehouse_coordinator",
+            "description": "BoxAid - Base 1 (Lesvos) - Warehouse Coordinator",
+        }
+    ]
+    interface.users.list_roles.return_value = {"roles": roles, "total": len(roles)}
+    assert service.get_single_base_user_roles(base_users["single_base"]) == [
+        roles[0]["id"]
+    ]
+    interface.users.list_roles.assert_called_once_with(users[1]["user_id"])
 
     user_id = 1
-    users = [Struct({"user_id": user_id, "app_metadata": {}})]
+    users = [{"user_id": user_id, "app_metadata": {}}]
     assert _user_data_without_base_id(users, base_id) == {}
 
-    base_id = "1"
-    users = [Struct({"user_id": user_id, "app_metadata": {"base_ids": [base_id]}})]
+    users = [{"user_id": user_id, "app_metadata": {"base_ids": [base_id]}}]
     assert _user_data_without_base_id(users, base_id) == {
         user_id: {"app_metadata": {"base_ids": []}}
     }
 
     another_base_id = "2"
     base_ids = [base_id, another_base_id]
-    users = [Struct({"user_id": user_id, "app_metadata": {"base_ids": base_ids}})]
+    users = [{"user_id": user_id, "app_metadata": {"base_ids": base_ids}}]
     assert _user_data_without_base_id(users, base_id) == {
         user_id: {"app_metadata": {"base_ids": [another_base_id]}}
     }
@@ -371,57 +382,96 @@ def test_remove_base_access_functions(usergroup_tables, usergroup_data):
 
 class Service(Auth0Service):
     def __init__(self):
+        # All attributes of _interface will be MagicMocks, too
         self._interface = MagicMock()
-        self._interface.users = MagicMock()
-        self._interface.roles = MagicMock()
-        self._interface.users.list.return_value = {
-            "users": [
-                {"app_metadata": {"base_ids": [1, 2]}, "user_id": 1, "name": "admin"},
-            ]
-        }
 
 
 def test_remove_base_access(usergroup_data):
-    admin_usergroup_id = 1
     base_id = 1
     service = Service()
+    interface = service._interface
+    interface.users.list.return_value = {
+        "users": [
+            {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
+            {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|2", "name": "b"},
+            {
+                "app_metadata": {"base_ids": ["1", "2"]},
+                "user_id": "auth0|4",
+                "name": "coordinator",
+            },
+            {
+                "app_metadata": {"base_ids": ["1", "2"]},
+                "user_id": "auth0|5",
+                "name": "volunteer",
+            },
+            {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|8", "name": "b"},
+        ],
+        "total": 5,
+    }
+    interface.users.list_roles.side_effect = [
+        {"roles": [{"id": "rol_c"}]},
+        {"roles": [{"id": "rol_d"}]},
+        {"roles": [{"id": "rol_b"}]},
+    ]
     remove_base_access(base_id=base_id, service=service)
 
-    # Verify that User._usergroup field is set to NULL
-    assert User.select(User.id, User._usergroup).dicts() == [
-        {"id": 1, "_usergroup": None},
-        {"id": 2, "_usergroup": None},
-        {"id": 3, "_usergroup": None},
-        {"id": 8, "_usergroup": None},
+    # Verify that User._usergroup field is set to NULL and User data is anonymized
+    assert User.select(User.id, User._usergroup, User.name, User.email).dicts() == [
+        {"id": 1, "_usergroup": None, "name": "Deleted user", "email": None},
+        {"id": 2, "_usergroup": None, "name": "Deleted user", "email": None},
+        {"id": 3, "_usergroup": None, "name": "Deleted user", "email": None},
+        {"id": 8, "_usergroup": None, "name": "Deleted user", "email": None},
     ]
 
     # Verify that cms_usergroups.deleted is set
     cursor = db.database.execute_sql("SELECT id,deleted FROM cms_usergroups;")
     column_names = [x[0] for x in cursor.description]
     usergroups = [dict(zip(column_names, row)) for row in cursor.fetchall()]
-    assert usergroups[0] == {"id": admin_usergroup_id, "deleted": None}
     today = date.today().isoformat()
-    for i, usergroup in enumerate(usergroups[1:], start=2):
-        assert usergroup["id"] == i
-        assert usergroup["deleted"].isoformat().startswith(today)
+    assert usergroups[1].pop("deleted").isoformat().startswith(today)
+    assert usergroups[2].pop("deleted").isoformat().startswith(today)
+    assert usergroups[3].pop("deleted").isoformat().startswith(today)
+    assert usergroups == [
+        {"id": 1, "deleted": None},
+        {"id": 2},
+        {"id": 3},
+        {"id": 4},
+        {"id": 5, "deleted": None},
+        {"id": 6, "deleted": None},
+        {"id": 7, "deleted": None},
+    ]
 
     # Verify that all entries related to base 1 are removed from cms_usergroups_camps
     cursor = db.database.execute_sql(
         "SELECT camp_id,cms_usergroups_id from cms_usergroups_camps;"
     )
-    assert cursor.fetchall() == ((2, admin_usergroup_id),)
+    assert cursor.fetchall() == ((2, 1), (2, 6), (2, 7))
 
     # Verify that all entries related to non-admin usergroups are removed from
     # cms_usergroups_roles
     cursor = db.database.execute_sql(
         "SELECT cms_usergroups_id,auth0_role_name from cms_usergroups_roles;"
     )
-    assert cursor.fetchall() == ((admin_usergroup_id, "administrator"),)
+    assert cursor.fetchall() == (
+        (1, "administrator"),
+        (5, "base_1_library_volunteer"),
+        (6, "base_2_coordinator"),
+        (7, "base_2_volunteer"),
+    )
 
-    interface = service._interface
     interface.users.list.assert_called_once()
-    interface.users.update.assert_called_once()
-    assert interface.roles.delete.call_count == 4
+    assert interface.users.update.call_args_list == [
+        (("auth0|4", {"app_metadata": {"base_ids": ["2"]}}),),
+        (("auth0|5", {"app_metadata": {"base_ids": ["2"]}}),),
+        (("auth0|1", {"blocked": True}),),
+        (("auth0|2", {"blocked": True}),),
+        (("auth0|8", {"blocked": True}),),
+    ]
+    assert interface.roles.delete.call_args_list == [
+        call("rol_b"),
+        call("rol_c"),
+        call("rol_d"),
+    ]
 
     # Verify error handling
     code = 401
@@ -429,7 +479,7 @@ def test_remove_base_access(usergroup_data):
     error = Auth0Error(code, "Unauthorized", message)
     interface.users.list.side_effect = error
     with pytest.raises(ServiceError) as exc_info:
-        service.get_admin_users(1)
+        service.get_users_of_base(1)
     assert exc_info.value.code == code
     assert exc_info.value.message == message
 
