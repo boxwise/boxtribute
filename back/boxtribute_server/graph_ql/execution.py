@@ -67,5 +67,6 @@ def execute_async(*, schema, introspection=None):
 
     success, result = asyncio.run(run())
 
+    current_app.logger.warn("done")
     status_code = 200 if success else 400
     return jsonify(result), status_code
