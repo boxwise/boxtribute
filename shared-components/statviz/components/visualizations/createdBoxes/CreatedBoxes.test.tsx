@@ -1,9 +1,11 @@
 import { MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { it, expect, describe } from "vitest";
+import { it, vi, expect, describe } from "vitest";
 import CreatedBoxesDataContainer, { CREATED_BOXES_QUERY } from "./CreatedBoxesDataContainer";
-import { render, screen } from "../../../../tests/testUtils";
+import { render, screen, waitFor } from "../../../../tests/testUtils";
 import createdBoxes from "../../../mocks/createdBoxes";
+
+const mockCreatedBoxesBarChart = vi.fn();
 
 describe("Created Boxes Visualizations", () => {
   const mockCreatedBoxesQuery = ({
@@ -36,6 +38,14 @@ describe("Created Boxes Visualizations", () => {
     };
   };
 
+  vi.mock("@nivo/bar", () => ({
+    ResponsiveSankey: (props) => {
+      mockCreatedBoxesBarChart(props);
+
+      return <div>BarChart</div>;
+    },
+  }));
+
   it("x.x.x.x - user wants to see createdBoxes viz, but a network error is returned", async () => {
     render(<CreatedBoxesDataContainer />, {
       routePath: "/bases/:baseId/statviz",
@@ -58,18 +68,18 @@ describe("Created Boxes Visualizations", () => {
 
   it("x.x.x.x - user sees createdBoxes viz", async () => {
     render(<CreatedBoxesDataContainer />, {
-      routePath: "/bases/:baseId/statviz",
+      routePath: "/bases/:baseId/statviz?stg=cn&boi=bc&cbg=m&to=2023-09-02&from=2023-01-30",
       initialUrl: "/bases/1/statviz",
       mocks: [mockCreatedBoxesQuery({ mockData: createdBoxes })],
     });
 
-    // expect(await screen.findByText(/loading.../i)).toBeInTheDocument();
+    await waitFor(() => expect(mockCreatedBoxesBarChart).toHaveBeenCalled());
   });
 
   it("x.x.x.x - user calls page with some filters", async () => {
     render(<CreatedBoxesDataContainer />, {
       routePath: "/bases/:baseId/statviz",
-      initialUrl: "/bases/1/statviz",
+      initialUrl: "/bases/1/statviz?stg=cn&boi=bc&cbg=m&to=2023-09-02&from=2023-01-30",
       mocks: [mockCreatedBoxesQuery({ mockData: createdBoxes })],
     });
 
