@@ -1,6 +1,7 @@
 # ADR: Frontend for Statistic
 
 Decision Deadline: 31.07.2023
+Updated: 2024-02-20
 
 Discussion Participants: Hans, Maik
 
@@ -13,7 +14,6 @@ accepted
 An overview and visualization of Boxtribute data could be useful for users in fundraising, when embedded on their website, social media profiles, email newsletters or setting goals that can be used as in fund applications. It will also increase the Transparency.
 
 We need a frontend that enables us to display statistics of Boxtribute data for organizations that can be embedded on websites, emails and social media.
-
 
 ## Decision Drivers
 
@@ -43,16 +43,21 @@ In general those observability platforms are best suited for near real-time moni
 ## Decision
 
 The most important decision drivers here are:
-* flexibility (D3 is better then chart.js)
-* simplicity (React frontend is better then Grafana/Redash)
-* security (React frontend is better then Grafana/Redash)
-* embeddable (Most control with a React frontend)
+
+- flexibility (D3 is better then chart.js)
+- simplicity (React frontend is better then Grafana/Redash)
+- security (React frontend is better then Grafana/Redash)
+- embeddable (Most control with a React frontend)
 
 Conclusion: We will use a React frontend with Visx
 
 Visx is a React library providing components for D3 that can be directly used in our application.
 
-## Consequences
+Update 2024-02-20:
+To improve the speed of frontend development we evaluated to include NIVO library and use it for most Visualizations. Nivo is a supercharged, pre-configured set of D3 components. It needs much less configuration than Visx. Its not meant to complement Visx.
 
-we start to implement the
-on the long term we want to seperatly host statistics frontend and boxtribute frontend
+We use Pre build Visualizations from Nivo for most use cases
+\*\* PieChart, BarChart, Sankey
+
+Custom Visualizations with Visx for specific use cases
+\*\* DemographicChart
