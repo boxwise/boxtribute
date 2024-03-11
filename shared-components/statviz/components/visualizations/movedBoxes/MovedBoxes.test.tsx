@@ -3,7 +3,7 @@ import { GraphQLError } from "graphql";
 import { MockedResponse } from "@apollo/client/testing";
 import MovedBoxesDataContainer, { MOVED_BOXES_QUERY } from "./MovedBoxesDataContainer";
 import { render, screen, waitFor } from "../../../../tests/testUtils";
-import { movedBoxesResultMockData } from "../../../testData";
+import movedBoxes from "../../../mocks/movedBoxes";
 
 const mockResponsiveSankey = vi.fn();
 
@@ -49,8 +49,8 @@ describe("Moved Boxes Visualizations", () => {
 
   it("x.x.x.x - user scans wants to see movedBoxes viz, but a network error is returned", async () => {
     render(<MovedBoxesDataContainer />, {
-      routePath: "/bases/:baseId/",
-      initialUrl: "/bases/1/",
+      routePath: "/bases/:baseId/statviz",
+      initialUrl: "/bases/1/statviz",
       mocks: [mockMovedBoxesQuery({ networkError: true })],
     });
 
@@ -59,8 +59,8 @@ describe("Moved Boxes Visualizations", () => {
 
   it("x.x.x.x - user waits for data and sees the loading spinner", async () => {
     render(<MovedBoxesDataContainer />, {
-      routePath: "/bases/:baseId/",
-      initialUrl: "/bases/1/",
+      routePath: "/bases/:baseId/statviz",
+      initialUrl: "/bases/1/statviz",
       mocks: [mockMovedBoxesQuery({ delay: 250 })],
     });
 
@@ -71,7 +71,7 @@ describe("Moved Boxes Visualizations", () => {
     render(<MovedBoxesDataContainer />, {
       routePath: "/bases/:baseId/statviz",
       initialUrl: "/bases/1/statviz?stg=cn&boi=bc&cbg=m&to=2024-02-17&from=2023-11-17",
-      mocks: [mockMovedBoxesQuery({ mockData: movedBoxesResultMockData })],
+      mocks: [mockMovedBoxesQuery({ mockData: movedBoxes })],
     });
 
     expect(
@@ -83,7 +83,7 @@ describe("Moved Boxes Visualizations", () => {
     render(<MovedBoxesDataContainer />, {
       routePath: "/bases/:baseId/statviz",
       initialUrl: "/bases/1/statviz?stg=cn&boi=bc&cbg=m&to=2023-09-02&from=2023-01-30",
-      mocks: [mockMovedBoxesQuery({ mockData: movedBoxesResultMockData })],
+      mocks: [mockMovedBoxesQuery({ mockData: movedBoxes })],
     });
 
     await waitFor(() => expect(mockResponsiveSankey).toHaveBeenCalled());

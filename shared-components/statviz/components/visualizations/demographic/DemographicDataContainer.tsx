@@ -5,7 +5,7 @@ import DemographicFilterContainer from "./DemographicFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import NoDataCard from "../../NoDataCard";
 
-const DEMOGRAPHIC_QUERY = gql(`
+export const DEMOGRAPHIC_QUERY = gql(`
   query BeneficiaryDemographics($baseId: Int!) {
     beneficiaryDemographics(baseId: $baseId) {
       facts {
