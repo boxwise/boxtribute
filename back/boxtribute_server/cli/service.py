@@ -20,7 +20,7 @@ class Auth0Service:
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         try:
             response = self._interface.users.list(
-                q=f'app_metadata.base_ids:"{base_id}" AND blocked:"false"',
+                q=f'app_metadata.base_ids:"{base_id}" AND blocked:false',
                 fields=["app_metadata", "user_id", "name"],
             )
             LOGGER.info(
