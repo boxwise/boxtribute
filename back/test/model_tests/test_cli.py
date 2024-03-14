@@ -487,6 +487,12 @@ def test_remove_base_access(usergroup_data):
 def test_remove_base_access_without_usergroups(usergroup_tables):
     base_id = 1
     service = Service()
+    service._interface.users.list.return_value = {
+        "users": [
+            {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
+        ],
+        "total": 1,
+    }
     remove_base_access(base_id=base_id, service=service)
     assert User.select(User.id, User._usergroup).dicts() == [
         {"id": 1, "_usergroup": 3},

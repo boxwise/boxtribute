@@ -18,33 +18,49 @@ class Auth0Service:
         """
         base_id = str(base_id)
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
+        users = []
         try:
-            response = self._interface.users.list(
-                q=f'app_metadata.base_ids:"{base_id}" AND blocked:false',
-                fields=["app_metadata", "user_id", "name"],
-            )
-            LOGGER.info(
-                f"Fetched first page of user data of total {response['total']} users."
-            )
+            page = 0
+            per_page = 50
+            rest = None
+            while True:
+                response = self._interface.users.list(
+                    q=f'app_metadata.base_ids:"{base_id}" AND blocked:false',
+                    fields=["app_metadata", "user_id", "name"],
+                    page=page,
+                    per_page=per_page,
+                )
+                LOGGER.info(
+                    f"Fetched page {page + 1} of user data of total {response['total']}"
+                    " users."
+                )
+                if rest is None:
+                    rest = response["total"]
+                users.extend(response["users"])
 
-            result = {"single_base": [], "multi_base": []}
-            for user in response["users"]:
-                metadata = user["app_metadata"]
-                base_ids = metadata.get("base_ids")
-                if base_id not in base_ids:
-                    print(
-                        f"Base ID {base_id} not present in metadata base IDs: "
-                        f"{', '.join(base_ids)}"
-                    )
-                    continue
-                if len(base_ids) == 1:
-                    result["single_base"].append(user)
-                else:
-                    result["multi_base"].append(user)
-
-            return result
+                page += 1
+                rest -= per_page
+                if rest < 1:
+                    break
         except Auth0Error as e:
             raise ServiceError(code=e.status_code, message=e.message)
+
+        result = {"single_base": [], "multi_base": []}
+        for user in users:
+            metadata = user["app_metadata"]
+            base_ids = metadata.get("base_ids")
+            if base_id not in base_ids:
+                print(
+                    f"Base ID {base_id} not present in metadata base IDs: "
+                    f"{', '.join(base_ids)}"
+                )
+                continue
+            if len(base_ids) == 1:
+                result["single_base"].append(user)
+            else:
+                result["multi_base"].append(user)
+
+        return result
 
     def get_single_base_user_roles(self, users):
         errors = {}
