@@ -53,8 +53,8 @@ export default function TopCreatedProducts(props: {
     height: props.height,
   };
 
-  const topProductsHeading = boxesOrItems === "boxesCount" ? "boxes" : "items";
-  const heading = `Top Products by ${topProductsHeading}`;
+  const topProductsHeading = boxesOrItems === "boxesCount" ? "Boxes" : "Products";
+  const heading = `Top Created ${topProductsHeading}`;
 
   if (chartData.length === 0) {
     return <NoDataCard header={heading} />;

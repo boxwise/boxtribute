@@ -40,7 +40,7 @@ interface IBoxFlowSankeyProps {
 export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
-  const heading = boxesOrItems === "boxesCount" ? "shipped boxes" : "shipped items";
+  const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
   const movedBoxesFacts = data.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
@@ -134,7 +134,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
       name: movedBox.isNegative ? `${movedBox.name} removed` : movedBox.name,
       nodeColor: movedBox.isNegative
         ? "red"
-        : sample(["#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22"]),
+        : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#22bd5b", "#51bd22", "#2287bd"]),
     })),
   ];
 
@@ -184,7 +184,10 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
           <WrapItem>
             <Box w="15px" h="15px" backgroundColor="red" />
           </WrapItem>
-          <WrapItem color="red">Negative Box Flow</WrapItem>
+          <WrapItem color="red">
+            Red targets indicate an incoming/reverse flow, i.e. a removal of items/boxes from that
+            location to instock storage.
+          </WrapItem>
         </Wrap>
       </CardBody>
     </Card>

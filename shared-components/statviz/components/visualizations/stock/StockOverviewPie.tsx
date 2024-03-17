@@ -100,7 +100,10 @@ export default function StockOverviewPie({
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
   const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
 
-  const heading = boxesOrItems === "boxesCount" ? "Stock by boxes" : "Stock by items";
+  const heading =
+    boxesOrItems === "boxesCount"
+      ? "Drilldown Chart of Instock Boxes"
+      : "Drilldown Chart of Instock Items";
 
   const { onFilterChange, filterValue } = useValueFilter(groupOptions, groupOptions[0], filterId);
 
