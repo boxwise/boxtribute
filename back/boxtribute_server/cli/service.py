@@ -20,6 +20,7 @@ class Auth0Service:
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         users = []
         try:
+            # Pagination setup
             page = 0
             per_page = 50
             rest = None
@@ -38,6 +39,7 @@ class Auth0Service:
                     rest = response["total"]
                 users.extend(response["users"])
 
+                # Pagination logic: go to next page; stop if nothing left
                 page += 1
                 rest -= per_page
                 if rest < 1:
@@ -45,12 +47,13 @@ class Auth0Service:
         except Auth0Error as e:
             raise ServiceError(code=e.status_code, message=e.message)
 
+        # Sort response into single- and multi-base users
         result = {"single_base": [], "multi_base": []}
         for user in users:
             metadata = user["app_metadata"]
             base_ids = metadata.get("base_ids")
             if base_id not in base_ids:
-                print(
+                LOGGER.warn(
                     f"Base ID {base_id} not present in metadata base IDs: "
                     f"{', '.join(base_ids)}"
                 )
@@ -62,7 +65,7 @@ class Auth0Service:
 
         return result
 
-    def get_single_base_user_roles(self, users):
+    def get_single_base_user_role_ids(self, users):
         errors = {}
         role_ids = set()
         for user in users:

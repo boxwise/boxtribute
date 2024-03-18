@@ -7,14 +7,16 @@ LOGGER = setup_logger(__name__)
 
 def remove_base_access(*, base_id, service):
     users = service.get_users_of_base(base_id)
-    single_base_user_role_ids = service.get_single_base_user_roles(users["single_base"])
+    single_base_user_role_ids = service.get_single_base_user_role_ids(
+        users["single_base"]
+    )
 
     with db.database.atomic():
-        _update_database(
+        _update_user_data_in_database(
             base_id=base_id,
             single_base_user_role_ids=single_base_user_role_ids,
         )
-        _update_user_management_service(
+        _update_user_data_in_user_management_service(
             service,
             users=users,
             base_id=base_id,
@@ -22,7 +24,7 @@ def remove_base_access(*, base_id, service):
         )
 
 
-def _update_database(*, base_id, single_base_user_role_ids):
+def _update_user_data_in_database(*, base_id, single_base_user_role_ids):
     # !!!
     # Destructive operations below
     # !!!
@@ -69,7 +71,7 @@ SET cu.deleted = UTC_TIMESTAMP()
     )
 
 
-def _update_user_management_service(
+def _update_user_data_in_user_management_service(
     service, *, users, base_id, single_base_user_role_ids
 ):
     service.remove_base_id_from_multi_base_users_metadata(
