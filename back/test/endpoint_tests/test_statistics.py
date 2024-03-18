@@ -60,7 +60,7 @@ def test_query_created_boxes(
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
     assert len(facts) == 2
-    assert facts[0]["boxesCount"] == 12
+    assert facts[0]["boxesCount"] == 13
     assert facts[1]["boxesCount"] == 1
     assert data == {
         "dimensions": {
@@ -141,7 +141,7 @@ def test_query_top_products(
                 "productId": default_product["id"],
                 "categoryId": default_product["category"],
                 "sizeId": default_size["id"],
-                "itemsCount": 22,
+                "itemsCount": 32,
                 "rank": 1,
             },
             {
@@ -196,8 +196,8 @@ def test_query_moved_boxes(
                 "tagIds": [],
             },
             {
-                "boxesCount": 2,
-                "itemsCount": 22,
+                "boxesCount": 3,
+                "itemsCount": 32,
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
@@ -316,10 +316,10 @@ def test_query_stock_overview(
         },
         {
             "boxState": BoxState.Donated.name,
-            "boxesCount": 2,
+            "boxesCount": 3,
             "categoryId": 1,
             "gender": "Women",
-            "itemsCount": 22,
+            "itemsCount": 32,
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
