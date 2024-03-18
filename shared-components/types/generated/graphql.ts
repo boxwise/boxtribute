@@ -158,6 +158,8 @@ export type MovedBoxesResult = {
   gender: ProductGender;
   itemsCount: Scalars['Int']['output'];
   movedOn: Scalars['Date']['output'];
+  /**  Shipment target organisation name; null for BoxState/OutgoingLocation target types  */
+  organisationName?: Maybe<Scalars['String']['output']>;
   productName: Scalars['String']['output'];
   sizeId: Scalars['Int']['output'];
   tagIds?: Maybe<Array<Scalars['Int']['output']>>;
@@ -369,7 +371,7 @@ export type BeneficiaryDemographicsQueryVariables = Exact<{
 }>;
 
 
-export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null, tagIds?: Array<number> | null } | null> | null } | null };
+export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null, tagIds?: Array<number> | null } | null> | null, dimensions?: { __typename?: 'BeneficiaryDemographicsDimensions', tag?: Array<{ __typename?: 'TagDimensionInfo', id?: number | null, name?: string | null, color?: string | null } | null> | null } | null } | null };
 
 export type MovedBoxesQueryVariables = Exact<{
   baseId: Scalars['Int']['input'];
