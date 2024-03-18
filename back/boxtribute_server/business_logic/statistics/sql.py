@@ -1,11 +1,6 @@
 MOVED_BOXES_QUERY = """\
--- Common Table Expressions (CTEs) to identify valid locations and boxes
-WITH recursive ValidLocations AS (
-    SELECT id
-    FROM locations
-    WHERE camp_id = %s AND deleted IS NULL
-),
-ValidBoxes AS (
+WITH recursive ValidBoxes AS (
+    -- Common Table Expression (CTE) to identify valid boxes
     SELECT
         s.id,
         s.items,
@@ -14,12 +9,7 @@ ValidBoxes AS (
         s.box_state_id,
         s.product_id
     FROM stock s
-    JOIN ValidLocations l ON s.location_id = l.id
-    WHERE s.deleted IS null
-    -- Considering boxes whose state changed from 2023-01-01 onwards,
-    -- since the changes in box_state_id are not recorded in the history table beforehand.
-    -- Additionally, use the stock id instead of the creation timestamp to filter the data.
-    AND s.id >= %s
+    JOIN locations l ON s.location_id = l.id AND l.camp_id = %s
 ),
 BoxHistory AS (
     -- CTE to retrieve box history (only include changes in FK fields such as
