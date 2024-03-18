@@ -158,6 +158,8 @@ export type MovedBoxesResult = {
   gender: ProductGender;
   itemsCount: Scalars['Int']['output'];
   movedOn: Scalars['Date']['output'];
+  /**  Shipment target organisation name; null for BoxState/OutgoingLocation target types  */
+  organisationName?: Maybe<Scalars['String']['output']>;
   productName: Scalars['String']['output'];
   sizeId: Scalars['Int']['output'];
   tagIds?: Maybe<Array<Scalars['Int']['output']>>;

@@ -177,6 +177,7 @@ select
     t.size_id,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
+    NULL AS organisation_name,
     %s AS target_type,
     sum(
         CASE
@@ -212,6 +213,7 @@ SELECT
     d.source_size_id AS size_id,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     c.name AS target_id,
+    o.label AS organisation_name,
     %s AS target_type,
     COUNT(d.box_id) AS boxes_count,
     SUM(d.source_quantity) AS items_count
@@ -225,6 +227,7 @@ ON
     sh.source_base_id = %s AND
     sh.sent_on IS NOT NULL
 JOIN camps c ON c.id = sh.target_base_id
+JOIN organisations o on o.id = c.organisation_id
 JOIN products p ON p.id = d.source_product_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock"
 GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name
@@ -242,6 +245,7 @@ SELECT
     b.size_id,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     bs.label AS target_id,
+    NULL AS organisation_name,
     %s AS target_type,
     COUNT(h.id) AS boxes_count,
     SUM(b.items) AS items_count

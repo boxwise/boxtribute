@@ -167,17 +167,20 @@ def test_query_top_products(
 
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
-def test_query_moved_boxes(read_only_client, default_location, another_base, endpoint):
+def test_query_moved_boxes(
+    read_only_client, default_location, another_base, another_organisation, endpoint
+):
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
-            boxesCount itemsCount
+            organisationName boxesCount itemsCount
         }
         dimensions { target { id name type } }
         } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     location_name = default_location["name"]
     base_name = another_base["name"]
+    org_name = another_organisation["name"]
     assert data == {
         "facts": [
             {
@@ -188,6 +191,7 @@ def test_query_moved_boxes(read_only_client, default_location, another_base, end
                 "sizeId": 2,
                 "gender": "Women",
                 "targetId": location_name,
+                "organisationName": None,
                 "movedOn": "2022-12-05",
                 "tagIds": [],
             },
@@ -199,6 +203,7 @@ def test_query_moved_boxes(read_only_client, default_location, another_base, end
                 "sizeId": 1,
                 "gender": "Women",
                 "targetId": location_name,
+                "organisationName": None,
                 "movedOn": "2022-12-05",
                 "tagIds": [],
             },
@@ -210,6 +215,7 @@ def test_query_moved_boxes(read_only_client, default_location, another_base, end
                 "sizeId": 1,
                 "gender": "Women",
                 "targetId": base_name,
+                "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [],
             },
@@ -221,6 +227,7 @@ def test_query_moved_boxes(read_only_client, default_location, another_base, end
                 "sizeId": 1,
                 "gender": "Women",
                 "targetId": base_name,
+                "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [],
             },
@@ -232,6 +239,7 @@ def test_query_moved_boxes(read_only_client, default_location, another_base, end
                 "sizeId": 1,
                 "gender": "Women",
                 "targetId": BoxState.Lost.name,
+                "organisationName": None,
                 "movedOn": "2023-02-01",
                 "tagIds": [],
             },
