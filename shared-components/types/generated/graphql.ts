@@ -371,7 +371,7 @@ export type BeneficiaryDemographicsQueryVariables = Exact<{
 }>;
 
 
-export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null, tagIds?: Array<number> | null } | null> | null } | null };
+export type BeneficiaryDemographicsQuery = { __typename?: 'Query', beneficiaryDemographics?: { __typename?: 'BeneficiaryDemographicsData', facts?: Array<{ __typename?: 'BeneficiaryDemographicsResult', count?: number | null, createdOn?: any | null, age?: number | null, gender?: HumanGender | null, tagIds?: Array<number> | null } | null> | null, dimensions?: { __typename?: 'BeneficiaryDemographicsDimensions', tag?: Array<{ __typename?: 'TagDimensionInfo', id?: number | null, name?: string | null, color?: string | null } | null> | null } | null } | null };
 
 export type MovedBoxesQueryVariables = Exact<{
   baseId: Scalars['Int']['input'];
