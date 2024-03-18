@@ -355,7 +355,7 @@ def test_remove_base_access_functions(usergroup_data):
         }
     ]
     interface.users.list_roles.return_value = {"roles": roles, "total": len(roles)}
-    assert service.get_single_base_user_roles(base_users["single_base"]) == [
+    assert service.get_single_base_user_role_ids(base_users["single_base"]) == [
         roles[0]["id"]
     ]
     interface.users.list_roles.assert_called_once_with(users[1]["user_id"])
