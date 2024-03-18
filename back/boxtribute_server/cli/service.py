@@ -51,7 +51,7 @@ class Auth0Service:
         result = {"single_base": [], "multi_base": []}
         for user in users:
             metadata = user["app_metadata"]
-            base_ids = metadata.get("base_ids")
+            base_ids = metadata.get("base_ids", [])
             if base_id not in base_ids:
                 LOGGER.warn(
                     f"Base ID {base_id} not present in metadata base IDs: "
@@ -76,8 +76,8 @@ class Auth0Service:
             except Auth0Error as e:
                 errors[user_id] = e
         if errors:
-            # dump and/or log
-            pass
+            LOGGER.error(errors)
+            raise RuntimeError("Error while getting single base user role IDs")
         return sorted(role_ids)
 
     def remove_base_id_from_multi_base_users_metadata(self, *, base_id, users):
@@ -92,8 +92,8 @@ class Auth0Service:
             except Auth0Error as e:
                 errors[user_id] = e
         if errors:
-            # dump and/or log
-            pass
+            LOGGER.error(errors)
+            raise RuntimeError("Error while removing base IDs from multi-base users")
 
     def block_single_base_users(self, users):
         errors = {}
@@ -104,8 +104,8 @@ class Auth0Service:
             except Auth0Error as e:
                 errors[user_id] = e
         if errors:
-            # dump and/or log
-            pass
+            LOGGER.error(errors)
+            raise RuntimeError("Error while blocking single-base users")
 
     def remove_roles(self, role_ids):
         """Remove given roles. Users with this role have it automatically unassigned."""
@@ -115,10 +115,12 @@ class Auth0Service:
                 # https://auth0.com/docs/api/management/v2/roles/delete-roles-by-id
                 self._interface.roles.delete(role_id)
             except Auth0Error as e:
-                errors[role_id] = e
+                # Ignore missing or deleted role
+                if e.status_code != 404:
+                    errors[role_id] = e
         if errors:
-            # dump and/or log
-            pass
+            LOGGER.error(errors)
+            raise RuntimeError("Error while removing roles")
 
     @classmethod
     def connect(cls, *, domain, client_id, secret):
