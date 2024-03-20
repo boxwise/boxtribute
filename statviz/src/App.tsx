@@ -6,7 +6,7 @@ function App() {
   return (
     <Routes>
       <Route index />
-      <Route path="bases">
+      <Route path="baes">
         <Route path=":baseId">
           <Route index element={<Dashboard />} />
         </Route>
