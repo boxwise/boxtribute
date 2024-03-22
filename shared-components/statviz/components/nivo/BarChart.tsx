@@ -12,7 +12,6 @@ export interface IBarChart {
   width: string;
   height: string;
   data: BarDatum[];
-  visId: string;
   heading?: string | false;
   timestamp?: string | false;
   timerange?: string | false;
@@ -97,7 +96,7 @@ export default function BarChart(barChart: IBarChart) {
       : [];
 
   return (
-    <div ref={ref} id={barChart.visId} style={{ width: barChart.width, height: barChart.height }}>
+    <div ref={ref} style={{ width: barChart.width, height: barChart.height }}>
       <ResponsiveBar
         data={barChart.data}
         keys={barChart.keys}

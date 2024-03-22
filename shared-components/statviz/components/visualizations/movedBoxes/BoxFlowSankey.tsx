@@ -171,7 +171,6 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         heading={heading}
         chartProps={chartProps}
         maxWidthPx={1000}
-        visId="bf"
       />
       <CardBody>
         <Wrap>

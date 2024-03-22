@@ -353,6 +353,37 @@ const timeRangeFontSize = (width: number, height: number) => Math.ceil((width + 
 
 const timeStampFontSize = (width: number, height: number) => Math.ceil((width + height) / 90);
 
+// This new approach to text scaling should be applied to other visualizations (heading etc.) in the future
+// It calculates the baseFontSize to the root div element and lets you easily calculate
+// the text size relative to it (works basically like to em unit in css)
+export const getBaseFontSize = (width: number, height: number) => {
+  const vmin = width < height ? width : height;
+  return (vmin / 100) * 3;
+};
+
+// Note: SVG features that allow to use auto breaking are not in widely adopted
+export const breakText = (text: string, maxWidth: number, fontSize: number) => {
+  const averageCharacterWidth = fontSize * 0.6; // estimate average character width
+  const maxCharsPerLine = Math.floor(maxWidth / averageCharacterWidth);
+
+  const words = text.split(" ");
+  let line = "";
+  const lines: string[] = [];
+
+  words.forEach((word, index) => {
+    if (line.length + word.length > maxCharsPerLine && line.length > 0) {
+      lines.push(line);
+      line = "";
+    }
+    line = `${line} ${word}`;
+    if (index === words.length - 1) {
+      lines.push(line);
+    }
+  });
+
+  return lines.join("\n");
+};
+
 const headingPosition = (height: number) => ({
   y: -percent(height, 10),
   x: 0,
@@ -424,6 +455,11 @@ export const getScaledExportFields = (
       fontSize: timeStampFontSize(width, height),
     },
     ...timeStampPosition(width, height, marginTop),
+  },
+  pieChartCenterText: {
+    style: {
+      fonteSize: {},
+    },
   },
 });
 

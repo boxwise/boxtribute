@@ -37,7 +37,6 @@ interface IDemographicChartProps {
   height: number;
 }
 
-const visId = "demographic-pyramid";
 const heading = "Demographic";
 
 export default function DemographicPyramid({
@@ -101,9 +100,7 @@ export default function DemographicPyramid({
       <VisHeader
         maxWidthPx={width}
         heading={heading}
-        visId={visId}
         onExport={onExport}
-        custom
         chartProps={chartProps}
         defaultHeight={800}
         defaultWidth={600}

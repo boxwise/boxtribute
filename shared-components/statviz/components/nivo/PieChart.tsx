@@ -1,6 +1,12 @@
 import { ResponsivePie, PieLayer } from "@nivo/pie";
 import { useEffect, useRef } from "react";
-import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../../utils/theme";
+import {
+  breakText,
+  getBaseFontSize,
+  getMarginTop,
+  getScaledExportFields,
+  scaledNivoTheme,
+} from "../../../utils/theme";
 import { percent } from "../../utils/chart";
 
 export interface IPieChart {
@@ -11,6 +17,10 @@ export interface IPieChart {
   timestamp?: string | false;
   timerange?: string | false;
   animate?: boolean;
+  centerData?: {
+    level: number;
+    grouping: string;
+  };
   rendered?: () => void;
   onClick?: (node) => void;
 }
@@ -27,6 +37,7 @@ export default function PieChart(chart: IPieChart) {
 
   const height = parseInt(chart.height, 10);
   const width = parseInt(chart.width, 10);
+  const baseFontSize = getBaseFontSize(width, height);
 
   const theme = scaledNivoTheme(width, height, 10);
 
@@ -59,8 +70,32 @@ export default function PieChart(chart: IPieChart) {
   if (typeof chart.timestamp === "string") {
     layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
+  if (chart.centerData) {
+    const y = (height - margin.top - margin.bottom) / 2;
+    const x = (width - margin.right - margin.left) / 2;
+    const textMaxWidth = baseFontSize * 7; // same as 7em
+    const fontSizeGroupingText = baseFontSize * 0.8; // 0.8em
+    const textInLines = breakText(chart.centerData!.grouping, textMaxWidth, fontSizeGroupingText);
+    layers.push(() => (
+      <g transform={`translate(${x}, ${y})`} style={{ whiteSpace: "pre" }}>
+        <text
+          style={{ textAnchor: "middle", fontSize: "1.7em" }}
+          transform={`translate(0, -${baseFontSize * 1.5})`}
+        >
+          {chart.centerData?.level}
+        </text>
+        <text
+          style={{ fontSize: "0.8em", textAnchor: "middle" }}
+          transform={`translate(0, ${baseFontSize * 0.2})`}
+        >
+          {textInLines}
+        </text>
+      </g>
+    ));
+  }
+
   return (
-    <div ref={ref} style={{ width: chart.width, height: chart.height }}>
+    <div ref={ref} style={{ width: chart.width, height: chart.height, fontSize: baseFontSize }}>
       <ResponsivePie
         data={chart.data}
         margin={margin}
