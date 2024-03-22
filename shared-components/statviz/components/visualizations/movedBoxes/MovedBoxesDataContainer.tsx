@@ -18,6 +18,7 @@ export const MOVED_BOXES_QUERY = gql(`
         gender
         productName
         tagIds
+        organisationName
       }
       dimensions {
         category {

@@ -37,7 +37,7 @@ interface IDemographicChartProps {
   height: number;
 }
 
-const heading = "Demographic";
+const heading = "Beneficiaries Registered";
 
 export default function DemographicPyramid({
   demographics,

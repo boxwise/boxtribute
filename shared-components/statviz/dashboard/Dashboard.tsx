@@ -20,6 +20,10 @@ export default function Dashboard() {
         padding="15"
         marginBottom="15"
         shadow="md"
+        pos="sticky"
+        top="0"
+        background="white"
+        zIndex={5}
       >
         <WrapItem w="350">
           <Center>

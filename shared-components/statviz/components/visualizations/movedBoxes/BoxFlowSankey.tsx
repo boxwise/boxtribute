@@ -45,7 +45,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   const movedBoxes = tidy(
     movedBoxesFacts,
-    groupBy("targetId", [summarize({ count: sum(boxesOrItems) })]),
+    groupBy(["targetId", "organisationName"], [summarize({ count: sum(boxesOrItems) })]),
     map((item) => {
       if (item.count < 0) {
         return {
@@ -129,13 +129,22 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   const nodes = [
     outgoingNode,
-    ...movedBoxes.map((movedBox) => ({
-      id: movedBox.targetId,
-      name: movedBox.isNegative ? `${movedBox.name} removed` : movedBox.name,
-      nodeColor: movedBox.isNegative
-        ? "red"
-        : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
-    })),
+    ...movedBoxes.map((movedBox) => {
+      const getName = () => {
+        if (movedBox.organisationName) {
+          return `${movedBox.name} | ${movedBox.organisationName} `;
+        }
+        return movedBox.name;
+      };
+
+      return {
+        id: movedBox.targetId,
+        name: movedBox.isNegative ? `${getName()} removed` : getName(),
+        nodeColor: movedBox.isNegative
+          ? "red"
+          : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+      };
+    }),
   ];
 
   const nodeIsTargetedByLink = (node) => links.findIndex((link) => link?.target === node.id) !== -1;
