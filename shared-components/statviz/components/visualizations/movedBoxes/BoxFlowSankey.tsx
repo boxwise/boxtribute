@@ -17,12 +17,12 @@ import Targetfilter from "../../filter/LocationFilter";
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
   name: "shipments",
-  nodeColor: "#2c4fdb",
+  nodeColor: "#6cdb2c",
 };
 const selfReportedNode = {
   id: "selfreportedYp9WMJiNbEvi",
   name: "self reported",
-  nodeColor: "#db662c",
+  nodeColor: "#2c32db",
 };
 const outgoingNode = {
   id: "outgoingYp9WMJiNbEvi",
@@ -134,7 +134,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
       name: movedBox.isNegative ? `${movedBox.name} removed` : movedBox.name,
       nodeColor: movedBox.isNegative
         ? "red"
-        : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#22bd5b", "#51bd22", "#2287bd"]),
+        : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
     })),
   ];
 
