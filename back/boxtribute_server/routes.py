@@ -12,7 +12,7 @@ from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
-from .utils import in_ci_environment, in_development_environment
+from .utils import in_development_environment
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)
@@ -49,22 +49,18 @@ def query_api_server():
 
 @api_bp.route("/public", methods=["POST"])
 @cross_origin(
-    # Allow dev localhost ports, and in staging
+    # Allow dev localhost ports
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
         "http://localhost:5173",
-        "https://v2-staging.boxtribute.org",
-        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
 def public_api_server():
-    # Block access unless in CI, or in staging/development
-    if (
-        os.getenv("ENVIRONMENT") not in ["staging", "development"]
-    ) and not in_ci_environment():
+    # Block access unless in development
+    if not in_development_environment():
         return {"error": "No permission to access public API"}, 401
 
     log_request_to_gcloud(context=API_CONTEXT)
