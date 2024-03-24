@@ -106,7 +106,7 @@ def graphql_server():
 
 
 @app_bp.get(APP_GRAPHQL_PATH)
-def graphql_playgroud():
+def graphql_explorer():
     return EXPLORER_HTML, 200
 
 
