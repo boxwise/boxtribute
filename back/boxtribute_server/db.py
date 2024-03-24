@@ -3,6 +3,7 @@ from peewee import MySQLDatabase
 from playhouse.flask_utils import FlaskDB  # type: ignore
 
 from .business_logic.statistics import statistics_queries
+from .utils import in_development_environment
 
 
 class DatabaseManager(FlaskDB):
@@ -21,12 +22,24 @@ class DatabaseManager(FlaskDB):
         super().init_app(app)
 
     def connect_db(self):
+        # GraphQL queries are sent as POST requests. Don't open database connection on
+        # other requests (e.g. CORS pre-flight OPTIONS request)
         if request.method.upper() != "POST":
-            # GraphQL queries are sent as POST requests. Don't open database connection
-            # on other requests (e.g. CORS pre-flight OPTIONS request)
             return
-        if self._excluded_routes and request.endpoint in self._excluded_routes:
+
+        # Don't open database connection for URLs other than the GraphQL endpoints
+        # defined in routes.py
+        if not (
+            (request.blueprint == "api_bp" and request.path == "/")
+            or (request.blueprint == "app_bp" and request.path == "/graphql")
+            or (
+                request.blueprint == "api_bp"
+                and request.path == "/public"
+                and in_development_environment()
+            )
+        ):
             return
+
         self.database.connect()
 
         # Provide fallback for non-JSON and non-GraphQL requests
@@ -35,8 +48,6 @@ class DatabaseManager(FlaskDB):
             self.replica.connect()
 
     def close_db(self, exc):
-        if self._excluded_routes and request.endpoint in self._excluded_routes:
-            return
         if not self.database.is_closed():
             self.database.close()
 
