@@ -3,22 +3,17 @@
 import os
 
 from ariadne.explorer import ExplorerGraphiQL
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
 from .authz import check_beta_feature_access
+from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, api_bp, app_bp
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
 from .utils import in_development_environment
-
-# Blueprint for query-only API. Deployed on the 'api*' subdomains
-api_bp = Blueprint("api_bp", __name__)
-
-# Blueprint for app GraphQL server. Deployed on v2-* subdomains
-app_bp = Blueprint("app_bp", __name__)
 
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
@@ -35,12 +30,12 @@ def handle_auth_error(ex):
     return response
 
 
-@api_bp.route("/", methods=["GET"])
+@api_bp.route(API_GRAPHQL_PATH, methods=["GET"])
 def query_api_explorer():
     return EXPLORER_HTML, 200
 
 
-@api_bp.route("/", methods=["POST"])
+@api_bp.route(API_GRAPHQL_PATH, methods=["POST"])
 @requires_auth
 def query_api_server():
     log_request_to_gcloud(context=API_CONTEXT)
@@ -110,7 +105,7 @@ def graphql_server():
     return execute_async(schema=full_api_schema)
 
 
-@app_bp.route("/graphql", methods=["GET"])
+@app_bp.route(APP_GRAPHQL_PATH, methods=["GET"])
 def graphql_playgroud():
     return EXPLORER_HTML, 200
 

@@ -2,6 +2,7 @@ from flask import request
 from peewee import MySQLDatabase
 from playhouse.flask_utils import FlaskDB  # type: ignore
 
+from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, api_bp, app_bp
 from .business_logic.statistics import statistics_queries
 from .utils import in_development_environment
 
@@ -30,10 +31,10 @@ class DatabaseManager(FlaskDB):
         # Don't open database connection for URLs other than the GraphQL endpoints
         # defined in routes.py
         if not (
-            (request.blueprint == "api_bp" and request.path == "/")
-            or (request.blueprint == "app_bp" and request.path == "/graphql")
+            (request.blueprint == api_bp.name and request.path == API_GRAPHQL_PATH)
+            or (request.blueprint == app_bp.name and request.path == APP_GRAPHQL_PATH)
             or (
-                request.blueprint == "api_bp"
+                request.blueprint == api_bp.name
                 and request.path == "/public"
                 and in_development_environment()
             )
