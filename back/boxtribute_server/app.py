@@ -12,7 +12,7 @@ from .db import create_db_interface, db
 
 
 def create_app():
-    return Flask(__name__)
+    return Flask(__name__, static_folder=None)
 
 
 def configure_app(
