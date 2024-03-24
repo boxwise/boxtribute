@@ -42,7 +42,11 @@ def _create_database(database_name):
     with pymysql.connect(**MYSQL_CONNECTION_PARAMETERS) as connection:
         with connection.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-    yield create_db_interface(**MYSQL_CONNECTION_PARAMETERS, database=database_name)
+    database = create_db_interface(
+        **MYSQL_CONNECTION_PARAMETERS, database=database_name
+    )
+    yield database
+    database.execute_sql(f"DROP DATABASE IF EXISTS {database_name}")
 
 
 @pytest.fixture(scope="session")
