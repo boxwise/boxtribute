@@ -30,19 +30,19 @@ def handle_auth_error(ex):
     return response
 
 
-@api_bp.route(API_GRAPHQL_PATH, methods=["GET"])
+@api_bp.get(API_GRAPHQL_PATH)
 def query_api_explorer():
     return EXPLORER_HTML, 200
 
 
-@api_bp.route(API_GRAPHQL_PATH, methods=["POST"])
+@api_bp.post(API_GRAPHQL_PATH)
 @requires_auth
 def query_api_server():
     log_request_to_gcloud(context=API_CONTEXT)
     return execute_async(schema=query_api_schema, introspection=True)
 
 
-@api_bp.route("/public", methods=["POST"])
+@api_bp.post("/public")
 @cross_origin(
     # Allow dev localhost ports
     origins=[
@@ -62,7 +62,7 @@ def public_api_server():
     return execute_async(schema=public_api_schema, introspection=True)
 
 
-@api_bp.route("/token", methods=["POST"])
+@api_bp.post("/token")
 def api_token():
     success, result = request_jwt(
         **request.get_json(),  # must contain username and password
@@ -78,7 +78,7 @@ def api_token():
 # Due to a bug in the flask-cors package, the function decorated with cross_origin must
 # be listed before any other function that has the same route
 # see https://github.com/corydolphin/flask-cors/issues/280
-@app_bp.route("/graphql", methods=["POST"])
+@app_bp.post("/graphql")
 @cross_origin(
     # Allow dev localhost ports, and boxtribute subdomains as origins
     origins=[
@@ -105,11 +105,11 @@ def graphql_server():
     return execute_async(schema=full_api_schema)
 
 
-@app_bp.route(APP_GRAPHQL_PATH, methods=["GET"])
+@app_bp.get(APP_GRAPHQL_PATH)
 def graphql_playgroud():
     return EXPLORER_HTML, 200
 
 
-@api_bp.route("/public", methods=["GET"])
+@api_bp.get("/public")
 def public():
     return EXPLORER_HTML, 200
