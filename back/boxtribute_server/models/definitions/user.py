@@ -39,6 +39,8 @@ class User(db.Model):
     name = CharField(column_name="naam", constraints=[SQL("DEFAULT ''")])
     valid_first_day = ZeroDateField(column_name="valid_firstday", null=True)
     valid_last_day = ZeroDateField(column_name="valid_lastday", null=True)
+    # legacy field from dropapp user-management
+    _usergroup = IntegerField(column_name="cms_usergroups_id", null=True)
 
     class Meta:
         table_name = "cms_users"
