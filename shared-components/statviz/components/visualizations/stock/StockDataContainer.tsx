@@ -5,7 +5,7 @@ import StockDataFilter from "./StockDataFilter";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import { gql } from "../../../../types/generated";
 
-const STOCK_QUERY = gql(`
+export const STOCK_QUERY = gql(`
   query stockOverview($baseId: Int!) {
     stockOverview(baseId: $baseId) {
       facts {
@@ -40,7 +40,7 @@ const STOCK_QUERY = gql(`
   }
 `);
 
-export default function StockDataContainer() {
+export function StockDataContainer() {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(STOCK_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },

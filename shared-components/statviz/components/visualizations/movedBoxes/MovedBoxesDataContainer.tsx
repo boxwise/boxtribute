@@ -45,7 +45,6 @@ export default function MovedBoxesDataContainer() {
       variables: { baseId: parseInt(baseId!, 10) },
     },
   );
-
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;
   }
