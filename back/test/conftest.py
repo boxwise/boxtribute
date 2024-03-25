@@ -16,6 +16,13 @@ import pymysql
 import pytest
 from boxtribute_server.app import configure_app, create_app, main
 from boxtribute_server.db import create_db_interface, db
+
+# It's crucial to import the blueprints from the routes module (NOT the blueprints
+# module) because only then
+# a) they actually have routes registered
+# b) all data models are registered as db.Model subclasses (because the GraphQL schema
+#    is imported into the routes module which in turn imports all data models down the
+#    line); this is relevant for setup_models() to work
 from boxtribute_server.routes import api_bp, app_bp
 
 # Imports fixtures into tests
@@ -42,7 +49,11 @@ def _create_database(database_name):
     with pymysql.connect(**MYSQL_CONNECTION_PARAMETERS) as connection:
         with connection.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-    yield create_db_interface(**MYSQL_CONNECTION_PARAMETERS, database=database_name)
+    database = create_db_interface(
+        **MYSQL_CONNECTION_PARAMETERS, database=database_name
+    )
+    yield database
+    database.execute_sql(f"DROP DATABASE IF EXISTS {database_name}")
 
 
 @pytest.fixture(scope="session")

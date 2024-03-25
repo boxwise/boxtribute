@@ -3,22 +3,17 @@
 import os
 
 from ariadne.explorer import ExplorerGraphiQL
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
 from .authz import check_beta_feature_access
+from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, api_bp, app_bp
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
-from .utils import in_ci_environment, in_development_environment
-
-# Blueprint for query-only API. Deployed on the 'api*' subdomains
-api_bp = Blueprint("api_bp", __name__)
-
-# Blueprint for app GraphQL server. Deployed on v2-* subdomains
-app_bp = Blueprint("app_bp", __name__)
+from .utils import in_development_environment
 
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
@@ -35,43 +30,39 @@ def handle_auth_error(ex):
     return response
 
 
-@api_bp.route("/", methods=["GET"])
+@api_bp.get(API_GRAPHQL_PATH)
 def query_api_explorer():
     return EXPLORER_HTML, 200
 
 
-@api_bp.route("/", methods=["POST"])
+@api_bp.post(API_GRAPHQL_PATH)
 @requires_auth
 def query_api_server():
     log_request_to_gcloud(context=API_CONTEXT)
     return execute_async(schema=query_api_schema, introspection=True)
 
 
-@api_bp.route("/public", methods=["POST"])
+@api_bp.post("/public")
 @cross_origin(
-    # Allow dev localhost ports, and in staging
+    # Allow dev localhost ports
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
         "http://localhost:5173",
-        "https://v2-staging.boxtribute.org",
-        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
 def public_api_server():
-    # Block access unless in CI, or in staging/development
-    if (
-        os.getenv("ENVIRONMENT") not in ["staging", "development"]
-    ) and not in_ci_environment():
+    # Block access unless in development
+    if not in_development_environment():
         return {"error": "No permission to access public API"}, 401
 
     log_request_to_gcloud(context=API_CONTEXT)
     return execute_async(schema=public_api_schema, introspection=True)
 
 
-@api_bp.route("/token", methods=["POST"])
+@api_bp.post("/token")
 def api_token():
     success, result = request_jwt(
         **request.get_json(),  # must contain username and password
@@ -87,7 +78,7 @@ def api_token():
 # Due to a bug in the flask-cors package, the function decorated with cross_origin must
 # be listed before any other function that has the same route
 # see https://github.com/corydolphin/flask-cors/issues/280
-@app_bp.route("/graphql", methods=["POST"])
+@app_bp.post("/graphql")
 @cross_origin(
     # Allow dev localhost ports, and boxtribute subdomains as origins
     origins=[
@@ -114,11 +105,11 @@ def graphql_server():
     return execute_async(schema=full_api_schema)
 
 
-@app_bp.route("/graphql", methods=["GET"])
-def graphql_playgroud():
+@app_bp.get(APP_GRAPHQL_PATH)
+def graphql_explorer():
     return EXPLORER_HTML, 200
 
 
-@api_bp.route("/public", methods=["GET"])
+@api_bp.get("/public")
 def public():
     return EXPLORER_HTML, 200
