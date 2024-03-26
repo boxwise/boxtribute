@@ -30,7 +30,7 @@ def default_location_data():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_location():
     return default_location_data()
 
@@ -53,6 +53,7 @@ def non_default_box_state_location_data():
     data = default_location_data()
     data["id"] = 4
     data["box_state"] = BoxState.Donated
+    data["is_donated"] = 1
     return data
 
 
@@ -79,22 +80,22 @@ def deleted_location_data():
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def another_location():
     return another_location_data()
 
 
-@pytest.fixture()
+@pytest.fixture
 def null_box_state_location():
     return null_box_state_location_data()
 
 
-@pytest.fixture()
+@pytest.fixture
 def non_default_box_state_location():
     return non_default_box_state_location_data()
 
 
-@pytest.fixture()
+@pytest.fixture
 def distribution_spot():
     return distribution_spot_data()
 
