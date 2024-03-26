@@ -17,7 +17,7 @@ Built by aid workers for aid workers, it is designed with three top priorities i
 2. Effective even with minimal training - doesn't require any professional expertise to use well. Can be run smoothly with short-term volunteers of all backgrounds.
 3. Dignity and choice-based distribution as a first priority for vulnerable individuals.
 
-The web app consists of a [React front-end](/front) bootstrapped with [Create React App](https://github.com/facebook/create-react-app), and a [Python Flask back-end](/back).
+The web app consists of a [React front-end](/front), and a [Python Flask back-end](/back).
 
 Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get started!
 
