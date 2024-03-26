@@ -42,6 +42,7 @@ repos:
         types_or: [javascript, jsx, ts, tsx]
         language: script
         require_serial: true
+        exclude: Distributions|generated
       - id: prettier
         name: Format Typescript files
         entry: ./invoke_yarn format
