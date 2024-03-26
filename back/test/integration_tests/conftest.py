@@ -24,5 +24,4 @@ def auth0_testing(monkeypatch):
     # hard-code them for reproducible, context-independent tests
     monkeypatch.setenv("AUTH0_DOMAIN", TEST_AUTH0_DOMAIN)
     monkeypatch.setenv("AUTH0_AUDIENCE", TEST_AUTH0_AUDIENCE)
-    monkeypatch.setenv("AUTH0_JWKS_KID", "")
-    monkeypatch.setenv("AUTH0_JWKS_N", "")
+    monkeypatch.setenv("AUTH0_PUBLIC_KEY", "")

@@ -1,11 +1,6 @@
 MOVED_BOXES_QUERY = """\
--- Common Table Expressions (CTEs) to identify valid locations and boxes
-WITH recursive ValidLocations AS (
-    SELECT id
-    FROM locations
-    WHERE camp_id = %s AND deleted IS NULL
-),
-ValidBoxes AS (
+WITH recursive ValidBoxes AS (
+    -- Common Table Expression (CTE) to identify valid boxes
     SELECT
         s.id,
         s.items,
@@ -14,12 +9,7 @@ ValidBoxes AS (
         s.box_state_id,
         s.product_id
     FROM stock s
-    JOIN ValidLocations l ON s.location_id = l.id
-    WHERE s.deleted IS null
-    -- Considering boxes whose state changed from 2023-01-01 onwards,
-    -- since the changes in box_state_id are not recorded in the history table beforehand.
-    -- Additionally, use the stock id instead of the creation timestamp to filter the data.
-    AND s.id >= %s
+    JOIN locations l ON s.location_id = l.id AND l.camp_id = %s
 ),
 BoxHistory AS (
     -- CTE to retrieve box history (only include changes in FK fields such as
@@ -39,8 +29,9 @@ BoxHistory AS (
         h.to_int,
         h.id AS id
     FROM history h
-    JOIN ValidBoxes s ON h.record_id = s.id AND h.to_int IS NOT null
-    AND h.id >= %s AND h.tablename = 'stock'
+    JOIN ValidBoxes s ON h.record_id = s.id
+    AND ((h.to_int IS NOT null AND h.id >= %s) OR h.changes = "Record created")
+    AND h.tablename = 'stock'
     ORDER BY record_id, changedate DESC, id DESC
 ),
 HistoryReconstruction AS (
@@ -152,7 +143,7 @@ HistoryReconstruction AS (
     FROM BoxHistory h
     ORDER BY id DESC
 ),
-FinalResult AS (
+BoxStateChangeVersions AS (
     -- CTE for selecting all box versions at the time of box state changes
     SELECT
         h.box_id,
@@ -165,10 +156,44 @@ FinalResult AS (
         h.size_id
     FROM HistoryReconstruction h
     WHERE h.changes = 'box_state_id'
+),
+CreatedDonatedBoxes AS (
+    SELECT
+        h.box_id,
+        h.box_state_id,
+        date(h.changedate) as moved_on,
+        h.items AS number_of_items,
+        h.location_id,
+        h.product_id AS product,
+        h.size_id
+    FROM HistoryReconstruction h
+    WHERE h.changes = 'Record created' and h.box_state_id = 5
 )
 
--- Main query to perform aggregation and grouping of boxes being moved between states
--- InStock and Donated
+-- MAIN QUERY
+
+-- Collect information about boxes created in donated state
+select
+    t.moved_on,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    p.gender_id AS gender,
+    t.size_id,
+    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    loc.label AS target_id,
+    NULL AS organisation_name,
+    %s AS target_type,
+    count(t.box_id) AS boxes_count,
+    sum(t.number_of_items) AS items_count
+FROM CreatedDonatedBoxes t
+JOIN products p ON p.id = t.product
+JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+
+UNION ALL
+
+-- Collect information about boxes being moved between states InStock and Donated
 select
     t.moved_on,
     p.category_id,
@@ -193,7 +218,7 @@ select
             ELSE 0
         END
     ) AS items_count
-FROM FinalResult t
+FROM BoxStateChangeVersions t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"

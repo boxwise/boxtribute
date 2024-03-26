@@ -150,8 +150,21 @@ def another_not_delivered_box_data():
     return data
 
 
+def created_in_donated_location_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 16
+    data["label_identifier"] = "97539753"
+    data["state"] = BoxState.Donated
+    return data
+
+
 def donated_boxes_data():
-    return [donated_box_data(), another_donated_box_data(), third_donated_box_data()]
+    return [
+        donated_box_data(),
+        another_donated_box_data(),
+        third_donated_box_data(),
+        created_in_donated_location_box_data(),
+    ]
 
 
 def data():
@@ -169,6 +182,7 @@ def data():
         third_donated_box_data(),
         not_delivered_box_data(),
         another_not_delivered_box_data(),
+        created_in_donated_location_box_data(),
         box_in_another_location_with_qr_code_data(),
     ]
 

@@ -336,19 +336,17 @@ def compute_moved_boxes(base_id):
     location the box was stored in
     """
     _validate_existing_base(base_id)
-    min_box_id = 1
     min_history_id = 1
     if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
-        min_box_id = 87_423
         min_history_id = 1_324_559
     # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
     cursor = db.database.execute_sql(
         MOVED_BOXES_QUERY,
         (
             base_id,
-            min_box_id,
             min_history_id,
+            TargetType.OutgoingLocation.name,
             TargetType.OutgoingLocation.name,
             TargetType.Shipment.name,
             base_id,

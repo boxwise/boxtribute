@@ -6,13 +6,13 @@ require a working internet connection.
 import os
 import urllib
 
+import jwt
 import pytest
 from auth import (
     TEST_AUTH0_AUDIENCE,
     TEST_AUTH0_DOMAIN,
-    TEST_AUTH0_JWKS_KID,
-    TEST_AUTH0_JWKS_N,
     TEST_AUTH0_PASSWORD,
+    TEST_AUTH0_PUBLIC_KEY,
     TEST_AUTH0_USERNAME,
     get_authorization_header,
 )
@@ -38,13 +38,13 @@ def test_invalid_jwt_claims(auth0_client, monkeypatch):
     response = auth0_client.post("/graphql")
     assert response.status_code == 401
     assert response.json["code"] == "invalid_claims"
+    assert response.json["message"] == "Audience doesn't match"
 
 
-def test_decode_valid_jwt(monkeypatch):
-    # Simulate AUTH0_JWKS_* variable being set. This skips reaching out to the Auth0
+def test_decode_valid_jwt(monkeypatch, mocker):
+    # Simulate AUTH0_PUBLIC_KEY variable being set. This skips reaching out to the Auth0
     # service in get_public_key()
-    monkeypatch.setenv("AUTH0_JWKS_KID", TEST_AUTH0_JWKS_KID)
-    monkeypatch.setenv("AUTH0_JWKS_N", TEST_AUTH0_JWKS_N)
+    monkeypatch.setenv("AUTH0_PUBLIC_KEY", TEST_AUTH0_PUBLIC_KEY)
 
     token = get_token_from_auth_header(get_authorization_header(TEST_AUTH0_USERNAME))
     key = get_public_key(TEST_AUTH0_DOMAIN)
@@ -57,6 +57,20 @@ def test_decode_valid_jwt(monkeypatch):
     # invalid header
     with pytest.raises(AuthenticationFailed):
         decode_jwt(token="invalid_token_in_header", **params)
+
+    mocker.patch("jwt.decode").side_effect = jwt.PyJWTError()
+    with pytest.raises(AuthenticationFailed) as exc_info:
+        decode_jwt(token=token, **params)
+    exc = exc_info.value
+    assert exc.error["code"] == "invalid_header"
+    assert exc.status_code == 401
+
+    mocker.patch("jwt.decode").side_effect = Exception()
+    with pytest.raises(AuthenticationFailed) as exc_info:
+        decode_jwt(token=token, **params)
+    exc = exc_info.value
+    assert exc.error["code"] == "internal_server_error"
+    assert exc.status_code == 500
 
 
 def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):

@@ -12,7 +12,7 @@ from .db import create_db_interface, db
 
 
 def create_app():
-    return Flask(__name__)
+    return Flask(__name__, static_folder=None)
 
 
 def configure_app(
@@ -25,7 +25,6 @@ def configure_app(
         app.register_blueprint(blueprint)
 
     app.config["DATABASE"] = database_interface or create_db_interface(**mysql_kwargs)
-    app.config["FLASKDB_EXCLUDED_ROUTES"] = ["api_bp.api_token"]
 
     if replica_socket or mysql_kwargs:
         # In deployed environment: replica_socket is set
