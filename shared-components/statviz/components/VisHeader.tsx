@@ -34,9 +34,8 @@ import { date2String } from "../utils/chart";
 
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
-export default function VisHeader(params: {
+interface IVisHeaderProps {
   heading: string;
-  visId: string;
   maxWidthPx: number | string;
   onExport: (
     width: number,
@@ -50,10 +49,23 @@ export default function VisHeader(params: {
   defaultWidth: number;
   defaultHeight: number;
   chartProps: object;
-  custom?: boolean;
-}) {
-  const [inputWidth, setInputWidth] = useState(params.defaultWidth);
-  const [inputHeight, setInputHeight] = useState(params.defaultHeight);
+  customIncludes?: {
+    prop: object;
+    value: string;
+  }[];
+}
+
+export default function VisHeader({
+  heading,
+  maxWidthPx,
+  onExport,
+  defaultWidth,
+  defaultHeight,
+  chartProps,
+  customIncludes,
+}: IVisHeaderProps) {
+  const [inputWidth, setInputWidth] = useState(defaultWidth);
+  const [inputHeight, setInputHeight] = useState(defaultHeight);
   const isExporting = useReactiveVar(isChartExporting);
 
   const { timerange } = useTimerange();
@@ -65,23 +77,35 @@ export default function VisHeader(params: {
   const download = (e) => {
     isChartExporting(true);
 
-    params.onExport(
+    const customIncludeProps = customIncludes!
+      .filter((customInclude) => value.includes(customInclude.value))
+      ?.map((fcI) => fcI.prop);
+
+    const props =
+      customIncludeProps.length > 0
+        ? {
+            ...chartProps,
+            ...customIncludeProps.reduce((previous, current) => ({ ...current, ...previous })),
+          }
+        : chartProps;
+
+    onExport(
       inputWidth,
       inputHeight,
-      value.indexOf("heading") !== -1 ? params.heading : undefined,
+      value.indexOf("heading") !== -1 ? heading : undefined,
       value.indexOf("timerange") !== -1 ? timerange : undefined,
       value.indexOf("timestamp") !== -1 ? date2String(new Date()) : undefined,
-      params.chartProps,
+      props,
       e.target.value,
     );
   };
 
   const getMaxWidth = () => {
     const marginInPx = 50;
-    if (typeof params.maxWidthPx === "string") {
-      return parseInt(params.maxWidthPx, 10) + marginInPx;
+    if (typeof maxWidthPx === "string") {
+      return parseInt(maxWidthPx, 10) + marginInPx;
     }
-    return params.maxWidthPx + marginInPx;
+    return maxWidthPx + marginInPx;
   };
 
   return (
@@ -89,7 +113,7 @@ export default function VisHeader(params: {
       <Accordion allowMultiple>
         <AccordionItem border="none">
           <Flex>
-            <Heading size="md">{params.heading}</Heading>
+            <Heading size="md">{heading}</Heading>
             <Spacer />
             <AccordionButton w="150px">
               <Box as="span" flex="1" textAlign="left">
@@ -154,6 +178,11 @@ export default function VisHeader(params: {
                           Time Range
                         </Checkbox>
                         <Checkbox {...getCheckboxProps({ value: "timestamp" })}>Timestamp</Checkbox>
+                        {customIncludes!.map((option) => (
+                          <Checkbox id={randomId()} {...getCheckboxProps({ value: option.value })}>
+                            {option.value}
+                          </Checkbox>
+                        ))}
                       </HStack>
                     </Box>
                   </CheckboxGroup>
@@ -196,3 +225,7 @@ export default function VisHeader(params: {
     </CardHeader>
   );
 }
+
+VisHeader.defaultProps = {
+  customIncludes: [],
+};

@@ -17,12 +17,12 @@ import Targetfilter from "../../filter/LocationFilter";
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
   name: "shipments",
-  nodeColor: "#2c4fdb",
+  nodeColor: "#6cdb2c",
 };
 const selfReportedNode = {
   id: "selfreportedYp9WMJiNbEvi",
   name: "self reported",
-  nodeColor: "#db662c",
+  nodeColor: "#2c32db",
 };
 const outgoingNode = {
   id: "outgoingYp9WMJiNbEvi",
@@ -40,12 +40,12 @@ interface IBoxFlowSankeyProps {
 export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
-  const heading = boxesOrItems === "boxesCount" ? "shipped boxes" : "shipped items";
+  const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
   const movedBoxesFacts = data.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
     movedBoxesFacts,
-    groupBy("targetId", [summarize({ count: sum(boxesOrItems) })]),
+    groupBy(["targetId", "organisationName"], [summarize({ count: sum(boxesOrItems) })]),
     map((item) => {
       if (item.count < 0) {
         return {
@@ -129,13 +129,22 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   const nodes = [
     outgoingNode,
-    ...movedBoxes.map((movedBox) => ({
-      id: movedBox.targetId,
-      name: movedBox.isNegative ? `${movedBox.name} removed` : movedBox.name,
-      nodeColor: movedBox.isNegative
-        ? "red"
-        : sample(["#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22"]),
-    })),
+    ...movedBoxes.map((movedBox) => {
+      const getName = () => {
+        if (movedBox.organisationName) {
+          return `${movedBox.name} | ${movedBox.organisationName} `;
+        }
+        return movedBox.name;
+      };
+
+      return {
+        id: movedBox.targetId,
+        name: movedBox.isNegative ? `${getName()} removed` : getName(),
+        nodeColor: movedBox.isNegative
+          ? "red"
+          : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+      };
+    }),
   ];
 
   const nodeIsTargetedByLink = (node) => links.findIndex((link) => link?.target === node.id) !== -1;
@@ -171,7 +180,6 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         heading={heading}
         chartProps={chartProps}
         maxWidthPx={1000}
-        visId="bf"
       />
       <CardBody>
         <Wrap>
@@ -184,7 +192,10 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
           <WrapItem>
             <Box w="15px" h="15px" backgroundColor="red" />
           </WrapItem>
-          <WrapItem color="red">Negative Box Flow</WrapItem>
+          <WrapItem color="red">
+            Red targets indicate an incoming/reverse flow, i.e. a removal of items/boxes from that
+            location to instock storage.
+          </WrapItem>
         </Wrap>
       </CardBody>
     </Card>

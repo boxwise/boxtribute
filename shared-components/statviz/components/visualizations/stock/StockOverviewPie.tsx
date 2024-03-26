@@ -100,7 +100,10 @@ export default function StockOverviewPie({
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
   const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
 
-  const heading = boxesOrItems === "boxesCount" ? "Stock by boxes" : "Stock by items";
+  const heading =
+    boxesOrItems === "boxesCount"
+      ? "Drilldown Chart of Instock Boxes"
+      : "Drilldown Chart of Instock Items";
 
   const { onFilterChange, filterValue } = useValueFilter(groupOptions, groupOptions[0], filterId);
 
@@ -173,6 +176,50 @@ export default function StockOverviewPie({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drilldownPath, drilldownValues, data.facts, boxesOrItems]);
 
+  const getGroupOption = (levelsBack: number = 0) =>
+    groupOptions.find(
+      (groupOption) => groupOption.value === drilldownPath[drilldownPath.length - levelsBack - 1],
+    );
+
+  const getSummarization = () => {
+    const level = drilldownPath.length;
+    const currentValueText =
+      drilldownValues.length > 0 ? `${drilldownValues[drilldownValues.length - 1]}` : "";
+
+    if (level === 1) {
+      return {
+        level,
+        grouping: `All Items by ${getGroupOption()?.label}`,
+      };
+    }
+
+    const previousGroupOption = getGroupOption(1);
+    if (level === 2 && previousGroupOption?.value === "gender") {
+      return {
+        level,
+        grouping: `${getGroupOption()?.label} for ${currentValueText}`,
+      };
+    }
+    if (previousGroupOption?.value === "gender") {
+      return {
+        level: drilldownPath.length,
+        grouping: `${drilldownValues[drilldownValues.length - 2] ?? ""} ${currentValueText} by ${getGroupOption()?.label}`,
+      };
+    }
+    if (previousGroupOption?.value === "sizeName") {
+      return {
+        level: drilldownPath.length,
+        grouping: `Size ${currentValueText} by ${getGroupOption()?.label}`,
+      };
+    }
+    return {
+      level: drilldownPath.length,
+      grouping: `${currentValueText} by ${getGroupOption()?.label}`,
+    };
+  };
+
+  const centerDataProp = getSummarization();
+
   const chartProps = {
     onClick: onGroupSelect,
     data: chartData,
@@ -209,7 +256,7 @@ export default function StockOverviewPie({
         heading={heading}
         chartProps={chartProps}
         maxWidthPx={1000}
-        visId="ts"
+        customIncludes={[{ prop: { centerData: centerDataProp }, value: "include center data" }]}
       />
       <CardBody>
         <Wrap align="end">
@@ -271,7 +318,7 @@ export default function StockOverviewPie({
             );
           })}
         </Box>
-        <PieChart {...chartProps} animate />
+        <PieChart {...chartProps} centerData={centerDataProp} animate />
       </CardBody>
     </Card>
   );

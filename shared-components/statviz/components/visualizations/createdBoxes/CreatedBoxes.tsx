@@ -24,8 +24,6 @@ import CreatedBoxesGrouping, {
 } from "../../filter/CreatedBoxesGrouping";
 import useValueFilter from "../../../hooks/useValueFilter";
 
-const visId = "created-boxes";
-
 interface ICreatedBoxesProps {
   width: string;
   height: string;
@@ -140,7 +138,6 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
   }
 
   const chartProps = {
-    visId: "preview-created-boxes",
     data: createdBoxesPerDay,
     indexBy: "createdOn",
     keys: [boxesOrItems],
@@ -153,7 +150,6 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
       <VisHeader
         maxWidthPx={width}
         heading={heading}
-        visId={visId}
         onExport={onExport}
         defaultHeight={500}
         defaultWidth={1000}

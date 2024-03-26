@@ -5,6 +5,7 @@ import { isChartExporting } from "../state/exportingCharts";
 
 const createOffScreenContainer = () => {
   const offScreenContainer = document.createElement("div");
+  offScreenContainer.style.fontSize = "50px";
   offScreenContainer.style.position = "absolute";
   offScreenContainer.style.left = "-9999px";
   offScreenContainer.style.top = "-9999px";
