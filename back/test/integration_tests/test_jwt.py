@@ -6,6 +6,7 @@ require a working internet connection.
 import os
 import urllib
 
+import jwt
 import pytest
 from auth import (
     TEST_AUTH0_AUDIENCE,
@@ -40,7 +41,7 @@ def test_invalid_jwt_claims(auth0_client, monkeypatch):
     assert response.json["message"] == "Audience doesn't match"
 
 
-def test_decode_valid_jwt(monkeypatch):
+def test_decode_valid_jwt(monkeypatch, mocker):
     # Simulate AUTH0_PUBLIC_KEY variable being set. This skips reaching out to the Auth0
     # service in get_public_key()
     monkeypatch.setenv("AUTH0_PUBLIC_KEY", TEST_AUTH0_PUBLIC_KEY)
@@ -56,6 +57,20 @@ def test_decode_valid_jwt(monkeypatch):
     # invalid header
     with pytest.raises(AuthenticationFailed):
         decode_jwt(token="invalid_token_in_header", **params)
+
+    mocker.patch("jwt.decode").side_effect = jwt.PyJWTError()
+    with pytest.raises(AuthenticationFailed) as exc_info:
+        decode_jwt(token=token, **params)
+    exc = exc_info.value
+    assert exc.error["code"] == "invalid_header"
+    assert exc.status_code == 401
+
+    mocker.patch("jwt.decode").side_effect = Exception()
+    with pytest.raises(AuthenticationFailed) as exc_info:
+        decode_jwt(token=token, **params)
+    exc = exc_info.value
+    assert exc.error["code"] == "internal_server_error"
+    assert exc.status_code == 500
 
 
 def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):
