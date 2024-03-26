@@ -28,6 +28,12 @@ enum BoxState {
   NotDelivered
 }
 
+enum ProductTypeFilter {
+  Custom
+  StandardInstantiation
+  All
+}
+
 """
 Classificators for [`Tag`]({{Types.Tag}}) type.
 """
