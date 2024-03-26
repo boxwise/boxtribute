@@ -103,7 +103,7 @@ def compute_beneficiary_demographics(base_id):
     """
     _validate_existing_base(base_id)
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
-    created_on = db.database.truncate_date("day", Beneficiary.created_on)
+    created_on = Beneficiary.created_on.truncate("day")
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
@@ -148,7 +148,7 @@ def compute_created_boxes(base_id):
         Location.select(Location.id).where(Location.base == base_id).cte("location_ids")
     )
     location_ids = cte.select(cte.c.id)
-    created_on = db.database.truncate_date("day", Box.created_on)
+    created_on = Box.created_on.truncate("day")
     LocationHistory = DbChangeHistory.alias()
     ProductHistory = DbChangeHistory.alias()
     ItemsHistory = DbChangeHistory.alias()
@@ -340,8 +340,8 @@ def compute_moved_boxes(base_id):
     if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
         min_history_id = 1_324_559
-    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
-    cursor = db.database.execute_sql(
+    database = db.replica or db.database
+    cursor = database.execute_sql(
         MOVED_BOXES_QUERY,
         (
             base_id,
@@ -354,6 +354,7 @@ def compute_moved_boxes(base_id):
             base_id,
         ),
     )
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
     column_names = [x[0] for x in cursor.description]
     facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     for fact in facts:
