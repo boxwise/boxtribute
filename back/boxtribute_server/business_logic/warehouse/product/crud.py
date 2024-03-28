@@ -1,4 +1,5 @@
 from ....db import db
+from ....errors import InvalidPrice
 from ....models.definitions.product import Product
 from ....models.utils import handle_non_existing_resource, utcnow
 
@@ -16,6 +17,9 @@ def create_custom_product(
     comment=None,
     in_shop=False,
 ):
+    if price < 0:
+        return InvalidPrice(value=price)
+
     product = Product()
     product.base = base_id
     product.category = category_id

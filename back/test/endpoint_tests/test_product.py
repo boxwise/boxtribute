@@ -66,7 +66,9 @@ def _create_mutation(creation_input):
                     lastModifiedBy {{ id }}
                     lastModifiedOn
                     deletedOn
-                }} }} }}"""
+                }}
+                ...on InvalidPrice {{ value }}
+                }} }}"""
 
 
 def test_product_mutations(
@@ -136,3 +138,16 @@ def test_product_mutations(
         "lastModifiedOn": None,
         "deletedOn": None,
     }
+
+    # Test case X
+    price = -10
+    creation_input = f"""{{
+            categoryId: {category_id}
+            sizeRangeId: {size_range_id}
+            gender: {gender}
+            baseId: {base_id}
+            price: {price}
+            }}"""
+    mutation = _create_mutation(creation_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"value": price}

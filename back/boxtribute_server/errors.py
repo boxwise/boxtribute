@@ -9,3 +9,8 @@ class ResourceDoesNotExist(UserError):
     def __init__(self, *, name, id=None):
         self.id = id
         self.name = name
+
+
+class InvalidPrice(UserError):
+    def __init__(self, *, value):
+        self.value = value
