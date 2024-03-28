@@ -1,5 +1,6 @@
 """Utilities for handling authorization"""
 
+from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from flask import g
@@ -8,6 +9,7 @@ from peewee import Model
 from .auth import CurrentUser
 from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
+from .errors import InsufficientPermission
 from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.shipment import Shipment
@@ -48,6 +50,21 @@ def authorize(*args: CurrentUser, **kwargs: Any) -> bool:
     """
     kwargs["ignore_missing_base_info"] = False
     return _authorize(*args, **kwargs)
+
+
+def handle_unauthorized(f):
+    """Decorator to handle `Forbidden` exception possibly raised by `_authorize()`.
+    Return InsufficientPermission including error information.
+    """
+
+    @wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Forbidden as e:
+            return InsufficientPermission(name=e.reason)
+
+    return inner
 
 
 def _authorize(

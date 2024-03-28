@@ -14,3 +14,8 @@ class ResourceDoesNotExist(UserError):
 class InvalidPrice(UserError):
     def __init__(self, *, value):
         self.value = value
+
+
+class InsufficientPermission(UserError):
+    def __init__(self, *, name):
+        self.name = name
