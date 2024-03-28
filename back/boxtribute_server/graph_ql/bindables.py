@@ -78,11 +78,13 @@ from ..business_logic.warehouse.box.queries import query as box_query
 from ..business_logic.warehouse.location.fields import classic_location
 from ..business_logic.warehouse.location.queries import query as location_query
 from ..business_logic.warehouse.product.fields import product
+from ..business_logic.warehouse.product.mutations import mutation as product_mutation
 from ..business_logic.warehouse.product.queries import query as product_query
 from ..business_logic.warehouse.qr_code.fields import qr_code
 from ..business_logic.warehouse.qr_code.mutations import mutation as qr_code_mutation
 from ..business_logic.warehouse.qr_code.queries import query as qr_code_query
 from ..models.definitions.box import Box
+from ..models.definitions.product import Product
 
 # Container for QueryTypes
 query_types = (
@@ -114,6 +116,7 @@ mutation_types = (
     distribution_event_mutation,
     mobile_distribution_mutation,
     packing_list_entry_mutation,
+    product_mutation,
     qr_code_mutation,
     shipment_mutation,
     tag_mutation,
@@ -153,6 +156,11 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
+def resolve_create_custom_product_result_type(obj, *_):
+    if isinstance(obj, Product):
+        return "Product"
+
+
 def resolve_location_type(obj, *_):
     return obj.type.name
 
@@ -163,7 +171,10 @@ def resolve_items_collection_type(obj, *_):
     return "UnboxedItemsCollection"
 
 
-union_types = (UnionType("TaggableResource", resolve_taggable_resource_type),)
+union_types = (
+    UnionType("TaggableResource", resolve_taggable_resource_type),
+    UnionType("CreateCustomProductResult", resolve_create_custom_product_result_type),
+)
 interface_types = (
     InterfaceType("Location", resolve_location_type),
     InterfaceType("ItemsCollection", resolve_items_collection_type),
