@@ -83,6 +83,7 @@ from ..business_logic.warehouse.product.queries import query as product_query
 from ..business_logic.warehouse.qr_code.fields import qr_code
 from ..business_logic.warehouse.qr_code.mutations import mutation as qr_code_mutation
 from ..business_logic.warehouse.qr_code.queries import query as qr_code_query
+from ..errors import UserError
 from ..models.definitions.box import Box
 from ..models.definitions.product import Product
 
@@ -159,6 +160,8 @@ def resolve_taggable_resource_type(obj, *_):
 def resolve_create_custom_product_result_type(obj, *_):
     if isinstance(obj, Product):
         return "Product"
+    if isinstance(obj, UserError):
+        return obj.__class__.__name__
 
 
 def resolve_location_type(obj, *_):

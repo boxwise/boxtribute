@@ -1,7 +1,11 @@
 import peewee
 import pytest
 from auth import mock_user_for_request
-from utils import assert_bad_user_input, assert_internal_server_error
+from utils import (
+    assert_bad_user_input,
+    assert_internal_server_error,
+    assert_successful_request,
+)
 
 
 def test_base_specific_permissions(client, mocker):
@@ -211,6 +215,32 @@ def test_update_non_existent_resource(
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
     response = assert_bad_user_input(read_only_client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize(
+    "operation,mutation_input,field,response",
+    [
+        # Test case X
+        [
+            "createCustomProduct",
+            "creationInput: { baseId: 0, categoryId: 12, sizeRangeId: 1, gender: none}",
+            "...on ResourceDoesNotExist { id name }",
+            {"id": "0", "name": "Base"},
+        ],
+        [
+            "createCustomProduct",
+            "creationInput: { baseId: 1, categoryId: 99, sizeRangeId: 1, gender: none}",
+            "...on ResourceDoesNotExist { id name }",
+            {"id": None, "name": "ProductCategory"},
+        ],
+    ],
+)
+def test_create_resource_does_not_exist(
+    read_only_client, operation, mutation_input, field, response
+):
+    mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, mutation)
+    assert actual_response == response
 
 
 def test_mutation_arbitrary_database_error(read_only_client, mocker):

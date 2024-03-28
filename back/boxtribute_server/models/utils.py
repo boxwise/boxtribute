@@ -3,11 +3,15 @@
 from datetime import date, datetime, timezone
 from functools import wraps
 
+import peewee
 from flask import g
 from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
 from ..db import db
+from ..errors import ResourceDoesNotExist
 from .definitions.history import DbChangeHistory
+from .definitions.product_category import ProductCategory
+from .definitions.size_range import SizeRange
 
 
 def utcnow():
@@ -149,3 +153,36 @@ to "{new_value}";"""
         entries.append(entry)
 
     return entries
+
+
+def handle_non_existing_resource(f):
+    """Decorator to handle database error due to non-existing resource (e.g. selecting a
+    resource by a non-existing PK, or trying to insert a FK reference to a field that
+    does not exist).
+    Find information about resource from peewee error message and return
+    ResourceDoesNotExist.
+    """
+
+    @wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+
+        except peewee.IntegrityError as e:
+            error_message = e.args[1].lower()
+            resource_name = None
+            for model in [ProductCategory, SizeRange]:
+                table_name = model._meta.table_name
+                pattern = f"references `{table_name}`"
+                if pattern in error_message:
+                    resource_name = model.__name__
+                    break
+
+            if resource_name is None:
+                # Indicate dev error: model should be listed above
+                raise e
+
+            # FK ID info could be pulled from kwargs
+            return ResourceDoesNotExist(name=resource_name)
+
+    return inner

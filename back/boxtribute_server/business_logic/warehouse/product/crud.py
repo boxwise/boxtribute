@@ -1,8 +1,9 @@
 from ....db import db
 from ....models.definitions.product import Product
-from ....models.utils import utcnow
+from ....models.utils import handle_non_existing_resource, utcnow
 
 
+@handle_non_existing_resource
 def create_custom_product(
     *,
     user_id,
