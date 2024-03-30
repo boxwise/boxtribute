@@ -62,8 +62,15 @@ class QrCodeAlreadyAssignedToBox(Exception):
 
 
 class Forbidden(Exception):
-    def __init__(self, *args, reason, **kwargs):
-        self.reason = reason
+    def __init__(self, *args, permission=None, resource=None, value=None, **kwargs):
+        if permission is not None and resource is not None and value is not None:
+            raise ValueError(
+                "Invalid input: set either 'permission', or 'resource'+'value'."
+            )
+        self.permission = permission
+        self.resource = resource
+        self.value = value
+        reason = f"{resource}={value}" if permission is None else permission
         self.extensions = {
             "code": "FORBIDDEN",
             "description": f"You don't have access to '{reason}'",

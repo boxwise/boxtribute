@@ -104,17 +104,23 @@ def test_user_with_insufficient_permissions():
     for permission in BASE_RELATED_PERMISSIONS:
         with pytest.raises(Forbidden) as exc_info:
             authorize(user, permission=permission, base_id=0)
+        exc = exc_info.value
         assert (
-            exc_info.value.extensions["description"]
-            == f"You don't have access to '{permission}'"
+            exc.extensions["description"] == f"You don't have access to '{permission}'"
         )
+        assert exc.permission == permission
+        assert exc.resource is None
+        assert exc.value is None
     for permission in BASE_AGNOSTIC_PERMISSIONS:
         with pytest.raises(Forbidden) as exc_info:
             authorize(user, permission=permission)
+        exc = exc_info.value
         assert (
-            exc_info.value.extensions["description"]
-            == f"You don't have access to '{permission}'"
+            exc.extensions["description"] == f"You don't have access to '{permission}'"
         )
+        assert exc.permission == permission
+        assert exc.resource is None
+        assert exc.value is None
 
     user = CurrentUser(
         id=3, organisation_id=2, base_ids={"beneficiary:create": [2], "stock:write": []}
@@ -122,9 +128,11 @@ def test_user_with_insufficient_permissions():
     with pytest.raises(Forbidden) as exc_info:
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_id=1)
-    assert (
-        exc_info.value.extensions["description"] == "You don't have access to 'base=1'"
-    )
+    exc = exc_info.value
+    assert exc.extensions["description"] == "You don't have access to 'base=1'"
+    assert exc.permission is None
+    assert exc.resource == "base"
+    assert exc.value == 1
     with pytest.raises(Forbidden):
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_ids=[1])
@@ -160,16 +168,24 @@ def test_invalid_authorize_function_call():
 
 def test_user_unauthorized_for_organisation():
     user = CurrentUser(id=1, organisation_id=1)
-    with pytest.raises(Forbidden):
+    with pytest.raises(Forbidden) as exc_info:
         authorize(user, organisation_id=2)
+        exc = exc_info.value
+        assert exc.permission is None
+        assert exc.resource == "organisations"
+        assert exc.value == 2
     with pytest.raises(Forbidden):
         authorize(user, organisation_ids=[2, 3])
 
 
 def test_user_unauthorized_for_user():
     user = CurrentUser(id=1, organisation_id=1)
-    with pytest.raises(Forbidden):
+    with pytest.raises(Forbidden) as exc_info:
         authorize(user, user_id=2)
+        exc = exc_info.value
+        assert exc.permission is None
+        assert exc.resource == "organisations"
+        assert exc.value == 2
 
 
 def test_god_user():
@@ -355,3 +371,8 @@ def test_authorize_cross_organisation_access():
         authorize_cross_organisation_access(current_user=current_user, base_id=1)
         is None
     )
+
+
+def test_invalid_use_of_forbidden_exception():
+    with pytest.raises(ValueError):
+        Forbidden(permission="stock:write", resource="box", value=1)
