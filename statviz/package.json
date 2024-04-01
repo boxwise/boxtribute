@@ -24,7 +24,7 @@
     "@boxtribute/shared-components": "1.0.0"
   },
   "devDependencies": {
-    "@graphql-codegen/client-preset": "^4.1.0",
+    "@graphql-codegen/client-preset": "^4.2.5",
     "ts-node": "^10.9.1"
   }
 }
