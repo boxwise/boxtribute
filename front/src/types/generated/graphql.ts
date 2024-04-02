@@ -73,6 +73,15 @@ export type BaseDistributionEventsTrackingGroupsArgs = {
  * Representation of a base.
  * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
  */
+export type BaseProductsArgs = {
+  filterInput?: InputMaybe<FilterProductInput>;
+};
+
+
+/**
+ * Representation of a base.
+ * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
+ */
 export type BaseTagsArgs = {
   resourceType?: InputMaybe<TaggableResourceType>;
 };
@@ -280,6 +289,8 @@ export type ClassicLocationBoxesArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
+export type CreateCustomProductResult = InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+
 export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
@@ -304,10 +315,36 @@ export type CreatedBoxesResult = {
   tagIds?: Maybe<Array<Scalars['Int']>>;
 };
 
+export type CustomProductCreationInput = {
+  baseId: Scalars['Int'];
+  categoryId: Scalars['Int'];
+  comment?: InputMaybe<Scalars['String']>;
+  gender: ProductGender;
+  inShop?: InputMaybe<Scalars['Boolean']>;
+  /**  Name can be empty acc. to products table definition  */
+  name?: InputMaybe<Scalars['String']>;
+  price?: InputMaybe<Scalars['Int']>;
+  sizeRangeId: Scalars['Int'];
+};
+
+export type CustomProductEditInput = {
+  categoryId?: InputMaybe<Scalars['Int']>;
+  comment?: InputMaybe<Scalars['String']>;
+  gender?: InputMaybe<ProductGender>;
+  id: Scalars['ID'];
+  inShop?: InputMaybe<Scalars['Boolean']>;
+  /**  Name can be empty acc. to products table definition  */
+  name?: InputMaybe<Scalars['String']>;
+  price?: InputMaybe<Scalars['Int']>;
+  sizeRangeId?: InputMaybe<Scalars['Int']>;
+};
+
 export type DataCube = {
   dimensions?: Maybe<Dimensions>;
   facts?: Maybe<Array<Maybe<Result>>>;
 };
+
+export type DeleteProductResult = InsufficientPermission | Product | ResourceDoesNotExist | UnauthorizedForBase;
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
@@ -427,6 +464,8 @@ export type DistributionSpotCreationInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
+export type EditCustomProductResult = InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+
 /**
  * Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
  * If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
@@ -462,6 +501,11 @@ export type FilterBoxInput = {
   tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
+export type FilterProductInput = {
+  includeDeleted?: InputMaybe<Scalars['Boolean']>;
+  type?: InputMaybe<ProductTypeFilter>;
+};
+
 export type HistoryEntry = {
   __typename?: 'HistoryEntry';
   changeDate?: Maybe<Scalars['Datetime']>;
@@ -475,6 +519,17 @@ export enum HumanGender {
   Female = 'Female',
   Male = 'Male'
 }
+
+export type InsufficientPermission = {
+  __typename?: 'InsufficientPermission';
+  /**  e.g. 'product:write' missing  */
+  name: Scalars['String'];
+};
+
+export type InvalidPrice = {
+  __typename?: 'InvalidPrice';
+  value: Scalars['Int'];
+};
 
 export type ItemsCollection = {
   distributionEvent?: Maybe<DistributionEvent>;
@@ -600,13 +655,16 @@ export type Mutation = {
   completeDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   createBeneficiary?: Maybe<Beneficiary>;
   createBox?: Maybe<Box>;
+  createCustomProduct?: Maybe<CreateCustomProductResult>;
   createDistributionEvent?: Maybe<DistributionEvent>;
   createDistributionSpot?: Maybe<DistributionSpot>;
   createQrCode?: Maybe<QrCode>;
   createShipment?: Maybe<Shipment>;
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
+  deleteProduct?: Maybe<DeleteProductResult>;
   deleteTag?: Maybe<Tag>;
+  editCustomProduct?: Maybe<EditCustomProductResult>;
   markShipmentAsLost?: Maybe<Shipment>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
@@ -738,6 +796,16 @@ export type MutationCreateBoxArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationCreateCustomProductArgs = {
+  creationInput?: InputMaybe<CustomProductCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationCreateDistributionEventArgs = {
   creationInput?: InputMaybe<DistributionEventCreationInput>;
 };
@@ -798,8 +866,28 @@ export type MutationCreateTransferAgreementArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationDeleteProductArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationDeleteTagArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationEditCustomProductArgs = {
+  editInput?: InputMaybe<CustomProductEditInput>;
 };
 
 
@@ -1106,6 +1194,7 @@ export type Product = {
   deletedOn?: Maybe<Scalars['Datetime']>;
   gender?: Maybe<ProductGender>;
   id: Scalars['ID'];
+  inShop: Scalars['Boolean'];
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
   name: Scalars['String'];
@@ -1159,6 +1248,12 @@ export type ProductPage = {
   pageInfo: PageInfo;
   totalCount: Scalars['Int'];
 };
+
+export enum ProductTypeFilter {
+  All = 'All',
+  Custom = 'Custom',
+  StandardInstantiation = 'StandardInstantiation'
+}
 
 /** Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}). */
 export type QrCode = {
@@ -1372,6 +1467,12 @@ export type QueryTransferAgreementsArgs = {
 
 export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
+};
+
+export type ResourceDoesNotExist = {
+  __typename?: 'ResourceDoesNotExist';
+  id?: Maybe<Scalars['ID']>;
+  name: Scalars['String'];
 };
 
 export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | MovedBoxesResult | StockOverviewResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
@@ -1679,6 +1780,13 @@ export enum TransferAgreementType {
   ReceivingFrom = 'ReceivingFrom',
   SendingTo = 'SendingTo'
 }
+
+export type UnauthorizedForBase = {
+  __typename?: 'UnauthorizedForBase';
+  /**  e.g. 'product:write' present but not for requested base  */
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
 
 export type UnboxedItemsCollection = ItemsCollection & {
   __typename?: 'UnboxedItemsCollection';
