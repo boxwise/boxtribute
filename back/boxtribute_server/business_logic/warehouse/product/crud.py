@@ -1,9 +1,14 @@
 from ....db import db
 from ....errors import InvalidPrice
 from ....models.definitions.product import Product
-from ....models.utils import handle_non_existing_resource, utcnow
+from ....models.utils import (
+    handle_non_existing_resource,
+    save_creation_to_history,
+    utcnow,
+)
 
 
+@save_creation_to_history
 @handle_non_existing_resource
 def create_custom_product(
     *,

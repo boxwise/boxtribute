@@ -1,6 +1,7 @@
 from datetime import date
 
 from boxtribute_server.enums import ProductGender
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_successful_request
 
 today = date.today().isoformat()
@@ -88,7 +89,7 @@ def test_product_mutations(
             }}"""
     mutation = _create_mutation(creation_input)
     created_product = assert_successful_request(client, mutation)
-    created_product.pop("id")
+    product_id = created_product.pop("id")
     assert created_product.pop("createdOn").startswith(today)
     assert created_product == {
         "name": "",
@@ -122,7 +123,7 @@ def test_product_mutations(
             }}"""
     mutation = _create_mutation(creation_input)
     created_product = assert_successful_request(client, mutation)
-    created_product.pop("id")
+    another_product_id = created_product.pop("id")
     assert created_product.pop("createdOn").startswith(today)
     assert created_product == {
         "name": name,
@@ -151,3 +152,25 @@ def test_product_mutations(
     mutation = _create_mutation(creation_input)
     response = assert_successful_request(client, mutation)
     assert response == {"value": price}
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+        )
+        .where(DbChangeHistory.table_name == "products")
+        .dicts()
+    )
+    assert history_entries[0].pop("change_date").isoformat().startswith(today)
+    assert history_entries[1].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "Record created",
+            "record_id": int(product_id),
+        },
+        {
+            "changes": "Record created",
+            "record_id": int(another_product_id),
+        },
+    ]

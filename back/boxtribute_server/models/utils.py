@@ -51,7 +51,7 @@ def compute_age(date_of_birth):
 
 def save_creation_to_history(f):
     """Utility for writing information about creating a resource to the history table,
-    intended to decorate a function that modifies a database resource (e.g. a box).
+    intended to decorate a function that creates a database resource (e.g. a box).
 
     The function runs the decorated function, effectively executing the creation. An
     entry in the history table is created.
@@ -59,18 +59,20 @@ def save_creation_to_history(f):
 
     @wraps(f)
     def inner(*args, **kwargs):
-        new_resource = f(*args, **kwargs)
+        result = f(*args, **kwargs)
 
-        DbChangeHistory.create(
-            changes="Record created",
-            table_name=new_resource._meta.table_name,
-            record_id=new_resource.id,
-            user=g.user.id,
-            ip=None,
-            change_date=utcnow(),
-        )
+        # Skip creating history entry if e.g. UserError returned
+        if isinstance(result, db.Model):
+            DbChangeHistory.create(
+                changes="Record created",
+                table_name=result._meta.table_name,
+                record_id=result.id,
+                user=g.user.id,
+                ip=None,
+                change_date=utcnow(),
+            )
 
-        return new_resource
+        return result
 
     return inner
 
