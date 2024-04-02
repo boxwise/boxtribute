@@ -473,7 +473,7 @@ def test_invalid_permission_for_user_read(
 @pytest.mark.parametrize(
     "operation,mutation_input,field,response",
     [
-        # Test case X
+        # Test case 8.2.40
         [
             "createCustomProduct",
             "creationInput: { baseId: 1, categoryId: 12, sizeRangeId: 1, gender: none}",
@@ -493,7 +493,7 @@ def test_mutate_insufficient_permission(
 @pytest.mark.parametrize(
     "operation,mutation_input,field,response",
     [
-        # Test case X
+        # Test case 8.2.39
         [
             "createCustomProduct",
             "creationInput: { baseId: 2, categoryId: 12, sizeRangeId: 1, gender: none}",

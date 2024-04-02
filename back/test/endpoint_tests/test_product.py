@@ -80,7 +80,7 @@ def test_product_mutations(
     size_range_id = str(default_size_range["id"])
     gender = ProductGender.UnisexAdult.name
 
-    # Test case X
+    # Test case 8.2.34
     creation_input = f"""{{
             categoryId: {category_id}
             sizeRangeId: {size_range_id}
@@ -106,7 +106,7 @@ def test_product_mutations(
         "deletedOn": None,
     }
 
-    # Test case Y
+    # Test case 8.2.35
     name = "Sweater"
     price = 12
     comment = "new"
@@ -140,7 +140,7 @@ def test_product_mutations(
         "deletedOn": None,
     }
 
-    # Test case X
+    # Test case 8.2.41
     price = -10
     creation_input = f"""{{
             categoryId: {category_id}

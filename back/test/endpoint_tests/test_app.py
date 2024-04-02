@@ -220,13 +220,21 @@ def test_update_non_existent_resource(
 @pytest.mark.parametrize(
     "operation,mutation_input,field,response",
     [
-        # Test case X
+        # Test case 8.2.36
         [
             "createCustomProduct",
             "creationInput: { baseId: 0, categoryId: 12, sizeRangeId: 1, gender: none}",
             "...on ResourceDoesNotExist { id name }",
             {"id": "0", "name": "Base"},
         ],
+        # Test case 8.2.37
+        [
+            "createCustomProduct",
+            "creationInput: { baseId: 1, categoryId: 12, sizeRangeId: 0, gender: none}",
+            "...on ResourceDoesNotExist { id name }",
+            {"id": None, "name": "SizeRange"},
+        ],
+        # Test case 8.2.38
         [
             "createCustomProduct",
             "creationInput: { baseId: 1, categoryId: 99, sizeRangeId: 1, gender: none}",
