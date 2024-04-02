@@ -546,8 +546,12 @@ type UnauthorizedForBase {
 type InvalidPrice {
   value: Int!
 }
-union CreateCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice
-union EditCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice
+type EmptyName {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
+}
+union CreateCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
+union EditCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
 union DeleteProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase
 
 type Metrics {

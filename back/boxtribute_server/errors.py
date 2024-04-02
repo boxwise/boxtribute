@@ -16,6 +16,10 @@ class InvalidPrice(UserError):
         self.value = value
 
 
+class EmptyName(UserError):
+    _ = None
+
+
 class InsufficientPermission(UserError):
     def __init__(self, *, name):
         self.name = name

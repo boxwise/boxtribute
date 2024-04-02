@@ -289,7 +289,7 @@ export type ClassicLocationBoxesArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
-export type CreateCustomProductResult = InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+export type CreateCustomProductResult = EmptyName | InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
 
 export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
@@ -462,7 +462,13 @@ export type DistributionSpotCreationInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-export type EditCustomProductResult = InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+export type EditCustomProductResult = EmptyName | InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+
+export type EmptyName = {
+  __typename?: 'EmptyName';
+  /**  Dummy field since type definitions without fields are not possible  */
+  _?: Maybe<Scalars['Boolean']>;
+};
 
 /**
  * Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).

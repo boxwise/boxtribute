@@ -69,6 +69,7 @@ def _create_mutation(creation_input):
                     deletedOn
                 }}
                 ...on InvalidPrice {{ value }}
+                ...on EmptyName {{ _ }}
                 }} }}"""
 
 
@@ -154,6 +155,18 @@ def test_product_mutations(
     mutation = _create_mutation(creation_input)
     response = assert_successful_request(client, mutation)
     assert response == {"value": price}
+
+    # Test case 8.2.42
+    creation_input = f"""{{
+            categoryId: {category_id}
+            sizeRangeId: {size_range_id}
+            gender: {gender}
+            baseId: {base_id}
+            name: ""
+            }}"""
+    mutation = _create_mutation(creation_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"_": None}
 
     history_entries = list(
         DbChangeHistory.select(

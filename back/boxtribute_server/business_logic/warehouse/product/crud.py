@@ -1,5 +1,5 @@
 from ....db import db
-from ....errors import InvalidPrice
+from ....errors import EmptyName, InvalidPrice
 from ....models.definitions.product import Product
 from ....models.utils import (
     handle_non_existing_resource,
@@ -24,6 +24,9 @@ def create_custom_product(
 ):
     if price < 0:
         return InvalidPrice(value=price)
+
+    if not name:
+        return EmptyName()
 
     product = Product()
     product.base = base_id
