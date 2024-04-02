@@ -540,13 +540,12 @@ type ResourceDoesNotExist {
 }
 type UnauthorizedForBase {
   " e.g. 'product:write' present but not for requested base "
-  baseId: ID!
-  baseName: String!
+  id: ID!
+  name: String!
 }
 type InvalidPrice {
   value: Int!
 }
-" The *DoesNotExist and UnauthorizedFor* types can probably be generalized "
 union CreateCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice
 union EditCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice
 union DeleteProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase

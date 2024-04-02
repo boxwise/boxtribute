@@ -14,6 +14,7 @@ from boxtribute_server.authz import (
     authorize,
     authorize_cross_organisation_access,
     check_beta_feature_access,
+    handle_unauthorized,
 )
 from boxtribute_server.business_logic.statistics import statistics_queries
 from boxtribute_server.exceptions import AuthenticationFailed, Forbidden
@@ -351,6 +352,22 @@ def test_check_beta_feature_access(mocker):
 
     current_user = CurrentUser(id=0, organisation_id=0, is_god=True)
     assert check_beta_feature_access({}, current_user=current_user)
+
+
+def test_handle_unauthorized():
+    # Verify that handle_unauthorized decorator raises original Forbidden exception
+    # instead of returning InsufficientPermission or UnauthorizedForBase object when
+    # trying to authorize for resources other than base
+    @handle_unauthorized
+    def func():
+        current_user = CurrentUser(id=1)
+        authorize(current_user=current_user, user_id=2)
+
+    with pytest.raises(Forbidden) as exc_info:
+        func()
+    exc = exc_info.value
+    assert exc.resource == "user"
+    assert exc.value == 2
 
 
 def test_authorize_cross_organisation_access():

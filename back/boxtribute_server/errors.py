@@ -19,3 +19,9 @@ class InvalidPrice(UserError):
 class InsufficientPermission(UserError):
     def __init__(self, *, name):
         self.name = name
+
+
+class UnauthorizedForBase(UserError):
+    def __init__(self, *, id, name):
+        self.id = id
+        self.name = name

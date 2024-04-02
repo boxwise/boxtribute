@@ -9,7 +9,7 @@ from peewee import Model
 from .auth import CurrentUser
 from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
-from .errors import InsufficientPermission
+from .errors import InsufficientPermission, UnauthorizedForBase
 from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.shipment import Shipment
@@ -62,7 +62,11 @@ def handle_unauthorized(f):
         try:
             return f(*args, **kwargs)
         except Forbidden as e:
-            return InsufficientPermission(name=e.permission)
+            if e.permission is not None:
+                return InsufficientPermission(name=e.permission)
+            elif e.resource == "base":
+                return UnauthorizedForBase(id=e.value, name="")
+            raise e
 
     return inner
 

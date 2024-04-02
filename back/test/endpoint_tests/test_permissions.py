@@ -488,3 +488,23 @@ def test_mutate_insufficient_permission(
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
     actual_response = assert_successful_request(read_only_client, mutation)
     assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,mutation_input,field,response",
+    [
+        # Test case X
+        [
+            "createCustomProduct",
+            "creationInput: { baseId: 2, categoryId: 12, sizeRangeId: 1, gender: none}",
+            "...on UnauthorizedForBase { id }",
+            {"id": "2"},
+        ],
+    ],
+)
+def test_mutate_unauthorized_for_base(
+    read_only_client, operation, mutation_input, field, response
+):
+    mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, mutation)
+    assert actual_response == response
