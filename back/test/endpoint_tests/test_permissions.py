@@ -476,7 +476,8 @@ def test_invalid_permission_for_user_read(
         # Test case 8.2.40
         [
             "createCustomProduct",
-            "creationInput: { baseId: 1, categoryId: 12, sizeRangeId: 1, gender: none}",
+            """creationInput:
+            { baseId: 1, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
             "...on InsufficientPermission { name }",
             {"name": "product:write"},
         ],
@@ -496,7 +497,8 @@ def test_mutate_insufficient_permission(
         # Test case 8.2.39
         [
             "createCustomProduct",
-            "creationInput: { baseId: 2, categoryId: 12, sizeRangeId: 1, gender: none}",
+            """creationInput:
+            { baseId: 2, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
             "...on UnauthorizedForBase { id }",
             {"id": "2"},
         ],

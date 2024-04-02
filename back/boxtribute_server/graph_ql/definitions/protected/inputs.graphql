@@ -26,8 +26,7 @@ input BoxUpdateInput {
 }
 
 input CustomProductCreationInput {
-  " Name can be empty acc. to products table definition "
-  name: String
+  name: String!
   categoryId: Int!
   sizeRangeId: Int!
   gender: ProductGender!
@@ -39,7 +38,6 @@ input CustomProductCreationInput {
 
 input CustomProductEditInput {
   id: ID!
-  " Name can be empty acc. to products table definition "
   name: String
   categoryId: Int
   sizeRangeId: Int

@@ -321,8 +321,7 @@ export type CustomProductCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
   gender: ProductGender;
   inShop?: InputMaybe<Scalars['Boolean']>;
-  /**  Name can be empty acc. to products table definition  */
-  name?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
   price?: InputMaybe<Scalars['Int']>;
   sizeRangeId: Scalars['Int'];
 };
@@ -333,7 +332,6 @@ export type CustomProductEditInput = {
   gender?: InputMaybe<ProductGender>;
   id: Scalars['ID'];
   inShop?: InputMaybe<Scalars['Boolean']>;
-  /**  Name can be empty acc. to products table definition  */
   name?: InputMaybe<Scalars['String']>;
   price?: InputMaybe<Scalars['Int']>;
   sizeRangeId?: InputMaybe<Scalars['Int']>;

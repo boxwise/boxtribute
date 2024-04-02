@@ -79,6 +79,7 @@ def test_product_mutations(
     category_id = str(default_product_category["id"])
     size_range_id = str(default_size_range["id"])
     gender = ProductGender.UnisexAdult.name
+    name = "Sweater"
 
     # Test case 8.2.34
     creation_input = f"""{{
@@ -86,13 +87,14 @@ def test_product_mutations(
             sizeRangeId: {size_range_id}
             gender: {gender}
             baseId: {base_id}
+            name: "{name}"
             }}"""
     mutation = _create_mutation(creation_input)
     created_product = assert_successful_request(client, mutation)
     product_id = created_product.pop("id")
     assert created_product.pop("createdOn").startswith(today)
     assert created_product == {
-        "name": "",
+        "name": name,
         "category": {"id": category_id},
         "sizeRange": {"id": size_range_id},
         "gender": gender,
@@ -107,7 +109,6 @@ def test_product_mutations(
     }
 
     # Test case 8.2.35
-    name = "Sweater"
     price = 12
     comment = "new"
     in_shop = True
@@ -147,6 +148,7 @@ def test_product_mutations(
             sizeRangeId: {size_range_id}
             gender: {gender}
             baseId: {base_id}
+            name: "{name}"
             price: {price}
             }}"""
     mutation = _create_mutation(creation_input)

@@ -17,8 +17,8 @@ def create_custom_product(
     size_range_id,
     gender,
     base_id,
+    name,
     price=0,
-    name=None,
     comment=None,
     in_shop=False,
 ):
@@ -32,7 +32,7 @@ def create_custom_product(
     product.created_on = utcnow()
     product.created_by = user_id
     product.gender = gender
-    product.name = name or ""
+    product.name = name
     product.size_range = size_range_id
     product.in_shop = in_shop
     product.price = price
