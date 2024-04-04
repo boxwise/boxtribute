@@ -424,7 +424,11 @@ def compute_stock_overview(base_id):
         .from_(boxes)
         .join(
             Location,
-            on=((boxes.c.location_id == Location.id) & (Location.base == base_id)),
+            on=(
+                (boxes.c.location_id == Location.id)
+                & (Location.base == base_id)
+                & (Location.deleted.is_null())
+            ),
         )
         .join(Product, on=(boxes.c.product_id == Product.id))
         .group_by(
