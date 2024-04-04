@@ -386,23 +386,17 @@ def compute_stock_overview(base_id):
     _validate_existing_base(base_id)
     tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
-    facts = (
+    # Subquery to select distinct boxes with associated tags
+    boxes = (
         Box.select(
+            Box.id,
             Box.size.alias("size_id"),
             Box.location.alias("location_id"),
             Box.state.alias("box_state"),
-            Product.category.alias("category_id"),
-            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
-            Product.gender.alias("gender"),
+            Box.product.alias("product_id"),
+            Box.number_of_items.alias("number_of_items"),
             tag_ids.alias("tag_ids"),
-            fn.COUNT(Box.id).alias("boxes_count"),
-            fn.SUM(Box.number_of_items).alias("items_count"),
         )
-        .join(
-            Location,
-            on=((Box.location == Location.id) & (Location.base == base_id)),
-        )
-        .join(Product, src=Box)
         .join(
             TagsRelation,
             JOIN.LEFT_OUTER,
@@ -412,6 +406,27 @@ def compute_stock_overview(base_id):
                 & (TagsRelation.object_type == TaggableObjectType.Box)
             ),
         )
+        .where(Box.deleted.is_null())
+        .group_by(Box.id)
+    )
+    facts = (
+        Box.select(
+            boxes.c.size_id,
+            boxes.c.location_id,
+            boxes.c.box_state,
+            Product.category.alias("category_id"),
+            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            Product.gender.alias("gender"),
+            boxes.c.tag_ids,
+            fn.COUNT(boxes.c.id).alias("boxes_count"),
+            fn.SUM(boxes.c.number_of_items).alias("items_count"),
+        )
+        .from_(boxes)
+        .join(
+            Location,
+            on=((boxes.c.location_id == Location.id) & (Location.base == base_id)),
+        )
+        .join(Product, on=(boxes.c.product_id == Product.id))
         .group_by(
             SQL("size_id"),
             SQL("location_id"),
@@ -422,6 +437,8 @@ def compute_stock_overview(base_id):
         )
         .dicts()
     )
+    for fact in facts:
+        fact["tag_ids"] = convert_ids(fact["tag_ids"])
     dimensions = _generate_dimensions(
         "size", "location", "category", "tag", facts=facts
     )
