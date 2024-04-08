@@ -225,8 +225,8 @@ def test_update_non_existent_resource(
             "createCustomProduct",
             """creationInput:
             { baseId: 0, name: "a", categoryId: 1, sizeRangeId: 1, gender: none}""",
-            "...on ResourceDoesNotExist { id name }",
-            {"id": "0", "name": "Base"},
+            "...on UnauthorizedForBase { id }",
+            {"id": "0"},
         ],
         # Test case 8.2.37
         [
