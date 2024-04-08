@@ -100,6 +100,10 @@ def auth0_users(auth0_management_api_client, auth0_roles):
     )
     interface.roles.add_users(
         auth0_roles["TEST-base_8_coordinator"]["id"],
+        [user_id(0)],
+    )
+    interface.roles.add_users(
+        auth0_roles["TEST-base_8_coordinator"]["id"],
         [user_id(1)],
     )
     interface.roles.add_users(
@@ -154,7 +158,10 @@ VALUES
 ;"""
     )
 
-    data = []
+    data = [
+        auth0_roles["TEST-base_8_coordinator"]["id"],
+        "TEST-base_8_coordinator",
+    ]
     for role_name, role in auth0_roles.items():
         data.append(role["id"])
         data.append(role_name)
@@ -163,6 +170,7 @@ VALUES
 INSERT INTO cms_usergroups_roles
     (auth0_role_id, auth0_role_name, cms_usergroups_id)
 VALUES
+    (%s, %s, 99999990),
     (%s, %s, 99999990),
     (%s, %s, 99999991),
     (%s, %s, 99999992),
