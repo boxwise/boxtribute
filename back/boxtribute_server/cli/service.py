@@ -65,18 +65,21 @@ class Auth0Service:
 
         return result
 
-    def get_single_base_user_role_ids(self, users):
-        errors = {}
-        role_ids = set()
-        for user in users:
-            user_id = user["user_id"]
-            try:
-                response = self._interface.users.list_roles(user_id)
-                role_ids.update({r["id"] for r in response["roles"]})
-            except Auth0Error as e:
-                errors[user_id] = e
-        if errors:
-            LOGGER.error(errors)
+    def get_single_base_user_role_ids(self, base_id):
+        try:
+            prefix = f"base_{base_id}_"
+            response = self._interface.roles.list(per_page=100, name_filter=prefix)
+            # For a prefix like 'base_1_', the API also returns roles with prefixes
+            # 'base_10_', 'base_11_', etc. which need to be filtered out
+            role_ids = sorted(
+                r["id"] for r in response["roles"] if r["name"].startswith(prefix)
+            )
+            LOGGER.info(
+                f"Extracted {len(role_ids)} from total of {response['total']} roles "
+                f"matching the base prefix '{prefix}'."
+            )
+        except Auth0Error as e:
+            LOGGER.error(e)
             raise RuntimeError("Error while getting single base user role IDs")
         return sorted(role_ids)
 

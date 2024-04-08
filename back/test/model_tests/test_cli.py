@@ -354,11 +354,9 @@ def test_remove_base_access_functions(usergroup_data):
             "description": "BoxAid - Base 1 (Lesvos) - Warehouse Coordinator",
         }
     ]
-    interface.users.list_roles.return_value = {"roles": roles, "total": len(roles)}
-    assert service.get_single_base_user_role_ids(base_users["single_base"]) == [
-        roles[0]["id"]
-    ]
-    interface.users.list_roles.assert_called_once_with(users[1]["user_id"])
+    interface.roles.list.return_value = {"roles": roles, "total": len(roles)}
+    assert service.get_single_base_user_role_ids(base_id) == [roles[0]["id"]]
+    interface.roles.list.assert_called_once_with(name_filter="base_1_", per_page=100)
 
     user_id = 1
     users = [{"user_id": user_id, "app_metadata": {}}]
@@ -408,11 +406,16 @@ def test_remove_base_access(usergroup_data):
         ],
         "total": 5,
     }
-    interface.users.list_roles.side_effect = [
-        {"roles": [{"id": "rol_c"}]},
-        {"roles": [{"id": "rol_d"}]},
-        {"roles": [{"id": "rol_b"}]},
-    ]
+    interface.roles.list.return_value = {
+        "roles": [
+            {"id": "rol_c", "name": "base_1_coordinator"},
+            {"id": "rol_d", "name": "base_1_volunteer"},
+            {"id": "rol_b", "name": "base_1_library_volunteer"},
+            {"id": "rol_s", "name": "base_1000_volunteer"},
+        ],
+        "total": 4,
+    }
+
     remove_base_access(base_id=base_id, service=service)
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
@@ -491,6 +494,10 @@ def test_remove_base_access_without_usergroups(usergroup_tables):
         "users": [
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
         ],
+        "total": 1,
+    }
+    service._interface.roles.list.return_value = {
+        "roles": [{"id": "rol_a", "name": "base_1_volunteer"}],
         "total": 1,
     }
     remove_base_access(base_id=base_id, service=service)

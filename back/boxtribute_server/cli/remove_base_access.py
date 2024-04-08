@@ -7,9 +7,7 @@ LOGGER = setup_logger(__name__)
 
 def remove_base_access(*, base_id, service):
     users = service.get_users_of_base(base_id)
-    single_base_user_role_ids = service.get_single_base_user_role_ids(
-        users["single_base"]
-    )
+    single_base_user_role_ids = service.get_single_base_user_role_ids(base_id)
 
     with db.database.atomic():
         _update_user_data_in_database(

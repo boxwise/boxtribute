@@ -24,10 +24,11 @@ def auth0_roles(auth0_management_api_client):
     # Set up test roles in Auth0
     interface = auth0_management_api_client._interface
     roles_data = [
-        {"name": "TEST-administrator", "description": "Org 1 Head of Operations"},
-        {"name": "TEST-base_8_coordinator", "description": "Base 8 coordinator"},
-        {"name": "TEST-base_8_volunteer", "description": "Base 8 volunteer"},
-        {"name": "TEST-base_9_volunteer", "description": "Base 9 volunteer"},
+        {"name": "administrator-TEST", "description": "Org 1 Head of Operations"},
+        {"name": "base_8_coordinator-TEST", "description": "Base 8 coordinator"},
+        {"name": "base_8_volunteer-TEST", "description": "Base 8 volunteer"},
+        {"name": "base_9_volunteer-TEST", "description": "Base 9 volunteer"},
+        {"name": "base_80_volunteer-TEST", "description": "Base 80 volunteer"},
     ]
     roles = {}
     for role_data in roles_data:
@@ -95,23 +96,23 @@ def auth0_users(auth0_management_api_client, auth0_roles):
         response = interface.users.create(user_data)
         logger.info(f"Created user {response['user_id']}")
     interface.roles.add_users(
-        auth0_roles["TEST-administrator"]["id"],
+        auth0_roles["administrator-TEST"]["id"],
         [user_id(0)],
     )
     interface.roles.add_users(
-        auth0_roles["TEST-base_8_coordinator"]["id"],
+        auth0_roles["base_8_coordinator-TEST"]["id"],
         [user_id(0)],
     )
     interface.roles.add_users(
-        auth0_roles["TEST-base_8_coordinator"]["id"],
+        auth0_roles["base_8_coordinator-TEST"]["id"],
         [user_id(1)],
     )
     interface.roles.add_users(
-        auth0_roles["TEST-base_8_volunteer"]["id"],
+        auth0_roles["base_8_volunteer-TEST"]["id"],
         [user_id(2), user_id(3)],
     )
     interface.roles.add_users(
-        auth0_roles["TEST-base_9_volunteer"]["id"],
+        auth0_roles["base_9_volunteer-TEST"]["id"],
         [user_id(4)],
     )
 
@@ -140,7 +141,8 @@ VALUES
     (99999990, %s, 1, 1, 0),
     (99999991, %s, 1, 1, 0),
     (99999992, %s, 1, 1, 0),
-    (99999993, %s, 1, 1, 0)
+    (99999993, %s, 1, 1, 0),
+    (99999994, %s, 1, 1, 0)
 ;""",
         labels,
     )
@@ -159,8 +161,8 @@ VALUES
     )
 
     data = [
-        auth0_roles["TEST-base_8_coordinator"]["id"],
-        "TEST-base_8_coordinator",
+        auth0_roles["base_8_coordinator-TEST"]["id"],
+        "base_8_coordinator-TEST",
     ]
     for role_name, role in auth0_roles.items():
         data.append(role["id"])
@@ -174,7 +176,8 @@ VALUES
     (%s, %s, 99999990),
     (%s, %s, 99999991),
     (%s, %s, 99999992),
-    (%s, %s, 99999993)
+    (%s, %s, 99999993),
+    (%s, %s, 99999994)
 ;""",
         data,
     )
@@ -210,16 +213,16 @@ VALUES
     db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
     db.database.execute_sql(
         """\
-DELETE FROM cms_usergroups_roles WHERE auth0_role_name LIKE "TEST-%%";"""
+DELETE FROM cms_usergroups_roles WHERE auth0_role_name LIKE "%%-TEST";"""
     )
     db.database.execute_sql(
         """\
 DELETE FROM cms_usergroups_camps
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999993;"""
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     db.database.execute_sql(
         """\
-DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999993;"""
+DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
     )
     base8.delete_instance()
     base9.delete_instance()
@@ -270,10 +273,10 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
         ],
         "multi_base": [],
     }
-    role_ids = auth0_management_api_client.get_single_base_user_role_ids(
-        users["single_base"]
-    )
-    assert len(role_ids) == 2
+    role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
+    assert len(role_ids) == 1
+    role_ids = auth0_management_api_client.get_single_base_user_role_ids(80)
+    assert len(role_ids) == 1
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     fields = {
@@ -351,7 +354,7 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
     today = date.today().isoformat()
     cursor = db.database.execute_sql(
         """\
-SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999993;"""
+SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
     assert data[0] == (99999990, None)
@@ -360,11 +363,12 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999993;""
     assert data[2][0] == 99999992
     assert data[2][1].isoformat().startswith(today)
     assert data[3] == (99999993, None)
+    assert data[4] == (99999994, None)
 
     cursor = db.database.execute_sql(
         """\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999993;"""
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
     assert data == ((9, 99999990), (9, 99999993))
@@ -372,10 +376,11 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999993;"""
     cursor = db.database.execute_sql(
         """\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999993;"""
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
     assert data == (
-        ("TEST-administrator", 99999990),
-        ("TEST-base_9_volunteer", 99999993),
+        ("administrator-TEST", 99999990),
+        ("base_9_volunteer-TEST", 99999993),
+        ("base_80_volunteer-TEST", 99999994),
     )
