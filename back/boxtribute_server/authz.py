@@ -316,6 +316,11 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     ),
 }
 ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2]
+ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
+    "createCustomProduct",
+    "editCustomProduct",
+    "deleteProduct",
+)
 ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
