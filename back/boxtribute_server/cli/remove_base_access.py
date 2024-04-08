@@ -14,6 +14,7 @@ def remove_base_access(*, base_id, service):
     with db.database.atomic():
         _update_user_data_in_database(
             base_id=base_id,
+            single_base_users=users["single_base"],
             single_base_user_role_ids=single_base_user_role_ids,
         )
         _update_user_data_in_user_management_service(
@@ -24,7 +25,9 @@ def remove_base_access(*, base_id, service):
         )
 
 
-def _update_user_data_in_database(*, base_id, single_base_user_role_ids):
+def _update_user_data_in_database(
+    *, base_id, single_base_users, single_base_user_role_ids
+):
     # !!!
     # Destructive operations below
     # !!!
@@ -34,40 +37,43 @@ def _update_user_data_in_database(*, base_id, single_base_user_role_ids):
         (int(base_id),),
     )
 
-    if not single_base_user_role_ids:
+    if single_base_user_role_ids:
+        # Remove rows with single-base role IDs from cms_usergroups_roles table
+        db.database.execute_sql(
+            """DELETE FROM cms_usergroups_roles WHERE auth0_role_id IN %s;""",
+            (single_base_user_role_ids,),
+        )
+
+    if not single_base_users:
         return
+    single_base_user_ids = [
+        int(u["user_id"].lstrip("auth0|")) for u in single_base_users
+    ]
+
+    # Soft-delete the single-base usergroups from the cms_usergroups table.
+    # Must execute this before setting cms_users.cms_usergroups_id to NULL
+    db.database.execute_sql(
+        """\
+UPDATE cms_usergroups cu
+INNER JOIN cms_users u
+ON cu.id = u.cms_usergroups_id
+AND u.id in %s
+SET cu.deleted = UTC_TIMESTAMP()
+;""",
+        (single_base_user_ids,),
+    )
 
     # Soft-delete single-base users (remove usergroup and anonymize)
     db.database.execute_sql(
         """\
 UPDATE cms_users u
-INNER JOIN cms_usergroups_roles cur
-ON u.cms_usergroups_id = cur.cms_usergroups_id
-AND cur.auth0_role_id in %s
 SET u.cms_usergroups_id = NULL,
     u.deleted = UTC_TIMESTAMP(),
     u.naam = "Deleted user",
     u.email = NULL
+WHERE u.id in %s
 ;""",
-        (single_base_user_role_ids,),
-    )
-
-    # Soft-delete the single-base usergroups from the cms_usergroups table
-    db.database.execute_sql(
-        """\
-UPDATE cms_usergroups cu
-INNER JOIN cms_usergroups_roles cur
-ON cu.id = cur.cms_usergroups_id
-AND cur.auth0_role_id in %s
-SET cu.deleted = UTC_TIMESTAMP()
-;""",
-        (single_base_user_role_ids,),
-    )
-
-    # Remove rows with single-base role IDs from cms_usergroups_roles table
-    db.database.execute_sql(
-        """DELETE FROM cms_usergroups_roles WHERE auth0_role_id IN %s;""",
-        (single_base_user_role_ids,),
+        (single_base_user_ids,),
     )
 
 
