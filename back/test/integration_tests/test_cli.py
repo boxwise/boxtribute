@@ -254,7 +254,30 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
 
     # Verify that no users have base ID 8 in their app_metadata any more
     users = auth0_management_api_client.get_users_of_base(base_id)
-    assert users == {"single_base": [], "multi_base": []}
+    assert users == {
+        "single_base": [
+            {
+                "app_metadata": {"base_ids": ["8"]},
+                "name": "b@test.com",
+                "user_id": "auth0|9999991",
+                "blocked": True,
+            },
+            {
+                "app_metadata": {"base_ids": ["8"]},
+                "name": "c@test.com",
+                "user_id": "auth0|9999992",
+                "blocked": True,
+            },
+            {
+                "app_metadata": {"base_ids": ["8"]},
+                "name": "d@test.com",
+                "user_id": "auth0|9999993",
+                "blocked": True,
+            },
+        ],
+        "multi_base": [],
+    }
+
     # Verify that two users still have access to base ID 9
     base_id = "9"
     users = auth0_management_api_client.get_users_of_base(base_id)
@@ -264,11 +287,13 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
                 "app_metadata": {"base_ids": [base_id]},
                 "name": "a@test.com",
                 "user_id": "auth0|9999990",
+                "blocked": False,
             },
             {
                 "app_metadata": {"base_ids": [base_id]},
                 "name": "e@test.com",
                 "user_id": "auth0|9999994",
+                "blocked": False,
             },
         ],
         "multi_base": [],

@@ -26,8 +26,8 @@ class Auth0Service:
             rest = None
             while True:
                 response = self._interface.users.list(
-                    q=f'app_metadata.base_ids:"{base_id}" AND blocked:false',
-                    fields=["app_metadata", "user_id", "name"],
+                    q=f'app_metadata.base_ids:"{base_id}"',
+                    fields=["app_metadata", "user_id", "name", "blocked"],
                     page=page,
                     per_page=per_page,
                 )
