@@ -276,14 +276,76 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
     assert len(role_ids) == 2
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
-    assert User.select(User.id, User._usergroup, User.name, User.email).where(
-        User.id.between(9999990, 9999994)
-    ).dicts() == [
-        {"id": 9999990, "_usergroup": 99999990, "name": "a", "email": None},
-        {"id": 9999991, "_usergroup": None, "name": "Deleted user", "email": None},
-        {"id": 9999992, "_usergroup": None, "name": "Deleted user", "email": None},
-        {"id": 9999993, "_usergroup": None, "name": "Deleted user", "email": None},
-        {"id": 9999994, "_usergroup": 99999993, "name": "e", "email": None},
+    fields = {
+        "created": None,
+        "created_by": None,
+        "modified": None,
+        "modified_by": None,
+        "language": None,
+        "is_admin": 0,
+        "valid_first_day": None,
+        "valid_last_day": None,
+    }
+    users = list(
+        User.select(
+            User.id,
+            User._usergroup,
+            User.name,
+            User.email,
+            User.created,
+            User.created_by,
+            User.modified,
+            User.modified_by,
+            User.language,
+            User.is_admin,
+            User._password,
+            User.valid_first_day,
+            User.valid_last_day,
+        )
+        .where(User.id.between(9999990, 9999994))
+        .dicts()
+    )
+    assert users == [
+        {
+            **fields,
+            "id": 9999990,
+            "_usergroup": 99999990,
+            "name": "a",
+            "email": "a@test.com",
+            "_password": "Browser_tests",
+        },
+        {
+            **fields,
+            "id": 9999991,
+            "_usergroup": None,
+            "name": "Deleted user",
+            "email": None,
+            "_password": "Deleted password",
+        },
+        {
+            **fields,
+            "id": 9999992,
+            "_usergroup": None,
+            "name": "Deleted user",
+            "email": None,
+            "_password": "Deleted password",
+        },
+        {
+            **fields,
+            "id": 9999993,
+            "_usergroup": None,
+            "name": "Deleted user",
+            "email": None,
+            "_password": "Deleted password",
+        },
+        {
+            **fields,
+            "id": 9999994,
+            "_usergroup": 99999993,
+            "name": "e",
+            "email": "e@test.com",
+            "_password": "Browser_tests",
+        },
     ]
 
     today = date.today().isoformat()

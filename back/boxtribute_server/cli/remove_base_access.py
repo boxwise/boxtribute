@@ -63,13 +63,25 @@ SET cu.deleted = UTC_TIMESTAMP()
         (single_base_user_ids,),
     )
 
-    # Soft-delete single-base users (remove usergroup and anonymize)
+    # Soft-delete single-base users (reset FK references and anonymize)
     db.database.execute_sql(
         """\
 UPDATE cms_users u
 SET u.cms_usergroups_id = NULL,
     u.deleted = UTC_TIMESTAMP(),
     u.naam = "Deleted user",
+    u.is_admin = 0,
+    u.pass = "Deleted password",
+    u.created = NULL,
+    u.created_by = NULL,
+    u.modified = NULL,
+    u.modified_by = NULL,
+    u.resetpassword = NULL,
+    u.language = NULL,
+    u.valid_firstday = NULL,
+    u.valid_firstday = NULL,
+    u.lastlogin = "1970-01-01",
+    u.lastaction = "1970-01-01",
     u.email = NULL
 WHERE u.id in %s
 ;""",
