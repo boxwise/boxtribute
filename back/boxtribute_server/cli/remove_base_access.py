@@ -29,6 +29,9 @@ def _update_user_data_in_database(
     # !!!
     # Destructive operations below
     # !!!
+    # Operations on cms_usergroups_camps/cms_usergroups_roles tables affect both multi-
+    # and single base users.
+
     # Remove rows with base ID from cms_usergroups_camps table
     db.database.execute_sql(
         """DELETE cuc FROM cms_usergroups_camps cuc WHERE cuc.camp_id = %s;""",
@@ -44,6 +47,8 @@ def _update_user_data_in_database(
 
     if not single_base_users:
         return
+
+    # Operations on cms_usergroups/cms_users tables affect only single-base users
     single_base_user_ids = [
         int(u["user_id"].lstrip("auth0|")) for u in single_base_users
     ]
