@@ -1,3 +1,4 @@
+import enum
 from datetime import date
 
 import pytest
@@ -92,7 +93,12 @@ def _create_mutation(creation_input):
 
 
 def test_product_mutations(
-    client, default_base, default_product_category, default_size_range
+    client,
+    default_base,
+    default_product_category,
+    default_size_range,
+    product_categories,
+    another_size_range,
 ):
     base_id = str(default_base["id"])
     category_id = str(default_product_category["id"])
@@ -183,6 +189,74 @@ def test_product_mutations(
             name: ""
             }}"""
     mutation = _create_mutation(creation_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"_": None}
+
+    # Test case 8.2.45
+    def _create_update_mutation(field, value):
+        if isinstance(value, str):
+            value = f'"{value}"'
+        if isinstance(value, enum.Enum):
+            value = value.name
+        if isinstance(value, bool):
+            value = "true" if value else "false"
+
+        update_input = f"id: {product_id}, {field}: {value}"
+        if field.endswith("Id"):
+            field = f"{field.rstrip('Id')} {{ id }}"
+        return f"""mutation {{
+                editCustomProduct(editInput: {{ {update_input} }} ) {{
+                    ...on Product {{
+                        {field}
+                    }} }} }}"""
+
+    name = "Tops"
+    mutation = _create_update_mutation("name", name)
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": name}
+
+    category_id = product_categories[0]["id"]
+    mutation = _create_update_mutation("categoryId", category_id)
+    response = assert_successful_request(client, mutation)
+    assert response == {"category": {"id": str(category_id)}}
+
+    size_range_id = another_size_range["id"]
+    mutation = _create_update_mutation("sizeRangeId", size_range_id)
+    response = assert_successful_request(client, mutation)
+    assert response == {"sizeRange": {"id": str(size_range_id)}}
+
+    gender = ProductGender.Men
+    mutation = _create_update_mutation("gender", gender)
+    response = assert_successful_request(client, mutation)
+    assert response == {"gender": gender.name}
+
+    price = 40
+    mutation = _create_update_mutation("price", price)
+    response = assert_successful_request(client, mutation)
+    assert response == {"price": float(price)}
+
+    comment = "from Germany"
+    mutation = _create_update_mutation("comment", comment)
+    response = assert_successful_request(client, mutation)
+    assert response == {"comment": comment}
+
+    in_shop = False
+    mutation = _create_update_mutation("inShop", in_shop)
+    response = assert_successful_request(client, mutation)
+    assert response == {"inShop": in_shop}
+
+    # Test case 8.1.51
+    price = -32
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {product_id}, price: {price} }} ) {{
+                        ...on InvalidPrice {{ value }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"value": price}
+
+    # Test case 8.1.52
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {product_id}, name: "" }} ) {{
+                        ...on EmptyName {{ _ }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"_": None}
 

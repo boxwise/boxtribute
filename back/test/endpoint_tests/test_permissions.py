@@ -481,6 +481,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermission { name }",
             {"name": "product:write"},
         ],
+        # Test case 8.2.50
+        [
+            "editCustomProduct",
+            "editInput: { id: 1, price: 20 }",
+            "...on InsufficientPermission { name }",
+            {"name": "product:write"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -501,6 +508,13 @@ def test_mutate_insufficient_permission(
             { baseId: 2, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
             "...on UnauthorizedForBase { id }",
             {"id": "2"},
+        ],
+        # Test case 8.2.49
+        [
+            "editCustomProduct",
+            "editInput: { id: 2, price: 20 }",
+            "...on UnauthorizedForBase { id }",
+            {"id": "3"},
         ],
     ],
 )

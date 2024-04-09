@@ -157,7 +157,7 @@ def resolve_taggable_resource_type(obj, *_):
     return "Beneficiary"
 
 
-def resolve_create_custom_product_result_type(obj, *_):
+def resolve_mutate_custom_product_result_type(obj, *_):
     if isinstance(obj, Product):
         return "Product"
     if isinstance(obj, UserError):
@@ -176,7 +176,8 @@ def resolve_items_collection_type(obj, *_):
 
 union_types = (
     UnionType("TaggableResource", resolve_taggable_resource_type),
-    UnionType("CreateCustomProductResult", resolve_create_custom_product_result_type),
+    UnionType("CreateCustomProductResult", resolve_mutate_custom_product_result_type),
+    UnionType("EditCustomProductResult", resolve_mutate_custom_product_result_type),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),
