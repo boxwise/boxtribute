@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from utils import assert_successful_request
 
@@ -190,3 +192,21 @@ def test_mutations(auth0_client):
         "inShop": True,
         "createdBy": {"id": "8"},
     }
+
+    name = "bag"
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {product_id}, name: "{name}", inShop: false
+                }}) {{
+                ...on Product {{
+                    name
+                    inShop
+                    lastModifiedBy {{ id }}
+                }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"name": name, "inShop": False, "lastModifiedBy": {"id": "8"}}
+
+    mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
+                ...on Product {{ deletedOn }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    today = date.today().isoformat()
+    assert response["deletedOn"].startswith(today)
