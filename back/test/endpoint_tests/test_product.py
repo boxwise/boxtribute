@@ -293,6 +293,7 @@ def test_product_mutations(
     assert history_entries[5].pop("change_date").isoformat().startswith(today)
     assert history_entries[6].pop("change_date").isoformat().startswith(today)
     assert history_entries[7].pop("change_date").isoformat().startswith(today)
+    assert history_entries[8].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
             "changes": "Record created",
@@ -332,6 +333,12 @@ def test_product_mutations(
         },
         {
             "changes": 'comments changed from "None" to "from Germany";',
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record deleted",
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,

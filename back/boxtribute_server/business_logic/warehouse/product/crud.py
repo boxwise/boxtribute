@@ -4,6 +4,7 @@ from ....models.definitions.product import Product
 from ....models.utils import (
     handle_non_existing_resource,
     save_creation_to_history,
+    save_deletion_to_history,
     save_update_to_history,
     utcnow,
 )
@@ -102,6 +103,7 @@ def edit_custom_product(
     return product
 
 
+@save_deletion_to_history
 @handle_non_existing_resource
 def delete_product(*, user_id, id):
     now = utcnow()

@@ -56,7 +56,14 @@ def save_creation_to_history(f):
     The function runs the decorated function, effectively executing the creation. An
     entry in the history table is created.
     """
+    return _save_to_history(f, "Record created")
 
+
+def save_deletion_to_history(f):
+    return _save_to_history(f, "Record deleted")
+
+
+def _save_to_history(f, changes):
     @wraps(f)
     def inner(*args, **kwargs):
         result = f(*args, **kwargs)
@@ -64,7 +71,7 @@ def save_creation_to_history(f):
         # Skip creating history entry if e.g. UserError returned
         if isinstance(result, db.Model):
             DbChangeHistory.create(
-                changes="Record created",
+                changes=changes,
                 table_name=result._meta.table_name,
                 record_id=result.id,
                 user=g.user.id,
