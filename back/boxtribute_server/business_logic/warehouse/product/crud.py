@@ -59,7 +59,8 @@ def create_custom_product(
 @handle_non_existing_resource
 def edit_custom_product(
     *,
-    id,
+    id,  # required for save_update_to_history
+    product,
     user_id,
     category_id=None,
     size_range_id=None,
@@ -69,8 +70,6 @@ def edit_custom_product(
     comment=None,
     in_shop=None,
 ):
-    product = Product.get_by_id(id)
-
     if name is not None:
         if not name:
             return EmptyName()
@@ -105,9 +104,8 @@ def edit_custom_product(
 
 @save_deletion_to_history
 @handle_non_existing_resource
-def delete_product(*, user_id, id):
+def delete_product(*, user_id, product):
     now = utcnow()
-    product = Product.get_by_id(id)
     product.deleted_on = now
     product.last_modified_on = now
     product.last_modified_by = user_id
