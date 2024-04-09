@@ -100,3 +100,15 @@ def edit_custom_product(
     product.save()
 
     return product
+
+
+@handle_non_existing_resource
+def delete_product(*, user_id, id):
+    now = utcnow()
+    product = Product.get_by_id(id)
+    product.deleted_on = now
+    product.last_modified_on = now
+    product.last_modified_by = user_id
+    product.save()
+
+    return product

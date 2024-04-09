@@ -260,6 +260,20 @@ def test_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"_": None}
 
+    # Test case 8.1.55
+    mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
+                    ...on Product {{
+                        deletedOn
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
+                    }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"].startswith(today)
+    assert response["lastModifiedOn"].startswith(today)
+    assert response["deletedOn"] == response["lastModifiedOn"]
+    assert response["lastModifiedBy"] == {"id": "8"}
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,

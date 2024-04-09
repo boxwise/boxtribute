@@ -178,6 +178,7 @@ union_types = (
     UnionType("TaggableResource", resolve_taggable_resource_type),
     UnionType("CreateCustomProductResult", resolve_mutate_custom_product_result_type),
     UnionType("EditCustomProductResult", resolve_mutate_custom_product_result_type),
+    UnionType("DeleteProductResult", resolve_mutate_custom_product_result_type),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

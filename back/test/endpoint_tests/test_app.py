@@ -265,6 +265,13 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExist { id name }",
             {"id": "0", "name": "Product"},
         ],
+        # Test case 8.2.56
+        [
+            "deleteProduct",
+            "id: 0",
+            "...on ResourceDoesNotExist { id name }",
+            {"id": "0", "name": "Product"},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(
