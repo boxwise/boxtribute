@@ -265,19 +265,67 @@ def test_product_mutations(
             DbChangeHistory.changes,
             DbChangeHistory.change_date,
             DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
         )
         .where(DbChangeHistory.table_name == "products")
         .dicts()
     )
     assert history_entries[0].pop("change_date").isoformat().startswith(today)
     assert history_entries[1].pop("change_date").isoformat().startswith(today)
+    assert history_entries[2].pop("change_date").isoformat().startswith(today)
+    assert history_entries[3].pop("change_date").isoformat().startswith(today)
+    assert history_entries[4].pop("change_date").isoformat().startswith(today)
+    assert history_entries[5].pop("change_date").isoformat().startswith(today)
+    assert history_entries[6].pop("change_date").isoformat().startswith(today)
+    assert history_entries[7].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
             "changes": "Record created",
             "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": 'name changed from "Sweater" to "Tops";',
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "category_id",
+            "record_id": int(product_id),
+            "from_int": 1,
+            "to_int": 12,
+        },
+        {
+            "changes": "sizegroup_id",
+            "record_id": int(product_id),
+            "from_int": 1,
+            "to_int": 2,
+        },
+        {
+            "changes": "gender_id",
+            "record_id": int(product_id),
+            "from_int": 3,
+            "to_int": 2,
+        },
+        {
+            "changes": "value",
+            "record_id": int(product_id),
+            "from_int": 0,
+            "to_int": 40,
+        },
+        {
+            "changes": 'comments changed from "None" to "from Germany";',
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
         },
         {
             "changes": "Record created",
             "record_id": int(another_product_id),
+            "from_int": None,
+            "to_int": None,
         },
     ]

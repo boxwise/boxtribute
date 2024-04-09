@@ -4,6 +4,7 @@ from ....models.definitions.product import Product
 from ....models.utils import (
     handle_non_existing_resource,
     save_creation_to_history,
+    save_update_to_history,
     utcnow,
 )
 
@@ -44,6 +45,16 @@ def create_custom_product(
         return product
 
 
+@save_update_to_history(
+    fields=[
+        Product.category,
+        Product.size_range,
+        Product.gender,
+        Product.name,
+        Product.price,
+        Product.comment,
+    ]
+)
 @handle_non_existing_resource
 def edit_custom_product(
     *,

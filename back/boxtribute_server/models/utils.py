@@ -101,15 +101,19 @@ def save_update_to_history(*, id_field_name="id", fields):
             id_field = getattr(model, id_field_name)
             # e.g. Box.get(Box.label_identifier == "123456")
             old_resource = model.get(id_field == kwargs[id_field_name])
-            new_resource = f(*args, **kwargs)
+
+            result = f(*args, **kwargs)
+            # Skip creating history entry if e.g. UserError returned
+            if not isinstance(result, db.Model):
+                return result
 
             entries = create_history_entries(
-                old_resource=old_resource, new_resource=new_resource, fields=fields
+                old_resource=old_resource, new_resource=result, fields=fields
             )
             with db.database.atomic():
                 DbChangeHistory.bulk_create(entries)
 
-            return new_resource
+            return result
 
         return inner
 
