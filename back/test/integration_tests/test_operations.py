@@ -38,6 +38,15 @@ def test_queries(auth0_client, endpoint):
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) > 0
 
+    query = """query { base(id: 1) { products { id } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    assert len(response["products"]) == 216
+
+    query = """query { base(id: 1) {
+        products(filterInput: {includeDeleted: true}) { id } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    assert len(response["products"]) == 219
+
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age count } } }"
     demographics = _assert_successful_request(auth0_client, query)
     assert sum(group["count"] for group in demographics["facts"]) == 970

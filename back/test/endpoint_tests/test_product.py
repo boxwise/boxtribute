@@ -1,5 +1,6 @@
 from datetime import date
 
+import pytest
 from boxtribute_server.enums import ProductGender
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_successful_request
@@ -41,6 +42,23 @@ def test_product_query(read_only_client, default_product, default_size, another_
         "createdBy": {"id": str(default_product["created_by"])},
         "deletedOn": default_product["deleted_on"],
     }
+
+
+@pytest.mark.parametrize(
+    "filter_input,ids",
+    [
+        # Test case 8.1.26
+        ["includeDeleted: true", [1, 3, 4]],
+        ["type: Custom", [1, 3]],
+        ["type: All", [1, 3]],
+    ],
+)
+def test_product_query_filtering(read_only_client, default_base, filter_input, ids):
+    base_id = default_base["id"]
+    query = f"""query {{ base(id: {base_id}) {{
+                    products(filterInput: {{ {filter_input} }}) {{ id }} }} }}"""
+    products = assert_successful_request(read_only_client, query)["products"]
+    assert products == [{"id": str(i)} for i in ids]
 
 
 def test_products_query(read_only_client, base1_products):

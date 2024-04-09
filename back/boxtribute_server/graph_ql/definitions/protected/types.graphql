@@ -443,7 +443,7 @@ input FilterBoxInput {
 }
 
 input FilterProductInput {
-  includeDeleted: Boolean = False
+  includeDeleted: Boolean = false
   type: ProductTypeFilter = Custom
 }
 

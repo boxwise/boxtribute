@@ -2,7 +2,7 @@ from ariadne import ObjectType
 
 from ....authz import authorize
 from ....enums import DistributionEventState, LocationType, TaggableObjectType, TagType
-from ....graph_ql.filtering import derive_beneficiary_filter
+from ....graph_ql.filtering import derive_beneficiary_filter, derive_product_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.beneficiary import Beneficiary
 from ....models.definitions.distribution_events_tracking_group import (
@@ -22,13 +22,10 @@ def resolve_base_organisation(base_obj, info):
 
 
 @base.field("products")
-def resolve_base_products(base_obj, *_):
+def resolve_base_products(base_obj, _, filter_input=None):
     authorize(permission="product:read", base_id=base_obj.id)
-    return Product.select().where(
-        Product.base == base_obj.id,
-        # work-around for 0000-00-00 00:00:00 datetime fields in database
-        (Product.deleted_on.is_null() | (Product.deleted_on == 0)),
-    )
+    conditions = derive_product_filter(filter_input)
+    return Product.select().where(Product.base == base_obj.id, *conditions)
 
 
 @base.field("locations")

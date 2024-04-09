@@ -111,3 +111,21 @@ def derive_box_filter(filter_input, selection=None):
         selection = selection.join(Product, src=Box)
 
     return condition, selection
+
+
+def derive_product_filter(filter_input):
+    """Derive filter condition for select-query from given filter parameters. If no
+    parameters given, return True (i.e. no filtering applied).
+    """
+    include_deleted = False
+    if filter_input:
+        include_deleted = filter_input.get("include_deleted")
+
+    conditions = []
+
+    if include_deleted is not True:
+        conditions.append(
+            # work-around for 0000-00-00 00:00:00 datetime fields in database
+            (Product.deleted_on.is_null() | (Product.deleted_on == 0)),
+        )
+    return conditions
