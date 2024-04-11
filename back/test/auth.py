@@ -109,6 +109,7 @@ def _create_jwt_payload(
             f"{base_prefix}/packing_list_entry:write",
             f"{base_prefix}/packing_list_entry:read",
             f"{base_prefix}/product:read",
+            f"{base_prefix}/product:write",
             f"{base_prefix}/organisation:read",
             f"{base_prefix}/qr:read",
             f"{base_prefix}/stock:read",

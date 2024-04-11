@@ -25,6 +25,29 @@ input BoxUpdateInput {
   tagIdsToBeAdded: [Int!]
 }
 
+input CustomProductCreationInput {
+  name: String!
+  categoryId: Int!
+  sizeRangeId: Int!
+  gender: ProductGender!
+  baseId: Int!
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
+input CustomProductEditInput {
+  id: ID!
+  name: String
+  categoryId: Int
+  sizeRangeId: Int
+  gender: ProductGender
+  # baseId: Int  " not possible to change product base
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
 input BeneficiaryCreationInput {
   firstName: String!
   lastName: String!

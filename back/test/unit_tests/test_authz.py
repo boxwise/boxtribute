@@ -14,6 +14,7 @@ from boxtribute_server.authz import (
     authorize,
     authorize_cross_organisation_access,
     check_beta_feature_access,
+    handle_unauthorized,
 )
 from boxtribute_server.business_logic.statistics import statistics_queries
 from boxtribute_server.exceptions import AuthenticationFailed, Forbidden
@@ -104,17 +105,23 @@ def test_user_with_insufficient_permissions():
     for permission in BASE_RELATED_PERMISSIONS:
         with pytest.raises(Forbidden) as exc_info:
             authorize(user, permission=permission, base_id=0)
+        exc = exc_info.value
         assert (
-            exc_info.value.extensions["description"]
-            == f"You don't have access to '{permission}'"
+            exc.extensions["description"] == f"You don't have access to '{permission}'"
         )
+        assert exc.permission == permission
+        assert exc.resource is None
+        assert exc.value is None
     for permission in BASE_AGNOSTIC_PERMISSIONS:
         with pytest.raises(Forbidden) as exc_info:
             authorize(user, permission=permission)
+        exc = exc_info.value
         assert (
-            exc_info.value.extensions["description"]
-            == f"You don't have access to '{permission}'"
+            exc.extensions["description"] == f"You don't have access to '{permission}'"
         )
+        assert exc.permission == permission
+        assert exc.resource is None
+        assert exc.value is None
 
     user = CurrentUser(
         id=3, organisation_id=2, base_ids={"beneficiary:create": [2], "stock:write": []}
@@ -122,9 +129,11 @@ def test_user_with_insufficient_permissions():
     with pytest.raises(Forbidden) as exc_info:
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_id=1)
-    assert (
-        exc_info.value.extensions["description"] == "You don't have access to 'base=1'"
-    )
+    exc = exc_info.value
+    assert exc.extensions["description"] == "You don't have access to 'base=1'"
+    assert exc.permission is None
+    assert exc.resource == "base"
+    assert exc.value == 1
     with pytest.raises(Forbidden):
         # The permission field exists but access granted for different base
         authorize(user, permission="beneficiary:create", base_ids=[1])
@@ -160,16 +169,24 @@ def test_invalid_authorize_function_call():
 
 def test_user_unauthorized_for_organisation():
     user = CurrentUser(id=1, organisation_id=1)
-    with pytest.raises(Forbidden):
+    with pytest.raises(Forbidden) as exc_info:
         authorize(user, organisation_id=2)
+        exc = exc_info.value
+        assert exc.permission is None
+        assert exc.resource == "organisations"
+        assert exc.value == 2
     with pytest.raises(Forbidden):
         authorize(user, organisation_ids=[2, 3])
 
 
 def test_user_unauthorized_for_user():
     user = CurrentUser(id=1, organisation_id=1)
-    with pytest.raises(Forbidden):
+    with pytest.raises(Forbidden) as exc_info:
         authorize(user, user_id=2)
+        exc = exc_info.value
+        assert exc.permission is None
+        assert exc.resource == "organisations"
+        assert exc.value == 2
 
 
 def test_god_user():
@@ -337,6 +354,22 @@ def test_check_beta_feature_access(mocker):
     assert check_beta_feature_access({}, current_user=current_user)
 
 
+def test_handle_unauthorized():
+    # Verify that handle_unauthorized decorator raises original Forbidden exception
+    # instead of returning InsufficientPermission or UnauthorizedForBase object when
+    # trying to authorize for resources other than base
+    @handle_unauthorized
+    def func():
+        current_user = CurrentUser(id=1)
+        authorize(current_user=current_user, user_id=2)
+
+    with pytest.raises(Forbidden) as exc_info:
+        func()
+    exc = exc_info.value
+    assert exc.resource == "user"
+    assert exc.value == 2
+
+
 def test_authorize_cross_organisation_access():
     current_user = CurrentUser(id=1, base_ids={"box_state:read": [1]})
     # No resource given
@@ -355,3 +388,8 @@ def test_authorize_cross_organisation_access():
         authorize_cross_organisation_access(current_user=current_user, base_id=1)
         is None
     )
+
+
+def test_invalid_use_of_forbidden_exception():
+    with pytest.raises(ValueError):
+        Forbidden(permission="stock:write", resource="box", value=1)

@@ -3,11 +3,15 @@
 from datetime import date, datetime, timezone
 from functools import wraps
 
+import peewee
 from flask import g
 from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
 from ..db import db
+from ..errors import ResourceDoesNotExist
 from .definitions.history import DbChangeHistory
+from .definitions.product_category import ProductCategory
+from .definitions.size_range import SizeRange
 
 
 def utcnow():
@@ -47,7 +51,7 @@ def compute_age(date_of_birth):
 
 def save_creation_to_history(f):
     """Utility for writing information about creating a resource to the history table,
-    intended to decorate a function that modifies a database resource (e.g. a box).
+    intended to decorate a function that creates a database resource (e.g. a box).
 
     The function runs the decorated function, effectively executing the creation. An
     entry in the history table is created.
@@ -55,18 +59,20 @@ def save_creation_to_history(f):
 
     @wraps(f)
     def inner(*args, **kwargs):
-        new_resource = f(*args, **kwargs)
+        result = f(*args, **kwargs)
 
-        DbChangeHistory.create(
-            changes="Record created",
-            table_name=new_resource._meta.table_name,
-            record_id=new_resource.id,
-            user=g.user.id,
-            ip=None,
-            change_date=utcnow(),
-        )
+        # Skip creating history entry if e.g. UserError returned
+        if isinstance(result, db.Model):
+            DbChangeHistory.create(
+                changes="Record created",
+                table_name=result._meta.table_name,
+                record_id=result.id,
+                user=g.user.id,
+                ip=None,
+                change_date=utcnow(),
+            )
 
-        return new_resource
+        return result
 
     return inner
 
@@ -149,3 +155,36 @@ to "{new_value}";"""
         entries.append(entry)
 
     return entries
+
+
+def handle_non_existing_resource(f):
+    """Decorator to handle database error due to non-existing resource (e.g. selecting a
+    resource by a non-existing PK, or trying to insert a FK reference to a field that
+    does not exist).
+    Find information about resource from peewee error message and return
+    ResourceDoesNotExist.
+    """
+
+    @wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+
+        except peewee.IntegrityError as e:
+            error_message = e.args[1].lower()
+            resource_name = None
+            for model in [ProductCategory, SizeRange]:
+                table_name = model._meta.table_name
+                pattern = f"references `{table_name}`"
+                if pattern in error_message:
+                    resource_name = model.__name__
+                    break
+
+            if resource_name is None:
+                # Indicate dev error: model should be listed above
+                raise e
+
+            # FK ID info could be pulled from kwargs
+            return ResourceDoesNotExist(name=resource_name)
+
+    return inner

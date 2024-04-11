@@ -124,3 +124,60 @@ def test_mutations(auth0_client):
     mutation = f"""mutation {{ cancelShipment(id: {shipment_id}) {{ state }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"state": "Canceled"}
+
+    mutation = """mutation { createCustomProduct(creationInput: {
+                    name: "bags"
+                    categoryId: 12
+                    sizeRangeId: 1
+                    gender: UnisexKid
+                    baseId: 1
+                }) {
+                ...on Product {
+                    id
+                    name
+                    base { id }
+                    price
+                    comment
+                    inShop
+                    createdBy { id }
+                } } }"""
+    response = assert_successful_request(auth0_client, mutation)
+    product_id = int(response.pop("id"))
+    assert response == {
+        "name": "bags",
+        "base": {"id": "1"},
+        "price": 0.0,
+        "comment": None,
+        "inShop": False,
+        "createdBy": {"id": "8"},
+    }
+
+    mutation = """mutation { createCustomProduct(creationInput: {
+                    name: "bags"
+                    categoryId: 12
+                    sizeRangeId: 1
+                    gender: UnisexKid
+                    baseId: 1
+                    price: 4
+                    comment: "good quality"
+                    inShop: true
+                }) {
+                ...on Product {
+                    id
+                    name
+                    base { id }
+                    price
+                    comment
+                    inShop
+                    createdBy { id }
+                } } }"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert int(response.pop("id")) == product_id + 1
+    assert response == {
+        "name": "bags",
+        "base": {"id": "1"},
+        "price": 4.0,
+        "comment": "good quality",
+        "inShop": True,
+        "createdBy": {"id": "8"},
+    }

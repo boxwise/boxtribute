@@ -85,6 +85,7 @@ type Product {
   price: Float
   gender: ProductGender
   comment: String
+  inShop: Boolean!
   createdBy: User
   createdOn: Datetime
   lastModifiedBy: User
@@ -192,7 +193,7 @@ type Base {
   " List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
   " List of all undeleted [`Products`]({{Types.Product}}) registered in this base "
-  products: [Product!]!
+  products(filterInput: FilterProductInput): [Product!]!
   " List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
   distributionSpots: [DistributionSpot!]!
@@ -441,6 +442,11 @@ input FilterBoxInput {
   tagIds: [Int!]
 }
 
+input FilterProductInput {
+  includeDeleted: Boolean = False
+  type: ProductTypeFilter = Custom
+}
+
 """
 Optional input for queries/fields that return a page of elements.
 The specified fields must be either none OR `first` OR `after, first` OR `before, last`. Other combinations result in unexpected behavior and/or errors.
@@ -523,6 +529,30 @@ type ShipmentDetail {
   receivedBy: User
   receivedOn: Datetime
 }
+
+type InsufficientPermission {
+  " e.g. 'product:write' missing "
+  name: String!
+}
+type ResourceDoesNotExist {
+  id: ID
+  name: String!
+}
+type UnauthorizedForBase {
+  " e.g. 'product:write' present but not for requested base "
+  id: ID!
+  name: String!
+}
+type InvalidPrice {
+  value: Int!
+}
+type EmptyName {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
+}
+union CreateCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
+union EditCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
+union DeleteProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase
 
 type Metrics {
   """

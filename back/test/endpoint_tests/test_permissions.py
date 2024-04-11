@@ -468,3 +468,45 @@ def test_invalid_permission_for_user_read(
         query,
         value={"createdBy": {"email": None, "name": default_user["name"]}},
     )
+
+
+@pytest.mark.parametrize(
+    "operation,mutation_input,field,response",
+    [
+        # Test case 8.2.40
+        [
+            "createCustomProduct",
+            """creationInput:
+            { baseId: 1, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
+            "...on InsufficientPermission { name }",
+            {"name": "product:write"},
+        ],
+    ],
+)
+def test_mutate_insufficient_permission(
+    unauthorized, read_only_client, operation, mutation_input, field, response
+):
+    mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, mutation)
+    assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,mutation_input,field,response",
+    [
+        # Test case 8.2.39
+        [
+            "createCustomProduct",
+            """creationInput:
+            { baseId: 2, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
+            "...on UnauthorizedForBase { id }",
+            {"id": "2"},
+        ],
+    ],
+)
+def test_mutate_unauthorized_for_base(
+    read_only_client, operation, mutation_input, field, response
+):
+    mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, mutation)
+    assert actual_response == response

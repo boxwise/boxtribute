@@ -1,5 +1,6 @@
 """Utilities for handling authorization"""
 
+from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from flask import g
@@ -8,6 +9,7 @@ from peewee import Model
 from .auth import CurrentUser
 from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
+from .errors import InsufficientPermission, UnauthorizedForBase
 from .exceptions import Forbidden
 from .models.definitions.base import Base
 from .models.definitions.shipment import Shipment
@@ -50,6 +52,25 @@ def authorize(*args: CurrentUser, **kwargs: Any) -> bool:
     return _authorize(*args, **kwargs)
 
 
+def handle_unauthorized(f):
+    """Decorator to handle `Forbidden` exception possibly raised by `_authorize()`.
+    Return InsufficientPermission including error information.
+    """
+
+    @wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Forbidden as e:
+            if e.permission is not None:
+                return InsufficientPermission(name=e.permission)
+            elif e.resource == "base":
+                return UnauthorizedForBase(id=e.value, name="")
+            raise e
+
+    return inner
+
+
 def _authorize(
     current_user: Optional[CurrentUser] = None,
     *,
@@ -89,7 +110,7 @@ def _authorize(
             authzed_base_ids = current_user.authorized_base_ids(permission)
         except KeyError:
             # Permission not granted for user
-            raise Forbidden(reason=permission)
+            raise Forbidden(permission=permission)
 
         if authzed_base_ids:
             # Permission field exists and access for at least one base granted.
@@ -121,7 +142,7 @@ def _authorize(
         ):
             if value is not None:
                 break
-        raise Forbidden(reason=f"{resource}={value}")
+        raise Forbidden(resource=resource, value=value)
 
 
 def authorized_bases_filter(
@@ -209,7 +230,7 @@ def authorize_cross_organisation_access(
     # permitted to
     base = Base.select(Base.organisation_id).where(Base.id == base_id).get_or_none()
     if base is None:
-        raise Forbidden(reason=f"base={base_id}")
+        raise Forbidden(resource="base", value=base_id)
 
     # If the base that's about to be accessed belongs to the user's organisation, run
     # try to authorize for all given base-specific resources
@@ -232,7 +253,7 @@ def authorize_cross_organisation_access(
         user_base_ids = current_user.authorized_base_ids(permission)
     except KeyError:
         # The user already lacks the first base-specific permission
-        raise Forbidden(reason=f"base={base_id}")
+        raise Forbidden(resource="base", value=base_id)
 
     details = (
         TransferAgreementDetail.select()
@@ -266,7 +287,7 @@ def authorize_cross_organisation_access(
         return
 
     # Prevent user from accessing data since no sufficient agreement exists
-    raise Forbidden(reason=f"base={base_id}")
+    raise Forbidden(resource="base", value=base_id)
 
 
 DEFAULT_BETA_FEATURE_SCOPE = 2
@@ -295,6 +316,11 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     ),
 }
 ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2]
+ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
+    "createCustomProduct",
+    "editCustomProduct",
+    "deleteProduct",
+)
 ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
