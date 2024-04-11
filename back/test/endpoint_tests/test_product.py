@@ -87,8 +87,8 @@ def _create_mutation(creation_input):
                     lastModifiedOn
                     deletedOn
                 }}
-                ...on InvalidPrice {{ value }}
-                ...on EmptyName {{ _ }}
+                ...on InvalidPriceError {{ value }}
+                ...on EmptyNameError {{ _ }}
                 }} }}"""
 
 
@@ -251,14 +251,14 @@ def test_product_mutations(
     price = -32
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, price: {price} }} ) {{
-                        ...on InvalidPrice {{ value }} }} }}"""
+                        ...on InvalidPriceError {{ value }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"value": price}
 
     # Test case 8.1.52
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, name: "" }} ) {{
-                        ...on EmptyName {{ _ }} }} }}"""
+                        ...on EmptyNameError {{ _ }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"_": None}
 
@@ -279,7 +279,7 @@ def test_product_mutations(
     # Test case 8.1.59
     product_with_boxes_id = default_product["id"]
     mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
-                    ...on BoxesStillAssignedToProduct {{ labelIdentifiers }}
+                    ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response["labelIdentifiers"] == [

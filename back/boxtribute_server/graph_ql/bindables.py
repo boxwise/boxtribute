@@ -83,6 +83,7 @@ from ..business_logic.warehouse.product.queries import query as product_query
 from ..business_logic.warehouse.qr_code.fields import qr_code
 from ..business_logic.warehouse.qr_code.mutations import mutation as qr_code_mutation
 from ..business_logic.warehouse.qr_code.queries import query as qr_code_query
+from ..errors import UserError
 
 # Container for QueryTypes
 query_types = (
@@ -149,7 +150,10 @@ object_types = (
 
 # UnionTypes and InterfaceTypes
 def resolve_type_by_class_name(obj, *_):
-    return obj.__class__.__name__
+    class_name = obj.__class__.__name__
+    if isinstance(obj, UserError):
+        return f"{class_name}Error"
+    return class_name
 
 
 def resolve_location_type(obj, *_):
