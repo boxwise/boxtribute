@@ -8,7 +8,11 @@ Author: @pylipp
 
 ## Status
 
-Proposed.
+~Proposed.~
+
+2024-03-07 Accepted.
+
+2024-04-11 Updated (option C).
 
 ## Context or Problem Statement
 
@@ -29,6 +33,8 @@ While this approach is more convenient than the default GraphQL error response s
 A. Keep the current state (use string codes defined in the back-end to distinguish errors)
 
 B. Use union types defined in the GraphQL schema to indicate error results
+
+C. Use custom result type encapsulating both data and errors (set mutually exclusive)
 
 ### Details on option B
 
@@ -134,6 +140,54 @@ The advantages are:
 1. We know where the error came from. We our error comes from in the query (because it’s attached to the entity); it’s actually encoded in the schema
 1. The client decides what errors it cares about and what errors it can ignore. The client can query or not query for different Results, so it decides what’s important.
 
+### Details on option C
+
+This approach is taken from the ariadne documentation [10], with adaptions from a discussion here [11].
+
+Again, it's discouraged to use the main `errors` field to convey errors since messages present under this key are technical in nature and shouldn't be displayed to end users. Instead, one should define custom result types including fields for data (in case of success) and errors (in case of failures) which are set mutually exclusive.
+
+```graphql
+type Query {
+  user(id: ID!): UserResult!
+}
+
+type Mutation {
+  createUser(input: createUserInput!): UserResult!
+}
+
+type UserResult {
+  user: User
+  # e.g. non-existing user, invalid input (user name, user organisation), missing permissions, ...
+  # Arguably these could be custom error types like with option B
+  errors: [String!]
+}
+```
+
+Depending on success or failure, the mutation resolver may return either error messages to be displayed to the user, or the newly created user. The API result-handling logic may then interpret the response based on the content of those two keys, only falling back to the main `errors` key to make sure there wasn't an error in query syntax, connection or application.
+
+Likewise, the Query resolvers may return None instead of requested object, which client developers may interpret as a signal from API to display a "Requested item doesn't exist" message to the user in place of the requested resource.
+
+This option allows to return multiple errors back to the client instead of a single error.
+
+In the actual resolver implementation the BE will have to be able to collect all errors or the success result like
+
+```python
+def resolve_create_user(*_, input):
+    errors = []
+    if not authorize():
+        errors.append("Not authorized")
+
+    validation_errors = validate(input)
+    if validation_errors:
+        errors.extend(validation_errors)
+
+    if errors:
+        return {"user": None, "errors": errors}
+
+    user = db.create_user(input)
+    return {"user": user, "errors": None}
+```
+
 ## Decision
 
 Use option B. Apply it for any new addition to the GraphQL schema. Existing operations are not updated (only refactor them when they would be changed anyways).
@@ -141,6 +195,7 @@ Use option B. Apply it for any new addition to the GraphQL schema. Existing oper
 1. **Clarity** Possible errors of operations are immediately obvious from the GraphQL schema
 1. **App reliability** Since we don't have integration tests, currently an incautious change of error code or description in the back-end, or a spelling error in the front-end error response handling might go undetected through automated testing and end up in production.
 1. **Impact on development** Front-end devs don't have to look into back-end business logic code to find the type of errors possibly returned by an operation. They don't have to define additional result types, either. However query bodies will be more verbose due to the handling of union types (see example above).
+1. **Resolver verbosity** With option C, resolvers have to return lengthy results with one of the two fields set to None anyways. There's no real advantage in returning multiple errors anyways since it does not occur frequently but would then potentially overwhelm the end user.
 
 ## Consequences
 
@@ -158,3 +213,5 @@ Use option B. Apply it for any new addition to the GraphQL schema. Existing oper
 - [7] https://github.com/boxwise/boxtribute/blob/666f57331c06dea0da1488c6bd9c7101b54d3822/back/boxtribute_server/business_logic/box_transfer/shipment/crud.py#L500
 - [8] https://trello.com/c/rBlCIgkx/1331-20-bug-when-a-multi-base-user-goes-to-a-shipment-from-another-base-he-she-cannot-reconcile-it-but-he-she-gets-a-success-message
 - [9] https://sachee.medium.com/200-ok-error-handling-in-graphql-7ec869aec9bc
+- [10] https://ariadnegraphql.org/docs/0.22/error-messaging
+- [11] https://github.com/mirumee/ariadne/discussions/579
