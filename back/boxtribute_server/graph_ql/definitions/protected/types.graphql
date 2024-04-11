@@ -550,9 +550,13 @@ type EmptyName {
   " Dummy field since type definitions without fields are not possible "
   _: Boolean
 }
+type BoxesStillAssignedToProduct {
+  labelIdentifiers: [String!]!
+}
+
 union CreateCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
 union EditCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
-union DeleteProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase
+union DeleteProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | BoxesStillAssignedToProduct
 
 type Metrics {
   """

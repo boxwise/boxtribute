@@ -99,6 +99,8 @@ def test_product_mutations(
     default_size_range,
     product_categories,
     another_size_range,
+    default_product,
+    default_boxes,
 ):
     base_id = str(default_base["id"])
     category_id = str(default_product_category["id"])
@@ -273,6 +275,18 @@ def test_product_mutations(
     assert response["lastModifiedOn"].startswith(today)
     assert response["deletedOn"] == response["lastModifiedOn"]
     assert response["lastModifiedBy"] == {"id": "8"}
+
+    # Test case 8.1.59
+    product_with_boxes_id = default_product["id"]
+    mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
+                    ...on BoxesStillAssignedToProduct {{ labelIdentifiers }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["labelIdentifiers"] == [
+        b["label_identifier"]
+        for b in default_boxes[1:-1]
+        if b["id"] != 13  # test box with product ID 3
+    ]
 
     history_entries = list(
         DbChangeHistory.select(

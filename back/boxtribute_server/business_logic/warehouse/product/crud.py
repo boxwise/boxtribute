@@ -1,5 +1,6 @@
 from ....db import db
-from ....errors import EmptyName, InvalidPrice
+from ....errors import BoxesStillAssignedToProduct, EmptyName, InvalidPrice
+from ....models.definitions.box import Box
 from ....models.definitions.product import Product
 from ....models.utils import (
     handle_non_existing_resource,
@@ -102,9 +103,22 @@ def edit_custom_product(
     return product
 
 
+def _boxes_still_assigned_to_product(product):
+    return [
+        box.label_identifier
+        for box in Box.select(Box.label_identifier).where(
+            Box.product == product.id,
+            (Box.deleted.is_null()) | (Box.deleted == 0),
+        )
+    ]
+
+
 @save_deletion_to_history
 @handle_non_existing_resource
 def delete_product(*, user_id, product):
+    if label_identifiers := _boxes_still_assigned_to_product(product):
+        return BoxesStillAssignedToProduct(label_identifiers=label_identifiers)
+
     now = utcnow()
     product.deleted_on = now
     product.last_modified_on = now

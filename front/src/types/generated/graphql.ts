@@ -257,6 +257,11 @@ export type BoxUpdateInput = {
   tagIdsToBeAdded?: InputMaybe<Array<Scalars['Int']>>;
 };
 
+export type BoxesStillAssignedToProduct = {
+  __typename?: 'BoxesStillAssignedToProduct';
+  labelIdentifiers: Array<Scalars['String']>;
+};
+
 /**
  * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
  * The location is part of a specific [`Base`]({{Types.Base}}).
@@ -342,7 +347,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type DeleteProductResult = InsufficientPermission | Product | ResourceDoesNotExist | UnauthorizedForBase;
+export type DeleteProductResult = BoxesStillAssignedToProduct | InsufficientPermission | Product | ResourceDoesNotExist | UnauthorizedForBase;
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
