@@ -272,7 +272,13 @@ def test_check_beta_feature_access(mocker):
     # User with scope 0 can only access BoxView/BoxEdit pages, and queries
     beta_feature_scope = 0
     current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
-    for mutation in ["createQrCode", "createBox", "createShipment", "createTag"]:
+    for mutation in [
+        "createQrCode",
+        "createBox",
+        "createShipment",
+        "deleteProduct",
+        "createTag",
+    ]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
     for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
@@ -288,7 +294,7 @@ def test_check_beta_feature_access(mocker):
     # User with scope 1 can additionally access BoxCreate/ScanBox pages
     beta_feature_scope = 1
     current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
-    for mutation in ["createShipment", "createTag"]:
+    for mutation in ["createShipment", "deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
     for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
@@ -304,7 +310,7 @@ def test_check_beta_feature_access(mocker):
     # User with scope 2 can additionally access Transfers pages
     beta_feature_scope = 2
     current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
-    for mutation in ["createTag"]:
+    for mutation in ["deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
     for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
@@ -321,7 +327,7 @@ def test_check_beta_feature_access(mocker):
     # permissions
     beta_feature_scope = 50
     current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
-    for mutation in ["createTag"]:
+    for mutation in ["deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
     for mutation in ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]:
@@ -336,6 +342,22 @@ def test_check_beta_feature_access(mocker):
 
     # User with scope 3 can additionally access statviz data
     beta_feature_scope = 3
+    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    for mutation in ["createTag"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert not check_beta_feature_access(payload, current_user=current_user)
+    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        payload = f"mutation {{ {mutation} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
+    for query in statistics_queries():
+        payload = f"query {{ {query} }}"
+        assert check_beta_feature_access(payload, current_user=current_user)
+    assert check_beta_feature_access(
+        "query { base(id: 1) { name } }", current_user=current_user
+    )
+
+    # User with scope 4 can additionally access Product pages
+    beta_feature_scope = 4
     current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
     for mutation in ["createTag"]:
         payload = f"mutation {{ {mutation} }}"
