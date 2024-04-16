@@ -299,6 +299,17 @@ def test_product_mutations(
         if b["id"] != 13  # test box with product ID 3
     ]
 
+    # Test case 8.1.53
+    comment = "new"
+    mutation = f"""mutation {{ editCustomProduct(
+                    editInput: {{ id: {another_product_id}, comment: "{comment}" }} )
+                    {{ ...on Product {{
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
+                    }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"lastModifiedOn": None, "lastModifiedBy": None}
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,

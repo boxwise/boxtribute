@@ -96,8 +96,9 @@ def save_update_to_history(*, id_field_name="id", fields):
     identical name must exist. The decorated function must return the updated resource.
 
     The function fetches the resource (i.e. the old database row) first, and then runs
-    the decorated function, effectively executing the modification. For each of the
-    fields that were actually updated an entry in the history table is created.
+    the decorated function, effectively executing the modification. If fields were
+    actually updated, an entry in the history table is created for each, and the
+    last_modified_* fields are set on the updated resource.
     """
 
     def decorator(f):
@@ -119,6 +120,10 @@ def save_update_to_history(*, id_field_name="id", fields):
             )
             with db.database.atomic():
                 DbChangeHistory.bulk_create(entries)
+                if entries:
+                    result.last_modified_on = utcnow()
+                    result.last_modified_by = kwargs["user_id"]
+                    result.save()
 
             return result
 

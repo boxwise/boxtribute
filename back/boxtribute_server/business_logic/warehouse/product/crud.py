@@ -47,6 +47,7 @@ def create_custom_product(
         return product
 
 
+@handle_non_existing_resource
 @save_update_to_history(
     fields=[
         Product.category,
@@ -57,7 +58,6 @@ def create_custom_product(
         Product.comment,
     ]
 )
-@handle_non_existing_resource
 def edit_custom_product(
     *,
     id,  # required for save_update_to_history
@@ -95,10 +95,6 @@ def edit_custom_product(
 
     if in_shop is not None:
         product.in_shop = in_shop
-
-    product.last_modified_on = utcnow()
-    product.last_modified_by = user_id
-    product.save()
 
     return product
 
