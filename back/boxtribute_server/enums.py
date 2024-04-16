@@ -121,3 +121,9 @@ class TargetType(enum.IntEnum):
     Shipment = 1
     OutgoingLocation = enum.auto()
     BoxState = enum.auto()
+
+
+class ProductTypeFilter(enum.Enum):
+    Custom = "Custom"
+    StandardInstantiation = "StandardInstantiation"
+    All = "All"

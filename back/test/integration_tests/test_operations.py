@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from utils import assert_successful_request
 
@@ -37,6 +39,15 @@ def test_queries(auth0_client, endpoint):
         query = f"query {{ {resource} {{ elements {{ id }} }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) > 0
+
+    query = """query { base(id: 1) { products { id } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    assert len(response["products"]) == 216
+
+    query = """query { base(id: 1) {
+        products(filterInput: {includeDeleted: true}) { id } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    assert len(response["products"]) == 219
 
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age count } } }"
     demographics = _assert_successful_request(auth0_client, query)
@@ -181,3 +192,21 @@ def test_mutations(auth0_client):
         "inShop": True,
         "createdBy": {"id": "8"},
     }
+
+    name = "bag"
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {product_id}, name: "{name}", inShop: false
+                }}) {{
+                ...on Product {{
+                    name
+                    inShop
+                    lastModifiedBy {{ id }}
+                }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"name": name, "inShop": False, "lastModifiedBy": {"id": "8"}}
+
+    mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
+                ...on Product {{ deletedOn }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    today = date.today().isoformat()
+    assert response["deletedOn"].startswith(today)

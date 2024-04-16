@@ -478,7 +478,21 @@ def test_invalid_permission_for_user_read(
             "createCustomProduct",
             """creationInput:
             { baseId: 1, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
-            "...on InsufficientPermission { name }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
+        # Test case 8.2.50
+        [
+            "editCustomProduct",
+            "editInput: { id: 1, price: 20 }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
+        # Test case 8.2.58
+        [
+            "deleteProduct",
+            "id: 1",
+            "...on InsufficientPermissionError { name }",
             {"name": "product:write"},
         ],
     ],
@@ -499,8 +513,22 @@ def test_mutate_insufficient_permission(
             "createCustomProduct",
             """creationInput:
             { baseId: 2, name: "a", categoryId: 12, sizeRangeId: 1, gender: none}""",
-            "...on UnauthorizedForBase { id }",
+            "...on UnauthorizedForBaseError { id }",
             {"id": "2"},
+        ],
+        # Test case 8.2.49
+        [
+            "editCustomProduct",
+            "editInput: { id: 2, price: 20 }",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+        # Test case 8.2.57
+        [
+            "deleteProduct",
+            "id: 2",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
         ],
     ],
 )

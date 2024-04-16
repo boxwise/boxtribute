@@ -56,7 +56,14 @@ def save_creation_to_history(f):
     The function runs the decorated function, effectively executing the creation. An
     entry in the history table is created.
     """
+    return _save_to_history(f, "Record created")
 
+
+def save_deletion_to_history(f):
+    return _save_to_history(f, "Record deleted")
+
+
+def _save_to_history(f, changes):
     @wraps(f)
     def inner(*args, **kwargs):
         result = f(*args, **kwargs)
@@ -64,7 +71,7 @@ def save_creation_to_history(f):
         # Skip creating history entry if e.g. UserError returned
         if isinstance(result, db.Model):
             DbChangeHistory.create(
-                changes="Record created",
+                changes=changes,
                 table_name=result._meta.table_name,
                 record_id=result.id,
                 user=g.user.id,
@@ -89,8 +96,9 @@ def save_update_to_history(*, id_field_name="id", fields):
     identical name must exist. The decorated function must return the updated resource.
 
     The function fetches the resource (i.e. the old database row) first, and then runs
-    the decorated function, effectively executing the modification. For each of the
-    fields that were actually updated an entry in the history table is created.
+    the decorated function, effectively executing the modification. If fields were
+    actually updated, an entry in the history table is created for each, and the
+    last_modified_* fields are set on the updated resource.
     """
 
     def decorator(f):
@@ -101,15 +109,23 @@ def save_update_to_history(*, id_field_name="id", fields):
             id_field = getattr(model, id_field_name)
             # e.g. Box.get(Box.label_identifier == "123456")
             old_resource = model.get(id_field == kwargs[id_field_name])
-            new_resource = f(*args, **kwargs)
+
+            result = f(*args, **kwargs)
+            # Skip creating history entry if e.g. UserError returned
+            if not isinstance(result, db.Model):
+                return result
 
             entries = create_history_entries(
-                old_resource=old_resource, new_resource=new_resource, fields=fields
+                old_resource=old_resource, new_resource=result, fields=fields
             )
             with db.database.atomic():
                 DbChangeHistory.bulk_create(entries)
+                if entries:
+                    result.last_modified_on = utcnow()
+                    result.last_modified_by = kwargs["user_id"]
+                    result.save()
 
-            return new_resource
+            return result
 
         return inner
 

@@ -84,8 +84,6 @@ from ..business_logic.warehouse.qr_code.fields import qr_code
 from ..business_logic.warehouse.qr_code.mutations import mutation as qr_code_mutation
 from ..business_logic.warehouse.qr_code.queries import query as qr_code_query
 from ..errors import UserError
-from ..models.definitions.box import Box
-from ..models.definitions.product import Product
 
 # Container for QueryTypes
 query_types = (
@@ -151,34 +149,24 @@ object_types = (
 
 
 # UnionTypes and InterfaceTypes
-def resolve_taggable_resource_type(obj, *_):
-    if isinstance(obj, Box):
-        return "Box"
-    return "Beneficiary"
-
-
-def resolve_create_custom_product_result_type(obj, *_):
-    if isinstance(obj, Product):
-        return "Product"
+def resolve_type_by_class_name(obj, *_):
+    class_name = obj.__class__.__name__
     if isinstance(obj, UserError):
-        return obj.__class__.__name__
+        return f"{class_name}Error"
+    return class_name
 
 
 def resolve_location_type(obj, *_):
     return obj.type.name
 
 
-def resolve_items_collection_type(obj, *_):
-    if isinstance(obj, Box):
-        return "Box"
-    return "UnboxedItemsCollection"
-
-
 union_types = (
-    UnionType("TaggableResource", resolve_taggable_resource_type),
-    UnionType("CreateCustomProductResult", resolve_create_custom_product_result_type),
+    UnionType("TaggableResource", resolve_type_by_class_name),
+    UnionType("CreateCustomProductResult", resolve_type_by_class_name),
+    UnionType("EditCustomProductResult", resolve_type_by_class_name),
+    UnionType("DeleteProductResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),
-    InterfaceType("ItemsCollection", resolve_items_collection_type),
+    InterfaceType("ItemsCollection", resolve_type_by_class_name),
 )

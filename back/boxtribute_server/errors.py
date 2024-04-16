@@ -29,3 +29,8 @@ class UnauthorizedForBase(UserError):
     def __init__(self, *, id, name):
         self.id = id
         self.name = name
+
+
+class BoxesStillAssignedToProduct(UserError):
+    def __init__(self, *, label_identifiers):
+        self.label_identifiers = label_identifiers

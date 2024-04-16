@@ -443,7 +443,7 @@ input FilterBoxInput {
 }
 
 input FilterProductInput {
-  includeDeleted: Boolean = False
+  includeDeleted: Boolean = false
   type: ProductTypeFilter = Custom
 }
 
@@ -530,29 +530,33 @@ type ShipmentDetail {
   receivedOn: Datetime
 }
 
-type InsufficientPermission {
+type InsufficientPermissionError {
   " e.g. 'product:write' missing "
   name: String!
 }
-type ResourceDoesNotExist {
+type ResourceDoesNotExistError {
   id: ID
   name: String!
 }
-type UnauthorizedForBase {
+type UnauthorizedForBaseError {
   " e.g. 'product:write' present but not for requested base "
   id: ID!
   name: String!
 }
-type InvalidPrice {
+type InvalidPriceError {
   value: Int!
 }
-type EmptyName {
+type EmptyNameError {
   " Dummy field since type definitions without fields are not possible "
   _: Boolean
 }
-union CreateCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
-union EditCustomProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase | InvalidPrice | EmptyName
-union DeleteProductResult = Product | InsufficientPermission | ResourceDoesNotExist | UnauthorizedForBase
+type BoxesStillAssignedToProductError {
+  labelIdentifiers: [String!]!
+}
+
+union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
+union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
+union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError
 
 type Metrics {
   """

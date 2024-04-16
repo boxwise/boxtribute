@@ -192,7 +192,4 @@ def update_box(
                 resource_type=TaggableObjectType.Box,
             )
 
-    box.last_modified_by = user_id
-    box.last_modified_on = utcnow()
-    box.save()
     return box

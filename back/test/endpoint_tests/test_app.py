@@ -225,7 +225,7 @@ def test_update_non_existent_resource(
             "createCustomProduct",
             """creationInput:
             { baseId: 0, name: "a", categoryId: 1, sizeRangeId: 1, gender: none}""",
-            "...on UnauthorizedForBase { id }",
+            "...on UnauthorizedForBaseError { id }",
             {"id": "0"},
         ],
         # Test case 8.2.37
@@ -233,7 +233,7 @@ def test_update_non_existent_resource(
             "createCustomProduct",
             """creationInput:
             { baseId: 1, name: "a", categoryId: 1, sizeRangeId: 0, gender: none}""",
-            "...on ResourceDoesNotExist { id name }",
+            "...on ResourceDoesNotExistError { id name }",
             {"id": None, "name": "SizeRange"},
         ],
         # Test case 8.2.38
@@ -241,12 +241,40 @@ def test_update_non_existent_resource(
             "createCustomProduct",
             """creationInput:
             { baseId: 1, name: "a", categoryId: 0, sizeRangeId: 1, gender: none}""",
-            "...on ResourceDoesNotExist { id name }",
+            "...on ResourceDoesNotExistError { id name }",
             {"id": None, "name": "ProductCategory"},
+        ],
+        # Test case 8.2.46
+        [
+            "editCustomProduct",
+            "editInput: { id: 1, sizeRangeId: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "SizeRange"},
+        ],
+        # Test case 8.2.47
+        [
+            "editCustomProduct",
+            "editInput: { id: 1, categoryId: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "ProductCategory"},
+        ],
+        # Test case 8.2.48
+        [
+            "editCustomProduct",
+            "editInput: { id: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Product"},
+        ],
+        # Test case 8.2.56
+        [
+            "deleteProduct",
+            "id: 0",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Product"},
         ],
     ],
 )
-def test_create_resource_does_not_exist(
+def test_mutate_resource_does_not_exist(
     read_only_client, operation, mutation_input, field, response
 ):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"

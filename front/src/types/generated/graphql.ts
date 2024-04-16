@@ -257,6 +257,11 @@ export type BoxUpdateInput = {
   tagIdsToBeAdded?: InputMaybe<Array<Scalars['Int']>>;
 };
 
+export type BoxesStillAssignedToProductError = {
+  __typename?: 'BoxesStillAssignedToProductError';
+  labelIdentifiers: Array<Scalars['String']>;
+};
+
 /**
  * Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
  * The location is part of a specific [`Base`]({{Types.Base}}).
@@ -289,7 +294,7 @@ export type ClassicLocationBoxesArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
-export type CreateCustomProductResult = EmptyName | InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+export type CreateCustomProductResult = EmptyNameError | InsufficientPermissionError | InvalidPriceError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type CreatedBoxDataDimensions = {
   __typename?: 'CreatedBoxDataDimensions';
@@ -342,7 +347,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type DeleteProductResult = InsufficientPermission | Product | ResourceDoesNotExist | UnauthorizedForBase;
+export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
@@ -462,10 +467,10 @@ export type DistributionSpotCreationInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-export type EditCustomProductResult = EmptyName | InsufficientPermission | InvalidPrice | Product | ResourceDoesNotExist | UnauthorizedForBase;
+export type EditCustomProductResult = EmptyNameError | InsufficientPermissionError | InvalidPriceError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
-export type EmptyName = {
-  __typename?: 'EmptyName';
+export type EmptyNameError = {
+  __typename?: 'EmptyNameError';
   /**  Dummy field since type definitions without fields are not possible  */
   _?: Maybe<Scalars['Boolean']>;
 };
@@ -524,14 +529,14 @@ export enum HumanGender {
   Male = 'Male'
 }
 
-export type InsufficientPermission = {
-  __typename?: 'InsufficientPermission';
+export type InsufficientPermissionError = {
+  __typename?: 'InsufficientPermissionError';
   /**  e.g. 'product:write' missing  */
   name: Scalars['String'];
 };
 
-export type InvalidPrice = {
-  __typename?: 'InvalidPrice';
+export type InvalidPriceError = {
+  __typename?: 'InvalidPriceError';
   value: Scalars['Int'];
 };
 
@@ -1473,8 +1478,8 @@ export type QueryUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
-export type ResourceDoesNotExist = {
-  __typename?: 'ResourceDoesNotExist';
+export type ResourceDoesNotExistError = {
+  __typename?: 'ResourceDoesNotExistError';
   id?: Maybe<Scalars['ID']>;
   name: Scalars['String'];
 };
@@ -1785,8 +1790,8 @@ export enum TransferAgreementType {
   SendingTo = 'SendingTo'
 }
 
-export type UnauthorizedForBase = {
-  __typename?: 'UnauthorizedForBase';
+export type UnauthorizedForBaseError = {
+  __typename?: 'UnauthorizedForBaseError';
   /**  e.g. 'product:write' present but not for requested base  */
   id: Scalars['ID'];
   name: Scalars['String'];

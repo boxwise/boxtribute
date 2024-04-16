@@ -5,11 +5,11 @@ from .size_range import data as size_range_data
 
 
 def default_size_data():
-    return {"id": 1, "label": "small", "size_range": size_range_data()["id"]}
+    return {"id": 1, "label": "small", "size_range": size_range_data()[0]["id"]}
 
 
 def another_size_data():
-    return {"id": 2, "label": "medium", "size_range": size_range_data()["id"]}
+    return {"id": 2, "label": "medium", "size_range": size_range_data()[0]["id"]}
 
 
 @pytest.fixture
