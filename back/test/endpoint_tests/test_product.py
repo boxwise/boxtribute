@@ -101,12 +101,14 @@ def test_product_mutations(
     another_size_range,
     default_product,
     default_boxes,
+    another_user,
 ):
     base_id = str(default_base["id"])
     category_id = str(default_product_category["id"])
     size_range_id = str(default_size_range["id"])
     gender = ProductGender.UnisexAdult.name
     name = "Sweater"
+    user_id = str(another_user["id"])
 
     # Test case 8.2.34
     creation_input = f"""{{
@@ -129,7 +131,7 @@ def test_product_mutations(
         "price": 0.0,
         "comment": None,
         "inShop": False,
-        "createdBy": {"id": "8"},
+        "createdBy": {"id": user_id},
         "lastModifiedBy": None,
         "lastModifiedOn": None,
         "deletedOn": None,
@@ -162,7 +164,7 @@ def test_product_mutations(
         "price": price,
         "comment": comment,
         "inShop": in_shop,
-        "createdBy": {"id": "8"},
+        "createdBy": {"id": user_id},
         "lastModifiedBy": None,
         "lastModifiedOn": None,
         "deletedOn": None,
@@ -254,7 +256,7 @@ def test_product_mutations(
                 }} }}"""
     response = assert_successful_request(client, query)
     assert response.pop("lastModifiedOn").startswith(today)
-    assert response == {"lastModifiedBy": {"id": "8"}}
+    assert response == {"lastModifiedBy": {"id": user_id}}
 
     # Test case 8.1.51
     price = -32
@@ -283,7 +285,7 @@ def test_product_mutations(
     assert response["deletedOn"].startswith(today)
     assert response["lastModifiedOn"].startswith(today)
     assert response["deletedOn"] == response["lastModifiedOn"]
-    assert response["lastModifiedBy"] == {"id": "8"}
+    assert response["lastModifiedBy"] == {"id": user_id}
 
     # Test case 8.1.59
     product_with_boxes_id = default_product["id"]
