@@ -39,7 +39,7 @@ def configure_app(
 def main(*blueprints):
     """Integrate Sentry SDK. Create and configure Flask app."""
 
-    def before_sentry_send(event, hint):
+    def before_sentry_send(event, hint):  # pragma: no cover
         """Callback for filtering error events right before sending to Sentry. This
         function must either return an event to be reported, or None for the event to be
         dismissed.
