@@ -247,6 +247,15 @@ def test_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"inShop": in_shop}
 
+    # Verify update of last_modified_* fields
+    query = f"""query {{ product(id: {product_id}) {{
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
+                }} }}"""
+    response = assert_successful_request(client, query)
+    assert response.pop("lastModifiedOn").startswith(today)
+    assert response == {"lastModifiedBy": {"id": "8"}}
+
     # Test case 8.1.51
     price = -32
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
