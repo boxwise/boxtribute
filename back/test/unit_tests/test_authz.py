@@ -317,8 +317,8 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # Scope 2 is the default, hence users with unregistered scope have the same
-    # permissions, plus the ones for users with scope >=3
+    # Scope 3 is the default, hence users with unregistered scope have the same
+    # permissions
     beta_feature_scope = 50
     current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
     for mutation in ["createTag"]:

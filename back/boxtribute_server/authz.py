@@ -290,7 +290,7 @@ def authorize_cross_organisation_access(
     raise Forbidden(resource="base", value=base_id)
 
 
-DEFAULT_BETA_FEATURE_SCOPE = 2
+DEFAULT_BETA_FEATURE_SCOPE = 3
 ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
