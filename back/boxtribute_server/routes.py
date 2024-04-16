@@ -78,7 +78,7 @@ def api_token():
 # Due to a bug in the flask-cors package, the function decorated with cross_origin must
 # be listed before any other function that has the same route
 # see https://github.com/corydolphin/flask-cors/issues/280
-@app_bp.post("/graphql")
+@app_bp.post(APP_GRAPHQL_PATH)
 @cross_origin(
     # Allow dev localhost ports, and boxtribute subdomains as origins
     origins=[
