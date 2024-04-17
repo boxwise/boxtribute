@@ -1,0 +1,6 @@
+cron:
+# staging
+- description: "db reseed staging"
+  url: /cron/reseed-db
+  target: v2-staging
+  schedule: every day 00:18
