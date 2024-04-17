@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Wizard for setting up a new organisation in the database.
+"""Command-line tool for various operations on the database and/or Auth0.
 
 For establishing a connection to the database, all connection parameters must be given
 as command line options: host, port, user, database. If the password is not specified,
@@ -11,11 +11,6 @@ Help for commands:
 
     bwiz <command> --help
 
-Command: import-products
-- the input CSV file must have the columns name, category, gender, size_range, base,
-price, in_shop, comment. The order is not relevant
-- the CSV file is to be formatted according to the 'csv.excel' dialect, i.e. comma as
-delimiter and double-quote as quote char.
 """
 
 import argparse
@@ -40,8 +35,15 @@ def _parse_options(args=None):
         description=globals()["__doc__"],
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("-H", "--host", default="127.0.0.1", help="MySQL server host")
-    parser.add_argument("-P", "--port", default=3386, type=int, help="MySQL port")
+    parser.add_argument(
+        "-H",
+        "--host",
+        default="127.0.0.1",
+        help="MySQL server host (default: 127.0.0.1)",
+    )
+    parser.add_argument(
+        "-P", "--port", default=3386, type=int, help="MySQL port (default: 3386)"
+    )
     parser.add_argument("-u", "--user", help="MySQL user")
     parser.add_argument("-p", "--password", help="MySQL password")
     parser.add_argument("-d", "--database", help="MySQL database name")
@@ -53,7 +55,15 @@ def _parse_options(args=None):
     subparsers.required = True
 
     import_products_parser = subparsers.add_parser(
-        "import-products", help="Import new products from CSV file"
+        "import-products",
+        help="Import new products from CSV file",
+        description="""
+- the input CSV file must have the columns name, category, gender, size_range, base,
+price, in_shop, comment. The order is not relevant
+- the CSV file is to be formatted according to the 'csv.excel' dialect, i.e. comma as
+delimiter and double-quote as quote char.
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     import_products_parser.add_argument("-f", "--data-filepath")
 
