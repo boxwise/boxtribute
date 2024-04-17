@@ -172,12 +172,12 @@ VALUES
 INSERT INTO cms_usergroups_roles
     (auth0_role_id, auth0_role_name, cms_usergroups_id)
 VALUES
-    (%s, %s, 99999990),
-    (%s, %s, 99999990),
-    (%s, %s, 99999991),
-    (%s, %s, 99999992),
-    (%s, %s, 99999993),
-    (%s, %s, 99999994)
+    (%s, %s, 99999990), -- base_8_coordinator - HoO
+    (%s, %s, 99999990), -- administrator      - HoO
+    (%s, %s, 99999991), -- base_8_coordinator - C8
+    (%s, %s, 99999992), -- base_8_volunteer   - V8
+    (%s, %s, 99999993), -- base_9_volunteer   - V9
+    (%s, %s, 99999994)  -- base_80_volunteer  - V80
 ;""",
         data,
     )
@@ -409,3 +409,74 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
         ("base_9_volunteer-TEST", 99999993),
         ("base_80_volunteer-TEST", 99999994),
     )
+
+    # Run another time
+    base_id = "9"
+    cli_main(
+        [
+            "--host",
+            os.environ["MYSQL_HOST"],
+            "--port",
+            os.environ["MYSQL_PORT"],
+            "--user",
+            os.environ["MYSQL_USER"],
+            "--database",
+            os.environ["MYSQL_DB"],
+            "--password",
+            os.environ["MYSQL_PASSWORD"],
+            "remove-base-access",
+            "--base-id",
+            base_id,
+        ]
+    )
+
+    time.sleep(WAIT)
+
+    # Verify that users with base ID 9 in their app_metadata are blocked
+    users = auth0_management_api_client.get_users_of_base(base_id)
+    assert users == {
+        "single_base": [
+            {
+                "app_metadata": {"base_ids": ["9"]},
+                "name": "e@test.com",
+                "user_id": "auth0|9999994",
+                "blocked": True,
+            },
+            {
+                "app_metadata": {"base_ids": ["9"]},
+                "name": "a@test.com",
+                "user_id": "auth0|9999990",
+                "blocked": True,
+            },
+        ],
+        "multi_base": [],
+    }
+    role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
+    assert len(role_ids) == 0
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
+    )
+    data = cursor.fetchall()
+    assert data[0][0] == 99999990
+    assert data[0][1].isoformat().startswith(today)
+    assert data[3][0] == 99999993
+    assert data[3][1].isoformat().startswith(today)
+    assert data[4] == (99999994, None)
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
+    )
+    data = cursor.fetchall()
+    assert data == ()
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
+    )
+    data = cursor.fetchall()
+    assert data == (("base_80_volunteer-TEST", 99999994),)

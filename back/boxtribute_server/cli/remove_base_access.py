@@ -48,10 +48,27 @@ def _update_user_data_in_database(
     if not single_base_users:
         return
 
-    # Operations on cms_usergroups/cms_users tables affect only single-base users
     single_base_user_ids = [
         int(u["user_id"].lstrip("auth0|")) for u in single_base_users
     ]
+
+    # Remove rows with usergroups of users with single base in their app_metadata from
+    # cms_usergroups_roles table. This is required in addition to the above operation in
+    # the same table since above only rows containing roles with a `base_x` prefix are
+    # deleted, but here also rows of users with single-base access and a role like
+    # `administrator` (without base_X prefix) are removed
+    db.database.execute_sql(
+        """\
+DELETE FROM cms_usergroups_roles cur
+WHERE cms_usergroups_id IN (
+    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
+    WHERE u.id IN %s
+)
+;""",
+        (single_base_user_ids,),
+    )
+
+    # Operations on cms_usergroups/cms_users tables affect only single-base users
 
     # Soft-delete the single-base usergroups from the cms_usergroups table.
     # Must execute this before setting cms_users.cms_usergroups_id to NULL
