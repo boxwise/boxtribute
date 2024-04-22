@@ -79,6 +79,7 @@ from .shipment_detail import (
 )
 from .size import another_size, default_size
 from .size_range import another_size_range, default_size_range
+from .standard_product import default_standard_product
 from .tag import base1_active_tags, tags
 from .transaction import another_transaction, default_transaction, relative_transaction
 from .transfer_agreement import (
@@ -137,6 +138,7 @@ __all__ = [
     "default_shipment_detail",
     "default_size",
     "default_size_range",
+    "default_standard_product",
     "default_tracking_group",
     "default_transaction",
     "default_transfer_agreement",
@@ -190,6 +192,7 @@ _NAMES = [
     "organisation",
     "base",
     "location",
+    "standard_product",
     "product",
     "size",
     "box",

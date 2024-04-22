@@ -79,6 +79,7 @@ The product is registered in a specific [`Base`]({{Types.Base}}).
 type Product {
   id: ID!
   name: String!
+  type: ProductType!
   category: ProductCategory!
   sizeRange: SizeRange!
   base: Base

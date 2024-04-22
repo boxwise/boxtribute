@@ -4,9 +4,12 @@ import pytest
 from boxtribute_server.models.definitions.product import Product
 
 from .base import data as base_data
+from .product_category import data as all_product_category_data
 from .product_category import default_product_category_data
+from .product_gender import data as all_product_gender_data
 from .product_gender import default_product_gender_data
 from .size_range import data as size_range_data
+from .standard_product import data as all_standard_product_data
 from .user import default_user_data
 
 
@@ -25,6 +28,7 @@ def data():
             "comment": "awesome stuff",
             "created_by": default_user_data()["id"],
             "deleted_on": None,
+            "standard_product": None,
         },
         {
             "id": 2,
@@ -38,6 +42,7 @@ def data():
             "comment": None,
             "created_by": default_user_data()["id"],
             "deleted_on": None,
+            "standard_product": None,
         },
         {
             "id": 3,
@@ -51,6 +56,7 @@ def data():
             "comment": None,
             "created_by": default_user_data()["id"],
             "deleted_on": None,
+            "standard_product": None,
         },
         {
             "id": 4,
@@ -64,6 +70,35 @@ def data():
             "comment": None,
             "created_by": default_user_data()["id"],
             "deleted_on": datetime(2022, 1, 1),
+            "standard_product": None,
+        },
+        {
+            "id": 5,
+            "base": base_data()[0]["id"],
+            "name": "Joggers",
+            "category": all_product_category_data()[0]["id"],
+            "gender": all_product_gender_data()[4]["id"],
+            "size_range": size_range_data()[2]["id"],
+            "in_shop": 0,
+            "price": 11,
+            "comment": None,
+            "created_by": default_user_data()["id"],
+            "deleted_on": None,
+            "standard_product": all_standard_product_data()[0]["id"],
+        },
+        {
+            "id": 6,
+            "base": base_data()[0]["id"],
+            "name": "Joggers",
+            "category": all_product_category_data()[0]["id"],
+            "gender": all_product_gender_data()[4]["id"],
+            "size_range": size_range_data()[2]["id"],
+            "in_shop": 0,
+            "price": 12,
+            "comment": None,
+            "created_by": default_user_data()["id"],
+            "deleted_on": datetime(2024, 1, 1),
+            "standard_product": all_standard_product_data()[0]["id"],
         },
     ]
 
@@ -84,15 +119,13 @@ def products():
 
 
 @pytest.fixture
-def base1_products():
-    all_products = data()
-    return [all_products[0], all_products[2], all_products[3]]
+def base1_products(products):
+    return [products[0], products[2], products[3], products[4], products[5]]
 
 
 @pytest.fixture
-def base1_undeleted_products():
-    all_products = data()
-    return [all_products[0], all_products[2]]
+def base1_undeleted_products(products):
+    return [products[0], products[2], products[4]]
 
 
 def create():

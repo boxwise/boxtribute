@@ -127,3 +127,8 @@ class ProductTypeFilter(enum.Enum):
     Custom = "Custom"
     StandardInstantiation = "StandardInstantiation"
     All = "All"
+
+
+class ProductType(enum.IntEnum):
+    Custom = 1
+    StandardInstantiation = enum.auto()

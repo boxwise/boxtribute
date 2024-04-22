@@ -2,7 +2,7 @@ import enum
 from datetime import date
 
 import pytest
-from boxtribute_server.enums import ProductGender
+from boxtribute_server.enums import ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_successful_request
 
@@ -15,6 +15,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
                 product(id: {default_product['id']}) {{
                     id
                     name
+                    type
                     category {{
                         hasGender
                     }}
@@ -31,6 +32,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
     assert queried_product == {
         "id": str(default_product["id"]),
         "name": default_product["name"],
+        "type": ProductType.Custom.name,
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
@@ -51,7 +53,10 @@ def test_product_query(read_only_client, default_product, default_size, another_
         # Test case 8.1.26
         ["includeDeleted: true", [1, 3, 4]],
         ["type: Custom", [1, 3]],
-        ["type: All", [1, 3]],
+        ["type: StandardInstantiation", [5]],
+        ["type: All", [1, 3, 5]],
+        ["includeDeleted: true, type: StandardInstantiation", [5, 6]],
+        ["includeDeleted: true, type: All", [1, 3, 4, 5, 6]],
     ],
 )
 def test_product_query_filtering(read_only_client, default_base, filter_input, ids):
