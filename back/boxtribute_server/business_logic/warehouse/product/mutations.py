@@ -35,6 +35,7 @@ def resolve_edit_custom_product(*_, edit_input):
 
 
 @mutation.field("deleteProduct")
+@mutation.field("disableStandardProduct")
 @handle_unauthorized
 def resolve_deleted_product(*_, id):
     if (product := Product.get_or_none(int(id))) is None:

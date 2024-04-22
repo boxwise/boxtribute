@@ -100,6 +100,20 @@ def data():
             "deleted_on": datetime(2024, 1, 1),
             "standard_product": all_standard_product_data()[0]["id"],
         },
+        {
+            "id": 7,
+            "base": base_data()[2]["id"],
+            "name": "Joggers",
+            "category": all_product_category_data()[0]["id"],
+            "gender": all_product_gender_data()[4]["id"],
+            "size_range": size_range_data()[2]["id"],
+            "in_shop": 1,
+            "price": 13,
+            "comment": None,
+            "created_by": default_user_data()["id"],
+            "deleted_on": None,
+            "standard_product": all_standard_product_data()[0]["id"],
+        },
     ]
 
 

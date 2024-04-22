@@ -301,7 +301,7 @@ def test_custom_product_mutations(
     assert response["labelIdentifiers"] == [
         b["label_identifier"]
         for b in default_boxes[1:-1]
-        if b["id"] != 13  # test box with product ID 3
+        if b["id"] not in [12, 13]  # test boxes with product IDs 5 and 3
     ]
 
     # Test case 8.1.53
@@ -428,6 +428,8 @@ def test_standard_product_instantiation_mutations(
     default_standard_product,
     another_standard_product,
     another_user,
+    products,
+    default_boxes,
 ):
     base_id = str(default_base["id"])
     size_range_id = str(default_size_range["id"])
@@ -459,37 +461,51 @@ def test_standard_product_instantiation_mutations(
         "deletedOn": None,
     }
 
-    # # Test case 8.2.61
-    # price = 12
-    # comment = "new"
-    # in_shop = True
-    # enable_input = f"""{{
-    #         standardProductId: {standard_product_id}
-    #         baseId: {base_id}
-    #         sizeRangeId: {size_range_id}
-    #         price: {price}
-    #         comment: "{comment}"
-    #         inShop: {str(in_shop).lower()}
-    #         }}"""
-    # mutation = _enable_mutation(enable_input)
-    # created_product = assert_successful_request(client, mutation)
-    # another_product_id = created_product.pop("id")
-    # assert created_product.pop("createdOn").startswith(today)
-    # assert created_product == {
-    #     "name": another_standard_product["name"],
-    #     "type": ProductType.StandardInstantiation.name,
-    #     "category": {"id": str(another_standard_product["category"])},
-    #     "sizeRange": {"id": size_range_id},
-    #     "gender": ProductGender(another_standard_product["gender"]).name,
-    #     "base": {"id": base_id},
-    #     "price": price,
-    #     "comment": comment,
-    #     "inShop": in_shop,
-    #     "createdBy": {"id": user_id},
-    #     "lastModifiedBy": None,
-    #     "lastModifiedOn": None,
-    #     "deletedOn": None,
-    # }
+    # Test case 8.2.80
+    mutation = f"""mutation {{ disableStandardProduct(id: {product_id}) {{
+                    ...on Product {{
+                        deletedOn
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
+                    }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"].startswith(today)
+    assert response["lastModifiedOn"].startswith(today)
+    assert response["deletedOn"] == response["lastModifiedOn"]
+    assert response["lastModifiedBy"] == {"id": user_id}
+
+    # Test case 8.2.61
+    price = 12
+    comment = "new"
+    in_shop = True
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            sizeRangeId: {size_range_id}
+            price: {price}
+            comment: "{comment}"
+            inShop: {str(in_shop).lower()}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    created_product = assert_successful_request(client, mutation)
+    another_product_id = created_product.pop("id")
+    assert created_product.pop("createdOn").startswith(today)
+    assert created_product == {
+        "name": another_standard_product["name"],
+        "type": ProductType.StandardInstantiation.name,
+        "category": {"id": str(another_standard_product["category"])},
+        "sizeRange": {"id": size_range_id},
+        "gender": ProductGender(another_standard_product["gender"]).name,
+        "base": {"id": base_id},
+        "price": price,
+        "comment": comment,
+        "inShop": in_shop,
+        "createdBy": {"id": user_id},
+        "lastModifiedBy": None,
+        "lastModifiedOn": None,
+        "deletedOn": None,
+    }
 
     # Test case 8.2.67
     price = -10
@@ -512,6 +528,14 @@ def test_standard_product_instantiation_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"existingStandardProductInstantiationId": "5"}
 
+    # Test case 8.1.84
+    product_with_boxes_id = products[4]["id"]
+    mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
+                    ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["labelIdentifiers"] == [default_boxes[9]["label_identifier"]]
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
@@ -532,10 +556,16 @@ def test_standard_product_instantiation_mutations(
             "from_int": None,
             "to_int": None,
         },
-        # {
-        #     "changes": "Record created",
-        #     "record_id": int(another_product_id),
-        #     "from_int": None,
-        #     "to_int": None,
-        # },
+        {
+            "changes": "Record deleted",
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record created",
+            "record_id": int(another_product_id),
+            "from_int": None,
+            "to_int": None,
+        },
     ]
