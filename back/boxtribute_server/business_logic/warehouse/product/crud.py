@@ -173,3 +173,38 @@ def enable_standard_product(
     with db.database.atomic():
         product.save()
         return product
+
+
+@handle_non_existing_resource
+@save_update_to_history(
+    fields=[
+        Product.size_range,
+        Product.price,
+        Product.comment,
+    ],
+)
+def edit_standard_product_instantiation(
+    *,
+    id,  # required for save_update_to_history
+    product,
+    user_id,
+    size_range_id=None,
+    price=None,
+    comment=None,
+    in_shop=None,
+):
+    if size_range_id is not None:
+        product.size_range = size_range_id
+
+    if price is not None:
+        if price < 0:
+            return InvalidPrice(value=price)
+        product.price = price
+
+    if comment is not None:
+        product.comment = comment
+
+    if in_shop is not None:
+        product.in_shop = in_shop
+
+    return product

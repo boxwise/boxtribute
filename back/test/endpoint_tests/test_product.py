@@ -528,6 +528,67 @@ def test_standard_product_instantiation_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"existingStandardProductInstantiationId": "5"}
 
+    # Test case 8.2.70
+    def _create_update_mutation(field, value):
+        if isinstance(value, str):
+            value = f'"{value}"'
+        if isinstance(value, enum.Enum):
+            value = value.name
+        if isinstance(value, bool):
+            value = "true" if value else "false"
+
+        update_input = f"id: {another_product_id}, {field}: {value}"
+        if field.endswith("Id"):
+            field = f"{field.rstrip('Id')} {{ id }}"
+        return f"""mutation {{
+                editStandardProductInstantiation(editInput: {{ {update_input} }} ) {{
+                    ...on Product {{
+                        {field}
+                    }} }} }}"""
+
+    size_range_id = another_size_range["id"]
+    mutation = _create_update_mutation("sizeRangeId", size_range_id)
+    response = assert_successful_request(client, mutation)
+    assert response == {"sizeRange": {"id": str(size_range_id)}}
+
+    price = 40
+    mutation = _create_update_mutation("price", price)
+    response = assert_successful_request(client, mutation)
+    assert response == {"price": float(price)}
+
+    comment = "from Germany"
+    mutation = _create_update_mutation("comment", comment)
+    response = assert_successful_request(client, mutation)
+    assert response == {"comment": comment}
+
+    in_shop = False
+    mutation = _create_update_mutation("inShop", in_shop)
+    response = assert_successful_request(client, mutation)
+    assert response == {"inShop": in_shop}
+
+    # Verify update of last_modified_* fields
+    query = f"""query {{ product(id: {another_product_id}) {{
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
+                }} }}"""
+    response = assert_successful_request(client, query)
+    assert response.pop("lastModifiedOn").startswith(today)
+    assert response == {"lastModifiedBy": {"id": user_id}}
+
+    # Test case 8.1.75
+    price = -32
+    mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
+                    id: {product_id}, price: {price} }} ) {{
+                        ...on InvalidPriceError {{ value }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"value": price}
+
+    # Test case 8.2.76
+    price = 40
+    mutation = _create_update_mutation("price", price)
+    response = assert_successful_request(client, mutation)
+    assert response == {"price": float(price)}
+
     # Test case 8.1.84
     product_with_boxes_id = products[4]["id"]
     mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
@@ -564,6 +625,24 @@ def test_standard_product_instantiation_mutations(
         },
         {
             "changes": "Record created",
+            "record_id": int(another_product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "sizegroup_id",
+            "record_id": int(another_product_id),
+            "from_int": 1,
+            "to_int": 2,
+        },
+        {
+            "changes": "value",
+            "record_id": int(another_product_id),
+            "from_int": 12,
+            "to_int": 40,
+        },
+        {
+            "changes": 'comments changed from "new" to "from Germany";',
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,

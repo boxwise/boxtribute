@@ -293,6 +293,20 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { id name }",
             {"id": None, "name": "StandardProduct"},
         ],
+        # Test case 8.2.71
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 5, sizeRangeId: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "SizeRange"},
+        ],
+        # Test case 8.2.72
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Product"},
+        ],
         # Test case 8.2.81
         [
             "disableStandardProduct",

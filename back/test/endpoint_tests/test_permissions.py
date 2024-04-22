@@ -502,6 +502,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "product:write"},
         ],
+        # Test case 8.2.74
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 5, price: 20 }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
         # Test case 8.2.83
         [
             "disableStandardProduct",
@@ -550,6 +557,13 @@ def test_mutate_insufficient_permission(
             """enableInput: { baseId: 2, standardProductId: 2 }""",
             "...on UnauthorizedForBaseError { id }",
             {"id": "2"},
+        ],
+        # Test case 8.2.73
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 7, price: 20 }",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
         ],
         # Test case 8.2.82
         [
