@@ -8,12 +8,6 @@ from ...enums import (
     LocationType,
     PackingListEntryState,
 )
-from ...exceptions import (
-    DistributionEventAlreadyInTrackingGroup,
-    InvalidDistributionEventState,
-    ModifyCompletedDistributionEvent,
-    NotEnoughItemsInBox,
-)
 from ...models.definitions.box import Box
 from ...models.definitions.distribution_event import DistributionEvent
 from ...models.definitions.distribution_event_tracking_log_entry import (
@@ -29,6 +23,12 @@ from ...models.definitions.size import Size
 from ...models.definitions.size_range import SizeRange
 from ...models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ...models.utils import utcnow
+from .exceptions import (
+    DistributionEventAlreadyInTrackingGroup,
+    InvalidDistributionEventState,
+    ModifyCompletedDistributionEvent,
+    NotEnoughItemsInBox,
+)
 
 
 def move_items_from_box_to_distribution_event(
