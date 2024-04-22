@@ -97,7 +97,7 @@ def _create_mutation(creation_input):
                 }} }}"""
 
 
-def test_product_mutations(
+def test_custom_product_mutations(
     client,
     default_base,
     default_product_category,
@@ -390,4 +390,152 @@ def test_product_mutations(
             "from_int": None,
             "to_int": None,
         },
+    ]
+
+
+def _enable_mutation(enable_input):
+    return f"""mutation {{
+                enableStandardProduct(enableInput: {enable_input}) {{
+                ...on Product {{
+                    id
+                    name
+                    type
+                    category {{ id }}
+                    sizeRange {{ id }}
+                    gender
+                    base {{ id }}
+                    price
+                    comment
+                    inShop
+                    createdBy {{ id }}
+                    createdOn
+                    lastModifiedBy {{ id }}
+                    lastModifiedOn
+                    deletedOn
+                }}
+                ...on InvalidPriceError {{ value }}
+                ...on StandardProductAlreadyEnabledForBaseError {{
+                    existingStandardProductInstantiationId
+                }}
+                }} }}"""
+
+
+def test_standard_product_instantiation_mutations(
+    client,
+    default_base,
+    default_size_range,
+    another_size_range,
+    default_standard_product,
+    another_standard_product,
+    another_user,
+):
+    base_id = str(default_base["id"])
+    size_range_id = str(default_size_range["id"])
+    standard_product_id = str(another_standard_product["id"])
+    user_id = str(another_user["id"])
+
+    # Test case 8.2.60
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    created_product = assert_successful_request(client, mutation)
+    product_id = created_product.pop("id")
+    assert created_product.pop("createdOn").startswith(today)
+    assert created_product == {
+        "name": another_standard_product["name"],
+        "type": ProductType.StandardInstantiation.name,
+        "category": {"id": str(another_standard_product["category"])},
+        "sizeRange": {"id": str(another_standard_product["size_range"])},
+        "gender": ProductGender(another_standard_product["gender"]).name,
+        "base": {"id": base_id},
+        "price": 0.0,
+        "comment": None,
+        "inShop": False,
+        "createdBy": {"id": user_id},
+        "lastModifiedBy": None,
+        "lastModifiedOn": None,
+        "deletedOn": None,
+    }
+
+    # # Test case 8.2.61
+    # price = 12
+    # comment = "new"
+    # in_shop = True
+    # enable_input = f"""{{
+    #         standardProductId: {standard_product_id}
+    #         baseId: {base_id}
+    #         sizeRangeId: {size_range_id}
+    #         price: {price}
+    #         comment: "{comment}"
+    #         inShop: {str(in_shop).lower()}
+    #         }}"""
+    # mutation = _enable_mutation(enable_input)
+    # created_product = assert_successful_request(client, mutation)
+    # another_product_id = created_product.pop("id")
+    # assert created_product.pop("createdOn").startswith(today)
+    # assert created_product == {
+    #     "name": another_standard_product["name"],
+    #     "type": ProductType.StandardInstantiation.name,
+    #     "category": {"id": str(another_standard_product["category"])},
+    #     "sizeRange": {"id": size_range_id},
+    #     "gender": ProductGender(another_standard_product["gender"]).name,
+    #     "base": {"id": base_id},
+    #     "price": price,
+    #     "comment": comment,
+    #     "inShop": in_shop,
+    #     "createdBy": {"id": user_id},
+    #     "lastModifiedBy": None,
+    #     "lastModifiedOn": None,
+    #     "deletedOn": None,
+    # }
+
+    # Test case 8.2.67
+    price = -10
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            price: {price}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"value": price}
+
+    # Test case 8.2.68
+    standard_product_id = default_standard_product["id"]
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"existingStandardProductInstantiationId": "5"}
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "products")
+        .dicts()
+    )
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "Record created",
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        # {
+        #     "changes": "Record created",
+        #     "record_id": int(another_product_id),
+        #     "from_int": None,
+        #     "to_int": None,
+        # },
     ]

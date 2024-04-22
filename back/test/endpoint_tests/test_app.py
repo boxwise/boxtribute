@@ -272,6 +272,27 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { id name }",
             {"id": "0", "name": "Product"},
         ],
+        # Test case 8.2.62
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 0, standardProductId: 2 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "0"},
+        ],
+        # Test case 8.2.63
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 1, standardProductId: 2, sizeRangeId: 0 }""",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "SizeRange"},
+        ],
+        # Test case 8.2.64
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 1, standardProductId: 0 }""",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "StandardProduct"},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(

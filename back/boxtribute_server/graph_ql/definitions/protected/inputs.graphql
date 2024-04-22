@@ -47,6 +47,23 @@ input CustomProductEditInput {
   inShop: Boolean
 }
 
+input StandardProductEnableInput {
+  standardProductId: Int!
+  sizeRangeId: Int
+  baseId: Int!
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
+input StandardProductInstantiationEditInput {
+  id: ID!
+  sizeRangeId: Int
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
 input BeneficiaryCreationInput {
   firstName: String!
   lastName: String!

@@ -165,6 +165,7 @@ union_types = (
     UnionType("CreateCustomProductResult", resolve_type_by_class_name),
     UnionType("EditCustomProductResult", resolve_type_by_class_name),
     UnionType("DeleteProductResult", resolve_type_by_class_name),
+    UnionType("EnableStandardProductResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

@@ -36,6 +36,11 @@ def default_standard_product():
 
 
 @pytest.fixture
+def another_standard_product():
+    return data()[1]
+
+
+@pytest.fixture
 def standard_products():
     return data()
 

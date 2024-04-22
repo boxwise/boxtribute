@@ -186,6 +186,10 @@ def handle_non_existing_resource(f):
         try:
             return f(*args, **kwargs)
 
+        except peewee.DoesNotExist as e:
+            resource_name = e.__class__.__name__.removesuffix("DoesNotExist")
+            return ResourceDoesNotExist(name=resource_name)
+
         except peewee.IntegrityError as e:
             error_message = e.args[1].lower()
             resource_name = None

@@ -1,7 +1,13 @@
 from ....db import db
-from ....errors import BoxesStillAssignedToProduct, EmptyName, InvalidPrice
+from ....errors import (
+    BoxesStillAssignedToProduct,
+    EmptyName,
+    InvalidPrice,
+    StandardProductAlreadyEnabledForBase,
+)
 from ....models.definitions.box import Box
 from ....models.definitions.product import Product
+from ....models.definitions.standard_product import StandardProduct
 from ....models.utils import (
     handle_non_existing_resource,
     save_creation_to_history,
@@ -122,3 +128,48 @@ def delete_product(*, user_id, product):
     product.save()
 
     return product
+
+
+@save_creation_to_history
+@handle_non_existing_resource
+def enable_standard_product(
+    *,
+    user_id,
+    standard_product_id,
+    base_id,
+    size_range_id=None,
+    price=0,
+    comment=None,
+    in_shop=False,
+):
+    if price < 0:
+        return InvalidPrice(value=price)
+
+    if (
+        product_id := Product.get_or_none(
+            Product.base == base_id,
+            Product.deleted_on.is_null(),
+            Product.standard_product == standard_product_id,
+        )
+    ) is not None:
+        return StandardProductAlreadyEnabledForBase(product_id=product_id)
+
+    standard_product = StandardProduct.get_by_id(standard_product_id)
+
+    product = Product()
+    product.base = base_id
+    product.category = standard_product.category_id
+    product.gender = standard_product.gender_id
+    product.name = standard_product.name
+    product.size_range = (
+        standard_product.size_range_id if size_range_id is None else size_range_id
+    )
+    product.price = price
+    product.comment = comment
+    product.in_shop = in_shop
+    product.created_on = utcnow()
+    product.created_by = user_id
+    product.standard_product = standard_product
+    with db.database.atomic():
+        product.save()
+        return product
