@@ -580,3 +580,32 @@ def test_mutate_unauthorized_for_base(
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
     actual_response = assert_successful_request(read_only_client, mutation)
     assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,query_input,field,response",
+    [
+        # Test case 8.1.43
+        [
+            "standardProduct",
+            "id: 1",
+            "...on InsufficientPermissionError { name }",
+            {"name": "standard_product:read"},
+        ],
+        # Test case 8.1.44
+        [
+            "standardProducts",
+            "",
+            "...on InsufficientPermissionError { name }",
+            {"name": "standard_product:read"},
+        ],
+    ],
+)
+def test_query_insufficient_permission(
+    unauthorized, read_only_client, operation, query_input, field, response
+):
+    if query_input:
+        query_input = f"({query_input})"
+    query = f"query {{ {operation}{query_input} {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, query)
+    assert actual_response == response

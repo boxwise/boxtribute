@@ -95,6 +95,25 @@ type Product {
 }
 
 """
+Representation of a standard product, containing information about [`ProductCategory`]({{Types.ProductCategory}}), size, and [`ProductGender`]({{Types.ProductGender}}).
+Users can enable this standard product for their bases which creates a standard product instantiation.
+"""
+type StandardProduct {
+  id: ID!
+  name: String!
+  category: ProductCategory!
+  sizeRange: SizeRange!
+  gender: ProductGender!
+  version: Int!
+  addedBy: User
+  addedOn: Datetime
+  deprecatedBy: User
+  deprecatedOn: Datetime
+  precededByProduct: StandardProduct
+  supercededByProduct: StandardProduct
+}
+
+"""
 Representation of a product category.
 """
 type ProductCategory {
@@ -112,6 +131,15 @@ Utility type holding a page of [`Products`]({{Types.Product}}).
 """
 type ProductPage {
   elements: [Product!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"""
+Utility type holding a page of [`StandardProducts`]({{Types.StandardProduct}}).
+"""
+type StandardProductPage {
+  elements: [StandardProduct!]!
   pageInfo: PageInfo!
   totalCount: Int!
 }
@@ -448,6 +476,11 @@ input FilterProductInput {
   type: ProductTypeFilter = Custom
 }
 
+input FilterStandardProductInput {
+  includeDeprecated: Boolean = false
+  versions: [Int!]
+}
+
 """
 Optional input for queries/fields that return a page of elements.
 The specified fields must be either none OR `first` OR `after, first` OR `before, last`. Other combinations result in unexpected behavior and/or errors.
@@ -567,6 +600,8 @@ union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoes
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError
+union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
+union StandardProductsResult = StandardProductPage | InsufficientPermissionError
 
 type Metrics {
   """

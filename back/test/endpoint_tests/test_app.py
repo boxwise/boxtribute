@@ -324,6 +324,26 @@ def test_mutate_resource_does_not_exist(
     assert actual_response == response
 
 
+@pytest.mark.parametrize(
+    "operation,query_input,field,response",
+    [
+        # Test case 8.1.42
+        [
+            "standardProduct",
+            "id: 0",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "StandardProduct"},
+        ],
+    ],
+)
+def test_query_resource_does_not_exist(
+    read_only_client, operation, query_input, field, response
+):
+    query = f"query {{ {operation}({query_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, query)
+    assert actual_response == response
+
+
 def test_mutation_arbitrary_database_error(read_only_client, mocker):
     mocker.patch(
         "boxtribute_server.business_logic.warehouse.qr_code.mutations.create_qr_code"

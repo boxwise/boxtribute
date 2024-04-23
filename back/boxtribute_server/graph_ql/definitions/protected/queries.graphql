@@ -24,6 +24,8 @@ type Query {
   product(id: ID!): Product
   " Return all [`Products`]({{Types.Product}}) that the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage!
+  standardProduct(id: ID!): StandardProductResult
+  standardProducts(filterInput: FilterStandardProductInput): StandardProductsResult
   productCategory(id: ID!): ProductCategory
   " Return all [`ProductCategories`]({{Types.ProductCategory}}) that the client is authorized to view. "
   productCategories: [ProductCategory!]!

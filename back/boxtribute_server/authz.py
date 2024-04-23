@@ -33,6 +33,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "shipment_detail",
     "size",
     "size_range",
+    "standard_product",
     "tag_relation",
     "transaction",
     "user",
