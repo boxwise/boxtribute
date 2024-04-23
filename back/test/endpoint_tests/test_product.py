@@ -250,7 +250,7 @@ def test_custom_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"comment": comment}
 
-    in_shop = False
+    in_shop = True
     mutation = _create_update_mutation("inShop", in_shop)
     response = assert_successful_request(client, mutation)
     assert response == {"inShop": in_shop}
@@ -334,15 +334,8 @@ def test_custom_product_mutations(
         .where(DbChangeHistory.table_name == "products")
         .dicts()
     )
-    assert history_entries[0].pop("change_date").isoformat().startswith(today)
-    assert history_entries[1].pop("change_date").isoformat().startswith(today)
-    assert history_entries[2].pop("change_date").isoformat().startswith(today)
-    assert history_entries[3].pop("change_date").isoformat().startswith(today)
-    assert history_entries[4].pop("change_date").isoformat().startswith(today)
-    assert history_entries[5].pop("change_date").isoformat().startswith(today)
-    assert history_entries[6].pop("change_date").isoformat().startswith(today)
-    assert history_entries[7].pop("change_date").isoformat().startswith(today)
-    assert history_entries[8].pop("change_date").isoformat().startswith(today)
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
             "changes": "Record created",
@@ -385,6 +378,12 @@ def test_custom_product_mutations(
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
+        },
+        {
+            "changes": "stockincontainer",
+            "record_id": int(product_id),
+            "from_int": 0,
+            "to_int": 1,
         },
         {
             "changes": "Record deleted",
@@ -661,5 +660,11 @@ def test_standard_product_instantiation_mutations(
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,
+        },
+        {
+            "changes": "stockincontainer",
+            "record_id": int(another_product_id),
+            "from_int": 1,
+            "to_int": 0,
         },
     ]

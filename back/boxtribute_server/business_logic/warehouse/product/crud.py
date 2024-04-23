@@ -64,6 +64,7 @@ def create_custom_product(
         Product.name,
         Product.price,
         Product.comment,
+        Product.in_shop,
     ]
 )
 def edit_custom_product(
@@ -186,6 +187,7 @@ def enable_standard_product(
         Product.size_range,
         Product.price,
         Product.comment,
+        Product.in_shop,
     ],
 )
 def edit_standard_product_instantiation(
