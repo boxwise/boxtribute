@@ -107,6 +107,7 @@ def test_custom_product_mutations(
     default_product,
     default_boxes,
     another_user,
+    products,
 ):
     base_id = str(default_base["id"])
     category_id = str(default_product_category["id"])
@@ -277,6 +278,13 @@ def test_custom_product_mutations(
                         ...on EmptyNameError {{ _ }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"_": None}
+
+    # Test case 8.2.54
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {products[4]["id"]}, price: 1 }} ) {{
+                        ...on ProductTypeMismatchError {{ expectedType }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.Custom.name}
 
     # Test case 8.1.55
     mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
@@ -588,6 +596,13 @@ def test_standard_product_instantiation_mutations(
     mutation = _create_update_mutation("price", price)
     response = assert_successful_request(client, mutation)
     assert response == {"price": float(price)}
+
+    # Test case 8.2.77
+    mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
+                    id: {products[0]["id"]}, price: 1 }} ) {{
+                        ...on ProductTypeMismatchError {{ expectedType }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.StandardInstantiation.name}
 
     # Test case 8.1.84
     product_with_boxes_id = products[4]["id"]

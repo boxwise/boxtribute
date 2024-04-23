@@ -557,12 +557,15 @@ type BoxesStillAssignedToProductError {
 type StandardProductAlreadyEnabledForBaseError {
   existingStandardProductInstantiationId: ID!
 }
+type ProductTypeMismatchError {
+  expectedType: ProductType!
+}
 
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
-union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
+union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
-union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError
+union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError
 
 type Metrics {

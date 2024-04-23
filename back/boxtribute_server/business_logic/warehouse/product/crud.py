@@ -1,8 +1,10 @@
 from ....db import db
+from ....enums import ProductType
 from ....errors import (
     BoxesStillAssignedToProduct,
     EmptyName,
     InvalidPrice,
+    ProductTypeMismatch,
     StandardProductAlreadyEnabledForBase,
 )
 from ....models.definitions.box import Box
@@ -77,6 +79,9 @@ def edit_custom_product(
     comment=None,
     in_shop=None,
 ):
+    if product.standard_product_id is not None:
+        return ProductTypeMismatch(expected_type=ProductType.Custom)
+
     if name is not None:
         if not name:
             return EmptyName()
@@ -193,6 +198,9 @@ def edit_standard_product_instantiation(
     comment=None,
     in_shop=None,
 ):
+    if product.standard_product_id is None:
+        return ProductTypeMismatch(expected_type=ProductType.StandardInstantiation)
+
     if size_range_id is not None:
         product.size_range = size_range_id
 
