@@ -48,6 +48,14 @@ def _show_affected_database_entries(
     LOGGER.info(f"Nr of rows to be deleted from cms_usergroups_camps: {len(result)}")
     LOGGER.info(result)
 
+    cursor = db.database.execute_sql(
+        """SELECT * FROM cms_functions_camps cfc WHERE cfc.camps_id = %s;""",
+        (int(base_id),),
+    )
+    result = cursor.fetchall()
+    LOGGER.info(f"Nr of rows to be deleted from cms_functions_camps: {len(result)}")
+    LOGGER.info(result)
+
     if single_base_user_role_ids:
         cursor = db.database.execute_sql(
             """SELECT * FROM cms_usergroups_roles WHERE auth0_role_id IN %s;""",
@@ -119,6 +127,11 @@ def _update_user_data_in_database(
     # Remove rows with base ID from cms_usergroups_camps table
     db.database.execute_sql(
         """DELETE cuc FROM cms_usergroups_camps cuc WHERE cuc.camp_id = %s;""",
+        (int(base_id),),
+    )
+    # Remove rows with base ID from cms_functions_camps table
+    db.database.execute_sql(
+        """DELETE cfc FROM cms_functions_camps cfc WHERE cfc.camps_id = %s;""",
         (int(base_id),),
     )
 
