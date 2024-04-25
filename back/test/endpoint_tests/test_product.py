@@ -68,6 +68,7 @@ def test_product_query_filtering(read_only_client, default_base, filter_input, i
 
 
 def test_products_query(read_only_client, base1_products):
+    # Test case 8.1.20
     query = """query { products { elements { name } } }"""
     products = assert_successful_request(read_only_client, query)["elements"]
     assert products == [{"name": p["name"]} for p in base1_products]
@@ -264,7 +265,7 @@ def test_custom_product_mutations(
     assert response.pop("lastModifiedOn").startswith(today)
     assert response == {"lastModifiedBy": {"id": user_id}}
 
-    # Test case 8.1.51
+    # Test case 8.2.51
     price = -32
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, price: {price} }} ) {{
@@ -272,7 +273,7 @@ def test_custom_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"value": price}
 
-    # Test case 8.1.52
+    # Test case 8.2.52
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, name: "" }} ) {{
                         ...on EmptyNameError {{ _ }} }} }}"""
@@ -286,7 +287,7 @@ def test_custom_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"expectedType": ProductType.Custom.name}
 
-    # Test case 8.1.55
+    # Test case 8.2.55
     mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
                     ...on Product {{
                         deletedOn
@@ -300,7 +301,7 @@ def test_custom_product_mutations(
     assert response["deletedOn"] == response["lastModifiedOn"]
     assert response["lastModifiedBy"] == {"id": user_id}
 
-    # Test case 8.1.59
+    # Test case 8.2.59
     product_with_boxes_id = default_product["id"]
     mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
                     ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
@@ -312,7 +313,7 @@ def test_custom_product_mutations(
         if b["id"] not in [12, 13]  # test boxes with product IDs 5 and 3
     ]
 
-    # Test case 8.1.53
+    # Test case 8.2.53
     comment = "new"
     mutation = f"""mutation {{ editCustomProduct(
                     editInput: {{ id: {another_product_id}, comment: "{comment}" }} )
@@ -582,7 +583,7 @@ def test_standard_product_instantiation_mutations(
     assert response.pop("lastModifiedOn").startswith(today)
     assert response == {"lastModifiedBy": {"id": user_id}}
 
-    # Test case 8.1.75
+    # Test case 8.2.75
     price = -32
     mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
                     id: {product_id}, price: {price} }} ) {{
@@ -603,7 +604,7 @@ def test_standard_product_instantiation_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"expectedType": ProductType.StandardInstantiation.name}
 
-    # Test case 8.1.84
+    # Test case 8.2.84
     product_with_boxes_id = products[4]["id"]
     mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
                     ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
