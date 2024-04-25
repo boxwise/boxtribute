@@ -17,6 +17,7 @@ from boxtribute_server.cli.remove_base_access import remove_base_access
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
 from boxtribute_server.db import db
 from boxtribute_server.exceptions import ServiceError
+from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.models.definitions.user import User
 
@@ -417,6 +418,9 @@ def test_remove_base_access(usergroup_data):
     }
 
     remove_base_access(base_id=base_id, service=service, force=True)
+
+    base = Base.get_by_id(base_id)
+    assert base.deleted.date() == date.today()
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     assert User.select(User.id, User._usergroup, User.name, User.email).dicts() == [
