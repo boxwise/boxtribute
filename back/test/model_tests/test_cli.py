@@ -416,7 +416,7 @@ def test_remove_base_access(usergroup_data):
         "total": 4,
     }
 
-    remove_base_access(base_id=base_id, service=service)
+    remove_base_access(base_id=base_id, service=service, force=True)
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     assert User.select(User.id, User._usergroup, User.name, User.email).dicts() == [
@@ -500,10 +500,28 @@ def test_remove_base_access_without_usergroups(usergroup_tables):
         "roles": [{"id": "rol_a", "name": "base_1_volunteer"}],
         "total": 1,
     }
-    remove_base_access(base_id=base_id, service=service)
+    remove_base_access(base_id=base_id, service=service, force=True)
     assert User.select(User.id, User._usergroup).dicts() == [
         {"id": 1, "_usergroup": 3},
         {"id": 2, "_usergroup": 4},
         {"id": 3, "_usergroup": None},
         {"id": 8, "_usergroup": 2},
     ]
+
+
+def test_remove_base_access_without_force(usergroup_tables):
+    base_id = 1
+    service = Service()
+    service._interface.users.list.return_value = {
+        "users": [
+            {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
+        ],
+        "total": 1,
+    }
+    service._interface.roles.list.return_value = {
+        "roles": [{"id": "rol_a", "name": "base_1_volunteer"}],
+        "total": 1,
+    }
+    deleted_users = User.select().where(User.deleted.is_null(False)).count()
+    remove_base_access(base_id=base_id, service=service, force=False)
+    assert deleted_users == User.select().where(User.deleted.is_null(False)).count()

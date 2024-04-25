@@ -5,11 +5,23 @@ from .utils import setup_logger
 LOGGER = setup_logger(__name__)
 
 
-def remove_base_access(*, base_id, service):
+def remove_base_access(*, base_id, service, force):
     users = service.get_users_of_base(base_id)
     single_base_user_role_ids = service.get_single_base_user_role_ids(base_id)
 
     with db.database.atomic():
+        _show_affected_database_entries(
+            base_id=base_id,
+            single_base_users=users["single_base"],
+            single_base_user_role_ids=single_base_user_role_ids,
+        )
+        if not force:
+            LOGGER.warning(
+                "The command did not make any effective changes. Use the "
+                "--force option to update database and Auth0."
+            )
+            return
+
         _update_user_data_in_database(
             base_id=base_id,
             single_base_users=users["single_base"],
@@ -21,6 +33,74 @@ def remove_base_access(*, base_id, service):
             base_id=base_id,
             single_base_user_role_ids=single_base_user_role_ids,
         )
+
+
+def _show_affected_database_entries(
+    *, base_id, single_base_users, single_base_user_role_ids
+):
+    cursor = db.database.execute_sql(
+        """SELECT * FROM cms_usergroups_camps cuc WHERE cuc.camp_id = %s;""",
+        (int(base_id),),
+    )
+    result = cursor.fetchall()
+    LOGGER.info(f"Nr of rows to be deleted from cms_usergroups_camps: {len(result)}")
+    LOGGER.info(result)
+
+    if single_base_user_role_ids:
+        cursor = db.database.execute_sql(
+            """SELECT * FROM cms_usergroups_roles WHERE auth0_role_id IN %s;""",
+            (single_base_user_role_ids,),
+        )
+        result = cursor.fetchall()
+
+    if not single_base_users:
+        LOGGER.info(
+            f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}"
+        )
+        LOGGER.info(result)
+        return
+
+    single_base_user_ids = [
+        int(u["user_id"].lstrip("auth0|")) for u in single_base_users
+    ]
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT * FROM cms_usergroups_roles cur
+WHERE cms_usergroups_id IN (
+    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
+    WHERE u.id IN %s
+)
+;""",
+        (single_base_user_ids,),
+    )
+    result = set(result).union(set(cursor.fetchall()))
+    LOGGER.info(f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}")
+    LOGGER.info(result)
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT DISTINCT cu.id, cu.label FROM cms_usergroups cu
+INNER JOIN cms_users u
+ON cu.id = u.cms_usergroups_id
+AND u.id in %s
+;""",
+        (single_base_user_ids,),
+    )
+    result = cursor.fetchall()
+    LOGGER.info(f"Nr of rows to be soft-deleted in cms_usergroups: {len(result)}")
+    LOGGER.info(", ".join([row[1] for row in result]))
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT u.naam FROM cms_users u
+WHERE u.id in %s
+;""",
+        (single_base_user_ids,),
+    )
+    result = cursor.fetchall()
+    LOGGER.info(f"Nr of rows to be soft-deleted in cms_users: {len(result)}")
+    LOGGER.info(", ".join([row[0] for row in result]))
 
 
 def _update_user_data_in_database(

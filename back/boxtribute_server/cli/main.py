@@ -81,6 +81,9 @@ delimiter and double-quote as quote char.
         "remove-base-access", help="Remove access to base from users"
     )
     remove_base_access_parser.add_argument("-b", "--base-id", type=int, required=True)
+    remove_base_access_parser.add_argument(
+        "--force", action="store_true", help="actually execute the operations"
+    )
     return vars(parser.parse_args(args=args))
 
 

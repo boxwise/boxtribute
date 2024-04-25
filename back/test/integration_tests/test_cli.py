@@ -245,6 +245,7 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
             "--password",
             os.environ["MYSQL_PASSWORD"],
             "remove-base-access",
+            "--force",
             "--base-id",
             base_id,
         ]
@@ -425,6 +426,7 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
             "--password",
             os.environ["MYSQL_PASSWORD"],
             "remove-base-access",
+            "--force",
             "--base-id",
             base_id,
         ]
