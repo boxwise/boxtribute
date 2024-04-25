@@ -1914,6 +1914,16 @@ CREATE TABLE `standard_product` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `standard_product`
+--
+
+LOCK TABLES `standard_product` WRITE;
+/*!40000 ALTER TABLE `standard_product` DISABLE KEYS */;
+INSERT INTO `standard_product` VALUES (1,'Test product',1,1,1,1,'2024-04-24 12:34:56',1,NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `standard_product` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `stock`
 --
 
