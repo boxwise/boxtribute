@@ -165,6 +165,17 @@ WHERE cms_usergroups_id IN (
         (single_base_user_ids,),
     )
 
+    db.database.execute_sql(
+        """\
+DELETE FROM cms_usergroups_functions cuf
+WHERE cms_usergroups_id IN (
+    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
+    WHERE u.id IN %s
+)
+;""",
+        (single_base_user_ids,),
+    )
+
     # Operations on cms_usergroups/cms_users tables affect only single-base users
 
     # Soft-delete the single-base usergroups from the cms_usergroups table.

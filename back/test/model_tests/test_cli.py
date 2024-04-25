@@ -292,12 +292,31 @@ CREATE TABLE `cms_usergroups_roles` (
 """
     )
 
+    db.database.execute_sql(
+        """\
+DROP TABLE IF EXISTS `cms_usergroups_functions`;
+"""
+    )
+    db.database.execute_sql(
+        """\
+CREATE TABLE `cms_usergroups_functions` (
+  `cms_functions_id` int(11) unsigned NOT NULL,
+  `cms_usergroups_id` int(11) unsigned NOT NULL,
+  UNIQUE KEY `usergroups_functions_unique` (`cms_functions_id`,`cms_usergroups_id`),
+  KEY `cms_usergroups_id` (`cms_usergroups_id`),
+  CONSTRAINT `cms_usergroups_functions_ibfk_1` FOREIGN KEY (`cms_usergroups_id`)
+  REFERENCES `cms_usergroups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+"""
+    )
+
     yield
 
     # drop tables after test has run; otherwise in model_tests.conftest the referenced
     # camps and organisations tables can't be dropped
     for table in [
         "cms_usergroups_roles",
+        "cms_usergroups_functions",
         "cms_usergroups_camps",
         "cms_functions_camps",
         "cms_usergroups",
@@ -354,6 +373,19 @@ INSERT INTO `cms_usergroups_roles` VALUES
     (5,'rol_e','base_1_library_volunteer'),
     (6,'rol_f','base_2_coordinator'),
     (7,'rol_g','base_2_volunteer');
+""",
+    )
+
+    db.database.execute_sql(
+        """\
+INSERT INTO `cms_usergroups_functions` VALUES
+    (1,1),
+    (1,2),
+    (1,3),
+    (1,4),
+    (1,5),
+    (1,6),
+    (1,7);
 """,
     )
 
@@ -500,6 +532,18 @@ def test_remove_base_access(usergroup_data):
         (5, "base_1_library_volunteer"),
         (6, "base_2_coordinator"),
         (7, "base_2_volunteer"),
+    )
+
+    # Verify that all entries related to non-admin usergroups are removed from
+    # cms_usergroups_functions
+    cursor = db.database.execute_sql(
+        "SELECT cms_usergroups_id,cms_functions_id from cms_usergroups_functions;"
+    )
+    assert cursor.fetchall() == (
+        (1, 1),
+        (5, 1),
+        (6, 1),
+        (7, 1),
     )
 
     interface.users.list.assert_called_once()
