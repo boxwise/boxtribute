@@ -283,6 +283,7 @@ jobs:
           name: Deploy to GAE
           command: |
             gcloud app deploy app-<< parameters.serviceName >>.yaml
+            gcloud app deploy cron.yaml
       - slack/notify-on-failure:
           only_for_branches: master,production
 

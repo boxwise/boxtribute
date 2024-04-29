@@ -8,3 +8,4 @@ app_bp = Blueprint("app_bp", __name__)
 
 API_GRAPHQL_PATH = "/"
 APP_GRAPHQL_PATH = "/graphql"
+CRON_PATH = "/cron"

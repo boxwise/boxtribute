@@ -5,6 +5,9 @@ handlers:
   - url: /graphql
     script: auto
     secure: always
+  - url: /cron/(.*)
+    script: auto
+    secure: always
   - url: /
     secure: always
     static_files: front-build/index.html
