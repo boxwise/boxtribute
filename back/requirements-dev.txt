@@ -9,4 +9,4 @@ pytest-clarity==1.0.1
 mypy==1.9.0
 types-Flask-Cors==4.0.0.20240405
 types-peewee==3.17.3.20240420
-types-setuptools==69.5.0.20240415
+types-setuptools==69.5.0.20240423
