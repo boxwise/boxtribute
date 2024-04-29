@@ -17,7 +17,7 @@ setup(
     install_requires=REQUIREMENTS,
     entry_points={
         "console_scripts": [
-            "bwiz = boxtribute_server.setup_wizard:main",
+            "bwiz = boxtribute_server.cli.main:main",
         ],
     },
 )

@@ -9,3 +9,4 @@ python-dotenv==1.0.1
 PyJWT[crypto]==2.8.0
 aiodataloader==0.4.0
 gunicorn
+auth0-python==4.7.0
