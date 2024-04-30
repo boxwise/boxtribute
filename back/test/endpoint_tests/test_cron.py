@@ -1,51 +1,48 @@
-import subprocess
+from unittest.mock import mock_open, patch
 
 from boxtribute_server.blueprints import CRON_PATH
+from utils import assert_bad_user_input, assert_successful_request
 
 
-def test_cron_job_endpoint(read_only_client, mocker, monkeypatch):
-    monkeypatch.setenv("MYSQL_USER", "root")
-    monkeypatch.setenv("MYSQL_PASSWORD", "pass")
+def test_cron_job_endpoint(client, monkeypatch):
     monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
-    monkeypatch.setenv("MYSQL_SOCKET", "/some/socket")
     reseed_db_path = f"{CRON_PATH}/reseed-db"
 
     # Permission denied due to missing header
-    response = read_only_client.get(reseed_db_path)
+    response = client.get(reseed_db_path)
     assert response.status_code == 401
     assert response.json == {"message": "unauthorized"}
 
     # Permission denied due to wrong value in header
-    response = read_only_client.get(
-        reseed_db_path, headers=[("X-AppEngine-Cron", "false")]
-    )
+    response = client.get(reseed_db_path, headers=[("X-AppEngine-Cron", "false")])
     assert response.status_code == 401
     assert response.json == {"message": "unauthorized"}
 
     headers = [("X-AppEngine-Cron", "true")]
     # Bad request due to unknown subpath
-    response = read_only_client.get(f"{CRON_PATH}/unknown-job", headers=headers)
+    response = client.get(f"{CRON_PATH}/unknown-job", headers=headers)
     assert response.status_code == 400
     assert response.json == {"message": "unknown job 'unknown-job'"}
 
-    # Success because patched command exits with 0
-    mocker.patch("subprocess.run").return_value = subprocess.CompletedProcess(
-        returncode=0, args=[]
-    )
-    response = read_only_client.get(reseed_db_path, headers=headers)
+    # Success; perform actual sourcing of seed (takes about 2s)
+    # Create QR code and verify that it is removed after reseeding
+    mutation = "mutation { createQrCode { code } }"
+    response = assert_successful_request(client, mutation)
+    code = response["code"]
+    response = client.get(reseed_db_path, headers=headers)
     assert response.status_code == 200
     assert response.json == {"message": "reseed-db job executed"}
+    query = f"""query {{ qrCode(qrCode: "{code}") {{ id }} }}"""
+    response = assert_bad_user_input(client, query)
 
-    # Server error because patched command exits with 1
-    process = subprocess.CompletedProcess(returncode=1, args=[])
-    process.stderr = b"Error"
-    mocker.patch("subprocess.run").return_value = process
-    response = read_only_client.get(reseed_db_path, headers=headers)
+    # Server error because patched file contains invalid SQL
+    with patch("builtins.open", mock_open(read_data="invalid sql;")):
+        response = client.get(reseed_db_path, headers=headers)
     assert response.status_code == 500
-    assert response.json == {"message": "Error"}
+    assert b"Internal Server Error" in response.data
 
     # Bad request due to wrong environment
     monkeypatch.setenv("MYSQL_DB", "dropapp_production")
-    response = read_only_client.get(reseed_db_path, headers=headers)
+    response = client.get(reseed_db_path, headers=headers)
     assert response.status_code == 400
     assert response.json == {"message": "Reset of 'dropapp_production' not permitted"}
