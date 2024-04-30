@@ -36,3 +36,4 @@ docs/graphql-api/public
 *.zip
 .VSCodeCounter
 *.old.*
+__pycache__/*
