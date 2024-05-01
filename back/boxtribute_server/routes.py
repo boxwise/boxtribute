@@ -138,9 +138,8 @@ def cron(job_name):
     if job_name == "reseed-db":
         from .cron.reseed_db import reseed_db
 
-        response = reseed_db()
-        if response is None:
-            return jsonify({"message": "reseed-db job executed"}), 200
-        return jsonify({"message": response}), 500
+        # Any error will be reported as 500 response by Flask, and logged in Sentry
+        reseed_db()
+        return jsonify({"message": "reseed-db job executed"}), 200
 
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
