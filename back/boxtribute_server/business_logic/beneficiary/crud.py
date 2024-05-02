@@ -1,12 +1,13 @@
 from ...db import db
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
-from ...models.utils import utcnow
+from ...models.utils import save_creation_to_history, save_update_to_history, utcnow
 
 
+@save_creation_to_history
 def create_beneficiary(
     *,
-    user,
+    user_id,
     first_name,
     last_name,
     base_id,
@@ -38,9 +39,9 @@ def create_beneficiary(
         comment=comment,
         family_head=family_head_id,
         created_on=now,
-        created_by=user.id,
+        created_by=user_id,
         last_modified_on=now,
-        last_modified_by=user.id,
+        last_modified_by=user_id,
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
@@ -61,9 +62,26 @@ def create_beneficiary(
     return new_beneficiary
 
 
+@save_update_to_history(
+    fields=[
+        Beneficiary.first_name,
+        Beneficiary.last_name,
+        Beneficiary.not_registered,
+        Beneficiary.is_volunteer,
+        Beneficiary.comment,
+        Beneficiary.group_identifier,
+        Beneficiary.date_of_signature,
+        Beneficiary.date_of_birth,
+        Beneficiary.gender,
+        Beneficiary.signed,
+        Beneficiary.family_head_id,
+        Beneficiary.phone,
+    ],
+)
 def update_beneficiary(
     *,
-    user,
+    user_id,
+    beneficiary,
     id,
     gender=None,
     languages=None,
@@ -76,8 +94,6 @@ def update_beneficiary(
     including the language cross-reference.
     Insert timestamp for modification and return the beneficiary.
     """
-    beneficiary = Beneficiary.get_by_id(id)
-
     # Handle any items with keys not matching the Model fields
     if gender is not None:
         beneficiary.gender = gender.value
@@ -98,9 +114,6 @@ def update_beneficiary(
     for field, value in data.items():
         setattr(beneficiary, field, value)
 
-    beneficiary.last_modified_on = utcnow()
-    beneficiary.last_modified_by = user.id
-
     with db.database.atomic():
         language_ids = languages or []
         if language_ids:
@@ -110,6 +123,5 @@ def update_beneficiary(
             XBeneficiaryLanguage.insert_many(
                 [{"language": lid, "beneficiary": id} for lid in language_ids]
             ).execute()
-        beneficiary.save()
 
     return beneficiary
