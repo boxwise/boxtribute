@@ -1,6 +1,4 @@
 from boxtribute_server.db import db
-from boxtribute_server.models.definitions.base import Base
-from boxtribute_server.models.utils import utcnow
 
 from .utils import setup_logger
 
@@ -122,7 +120,14 @@ def _update_user_data_in_database(
     # Operations on cms_usergroups_camps/cms_usergroups_roles tables affect both multi-
     # and single base users.
 
-    Base.update(deleted=utcnow()).where(Base.id == base_id).execute()
+    # Note: using execute_sql() instead of peewee model operations helps to avoid
+    # "Cannot use uninitialized Proxy" (which could be circumvented by hackily moving
+    # model imports inside this function)
+
+    db.database.execute_sql(
+        """UPDATE camps SET deleted = UTC_TIMESTAMP() WHERE id = %s;""",
+        (int(base_id),),
+    )
 
     # Remove rows with base ID from cms_usergroups_camps table
     db.database.execute_sql(
