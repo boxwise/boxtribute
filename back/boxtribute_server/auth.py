@@ -62,11 +62,6 @@ def get_token_from_auth_header(header_string):
 
 def get_public_key(domain):
     if key := os.getenv("AUTH0_PUBLIC_KEY"):
-        from flask import current_app
-
-        current_app.logger.warning(key[:40])
-        current_app.logger.warning(key[-40:])
-        current_app.logger.warning(len(key))
         return key
 
     # https://community.auth0.com/t/how-to-get-public-key-pem-from-jwks-json/60355/4
