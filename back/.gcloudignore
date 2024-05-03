@@ -29,5 +29,7 @@ docker-compose.yml
 .DS_Store
 venv/
 requirements-dev.txt
+requirements-deploy.txt
 test/
 scripts/
+README.md
