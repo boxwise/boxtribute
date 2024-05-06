@@ -1,11 +1,9 @@
-from datetime import date
-
 from faker import Faker, providers
 
+from ..business_logic.tag.crud import create_tag
 from ..db import db
 from ..enums import TagType
 from ..models.definitions.base import Base
-from ..models.definitions.tag import Tag
 
 nr_tags_per_base = 5
 
@@ -57,21 +55,14 @@ class Generator:
     def _generate_tags(self):
         for b in self.base_ids:
             for _ in range(nr_tags_per_base):
-                self.tags.append(
-                    {
-                        "base": b,
-                        "name": self.fake.word(),
-                        "color": self.fake.color(),
-                        "description": self.fake.sentence(nb_words=3),
-                        "type": self.fake.enum(TagType),
-                        "created": self.fake.date_time_between(
-                            start_date=date(2020, 1, 1)
-                        ),
-                        "created_by": self.fake.random_element(
-                            self.user_ids_for_base[b]
-                        ),
-                    }
+                create_tag(
+                    name=self.fake.word(),
+                    description=self.fake.sentence(nb_words=3),
+                    color=self.fake.color(),
+                    type=self.fake.enum(TagType),
+                    base_id=b,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
 
     def _insert_into_database(self):
-        Tag.insert_many(self.tags).execute()
+        pass
