@@ -1,8 +1,9 @@
 from faker import Faker, providers
 
 from ..business_logic.tag.crud import create_tag
+from ..business_logic.warehouse.location.crud import create_location
 from ..db import db
-from ..enums import TagType
+from ..enums import BoxState, TagType
 from ..models.definitions.base import Base
 
 nr_tags_per_base = 5
@@ -27,6 +28,7 @@ class Generator:
         self._fetch_bases()
         self._fetch_users_for_bases()
         self._generate_tags()
+        self._generate_locations()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -61,6 +63,27 @@ class Generator:
                     color=self.fake.color(),
                     type=self.fake.enum(TagType),
                     base_id=b,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+
+    def _generate_locations(self):
+        for b in self.base_ids:
+            for box_state, name in zip(
+                [
+                    BoxState.InStock,
+                    BoxState.InStock,
+                    BoxState.Donated,
+                    BoxState.Lost,
+                    BoxState.Scrap,
+                ],
+                ["Stockroom", "WH", "FreeShop", "LOST", "SCRAP"],
+            ):
+                create_location(
+                    name=name,
+                    base_id=b,
+                    box_state=box_state,
+                    is_shop=name == "FreeShop",
+                    is_stockroom=name == "Stockroom",
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
 

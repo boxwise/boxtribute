@@ -49,6 +49,10 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     response = assert_successful_request(cron_client, query)
     assert len(response) == 24 + 20  # base seed + generated
 
+    query = "query { locations { id } }"
+    response = assert_successful_request(cron_client, query)
+    assert len(response) == 29 + 20  # base seed + generated
+
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):
         response = cron_client.get(reseed_db_path, headers=headers)
