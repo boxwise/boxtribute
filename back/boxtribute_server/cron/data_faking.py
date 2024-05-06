@@ -1,9 +1,10 @@
 from faker import Faker, providers
 
+from ..business_logic.beneficiary.crud import create_beneficiary
 from ..business_logic.tag.crud import create_tag
 from ..business_logic.warehouse.location.crud import create_location
 from ..db import db
-from ..enums import BoxState, TagType
+from ..enums import BoxState, HumanGender, Language, TagType
 from ..models.definitions.base import Base
 
 nr_tags_per_base = 5
@@ -29,6 +30,7 @@ class Generator:
         self._fetch_users_for_bases()
         self._generate_tags()
         self._generate_locations()
+        self._generate_beneficiaries()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -84,6 +86,71 @@ class Generator:
                     box_state=box_state,
                     is_shop=name == "FreeShop",
                     is_stockroom=name == "Stockroom",
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+
+    def _generate_beneficiaries(self):
+        nr_adults_per_base = 100
+        nr_children_per_base = 200
+
+        # Last base does not have beneficiaries registered
+        for b in self.base_ids[:-1]:
+            family_head_id = None
+            beneficiary = None
+            family_heads = []
+
+            for i in range(nr_adults_per_base):
+                group_id = self.fake.unique.random_number(digits=4, fix_len=True)
+                if i % 2 == 0:
+                    first_name = self.fake.first_name_female()
+                    gender = HumanGender.Female
+                    family_head_id = None
+                else:
+                    first_name = self.fake.first_name_male()
+                    gender = HumanGender.Male
+                    if i > nr_adults_per_base / 2:
+                        # Some beneficiaries are part of a family
+                        family_head_id = beneficiary.id
+                        group_id = beneficiary.group_identifier
+                        family_heads.append(beneficiary)
+
+                beneficiary = create_beneficiary(
+                    first_name=first_name,
+                    last_name=self.fake.last_name(),
+                    base_id=b,
+                    group_identifier=group_id,
+                    date_of_birth=self.fake.date_of_birth(minimum_age=30),
+                    gender=gender,
+                    family_head_id=family_head_id,
+                    is_volunteer=self.fake.boolean(),
+                    registered=self.fake.boolean(),
+                    comment=self.fake.sentence(nb_words=3),
+                    # Some beneficiaries don't have any language assigned
+                    languages=self.fake.random_elements(
+                        [lg.value for lg in Language], length=3, unique=True
+                    )[:-1],
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+
+            for i in range(nr_children_per_base):
+                if i % 2 == 0:
+                    first_name = self.fake.first_name_female()
+                    gender = HumanGender.Female
+                else:
+                    first_name = self.fake.first_name_male()
+                    gender = HumanGender.Male
+
+                parent = self.fake.random_element(family_heads)
+                beneficiary = create_beneficiary(
+                    first_name=first_name,
+                    last_name=parent.last_name,
+                    base_id=b,
+                    group_identifier=parent.group_identifier,
+                    date_of_birth=self.fake.date_of_birth(maximum_age=15),
+                    gender=gender,
+                    family_head_id=parent.id,
+                    is_volunteer=False,
+                    registered=self.fake.boolean(),
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
 
