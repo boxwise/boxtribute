@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from ..db import db
+from .data_faking import Generator
 
 DATABASE_DUMP_FILEPATH = Path(__file__).parent.resolve().parent.parent / "init.sql"
 
@@ -12,6 +13,8 @@ def reseed_db():
     with db.database.cursor() as cursor:
         with open(DATABASE_DUMP_FILEPATH) as seed:
             execute_sql_statements_from_file(cursor, seed)
+    generator = Generator()
+    generator.run()
 
 
 def execute_sql_statements_from_file(cursor, sql_file):

@@ -1,6 +1,7 @@
 from unittest.mock import mock_open, patch
 
 import pytest
+from auth import mock_user_for_request
 from boxtribute_server.blueprints import CRON_PATH
 from utils import assert_bad_user_input, assert_successful_request
 
@@ -28,8 +29,10 @@ def test_cron_job_endpoint_errors(dropapp_dev_client, monkeypatch, url):
     assert response.json == {"message": "unknown job 'unknown-job'"}
 
 
-def test_reseed_db(cron_client, monkeypatch):
+def test_reseed_db(cron_client, monkeypatch, mocker):
     monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
+    mock_user_for_request(mocker, user_id=1, is_god=True)
+
     # Success; perform actual sourcing of seed (takes about 2s)
     # Create QR code and verify that it is removed after reseeding
     mutation = "mutation { createQrCode { code } }"
@@ -40,6 +43,11 @@ def test_reseed_db(cron_client, monkeypatch):
     assert response.json == {"message": "reseed-db job executed"}
     query = f"""query {{ qrCode(qrCode: "{code}") {{ id }} }}"""
     response = assert_bad_user_input(cron_client, query)
+
+    # Verify generation of fake data
+    query = "query { tags { id } }"
+    response = assert_successful_request(cron_client, query)
+    assert len(response) == 24 + 20  # base seed + generated
 
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):
