@@ -9,14 +9,17 @@ def remove_base_access(*, base_id, service, force):
     users = service.get_users_of_base(base_id)
     single_base_user_role_ids = service.get_single_base_user_role_ids(base_id)
     cursor = db.database.execute_sql(
-        """
-        SELECT cu.id
-        FROM cms_usergroups cu
-        LEFT JOIN cms_usergroups_camps cuc ON cuc.cms_usergroups_id = cu.id
-        WHERE cuc.camp_id = %s
-        GROUP BY cu.id
-        HAVING count(*) = 1;
-        """,
+        """\
+SELECT cuc1.cms_usergroups_id
+FROM cms_usergroups_camps cuc1
+WHERE cuc1.cms_usergroups_id IN (
+            SELECT cuc2.cms_usergroups_id
+            FROM cms_usergroups_camps cuc2
+            WHERE cuc2.camp_id = %s
+)
+GROUP BY cuc1.cms_usergroups_id
+HAVING count(*) = 1
+;""",
         (int(base_id),),
     )
     single_base_user_group_ids = [row[0] for row in cursor.fetchall()]

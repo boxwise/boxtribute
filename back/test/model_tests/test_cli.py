@@ -501,12 +501,13 @@ def test_remove_base_access(usergroup_data):
     assert usergroups[1].pop("deleted").isoformat().startswith(today)
     assert usergroups[2].pop("deleted").isoformat().startswith(today)
     assert usergroups[3].pop("deleted").isoformat().startswith(today)
+    assert usergroups[4].pop("deleted").isoformat().startswith(today)
     assert usergroups == [
         {"id": 1, "deleted": None},
         {"id": 2},
         {"id": 3},
         {"id": 4},
-        {"id": 5, "deleted": None},
+        {"id": 5},
         {"id": 6, "deleted": None},
         {"id": 7, "deleted": None},
     ]
@@ -541,7 +542,6 @@ def test_remove_base_access(usergroup_data):
     )
     assert cursor.fetchall() == (
         (1, 1),
-        (5, 1),
         (6, 1),
         (7, 1),
     )
