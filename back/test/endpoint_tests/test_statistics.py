@@ -24,6 +24,13 @@ def test_query_beneficiary_demographics(
         {
             "age": None,
             "count": 1,
+            "createdOn": "2021-06-30",
+            "gender": "Diverse",
+            "tagIds": [],
+        },
+        {
+            "age": None,
+            "count": 1,
             "createdOn": "2022-01-30",
             "gender": "Female",
             "tagIds": [],

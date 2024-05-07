@@ -343,19 +343,19 @@ def test_beneficiary_mutations(client):
     "input,size,has_next_page,has_previous_page",
     (
         # Test case 9.1.1, 9.1.2
-        ["", 3, False, False],
+        ["", 4, False, False],
         #                             ID=0
-        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 3, False, False],
+        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 4, False, False],
         ["""(paginationInput: {first: 1})""", 1, True, False],
-        #                             ID=3; previous page exists but can't be determined
-        ["""(paginationInput: {after: "MDAwMDAwMDM="})""", 0, False, False],
-        #                             ID=2
-        ["""(paginationInput: {after: "MDAwMDAwMDI=", first: 1})""", 1, False, True],
+        #                             ID=5; previous page exists but can't be determined
+        ["""(paginationInput: {after: "MDAwMDAwMDU="})""", 0, False, False],
+        #                             ID=3
+        ["""(paginationInput: {after: "MDAwMDAwMDM=", first: 1})""", 1, False, True],
         # next page exists but can't be determined
         ["""(paginationInput: {before: "MDAwMDAwMDE="})""", 0, False, False],
         #                              ID=4
-        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 2})""", 2, False, True],
-        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 3})""", 3, False, False],
+        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 2})""", 2, True, True],
+        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 3})""", 3, True, False],
     ),
     ids=[
         "no input",
@@ -391,23 +391,23 @@ def _format(parameter):
 @pytest.mark.parametrize(
     "filters,number",
     [
-        [[{"createdFrom": '"2020-01-01"'}], 3],
-        [[{"createdFrom": '"2021-01-01"'}], 2],
+        [[{"createdFrom": '"2020-01-01"'}], 4],
+        [[{"createdFrom": '"2021-01-01"'}], 3],
         [[{"createdUntil": '"2019-12-31"'}], 0],
         [[{"createdUntil": '"2021-01-01"'}], 1],
-        [[{"active": "true"}], 2],
+        [[{"active": "true"}], 3],
         [[{"active": "false"}], 1],
-        [[{"isVolunteer": "true"}], 1],
+        [[{"isVolunteer": "true"}], 2],
         [[{"isVolunteer": "false"}], 2],
         [[{"registered": "true"}], 2],
-        [[{"registered": "false"}], 1],
-        [[{"pattern": '"Body"'}], 2],
+        [[{"registered": "false"}], 2],
+        [[{"pattern": '"Body"'}], 3],
         [[{"pattern": '"fun"'}], 1],
         [[{"pattern": '"Z"'}], 0],
-        [[{"pattern": '"1234"'}], 2],
+        [[{"pattern": '"1234"'}], 3],
         [[{"pattern": '"123"'}], 0],
         [[{"createdFrom": '"2022-01-01"'}, {"active": "true"}], 1],
-        [[{"active": "true"}, {"registered": "false"}], 0],
+        [[{"active": "true"}, {"registered": "false"}], 1],
         [[{"active": "false"}, {"pattern": '"no"'}], 1],
         [[{"isVolunteer": "true"}, {"registered": "true"}], 0],
     ],
