@@ -39,6 +39,21 @@ def _show_affected_database_entries(
     *, base_id, single_base_users, single_base_user_role_ids
 ):
     cursor = db.database.execute_sql(
+        """
+        SELECT cu.id
+        FROM cms_usergroups cu
+        LEFT JOIN cms_usergroups_camps cuc ON cuc.cms_usergroups_id = cu.id
+        WHERE cuc.camp_id = %s
+        GROUP BY cu.id
+        HAVING count(*) = 1;
+        """,
+        (int(base_id),),
+    )
+    result = cursor.fetchall()
+    LOGGER.info(f"Nr of single base usergroups: {len(result)}")
+    LOGGER.info(result)
+
+    cursor = db.database.execute_sql(
         """SELECT * FROM cms_usergroups_camps cuc WHERE cuc.camp_id = %s;""",
         (int(base_id),),
     )
@@ -88,16 +103,19 @@ WHERE cms_usergroups_id IN (
 
     cursor = db.database.execute_sql(
         """\
-SELECT DISTINCT cu.id, cu.label FROM cms_usergroups cu
-INNER JOIN cms_users u
-ON cu.id = u.cms_usergroups_id
-AND u.id in %s
+SELECT * FROM cms_usergroups_functions cuf
+WHERE cms_usergroups_id IN (
+    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
+    WHERE u.id IN %s
+)
 ;""",
         (single_base_user_ids,),
     )
     result = cursor.fetchall()
-    LOGGER.info(f"Nr of rows to be soft-deleted in cms_usergroups: {len(result)}")
-    LOGGER.info(", ".join([row[1] for row in result]))
+    LOGGER.info(
+        f"Nr of rows to be deleted from cms_usergroups_functions: {len(result)}"
+    )
+    LOGGER.info(result)
 
     cursor = db.database.execute_sql(
         """\
@@ -126,6 +144,21 @@ def _update_user_data_in_database(
 
     db.database.execute_sql(
         """UPDATE camps SET deleted = UTC_TIMESTAMP() WHERE id = %s;""",
+        (int(base_id),),
+    )
+
+    db.database.execute_sql(
+        """
+        UPDATE cms_usergroups
+        SET deleted = UTC_TIMESTAMP()
+        WHERE id IN (
+            SELECT cu.id
+            FROM cms_usergroups cu
+            LEFT JOIN cms_usergroups_camps cuc ON cuc.cms_usergroups_id = cu.id
+            WHERE cuc.camp_id = %s
+            GROUP BY cu.id
+            HAVING count(*) = 1);
+        """,
         (int(base_id),),
     )
 
@@ -177,21 +210,6 @@ WHERE cms_usergroups_id IN (
     SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
     WHERE u.id IN %s
 )
-;""",
-        (single_base_user_ids,),
-    )
-
-    # Operations on cms_usergroups/cms_users tables affect only single-base users
-
-    # Soft-delete the single-base usergroups from the cms_usergroups table.
-    # Must execute this before setting cms_users.cms_usergroups_id to NULL
-    db.database.execute_sql(
-        """\
-UPDATE cms_usergroups cu
-INNER JOIN cms_users u
-ON cu.id = u.cms_usergroups_id
-AND u.id in %s
-SET cu.deleted = UTC_TIMESTAMP()
 ;""",
         (single_base_user_ids,),
     )
