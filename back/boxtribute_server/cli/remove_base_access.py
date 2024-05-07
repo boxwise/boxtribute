@@ -8,12 +8,28 @@ LOGGER = setup_logger(__name__)
 def remove_base_access(*, base_id, service, force):
     users = service.get_users_of_base(base_id)
     single_base_user_role_ids = service.get_single_base_user_role_ids(base_id)
+    cursor = db.database.execute_sql(
+        """\
+SELECT cuc1.cms_usergroups_id
+FROM cms_usergroups_camps cuc1
+WHERE cuc1.cms_usergroups_id IN (
+            SELECT cuc2.cms_usergroups_id
+            FROM cms_usergroups_camps cuc2
+            WHERE cuc2.camp_id = %s
+)
+GROUP BY cuc1.cms_usergroups_id
+HAVING count(*) = 1
+;""",
+        (int(base_id),),
+    )
+    single_base_user_group_ids = [row[0] for row in cursor.fetchall()]
 
     with db.database.atomic():
         _show_affected_database_entries(
             base_id=base_id,
             single_base_users=users["single_base"],
             single_base_user_role_ids=single_base_user_role_ids,
+            single_base_user_group_ids=single_base_user_group_ids,
         )
         if not force:
             LOGGER.warning(
@@ -26,6 +42,7 @@ def remove_base_access(*, base_id, service, force):
             base_id=base_id,
             single_base_users=users["single_base"],
             single_base_user_role_ids=single_base_user_role_ids,
+            single_base_user_group_ids=single_base_user_group_ids,
         )
         _update_user_data_in_user_management_service(
             service,
@@ -36,8 +53,11 @@ def remove_base_access(*, base_id, service, force):
 
 
 def _show_affected_database_entries(
-    *, base_id, single_base_users, single_base_user_role_ids
+    *, base_id, single_base_users, single_base_user_role_ids, single_base_user_group_ids
 ):
+    LOGGER.info(f"Nr of single base usergroups: {len(single_base_user_group_ids)}")
+    LOGGER.info(single_base_user_group_ids)
+
     cursor = db.database.execute_sql(
         """SELECT * FROM cms_usergroups_camps cuc WHERE cuc.camp_id = %s;""",
         (int(base_id),),
@@ -66,53 +86,58 @@ def _show_affected_database_entries(
             f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}"
         )
         LOGGER.info(result)
-        return
 
     single_base_user_ids = [
         int(u["user_id"].lstrip("auth0|")) for u in single_base_users
     ]
 
-    cursor = db.database.execute_sql(
-        """\
+    if single_base_user_ids:
+        cursor = db.database.execute_sql(
+            """\
 SELECT * FROM cms_usergroups_roles cur
 WHERE cms_usergroups_id IN (
     SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
     WHERE u.id IN %s
 )
 ;""",
-        (single_base_user_ids,),
-    )
-    result = set(result).union(set(cursor.fetchall()))
-    LOGGER.info(f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}")
-    LOGGER.info(result)
+            (single_base_user_ids,),
+        )
+        result = set(result).union(set(cursor.fetchall()))
+        LOGGER.info(
+            f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}"
+        )
+        LOGGER.info(result)
 
-    cursor = db.database.execute_sql(
-        """\
-SELECT DISTINCT cu.id, cu.label FROM cms_usergroups cu
-INNER JOIN cms_users u
-ON cu.id = u.cms_usergroups_id
-AND u.id in %s
-;""",
-        (single_base_user_ids,),
-    )
-    result = cursor.fetchall()
-    LOGGER.info(f"Nr of rows to be soft-deleted in cms_usergroups: {len(result)}")
-    LOGGER.info(", ".join([row[1] for row in result]))
-
-    cursor = db.database.execute_sql(
-        """\
+        cursor = db.database.execute_sql(
+            """\
 SELECT u.naam FROM cms_users u
 WHERE u.id in %s
 ;""",
-        (single_base_user_ids,),
+            (single_base_user_ids,),
+        )
+        result = cursor.fetchall()
+        LOGGER.info(f"Nr of rows to be soft-deleted in cms_users: {len(result)}")
+        LOGGER.info(", ".join([row[0] for row in result]))
+
+    if not single_base_user_group_ids:
+        return
+
+    cursor = db.database.execute_sql(
+        """\
+SELECT * FROM cms_usergroups_functions cuf
+WHERE cms_usergroups_id IN %s
+;""",
+        (single_base_user_group_ids,),
     )
     result = cursor.fetchall()
-    LOGGER.info(f"Nr of rows to be soft-deleted in cms_users: {len(result)}")
-    LOGGER.info(", ".join([row[0] for row in result]))
+    LOGGER.info(
+        f"Nr of rows to be deleted from cms_usergroups_functions: {len(result)}"
+    )
+    LOGGER.info(result)
 
 
 def _update_user_data_in_database(
-    *, base_id, single_base_users, single_base_user_role_ids
+    *, base_id, single_base_users, single_base_user_role_ids, single_base_user_group_ids
 ):
     # !!!
     # Destructive operations below
@@ -147,9 +172,6 @@ def _update_user_data_in_database(
             (single_base_user_role_ids,),
         )
 
-    if not single_base_users:
-        return
-
     single_base_user_ids = [
         int(u["user_id"].lstrip("auth0|")) for u in single_base_users
     ]
@@ -159,42 +181,42 @@ def _update_user_data_in_database(
     # the same table since above only rows containing roles with a `base_x` prefix are
     # deleted, but here also rows of users with single-base access and a role like
     # `administrator` (without base_X prefix) are removed
-    db.database.execute_sql(
-        """\
+    if single_base_user_ids:
+        db.database.execute_sql(
+            """\
 DELETE FROM cms_usergroups_roles cur
 WHERE cms_usergroups_id IN (
     SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
     WHERE u.id IN %s
 )
 ;""",
-        (single_base_user_ids,),
-    )
+            (single_base_user_ids,),
+        )
 
-    db.database.execute_sql(
-        """\
+    if single_base_user_group_ids:
+        db.database.execute_sql(
+            """\
 DELETE FROM cms_usergroups_functions cuf
-WHERE cms_usergroups_id IN (
-    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
-    WHERE u.id IN %s
-)
+WHERE cms_usergroups_id IN %s
 ;""",
-        (single_base_user_ids,),
-    )
+            (single_base_user_group_ids,),
+        )
 
-    # Operations on cms_usergroups/cms_users tables affect only single-base users
+        # Operations on cms_usergroups/cms_users tables affect only single-base users
 
-    # Soft-delete the single-base usergroups from the cms_usergroups table.
-    # Must execute this before setting cms_users.cms_usergroups_id to NULL
-    db.database.execute_sql(
-        """\
+        # Soft-delete the single-base usergroups from the cms_usergroups table.
+        # Must execute this before setting cms_users.cms_usergroups_id to NULL
+        db.database.execute_sql(
+            """\
 UPDATE cms_usergroups cu
-INNER JOIN cms_users u
-ON cu.id = u.cms_usergroups_id
-AND u.id in %s
 SET cu.deleted = UTC_TIMESTAMP()
+WHERE cu.id IN %s
 ;""",
-        (single_base_user_ids,),
-    )
+            (single_base_user_group_ids,),
+        )
+
+    if not single_base_user_ids:
+        return
 
     # Soft-delete single-base users (reset FK references and anonymize)
     db.database.execute_sql(
