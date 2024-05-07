@@ -16,7 +16,6 @@ Help for commands:
 import argparse
 import getpass
 import logging
-import os
 
 from boxtribute_server.db import create_db_interface, db
 
@@ -84,6 +83,17 @@ delimiter and double-quote as quote char.
     remove_base_access_parser.add_argument(
         "--force", action="store_true", help="actually execute the operations"
     )
+    remove_base_access_parser.add_argument(
+        "-D", "--auth0-management-api-domain", dest="domain", required=True
+    )
+    remove_base_access_parser.add_argument(
+        "-i", "--auth0-management-api-client-id", dest="client_id", required=True
+    )
+    remove_base_access_parser.add_argument(
+        "-S",
+        "--auth0-management-api-client-secret",
+        dest="secret",
+    )
     return vars(parser.parse_args(args=args))
 
 
@@ -94,10 +104,12 @@ def _create_db_interface(**connection_parameters):
     return create_db_interface(password=password, **connection_parameters)
 
 
-def _connect_to_auth0():
-    domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
-    client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
-    secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
+def _connect_to_auth0(**connection_parameters):
+    domain = connection_parameters["domain"]
+    client_id = connection_parameters["client_id"]
+    secret = connection_parameters.pop("secret", None) or getpass.getpass(
+        "Auth0 Management API secret: "
+    )
     return Auth0Service.connect(domain=domain, client_id=client_id, secret=secret)
 
 
@@ -132,6 +144,11 @@ def main(args=None):
         RBA_LOGGER.setLevel(logging.DEBUG)
         SERVICE_LOGGER.setLevel(logging.DEBUG)
 
+    # The following patches the `database` attribute of the DatabaseManager which is
+    # necessary for using the `db.Model` inheritance in all peewee model classes.
+    # NOTE: if importing model definitions in a sibling file, do so ONLY inside of the
+    # function that uses the model, otherwise the "database" patch is ineffective, and
+    # the "Cannot use uninitialized Proxy" error occurs.
     db.database = _create_db_interface(
         **{n: options.pop(n) for n in ["host", "port", "password", "database", "user"]}
     )
@@ -144,7 +161,9 @@ def main(args=None):
             clone_products(**options)
         elif command == "remove-base-access":
             _confirm_removal(options["base_id"])
-            service = _connect_to_auth0()
+            service = _connect_to_auth0(
+                **{n: options.pop(n) for n in ["domain", "client_id", "secret"]}
+            )
             remove_base_access(**options, service=service)
     except Exception as e:
         LOGGER.exception(e) if verbose else LOGGER.error(e)
