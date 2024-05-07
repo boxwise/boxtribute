@@ -9,6 +9,7 @@ type Mutation {
   updateBox(updateInput: BoxUpdateInput): Box
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
+  deactivateBeneficiary(id: ID!): Beneficiary
 
   createTag(creationInput: TagCreationInput): Tag
   updateTag(updateInput: TagUpdateInput): Tag

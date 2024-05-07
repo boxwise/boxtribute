@@ -1,6 +1,6 @@
 from faker import Faker, providers
 
-from ..business_logic.beneficiary.crud import create_beneficiary
+from ..business_logic.beneficiary.crud import create_beneficiary, deactivate_beneficiary
 from ..business_logic.tag.crud import create_tag
 from ..business_logic.warehouse.location.crud import create_location
 from ..db import db
@@ -98,6 +98,7 @@ class Generator:
             family_head_id = None
             beneficiary = None
             family_heads = []
+            beneficiaries = []
 
             for i in range(nr_adults_per_base):
                 group_id = self.fake.unique.random_number(digits=4, fix_len=True)
@@ -131,6 +132,7 @@ class Generator:
                     )[:-1],
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+                beneficiaries.append(beneficiary)
 
             for i in range(nr_children_per_base):
                 if i % 2 == 0:
@@ -153,6 +155,13 @@ class Generator:
                     registered=self.fake.boolean(),
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+                beneficiaries.append(beneficiary)
+
+            # Deactivate 3% of beneficiaries
+            for beneficiary in self.fake.random_elements(
+                beneficiaries, length=round(0.03 * len(beneficiaries)), unique=True
+            ):
+                deactivate_beneficiary(beneficiary=beneficiary)
 
     def _insert_into_database(self):
         pass

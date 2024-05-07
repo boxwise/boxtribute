@@ -1,7 +1,12 @@
 from ...db import db
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
-from ...models.utils import save_creation_to_history, save_update_to_history, utcnow
+from ...models.utils import (
+    save_creation_to_history,
+    save_deletion_to_history,
+    save_update_to_history,
+    utcnow,
+)
 
 
 @save_creation_to_history
@@ -124,4 +129,21 @@ def update_beneficiary(
                 [{"language": lid, "beneficiary": id} for lid in language_ids]
             ).execute()
 
+    return beneficiary
+
+
+@save_deletion_to_history
+def deactivate_beneficiary(*, beneficiary):
+    beneficiary.deleted = utcnow()
+    beneficiary.save()
+
+    if beneficiary.family_head_id is None:
+        # Deactivate all children of a parent
+        children = Beneficiary.select().where(
+            Beneficiary.family_head == beneficiary.id,
+            (Beneficiary.deleted.is_null() | ~Beneficiary.deleted),
+        )
+        with db.database.atomic():
+            for child in children:
+                deactivate_beneficiary(beneficiary=child)
     return beneficiary

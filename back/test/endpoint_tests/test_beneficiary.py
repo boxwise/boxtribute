@@ -107,7 +107,9 @@ def test_beneficiary_query(
     assert beneficiary == {"gender": None, "age": None, "dateOfBirth": None}
 
 
-def test_beneficiary_mutations(client):
+def test_beneficiary_mutations(
+    client, default_beneficiary, another_relative_beneficiary
+):
     # Test case 9.2.1
     first_name = "Some"
     last_name = "One"
@@ -248,6 +250,18 @@ def test_beneficiary_mutations(client):
         "tags": [],
     }
 
+    # Test case 9.2.20
+    today = date.today().isoformat()
+    deactivated_beneficiary_id = default_beneficiary["id"]
+    mutation = f"""mutation {{
+            deactivateBeneficiary(id: {deactivated_beneficiary_id}) {{ active }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert not response["active"]
+    deactivated_child_id = another_relative_beneficiary["id"]
+    query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ active }} }}"
+    response = assert_successful_request(client, query)
+    assert not response["active"]
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
@@ -257,9 +271,9 @@ def test_beneficiary_mutations(client):
             DbChangeHistory.to_int,
         )
         .where(DbChangeHistory.table_name == "people")
+        .order_by(DbChangeHistory.id)
         .dicts()
     )
-    today = date.today().isoformat()
     for i in range(len(history_entries)):
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
@@ -335,6 +349,18 @@ def test_beneficiary_mutations(client):
             "record_id": int(beneficiary_id),
             "from_int": None,
             "to_int": int(beneficiary_id),
+        },
+        {
+            "changes": "Record deleted",
+            "record_id": int(deactivated_child_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record deleted",
+            "record_id": int(deactivated_beneficiary_id),
+            "from_int": None,
+            "to_int": None,
         },
     ]
 

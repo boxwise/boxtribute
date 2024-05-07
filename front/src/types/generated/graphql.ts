@@ -671,6 +671,7 @@ export type Mutation = {
   createShipment?: Maybe<Shipment>;
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
+  deactivateBeneficiary?: Maybe<Beneficiary>;
   deleteProduct?: Maybe<DeleteProductResult>;
   deleteTag?: Maybe<Tag>;
   editCustomProduct?: Maybe<EditCustomProductResult>;
@@ -867,6 +868,16 @@ export type MutationCreateTagArgs = {
  */
 export type MutationCreateTransferAgreementArgs = {
   creationInput?: InputMaybe<TransferAgreementCreationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationDeactivateBeneficiaryArgs = {
+  id: Scalars['ID'];
 };
 
 
