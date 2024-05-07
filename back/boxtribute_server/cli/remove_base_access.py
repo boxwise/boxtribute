@@ -105,6 +105,20 @@ WHERE cms_usergroups_id IN (
 
     cursor = db.database.execute_sql(
         """\
+SELECT u.naam FROM cms_users u
+WHERE u.id in %s
+;""",
+        (single_base_user_ids,),
+    )
+    result = cursor.fetchall()
+    LOGGER.info(f"Nr of rows to be soft-deleted in cms_users: {len(result)}")
+    LOGGER.info(", ".join([row[0] for row in result]))
+
+    if not single_base_user_group_ids:
+        return
+
+    cursor = db.database.execute_sql(
+        """\
 SELECT * FROM cms_usergroups_functions cuf
 WHERE cms_usergroups_id IN %s
 ;""",
@@ -115,17 +129,6 @@ WHERE cms_usergroups_id IN %s
         f"Nr of rows to be deleted from cms_usergroups_functions: {len(result)}"
     )
     LOGGER.info(result)
-
-    cursor = db.database.execute_sql(
-        """\
-SELECT u.naam FROM cms_users u
-WHERE u.id in %s
-;""",
-        (single_base_user_ids,),
-    )
-    result = cursor.fetchall()
-    LOGGER.info(f"Nr of rows to be soft-deleted in cms_users: {len(result)}")
-    LOGGER.info(", ".join([row[0] for row in result]))
 
 
 def _update_user_data_in_database(
@@ -144,15 +147,6 @@ def _update_user_data_in_database(
     db.database.execute_sql(
         """UPDATE camps SET deleted = UTC_TIMESTAMP() WHERE id = %s;""",
         (int(base_id),),
-    )
-
-    db.database.execute_sql(
-        """
-        UPDATE cms_usergroups
-        SET deleted = UTC_TIMESTAMP()
-        WHERE id IN %s;
-        """,
-        (single_base_user_group_ids,),
     )
 
     # Remove rows with base ID from cms_usergroups_camps table
@@ -196,14 +190,27 @@ WHERE cms_usergroups_id IN (
         (single_base_user_ids,),
     )
 
-    db.database.execute_sql(
-        """\
+    if single_base_user_group_ids:
+        db.database.execute_sql(
+            """\
 DELETE FROM cms_usergroups_functions cuf
 WHERE cms_usergroups_id IN %s
-)
 ;""",
-        (single_base_user_group_ids,),
-    )
+            (single_base_user_group_ids,),
+        )
+
+        # Operations on cms_usergroups/cms_users tables affect only single-base users
+
+        # Soft-delete the single-base usergroups from the cms_usergroups table.
+        # Must execute this before setting cms_users.cms_usergroups_id to NULL
+        db.database.execute_sql(
+            """\
+UPDATE cms_usergroups cu
+SET cu.deleted = UTC_TIMESTAMP()
+WHERE cu.id IN %s
+;""",
+            (single_base_user_group_ids,),
+        )
 
     # Soft-delete single-base users (reset FK references and anonymize)
     db.database.execute_sql(
