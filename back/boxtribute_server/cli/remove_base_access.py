@@ -8,12 +8,25 @@ LOGGER = setup_logger(__name__)
 def remove_base_access(*, base_id, service, force):
     users = service.get_users_of_base(base_id)
     single_base_user_role_ids = service.get_single_base_user_role_ids(base_id)
+    cursor = db.database.execute_sql(
+        """
+        SELECT cu.id
+        FROM cms_usergroups cu
+        LEFT JOIN cms_usergroups_camps cuc ON cuc.cms_usergroups_id = cu.id
+        WHERE cuc.camp_id = %s
+        GROUP BY cu.id
+        HAVING count(*) = 1;
+        """,
+        (int(base_id),),
+    )
+    single_base_user_group_ids = [row[0] for row in cursor.fetchall()]
 
     with db.database.atomic():
         _show_affected_database_entries(
             base_id=base_id,
             single_base_users=users["single_base"],
             single_base_user_role_ids=single_base_user_role_ids,
+            single_base_user_group_ids=single_base_user_group_ids,
         )
         if not force:
             LOGGER.warning(
@@ -26,6 +39,7 @@ def remove_base_access(*, base_id, service, force):
             base_id=base_id,
             single_base_users=users["single_base"],
             single_base_user_role_ids=single_base_user_role_ids,
+            single_base_user_group_ids=single_base_user_group_ids,
         )
         _update_user_data_in_user_management_service(
             service,
@@ -36,22 +50,10 @@ def remove_base_access(*, base_id, service, force):
 
 
 def _show_affected_database_entries(
-    *, base_id, single_base_users, single_base_user_role_ids
+    *, base_id, single_base_users, single_base_user_role_ids, single_base_user_group_ids
 ):
-    cursor = db.database.execute_sql(
-        """
-        SELECT cu.id
-        FROM cms_usergroups cu
-        LEFT JOIN cms_usergroups_camps cuc ON cuc.cms_usergroups_id = cu.id
-        WHERE cuc.camp_id = %s
-        GROUP BY cu.id
-        HAVING count(*) = 1;
-        """,
-        (int(base_id),),
-    )
-    result = cursor.fetchall()
-    LOGGER.info(f"Nr of single base usergroups: {len(result)}")
-    LOGGER.info(result)
+    LOGGER.info(f"Nr of single base usergroups: {len(single_base_user_group_ids)}")
+    LOGGER.info(single_base_user_group_ids)
 
     cursor = db.database.execute_sql(
         """SELECT * FROM cms_usergroups_camps cuc WHERE cuc.camp_id = %s;""",
@@ -104,12 +106,9 @@ WHERE cms_usergroups_id IN (
     cursor = db.database.execute_sql(
         """\
 SELECT * FROM cms_usergroups_functions cuf
-WHERE cms_usergroups_id IN (
-    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
-    WHERE u.id IN %s
-)
+WHERE cms_usergroups_id IN %s
 ;""",
-        (single_base_user_ids,),
+        (single_base_user_group_ids,),
     )
     result = cursor.fetchall()
     LOGGER.info(
@@ -130,7 +129,7 @@ WHERE u.id in %s
 
 
 def _update_user_data_in_database(
-    *, base_id, single_base_users, single_base_user_role_ids
+    *, base_id, single_base_users, single_base_user_role_ids, single_base_user_group_ids
 ):
     # !!!
     # Destructive operations below
@@ -151,15 +150,9 @@ def _update_user_data_in_database(
         """
         UPDATE cms_usergroups
         SET deleted = UTC_TIMESTAMP()
-        WHERE id IN (
-            SELECT cu.id
-            FROM cms_usergroups cu
-            LEFT JOIN cms_usergroups_camps cuc ON cuc.cms_usergroups_id = cu.id
-            WHERE cuc.camp_id = %s
-            GROUP BY cu.id
-            HAVING count(*) = 1);
+        WHERE id IN %s;
         """,
-        (int(base_id),),
+        (single_base_user_group_ids,),
     )
 
     # Remove rows with base ID from cms_usergroups_camps table
@@ -206,12 +199,10 @@ WHERE cms_usergroups_id IN (
     db.database.execute_sql(
         """\
 DELETE FROM cms_usergroups_functions cuf
-WHERE cms_usergroups_id IN (
-    SELECT DISTINCT u.cms_usergroups_id FROM cms_users u
-    WHERE u.id IN %s
+WHERE cms_usergroups_id IN %s
 )
 ;""",
-        (single_base_user_ids,),
+        (single_base_user_group_ids,),
     )
 
     # Soft-delete single-base users (reset FK references and anonymize)
