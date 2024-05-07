@@ -109,6 +109,7 @@ class Auth0Service:
         if errors:
             LOGGER.error(errors)
             raise RuntimeError("Error while blocking single-base users")
+        LOGGER.info(f"Blocked {len(users)} users in Auth0.")
 
     def remove_roles(self, role_ids):
         """Remove given roles. Users with this role have it automatically unassigned."""
@@ -124,6 +125,7 @@ class Auth0Service:
         if errors:
             LOGGER.error(errors)
             raise RuntimeError("Error while removing roles")
+        LOGGER.info(f"Removed {len(role_ids)} roles in Auth0.")
 
     @classmethod
     def connect(cls, *, domain, client_id, secret):
