@@ -3,8 +3,9 @@ from faker import Faker, providers
 from ..business_logic.beneficiary.crud import create_beneficiary, deactivate_beneficiary
 from ..business_logic.tag.crud import create_tag
 from ..business_logic.warehouse.location.crud import create_location
+from ..business_logic.warehouse.product.crud import create_custom_product
 from ..db import db
-from ..enums import BoxState, HumanGender, Language, TagType
+from ..enums import BoxState, HumanGender, Language, ProductGender, TagType
 from ..models.definitions.base import Base
 
 nr_tags_per_base = 5
@@ -31,6 +32,7 @@ class Generator:
         self._generate_tags()
         self._generate_locations()
         self._generate_beneficiaries()
+        self._generate_products()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -162,6 +164,114 @@ class Generator:
                 beneficiaries, length=round(0.03 * len(beneficiaries)), unique=True
             ):
                 deactivate_beneficiary(beneficiary=beneficiary)
+
+    def _generate_products(self):
+        gendered_products = {
+            1: ["Underwear", "Tights"],
+            2: ["Trousers"],
+            3: ["T-Shirts"],
+            6: ["Jackets"],
+            12: ["Swimwear", "Gloves"],
+        }
+        unisex_products = {
+            1: ["Socks", "Hats"],
+            12: ["Belts"],
+        }
+        nongender_products = {
+            4: ["Umbrellas", "Pillows"],
+            9: ["Towels", "Toys"],
+            10: ["Soap", "Deodorant"],
+            11: ["Food"],
+            13: ["Tents", "Candles"],
+            15: ["Inhalation device"],
+        }
+        baby_products = ["Shirts", "Jackets", "Trousers"]  # category 8
+        size_ranges = {
+            "Underwear": 6,  # Mixed sizes
+            "Tights": 6,
+            "Socks": 6,
+            "Trousers": 1,
+            "T-Shirts": 1,
+            "Jackets": 1,
+        }
+
+        genders = [
+            ProductGender.Women,
+            ProductGender.Men,
+            ProductGender.Girl,
+            ProductGender.Boy,
+        ]
+        unisex_genders = [ProductGender.UnisexAdult, ProductGender.UnisexKid]
+
+        for b in self.base_ids:
+            for category_id, names in gendered_products.items():
+                for name in names:
+                    # Fall back to One-size size range
+                    size_range_id = size_ranges.get(name, 7)
+                    for gender in genders:
+                        create_custom_product(
+                            category_id=category_id,
+                            size_range_id=size_range_id,
+                            gender=gender,
+                            base_id=b,
+                            name=name,
+                            comment=self.fake.sentence(nb_words=3),
+                            in_shop=self.fake.boolean(chance_of_getting_true=10),
+                            user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                        )
+
+            for category_id, names in unisex_products.items():
+                for name in names:
+                    size_range_id = size_ranges.get(name, 7)
+                    for gender in unisex_genders:
+                        create_custom_product(
+                            category_id=category_id,
+                            size_range_id=size_range_id,
+                            gender=gender,
+                            base_id=b,
+                            name=name,
+                            comment=self.fake.sentence(nb_words=3),
+                            in_shop=self.fake.boolean(chance_of_getting_true=10),
+                            user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                        )
+
+            for category_id, names in nongender_products.items():
+                for name in names:
+                    create_custom_product(
+                        category_id=category_id,
+                        size_range_id=7,
+                        gender=ProductGender.none,
+                        base_id=b,
+                        name=name,
+                        comment=self.fake.sentence(nb_words=3),
+                        in_shop=self.fake.boolean(chance_of_getting_true=10),
+                        user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    )
+
+            for name in baby_products:
+                create_custom_product(
+                    category_id=8,
+                    size_range_id=22,
+                    gender=ProductGender.UnisexBaby,
+                    base_id=b,
+                    name=name,
+                    comment=self.fake.sentence(nb_words=3),
+                    in_shop=self.fake.boolean(chance_of_getting_true=10),
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+
+            for gender, size_range_id in zip(
+                [ProductGender.Women, ProductGender.Men, ProductGender.UnisexKid],
+                [3, 8, 6],
+            ):
+                create_custom_product(
+                    category_id=5,
+                    size_range_id=size_range_id,
+                    gender=gender,
+                    base_id=b,
+                    name="Shoes",
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
 
     def _insert_into_database(self):
         pass
