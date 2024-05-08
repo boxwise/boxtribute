@@ -31,6 +31,10 @@ HAVING count(*) = 1
             single_base_user_role_ids=single_base_user_role_ids,
             single_base_user_group_ids=single_base_user_group_ids,
         )
+        _show_affected_user_management_entries(
+            single_base_user_role_ids=single_base_user_role_ids,
+            users=users,
+        )
         if not force:
             LOGGER.warning(
                 "The command did not make any effective changes. Use the "
@@ -134,6 +138,16 @@ WHERE cms_usergroups_id IN %s
         f"Nr of rows to be deleted from cms_usergroups_functions: {len(result)}"
     )
     LOGGER.info(result)
+
+
+def _show_affected_user_management_entries(*, single_base_user_role_ids, users):
+    LOGGER.info(f"Nr of Auth0 roles to be deleted: {len(single_base_user_role_ids)}")
+    LOGGER.info(
+        f"Nr of Auth0 multi-base users to be updated: {len(users['multi_base'])}"
+    )
+    LOGGER.info(
+        f"Nr of Auth0 single-base users to be blocked: {len(users['single_base'])}"
+    )
 
 
 def _update_user_data_in_database(
