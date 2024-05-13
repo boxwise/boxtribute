@@ -1,4 +1,5 @@
 from faker import Faker, providers
+from peewee import fn
 
 from ..auth import CurrentUser
 from ..business_logic.beneficiary.crud import create_beneficiary, deactivate_beneficiary
@@ -9,6 +10,7 @@ from ..business_logic.box_transfer.agreement.crud import (
     reject_transfer_agreement,
 )
 from ..business_logic.tag.crud import create_tag
+from ..business_logic.warehouse.box.crud import create_box, update_box
 from ..business_logic.warehouse.location.crud import create_location
 from ..business_logic.warehouse.product.crud import create_custom_product
 from ..business_logic.warehouse.qr_code.crud import create_qr_code
@@ -22,8 +24,11 @@ from ..enums import (
     TransferAgreementType,
 )
 from ..models.definitions.base import Base
+from ..models.definitions.product import Product
+from ..models.definitions.size import Size
+from ..models.utils import convert_ids
 
-nr_tags_per_base = 5
+nr_tags_per_base = 20
 
 
 class Generator:
@@ -39,7 +44,10 @@ class Generator:
 
         self.base_ids = None
         self.user_ids_for_base = None
-        self.tags = []
+        self.tags = None
+        self.qr_codes = None
+        self.products = None
+        self.locations = None
 
     def run(self):
         self._fetch_bases()
@@ -50,10 +58,14 @@ class Generator:
         self._generate_products()
         self._generate_qr_codes()
         self._generate_transfer_agreements()
+        self._generate_boxes()
         self._insert_into_database()
 
     def _fetch_bases(self):
         self.base_ids = [b.id for b in Base.select(Base.id).where(Base.id < 100)]
+        self.products = {b: [] for b in self.base_ids}
+        self.tags = {b: [] for b in self.base_ids}
+        self.locations = {b: [] for b in self.base_ids}
 
     def _fetch_users_for_bases(self):
         cursor = db.database.execute_sql(
@@ -78,7 +90,7 @@ class Generator:
     def _generate_tags(self):
         for b in self.base_ids:
             for _ in range(nr_tags_per_base):
-                create_tag(
+                tag = create_tag(
                     name=self.fake.word(),
                     description=self.fake.sentence(nb_words=3),
                     color=self.fake.color(),
@@ -86,6 +98,7 @@ class Generator:
                     base_id=b,
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+                self.tags[b].append(tag)
 
     def _generate_locations(self):
         for b in self.base_ids:
@@ -99,7 +112,7 @@ class Generator:
                 ],
                 ["Stockroom", "WH", "FreeShop", "LOST", "SCRAP"],
             ):
-                create_location(
+                location = create_location(
                     name=name,
                     base_id=b,
                     box_state=box_state,
@@ -107,6 +120,7 @@ class Generator:
                     is_stockroom=name == "Stockroom",
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+                self.locations[b].append(location)
 
     def _generate_beneficiaries(self):
         nr_adults_per_base = 100
@@ -226,7 +240,7 @@ class Generator:
                     # Fall back to One-size size range
                     size_range_id = size_ranges.get(name, 7)
                     for gender in genders:
-                        create_custom_product(
+                        product = create_custom_product(
                             category_id=category_id,
                             size_range_id=size_range_id,
                             gender=gender,
@@ -236,12 +250,13 @@ class Generator:
                             in_shop=self.fake.boolean(chance_of_getting_true=10),
                             user_id=self.fake.random_element(self.user_ids_for_base[b]),
                         )
+                        self.products[b].append(product)
 
             for category_id, names in unisex_products.items():
                 for name in names:
                     size_range_id = size_ranges.get(name, 7)
                     for gender in unisex_genders:
-                        create_custom_product(
+                        product = create_custom_product(
                             category_id=category_id,
                             size_range_id=size_range_id,
                             gender=gender,
@@ -251,10 +266,11 @@ class Generator:
                             in_shop=self.fake.boolean(chance_of_getting_true=10),
                             user_id=self.fake.random_element(self.user_ids_for_base[b]),
                         )
+                        self.products[b].append(product)
 
             for category_id, names in nongender_products.items():
                 for name in names:
-                    create_custom_product(
+                    product = create_custom_product(
                         category_id=category_id,
                         size_range_id=7,
                         gender=ProductGender.none,
@@ -264,9 +280,10 @@ class Generator:
                         in_shop=self.fake.boolean(chance_of_getting_true=10),
                         user_id=self.fake.random_element(self.user_ids_for_base[b]),
                     )
+                    self.products[b].append(product)
 
             for name in baby_products:
-                create_custom_product(
+                product = create_custom_product(
                     category_id=8,
                     size_range_id=22,
                     gender=ProductGender.UnisexBaby,
@@ -276,12 +293,13 @@ class Generator:
                     in_shop=self.fake.boolean(chance_of_getting_true=10),
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+                self.products[b].append(product)
 
             for gender, size_range_id in zip(
                 [ProductGender.Women, ProductGender.Men, ProductGender.UnisexKid],
                 [3, 8, 6],
             ):
-                create_custom_product(
+                product = create_custom_product(
                     category_id=5,
                     size_range_id=size_range_id,
                     gender=gender,
@@ -289,11 +307,15 @@ class Generator:
                     name="Shoes",
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+                self.products[b].append(product)
 
     def _generate_qr_codes(self):
         user_ids = [i for ids in self.user_ids_for_base.values() for i in ids]
-        for _ in range(400):
-            create_qr_code(user_id=self.fake.random_element(user_ids))
+        qr_codes = []
+        for _ in range(500):
+            qr_code = create_qr_code(user_id=self.fake.random_element(user_ids))
+            qr_codes.append(qr_code)
+        self.qr_codes = tuple(qr_codes)
 
     def _generate_transfer_agreements(self):
         org1_user = CurrentUser(
@@ -343,6 +365,92 @@ class Generator:
             initiating_organisation_base_ids=[2, 3, 4],
             user=org2_user,
         )
+
+    def _generate_boxes(self):
+        # Sizes for each product category's size range
+        result = (
+            Size.select(
+                Product.category,
+                fn.GROUP_CONCAT(Size.id).python_value(convert_ids).alias("size_ids"),
+            )
+            .join(
+                Product,
+                on=(Product.size_range == Size.size_range),
+            )
+            .group_by(Product.category)
+            .namedtuples()
+        )
+        size_ids = {row.category: row.size_ids for row in result}
+
+        for b in self.base_ids:
+            box_tag_ids = [
+                tag.id for tag in self.tags[b] if tag.type in [TagType.Box, TagType.All]
+            ]
+            in_stock_location_ids = [
+                loc.id
+                for loc in self.locations[b]
+                if loc.box_state_id == BoxState.InStock
+            ]
+            non_in_stock_location_ids = [
+                loc.id
+                for loc in self.locations[b]
+                if loc.box_state_id != BoxState.InStock
+            ]
+            boxes = []
+
+            for _ in range(100):
+                product = self.fake.random_element(self.products[b])
+                box = create_box(
+                    product_id=product.id,
+                    location_id=self.fake.random_element(in_stock_location_ids),
+                    size_id=self.fake.random_element(size_ids[product.category_id]),
+                    number_of_items=self.fake.random_int(max=999),
+                    comment=(
+                        self.fake.sentence(nb_words=3) if self.fake.boolean(20) else ""
+                    ),
+                    # Assign unique QR code to box
+                    qr_code=self.fake.unique.random_element(self.qr_codes).code,
+                    # Assign at most 3 tags to half of the boxes
+                    tag_ids=(
+                        self.fake.random_elements(
+                            box_tag_ids,
+                            unique=True,
+                            length=self.fake.random_int(min=1, max=3),
+                        )
+                        if self.fake.boolean()
+                        else None
+                    ),
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+                boxes.append(box)
+
+            # Change some box properties
+            for box in self.fake.random_elements(boxes, length=50):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    location_id=self.fake.random_element(non_in_stock_location_ids),
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
+                product = self.fake.random_element(self.products[b])
+                update_box(
+                    label_identifier=box.label_identifier,
+                    product_id=product.id,
+                    size_id=self.fake.random_element(size_ids[product.category_id]),
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    number_of_items=self.fake.random_int(max=999),
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    comment=self.fake.sentence(nb_words=2),
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
 
     def _insert_into_database(self):
         pass

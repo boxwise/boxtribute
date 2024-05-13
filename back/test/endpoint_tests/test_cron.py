@@ -47,7 +47,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     # Verify generation of fake data
     query = "query { tags { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 24 + 20  # base seed + generated
+    assert len(response) == 24 + 80  # base seed + generated
 
     query = "query { locations { id } }"
     response = assert_successful_request(cron_client, query)
@@ -64,6 +64,13 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     query = "query { transferAgreements { id } }"
     response = assert_successful_request(cron_client, query)
     assert len(response) == 4
+
+    nr_of_boxes = 0
+    for base_id in [1, 2, 3, 4]:
+        query = f"query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"
+        response = assert_successful_request(cron_client, query)
+        nr_of_boxes += response["totalCount"]
+    assert nr_of_boxes == 784 + 400  # base seed + generated
 
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):
