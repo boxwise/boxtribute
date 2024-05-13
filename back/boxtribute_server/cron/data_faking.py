@@ -1,12 +1,26 @@
 from faker import Faker, providers
 
+from ..auth import CurrentUser
 from ..business_logic.beneficiary.crud import create_beneficiary, deactivate_beneficiary
+from ..business_logic.box_transfer.agreement.crud import (
+    accept_transfer_agreement,
+    cancel_transfer_agreement,
+    create_transfer_agreement,
+    reject_transfer_agreement,
+)
 from ..business_logic.tag.crud import create_tag
 from ..business_logic.warehouse.location.crud import create_location
 from ..business_logic.warehouse.product.crud import create_custom_product
 from ..business_logic.warehouse.qr_code.crud import create_qr_code
 from ..db import db
-from ..enums import BoxState, HumanGender, Language, ProductGender, TagType
+from ..enums import (
+    BoxState,
+    HumanGender,
+    Language,
+    ProductGender,
+    TagType,
+    TransferAgreementType,
+)
 from ..models.definitions.base import Base
 
 nr_tags_per_base = 5
@@ -35,6 +49,7 @@ class Generator:
         self._generate_beneficiaries()
         self._generate_products()
         self._generate_qr_codes()
+        self._generate_transfer_agreements()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -279,6 +294,55 @@ class Generator:
         user_ids = [i for ids in self.user_ids_for_base.values() for i in ids]
         for _ in range(400):
             create_qr_code(user_id=self.fake.random_element(user_ids))
+
+    def _generate_transfer_agreements(self):
+        org1_user = CurrentUser(
+            id=2, organisation_id=1, base_ids=[1], timezone="Europe/Rome"
+        )
+        org2_user = CurrentUser(
+            id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
+        )
+
+        # Rejected agreement
+        agreement = create_transfer_agreement(
+            initiating_organisation_id=1,
+            partner_organisation_id=2,
+            type=TransferAgreementType.Bidirectional,
+            initiating_organisation_base_ids=[1],
+            user=org1_user,
+        )
+        reject_transfer_agreement(agreement=agreement, user=org2_user)
+
+        # Canceled agreement
+        agreement = create_transfer_agreement(
+            initiating_organisation_id=2,
+            partner_organisation_id=1,
+            type=TransferAgreementType.Bidirectional,
+            initiating_organisation_base_ids=[2, 4],
+            user=org2_user,
+        )
+        accept_transfer_agreement(agreement=agreement, user=org1_user)
+        cancel_transfer_agreement(agreement=agreement, user=org1_user)
+
+        # Accepted agreement
+        agreement = create_transfer_agreement(
+            initiating_organisation_id=1,
+            partner_organisation_id=2,
+            type=TransferAgreementType.Bidirectional,
+            initiating_organisation_base_ids=[1],
+            partner_organisation_base_ids=[2],
+            user=org1_user,
+        )
+        accept_transfer_agreement(agreement=agreement, user=org2_user)
+
+        # UnderReview agreement
+        agreement = create_transfer_agreement(
+            initiating_organisation_id=2,
+            partner_organisation_id=1,
+            type=TransferAgreementType.Bidirectional,
+            initiating_organisation_base_ids=[2, 3, 4],
+            user=org2_user,
+        )
 
     def _insert_into_database(self):
         pass
