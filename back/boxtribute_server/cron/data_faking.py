@@ -4,6 +4,7 @@ from ..business_logic.beneficiary.crud import create_beneficiary, deactivate_ben
 from ..business_logic.tag.crud import create_tag
 from ..business_logic.warehouse.location.crud import create_location
 from ..business_logic.warehouse.product.crud import create_custom_product
+from ..business_logic.warehouse.qr_code.crud import create_qr_code
 from ..db import db
 from ..enums import BoxState, HumanGender, Language, ProductGender, TagType
 from ..models.definitions.base import Base
@@ -33,6 +34,7 @@ class Generator:
         self._generate_locations()
         self._generate_beneficiaries()
         self._generate_products()
+        self._generate_qr_codes()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -272,6 +274,11 @@ class Generator:
                     name="Shoes",
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+
+    def _generate_qr_codes(self):
+        user_ids = [i for ids in self.user_ids_for_base.values() for i in ids]
+        for _ in range(400):
+            create_qr_code(user_id=self.fake.random_element(user_ids))
 
     def _insert_into_database(self):
         pass
