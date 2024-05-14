@@ -47,11 +47,11 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     # Verify generation of fake data
     query = "query { tags { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 24 + 80  # base seed + generated
+    assert len(response) == 24 + 80 - 8  # base seed + generated - deleted
 
     query = "query { locations { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 29 + 20  # base seed + generated
+    assert len(response) == 29 + 24  # base seed + generated
 
     query = "query { beneficiaries { totalCount } }"
     response = assert_successful_request(cron_client, query)
@@ -59,7 +59,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
 
     query = "query { products { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 617 + 50 * 4  # base seed + generated
+    assert response["totalCount"] == 617 + 51 * 4  # base seed + generated
 
     query = "query { transferAgreements { id } }"
     response = assert_successful_request(cron_client, query)

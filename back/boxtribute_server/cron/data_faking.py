@@ -2,17 +2,25 @@ from faker import Faker, providers
 from peewee import fn
 
 from ..auth import CurrentUser
-from ..business_logic.beneficiary.crud import create_beneficiary, deactivate_beneficiary
+from ..business_logic.beneficiary.crud import (
+    create_beneficiary,
+    deactivate_beneficiary,
+    update_beneficiary,
+)
 from ..business_logic.box_transfer.agreement.crud import (
     accept_transfer_agreement,
     cancel_transfer_agreement,
     create_transfer_agreement,
     reject_transfer_agreement,
 )
-from ..business_logic.tag.crud import create_tag
+from ..business_logic.tag.crud import create_tag, delete_tag, update_tag
 from ..business_logic.warehouse.box.crud import create_box, update_box
-from ..business_logic.warehouse.location.crud import create_location
-from ..business_logic.warehouse.product.crud import create_custom_product
+from ..business_logic.warehouse.location.crud import create_location, delete_location
+from ..business_logic.warehouse.product.crud import (
+    create_custom_product,
+    delete_product,
+    edit_custom_product,
+)
 from ..business_logic.warehouse.qr_code.crud import create_qr_code
 from ..db import db
 from ..enums import (
@@ -100,6 +108,41 @@ class Generator:
                 )
                 self.tags[b].append(tag)
 
+            # Update some tag properties
+            length = round(nr_tags_per_base / 2)
+            for tag in self.fake.random_elements(self.tags[b], length=length):
+                update_tag(
+                    name=self.fake.word(),
+                    id=tag.id,
+                    tag=tag,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for tag in self.fake.random_elements(self.tags[b], length=length):
+                update_tag(
+                    description=self.fake.sentence(nb_words=4),
+                    id=tag.id,
+                    tag=tag,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for tag in self.fake.random_elements(self.tags[b], length=length):
+                update_tag(
+                    color=self.fake.color(),
+                    id=tag.id,
+                    tag=tag,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+
+            # Delete some tags
+            length = round(nr_tags_per_base / 10)
+            for tag in self.fake.random_elements(
+                self.tags[b], length=length, unique=True
+            ):
+                delete_tag(
+                    tag=tag,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+                self.tags[b].remove(tag)
+
     def _generate_locations(self):
         for b in self.base_ids:
             for box_state, name in zip(
@@ -109,8 +152,9 @@ class Generator:
                     BoxState.Donated,
                     BoxState.Lost,
                     BoxState.Scrap,
+                    BoxState.InStock,
                 ],
-                ["Stockroom", "WH", "FreeShop", "LOST", "SCRAP"],
+                ["Stockroom", "WH", "FreeShop", "LOST", "SCRAP", "Unused WH"],
             ):
                 location = create_location(
                     name=name,
@@ -121,6 +165,13 @@ class Generator:
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
                 self.locations[b].append(location)
+
+            # Delete last location in list
+            delete_location(
+                location=location,
+                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+            )
+            self.locations[b].remove(location)
 
     def _generate_beneficiaries(self):
         nr_adults_per_base = 100
@@ -189,6 +240,37 @@ class Generator:
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
                 beneficiaries.append(beneficiary)
+
+            # Update some beneficiary properties
+            length = round(0.5 * len(beneficiaries))
+            for beneficiary in self.fake.random_elements(beneficiaries, length=length):
+                update_beneficiary(
+                    registered=True,
+                    id=beneficiary.id,
+                    beneficiary=beneficiary,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for beneficiary in self.fake.random_elements(beneficiaries, length=length):
+                update_beneficiary(
+                    is_volunteer=not beneficiary.is_volunteer,
+                    id=beneficiary.id,
+                    beneficiary=beneficiary,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for beneficiary in self.fake.random_elements(beneficiaries, length=length):
+                update_beneficiary(
+                    comment=self.fake.sentence(nb_words=3),
+                    id=beneficiary.id,
+                    beneficiary=beneficiary,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for beneficiary in self.fake.random_elements(beneficiaries, length=length):
+                update_beneficiary(
+                    last_name=f"{beneficiary.last_name}er",
+                    id=beneficiary.id,
+                    beneficiary=beneficiary,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
 
             # Deactivate 3% of beneficiaries
             for beneficiary in self.fake.random_elements(
@@ -308,6 +390,56 @@ class Generator:
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
                 self.products[b].append(product)
+
+            # Delete a product
+            to_be_deleted_product = create_custom_product(
+                category_id=12,
+                size_range_id=17,
+                gender=ProductGender.UnisexKid,
+                base_id=b,
+                name="Child clothes",
+                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+            )
+            edit_custom_product(
+                gender=ProductGender.none,
+                id=to_be_deleted_product.id,
+                product=to_be_deleted_product,
+                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+            )
+            delete_product(
+                product=to_be_deleted_product,
+                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+            )
+
+            # Update some product properties
+            for product in self.fake.random_elements(self.products[b]):
+                edit_custom_product(
+                    name=product.name.lower(),
+                    id=product.id,
+                    product=product,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for product in self.fake.random_elements(self.products[b]):
+                edit_custom_product(
+                    price=self.fake.random_int(max=100),
+                    id=product.id,
+                    product=product,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for product in self.fake.random_elements(self.products[b]):
+                edit_custom_product(
+                    comment=self.fake.sentence(nb_words=2),
+                    id=product.id,
+                    product=product,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
+            for product in self.fake.random_elements(self.products[b]):
+                edit_custom_product(
+                    in_shop=not product.in_shop,
+                    id=product.id,
+                    product=product,
+                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                )
 
     def _generate_qr_codes(self):
         user_ids = [i for ids in self.user_ids_for_base.values() for i in ids]
