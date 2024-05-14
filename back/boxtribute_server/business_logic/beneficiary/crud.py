@@ -1,5 +1,7 @@
 from ...db import db
+from ...enums import TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
     save_creation_to_history,
@@ -26,6 +28,7 @@ def create_beneficiary(
     family_head_id=None,
     signature=None,
     date_of_signature=None,
+    tag_ids=None,
 ):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
@@ -57,12 +60,27 @@ def create_beneficiary(
     if date_of_signature is not None:
         # Work-around because the DB default 0000-00-00 is not a Python date
         data["date_of_signature"] = date_of_signature
-    new_beneficiary = Beneficiary.create(**data)
 
-    language_ids = languages or []
-    XBeneficiaryLanguage.insert_many(
-        [{"language": lid, "beneficiary": new_beneficiary.id} for lid in language_ids]
-    ).execute()
+    with db.database.atomic():
+        new_beneficiary = Beneficiary.create(**data)
+
+        language_ids = languages or []
+        XBeneficiaryLanguage.insert_many(
+            [{"language": i, "beneficiary": new_beneficiary.id} for i in language_ids]
+        ).execute()
+
+        if tag_ids:
+            # Don't use assign_tag() because it requires an existing Beneficiary object,
+            # however the Beneficiary creation has not yet been committed to the DB
+            tags_relations = [
+                {
+                    "object_id": new_beneficiary.id,
+                    "object_type": TaggableObjectType.Beneficiary,
+                    "tag": tag_id,
+                }
+                for tag_id in set(tag_ids)
+            ]
+            TagsRelation.insert_many(tags_relations).execute()
 
     return new_beneficiary
 

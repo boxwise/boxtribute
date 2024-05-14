@@ -183,6 +183,11 @@ class Generator:
             beneficiary = None
             family_heads = []
             beneficiaries = []
+            beneficiary_tag_ids = [
+                tag.id
+                for tag in self.tags[b]
+                if tag.type in [TagType.Beneficiary, TagType.All]
+            ]
 
             for i in range(nr_adults_per_base):
                 group_id = self.fake.unique.random_number(digits=4, fix_len=True)
@@ -214,6 +219,16 @@ class Generator:
                     languages=self.fake.random_elements(
                         [lg.value for lg in Language], length=3, unique=True
                     )[:-1],
+                    # Assign at most 3 tags to half of the adult beneficiaries
+                    tag_ids=(
+                        self.fake.random_elements(
+                            beneficiary_tag_ids,
+                            unique=True,
+                            length=self.fake.random_int(min=1, max=3),
+                        )
+                        if self.fake.boolean()
+                        else None
+                    ),
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
                 beneficiaries.append(beneficiary)

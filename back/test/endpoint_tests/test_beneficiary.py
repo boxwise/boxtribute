@@ -108,7 +108,7 @@ def test_beneficiary_query(
 
 
 def test_beneficiary_mutations(
-    client, default_beneficiary, another_relative_beneficiary
+    client, default_beneficiary, another_relative_beneficiary, tags
 ):
     # Test case 9.2.1
     first_name = "Some"
@@ -121,8 +121,9 @@ def test_beneficiary_mutations(
     gender = HumanGender.Diverse
     languages = ["en", "ar"]
     comment = "today is a good day"
+    tag_id = str(tags[0]["id"])
 
-    beneficiary_creation_input_string = f"""{{
+    creation_input = f"""{{
                     firstName: "{first_name}",
                     lastName: "{last_name}",
                     dateOfBirth: "{dob}",
@@ -134,10 +135,11 @@ def test_beneficiary_mutations(
                     isVolunteer: true,
                     registered: false
                     dateOfSignature: "{dos}"
+                    tagIds: [{tag_id}]
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
-                creationInput : {beneficiary_creation_input_string}
+                creationInput : {creation_input}
             ) {{
                 id
                 firstName
@@ -155,6 +157,7 @@ def test_beneficiary_mutations(
                 registered
                 signature
                 dateOfSignature
+                tags {{ id }}
                 createdOn
                 createdBy {{ id }}
                 lastModifiedOn
@@ -179,6 +182,7 @@ def test_beneficiary_mutations(
     assert not created_beneficiary["registered"]
     assert created_beneficiary["signature"] is None
     assert created_beneficiary["dateOfSignature"] == dos
+    assert created_beneficiary["tags"] == [{"id": tag_id}]
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
@@ -247,7 +251,7 @@ def test_beneficiary_mutations(
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
-        "tags": [],
+        "tags": [{"id": tag_id, "color": tags[0]["color"], "name": tags[0]["name"]}],
     }
 
     # Test case 9.2.20

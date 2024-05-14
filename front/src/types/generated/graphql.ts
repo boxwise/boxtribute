@@ -142,6 +142,7 @@ export type BeneficiaryCreationInput = {
   lastName: Scalars['String'];
   registered: Scalars['Boolean'];
   signature?: InputMaybe<Scalars['String']>;
+  tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
 export type BeneficiaryDemographicsData = DataCube & {
