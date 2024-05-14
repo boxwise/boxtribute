@@ -1,7 +1,7 @@
 from boxtribute_server.auth import CurrentUser
+from boxtribute_server.business_logic.warehouse.location.crud import create_location
 from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState
-from boxtribute_server.business_logic.warehouse.location.crud import create_location
 from utils import assert_successful_request
 
 
@@ -68,6 +68,7 @@ def test_crud(client, default_base):
     )
     # assert location.box_state == BoxState.InStock
     assert location.box_state_id == BoxState.InStock.value
+    assert location.box_state_id == BoxState.InStock
     db.database.close()
 
     query = f"""query {{ location(id: {location.id}) {{

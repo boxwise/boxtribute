@@ -65,6 +65,10 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     response = assert_successful_request(cron_client, query)
     assert len(response) == 4
 
+    query = "query { shipments { id } }"
+    response = assert_successful_request(cron_client, query)
+    assert len(response) == 6
+
     nr_of_boxes = 0
     for base_id in [1, 2, 3, 4]:
         query = f"query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"

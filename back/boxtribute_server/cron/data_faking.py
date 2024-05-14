@@ -13,6 +13,16 @@ from ..business_logic.box_transfer.agreement.crud import (
     create_transfer_agreement,
     reject_transfer_agreement,
 )
+from ..business_logic.box_transfer.shipment.crud import (
+    _retrieve_shipment_details,
+    cancel_shipment,
+    create_shipment,
+    mark_shipment_as_lost,
+    send_shipment,
+    start_receiving_shipment,
+    update_shipment_when_preparing,
+    update_shipment_when_receiving,
+)
 from ..business_logic.tag.crud import create_tag, delete_tag, update_tag
 from ..business_logic.warehouse.box.crud import create_box, update_box
 from ..business_logic.warehouse.location.crud import create_location, delete_location
@@ -32,6 +42,7 @@ from ..enums import (
     TransferAgreementType,
 )
 from ..models.definitions.base import Base
+from ..models.definitions.box import Box
 from ..models.definitions.product import Product
 from ..models.definitions.size import Size
 from ..models.utils import convert_ids
@@ -56,6 +67,8 @@ class Generator:
         self.qr_codes = None
         self.products = None
         self.locations = None
+        self.boxes = None
+        self.accepted_agreement = None
 
     def run(self):
         self._fetch_bases()
@@ -67,6 +80,7 @@ class Generator:
         self._generate_qr_codes()
         self._generate_transfer_agreements()
         self._generate_boxes()
+        self._generate_shipments()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -74,6 +88,7 @@ class Generator:
         self.products = {b: [] for b in self.base_ids}
         self.tags = {b: [] for b in self.base_ids}
         self.locations = {b: [] for b in self.base_ids}
+        self.boxes = {b: [] for b in self.base_ids}
 
     def _fetch_users_for_bases(self):
         cursor = db.database.execute_sql(
@@ -499,10 +514,11 @@ class Generator:
             partner_organisation_id=2,
             type=TransferAgreementType.Bidirectional,
             initiating_organisation_base_ids=[1],
-            partner_organisation_base_ids=[2],
+            partner_organisation_base_ids=[2, 3],
             user=org1_user,
         )
         accept_transfer_agreement(agreement=agreement, user=org2_user)
+        self.accepted_agreement = agreement
 
         # UnderReview agreement
         agreement = create_transfer_agreement(
@@ -598,6 +614,126 @@ class Generator:
                     comment=self.fake.sentence(nb_words=2),
                     user_id=self.fake.random_element(self.user_ids_for_base[b]),
                 )
+
+            self.boxes[b] = boxes
+
+    def _generate_shipments(self):
+        org1_user = CurrentUser(
+            id=2, organisation_id=1, base_ids=[1], timezone="Europe/Rome"
+        )
+        org2_user = CurrentUser(
+            id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
+        )
+
+        def _prepare_shipment(source_base_id, target_base_id):
+            user = org1_user if source_base_id == 1 else org2_user
+            shipment = create_shipment(
+                source_base_id=source_base_id,
+                target_base_id=target_base_id,
+                transfer_agreement_id=self.accepted_agreement.id,
+                user=user,
+            )
+            nr_prepared_boxes = 10
+            prepared_boxes = self.fake.random_elements(
+                [
+                    box
+                    for box in self.boxes[source_base_id]
+                    if box.state_id == BoxState.InStock
+                ],
+                unique=True,
+                length=nr_prepared_boxes,
+            )
+            box_label_identifiers = [b.label_identifier for b in prepared_boxes]
+            update_shipment_when_preparing(
+                shipment=shipment,
+                prepared_box_label_identifiers=box_label_identifiers,
+                user=user,
+            )
+            return shipment, prepared_boxes
+
+        # Shipment 1 -> 2. Prepared, sent, and fully received (Completed)
+        source_base_id = 1
+        target_base_id = 2
+        shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
+        prepared_box_label_identifiers = [b.label_identifier for b in prepared_boxes]
+        removed_box_label_identifiers = prepared_box_label_identifiers[-3:]
+        lost_box_label_identifiers = prepared_box_label_identifiers[:3]
+        update_shipment_when_preparing(
+            shipment=shipment,
+            removed_box_label_identifiers=removed_box_label_identifiers,
+            user=org1_user,
+        )
+        send_shipment(shipment=shipment, user=org1_user)
+
+        start_receiving_shipment(shipment=shipment, user=org2_user)
+        update_inputs = []
+        target_location_ids = [
+            loc.id
+            for loc in self.locations[target_base_id]
+            if loc.box_state_id == BoxState.InStock
+        ]
+        details = _retrieve_shipment_details(
+            shipment.id, Box.state == BoxState.Receiving
+        )
+        product_matching = {}
+        for source_product in self.products[source_base_id]:
+            for target_product in self.products[target_base_id]:
+                if (
+                    source_product.name.lower() == target_product.name.lower()
+                    and source_product.gender_id == target_product.gender_id
+                ):
+                    product_matching[source_product.id] = target_product
+                    break
+        for detail in details:
+            assert detail.box in prepared_boxes, detail.box.label_identifier
+            update_inputs.append(
+                {
+                    "id": detail.id,
+                    "target_product_id": product_matching[detail.box.product_id].id,
+                    "target_location_id": self.fake.random_element(target_location_ids),
+                    "target_size_id": detail.box.size_id,
+                    "target_quantity": detail.box.number_of_items,
+                },
+            )
+            self.boxes[source_base_id].remove(detail.box)
+            self.boxes[target_base_id].append(detail.box)
+        update_shipment_when_receiving(
+            shipment=shipment,
+            received_shipment_detail_update_inputs=update_inputs,
+            lost_box_label_identifiers=lost_box_label_identifiers,
+            user=org2_user,
+        )
+
+        # Another Shipment 1 -> 2. Prepared, then canceled
+        source_base_id = 1
+        target_base_id = 2
+        shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
+        cancel_shipment(shipment=shipment, user=org1_user)
+
+        # Shipment 2 -> 1. Prepared, sent, eventually marked as Lost
+        source_base_id = 2
+        target_base_id = 1
+        shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
+        send_shipment(shipment=shipment, user=org2_user)
+        mark_shipment_as_lost(shipment=shipment, user=org2_user)
+
+        # Another Shipment 2 -> 1. Prepared, sent, eventually started Receiving
+        source_base_id = 2
+        target_base_id = 1
+        shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
+        send_shipment(shipment=shipment, user=org2_user)
+        start_receiving_shipment(shipment=shipment, user=org2_user)
+
+        # Shipment 3 -> 1. Preparing
+        source_base_id = 3
+        target_base_id = 1
+        shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
+
+        # Another Shipment 3 -> 1. Prepared and Sent
+        source_base_id = 3
+        target_base_id = 1
+        shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
+        send_shipment(shipment=shipment, user=org2_user)
 
     def _insert_into_database(self):
         pass
