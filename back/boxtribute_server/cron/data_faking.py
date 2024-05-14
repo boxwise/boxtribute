@@ -1,4 +1,5 @@
 from faker import Faker, providers
+from flask import g
 from peewee import fn
 
 from ..auth import CurrentUser
@@ -62,7 +63,7 @@ class Generator:
         self.fake.add_provider(providers.python)
 
         self.base_ids = None
-        self.user_ids_for_base = None
+        self.users = {}
         self.tags = None
         self.qr_codes = None
         self.products = None
@@ -91,6 +92,9 @@ class Generator:
         self.boxes = {b: [] for b in self.base_ids}
 
     def _fetch_users_for_bases(self):
+        bases = Base.select(Base.id, Base.organisation)
+        org_ids = {b.id: b.organisation_id for b in bases}
+
         cursor = db.database.execute_sql(
             """\
     SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) FROM cms_users u
@@ -104,11 +108,25 @@ class Generator:
             (self.base_ids,),
         )
         result = cursor.fetchall()
-        users = {}
         for row in result:
             base_id, user_ids = row
-            users[base_id] = [int(i) for i in user_ids.split(",")]
-        self.user_ids_for_base = users
+            self.users[base_id] = [
+                CurrentUser(
+                    id=int(i),
+                    organisation_id=org_ids[base_id],
+                    timezone=self.fake.timezone(),
+                )
+                for i in user_ids.split(",")
+            ]
+
+    def _user_id(self, base_id):
+        """Return the ID of a random user in the base with specified ID. Patch the
+        global `g.user` to make the functions in `models/utils.py` work.
+        This method should be used anytime a CRUD function requires a user ID.
+        """
+        user = self.fake.random_element(self.users[base_id])
+        g.user = user
+        return user.id
 
     def _generate_tags(self):
         for b in self.base_ids:
@@ -119,7 +137,7 @@ class Generator:
                     color=self.fake.color(),
                     type=self.fake.enum(TagType),
                     base_id=b,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 self.tags[b].append(tag)
 
@@ -130,21 +148,21 @@ class Generator:
                     name=self.fake.word(),
                     id=tag.id,
                     tag=tag,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for tag in self.fake.random_elements(self.tags[b], length=length):
                 update_tag(
                     description=self.fake.sentence(nb_words=4),
                     id=tag.id,
                     tag=tag,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for tag in self.fake.random_elements(self.tags[b], length=length):
                 update_tag(
                     color=self.fake.color(),
                     id=tag.id,
                     tag=tag,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
 
             # Delete some tags
@@ -154,7 +172,7 @@ class Generator:
             ):
                 delete_tag(
                     tag=tag,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 self.tags[b].remove(tag)
 
@@ -177,14 +195,14 @@ class Generator:
                     box_state=box_state,
                     is_shop=name == "FreeShop",
                     is_stockroom=name == "Stockroom",
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 self.locations[b].append(location)
 
             # Delete last location in list
             delete_location(
                 location=location,
-                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                user_id=self._user_id(b),
             )
             self.locations[b].remove(location)
 
@@ -244,7 +262,7 @@ class Generator:
                         if self.fake.boolean()
                         else None
                     ),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 beneficiaries.append(beneficiary)
 
@@ -267,7 +285,7 @@ class Generator:
                     family_head_id=parent.id,
                     is_volunteer=False,
                     registered=self.fake.boolean(),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 beneficiaries.append(beneficiary)
 
@@ -278,28 +296,28 @@ class Generator:
                     registered=True,
                     id=beneficiary.id,
                     beneficiary=beneficiary,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for beneficiary in self.fake.random_elements(beneficiaries, length=length):
                 update_beneficiary(
                     is_volunteer=not beneficiary.is_volunteer,
                     id=beneficiary.id,
                     beneficiary=beneficiary,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for beneficiary in self.fake.random_elements(beneficiaries, length=length):
                 update_beneficiary(
                     comment=self.fake.sentence(nb_words=3),
                     id=beneficiary.id,
                     beneficiary=beneficiary,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for beneficiary in self.fake.random_elements(beneficiaries, length=length):
                 update_beneficiary(
                     last_name=f"{beneficiary.last_name}er",
                     id=beneficiary.id,
                     beneficiary=beneficiary,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
 
             # Deactivate 3% of beneficiaries
@@ -360,7 +378,7 @@ class Generator:
                             name=name,
                             comment=self.fake.sentence(nb_words=3),
                             in_shop=self.fake.boolean(chance_of_getting_true=10),
-                            user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                            user_id=self._user_id(b),
                         )
                         self.products[b].append(product)
 
@@ -376,7 +394,7 @@ class Generator:
                             name=name,
                             comment=self.fake.sentence(nb_words=3),
                             in_shop=self.fake.boolean(chance_of_getting_true=10),
-                            user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                            user_id=self._user_id(b),
                         )
                         self.products[b].append(product)
 
@@ -390,7 +408,7 @@ class Generator:
                         name=name,
                         comment=self.fake.sentence(nb_words=3),
                         in_shop=self.fake.boolean(chance_of_getting_true=10),
-                        user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                        user_id=self._user_id(b),
                     )
                     self.products[b].append(product)
 
@@ -403,7 +421,7 @@ class Generator:
                     name=name,
                     comment=self.fake.sentence(nb_words=3),
                     in_shop=self.fake.boolean(chance_of_getting_true=10),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 self.products[b].append(product)
 
@@ -417,7 +435,7 @@ class Generator:
                     gender=gender,
                     base_id=b,
                     name="Shoes",
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 self.products[b].append(product)
 
@@ -428,17 +446,17 @@ class Generator:
                 gender=ProductGender.UnisexKid,
                 base_id=b,
                 name="Child clothes",
-                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                user_id=self._user_id(b),
             )
             edit_custom_product(
                 gender=ProductGender.none,
                 id=to_be_deleted_product.id,
                 product=to_be_deleted_product,
-                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                user_id=self._user_id(b),
             )
             delete_product(
                 product=to_be_deleted_product,
-                user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                user_id=self._user_id(b),
             )
 
             # Update some product properties
@@ -447,35 +465,37 @@ class Generator:
                     name=product.name.lower(),
                     id=product.id,
                     product=product,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for product in self.fake.random_elements(self.products[b]):
                 edit_custom_product(
                     price=self.fake.random_int(max=100),
                     id=product.id,
                     product=product,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for product in self.fake.random_elements(self.products[b]):
                 edit_custom_product(
                     comment=self.fake.sentence(nb_words=2),
                     id=product.id,
                     product=product,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for product in self.fake.random_elements(self.products[b]):
                 edit_custom_product(
                     in_shop=not product.in_shop,
                     id=product.id,
                     product=product,
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
 
     def _generate_qr_codes(self):
-        user_ids = [i for ids in self.user_ids_for_base.values() for i in ids]
+        users = [user for users in self.users.values() for user in users]
         qr_codes = []
         for _ in range(500):
-            qr_code = create_qr_code(user_id=self.fake.random_element(user_ids))
+            user = self.fake.random_element(users)
+            g.user = user
+            qr_code = create_qr_code(user_id=user.id)
             qr_codes.append(qr_code)
         self.qr_codes = tuple(qr_codes)
 
@@ -583,7 +603,7 @@ class Generator:
                         if self.fake.boolean()
                         else None
                     ),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
                 boxes.append(box)
 
@@ -592,7 +612,7 @@ class Generator:
                 update_box(
                     label_identifier=box.label_identifier,
                     location_id=self.fake.random_element(non_in_stock_location_ids),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for box in self.fake.random_elements(boxes, length=50):
                 product = self.fake.random_element(self.products[b])
@@ -600,19 +620,19 @@ class Generator:
                     label_identifier=box.label_identifier,
                     product_id=product.id,
                     size_id=self.fake.random_element(size_ids[product.category_id]),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for box in self.fake.random_elements(boxes, length=50):
                 update_box(
                     label_identifier=box.label_identifier,
                     number_of_items=self.fake.random_int(max=999),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
             for box in self.fake.random_elements(boxes, length=50):
                 update_box(
                     label_identifier=box.label_identifier,
                     comment=self.fake.sentence(nb_words=2),
-                    user_id=self.fake.random_element(self.user_ids_for_base[b]),
+                    user_id=self._user_id(b),
                 )
 
             self.boxes[b] = boxes
