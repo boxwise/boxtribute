@@ -5,6 +5,7 @@ from peewee import fn
 from ..auth import CurrentUser
 from ..business_logic.beneficiary.crud import (
     create_beneficiary,
+    create_transaction,
     deactivate_beneficiary,
     update_beneficiary,
 )
@@ -69,6 +70,7 @@ class Generator:
         self.products = None
         self.locations = None
         self.boxes = None
+        self.beneficiaries = None
         self.accepted_agreement = None
 
     def run(self):
@@ -82,6 +84,7 @@ class Generator:
         self._generate_transfer_agreements()
         self._generate_boxes()
         self._generate_shipments()
+        self._generate_transactions()
         self._insert_into_database()
 
     def _fetch_bases(self):
@@ -90,6 +93,7 @@ class Generator:
         self.tags = {b: [] for b in self.base_ids}
         self.locations = {b: [] for b in self.base_ids}
         self.boxes = {b: [] for b in self.base_ids}
+        self.beneficiaries = {b: [] for b in self.base_ids}
 
     def _fetch_users_for_bases(self):
         bases = Base.select(Base.id, Base.organisation)
@@ -326,6 +330,8 @@ class Generator:
             ):
                 deactivate_beneficiary(beneficiary=beneficiary)
 
+            self.beneficiaries[b] = beneficiaries
+
     def _generate_products(self):
         gendered_products = {
             1: ["Underwear", "Tights"],
@@ -376,6 +382,7 @@ class Generator:
                             gender=gender,
                             base_id=b,
                             name=name,
+                            price=self.fake.random_int(max=100),
                             comment=self.fake.sentence(nb_words=3),
                             in_shop=self.fake.boolean(chance_of_getting_true=10),
                             user_id=self._user_id(b),
@@ -392,6 +399,7 @@ class Generator:
                             gender=gender,
                             base_id=b,
                             name=name,
+                            price=self.fake.random_int(max=100),
                             comment=self.fake.sentence(nb_words=3),
                             in_shop=self.fake.boolean(chance_of_getting_true=10),
                             user_id=self._user_id(b),
@@ -406,6 +414,7 @@ class Generator:
                         gender=ProductGender.none,
                         base_id=b,
                         name=name,
+                        price=self.fake.random_int(max=100),
                         comment=self.fake.sentence(nb_words=3),
                         in_shop=self.fake.boolean(chance_of_getting_true=10),
                         user_id=self._user_id(b),
@@ -419,6 +428,7 @@ class Generator:
                     gender=ProductGender.UnisexBaby,
                     base_id=b,
                     name=name,
+                    price=self.fake.random_int(max=100),
                     comment=self.fake.sentence(nb_words=3),
                     in_shop=self.fake.boolean(chance_of_getting_true=10),
                     user_id=self._user_id(b),
@@ -435,6 +445,7 @@ class Generator:
                     gender=gender,
                     base_id=b,
                     name="Shoes",
+                    price=self.fake.random_int(max=100),
                     user_id=self._user_id(b),
                 )
                 self.products[b].append(product)
@@ -754,6 +765,38 @@ class Generator:
         target_base_id = 1
         shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
         send_shipment(shipment=shipment, user=org2_user)
+
+    def _generate_transactions(self):
+        for b in self.base_ids:
+            # Only family heads can perform transactions
+            family_heads = [
+                bene for bene in self.beneficiaries[b] if bene.family_head_id is None
+            ]
+            for family_head in family_heads:
+                # Add credit
+                credit = 1000
+                create_transaction(
+                    beneficiary_id=family_head.id,
+                    tokens=credit,
+                    user_id=self._user_id(b),
+                )
+
+                # Add at most 4 purchases
+                for _ in range(self.fake.random_int(max=4)):
+                    count = self.fake.random_int(min=1, max=5)
+                    product = self.fake.random_element(self.products[b])
+                    tokens = count * product.price
+                    if tokens > credit:
+                        # Make sure the credit remains positive
+                        break
+                    create_transaction(
+                        beneficiary_id=family_head.id,
+                        tokens=-tokens,
+                        count=count,
+                        product_id=product.id,
+                        user_id=self._user_id(b),
+                    )
+                    credit -= tokens
 
     def _insert_into_database(self):
         pass

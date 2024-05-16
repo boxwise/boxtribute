@@ -2,6 +2,7 @@ from ...db import db
 from ...enums import TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.tags_relation import TagsRelation
+from ...models.definitions.transaction import Transaction
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
     save_creation_to_history,
@@ -165,3 +166,25 @@ def deactivate_beneficiary(*, beneficiary):
             for child in children:
                 deactivate_beneficiary(beneficiary=child)
     return beneficiary
+
+
+@save_creation_to_history
+def create_transaction(
+    *,
+    beneficiary_id=None,
+    count=0,
+    description="",
+    product_id=None,
+    tokens=0,
+    user_id,
+):
+    """Insert information for a new Transaction in the database."""
+    return Transaction.create(
+        beneficiary=beneficiary_id,
+        count=count,
+        description=description,
+        tokens=tokens,
+        product=product_id,
+        created_on=utcnow(),
+        created_by=user_id,
+    )
