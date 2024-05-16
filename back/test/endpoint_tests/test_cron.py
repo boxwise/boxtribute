@@ -55,7 +55,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
 
     query = "query { beneficiaries { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 8 + 900  # base seed + generated
+    assert response["totalCount"] == 9 + 900  # base seed + generated
 
     query = "query { products { totalCount } }"
     response = assert_successful_request(cron_client, query)
