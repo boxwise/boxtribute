@@ -74,8 +74,7 @@ class Generator:
         self.accepted_agreement = None
 
     def run(self):
-        self._fetch_bases()
-        self._fetch_users_for_bases()
+        self._fetch_bases_and_users()
         self._generate_tags()
         self._generate_locations()
         self._generate_beneficiaries()
@@ -87,16 +86,15 @@ class Generator:
         self._generate_transactions()
         self._insert_into_database()
 
-    def _fetch_bases(self):
-        self.base_ids = [b.id for b in Base.select(Base.id).where(Base.id < 100)]
+    def _fetch_bases_and_users(self):
+        bases = list(Base.select().where(Base.id < 100))
+        self.base_ids = [b.id for b in bases]
         self.products = {b: [] for b in self.base_ids}
         self.tags = {b: [] for b in self.base_ids}
         self.locations = {b: [] for b in self.base_ids}
         self.boxes = {b: [] for b in self.base_ids}
         self.beneficiaries = {b: [] for b in self.base_ids}
 
-    def _fetch_users_for_bases(self):
-        bases = Base.select(Base.id, Base.organisation)
         org_ids = {b.id: b.organisation_id for b in bases}
 
         cursor = db.database.execute_sql(
