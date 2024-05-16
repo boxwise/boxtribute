@@ -47,23 +47,23 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     # Verify generation of fake data
     query = "query { tags { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 24 + 80 - 8  # base seed + generated - deleted
+    assert len(response) == 80 - 8  # generated - deleted
 
     query = "query { locations { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 29 + 24  # base seed + generated
+    assert len(response) == 7 + 24  # base seed + generated
 
     query = "query { beneficiaries { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 1008 + 900  # base seed + generated
+    assert response["totalCount"] == 8 + 900  # base seed + generated
 
     query = "query { products { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 617 + 51 * 4  # base seed + generated
+    assert response["totalCount"] == 8 + 51 * 4  # base seed + generated
 
     query = "query { transferAgreements { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 4
+    assert len(response) == 1 + 4  # base seed + generated
 
     query = "query { shipments { id } }"
     response = assert_successful_request(cron_client, query)
@@ -74,7 +74,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
         query = f"query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"
         response = assert_successful_request(cron_client, query)
         nr_of_boxes += response["totalCount"]
-    assert nr_of_boxes == 784 + 400  # base seed + generated
+    assert nr_of_boxes == 400  # generated
 
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):
