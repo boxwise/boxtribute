@@ -36,6 +36,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 ## Preparation for Installation
 
+- Clone the repository.
 - Install [Docker](https://www.docker.com/products/docker-desktop) and `docker-compose`
 - Get in touch with the [Boxtribute team](mailto:hello@boxtribute.org) to get access to the [Auth0](https://auth0.com/) development tenant.
 

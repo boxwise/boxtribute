@@ -58,6 +58,10 @@ On Windows run instead
 
         pre-commit install --overwrite
 
+3.  Run the `pre-commit` checks to verify the setup (it might actually show some complaints)
+
+        pre-commit run --all-files
+
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
 
 To figure out what else you can do with pre-commit, check out this [link](https://pre-commit.com/#usage).
@@ -74,13 +78,11 @@ Install the dependencies of the app in the activated virtual environment
 
     pip install -U -e back -r back/requirements-dev.txt
 
+Create `.env` file with environment variables
+
+    cp example.env .env
+
 For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variable.
-
-Furthermore Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-dev tenant run
-
-    echo "AUTH0_PUBLIC_KEY=$(curl https://boxtribute-dev.eu.auth0.com/pem | openssl x509 -pubkey -noout | tr -d '\n')" >> .env
-
-For other environments (staging, demo, production), replace the URL with the resp. Auth0 domain.
 
 ### Linting and Formatting in VSCode
 
@@ -402,6 +404,16 @@ Launch the production server by
     ENVIRONMENT=production docker-compose up --build webapp
 
 In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to use auto-completion the GraphQL explorer.
+
+If running the server with environment variables of a deployed environment (staging/demo/production) is desired, populate the corresponding .env file (e.g. `env.staging`). Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-staging tenant run
+
+    echo "AUTH0_PUBLIC_KEY=$(curl https://staging-login.boxtribute.org/pem | openssl x509 -pubkey -noout | tr -d '\n')" >> .env
+
+For other environments, replace the URL with the resp. Auth0 domain.
+
+Eventually run
+
+    dotenv -f .env.staging run docker-compose up --build webapp
 
 ## Performance evaluation
 

@@ -93,8 +93,13 @@ def auth0_users(auth0_management_api_client, auth0_roles):
         user_data["connection"] = "Username-Password-Authentication"
         user_data["password"] = "Browser_tests"
         user_data["blocked"] = False
-        response = interface.users.create(user_data)
-        logger.info(f"Created user {response['user_id']}")
+        try:
+            response = interface.users.create(user_data)
+            logger.info(f"Created user {response['user_id']}")
+        except Auth0Error as e:
+            if e.status_code != 409:
+                raise e
+            logger.info(f"User {user_data['user_id']} already exists")
     interface.roles.add_users(
         auth0_roles["administrator-TEST"]["id"],
         [user_id(0)],
