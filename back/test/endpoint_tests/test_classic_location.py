@@ -1,5 +1,8 @@
 from boxtribute_server.auth import CurrentUser
-from boxtribute_server.business_logic.warehouse.location.crud import create_location
+from boxtribute_server.business_logic.warehouse.location.crud import (
+    create_location,
+    update_location,
+)
 from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
@@ -69,6 +72,22 @@ def test_crud(client, default_base):
     # assert location.box_state == BoxState.InStock
     assert location.box_state_id == BoxState.InStock.value
     assert location.box_state_id == BoxState.InStock
+
+    name = "new test location"
+    location = update_location(id=location.id, name=name, user_id=8)
+    assert location.name == name
+    description = "new"
+    location = update_location(id=location.id, description=description, user_id=8)
+    assert location.description == description
+    box_state = BoxState.Lost
+    location = update_location(id=location.id, box_state=box_state, user_id=8)
+    assert location.box_state_id == box_state
+    is_stockroom = True
+    location = update_location(id=location.id, is_stockroom=is_stockroom, user_id=8)
+    assert location.is_stockroom
+    is_shop = True
+    location = update_location(id=location.id, is_shop=is_shop, user_id=8)
+    assert location.is_shop
     db.database.close()
 
     query = f"""query {{ location(id: {location.id}) {{
@@ -82,7 +101,7 @@ def test_crud(client, default_base):
     assert location == {
         "name": name,
         "base": {"id": str(base_id)},
-        "defaultBoxState": BoxState.InStock.name,
-        "isShop": False,
+        "defaultBoxState": box_state.name,
+        "isShop": is_shop,
         "createdBy": {"id": "8"},
     }
