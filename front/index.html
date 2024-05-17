@@ -24,4 +24,13 @@
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
   </body>
+  <script>
+    // trello card: https://trello.com/c/9zRby4kq
+    // based on this stackoverflow https://stackoverflow.com/questions/57556321/prevent-pwa-install-prompt-chrome-76-on-desktop
+    window.addEventListener("load", function () {
+      if (navigator.userAgent.indexOf("Mobile") === -1) {
+        document.querySelector('link[rel="manifest"]').remove();
+      }
+    });
+  </script>
 </html>
