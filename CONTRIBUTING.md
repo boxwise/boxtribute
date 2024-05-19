@@ -11,13 +11,13 @@ First off: **thank you**. You will be helping build software that distributes cl
 Quick summary:
 
 - We follow [Agile methods](https://medium.com/@svharivinod/rolling-out-features-for-zomato-using-agile-8f24bba1ddd8) ([short video](https://www.youtube.com/watch?v=QCif_-r8eK4)) to roll out new features.
-- Our [sprint](https://www.atlassian.com/agile/scrum/sprints) cycle is about a month. In this month we meet twice online - once in the middle of the month to check-in and discuss problems, once at the end/beginning of the month to demo our progress of the sprint. We ask you to join at least the demo call once per month.
 - We use slack as our main communication tool and do asynchronous [stand-ups](https://en.wikipedia.org/wiki/Stand-up_meeting) there once a week.
-- On Fridays, we offer a space for troubleshooting if you are stuck and need to dicuss something about your task.
+- We have both actively funded projects, as well as standalone tasks for volunteers and community developers. In the past, we have frequently drawn from the pool of volunteer/community developers for funded projects. 
+- Every two weeks on Fridays, we offer a troubleshooting space for community developers if you are stuck and need to dicuss something about what you're working on.
 
 ### How do I get my tasks? Where do I find information about them?
 
-We are using trello for Task Management. Our [product owner](https://www.youtube.com/watch?v=502ILHjX9EE) assigns the tickets to everybody taking part in a sprint. Each ticket should include a user story to understand why we need the ticket. If you are missing information, do not feel shy to write in slack.
+We are using Trello for Task Management. Our [product owner](https://www.youtube.com/watch?v=502ILHjX9EE) assigns the tickets to everybody taking part in a sprint. Each ticket should include a user story to understand why we need the ticket. If you are missing information, do not feel shy to write in slack.
 
 ### How do I start with my task?
 
