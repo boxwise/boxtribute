@@ -3,6 +3,9 @@ ARG env
 # using alpine for smallest docker image from https://hub.docker.com/_/python
 FROM python:3.12.2-alpine3.19 AS base
 
+# Install dependencies for package compilation on macOS
+RUN apk add --no-cache build-base libffi-dev
+
 WORKDIR /app
 # install packages separately to use docker build-caching so we don't need to
 # re-fetch these if code has changed but our requirements.txt hasn't
