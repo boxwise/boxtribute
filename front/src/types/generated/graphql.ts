@@ -905,7 +905,7 @@ export type MutationDeleteTagArgs = {
  * - input type: <Resource>CreationInput/UpdateInput
  */
 export type MutationDisableStandardProductArgs = {
-  id: Scalars['ID'];
+  instantiationId: Scalars['ID'];
 };
 
 

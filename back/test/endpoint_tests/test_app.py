@@ -310,7 +310,7 @@ def test_update_non_existent_resource(
         # Test case 8.2.81
         [
             "disableStandardProduct",
-            "id: 0",
+            "instantiationId: 0",
             "...on ResourceDoesNotExistError { id name }",
             {"id": "0", "name": "Product"},
         ],

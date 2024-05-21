@@ -36,9 +36,12 @@ def resolve_edit_custom_product(*_, edit_input):
 
 
 @mutation.field("deleteProduct")
-@mutation.field("disableStandardProduct")
-@handle_unauthorized
 def resolve_deleted_product(*_, id):
+    return _resolve_deleted_product(id)
+
+
+@handle_unauthorized
+def _resolve_deleted_product(id):
     if (product := Product.get_or_none(int(id))) is None:
         return ResourceDoesNotExist(name="Product", id=id)
     authorize(permission="product:write", base_id=product.base_id)
@@ -66,3 +69,8 @@ def resolve_edit_standard_product_instantiation(*_, edit_input):
     return edit_standard_product_instantiation(
         user_id=g.user.id, product=product, **edit_input
     )
+
+
+@mutation.field("disableStandardProduct")
+def resolve_disable_standard_product(*_, instantiation_id):
+    return _resolve_deleted_product(instantiation_id)

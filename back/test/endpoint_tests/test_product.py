@@ -470,7 +470,7 @@ def test_standard_product_instantiation_mutations(
     }
 
     # Test case 8.2.80
-    mutation = f"""mutation {{ disableStandardProduct(id: {product_id}) {{
+    mutation = f"""mutation {{ disableStandardProduct(instantiationId: {product_id}) {{
                     ...on Product {{
                         deletedOn
                         lastModifiedOn

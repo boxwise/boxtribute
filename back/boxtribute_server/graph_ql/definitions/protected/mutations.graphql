@@ -35,7 +35,7 @@ type Mutation {
   deleteProduct(id: ID!): DeleteProductResult
   enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
   editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
-  disableStandardProduct(id: ID!): DisableStandardProductResult
+  disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent

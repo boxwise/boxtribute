@@ -230,7 +230,7 @@ def test_mutations(auth0_client):
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"price": 1.0}
 
-    mutation = f"""mutation {{ disableStandardProduct( id: {product_id} ) {{
-                ...on Product {{ deletedOn }} }} }}"""
+    mutation = f"""mutation {{ disableStandardProduct( instantiationId: {product_id} )
+                {{ ...on Product {{ deletedOn }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response["deletedOn"].startswith(today)
