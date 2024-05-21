@@ -1910,7 +1910,7 @@ CREATE TABLE `standard_product` (
   CONSTRAINT `standard_product_ibfk_5` FOREIGN KEY (`deprecated_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `standard_product_ibfk_6` FOREIGN KEY (`preceded_by_product_id`) REFERENCES `standard_product` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `standard_product_ibfk_7` FOREIGN KEY (`superceded_by_product_id`) REFERENCES `standard_product` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
