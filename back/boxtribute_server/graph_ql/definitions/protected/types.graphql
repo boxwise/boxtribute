@@ -105,6 +105,8 @@ type StandardProduct {
   sizeRange: SizeRange!
   gender: ProductGender!
   version: Int!
+  " All bases that this standard product is enabled for. "
+  enabledForBases: [Base!]
   addedBy: User
   addedOn: Datetime
   deprecatedBy: User

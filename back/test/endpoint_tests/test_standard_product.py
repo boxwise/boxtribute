@@ -6,7 +6,9 @@ from utils import assert_successful_request
 today = date.today().isoformat()
 
 
-def test_standard_product_query(read_only_client, default_standard_product):
+def test_standard_product_query(
+    read_only_client, default_standard_product, another_standard_product
+):
     # Test case 8.1.41
     query = f"""query {{
                 standardProduct(id: {default_standard_product['id']}) {{
@@ -17,6 +19,7 @@ def test_standard_product_query(read_only_client, default_standard_product):
                     sizeRange {{ id }}
                     gender
                     version
+                    enabledForBases {{ id }}
                     addedBy {{ id }}
                     deprecatedBy {{ id }}
                     deprecatedOn
@@ -29,10 +32,19 @@ def test_standard_product_query(read_only_client, default_standard_product):
         "gender": ProductGender(default_standard_product["gender"]).name,
         "sizeRange": {"id": str(default_standard_product["size_range"])},
         "version": default_standard_product["version"],
+        "enabledForBases": [{"id": "1"}],
         "addedBy": {"id": str(default_standard_product["added_by"])},
         "deprecatedBy": None,
         "deprecatedOn": None,
     }
+
+    query = f"""query {{
+                standardProduct(id: {another_standard_product['id']}) {{
+                ... on StandardProduct {{
+                    enabledForBases {{ id }}
+                }} }} }}"""
+    product = assert_successful_request(read_only_client, query)
+    assert product == {"enabledForBases": []}
 
 
 def test_standard_products_query(read_only_client, standard_products):

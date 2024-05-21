@@ -1,6 +1,24 @@
 from ariadne import ObjectType
+from flask import g
+
+from ....models.definitions.base import Base
+from ....models.definitions.product import Product
 
 standard_product = ObjectType("StandardProduct")
+
+
+@standard_product.field("enabledForBases")
+def resolve_standard_product_enabled_for_bases(standard_product_obj, _):
+    result = Product.select(Base).join(
+        Base,
+        on=(
+            (Product.base == Base.id)
+            & (Product.base << g.user.authorized_base_ids("standard_product:read"))
+            & (Product.standard_product == standard_product_obj.id)
+            & (Product.deleted_on.is_null())
+        ),
+    )
+    return [product.base for product in result]
 
 
 @standard_product.field("category")

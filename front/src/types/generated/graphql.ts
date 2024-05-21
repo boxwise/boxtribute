@@ -1661,6 +1661,8 @@ export type StandardProduct = {
   category: ProductCategory;
   deprecatedBy?: Maybe<User>;
   deprecatedOn?: Maybe<Scalars['Datetime']>;
+  /**  All bases that this standard product is enabled for.  */
+  enabledForBases?: Maybe<Array<Base>>;
   gender: ProductGender;
   id: Scalars['ID'];
   name: Scalars['String'];
