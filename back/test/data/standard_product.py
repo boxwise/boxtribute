@@ -27,6 +27,15 @@ def data():
             "version": 0,
             "added_by": default_user_data()["id"],
         },
+        {
+            "id": 3,
+            "name": "Bottoms",
+            "category": all_product_category_data()[0]["id"],
+            "gender": all_product_gender_data()[4]["id"],
+            "size_range": all_size_range_data()[2]["id"],
+            "version": 1,
+            "added_by": default_user_data()["id"],
+        },
     ]
 
 
@@ -38,6 +47,11 @@ def default_standard_product():
 @pytest.fixture
 def another_standard_product():
     return data()[1]
+
+
+@pytest.fixture
+def newest_standard_product():
+    return data()[2]
 
 
 @pytest.fixture

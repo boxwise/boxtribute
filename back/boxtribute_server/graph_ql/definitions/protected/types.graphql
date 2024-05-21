@@ -478,11 +478,6 @@ input FilterProductInput {
   type: ProductTypeFilter = Custom
 }
 
-input FilterStandardProductInput {
-  includeDeprecated: Boolean = false
-  versions: [Int!]
-}
-
 """
 Optional input for queries/fields that return a page of elements.
 The specified fields must be either none OR `first` OR `after, first` OR `before, last`. Other combinations result in unexpected behavior and/or errors.
@@ -603,7 +598,7 @@ union EnableStandardProductResult = Product | InsufficientPermissionError | Reso
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
-union StandardProductsResult = StandardProductPage | InsufficientPermissionError
+union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
 
 type Metrics {
   """

@@ -1,5 +1,6 @@
 from datetime import date
 
+from auth import mock_user_for_request
 from boxtribute_server.enums import ProductGender
 from utils import assert_successful_request
 
@@ -47,9 +48,26 @@ def test_standard_product_query(
     assert product == {"enabledForBases": []}
 
 
-def test_standard_products_query(read_only_client, standard_products):
+def test_standard_products_query(
+    read_only_client, default_standard_product, newest_standard_product, mocker
+):
     # Test case 8.1.40
     query = """query { standardProducts {
                 ...on StandardProductPage { elements { name } } } }"""
     products = assert_successful_request(read_only_client, query)["elements"]
-    assert products == [{"name": p["name"]} for p in standard_products]
+    assert products == [{"name": str(newest_standard_product["name"])}]
+
+    # Test case 8.1.45
+    query = """query { standardProducts( baseId: 1 ) {
+                ...on StandardProductPage { elements { id } } } }"""
+    products = assert_successful_request(read_only_client, query)["elements"]
+    assert products == [
+        {"id": str(sp["id"])}
+        for sp in [newest_standard_product, default_standard_product]
+    ]
+
+    mock_user_for_request(mocker, base_ids=[2])
+    query = """query { standardProducts( baseId: 2 ) {
+                ...on StandardProductPage { elements { id } } } }"""
+    products = assert_successful_request(read_only_client, query)["elements"]
+    assert products == [{"id": str(newest_standard_product["id"])}]

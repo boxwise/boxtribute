@@ -82,6 +82,7 @@ from .size_range import another_size_range, default_size_range
 from .standard_product import (
     another_standard_product,
     default_standard_product,
+    newest_standard_product,
     standard_products,
 )
 from .tag import base1_active_tags, tags
@@ -158,6 +159,7 @@ __all__ = [
     "in_transit_box",
     "lost_box",
     "marked_for_shipment_box",
+    "newest_standard_product",
     "non_default_box_state_location",
     "not_delivered_box",
     "null_box_state_location",

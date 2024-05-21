@@ -609,3 +609,23 @@ def test_query_insufficient_permission(
     query = f"query {{ {operation}{query_input} {{ {field} }} }}"
     actual_response = assert_successful_request(read_only_client, query)
     assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,query_input,field,response",
+    [
+        # Test case 8.1.46
+        [
+            "standardProducts",
+            "baseId: 3",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+    ],
+)
+def test_query_unauthorized_for_base(
+    read_only_client, operation, query_input, field, response
+):
+    query = f"query {{ {operation}({query_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, query)
+    assert actual_response == response

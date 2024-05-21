@@ -521,11 +521,6 @@ export type FilterProductInput = {
   type?: InputMaybe<ProductTypeFilter>;
 };
 
-export type FilterStandardProductInput = {
-  includeDeprecated?: InputMaybe<Scalars['Boolean']>;
-  versions?: InputMaybe<Array<Scalars['Int']>>;
-};
-
 export type HistoryEntry = {
   __typename?: 'HistoryEntry';
   changeDate?: Maybe<Scalars['Datetime']>;
@@ -1369,6 +1364,7 @@ export type Query = {
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
   standardProduct?: Maybe<StandardProductResult>;
+  /**  Return standard products of latest version. Optionally include all standard products enabled for specified base.  */
   standardProducts?: Maybe<StandardProductsResult>;
   stockOverview?: Maybe<StockOverviewData>;
   tag?: Maybe<Tag>;
@@ -1503,7 +1499,7 @@ export type QueryStandardProductArgs = {
 
 
 export type QueryStandardProductsArgs = {
-  filterInput?: InputMaybe<FilterStandardProductInput>;
+  baseId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1704,7 +1700,7 @@ export type StandardProductPage = {
 
 export type StandardProductResult = InsufficientPermissionError | ResourceDoesNotExistError | StandardProduct;
 
-export type StandardProductsResult = InsufficientPermissionError | StandardProductPage;
+export type StandardProductsResult = InsufficientPermissionError | StandardProductPage | UnauthorizedForBaseError;
 
 export type StockOverview = {
   __typename?: 'StockOverview';
