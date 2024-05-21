@@ -70,6 +70,13 @@ def mysql_testing_database():
         yield database
 
 
+@pytest.fixture(scope="session")
+def mysql_cron_database():
+    """Session fixture providing a database interface for cron tests."""
+    with _create_database("cron") as database:
+        yield database
+
+
 @contextmanager
 def _create_app(database_interface, *blueprints):
     """On each invocation, create the Flask app and configure it to access the
@@ -121,7 +128,13 @@ def client(mysql_testing_database):
 
 
 @pytest.fixture
-def dropapp_dev_client(monkeypatch):
+def cron_client(mysql_cron_database):
+    with _create_app(mysql_cron_database, app_bp) as app:
+        yield app.test_client()
+
+
+@pytest.fixture
+def mysql_dev_database(monkeypatch):
     """Function fixture for any tests that include read-only operations on the
     `dropapp_dev` database. Use for testing the integration of the webapp (and the
     underlying ORM) with the format of the dropapp production database.
@@ -144,7 +157,12 @@ def dropapp_dev_client(monkeypatch):
         db.database.create_tables(MODELS)
         db.database.close()
         db.replica.close()
-        with app.app_context():
-            yield app.test_client()
+        yield app
     db.database.close()
     db.replica.close()
+
+
+@pytest.fixture
+def dropapp_dev_client(mysql_dev_database):
+    with mysql_dev_database.app_context():
+        yield mysql_dev_database.test_client()

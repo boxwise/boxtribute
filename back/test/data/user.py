@@ -24,6 +24,7 @@ def default_user_data():
         "modified_by": None,
         "language": None,
         "deleted": None,
+        "_usergroup": 3,
     }
 
 
@@ -32,6 +33,7 @@ def second_user_data():
     data["id"] = 2
     data["name"] = "trainer"
     data["email"] = "alarm@bedpost.com"
+    data["_usergroup"] = 4
     return data
 
 
@@ -43,6 +45,25 @@ def god_user_data():
     data["is_admin"] = 1
     data["valid_first_day"] = None
     data["valid_last_day"] = None
+    data["_usergroup"] = None
+    return data
+
+
+def base2_coordinator_data():
+    data = default_user_data()
+    data["id"] = 4
+    data["name"] = "coordinator"
+    data["email"] = "coordinator@basetwo.org"
+    data["_usergroup"] = 6
+    return data
+
+
+def base2_volunteer_data():
+    data = default_user_data()
+    data["id"] = 5
+    data["name"] = "volunteer"
+    data["email"] = "volunteer@basetwo.org"
+    data["_usergroup"] = 7
     return data
 
 
@@ -51,6 +72,7 @@ def another_user_data():
     data["id"] = 8
     data["name"] = "coord"
     data["email"] = "dev_coordinator@boxaid.org"
+    data["_usergroup"] = 2
     return data
 
 
@@ -60,6 +82,8 @@ def data():
         god_user_data(),
         second_user_data(),
         another_user_data(),
+        base2_coordinator_data(),
+        base2_volunteer_data(),
     ]
 
 

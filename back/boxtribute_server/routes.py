@@ -8,7 +8,7 @@ from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
 from .authz import check_beta_feature_access
-from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, api_bp, app_bp
+from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, CRON_PATH, api_bp, app_bp
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
@@ -113,3 +113,33 @@ def graphql_explorer():
 @api_bp.get("/public")
 def public():
     return EXPLORER_HTML, 200
+
+
+@app_bp.get(f"{CRON_PATH}/<job_name>")
+def cron(job_name):
+    authorized = False
+    try:
+        # https://cloud.google.com/appengine/docs/flexible/scheduling-jobs-with-cron-yaml#securing_urls_for_cron
+        authorized = request.headers["X-Appengine-Cron"] == "true"
+    except KeyError:
+        pass
+    if not authorized:
+        from sentry_sdk import capture_message as emit_sentry_message
+
+        emit_sentry_message(
+            "Unauthorized user accessed /cron endpoint", level="warning"
+        )
+        return jsonify({"message": "unauthorized"}), 401
+
+    permitted_databases = ["dropapp_dev", "dropapp_staging"]
+    if (db_name := os.environ["MYSQL_DB"]) not in permitted_databases:
+        return jsonify({"message": f"Reset of '{db_name}' not permitted"}), 400
+
+    if job_name == "reseed-db":
+        from .cron.reseed_db import reseed_db
+
+        # Any error will be reported as 500 response by Flask, and logged in Sentry
+        reseed_db()
+        return jsonify({"message": "reseed-db job executed"}), 200
+
+    return jsonify({"message": f"unknown job '{job_name}'"}), 400

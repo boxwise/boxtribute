@@ -23,12 +23,13 @@ __pycache__/
 .circleci
 Dockerfile
 docker-compose.yml
-init.sql
 .venv
 *.pyc
 .vscode
 .DS_Store
 venv/
 requirements-dev.txt
+requirements-deploy.txt
 test/
 scripts/
+README.md
