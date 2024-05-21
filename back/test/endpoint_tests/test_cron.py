@@ -3,6 +3,14 @@ from unittest.mock import mock_open, patch
 import pytest
 from auth import mock_user_for_request
 from boxtribute_server.blueprints import CRON_PATH
+from boxtribute_server.cron.data_faking import (
+    NR_BASES,
+    NR_OF_BENEFICIARIES_PER_BASE,
+    NR_OF_BOXES_PER_BASE,
+    NR_OF_CREATED_LOCATIONS_PER_BASE,
+    NR_OF_CREATED_TAGS_PER_BASE,
+    NR_OF_DELETED_TAGS_PER_BASE,
+)
 from utils import assert_bad_user_input, assert_successful_request
 
 reseed_db_path = f"{CRON_PATH}/reseed-db"
@@ -47,23 +55,29 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     # Verify generation of fake data
     query = "query { tags { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 80 - 8  # generated - deleted
+    assert len(response) == NR_BASES * (
+        NR_OF_CREATED_TAGS_PER_BASE - NR_OF_DELETED_TAGS_PER_BASE
+    )
 
     query = "query { locations { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 7 + 24  # base seed + generated
+    assert (
+        len(response) == 7 + NR_BASES * NR_OF_CREATED_LOCATIONS_PER_BASE
+    )  # minimal seed + generated
 
     query = "query { beneficiaries { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 9 + 900  # base seed + generated
+    assert (
+        response["totalCount"] == 9 + (NR_BASES - 1) * NR_OF_BENEFICIARIES_PER_BASE
+    )  # minimal seed + generated
 
     query = "query { products { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 8 + 51 * 4  # base seed + generated
+    assert response["totalCount"] == 8 + 51 * 4  # minimal seed + generated
 
     query = "query { transferAgreements { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 1 + 4  # base seed + generated
+    assert len(response) == 1 + 4  # minimal seed + generated
 
     query = "query { shipments { id } }"
     response = assert_successful_request(cron_client, query)
@@ -74,7 +88,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
         query = f"query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"
         response = assert_successful_request(cron_client, query)
         nr_of_boxes += response["totalCount"]
-    assert nr_of_boxes == 400  # generated
+    assert nr_of_boxes == NR_BASES * NR_OF_BOXES_PER_BASE
 
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):

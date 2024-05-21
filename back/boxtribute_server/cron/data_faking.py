@@ -49,7 +49,15 @@ from ..models.definitions.product import Product
 from ..models.definitions.size import Size
 from ..models.utils import convert_ids
 
-nr_tags_per_base = 20
+NR_BASES = 4
+NR_OF_CREATED_TAGS_PER_BASE = 20
+NR_OF_DELETED_TAGS_PER_BASE = round(NR_OF_CREATED_TAGS_PER_BASE / 10)
+LOCATION_NAMES = ("Stockroom", "WH", "FreeShop", "LOST", "SCRAP", "Unused WH")
+NR_OF_CREATED_LOCATIONS_PER_BASE = len(LOCATION_NAMES)
+NR_OF_ADULTS_PER_BASE = 100
+NR_OF_CHILDREN_PER_BASE = 200
+NR_OF_BENEFICIARIES_PER_BASE = NR_OF_ADULTS_PER_BASE + NR_OF_CHILDREN_PER_BASE
+NR_OF_BOXES_PER_BASE = 100
 
 
 class Generator:
@@ -169,7 +177,7 @@ class Generator:
 
     def _generate_tags(self):
         for b in self.base_ids:
-            for _ in range(nr_tags_per_base):
+            for _ in range(NR_OF_CREATED_TAGS_PER_BASE):
                 tag = create_tag(
                     name=self.fake.word(),
                     description=self.fake.sentence(nb_words=3),
@@ -181,7 +189,7 @@ class Generator:
                 self.tags[b].append(tag)
 
             # Update some tag properties
-            length = round(nr_tags_per_base / 2)
+            length = round(NR_OF_CREATED_TAGS_PER_BASE / 2)
             for tag in self.fake.random_elements(self.tags[b], length=length):
                 update_tag(
                     name=self.fake.word(),
@@ -205,9 +213,8 @@ class Generator:
                 )
 
             # Delete some tags
-            length = round(nr_tags_per_base / 10)
             for tag in self.fake.random_elements(
-                self.tags[b], length=length, unique=True
+                self.tags[b], length=NR_OF_DELETED_TAGS_PER_BASE, unique=True
             ):
                 delete_tag(
                     tag=tag,
@@ -226,7 +233,7 @@ class Generator:
                     BoxState.Scrap,
                     BoxState.InStock,
                 ],
-                ["Stockroom", "WH", "FreeShop", "LOST", "SCRAP", "Unused WH"],
+                LOCATION_NAMES,
             ):
                 location = create_location(
                     name=name,
@@ -246,9 +253,6 @@ class Generator:
             self.locations[b].remove(location)
 
     def _generate_beneficiaries(self):
-        nr_adults_per_base = 100
-        nr_children_per_base = 200
-
         # Last base does not have beneficiaries registered
         for b in self.base_ids[:-1]:
             family_head_id = None
@@ -261,7 +265,7 @@ class Generator:
                 if tag.type in [TagType.Beneficiary, TagType.All]
             ]
 
-            for i in range(nr_adults_per_base):
+            for i in range(NR_OF_ADULTS_PER_BASE):
                 group_id = self.fake.unique.random_number(digits=4, fix_len=True)
                 if i % 2 == 0:
                     first_name = self.fake.first_name_female()
@@ -270,7 +274,7 @@ class Generator:
                 else:
                     first_name = self.fake.first_name_male()
                     gender = HumanGender.Male
-                    if i > nr_adults_per_base / 2:
+                    if i > NR_OF_ADULTS_PER_BASE / 2:
                         # Some beneficiaries are part of a family
                         family_head_id = beneficiary.id
                         group_id = beneficiary.group_identifier
@@ -305,7 +309,7 @@ class Generator:
                 )
                 beneficiaries.append(beneficiary)
 
-            for i in range(nr_children_per_base):
+            for i in range(NR_OF_CHILDREN_PER_BASE):
                 if i % 2 == 0:
                     first_name = self.fake.first_name_female()
                     gender = HumanGender.Female
@@ -627,7 +631,7 @@ class Generator:
             ]
             boxes = []
 
-            for _ in range(100):
+            for _ in range(NR_OF_BOXES_PER_BASE):
                 product = self.fake.random_element(self.products[b])
                 box = create_box(
                     product_id=product.id,
