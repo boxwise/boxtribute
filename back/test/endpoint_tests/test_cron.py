@@ -8,6 +8,7 @@ from boxtribute_server.cron.data_faking import (
     NR_OF_BENEFICIARIES_PER_LARGE_BASE,
     NR_OF_BENEFICIARIES_PER_SMALL_BASE,
     NR_OF_BOXES_PER_BASE,
+    NR_OF_BOXES_PER_LARGE_BASE,
     NR_OF_CREATED_LOCATIONS_PER_BASE,
     NR_OF_CREATED_TAGS_PER_BASE,
     NR_OF_DELETED_TAGS_PER_BASE,
@@ -92,7 +93,10 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
         query = f"query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"
         response = assert_successful_request(cron_client, query)
         nr_of_boxes += response["totalCount"]
-    assert nr_of_boxes == NR_BASES * NR_OF_BOXES_PER_BASE
+    assert (
+        nr_of_boxes
+        == (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE
+    )
 
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):

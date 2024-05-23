@@ -73,6 +73,8 @@ NR_OF_BENEFICIARIES_PER_SMALL_BASE = (
     NR_OF_ADULTS_PER_SMALL_BASE + NR_OF_CHILDREN_PER_SMALL_BASE
 )
 NR_OF_BOXES_PER_BASE = 100
+NR_OF_BOXES_PER_LARGE_BASE = 500
+NR_OF_QR_CODES = (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE
 
 
 class Generator:
@@ -554,7 +556,7 @@ class Generator:
     def _generate_qr_codes(self):
         users = [user for users in self.users.values() for user in users]
         qr_codes = []
-        for _ in range(500):
+        for _ in range(NR_OF_QR_CODES):
             user = self.fake.random_element(users)
             g.user = user
             qr_code = create_qr_code(user_id=user.id)
@@ -643,7 +645,8 @@ class Generator:
             ]
             boxes = []
 
-            for _ in range(NR_OF_BOXES_PER_BASE):
+            nr_of_boxes = NR_OF_BOXES_PER_LARGE_BASE if b == 1 else NR_OF_BOXES_PER_BASE
+            for _ in range(nr_of_boxes):
                 product = self.fake.random_element(self.products[b])
                 box = create_box(
                     product_id=product.id,
