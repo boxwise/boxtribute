@@ -1,12 +1,21 @@
 from ...db import db
+from ...enums import TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.tags_relation import TagsRelation
+from ...models.definitions.transaction import Transaction
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
-from ...models.utils import utcnow
+from ...models.utils import (
+    save_creation_to_history,
+    save_deletion_to_history,
+    save_update_to_history,
+    utcnow,
+)
 
 
+@save_creation_to_history
 def create_beneficiary(
     *,
-    user,
+    user_id,
     first_name,
     last_name,
     base_id,
@@ -20,6 +29,7 @@ def create_beneficiary(
     family_head_id=None,
     signature=None,
     date_of_signature=None,
+    tag_ids=None,
 ):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
@@ -38,9 +48,9 @@ def create_beneficiary(
         comment=comment,
         family_head=family_head_id,
         created_on=now,
-        created_by=user.id,
+        created_by=user_id,
         last_modified_on=now,
-        last_modified_by=user.id,
+        last_modified_by=user_id,
         # This is only required for compatibility with legacy DB
         seq=1 if family_head_id is None else 2,
         # These fields are required acc. to model definition
@@ -51,19 +61,51 @@ def create_beneficiary(
     if date_of_signature is not None:
         # Work-around because the DB default 0000-00-00 is not a Python date
         data["date_of_signature"] = date_of_signature
-    new_beneficiary = Beneficiary.create(**data)
 
-    language_ids = languages or []
-    XBeneficiaryLanguage.insert_many(
-        [{"language": lid, "beneficiary": new_beneficiary.id} for lid in language_ids]
-    ).execute()
+    with db.database.atomic():
+        new_beneficiary = Beneficiary.create(**data)
+
+        language_ids = languages or []
+        XBeneficiaryLanguage.insert_many(
+            [{"language": i, "beneficiary": new_beneficiary.id} for i in language_ids]
+        ).execute()
+
+        if tag_ids:
+            # Don't use assign_tag() because it requires an existing Beneficiary object,
+            # however the Beneficiary creation has not yet been committed to the DB
+            tags_relations = [
+                {
+                    "object_id": new_beneficiary.id,
+                    "object_type": TaggableObjectType.Beneficiary,
+                    "tag": tag_id,
+                }
+                for tag_id in set(tag_ids)
+            ]
+            TagsRelation.insert_many(tags_relations).execute()
 
     return new_beneficiary
 
 
+@save_update_to_history(
+    fields=[
+        Beneficiary.first_name,
+        Beneficiary.last_name,
+        Beneficiary.not_registered,
+        Beneficiary.is_volunteer,
+        Beneficiary.comment,
+        Beneficiary.group_identifier,
+        Beneficiary.date_of_signature,
+        Beneficiary.date_of_birth,
+        Beneficiary.gender,
+        Beneficiary.signed,
+        Beneficiary.family_head_id,
+        Beneficiary.phone,
+    ],
+)
 def update_beneficiary(
     *,
-    user,
+    user_id,
+    beneficiary,
     id,
     gender=None,
     languages=None,
@@ -76,8 +118,6 @@ def update_beneficiary(
     including the language cross-reference.
     Insert timestamp for modification and return the beneficiary.
     """
-    beneficiary = Beneficiary.get_by_id(id)
-
     # Handle any items with keys not matching the Model fields
     if gender is not None:
         beneficiary.gender = gender.value
@@ -98,9 +138,6 @@ def update_beneficiary(
     for field, value in data.items():
         setattr(beneficiary, field, value)
 
-    beneficiary.last_modified_on = utcnow()
-    beneficiary.last_modified_by = user.id
-
     with db.database.atomic():
         language_ids = languages or []
         if language_ids:
@@ -110,6 +147,44 @@ def update_beneficiary(
             XBeneficiaryLanguage.insert_many(
                 [{"language": lid, "beneficiary": id} for lid in language_ids]
             ).execute()
-        beneficiary.save()
 
     return beneficiary
+
+
+@save_deletion_to_history
+def deactivate_beneficiary(*, beneficiary):
+    beneficiary.deleted = utcnow()
+    beneficiary.save()
+
+    if beneficiary.family_head_id is None:
+        # Deactivate all children of a parent
+        children = Beneficiary.select().where(
+            Beneficiary.family_head == beneficiary.id,
+            (Beneficiary.deleted.is_null() | ~Beneficiary.deleted),
+        )
+        with db.database.atomic():
+            for child in children:
+                deactivate_beneficiary(beneficiary=child)
+    return beneficiary
+
+
+@save_creation_to_history
+def create_transaction(
+    *,
+    beneficiary_id=None,
+    count=0,
+    description="",
+    product_id=None,
+    tokens=0,
+    user_id,
+):
+    """Insert information for a new Transaction in the database."""
+    return Transaction.create(
+        beneficiary=beneficiary_id,
+        count=count,
+        description=description,
+        tokens=tokens,
+        product=product_id,
+        created_on=utcnow(),
+        created_by=user_id,
+    )

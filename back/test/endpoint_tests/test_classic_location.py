@@ -1,3 +1,9 @@
+from boxtribute_server.auth import CurrentUser
+from boxtribute_server.business_logic.warehouse.location.crud import (
+    create_location,
+    update_location,
+)
+from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
 
@@ -50,3 +56,52 @@ def test_locations_query(read_only_client, base1_classic_locations):
     query = """query { locations { name } }"""
     locations = assert_successful_request(read_only_client, query)
     assert locations == [{"name": loc["name"]} for loc in base1_classic_locations]
+
+
+def test_crud(client, default_base):
+    from flask import g
+
+    g.user = CurrentUser(id=8)
+    name = "test location"
+    base_id = default_base["id"]
+    location = create_location(
+        name=name,
+        base_id=base_id,
+        user_id=8,
+    )
+    # assert location.box_state == BoxState.InStock
+    assert location.box_state_id == BoxState.InStock.value
+    assert location.box_state_id == BoxState.InStock
+
+    name = "new test location"
+    location = update_location(id=location.id, name=name, user_id=8)
+    assert location.name == name
+    description = "new"
+    location = update_location(id=location.id, description=description, user_id=8)
+    assert location.description == description
+    box_state = BoxState.Lost
+    location = update_location(id=location.id, box_state=box_state, user_id=8)
+    assert location.box_state_id == box_state
+    is_stockroom = True
+    location = update_location(id=location.id, is_stockroom=is_stockroom, user_id=8)
+    assert location.is_stockroom
+    is_shop = True
+    location = update_location(id=location.id, is_shop=is_shop, user_id=8)
+    assert location.is_shop
+    db.database.close()
+
+    query = f"""query {{ location(id: {location.id}) {{
+                    name
+                    base {{ id }}
+                    defaultBoxState
+                    isShop
+                    createdBy {{ id }}
+                }} }}"""
+    location = assert_successful_request(client, query)
+    assert location == {
+        "name": name,
+        "base": {"id": str(base_id)},
+        "defaultBoxState": box_state.name,
+        "isShop": is_shop,
+        "createdBy": {"id": "8"},
+    }

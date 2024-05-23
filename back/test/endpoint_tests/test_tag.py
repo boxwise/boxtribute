@@ -1,5 +1,8 @@
+from datetime import date
+
 import pytest
 from boxtribute_server.enums import TagType
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
     assert_forbidden_request,
@@ -81,8 +84,8 @@ def test_tags_query(
 
 def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     # Test case 4.2.9
-    tag_id = tags[0]["id"]
-    mutation = f"""mutation {{ deleteTag(id: {tag_id}) {{
+    deleted_tag_id = tags[0]["id"]
+    mutation = f"""mutation {{ deleteTag(id: {deleted_tag_id}) {{
                 name
                 taggedResources {{
                     ...on Beneficiary {{ id }}
@@ -222,6 +225,53 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
 
     tag = assert_successful_request(client, query)
     assert tag == {"taggedResources": []}
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "tags")
+        .dicts()
+    )
+    today = date.today().isoformat()
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "Record deleted",
+            "record_id": int(deleted_tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record created",
+            "record_id": int(tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'label changed from "{name}" to "Another Box Group";',
+            "record_id": int(tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'description changed from "{description}" to "";',
+            "record_id": int(tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'color changed from "{color}" to "#c0ffee";',
+            "record_id": int(tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+    ]
 
 
 @pytest.mark.parametrize(

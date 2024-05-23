@@ -16,6 +16,7 @@ def default_beneficiary_data():
         "created_on": datetime(2020, 6, 30),
         "created_by": None,
         "family_id": 10,
+        "family_head": None,
         "seq": 1,
         "group_identifier": "1234",
         "comment": "comment for fun",
@@ -72,12 +73,31 @@ def org2_base3_beneficiary_data():
     }
 
 
+def another_relative_beneficiary_data():
+    # Beneficiary in the same family as #1
+    return {
+        "id": 5,
+        "first_name": "Some",
+        "last_name": "Body",
+        "base": base_data()[0]["id"],
+        "created_on": datetime(2021, 6, 30),
+        "created_by": None,
+        "family_id": 10,
+        "family_head": 1,
+        "seq": 2,
+        "group_identifier": "1234",
+        "is_volunteer": True,
+        "not_registered": True,
+    }
+
+
 @pytest.fixture
 def default_beneficiaries():
     return [
         default_beneficiary_data(),
         relative_beneficiary_data(),
         another_beneficiary_data(),
+        another_relative_beneficiary_data(),
     ]
 
 
@@ -92,6 +112,11 @@ def relative_beneficiary():
 
 
 @pytest.fixture
+def another_relative_beneficiary():
+    return another_relative_beneficiary_data()
+
+
+@pytest.fixture
 def another_beneficiary():
     return another_beneficiary_data()
 
@@ -102,3 +127,4 @@ def create():
     Beneficiary.create(**relative_beneficiary_data())
     Beneficiary.create(**another_beneficiary_data())
     Beneficiary.create(**org2_base3_beneficiary_data())
+    Beneficiary.create(**another_relative_beneficiary_data())

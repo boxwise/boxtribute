@@ -16,16 +16,16 @@ def resolve_create_tag(*_, creation_input):
 
 @mutation.field("updateTag")
 def resolve_update_tag(*_, update_input):
-    base_id = Tag.get_by_id(update_input["id"]).base_id
-    authorize(permission="tag:write", base_id=base_id)
-    return update_tag(user_id=g.user.id, **update_input)
+    tag = Tag.get_by_id(update_input["id"])
+    authorize(permission="tag:write", base_id=tag.base_id)
+    return update_tag(user_id=g.user.id, tag=tag, **update_input)
 
 
 @mutation.field("assignTag")
 def resolve_assign_tag(*_, assignment_input):
     tag = Tag.get_by_id(assignment_input["id"])
     authorize(permission="tag_relation:assign", base_id=tag.base_id)
-    return assign_tag(user_id=g.user.id, **assignment_input)
+    return assign_tag(user_id=g.user.id, tag=tag, **assignment_input)
 
 
 @mutation.field("unassignTag")
@@ -37,6 +37,6 @@ def resolve_unassign_tag(*_, unassignment_input):
 
 @mutation.field("deleteTag")
 def resolve_delete_tag(*_, id):
-    base_id = Tag.get_by_id(id).base_id
-    authorize(permission="tag:write", base_id=base_id)
-    return delete_tag(user_id=g.user.id, id=id)
+    tag = Tag.get_by_id(id)
+    authorize(permission="tag:write", base_id=tag.base_id)
+    return delete_tag(user_id=g.user.id, tag=tag)
