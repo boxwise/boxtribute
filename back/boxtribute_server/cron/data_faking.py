@@ -52,7 +52,15 @@ from ..models.utils import convert_ids
 NR_BASES = 4
 NR_OF_CREATED_TAGS_PER_BASE = 20
 NR_OF_DELETED_TAGS_PER_BASE = round(NR_OF_CREATED_TAGS_PER_BASE / 10)
-LOCATION_NAMES = ("Stockroom", "WH", "FreeShop", "LOST", "SCRAP", "Unused WH")
+LOCATION_BOX_STATES = [
+    BoxState.InStock,
+    BoxState.InStock,
+    BoxState.InStock,
+    BoxState.Donated,
+    BoxState.Donated,
+    BoxState.InStock,
+]
+LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "Donated location", "Unused WH")
 NR_OF_CREATED_LOCATIONS_PER_BASE = len(LOCATION_NAMES)
 NR_OF_ADULTS_PER_BASE = 100
 NR_OF_CHILDREN_PER_BASE = 200
@@ -224,17 +232,7 @@ class Generator:
 
     def _generate_locations(self):
         for b in self.base_ids:
-            for box_state, name in zip(
-                [
-                    BoxState.InStock,
-                    BoxState.InStock,
-                    BoxState.Donated,
-                    BoxState.Lost,
-                    BoxState.Scrap,
-                    BoxState.InStock,
-                ],
-                LOCATION_NAMES,
-            ):
+            for box_state, name in zip(LOCATION_BOX_STATES, LOCATION_NAMES):
                 location = create_location(
                     name=name,
                     base_id=b,
