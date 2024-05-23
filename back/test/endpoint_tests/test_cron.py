@@ -5,7 +5,8 @@ from auth import mock_user_for_request
 from boxtribute_server.blueprints import CRON_PATH
 from boxtribute_server.cron.data_faking import (
     NR_BASES,
-    NR_OF_BENEFICIARIES_PER_BASE,
+    NR_OF_BENEFICIARIES_PER_LARGE_BASE,
+    NR_OF_BENEFICIARIES_PER_SMALL_BASE,
     NR_OF_BOXES_PER_BASE,
     NR_OF_CREATED_LOCATIONS_PER_BASE,
     NR_OF_CREATED_TAGS_PER_BASE,
@@ -68,7 +69,10 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     query = "query { beneficiaries { totalCount } }"
     response = assert_successful_request(cron_client, query)
     assert (
-        response["totalCount"] == 9 + (NR_BASES - 1) * NR_OF_BENEFICIARIES_PER_BASE
+        response["totalCount"]
+        == 9
+        + (NR_BASES - 2) * NR_OF_BENEFICIARIES_PER_SMALL_BASE
+        + NR_OF_BENEFICIARIES_PER_LARGE_BASE
     )  # minimal seed + generated
 
     query = "query { products { totalCount } }"

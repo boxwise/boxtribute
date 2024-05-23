@@ -62,9 +62,16 @@ LOCATION_BOX_STATES = [
 ]
 LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "Donated location", "Unused WH")
 NR_OF_CREATED_LOCATIONS_PER_BASE = len(LOCATION_NAMES)
-NR_OF_ADULTS_PER_BASE = 100
-NR_OF_CHILDREN_PER_BASE = 200
-NR_OF_BENEFICIARIES_PER_BASE = NR_OF_ADULTS_PER_BASE + NR_OF_CHILDREN_PER_BASE
+NR_OF_ADULTS_PER_LARGE_BASE = 100
+NR_OF_CHILDREN_PER_LARGE_BASE = 200
+NR_OF_BENEFICIARIES_PER_LARGE_BASE = (
+    NR_OF_ADULTS_PER_LARGE_BASE + NR_OF_CHILDREN_PER_LARGE_BASE
+)
+NR_OF_ADULTS_PER_SMALL_BASE = 40
+NR_OF_CHILDREN_PER_SMALL_BASE = 40
+NR_OF_BENEFICIARIES_PER_SMALL_BASE = (
+    NR_OF_ADULTS_PER_SMALL_BASE + NR_OF_CHILDREN_PER_SMALL_BASE
+)
 NR_OF_BOXES_PER_BASE = 100
 
 
@@ -251,7 +258,8 @@ class Generator:
             self.locations[b].remove(location)
 
     def _generate_beneficiaries(self):
-        # Last base does not have beneficiaries registered
+        # Last base does not have beneficiaries registered. First base has lots of
+        # beneficiaries registered
         for b in self.base_ids[:-1]:
             family_head_id = None
             beneficiary = None
@@ -263,7 +271,13 @@ class Generator:
                 if tag.type in [TagType.Beneficiary, TagType.All]
             ]
 
-            for i in range(NR_OF_ADULTS_PER_BASE):
+            nr_of_adults_per_base = NR_OF_ADULTS_PER_SMALL_BASE
+            nr_of_children_per_base = NR_OF_CHILDREN_PER_SMALL_BASE
+            if b == 1:
+                nr_of_adults_per_base = NR_OF_ADULTS_PER_LARGE_BASE
+                nr_of_children_per_base = NR_OF_CHILDREN_PER_LARGE_BASE
+
+            for i in range(nr_of_adults_per_base):
                 group_id = self.fake.unique.random_number(digits=4, fix_len=True)
                 if i % 2 == 0:
                     first_name = self.fake.first_name_female()
@@ -272,7 +286,7 @@ class Generator:
                 else:
                     first_name = self.fake.first_name_male()
                     gender = HumanGender.Male
-                    if i > NR_OF_ADULTS_PER_BASE / 2:
+                    if i > nr_of_adults_per_base / 2:
                         # Some beneficiaries are part of a family
                         family_head_id = beneficiary.id
                         group_id = beneficiary.group_identifier
@@ -307,7 +321,7 @@ class Generator:
                 )
                 beneficiaries.append(beneficiary)
 
-            for i in range(NR_OF_CHILDREN_PER_BASE):
+            for i in range(nr_of_children_per_base):
                 if i % 2 == 0:
                     first_name = self.fake.first_name_female()
                     gender = HumanGender.Female
