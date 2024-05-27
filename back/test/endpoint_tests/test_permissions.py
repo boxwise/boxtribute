@@ -101,6 +101,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
 @pytest.mark.parametrize(
     "mutation",
     [
+        # Test case 9.2.6
         """createBeneficiary(
             creationInput : {
                 firstName: "First",
@@ -115,6 +116,7 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
             }) {
             id
         }""",
+        # Test case 9.2.11
         """updateBeneficiary(
             updateInput : {
                 id: 3,
@@ -122,6 +124,8 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
             }) {
             id
         }""",
+        # Test case 9.2.21
+        """deactivateBeneficiary( id: 3 ) { id }""",
         # Test case 8.2.9
         """createBox(
             creationInput : {
@@ -252,6 +256,16 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
                 labelIdentifier: "12345678",
                 tagIds: [4]
             }) { id }""",
+        # Test case 9.2.15
+        """updateBeneficiary(
+            updateInput : {
+                id: 4,
+                firstName: "First"
+            }) {
+            id
+        }""",
+        # Test case 9.2.22
+        """deactivateBeneficiary( id: 4 ) { id }""",
     ],
     ids=operation_name,
 )

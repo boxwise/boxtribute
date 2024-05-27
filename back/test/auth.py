@@ -119,6 +119,7 @@ def _create_jwt_payload(
             f"{base_prefix}/user:read",
             f"{base_prefix}/beneficiary:create",
             f"{base_prefix}/beneficiary:edit",
+            f"{base_prefix}/beneficiary:delete",
             f"{base_prefix}/qr:create",
             f"{base_prefix}/size:read",
             f"{base_prefix}/size_range:read",

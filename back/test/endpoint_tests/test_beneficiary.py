@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 from boxtribute_server.enums import HumanGender
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import compute_age
 from utils import assert_successful_request
 
@@ -106,7 +107,9 @@ def test_beneficiary_query(
     assert beneficiary == {"gender": None, "age": None, "dateOfBirth": None}
 
 
-def test_beneficiary_mutations(client):
+def test_beneficiary_mutations(
+    client, default_beneficiary, another_relative_beneficiary, tags
+):
     # Test case 9.2.1
     first_name = "Some"
     last_name = "One"
@@ -115,26 +118,28 @@ def test_beneficiary_mutations(client):
     dos = "2022-07-16"
     base_id = 1
     group_id = "1234"
-    gender = "Diverse"
+    gender = HumanGender.Diverse
     languages = ["en", "ar"]
     comment = "today is a good day"
+    tag_id = str(tags[0]["id"])
 
-    beneficiary_creation_input_string = f"""{{
+    creation_input = f"""{{
                     firstName: "{first_name}",
                     lastName: "{last_name}",
                     dateOfBirth: "{dob}",
                     comment: "{comment}",
                     baseId: {base_id},
                     groupIdentifier: "{group_id}",
-                    gender: {gender},
+                    gender: {gender.name},
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
                     registered: false
                     dateOfSignature: "{dos}"
+                    tagIds: [{tag_id}]
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
-                creationInput : {beneficiary_creation_input_string}
+                creationInput : {creation_input}
             ) {{
                 id
                 firstName
@@ -152,6 +157,7 @@ def test_beneficiary_mutations(client):
                 registered
                 signature
                 dateOfSignature
+                tags {{ id }}
                 createdOn
                 createdBy {{ id }}
                 lastModifiedOn
@@ -168,7 +174,7 @@ def test_beneficiary_mutations(client):
     assert created_beneficiary["comment"] == comment
     assert int(created_beneficiary["base"]["id"]) == base_id
     assert created_beneficiary["groupIdentifier"] == group_id
-    assert created_beneficiary["gender"] == gender
+    assert created_beneficiary["gender"] == gender.name
     assert created_beneficiary["languages"] == languages
     assert created_beneficiary["familyHead"] is None
     assert created_beneficiary["isVolunteer"]
@@ -176,21 +182,22 @@ def test_beneficiary_mutations(client):
     assert not created_beneficiary["registered"]
     assert created_beneficiary["signature"] is None
     assert created_beneficiary["dateOfSignature"] == dos
+    assert created_beneficiary["tags"] == [{"id": tag_id}]
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
     # Test case 9.2.9
-    last_name = "Body"
-    dos = "2021-09-09"
+    new_last_name = "Body"
+    new_dos = "2021-09-09"
     language = "nl"
     signature = first_name
     mutation = f"""mutation {{
             updateBeneficiary(
                 updateInput : {{
                     id: {beneficiary_id},
-                    lastName: "{last_name}",
+                    lastName: "{new_last_name}",
                     signature: "{signature}",
-                    dateOfSignature: "{dos}"
+                    dateOfSignature: "{new_dos}"
                     languages: [{language}],
                     isVolunteer: false,
                     registered: true
@@ -201,21 +208,21 @@ def test_beneficiary_mutations(client):
     updated_beneficiary = assert_successful_request(client, mutation)
     assert updated_beneficiary == {"id": beneficiary_id}
 
-    first_name = "Foo"
-    dob = date(2001, 1, 1)
-    formatted_dob = dob.strftime("%Y-%m-%d")
-    group_id = "1235"
-    gender = "Male"
-    comment = "cool dude"
+    new_first_name = "Foo"
+    new_dob = date(2001, 1, 1)
+    new_formatted_dob = new_dob.strftime("%Y-%m-%d")
+    new_group_id = "1235"
+    new_gender = HumanGender.Male
+    new_comment = "cool dude"
     mutation = f"""mutation {{
             updateBeneficiary(
                 updateInput : {{
                     id: {beneficiary_id},
-                    firstName: "{first_name}",
-                    groupIdentifier: "{group_id}",
-                    dateOfBirth: "{formatted_dob}",
-                    comment: "{comment}",
-                    gender: {gender},
+                    firstName: "{new_first_name}",
+                    groupIdentifier: "{new_group_id}",
+                    dateOfBirth: "{new_formatted_dob}",
+                    comment: "{new_comment}",
+                    gender: {new_gender.name},
                     familyHeadId: {beneficiary_id}
                 }}) {{
                 id
@@ -226,45 +233,159 @@ def test_beneficiary_mutations(client):
     query = _generate_beneficiary_query(beneficiary_id)
     queried_beneficiary = assert_successful_request(client, query)
     assert queried_beneficiary == {
-        "firstName": first_name,
-        "lastName": last_name,
-        "dateOfBirth": formatted_dob,
-        "age": compute_age(dob),
-        "comment": comment,
+        "firstName": new_first_name,
+        "lastName": new_last_name,
+        "dateOfBirth": new_formatted_dob,
+        "age": compute_age(new_dob),
+        "comment": new_comment,
         "base": {"id": str(base_id)},
-        "groupIdentifier": group_id,
-        "gender": gender,
+        "groupIdentifier": new_group_id,
+        "gender": new_gender.name,
         "languages": [language],
         "familyHead": {"id": beneficiary_id},
         "isVolunteer": False,
         "signed": True,
         "registered": True,
         "signature": signature,
-        "dateOfSignature": f"{dos}T00:00:00",
+        "dateOfSignature": f"{new_dos}T00:00:00",
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
-        "tags": [],
+        "tags": [{"id": tag_id, "color": tags[0]["color"], "name": tags[0]["name"]}],
     }
+
+    # Test case 9.2.20
+    today = date.today().isoformat()
+    deactivated_beneficiary_id = default_beneficiary["id"]
+    mutation = f"""mutation {{
+            deactivateBeneficiary(id: {deactivated_beneficiary_id}) {{ active }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert not response["active"]
+    deactivated_child_id = another_relative_beneficiary["id"]
+    query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ active }} }}"
+    response = assert_successful_request(client, query)
+    assert not response["active"]
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "people")
+        .order_by(DbChangeHistory.id)
+        .dicts()
+    )
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "Record created",
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'lastname changed from "{last_name}" to "{new_last_name}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "notregistered",
+            "record_id": int(beneficiary_id),
+            "from_int": 1,
+            "to_int": 0,
+        },
+        {
+            "changes": "volunteer",
+            "record_id": int(beneficiary_id),
+            "from_int": 1,
+            "to_int": 0,
+        },
+        {
+            "changes": f'date_of_signature changed from "{dos} 00:00:00" '
+            f'to "{new_dos}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "approvalsigned",
+            "record_id": int(beneficiary_id),
+            "from_int": 0,
+            "to_int": 1,
+        },
+        {
+            "changes": f'firstname changed from "{first_name}" to "{new_first_name}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'comments changed from "{comment}" to "{new_comment}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'container changed from "{group_id}" to "{new_group_id}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'date_of_birth changed from "{dob}" to "{new_formatted_dob}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": f'gender changed from "{gender.value}" to "{new_gender.value}";',
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "parent_id",
+            "record_id": int(beneficiary_id),
+            "from_int": None,
+            "to_int": int(beneficiary_id),
+        },
+        {
+            "changes": "Record deleted",
+            "record_id": int(deactivated_child_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record deleted",
+            "record_id": int(deactivated_beneficiary_id),
+            "from_int": None,
+            "to_int": None,
+        },
+    ]
 
 
 @pytest.mark.parametrize(
     "input,size,has_next_page,has_previous_page",
     (
         # Test case 9.1.1, 9.1.2
-        ["", 3, False, False],
+        ["", 4, False, False],
         #                             ID=0
-        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 3, False, False],
+        ["""(paginationInput: {after: "MDAwMDAwMDA="})""", 4, False, False],
         ["""(paginationInput: {first: 1})""", 1, True, False],
-        #                             ID=3; previous page exists but can't be determined
-        ["""(paginationInput: {after: "MDAwMDAwMDM="})""", 0, False, False],
-        #                             ID=2
-        ["""(paginationInput: {after: "MDAwMDAwMDI=", first: 1})""", 1, False, True],
+        #                             ID=5; previous page exists but can't be determined
+        ["""(paginationInput: {after: "MDAwMDAwMDU="})""", 0, False, False],
+        #                             ID=3
+        ["""(paginationInput: {after: "MDAwMDAwMDM=", first: 1})""", 1, False, True],
         # next page exists but can't be determined
         ["""(paginationInput: {before: "MDAwMDAwMDE="})""", 0, False, False],
         #                              ID=4
-        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 2})""", 2, False, True],
-        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 3})""", 3, False, False],
+        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 2})""", 2, True, True],
+        ["""(paginationInput: {before: "MDAwMDAwMDQ=", last: 3})""", 3, True, False],
     ),
     ids=[
         "no input",
@@ -300,23 +421,23 @@ def _format(parameter):
 @pytest.mark.parametrize(
     "filters,number",
     [
-        [[{"createdFrom": '"2020-01-01"'}], 3],
-        [[{"createdFrom": '"2021-01-01"'}], 2],
+        [[{"createdFrom": '"2020-01-01"'}], 4],
+        [[{"createdFrom": '"2021-01-01"'}], 3],
         [[{"createdUntil": '"2019-12-31"'}], 0],
         [[{"createdUntil": '"2021-01-01"'}], 1],
-        [[{"active": "true"}], 2],
+        [[{"active": "true"}], 3],
         [[{"active": "false"}], 1],
-        [[{"isVolunteer": "true"}], 1],
+        [[{"isVolunteer": "true"}], 2],
         [[{"isVolunteer": "false"}], 2],
         [[{"registered": "true"}], 2],
-        [[{"registered": "false"}], 1],
-        [[{"pattern": '"Body"'}], 2],
+        [[{"registered": "false"}], 2],
+        [[{"pattern": '"Body"'}], 3],
         [[{"pattern": '"fun"'}], 1],
         [[{"pattern": '"Z"'}], 0],
-        [[{"pattern": '"1234"'}], 2],
+        [[{"pattern": '"1234"'}], 3],
         [[{"pattern": '"123"'}], 0],
         [[{"createdFrom": '"2022-01-01"'}, {"active": "true"}], 1],
-        [[{"active": "true"}, {"registered": "false"}], 0],
+        [[{"active": "true"}, {"registered": "false"}], 1],
         [[{"active": "false"}, {"pattern": '"no"'}], 1],
         [[{"isVolunteer": "true"}, {"registered": "true"}], 0],
     ],

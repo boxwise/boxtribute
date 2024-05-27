@@ -1,3 +1,6 @@
+from datetime import date
+
+from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_bad_user_input, assert_successful_request
 
 
@@ -76,3 +79,32 @@ def test_qr_code_mutation(client, box_without_qr_code):
     assert_bad_user_input(
         client, """mutation { createQrCode(boxLabelIdentifier: "xxx") { id } }"""
     )
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "qr")
+        .dicts()
+    )
+    today = date.today().isoformat()
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "New QR-code generated",
+            "record_id": int(qr_code_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "New QR-code generated",
+            "record_id": int(created_qr_code["id"]),
+            "from_int": None,
+            "to_int": None,
+        },
+    ]

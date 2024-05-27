@@ -5,9 +5,15 @@ from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
-from ...models.utils import utcnow
+from ...models.utils import (
+    save_creation_to_history,
+    save_deletion_to_history,
+    save_update_to_history,
+    utcnow,
+)
 
 
+@save_creation_to_history
 def create_tag(
     *,
     name,
@@ -32,9 +38,18 @@ def create_tag(
     )
 
 
+@save_update_to_history(
+    fields=[
+        Tag.name,
+        Tag.description,
+        Tag.color,
+        Tag.type,
+    ],
+)
 def update_tag(
     *,
-    id,
+    id,  # required for save_update_to_history
+    tag,
     name=None,
     description=None,
     color=None,
@@ -47,8 +62,6 @@ def update_tag(
     All/Box to Beneficiary).
     Insert timestamp for modification and return the tag.
     """
-    tag = Tag.get_by_id(id)
-
     if name is not None:
         tag.name = name
     if description is not None:
@@ -65,11 +78,7 @@ def update_tag(
             object_type_for_deletion = TaggableObjectType.Box
         tag.type = type
 
-    tag.modified = utcnow()
-    tag.modified_by = user_id
-
     with db.database.atomic():
-        tag.save()
         if object_type_for_deletion is not None:
             TagsRelation.delete().where(
                 (TagsRelation.object_type == object_type_for_deletion)
@@ -78,30 +87,30 @@ def update_tag(
     return tag
 
 
-def delete_tag(*, user_id, id):
+@save_deletion_to_history
+def delete_tag(*, user_id, tag):
     """Soft-delete given tag by setting the 'deleted' timestamp. Unassign the tag from
     any resources by deleting respective rows of the TagsRelation model.
     Return the soft-deleted tag.
     """
     now = utcnow()
-    tag = Tag.get_by_id(id)
     tag.deleted = now
     tag.modified = now
     tag.modified_by = user_id
     with db.database.atomic():
         tag.save()
-        TagsRelation.delete().where(TagsRelation.tag == id).execute()
+        TagsRelation.delete().where(TagsRelation.tag == tag.id).execute()
     return tag
 
 
-def assign_tag(*, user_id, id, resource_id, resource_type):
+def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
     """Create TagsRelation entry as cross reference of the tag given by ID, and the
     given resource (a box or a beneficiary). Insert timestamp for modification in
     resource model.
     Validate that tag type and resource type are compatible.
     Return the resource.
     """
-    tag = Tag.get_by_id(id)
+    tag = Tag.get_by_id(id) if tag is None else tag
     if (
         (tag.type == TagType.Beneficiary) and (resource_type == TaggableObjectType.Box)
     ) or (

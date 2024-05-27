@@ -1,57 +1,65 @@
 from datetime import date
 
 import pytest
+from auth import get_authorization_header
 from utils import assert_successful_request
 
 
 @pytest.mark.parametrize("endpoint", ["", "graphql"])
 def test_queries(auth0_client, endpoint):
+    auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
+        "coordinator@coordinator.co"
+    )
+
     def _assert_successful_request(*args, **kwargs):
         return assert_successful_request(*args, **kwargs, endpoint=endpoint)
 
     query = """query BoxIdAndItems {
-                qrCode(qrCode: "9627242265f5a7f3a1db910eb18410f") { box { id } }
+                qrCode(qrCode: "093f65e080a295f8076b1c5722a46aa2") { box { id } }
             }"""
     queried_box = _assert_successful_request(auth0_client, query)["box"]
-    assert queried_box == {"id": "1"}
+    assert queried_box == {"id": "100000000"}
 
-    query = """query { box(labelIdentifier: "8889639") { state size { id } } }"""
+    query = """query { box(labelIdentifier: "328765") { state size { id } } }"""
     queried_box = _assert_successful_request(auth0_client, query)
     assert queried_box == {"state": "Donated", "size": {"id": "68"}}
 
-    query = """query { beneficiary(id: 1000) { dateOfBirth } }"""
+    query = """query { beneficiary(id: 100000001) { dateOfBirth } }"""
     queried_beneficiary = _assert_successful_request(auth0_client, query)
-    assert queried_beneficiary == {"dateOfBirth": "1992-10-04"}
+    assert queried_beneficiary == {"dateOfBirth": "1980-07-10"}
 
-    for resource in [
-        "bases",
-        "organisations",
-        "locations",
-        "productCategories",
-        "transferAgreements",
-        "shipments",
-    ]:
+    query = """query { base(id: 100000000) { products { id } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    assert len(response["products"]) == 7
+
+    query = "query { beneficiaryDemographics(baseId: 100000000) { facts { count } } }"
+    demographics = _assert_successful_request(auth0_client, query)
+    assert sum(group["count"] for group in demographics["facts"]) == 5
+
+    auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
+        "some.admin@boxtribute.org"
+    )
+    for resource, count in zip(
+        [
+            "bases",
+            "organisations",
+            "locations",
+            "productCategories",
+            "tags",
+            "transferAgreements",
+            "shipments",
+            "users",
+        ],
+        [6, 4, 7, 18, 0, 1, 0, 43],
+    ):
         query = f"query {{ {resource} {{ id }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
-        assert len(response) > 0
+        assert len(response) == count
 
-    for resource in ["beneficiaries", "products"]:
-        query = f"query {{ {resource} {{ elements {{ id }} }} }}"
+    for resource, count in zip(["beneficiaries", "products"], [9, 8]):
+        query = f"query {{ {resource} {{ totalCount }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
-        assert len(response) > 0
-
-    query = """query { base(id: 1) { products { id } } }"""
-    response = _assert_successful_request(auth0_client, query)
-    assert len(response["products"]) == 216
-
-    query = """query { base(id: 1) {
-        products(filterInput: {includeDeleted: true}) { id } } }"""
-    response = _assert_successful_request(auth0_client, query)
-    assert len(response["products"]) == 219
-
-    query = "query { beneficiaryDemographics(baseId: 1) { facts { age count } } }"
-    demographics = _assert_successful_request(auth0_client, query)
-    assert sum(group["count"] for group in demographics["facts"]) == 970
+        assert response["totalCount"] == count
 
     query = """query { standardProducts {
                 ...on StandardProductPage { elements { id } } } }"""
@@ -60,20 +68,25 @@ def test_queries(auth0_client, endpoint):
 
 
 def test_mutations(auth0_client):
+    auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
+        "coordinator@coordinator.co"
+    )
+    user_id = "100000001"
+
     mutation = "mutation { createQrCode { id } }"
     response = assert_successful_request(auth0_client, mutation, field="createQrCode")
     assert response is not None
 
     mutation = """mutation { createBox(creationInput: {
-                   productId: 1,
+                   productId: 1158,
                    numberOfItems: 10,
-                   locationId: 1,
+                   locationId: 100000000,
                    sizeId: 1,
                    comment: "new things"
                 }) { labelIdentifier location { id } } }"""
     response = assert_successful_request(auth0_client, mutation)
     label_identifier = response.pop("labelIdentifier")
-    assert response == {"location": {"id": "1"}}
+    assert response == {"location": {"id": "100000000"}}
 
     mutation = f"""mutation {{ updateBox(updateInput: {{
                     labelIdentifier: "{label_identifier}", numberOfItems: 2
@@ -84,7 +97,7 @@ def test_mutations(auth0_client):
     mutation = """mutation { createBeneficiary(creationInput: {
                     firstName: "Any",
                     lastName: "Body",
-                    baseId: 1,
+                    baseId: 100000000,
                     groupIdentifier: "de4db33f",
                     dateOfBirth: "2000-01-30",
                     gender: Female,
@@ -101,25 +114,11 @@ def test_mutations(auth0_client):
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"firstName": "Some"}
 
-    mutation = """mutation { createTransferAgreement(creationInput: {
-                    initiatingOrganisationId: 1,
-                    partnerOrganisationId: 100000000,
-                    initiatingOrganisationBaseIds: [1]
-                    type: Bidirectional
-                }) { id type } }"""
-    response = assert_successful_request(auth0_client, mutation)
-    agreement_id = response.pop("id")
-    assert response == {"type": "Bidirectional"}
-
-    mutation = f"mutation {{ cancelTransferAgreement(id: {agreement_id}) {{ id }} }}"
-    response = assert_successful_request(auth0_client, mutation)
-    assert response == {"id": str(agreement_id)}
-
     def create_shipment():
         mutation = """mutation { createShipment(creationInput: {
                         transferAgreementId: 1,
-                        sourceBaseId: 1,
-                        targetBaseId: 3
+                        sourceBaseId: 100000000,
+                        targetBaseId: 100000001
                     }) { id state } }"""
         response = assert_successful_request(auth0_client, mutation)
         shipment_id = response.pop("id")
@@ -146,7 +145,7 @@ def test_mutations(auth0_client):
                     categoryId: 12
                     sizeRangeId: 1
                     gender: UnisexKid
-                    baseId: 1
+                    baseId: 100000000
                 }) {
                 ...on Product {
                     id
@@ -161,19 +160,33 @@ def test_mutations(auth0_client):
     product_id = int(response.pop("id"))
     assert response == {
         "name": "bags",
-        "base": {"id": "1"},
+        "base": {"id": "100000000"},
         "price": 0.0,
         "comment": None,
         "inShop": False,
-        "createdBy": {"id": "8"},
+        "createdBy": {"id": user_id},
     }
+
+    agreement_id = 1
+    mutation = f"mutation {{ cancelTransferAgreement(id: {agreement_id}) {{ id }} }}"
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"id": str(agreement_id)}
+
+    mutation = """mutation { createTransferAgreement(creationInput: {
+                    initiatingOrganisationId: 100000000,
+                    partnerOrganisationId: 100000001,
+                    initiatingOrganisationBaseIds: [100000000]
+                    type: Bidirectional
+                }) { id type } }"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"type": "Bidirectional", "id": "2"}
 
     mutation = """mutation { createCustomProduct(creationInput: {
                     name: "bags"
                     categoryId: 12
                     sizeRangeId: 1
                     gender: UnisexKid
-                    baseId: 1
+                    baseId: 100000000
                     price: 4
                     comment: "good quality"
                     inShop: true
@@ -191,11 +204,11 @@ def test_mutations(auth0_client):
     assert int(response.pop("id")) == product_id + 1
     assert response == {
         "name": "bags",
-        "base": {"id": "1"},
+        "base": {"id": "100000000"},
         "price": 4.0,
         "comment": "good quality",
         "inShop": True,
-        "createdBy": {"id": "8"},
+        "createdBy": {"id": user_id},
     }
 
     name = "bag"
@@ -208,7 +221,11 @@ def test_mutations(auth0_client):
                     lastModifiedBy {{ id }}
                 }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"name": name, "inShop": False, "lastModifiedBy": {"id": "8"}}
+    assert response == {
+        "name": name,
+        "inShop": False,
+        "lastModifiedBy": {"id": user_id},
+    }
 
     mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
                 ...on Product {{ deletedOn }} }} }}"""

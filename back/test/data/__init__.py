@@ -7,6 +7,7 @@ from boxtribute_server.db import db
 from .base import another_base, default_base, default_bases
 from .beneficiary import (
     another_beneficiary,
+    another_relative_beneficiary,
     default_beneficiaries,
     default_beneficiary,
     relative_beneficiary,
@@ -108,6 +109,7 @@ __all__ = [
     "another_organisation",
     "another_product",
     "another_qr_code_with_box",
+    "another_relative_beneficiary",
     "another_shipment",
     "another_shipment_detail",
     "another_size",

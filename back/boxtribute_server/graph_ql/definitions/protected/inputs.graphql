@@ -78,6 +78,7 @@ input BeneficiaryCreationInput {
   registered: Boolean!
   signature: String
   dateOfSignature: Date
+  tagIds: [Int!]
 }
 
 input BeneficiaryUpdateInput {

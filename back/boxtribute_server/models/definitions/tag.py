@@ -22,8 +22,8 @@ class Tag(db.Model):
     deleted = DateTimeField(null=True)
     description = TextField()
     name = CharField(column_name="label")
-    modified = DateTimeField(null=True)
-    modified_by = UIntForeignKeyField(
+    last_modified_on = DateTimeField(column_name="modified", null=True)
+    last_modified_by = UIntForeignKeyField(
         column_name="modified_by", field="id", model=User, null=True
     )
     seq = IntegerField(null=True)
