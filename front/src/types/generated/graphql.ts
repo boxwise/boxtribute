@@ -348,7 +348,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
@@ -358,7 +358,7 @@ export type DimensionInfo = BasicDimensionInfo & {
 
 export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions | TopProductsDimensions;
 
-export type DisableStandardProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type DisableStandardProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {

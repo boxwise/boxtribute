@@ -313,6 +313,15 @@ def test_custom_product_mutations(
         if b["id"] not in [12, 13]  # test boxes with product IDs 5 and 3
     ]
 
+    # Test case 8.2.59a
+    std_product_instantiation_id = products[4]["id"]
+    mutation = f"""mutation {{
+                deleteProduct(id: {std_product_instantiation_id}) {{
+                    ...on ProductTypeMismatchError {{ expectedType }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.Custom.name}
+
     # Test case 8.2.53
     comment = "new"
     mutation = f"""mutation {{ editCustomProduct(
@@ -438,6 +447,7 @@ def test_standard_product_instantiation_mutations(
     another_user,
     products,
     default_boxes,
+    default_product,
 ):
     base_id = str(default_base["id"])
     size_range_id = str(default_size_range["id"])
@@ -482,6 +492,15 @@ def test_standard_product_instantiation_mutations(
     assert response["lastModifiedOn"].startswith(today)
     assert response["deletedOn"] == response["lastModifiedOn"]
     assert response["lastModifiedBy"] == {"id": user_id}
+
+    # Test case 8.2.85
+    custom_product_id = str(default_product["id"])
+    mutation = f"""mutation {{
+                disableStandardProduct(instantiationId: {custom_product_id}) {{
+                    ...on ProductTypeMismatchError {{ expectedType }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.StandardInstantiation.name}
 
     # Test case 8.2.61
     price = 12
@@ -606,7 +625,8 @@ def test_standard_product_instantiation_mutations(
 
     # Test case 8.2.84
     product_with_boxes_id = products[4]["id"]
-    mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
+    mutation = f"""mutation {{
+                disableStandardProduct(instantiationId: {product_with_boxes_id}) {{
                     ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
                 }} }}"""
     response = assert_successful_request(client, mutation)

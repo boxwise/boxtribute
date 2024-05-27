@@ -124,6 +124,9 @@ def _boxes_still_assigned_to_product(product):
 @save_deletion_to_history
 @handle_non_existing_resource
 def delete_product(*, user_id, product):
+    if product.standard_product_id is not None:
+        return ProductTypeMismatch(expected_type=ProductType.Custom)
+
     if label_identifiers := _boxes_still_assigned_to_product(product):
         return BoxesStillAssignedToProduct(label_identifiers=label_identifiers)
 
@@ -216,5 +219,23 @@ def edit_standard_product_instantiation(
 
     if in_shop is not None:
         product.in_shop = in_shop
+
+    return product
+
+
+@save_deletion_to_history
+@handle_non_existing_resource
+def disable_standard_product(*, user_id, product):
+    if product.standard_product_id is None:
+        return ProductTypeMismatch(expected_type=ProductType.StandardInstantiation)
+
+    if label_identifiers := _boxes_still_assigned_to_product(product):
+        return BoxesStillAssignedToProduct(label_identifiers=label_identifiers)
+
+    now = utcnow()
+    product.deleted_on = now
+    product.last_modified_on = now
+    product.last_modified_by = user_id
+    product.save()
 
     return product
