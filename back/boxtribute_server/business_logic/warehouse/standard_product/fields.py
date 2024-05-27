@@ -9,11 +9,16 @@ standard_product = ObjectType("StandardProduct")
 
 @standard_product.field("enabledForBases")
 def resolve_standard_product_enabled_for_bases(standard_product_obj, _):
+    authz_condition = (
+        True
+        if g.user.is_god
+        else Product.base << g.user.authorized_base_ids("standard_product:read")
+    )
     result = Product.select(Base).join(
         Base,
         on=(
             (Product.base == Base.id)
-            & (Product.base << g.user.authorized_base_ids("standard_product:read"))
+            & (authz_condition)
             & (Product.standard_product == standard_product_obj.id)
             & (Product.deleted_on.is_null())
         ),

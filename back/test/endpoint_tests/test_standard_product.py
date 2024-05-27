@@ -8,7 +8,7 @@ today = date.today().isoformat()
 
 
 def test_standard_product_query(
-    read_only_client, default_standard_product, another_standard_product
+    read_only_client, default_standard_product, another_standard_product, mocker
 ):
     # Test case 8.1.41
     query = f"""query {{
@@ -46,6 +46,15 @@ def test_standard_product_query(
                 }} }} }}"""
     product = assert_successful_request(read_only_client, query)
     assert product == {"enabledForBases": []}
+
+    mock_user_for_request(mocker, is_god=True)
+    query = f"""query {{
+                standardProduct(id: {default_standard_product['id']}) {{
+                ... on StandardProduct {{
+                    enabledForBases {{ id }}
+                }} }} }}"""
+    product = assert_successful_request(read_only_client, query)
+    assert product == {"enabledForBases": [{"id": "1"}, {"id": "3"}]}
 
 
 def test_standard_products_query(
