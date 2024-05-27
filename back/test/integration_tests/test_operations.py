@@ -234,12 +234,12 @@ def test_mutations(auth0_client):
     assert response["deletedOn"].startswith(today)
 
     mutation = """mutation { enableStandardProduct(enableInput: {
-                    standardProductId: 1, baseId: 1 } ) {
+                    standardProductId: 1, baseId: 100000000 } ) {
                 ...on Product { id base { id } price createdOn } } }"""
     response = assert_successful_request(auth0_client, mutation)
     assert response.pop("createdOn").startswith(today)
     product_id = response.pop("id")
-    assert response == {"base": {"id": "1"}, "price": 0.0}
+    assert response == {"base": {"id": "100000000"}, "price": 0.0}
 
     mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
                     id: {product_id}, price: 1 }} ) {{
