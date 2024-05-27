@@ -34,7 +34,7 @@ def test_queries(auth0_client, endpoint):
 
     query = "query { beneficiaryDemographics(baseId: 100000000) { facts { count } } }"
     demographics = _assert_successful_request(auth0_client, query)
-    assert sum(group["count"] for group in demographics["facts"]) == 5
+    assert sum(group["count"] for group in demographics["facts"]) == 6
 
     auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "some.admin@boxtribute.org"

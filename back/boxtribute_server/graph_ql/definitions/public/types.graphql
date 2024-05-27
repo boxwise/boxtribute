@@ -19,6 +19,7 @@ type BeneficiaryDemographicsResult {
   age: Int
   gender: HumanGender
   createdOn: Date
+  deletedOn: Date
   tagIds: [Int!]
   count: Int
 }

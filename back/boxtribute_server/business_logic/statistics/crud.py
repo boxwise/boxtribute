@@ -104,6 +104,9 @@ def compute_beneficiary_demographics(base_id):
     _validate_existing_base(base_id)
     gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
     created_on = Beneficiary.created_on.truncate("day")
+    deleted_on = fn.IF(
+        Beneficiary.deleted_on > 0, Beneficiary.deleted_on.truncate("day"), None
+    )
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
@@ -113,6 +116,7 @@ def compute_beneficiary_demographics(base_id):
         Beneficiary.select(
             gender.python_value(HumanGender).alias("gender"),
             fn.DATE(created_on).alias("created_on"),
+            fn.DATE(deleted_on).alias("deleted_on"),
             age.alias("age"),
             tag_ids.alias("tag_ids"),
             fn.COUNT(Beneficiary.id.distinct()).alias("count"),
@@ -125,11 +129,13 @@ def compute_beneficiary_demographics(base_id):
                 & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
             ),
         )
-        .where(
-            Beneficiary.deleted_on.is_null(),
-            Beneficiary.base == base_id,
+        .where(Beneficiary.base == base_id)
+        .group_by(
+            SQL("gender"),
+            SQL("age"),
+            SQL("created_on"),
+            SQL("deleted_on"),
         )
-        .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
         .dicts()
     )
 

@@ -16,7 +16,7 @@ def test_query_beneficiary_demographics(
     read_only_client, tags, default_beneficiary, endpoint
 ):
     query = """query { beneficiaryDemographics(baseId: 1) {
-        facts { gender age createdOn count tagIds }
+        facts { gender age createdOn deletedOn count tagIds }
         dimensions { tag { id name color } } } }"""
     response = assert_successful_request(read_only_client, query, endpoint=endpoint)
     age = compute_age(default_beneficiary["date_of_birth"])
@@ -25,6 +25,15 @@ def test_query_beneficiary_demographics(
             "age": None,
             "count": 1,
             "createdOn": "2021-06-30",
+            "deletedOn": None,
+            "gender": "Diverse",
+            "tagIds": [],
+        },
+        {
+            "age": None,
+            "count": 1,
+            "createdOn": "2021-06-30",
+            "deletedOn": "2021-12-31",
             "gender": "Diverse",
             "tagIds": [],
         },
@@ -32,6 +41,7 @@ def test_query_beneficiary_demographics(
             "age": None,
             "count": 1,
             "createdOn": "2022-01-30",
+            "deletedOn": None,
             "gender": "Female",
             "tagIds": [],
         },
@@ -39,6 +49,7 @@ def test_query_beneficiary_demographics(
             "age": age,
             "count": 1,
             "createdOn": "2020-06-30",
+            "deletedOn": None,
             "gender": "Male",
             "tagIds": [1, 3],
         },
