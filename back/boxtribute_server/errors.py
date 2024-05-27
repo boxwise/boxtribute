@@ -34,3 +34,13 @@ class UnauthorizedForBase(UserError):
 class BoxesStillAssignedToProduct(UserError):
     def __init__(self, *, label_identifiers):
         self.label_identifiers = label_identifiers
+
+
+class StandardProductAlreadyEnabledForBase(UserError):
+    def __init__(self, *, product_id):
+        self.existing_standard_product_instantiation_id = product_id
+
+
+class ProductTypeMismatch(UserError):
+    def __init__(self, *, expected_type):
+        self.expected_type = expected_type

@@ -273,6 +273,48 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { id name }",
             {"id": "0", "name": "Product"},
         ],
+        # Test case 8.2.62
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 0, standardProductId: 2 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "0"},
+        ],
+        # Test case 8.2.63
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 1, standardProductId: 2, sizeRangeId: 0 }""",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "SizeRange"},
+        ],
+        # Test case 8.2.64
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 1, standardProductId: 0 }""",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "StandardProduct"},
+        ],
+        # Test case 8.2.71
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 5, sizeRangeId: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "SizeRange"},
+        ],
+        # Test case 8.2.72
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 0 }",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Product"},
+        ],
+        # Test case 8.2.81
+        [
+            "disableStandardProduct",
+            "instantiationId: 0",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Product"},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(
@@ -280,6 +322,26 @@ def test_mutate_resource_does_not_exist(
 ):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
     actual_response = assert_successful_request(read_only_client, mutation)
+    assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,query_input,field,response",
+    [
+        # Test case 8.1.42
+        [
+            "standardProduct",
+            "id: 0",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "StandardProduct"},
+        ],
+    ],
+)
+def test_query_resource_does_not_exist(
+    read_only_client, operation, query_input, field, response
+):
+    query = f"query {{ {operation}({query_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, query)
     assert actual_response == response
 
 

@@ -2,7 +2,7 @@ import enum
 from datetime import date
 
 import pytest
-from boxtribute_server.enums import ProductGender
+from boxtribute_server.enums import ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_successful_request
 
@@ -15,6 +15,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
                 product(id: {default_product['id']}) {{
                     id
                     name
+                    type
                     category {{
                         hasGender
                     }}
@@ -31,6 +32,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
     assert queried_product == {
         "id": str(default_product["id"]),
         "name": default_product["name"],
+        "type": ProductType.Custom.name,
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
@@ -51,7 +53,10 @@ def test_product_query(read_only_client, default_product, default_size, another_
         # Test case 8.1.26
         ["includeDeleted: true", [1, 3, 4]],
         ["type: Custom", [1, 3]],
-        ["type: All", [1, 3]],
+        ["type: StandardInstantiation", [5]],
+        ["type: All", [1, 3, 5]],
+        ["includeDeleted: true, type: StandardInstantiation", [5, 6]],
+        ["includeDeleted: true, type: All", [1, 3, 4, 5, 6]],
     ],
 )
 def test_product_query_filtering(read_only_client, default_base, filter_input, ids):
@@ -63,6 +68,7 @@ def test_product_query_filtering(read_only_client, default_base, filter_input, i
 
 
 def test_products_query(read_only_client, base1_products):
+    # Test case 8.1.20
     query = """query { products { elements { name } } }"""
     products = assert_successful_request(read_only_client, query)["elements"]
     assert products == [{"name": p["name"]} for p in base1_products]
@@ -92,7 +98,7 @@ def _create_mutation(creation_input):
                 }} }}"""
 
 
-def test_product_mutations(
+def test_custom_product_mutations(
     client,
     default_base,
     default_product_category,
@@ -102,6 +108,7 @@ def test_product_mutations(
     default_product,
     default_boxes,
     another_user,
+    products,
 ):
     base_id = str(default_base["id"])
     category_id = str(default_product_category["id"])
@@ -244,7 +251,7 @@ def test_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"comment": comment}
 
-    in_shop = False
+    in_shop = True
     mutation = _create_update_mutation("inShop", in_shop)
     response = assert_successful_request(client, mutation)
     assert response == {"inShop": in_shop}
@@ -258,7 +265,7 @@ def test_product_mutations(
     assert response.pop("lastModifiedOn").startswith(today)
     assert response == {"lastModifiedBy": {"id": user_id}}
 
-    # Test case 8.1.51
+    # Test case 8.2.51
     price = -32
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, price: {price} }} ) {{
@@ -266,14 +273,21 @@ def test_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"value": price}
 
-    # Test case 8.1.52
+    # Test case 8.2.52
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, name: "" }} ) {{
                         ...on EmptyNameError {{ _ }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"_": None}
 
-    # Test case 8.1.55
+    # Test case 8.2.54
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {products[4]["id"]}, price: 1 }} ) {{
+                        ...on ProductTypeMismatchError {{ expectedType }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.Custom.name}
+
+    # Test case 8.2.55
     mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
                     ...on Product {{
                         deletedOn
@@ -287,7 +301,7 @@ def test_product_mutations(
     assert response["deletedOn"] == response["lastModifiedOn"]
     assert response["lastModifiedBy"] == {"id": user_id}
 
-    # Test case 8.1.59
+    # Test case 8.2.59
     product_with_boxes_id = default_product["id"]
     mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
                     ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
@@ -296,10 +310,19 @@ def test_product_mutations(
     assert response["labelIdentifiers"] == [
         b["label_identifier"]
         for b in default_boxes[1:-1]
-        if b["id"] != 13  # test box with product ID 3
+        if b["id"] not in [12, 13]  # test boxes with product IDs 5 and 3
     ]
 
-    # Test case 8.1.53
+    # Test case 8.2.59a
+    std_product_instantiation_id = products[4]["id"]
+    mutation = f"""mutation {{
+                deleteProduct(id: {std_product_instantiation_id}) {{
+                    ...on ProductTypeMismatchError {{ expectedType }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.Custom.name}
+
+    # Test case 8.2.53
     comment = "new"
     mutation = f"""mutation {{ editCustomProduct(
                     editInput: {{ id: {another_product_id}, comment: "{comment}" }} )
@@ -321,15 +344,8 @@ def test_product_mutations(
         .where(DbChangeHistory.table_name == "products")
         .dicts()
     )
-    assert history_entries[0].pop("change_date").isoformat().startswith(today)
-    assert history_entries[1].pop("change_date").isoformat().startswith(today)
-    assert history_entries[2].pop("change_date").isoformat().startswith(today)
-    assert history_entries[3].pop("change_date").isoformat().startswith(today)
-    assert history_entries[4].pop("change_date").isoformat().startswith(today)
-    assert history_entries[5].pop("change_date").isoformat().startswith(today)
-    assert history_entries[6].pop("change_date").isoformat().startswith(today)
-    assert history_entries[7].pop("change_date").isoformat().startswith(today)
-    assert history_entries[8].pop("change_date").isoformat().startswith(today)
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
             "changes": "Record created",
@@ -374,6 +390,12 @@ def test_product_mutations(
             "to_int": None,
         },
         {
+            "changes": "stockincontainer",
+            "record_id": int(product_id),
+            "from_int": 0,
+            "to_int": 1,
+        },
+        {
             "changes": "Record deleted",
             "record_id": int(product_id),
             "from_int": None,
@@ -384,5 +406,286 @@ def test_product_mutations(
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,
+        },
+    ]
+
+
+def _enable_mutation(enable_input):
+    return f"""mutation {{
+                enableStandardProduct(enableInput: {enable_input}) {{
+                ...on Product {{
+                    id
+                    name
+                    type
+                    category {{ id }}
+                    sizeRange {{ id }}
+                    gender
+                    base {{ id }}
+                    price
+                    comment
+                    inShop
+                    createdBy {{ id }}
+                    createdOn
+                    lastModifiedBy {{ id }}
+                    lastModifiedOn
+                    deletedOn
+                }}
+                ...on InvalidPriceError {{ value }}
+                ...on StandardProductAlreadyEnabledForBaseError {{
+                    existingStandardProductInstantiationId
+                }}
+                }} }}"""
+
+
+def test_standard_product_instantiation_mutations(
+    client,
+    default_base,
+    default_size_range,
+    another_size_range,
+    default_standard_product,
+    another_standard_product,
+    another_user,
+    products,
+    default_boxes,
+    default_product,
+):
+    base_id = str(default_base["id"])
+    size_range_id = str(default_size_range["id"])
+    standard_product_id = str(another_standard_product["id"])
+    user_id = str(another_user["id"])
+
+    # Test case 8.2.60
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    created_product = assert_successful_request(client, mutation)
+    product_id = created_product.pop("id")
+    assert created_product.pop("createdOn").startswith(today)
+    assert created_product == {
+        "name": another_standard_product["name"],
+        "type": ProductType.StandardInstantiation.name,
+        "category": {"id": str(another_standard_product["category"])},
+        "sizeRange": {"id": str(another_standard_product["size_range"])},
+        "gender": ProductGender(another_standard_product["gender"]).name,
+        "base": {"id": base_id},
+        "price": 0.0,
+        "comment": None,
+        "inShop": False,
+        "createdBy": {"id": user_id},
+        "lastModifiedBy": None,
+        "lastModifiedOn": None,
+        "deletedOn": None,
+    }
+
+    # Test case 8.2.80
+    mutation = f"""mutation {{ disableStandardProduct(instantiationId: {product_id}) {{
+                    ...on Product {{
+                        deletedOn
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
+                    }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"].startswith(today)
+    assert response["lastModifiedOn"].startswith(today)
+    assert response["deletedOn"] == response["lastModifiedOn"]
+    assert response["lastModifiedBy"] == {"id": user_id}
+
+    # Test case 8.2.85
+    custom_product_id = str(default_product["id"])
+    mutation = f"""mutation {{
+                disableStandardProduct(instantiationId: {custom_product_id}) {{
+                    ...on ProductTypeMismatchError {{ expectedType }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.StandardInstantiation.name}
+
+    # Test case 8.2.61
+    price = 12
+    comment = "new"
+    in_shop = True
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            sizeRangeId: {size_range_id}
+            price: {price}
+            comment: "{comment}"
+            inShop: {str(in_shop).lower()}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    created_product = assert_successful_request(client, mutation)
+    another_product_id = created_product.pop("id")
+    assert created_product.pop("createdOn").startswith(today)
+    assert created_product == {
+        "name": another_standard_product["name"],
+        "type": ProductType.StandardInstantiation.name,
+        "category": {"id": str(another_standard_product["category"])},
+        "sizeRange": {"id": size_range_id},
+        "gender": ProductGender(another_standard_product["gender"]).name,
+        "base": {"id": base_id},
+        "price": price,
+        "comment": comment,
+        "inShop": in_shop,
+        "createdBy": {"id": user_id},
+        "lastModifiedBy": None,
+        "lastModifiedOn": None,
+        "deletedOn": None,
+    }
+
+    # Test case 8.2.67
+    price = -10
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            price: {price}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"value": price}
+
+    # Test case 8.2.68
+    standard_product_id = default_standard_product["id"]
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"existingStandardProductInstantiationId": "5"}
+
+    # Test case 8.2.70
+    def _create_update_mutation(field, value):
+        if isinstance(value, str):
+            value = f'"{value}"'
+        if isinstance(value, enum.Enum):
+            value = value.name
+        if isinstance(value, bool):
+            value = "true" if value else "false"
+
+        update_input = f"id: {another_product_id}, {field}: {value}"
+        if field.endswith("Id"):
+            field = f"{field.rstrip('Id')} {{ id }}"
+        return f"""mutation {{
+                editStandardProductInstantiation(editInput: {{ {update_input} }} ) {{
+                    ...on Product {{
+                        {field}
+                    }} }} }}"""
+
+    size_range_id = another_size_range["id"]
+    mutation = _create_update_mutation("sizeRangeId", size_range_id)
+    response = assert_successful_request(client, mutation)
+    assert response == {"sizeRange": {"id": str(size_range_id)}}
+
+    price = 40
+    mutation = _create_update_mutation("price", price)
+    response = assert_successful_request(client, mutation)
+    assert response == {"price": float(price)}
+
+    comment = "from Germany"
+    mutation = _create_update_mutation("comment", comment)
+    response = assert_successful_request(client, mutation)
+    assert response == {"comment": comment}
+
+    in_shop = False
+    mutation = _create_update_mutation("inShop", in_shop)
+    response = assert_successful_request(client, mutation)
+    assert response == {"inShop": in_shop}
+
+    # Verify update of last_modified_* fields
+    query = f"""query {{ product(id: {another_product_id}) {{
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
+                }} }}"""
+    response = assert_successful_request(client, query)
+    assert response.pop("lastModifiedOn").startswith(today)
+    assert response == {"lastModifiedBy": {"id": user_id}}
+
+    # Test case 8.2.75
+    price = -32
+    mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
+                    id: {product_id}, price: {price} }} ) {{
+                        ...on InvalidPriceError {{ value }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"value": price}
+
+    # Test case 8.2.76
+    price = 40
+    mutation = _create_update_mutation("price", price)
+    response = assert_successful_request(client, mutation)
+    assert response == {"price": float(price)}
+
+    # Test case 8.2.77
+    mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
+                    id: {products[0]["id"]}, price: 1 }} ) {{
+                        ...on ProductTypeMismatchError {{ expectedType }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": ProductType.StandardInstantiation.name}
+
+    # Test case 8.2.84
+    product_with_boxes_id = products[4]["id"]
+    mutation = f"""mutation {{
+                disableStandardProduct(instantiationId: {product_with_boxes_id}) {{
+                    ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["labelIdentifiers"] == [default_boxes[9]["label_identifier"]]
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "products")
+        .dicts()
+    )
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "Record created",
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record deleted",
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "Record created",
+            "record_id": int(another_product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "sizegroup_id",
+            "record_id": int(another_product_id),
+            "from_int": 1,
+            "to_int": 2,
+        },
+        {
+            "changes": "value",
+            "record_id": int(another_product_id),
+            "from_int": 12,
+            "to_int": 40,
+        },
+        {
+            "changes": 'comments changed from "new" to "from Germany";',
+            "record_id": int(another_product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": "stockincontainer",
+            "record_id": int(another_product_id),
+            "from_int": 1,
+            "to_int": 0,
         },
     ]

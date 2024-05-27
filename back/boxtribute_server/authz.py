@@ -33,6 +33,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "shipment_detail",
     "size",
     "size_range",
+    "standard_product",
     "tag_relation",
     "transaction",
     "user",
@@ -320,6 +321,9 @@ ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
     "createCustomProduct",
     "editCustomProduct",
     "deleteProduct",
+    "enableStandardProduct",
+    "editStandardProductInstantiation",
+    "disableStandardProduct",
 )
 ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
     # + mutations for mobile distribution pages

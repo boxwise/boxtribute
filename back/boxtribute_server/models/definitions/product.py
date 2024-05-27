@@ -6,6 +6,7 @@ from .base import Base
 from .product_category import ProductCategory
 from .product_gender import ProductGender
 from .size_range import SizeRange
+from .standard_product import StandardProduct
 from .user import User
 
 
@@ -68,6 +69,15 @@ class Product(db.Model):
         column_name="stockincontainer", constraints=[SQL("DEFAULT 0")]
     )
     price = IntegerField(column_name="value", constraints=[SQL("DEFAULT 0")])
+    standard_product = UIntForeignKeyField(
+        model=StandardProduct,
+        column_name="standard_product_id",
+        field="id",
+        null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
+        object_id_name="standard_product_id",
+    )
 
     class Meta:
         table_name = "products"

@@ -45,7 +45,7 @@ def test_base_query(
                     organisation {{ id }}
                     currencyName
                     locations {{ id }}
-                    products {{ id }}
+                    products(filterInput: {{ type: All }}) {{ id }}
                     tags {{ id }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}

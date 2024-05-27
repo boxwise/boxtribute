@@ -34,6 +34,9 @@ type Mutation {
   createCustomProduct(creationInput: CustomProductCreationInput): CreateCustomProductResult
   editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
   deleteProduct(id: ID!): DeleteProductResult
+  enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
+  editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
+  disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent

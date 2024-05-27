@@ -119,6 +119,7 @@ def another_donated_box_data():
     data["label_identifier"] = "34534534"
     data["state"] = BoxState.Donated
     data["number_of_items"] = 12
+    data["product"] = product_data()[4]["id"]
     return data
 
 

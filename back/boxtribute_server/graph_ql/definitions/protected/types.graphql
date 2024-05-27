@@ -79,6 +79,7 @@ The product is registered in a specific [`Base`]({{Types.Base}}).
 type Product {
   id: ID!
   name: String!
+  type: ProductType!
   category: ProductCategory!
   sizeRange: SizeRange!
   base: Base
@@ -91,6 +92,27 @@ type Product {
   lastModifiedBy: User
   lastModifiedOn: Datetime
   deletedOn: Datetime
+}
+
+"""
+Representation of a standard product, containing information about [`ProductCategory`]({{Types.ProductCategory}}), size, and [`ProductGender`]({{Types.ProductGender}}).
+Users can enable this standard product for their bases which creates a standard product instantiation.
+"""
+type StandardProduct {
+  id: ID!
+  name: String!
+  category: ProductCategory!
+  sizeRange: SizeRange!
+  gender: ProductGender!
+  version: Int!
+  " All bases that this standard product is enabled for. "
+  enabledForBases: [Base!]
+  addedBy: User
+  addedOn: Datetime
+  deprecatedBy: User
+  deprecatedOn: Datetime
+  precededByProduct: StandardProduct
+  supercededByProduct: StandardProduct
 }
 
 """
@@ -111,6 +133,15 @@ Utility type holding a page of [`Products`]({{Types.Product}}).
 """
 type ProductPage {
   elements: [Product!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"""
+Utility type holding a page of [`StandardProducts`]({{Types.StandardProduct}}).
+"""
+type StandardProductPage {
+  elements: [StandardProduct!]!
   pageInfo: PageInfo!
   totalCount: Int!
 }
@@ -553,10 +584,21 @@ type EmptyNameError {
 type BoxesStillAssignedToProductError {
   labelIdentifiers: [String!]!
 }
+type StandardProductAlreadyEnabledForBaseError {
+  existingStandardProductInstantiationId: ID!
+}
+type ProductTypeMismatchError {
+  expectedType: ProductType!
+}
 
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
-union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
-union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError
+union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
+union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
+union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
+union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
 
 type Metrics {
   """

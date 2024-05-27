@@ -509,6 +509,27 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "product:write"},
         ],
+        # Test case 8.2.66
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 1, standardProductId: 2 }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
+        # Test case 8.2.74
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 5, price: 20 }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
+        # Test case 8.2.83
+        [
+            "disableStandardProduct",
+            "instantiationId: 5",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -544,6 +565,27 @@ def test_mutate_insufficient_permission(
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],
+        # Test case 8.2.65
+        [
+            "enableStandardProduct",
+            """enableInput: { baseId: 2, standardProductId: 2 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 8.2.73
+        [
+            "editStandardProductInstantiation",
+            "editInput: { id: 7, price: 20 }",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+        # Test case 8.2.82
+        [
+            "disableStandardProduct",
+            "instantiationId: 7",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
     ],
 )
 def test_mutate_unauthorized_for_base(
@@ -551,4 +593,53 @@ def test_mutate_unauthorized_for_base(
 ):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
     actual_response = assert_successful_request(read_only_client, mutation)
+    assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,query_input,field,response",
+    [
+        # Test case 8.1.43
+        [
+            "standardProduct",
+            "id: 1",
+            "...on InsufficientPermissionError { name }",
+            {"name": "standard_product:read"},
+        ],
+        # Test case 8.1.44
+        [
+            "standardProducts",
+            "",
+            "...on InsufficientPermissionError { name }",
+            {"name": "standard_product:read"},
+        ],
+    ],
+)
+def test_query_insufficient_permission(
+    unauthorized, read_only_client, operation, query_input, field, response
+):
+    if query_input:
+        query_input = f"({query_input})"
+    query = f"query {{ {operation}{query_input} {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, query)
+    assert actual_response == response
+
+
+@pytest.mark.parametrize(
+    "operation,query_input,field,response",
+    [
+        # Test case 8.1.46
+        [
+            "standardProducts",
+            "baseId: 3",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+    ],
+)
+def test_query_unauthorized_for_base(
+    read_only_client, operation, query_input, field, response
+):
+    query = f"query {{ {operation}({query_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(read_only_client, query)
     assert actual_response == response

@@ -61,6 +61,11 @@ def test_queries(auth0_client, endpoint):
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert response["totalCount"] == count
 
+    query = """query { standardProducts {
+                ...on StandardProductPage { totalCount } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    assert response["totalCount"] == 162
+
 
 def test_mutations(auth0_client):
     auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
@@ -226,4 +231,23 @@ def test_mutations(auth0_client):
                 ...on Product {{ deletedOn }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     today = date.today().isoformat()
+    assert response["deletedOn"].startswith(today)
+
+    mutation = """mutation { enableStandardProduct(enableInput: {
+                    standardProductId: 1, baseId: 100000000 } ) {
+                ...on Product { id base { id } price createdOn } } }"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response.pop("createdOn").startswith(today)
+    product_id = response.pop("id")
+    assert response == {"base": {"id": "100000000"}, "price": 0.0}
+
+    mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
+                    id: {product_id}, price: 1 }} ) {{
+                ...on Product {{ price }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response == {"price": 1.0}
+
+    mutation = f"""mutation {{ disableStandardProduct( instantiationId: {product_id} )
+                {{ ...on Product {{ deletedOn }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
     assert response["deletedOn"].startswith(today)

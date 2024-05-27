@@ -1,4 +1,4 @@
-from ..enums import TaggableObjectType
+from ..enums import ProductTypeFilter, TaggableObjectType
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.product import Product
@@ -118,8 +118,10 @@ def derive_product_filter(filter_input):
     parameters given, return True (i.e. no filtering applied).
     """
     include_deleted = False
+    type_filter = ProductTypeFilter.Custom
     if filter_input:
         include_deleted = filter_input.get("include_deleted")
+        type_filter = filter_input.get("type", ProductTypeFilter.Custom)
 
     conditions = []
 
@@ -128,4 +130,10 @@ def derive_product_filter(filter_input):
             # work-around for 0000-00-00 00:00:00 datetime fields in database
             (Product.deleted_on.is_null() | (Product.deleted_on == 0)),
         )
+
+    if type_filter == ProductTypeFilter.Custom:
+        conditions.append(Product.standard_product.is_null())
+    elif type_filter == ProductTypeFilter.StandardInstantiation:
+        conditions.append(Product.standard_product.is_null(False))
+
     return conditions

@@ -348,7 +348,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
@@ -357,6 +357,8 @@ export type DimensionInfo = BasicDimensionInfo & {
 };
 
 export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions | TopProductsDimensions;
+
+export type DisableStandardProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 /** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
@@ -468,13 +470,17 @@ export type DistributionSpotCreationInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
-export type EditCustomProductResult = EmptyNameError | InsufficientPermissionError | InvalidPriceError | Product | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type EditCustomProductResult = EmptyNameError | InsufficientPermissionError | InvalidPriceError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+
+export type EditStandardProductInstantiationResult = InsufficientPermissionError | InvalidPriceError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type EmptyNameError = {
   __typename?: 'EmptyNameError';
   /**  Dummy field since type definitions without fields are not possible  */
   _?: Maybe<Scalars['Boolean']>;
 };
+
+export type EnableStandardProductResult = InsufficientPermissionError | InvalidPriceError | Product | ResourceDoesNotExistError | StandardProductAlreadyEnabledForBaseError | UnauthorizedForBaseError;
 
 /**
  * Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
@@ -675,7 +681,10 @@ export type Mutation = {
   deactivateBeneficiary?: Maybe<Beneficiary>;
   deleteProduct?: Maybe<DeleteProductResult>;
   deleteTag?: Maybe<Tag>;
+  disableStandardProduct?: Maybe<DisableStandardProductResult>;
   editCustomProduct?: Maybe<EditCustomProductResult>;
+  editStandardProductInstantiation?: Maybe<EditStandardProductInstantiationResult>;
+  enableStandardProduct?: Maybe<EnableStandardProductResult>;
   markShipmentAsLost?: Maybe<Shipment>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
@@ -907,8 +916,38 @@ export type MutationDeleteTagArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationDisableStandardProductArgs = {
+  instantiationId: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationEditCustomProductArgs = {
   editInput?: InputMaybe<CustomProductEditInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationEditStandardProductInstantiationArgs = {
+  editInput?: InputMaybe<StandardProductInstantiationEditInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationEnableStandardProductArgs = {
+  enableInput?: InputMaybe<StandardProductEnableInput>;
 };
 
 
@@ -1221,6 +1260,7 @@ export type Product = {
   name: Scalars['String'];
   price?: Maybe<Scalars['Float']>;
   sizeRange: SizeRange;
+  type: ProductType;
 };
 
 /** Representation of a product category. */
@@ -1270,11 +1310,22 @@ export type ProductPage = {
   totalCount: Scalars['Int'];
 };
 
+/** Classificators for [`Product`]({{Types.Product}}) type. */
+export enum ProductType {
+  Custom = 'Custom',
+  StandardInstantiation = 'StandardInstantiation'
+}
+
 export enum ProductTypeFilter {
   All = 'All',
   Custom = 'Custom',
   StandardInstantiation = 'StandardInstantiation'
 }
+
+export type ProductTypeMismatchError = {
+  __typename?: 'ProductTypeMismatchError';
+  expectedType: ProductType;
+};
 
 /** Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}). */
 export type QrCode = {
@@ -1324,6 +1375,9 @@ export type Query = {
   shipment?: Maybe<Shipment>;
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
+  standardProduct?: Maybe<StandardProductResult>;
+  /**  Return standard products of latest version. Optionally include all standard products enabled for specified base.  */
+  standardProducts?: Maybe<StandardProductsResult>;
   stockOverview?: Maybe<StockOverviewData>;
   tag?: Maybe<Tag>;
   /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
@@ -1448,6 +1502,16 @@ export type QueryQrExistsArgs = {
 
 export type QueryShipmentArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryStandardProductArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryStandardProductsArgs = {
+  baseId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1593,6 +1657,62 @@ export type SizeRange = {
   productCategory?: Maybe<Array<ProductCategory>>;
   sizes: Array<Size>;
 };
+
+/**
+ * Representation of a standard product, containing information about [`ProductCategory`]({{Types.ProductCategory}}), size, and [`ProductGender`]({{Types.ProductGender}}).
+ * Users can enable this standard product for their bases which creates a standard product instantiation.
+ */
+export type StandardProduct = {
+  __typename?: 'StandardProduct';
+  addedBy?: Maybe<User>;
+  addedOn?: Maybe<Scalars['Datetime']>;
+  category: ProductCategory;
+  deprecatedBy?: Maybe<User>;
+  deprecatedOn?: Maybe<Scalars['Datetime']>;
+  /**  All bases that this standard product is enabled for.  */
+  enabledForBases?: Maybe<Array<Base>>;
+  gender: ProductGender;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  precededByProduct?: Maybe<StandardProduct>;
+  sizeRange: SizeRange;
+  supercededByProduct?: Maybe<StandardProduct>;
+  version: Scalars['Int'];
+};
+
+export type StandardProductAlreadyEnabledForBaseError = {
+  __typename?: 'StandardProductAlreadyEnabledForBaseError';
+  existingStandardProductInstantiationId: Scalars['ID'];
+};
+
+export type StandardProductEnableInput = {
+  baseId: Scalars['Int'];
+  comment?: InputMaybe<Scalars['String']>;
+  inShop?: InputMaybe<Scalars['Boolean']>;
+  price?: InputMaybe<Scalars['Int']>;
+  sizeRangeId?: InputMaybe<Scalars['Int']>;
+  standardProductId: Scalars['Int'];
+};
+
+export type StandardProductInstantiationEditInput = {
+  comment?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  inShop?: InputMaybe<Scalars['Boolean']>;
+  price?: InputMaybe<Scalars['Int']>;
+  sizeRangeId?: InputMaybe<Scalars['Int']>;
+};
+
+/** Utility type holding a page of [`StandardProducts`]({{Types.StandardProduct}}). */
+export type StandardProductPage = {
+  __typename?: 'StandardProductPage';
+  elements: Array<StandardProduct>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int'];
+};
+
+export type StandardProductResult = InsufficientPermissionError | ResourceDoesNotExistError | StandardProduct;
+
+export type StandardProductsResult = InsufficientPermissionError | StandardProductPage | UnauthorizedForBaseError;
 
 export type StockOverview = {
   __typename?: 'StockOverview';

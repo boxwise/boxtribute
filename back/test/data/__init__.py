@@ -80,6 +80,12 @@ from .shipment_detail import (
 )
 from .size import another_size, default_size
 from .size_range import another_size_range, default_size_range
+from .standard_product import (
+    another_standard_product,
+    default_standard_product,
+    newest_standard_product,
+    standard_products,
+)
 from .tag import base1_active_tags, tags
 from .transaction import another_transaction, default_transaction, relative_transaction
 from .transfer_agreement import (
@@ -108,6 +114,7 @@ __all__ = [
     "another_shipment_detail",
     "another_size",
     "another_size_range",
+    "another_standard_product",
     "another_transaction",
     "another_user",
     "base1_active_tags",
@@ -139,6 +146,7 @@ __all__ = [
     "default_shipment_detail",
     "default_size",
     "default_size_range",
+    "default_standard_product",
     "default_tracking_group",
     "default_transaction",
     "default_transfer_agreement",
@@ -153,6 +161,7 @@ __all__ = [
     "in_transit_box",
     "lost_box",
     "marked_for_shipment_box",
+    "newest_standard_product",
     "non_default_box_state_location",
     "not_delivered_box",
     "null_box_state_location",
@@ -172,6 +181,7 @@ __all__ = [
     "reviewed_transfer_agreement",
     "sent_shipment",
     "shipments",
+    "standard_products",
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
@@ -192,6 +202,7 @@ _NAMES = [
     "organisation",
     "base",
     "location",
+    "standard_product",
     "product",
     "size",
     "box",

@@ -15,6 +15,14 @@ enum ProductGender {
 }
 
 """
+Classificators for [`Product`]({{Types.Product}}) type.
+"""
+enum ProductType {
+  Custom
+  StandardInstantiation
+}
+
+"""
 Classificators for [`Box`]({{Types.Box}}) state.
 """
 enum BoxState {

@@ -1,6 +1,7 @@
 from ariadne import ObjectType
 
 from ....authz import authorize
+from ....enums import ProductType
 
 product = ObjectType("Product")
 
@@ -25,3 +26,10 @@ def resolve_product_gender(product_obj, _):
 def resolve_product_base(product_obj, info):
     authorize(permission="base:read", base_id=product_obj.base_id)
     return info.context["base_loader"].load(product_obj.base_id)
+
+
+@product.field("type")
+def resolve_product_type(product_obj, _):
+    if product_obj.standard_product_id is None:
+        return ProductType.Custom
+    return ProductType.StandardInstantiation

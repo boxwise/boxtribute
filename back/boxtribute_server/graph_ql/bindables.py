@@ -83,6 +83,10 @@ from ..business_logic.warehouse.product.queries import query as product_query
 from ..business_logic.warehouse.qr_code.fields import qr_code
 from ..business_logic.warehouse.qr_code.mutations import mutation as qr_code_mutation
 from ..business_logic.warehouse.qr_code.queries import query as qr_code_query
+from ..business_logic.warehouse.standard_product.fields import standard_product
+from ..business_logic.warehouse.standard_product.queries import (
+    query as standard_product_query,
+)
 from ..errors import UserError
 
 # Container for QueryTypes
@@ -102,6 +106,7 @@ query_types = (
     product_query,
     qr_code_query,
     shipment_query,
+    standard_product_query,
     statistics_query,
     tag_query,
     user_query,
@@ -141,6 +146,7 @@ object_types = (
     shipment,
     shipment_detail,
     size_range,
+    standard_product,
     tag,
     transfer_agreement,
     unboxed_items_collection,
@@ -165,6 +171,11 @@ union_types = (
     UnionType("CreateCustomProductResult", resolve_type_by_class_name),
     UnionType("EditCustomProductResult", resolve_type_by_class_name),
     UnionType("DeleteProductResult", resolve_type_by_class_name),
+    UnionType("EnableStandardProductResult", resolve_type_by_class_name),
+    UnionType("EditStandardProductInstantiationResult", resolve_type_by_class_name),
+    UnionType("DisableStandardProductResult", resolve_type_by_class_name),
+    UnionType("StandardProductResult", resolve_type_by_class_name),
+    UnionType("StandardProductsResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

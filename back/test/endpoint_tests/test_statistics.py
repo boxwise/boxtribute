@@ -66,9 +66,10 @@ def test_query_created_boxes(
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
-    assert len(facts) == 2
-    assert facts[0]["boxesCount"] == 13
+    assert len(facts) == 3
+    assert facts[0]["boxesCount"] == 12
     assert facts[1]["boxesCount"] == 1
+    assert facts[2]["boxesCount"] == 1
     assert data == {
         "dimensions": {
             "product": [
@@ -77,7 +78,7 @@ def test_query_created_boxes(
                     "name": p["name"],
                     "gender": ProductGender(p["gender"]).name,
                 }
-                for p in [products[0], products[2]]
+                for p in [products[0], products[2], products[4]]
             ],
             "category": [
                 {"id": c["id"], "name": c["name"]}
@@ -148,8 +149,17 @@ def test_query_top_products(
                 "productId": default_product["id"],
                 "categoryId": default_product["category"],
                 "sizeId": default_size["id"],
-                "itemsCount": 32,
+                "itemsCount": 20,
                 "rank": 1,
+            },
+            {
+                "createdOn": default_box["created_on"].date().isoformat(),
+                "donatedOn": "2022-12-05",
+                "productId": products[4]["id"],
+                "categoryId": products[4]["category"],
+                "sizeId": default_size["id"],
+                "itemsCount": 12,
+                "rank": 2,
             },
             {
                 "createdOn": default_box["created_on"].date().isoformat(),
@@ -163,7 +173,8 @@ def test_query_top_products(
         ],
         "dimensions": {
             "product": [
-                {"id": products[i]["id"], "name": products[i]["name"]} for i in [0, 2]
+                {"id": products[i]["id"], "name": products[i]["name"]}
+                for i in [0, 2, 4]
             ],
             "size": [
                 {"id": s["id"], "name": s["label"]}
@@ -203,12 +214,24 @@ def test_query_moved_boxes(
                 "tagIds": [],
             },
             {
-                "boxesCount": 3,
-                "itemsCount": 32,
+                "boxesCount": 2,
+                "itemsCount": 20,
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
                 "gender": "Women",
+                "targetId": location_name,
+                "organisationName": None,
+                "movedOn": "2022-12-05",
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 1,
+                "itemsCount": 12,
+                "categoryId": 12,
+                "productName": "joggers",
+                "sizeId": 1,
+                "gender": "Boy",
                 "targetId": location_name,
                 "organisationName": None,
                 "movedOn": "2022-12-05",
@@ -334,10 +357,10 @@ def test_query_stock_overview(
         },
         {
             "boxState": BoxState.Donated.name,
-            "boxesCount": 3,
+            "boxesCount": 2,
             "categoryId": 1,
             "gender": "Women",
-            "itemsCount": 32,
+            "itemsCount": 20,
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
@@ -363,6 +386,17 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "jackets",
             "sizeId": 2,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.Donated.name,
+            "boxesCount": 1,
+            "categoryId": 12,
+            "gender": "Boy",
+            "itemsCount": 12,
+            "locationId": 1,
+            "productName": "joggers",
+            "sizeId": 1,
             "tagIds": [],
         },
     ]

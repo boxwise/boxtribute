@@ -6,6 +6,7 @@ from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.definitions.log import Log
 from boxtribute_server.models.definitions.qr_code import QrCode
 from boxtribute_server.models.definitions.shipment import Shipment
+from boxtribute_server.models.definitions.standard_product import StandardProduct
 from boxtribute_server.models.definitions.transaction import Transaction
 from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
 from boxtribute_server.models.definitions.user import User
@@ -23,6 +24,7 @@ def test_models(
     default_log,
     default_qr_code,
     default_shipment,
+    default_standard_product,
     default_transaction,
     default_transfer_agreement,
     default_user,
@@ -52,6 +54,11 @@ def test_models(
 
     shipment = model_instance_dict(Shipment, default_shipment["id"])
     assert shipment.items() >= default_shipment.items()
+
+    standard_product = model_instance_dict(
+        StandardProduct, default_standard_product["id"]
+    )
+    assert standard_product.items() >= default_standard_product.items()
 
     transaction = model_instance_dict(Transaction, default_transaction["id"])
     assert transaction.items() >= default_transaction.items()
