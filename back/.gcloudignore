@@ -23,6 +23,7 @@ __pycache__/
 .circleci
 Dockerfile
 docker-compose.yml
+init.sql
 .venv
 *.pyc
 .vscode

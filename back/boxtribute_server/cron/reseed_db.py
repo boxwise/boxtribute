@@ -3,16 +3,15 @@ from pathlib import Path
 from ..db import db
 from .data_faking import Generator
 
-DATABASE_DUMP_FILEPATH = Path(__file__).parent.resolve().parent.parent / "init.sql"
+MINIMAL_SEED_FILEPATH = Path(__file__).parent.resolve().parent.parent / "minimal.sql"
 
 
 def reseed_db():
     # For testing locally, run
     # dotenv run flask --debug --app boxtribute_server.dev_main:app run -p 5005
     # curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
-    with db.database.cursor() as cursor:
-        with open(DATABASE_DUMP_FILEPATH) as seed:
-            execute_sql_statements_from_file(cursor, seed)
+    with db.database.cursor() as cursor, open(MINIMAL_SEED_FILEPATH) as seed:
+        execute_sql_statements_from_file(cursor, seed)
     generator = Generator()
     generator.run()
 

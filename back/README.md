@@ -111,12 +111,18 @@ To figure out the gateway of the Docker network `backend` run
 
 Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
 
-#### Database dump
+#### Database seed
 
-The `db` docker-compose service runs on a dump (`back/init.sql`) generated from the database of dropapp's staging environment. If it has been updated, run the following for the changes to take effect
+The `db` docker-compose service runs on a dump (`back/init.sql`) generated from a minimal DB seed enriched with fake data. To create the dump, e.g. when the fake-data generation has been updated, run
 
-    docker-compose rm db
-    docker-compose up -d --build db
+    docker-compose rm -sf db
+    docker-compose up --build webapp
+    curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
+    mysqldump --routines --add-drop-table --disable-keys --extended-insert --gtid --tz-utc --dump-date --skip-lock-tables --disable-keys --quote-names --create-options --add-locks --protocol=tcp -u root -p --host=127.0.0.1 --port=32000 dropapp_dev > back/init.sql
+
+You can also create the dump from a GUI like MySQL workbench or DBeaver.
+
+Commit and push the changes to the `init.sql` file, and copy them over to dropapp.
 
 #### ORM
 
