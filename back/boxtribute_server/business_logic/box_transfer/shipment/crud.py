@@ -607,27 +607,15 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
     )
 
     authorized_base_ids_of_user = user.authorized_base_ids("shipment:edit")
-    if shipment.source_base_id in authorized_base_ids_of_user:
-        _move_not_delivered_box_instock_in_source_base(user.id, details)
-    elif shipment.target_base_id in authorized_base_ids_of_user:
-        _move_not_delivered_box_instock_in_target_base(shipment, details)
-
-    history_entries = []
-    for detail in details:
-        history_entries.extend(
-            create_history_entries(
-                # Create a dummy box object as old resource (won't be saved)
-                old_resource=Box(state=BoxState.NotDelivered),
-                new_resource=detail.box,
-                fields=[Box.state],
-            )
-        )
-
     with db.database.atomic():
+        if shipment.source_base_id in authorized_base_ids_of_user:
+            _move_not_delivered_box_instock_in_source_base(user.id, details)
+        elif shipment.target_base_id in authorized_base_ids_of_user:
+            _move_not_delivered_box_instock_in_target_base(user.id, details, shipment)
+
         shipment.save()
 
         if details:
-            Box.bulk_update([d.box for d in details], [Box.state])
             ShipmentDetail.bulk_update(
                 details,
                 [
@@ -637,7 +625,6 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
                     ShipmentDetail.removed_by,
                 ],
             )
-            DbChangeHistory.bulk_create(history_entries)
 
     if shipment.state != ShipmentState.Completed:
         _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
@@ -645,7 +632,7 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
     return shipment
 
 
-def _move_not_delivered_box_instock_in_target_base(shipment, details):
+def _move_not_delivered_box_instock_in_target_base(user_id, details, shipment):
     """Relevant in the following scenario:
     - the target side is in the process of receiving a shipment
     - person A takes a box from the shipment without using the reconciliation procedure
@@ -662,7 +649,14 @@ def _move_not_delivered_box_instock_in_target_base(shipment, details):
     for detail in details:
         detail.lost_on = None
         detail.lost_by = None
-        detail.box.state = BoxState.Receiving
+
+    now = utcnow()
+    _bulk_update_box_state(
+        boxes=[d.box for d in details],
+        state=BoxState.Receiving,
+        user_id=user_id,
+        now=now,
+    )
 
 
 def _move_not_delivered_box_instock_in_source_base(user_id, details):
@@ -677,9 +671,16 @@ def _move_not_delivered_box_instock_in_source_base(user_id, details):
     - with the mutation, they can change the box state to InStock, and update the
       corresponding shipment detail.
     """
+    now = utcnow()
     for detail in details:
-        detail.removed_on = utcnow()
+        detail.removed_on = now
         detail.removed_by = user_id
         detail.lost_on = None
         detail.lost_by = None
-        detail.box.state = BoxState.InStock
+
+    _bulk_update_box_state(
+        boxes=[d.box for d in details],
+        state=BoxState.InStock,
+        user_id=user_id,
+        now=now,
+    )
