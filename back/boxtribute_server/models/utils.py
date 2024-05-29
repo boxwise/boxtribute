@@ -115,13 +115,17 @@ def save_update_to_history(*, id_field_name="id", fields):
             if not isinstance(result, db.Model):
                 return result
 
+            now = utcnow()
             entries = create_history_entries(
-                old_resource=old_resource, new_resource=result, fields=fields
+                old_resource=old_resource,
+                new_resource=result,
+                fields=fields,
+                change_date=now,
             )
             with db.database.atomic():
                 DbChangeHistory.bulk_create(entries)
                 if entries:
-                    result.last_modified_on = utcnow()
+                    result.last_modified_on = now
                     result.last_modified_by = kwargs["user_id"]
                     result.save()
 
@@ -132,12 +136,11 @@ def save_update_to_history(*, id_field_name="id", fields):
     return decorator
 
 
-def create_history_entries(*, old_resource, new_resource, fields):
+def create_history_entries(*, old_resource, new_resource, fields, change_date):
     """Return history entries (DbChangeHistory objects) by comparing given fields of old
     and new resource. For identical values, no history entry is created.
     """
     model = fields[0].model
-    now = utcnow()
     entries = []
     for field in fields:
         field_class = field.__class__
@@ -159,7 +162,7 @@ def create_history_entries(*, old_resource, new_resource, fields):
         entry.record_id = new_resource.id
         entry.user = g.user.id
         entry.ip = None
-        entry.change_date = now
+        entry.change_date = change_date
 
         if issubclass(field_class, (IntegerField, ForeignKeyField)):
             entry.from_int = old_value

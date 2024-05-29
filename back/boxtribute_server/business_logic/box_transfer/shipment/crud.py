@@ -117,6 +117,7 @@ def _bulk_update_box_state(*, boxes, state, user_id, now):
                 # Create a dummy box objects as new resource (won't be saved)
                 new_resource=Box(id=box.id, state=state),
                 fields=[Box.state],
+                change_date=now,
             )
         )
         box.state = state
@@ -391,6 +392,7 @@ def _update_shipment_with_received_boxes(
                 ),
                 new_resource=detail.box,
                 fields=updated_box_fields,
+                change_date=now,
             )
         )
 
