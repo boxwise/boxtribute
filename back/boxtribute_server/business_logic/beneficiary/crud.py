@@ -153,14 +153,14 @@ def update_beneficiary(
 
 @save_deletion_to_history
 def deactivate_beneficiary(*, beneficiary):
-    beneficiary.deleted = utcnow()
+    beneficiary.deleted_on = utcnow()
     beneficiary.save()
 
     if beneficiary.family_head_id is None:
         # Deactivate all children of a parent
         children = Beneficiary.select().where(
             Beneficiary.family_head == beneficiary.id,
-            (Beneficiary.deleted.is_null() | ~Beneficiary.deleted),
+            (Beneficiary.deleted_on.is_null() | ~Beneficiary.deleted_on),
         )
         with db.database.atomic():
             for child in children:

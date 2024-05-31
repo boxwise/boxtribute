@@ -94,7 +94,7 @@ def delete_tag(*, user_id, tag):
     Return the soft-deleted tag.
     """
     now = utcnow()
-    tag.deleted = now
+    tag.deleted_on = now
     tag.modified = now
     tag.modified_by = user_id
     with db.database.atomic():

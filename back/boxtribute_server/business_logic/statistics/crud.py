@@ -126,7 +126,7 @@ def compute_beneficiary_demographics(base_id):
             ),
         )
         .where(
-            Beneficiary.deleted.is_null(),
+            Beneficiary.deleted_on.is_null(),
             Beneficiary.base == base_id,
         )
         .group_by(SQL("gender"), SQL("age"), SQL("created_on"))
@@ -427,7 +427,7 @@ def compute_stock_overview(base_id):
             on=(
                 (boxes.c.location_id == Location.id)
                 & (Location.base == base_id)
-                & (Location.deleted.is_null())
+                & (Location.deleted_on.is_null())
             ),
         )
         .join(Product, on=(boxes.c.product_id == Product.id))

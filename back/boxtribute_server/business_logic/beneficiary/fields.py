@@ -72,7 +72,7 @@ def resolve_beneficiary_age(beneficiary_obj, _):
 
 @beneficiary.field("active")
 def resolve_beneficiary_active(beneficiary_obj, _):
-    return beneficiary_obj.deleted is None  # ZeroDateTimeField
+    return beneficiary_obj.deleted_on is None  # ZeroDateTimeField
 
 
 @beneficiary.field("base")

@@ -19,7 +19,7 @@ class Tag(db.Model):
     created_by = UIntForeignKeyField(
         column_name="created_by", field="id", model=User, null=True
     )
-    deleted = DateTimeField(null=True)
+    deleted_on = DateTimeField(column_name="deleted", null=True)
     description = TextField()
     name = CharField(column_name="label")
     last_modified_on = DateTimeField(column_name="modified", null=True)

@@ -87,7 +87,7 @@ def delete_location(*, user_id, location):
     """Soft-delete given location by setting the 'deleted' timestamp.
     Return the soft-deleted location.
     """
-    location.deleted = utcnow()
+    location.deleted_on = utcnow()
     location.visible = False
     with db.database.atomic():
         location.save()
