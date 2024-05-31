@@ -12,8 +12,8 @@ from ....models.definitions.product import Product
 from ....models.definitions.standard_product import StandardProduct
 from ....models.utils import (
     handle_non_existing_resource,
+    safely_handle_deletion,
     save_creation_to_history,
-    save_deletion_to_history,
     save_update_to_history,
     utcnow,
 )
@@ -121,7 +121,7 @@ def _boxes_still_assigned_to_product(product):
     ]
 
 
-@save_deletion_to_history
+@safely_handle_deletion
 @handle_non_existing_resource
 def delete_product(*, user_id, product):
     if product.standard_product_id is not None:
@@ -129,12 +129,6 @@ def delete_product(*, user_id, product):
 
     if label_identifiers := _boxes_still_assigned_to_product(product):
         return BoxesStillAssignedToProduct(label_identifiers=label_identifiers)
-
-    now = utcnow()
-    product.deleted_on = now
-    product.last_modified_on = now
-    product.last_modified_by = user_id
-    product.save()
 
     return product
 
@@ -223,7 +217,7 @@ def edit_standard_product_instantiation(
     return product
 
 
-@save_deletion_to_history
+@safely_handle_deletion
 @handle_non_existing_resource
 def disable_standard_product(*, user_id, product):
     if product.standard_product_id is None:
@@ -231,11 +225,5 @@ def disable_standard_product(*, user_id, product):
 
     if label_identifiers := _boxes_still_assigned_to_product(product):
         return BoxesStillAssignedToProduct(label_identifiers=label_identifiers)
-
-    now = utcnow()
-    product.deleted_on = now
-    product.last_modified_on = now
-    product.last_modified_by = user_id
-    product.save()
 
     return product

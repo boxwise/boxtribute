@@ -6,8 +6,8 @@ from ...models.definitions.box import Box
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.utils import (
+    safely_handle_deletion,
     save_creation_to_history,
-    save_deletion_to_history,
     save_update_to_history,
     utcnow,
 )
@@ -87,19 +87,12 @@ def update_tag(
     return tag
 
 
-@save_deletion_to_history
+@safely_handle_deletion
 def delete_tag(*, user_id, tag):
-    """Soft-delete given tag by setting the 'deleted' timestamp. Unassign the tag from
-    any resources by deleting respective rows of the TagsRelation model.
-    Return the soft-deleted tag.
+    """Soft-delete given tag. Unassign the tag from any resources by deleting respective
+    rows of the TagsRelation model.
     """
-    now = utcnow()
-    tag.deleted_on = now
-    tag.modified = now
-    tag.modified_by = user_id
-    with db.database.atomic():
-        tag.save()
-        TagsRelation.delete().where(TagsRelation.tag == tag.id).execute()
+    TagsRelation.delete().where(TagsRelation.tag == tag.id).execute()
     return tag
 
 

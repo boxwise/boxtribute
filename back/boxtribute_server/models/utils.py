@@ -59,24 +59,36 @@ def save_creation_to_history(f):
     return _save_to_history(f, "Record created")
 
 
-def save_deletion_to_history(f):
+def safely_handle_deletion(f):
+    """Using this decorator will set the `deleted_on` timestamp of the to-be-deleted
+    model instance and save the changes (i.e. `save()` does not have to be called).
+    """
     return _save_to_history(f, "Record deleted")
 
 
 def _save_to_history(f, changes):
+    """Execute given function in a `db.database.atomic` context manager."""
+
     @wraps(f)
     def inner(*args, **kwargs):
-        result = f(*args, **kwargs)
+        with db.database.atomic():
+            result = f(*args, **kwargs)
+            # Skip creating history entry if e.g. UserError returned
+            if not isinstance(result, db.Model):
+                return result
 
-        # Skip creating history entry if e.g. UserError returned
-        if isinstance(result, db.Model):
+            now = utcnow()
+            if "deleted" in changes:
+                result.deleted_on = now
+                result.save()
+
             DbChangeHistory.create(
                 changes=changes,
                 table_name=result._meta.table_name,
                 record_id=result.id,
                 user=g.user.id,
                 ip=None,
-                change_date=utcnow(),
+                change_date=now,
             )
 
         return result

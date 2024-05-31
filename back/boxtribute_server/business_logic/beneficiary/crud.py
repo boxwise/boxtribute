@@ -5,8 +5,8 @@ from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
+    safely_handle_deletion,
     save_creation_to_history,
-    save_deletion_to_history,
     save_update_to_history,
     utcnow,
 )
@@ -151,20 +151,16 @@ def update_beneficiary(
     return beneficiary
 
 
-@save_deletion_to_history
+@safely_handle_deletion
 def deactivate_beneficiary(*, beneficiary):
-    beneficiary.deleted_on = utcnow()
-    beneficiary.save()
-
     if beneficiary.family_head_id is None:
         # Deactivate all children of a parent
         children = Beneficiary.select().where(
             Beneficiary.family_head == beneficiary.id,
             (Beneficiary.deleted_on.is_null() | ~Beneficiary.deleted_on),
         )
-        with db.database.atomic():
-            for child in children:
-                deactivate_beneficiary(beneficiary=child)
+        for child in children:
+            deactivate_beneficiary(beneficiary=child)
     return beneficiary
 
 
