@@ -11,6 +11,8 @@ import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
 
+const visId = "TopCreatedProducts";
+
 export default function TopCreatedProducts(props: {
   width: string;
   height: string;
@@ -62,6 +64,7 @@ export default function TopCreatedProducts(props: {
       <VisHeader
         maxWidthPx={props.width}
         heading={heading}
+        visTrackingId={visId}
         onExport={onExport}
         defaultHeight={500}
         defaultWidth={500}

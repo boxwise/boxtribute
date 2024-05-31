@@ -38,6 +38,7 @@ interface IDemographicChartProps {
 }
 
 const heading = "Beneficiaries Registered";
+const visId = "DemographicPyramid";
 
 export default function DemographicPyramid({
   demographics,
@@ -98,6 +99,7 @@ export default function DemographicPyramid({
   return (
     <Card>
       <VisHeader
+        visTrackingId={visId}
         maxWidthPx={width}
         heading={heading}
         onExport={onExport}

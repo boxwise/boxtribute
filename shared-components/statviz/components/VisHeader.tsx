@@ -31,11 +31,13 @@ import useTimerange from "../hooks/useTimerange";
 import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
+import { trackDownload } from "../../utils/heapTracking";
 
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
 interface IVisHeaderProps {
   heading: string;
+  visTrackingId: string;
   maxWidthPx: number | string;
   onExport: (
     width: number,
@@ -57,6 +59,7 @@ interface IVisHeaderProps {
 
 export default function VisHeader({
   heading,
+  visTrackingId,
   maxWidthPx,
   onExport,
   defaultWidth,
@@ -68,7 +71,7 @@ export default function VisHeader({
   const [inputHeight, setInputHeight] = useState(defaultHeight);
   const isExporting = useReactiveVar(isChartExporting);
 
-  const { timerange } = useTimerange();
+  const { timerange, interval } = useTimerange();
 
   const { value, getCheckboxProps } = useCheckboxGroup({
     defaultValue: ["heading", "timerange"],
@@ -89,6 +92,12 @@ export default function VisHeader({
           }
         : chartProps;
 
+    trackDownload({
+      visTrackingId,
+      downloadFormat: e.target.value as string,
+      from: date2String(interval.start),
+      to: date2String(interval.end),
+    });
     onExport(
       inputWidth,
       inputHeight,
@@ -195,6 +204,7 @@ export default function VisHeader({
                       <Button
                         borderRadius="0px"
                         border="2px"
+                        id={visTrackingId}
                         isLoading={isExporting}
                         backgroundColor="white"
                         value="jpg"
@@ -206,6 +216,7 @@ export default function VisHeader({
                       <Button
                         borderRadius="0px"
                         border="2px"
+                        id={visTrackingId}
                         isLoading={isExporting}
                         backgroundColor="white"
                         value="svg"
