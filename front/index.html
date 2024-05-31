@@ -16,7 +16,8 @@
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- trello card: https://trello.com/c/9zRby4kq -->
+    <!-- <link rel="manifest" href="/manifest.json" /> -->
     <title>Boxtribute</title>
   </head>
   <body>
@@ -24,13 +25,4 @@
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
   </body>
-  <script>
-    // trello card: https://trello.com/c/9zRby4kq
-    // based on this stackoverflow https://stackoverflow.com/questions/57556321/prevent-pwa-install-prompt-chrome-76-on-desktop
-    window.addEventListener("load", function () {
-      if (navigator.userAgent.indexOf("Mobile") === -1) {
-        document.querySelector('link[rel="manifest"]').remove();
-      }
-    });
-  </script>
 </html>
