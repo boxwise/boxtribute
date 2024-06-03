@@ -50,13 +50,13 @@ def test_queries(auth0_client, endpoint):
             "shipments",
             "users",
         ],
-        [6, 4, 7, 18, 0, 1, 0, 43],
+        [6, 4, 31, 18, 72, 5, 6, 43],
     ):
         query = f"query {{ {resource} {{ id }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) == count
 
-    for resource, count in zip(["beneficiaries", "products"], [9, 8]):
+    for resource, count in zip(["beneficiaries", "products"], [469, 212]):
         query = f"query {{ {resource} {{ totalCount }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert response["totalCount"] == count
@@ -179,7 +179,7 @@ def test_mutations(auth0_client):
                     type: Bidirectional
                 }) { id type } }"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"type": "Bidirectional", "id": "2"}
+    assert response == {"type": "Bidirectional", "id": "6"}
 
     mutation = """mutation { createCustomProduct(creationInput: {
                     name: "bags"
