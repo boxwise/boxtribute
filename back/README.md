@@ -92,16 +92,17 @@ Most of our developers are using VSCode. Instead of running our linter (flake8) 
 
 Since we are working with Docker you do not have to install a local MySQL server on your computer. Instead, you can just connect to the MySQL server in one of the Docker containers.
 
-The development database is called `dropapp_dev` and the password is `dropapp_root`.
+The development database is called `dropapp_dev` and the password is `dropapp_root` for the user `root`.
 
 #### General notes on Docker network
 
 In the docker-compose file we define a separate Docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `db` and get back the appropriate container’s IP address.
-To access the MySQL database, there are now three possibilities:
+To access the MySQL database, there are now four possibilities:
 
-1. You reach the MySQL db at `MYSQL_HOST=db` and `MYSQL_PORT=3306` or
-1. You execute the MySQL command line client in the running container by `docker-compose exec db mysql -u root -p` or
-1. by specifying the IP-address of the gateway for `MYSQL_HOST` and `MYSQL_PORT=32000`.
+1. Inside the `webapp` container, you reach the MySQL DB at the host `db` using port 3306
+1. You execute the MySQL command line client in the running container by `docker-compose exec db mysql -u root -pdropapp_root -D dropapp_dev`
+1. You connect to the MySQL host `localhost` using port 32000.
+1. You specify the IP-address of the gateway for the host using port 32000
 
 To figure out the gateway of the Docker network `backend` run
 
@@ -109,14 +110,20 @@ To figure out the gateway of the Docker network `backend` run
 
 #### MySQL workbench or other editors
 
-Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, choose one of the possibilities in the former to define the connection, e.g. Hostname is 172.18.0.1 and Port is 3306.
+Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench/en/wb-installing.html) to interact with the database directly. If you want to connect to the database, use `127.0.0.1` as host and 32000 as port.
 
-#### Database dump
+#### Database seed
 
-The `db` docker-compose service runs on a dump (`back/init.sql`) generated from the database of dropapp's staging environment. If it has been updated, run the following for the changes to take effect
+The `db` docker-compose service runs on a dump (`back/init.sql`) generated from a minimal DB seed enriched with fake data. To create the dump, e.g. when the fake-data generation has been updated, run
 
-    docker-compose rm db
-    docker-compose up -d --build db
+    docker-compose rm -sf db
+    docker-compose up --build webapp
+    curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
+    mysqldump --routines --add-drop-table --disable-keys --extended-insert --gtid --tz-utc --dump-date --skip-lock-tables --disable-keys --quote-names --create-options --add-locks --protocol=tcp -u root -p --host=127.0.0.1 --port=32000 dropapp_dev > back/init.sql
+
+You can also create the dump from a GUI like MySQL workbench or DBeaver.
+
+Commit and push the changes to the `init.sql` file, and copy them over to dropapp.
 
 #### ORM
 
