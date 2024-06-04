@@ -39,6 +39,7 @@ export type BeneficiaryDemographicsResult = {
   age?: Maybe<Scalars['Int']['output']>;
   count?: Maybe<Scalars['Int']['output']>;
   createdOn?: Maybe<Scalars['Date']['output']>;
+  deletedOn?: Maybe<Scalars['Date']['output']>;
   gender?: Maybe<HumanGender>;
   tagIds?: Maybe<Array<Scalars['Int']['output']>>;
 };
