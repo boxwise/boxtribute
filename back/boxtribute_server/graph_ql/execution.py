@@ -7,6 +7,7 @@ from ..exceptions import format_database_errors
 from .loaders import (
     BaseLoader,
     BoxLoader,
+    EnabledBasesForStandardProductLoader,
     HistoryForBoxLoader,
     LocationLoader,
     OrganisationLoader,
@@ -37,6 +38,7 @@ def execute_async(*, schema, introspection=None):
         context = {
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
+            "bases_for_standard_product_loader": EnabledBasesForStandardProductLoader(),
             "history_for_box_loader": HistoryForBoxLoader(),
             "location_loader": LocationLoader(),
             "organisation_loader": OrganisationLoader(),

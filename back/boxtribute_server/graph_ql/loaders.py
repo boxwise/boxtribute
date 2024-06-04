@@ -391,3 +391,20 @@ class SizesForSizeRangeLoader(DataLoader):
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
+
+
+class EnabledBasesForStandardProductLoader(DataLoader):
+    async def batch_load_fn(self, standard_product_ids):
+        result = Product.select(Product.standard_product, Base).join(
+            Base,
+            on=(
+                (Product.base == Base.id)
+                & authorized_bases_filter(model=Product)
+                & (Product.standard_product << standard_product_ids)
+                & (Product.deleted_on.is_null())
+            ),
+        )
+        standard_products = defaultdict(list)
+        for row in result:
+            standard_products[row.standard_product_id].append(row.base)
+        return [standard_products.get(i, []) for i in standard_product_ids]
