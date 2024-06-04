@@ -358,13 +358,11 @@ You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
+1. Re-fetch the schema to enable GraphQL code completion and documentation by clicking the circling arrows button in the bottom left.
+1. The documentation can be inspected from the button in the top left.
 1. A sample query you can try if it works is:
 
-        query {
-            organisations {
-                name
-            }
-        }
+        query { organisations { name } }
 
 If you lack an internet connection to communicate with Auth0, it might be beneficial to circumvent the authentication logic. You have to hardcode your client identity then. In the `boxtribute_server/auth.py` module, replace the body of the `decorated` function by
 
