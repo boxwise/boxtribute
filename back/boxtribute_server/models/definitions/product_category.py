@@ -4,7 +4,7 @@ from ...db import db
 from ..fields import UIntForeignKeyField
 
 
-class ProductCategory(db.Model):
+class ProductCategory(db.Model):  # type: ignore
     name = CharField(column_name="label")
     parent = UIntForeignKeyField(
         column_name="parent_id",

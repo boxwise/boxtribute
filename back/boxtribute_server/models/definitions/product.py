@@ -10,7 +10,7 @@ from .standard_product import StandardProduct
 from .user import User
 
 
-class Product(db.Model):
+class Product(db.Model):  # type: ignore
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",

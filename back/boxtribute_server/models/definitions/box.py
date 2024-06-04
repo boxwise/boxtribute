@@ -12,7 +12,7 @@ from .size import Size
 from .user import User
 
 
-class Box(db.Model):
+class Box(db.Model):  # type: ignore
     label_identifier = CharField(
         column_name="box_id",
         constraints=[SQL("DEFAULT ''")],

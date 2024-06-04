@@ -5,7 +5,7 @@ from ..fields import UIntForeignKeyField
 from .user import User
 
 
-class Organisation(db.Model):
+class Organisation(db.Model):  # type: ignore
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,

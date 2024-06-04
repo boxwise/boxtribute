@@ -3,7 +3,7 @@ from peewee import SQL, CharField, IntegerField
 from ...db import db
 
 
-class Language(db.Model):
+class Language(db.Model):  # type: ignore
     code = CharField(null=True)
     locale = CharField(null=True)
     name = CharField(null=True)

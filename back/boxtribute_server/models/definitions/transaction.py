@@ -7,7 +7,7 @@ from .product import Product
 from .user import User
 
 
-class Transaction(db.Model):
+class Transaction(db.Model):  # type: ignore
     beneficiary = UIntForeignKeyField(
         column_name="people_id",
         field="id",

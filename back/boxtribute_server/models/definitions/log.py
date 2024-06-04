@@ -3,7 +3,7 @@ from peewee import CharField, DateTimeField, TextField
 from ...db import db
 
 
-class Log(db.Model):
+class Log(db.Model):  # type: ignore
     content = TextField()
     ip = CharField(null=True)
     date = DateTimeField(column_name="logdate", null=True)

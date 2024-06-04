@@ -8,7 +8,7 @@ from .box_state import BoxState
 from .user import User
 
 
-class Location(db.Model):
+class Location(db.Model):  # type: ignore
     box_state = UIntForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],

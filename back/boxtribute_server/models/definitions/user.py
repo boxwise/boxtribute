@@ -5,7 +5,7 @@ from ..fields import UIntForeignKeyField, ZeroDateField
 from .language import Language
 
 
-class User(db.Model):
+class User(db.Model):  # type: ignore
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         column_name="created_by",

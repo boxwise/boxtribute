@@ -6,7 +6,7 @@ from .base import Base
 from .user import User
 
 
-class Beneficiary(db.Model):
+class Beneficiary(db.Model):  # type: ignore
     signed = IntegerField(column_name="approvalsigned", constraints=[SQL("DEFAULT 0")])
     bicycle_ban = DateField(column_name="bicycleban", null=True)
     bicycle_ban_comment = TextField(

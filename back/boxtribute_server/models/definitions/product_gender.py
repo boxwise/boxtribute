@@ -5,7 +5,7 @@ from ..fields import UIntForeignKeyField
 from .user import User
 
 
-class ProductGender(db.Model):
+class ProductGender(db.Model):  # type: ignore
     adult = IntegerField(constraints=[SQL("DEFAULT 0")])
     baby = IntegerField(constraints=[SQL("DEFAULT 0")])
     child = IntegerField(constraints=[SQL("DEFAULT 0")])

@@ -9,7 +9,7 @@ from .transfer_agreement import TransferAgreement
 from .user import User
 
 
-class Shipment(db.Model):
+class Shipment(db.Model):  # type: ignore
     source_base = UIntForeignKeyField(model=Base, on_update="CASCADE")
     target_base = UIntForeignKeyField(model=Base, on_update="CASCADE")
     transfer_agreement = UIntForeignKeyField(

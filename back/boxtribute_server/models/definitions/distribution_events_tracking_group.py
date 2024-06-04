@@ -7,7 +7,7 @@ from .base import Base
 from .user import User
 
 
-class DistributionEventsTrackingGroup(db.Model):
+class DistributionEventsTrackingGroup(db.Model):  # type: ignore
     # name = CharField(null=True)
     base = UIntForeignKeyField(
         # TODO: in the database, in other tables

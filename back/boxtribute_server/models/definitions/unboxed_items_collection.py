@@ -9,7 +9,7 @@ from .size import Size
 from .user import User
 
 
-class UnboxedItemsCollection(db.Model):
+class UnboxedItemsCollection(db.Model):  # type: ignore
     created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,

@@ -11,7 +11,7 @@ from .size import Size
 from .user import User
 
 
-class ShipmentDetail(db.Model):
+class ShipmentDetail(db.Model):  # type: ignore
     shipment = UIntForeignKeyField(model=Shipment, on_update="CASCADE")
     box = UIntForeignKeyField(model=Box, on_update="CASCADE")
     source_product = UIntForeignKeyField(model=Product, on_update="CASCADE")

@@ -7,7 +7,7 @@ from .base import Base
 from .user import User
 
 
-class Tag(db.Model):
+class Tag(db.Model):  # type: ignore
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",

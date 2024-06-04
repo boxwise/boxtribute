@@ -6,7 +6,7 @@ from ..fields import EnumCharField, UIntForeignKeyField
 from .tag import Tag
 
 
-class TagsRelation(db.Model):
+class TagsRelation(db.Model):  # type: ignore
     object_id = IntegerField()
     object_type = EnumCharField(
         choices=TaggableObjectType,

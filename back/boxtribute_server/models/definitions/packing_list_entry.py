@@ -9,7 +9,7 @@ from .size import Size
 from .user import User
 
 
-class PackingListEntry(db.Model):
+class PackingListEntry(db.Model):  # type: ignore
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",
