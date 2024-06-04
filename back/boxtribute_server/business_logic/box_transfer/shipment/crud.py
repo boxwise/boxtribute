@@ -117,6 +117,7 @@ def _bulk_update_box_state(*, boxes, state, user_id, now):
                 # Create a dummy box objects as new resource (won't be saved)
                 new_resource=Box(id=box.id, state=state),
                 fields=[Box.state],
+                change_date=now,
             )
         )
         box.state = state
@@ -236,7 +237,9 @@ def start_receiving_shipment(*, shipment, user):
     return shipment
 
 
-def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, user_id):
+def _update_shipment_with_prepared_boxes(
+    *, shipment, box_label_identifiers, user_id, now
+):
     """Update given shipment with prepared boxes.
     If boxes are requested to be updated that are not located in the shipment's source
     base, or have a state different from InStock, they are silently discarded (i.e. not
@@ -268,13 +271,13 @@ def _update_shipment_with_prepared_boxes(*, shipment, box_label_identifiers, use
     ]
 
     _bulk_update_box_state(
-        boxes=boxes, state=BoxState.MarkedForShipment, user_id=user_id, now=utcnow()
+        boxes=boxes, state=BoxState.MarkedForShipment, user_id=user_id, now=now
     )
     ShipmentDetail.insert_many(details).execute()
 
 
 def _remove_boxes_from_shipment(
-    *, shipment_id, user_id, box_label_identifiers, box_state
+    *, shipment_id, user_id, box_label_identifiers, box_state, now
 ):
     """With `box_state=InStock`, return boxes to stock; with `box_state=NotDelivered`,
     mark boxes as lost during shipment. Soft-delete corresponding shipment details.
@@ -292,7 +295,6 @@ def _remove_boxes_from_shipment(
     else:
         fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
 
-    now = utcnow()
     details = []
     for detail in _retrieve_shipment_details(
         shipment_id,
@@ -310,7 +312,7 @@ def _remove_boxes_from_shipment(
 
 
 def _update_shipment_with_received_boxes(
-    *, shipment, user_id, shipment_detail_update_inputs
+    *, shipment, user_id, shipment_detail_update_inputs, now
 ):
     """Move boxes from the shipment into stock of the target base.
     Update shipment details (target product, size and location). Transition the
@@ -350,7 +352,6 @@ def _update_shipment_with_received_boxes(
         if detail.box.state_id != BoxState.Receiving:
             raise InvalidShipmentDetailUpdateInput(model=BoxStateModel, detail=detail)
 
-    now = utcnow()
     updated_box_fields = [
         Box.product,
         Box.location,
@@ -391,6 +392,7 @@ def _update_shipment_with_received_boxes(
                 ),
                 new_resource=detail.box,
                 fields=updated_box_fields,
+                change_date=now,
             )
         )
 
@@ -418,7 +420,7 @@ def _update_shipment_with_received_boxes(
         DbChangeHistory.bulk_create(history_entries)
 
 
-def _complete_shipment_if_applicable(*, shipment, user_id):
+def _complete_shipment_if_applicable(*, shipment, user_id, now):
     """If all boxes of the shipment that were being sent
     - are marked as NotDelivered, transition the shipment state to 'Lost',
     - are marked as InStock or NotDelivered, transition the shipment state to
@@ -428,7 +430,6 @@ def _complete_shipment_if_applicable(*, shipment, user_id):
         shipment.id,
         ShipmentDetail.removed_on.is_null(),
     )
-    now = utcnow()
 
     # There must be least one NotDelivered detail because `all([])` would return true;
     # and hence make a shipment Lost that had all boxes removed before sending
@@ -477,17 +478,20 @@ def update_shipment_when_preparing(
         target_base_id=target_base_id,
     )
 
+    now = utcnow()
     with db.database.atomic():
         _update_shipment_with_prepared_boxes(
             shipment=shipment,
             user_id=user.id,
             box_label_identifiers=prepared_box_label_identifiers,
+            now=now,
         )
         _remove_boxes_from_shipment(
             shipment_id=shipment.id,
             user_id=user.id,
             box_label_identifiers=removed_box_label_identifiers,
             box_state=BoxState.InStock,
+            now=now,
         )
 
         if target_base_id is not None:
@@ -514,20 +518,23 @@ def update_shipment_when_receiving(
             expected_states=[ShipmentState.Receiving], actual_state=shipment.state
         )
 
+    now = utcnow()
     with db.database.atomic():
         _update_shipment_with_received_boxes(
             shipment=shipment,
             shipment_detail_update_inputs=received_shipment_detail_update_inputs,
             user_id=user.id,
+            now=now,
         )
         _remove_boxes_from_shipment(
             shipment_id=shipment.id,
             user_id=user.id,
             box_label_identifiers=lost_box_label_identifiers,
             box_state=BoxState.NotDelivered,
+            now=now,
         )
     with db.database.atomic():
-        _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
+        _complete_shipment_if_applicable(shipment=shipment, user_id=user.id, now=now)
 
     return shipment
 
@@ -557,9 +564,10 @@ def mark_shipment_as_lost(*, shipment, user):
             expected_states=[ShipmentState.Sent], actual_state=shipment.state
         )
 
+    now = utcnow()
     with db.database.atomic():
         shipment.state = ShipmentState.Lost
-        shipment.completed_on = utcnow()
+        shipment.completed_on = now
         shipment.completed_by = user.id
         box_label_identifiers = [
             d.box.label_identifier
@@ -572,6 +580,7 @@ def mark_shipment_as_lost(*, shipment, user):
             user_id=user.id,
             box_label_identifiers=box_label_identifiers,
             box_state=BoxState.NotDelivered,
+            now=now,
         )
         shipment.save(
             only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
@@ -606,28 +615,19 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
         base_ids=[shipment.source_base_id, shipment.target_base_id],
     )
 
+    now = utcnow()
     authorized_base_ids_of_user = user.authorized_base_ids("shipment:edit")
-    if shipment.source_base_id in authorized_base_ids_of_user:
-        _move_not_delivered_box_instock_in_source_base(user.id, details)
-    elif shipment.target_base_id in authorized_base_ids_of_user:
-        _move_not_delivered_box_instock_in_target_base(shipment, details)
-
-    history_entries = []
-    for detail in details:
-        history_entries.extend(
-            create_history_entries(
-                # Create a dummy box object as old resource (won't be saved)
-                old_resource=Box(state=BoxState.NotDelivered),
-                new_resource=detail.box,
-                fields=[Box.state],
-            )
-        )
-
     with db.database.atomic():
+        if shipment.source_base_id in authorized_base_ids_of_user:
+            _move_not_delivered_box_instock_in_source_base(user.id, details, now)
+        elif shipment.target_base_id in authorized_base_ids_of_user:
+            _move_not_delivered_box_instock_in_target_base(
+                user.id, details, shipment, now
+            )
+
         shipment.save()
 
         if details:
-            Box.bulk_update([d.box for d in details], [Box.state])
             ShipmentDetail.bulk_update(
                 details,
                 [
@@ -637,15 +637,14 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
                     ShipmentDetail.removed_by,
                 ],
             )
-            DbChangeHistory.bulk_create(history_entries)
 
     if shipment.state != ShipmentState.Completed:
-        _complete_shipment_if_applicable(shipment=shipment, user_id=user.id)
+        _complete_shipment_if_applicable(shipment=shipment, user_id=user.id, now=now)
 
     return shipment
 
 
-def _move_not_delivered_box_instock_in_target_base(shipment, details):
+def _move_not_delivered_box_instock_in_target_base(user_id, details, shipment, now):
     """Relevant in the following scenario:
     - the target side is in the process of receiving a shipment
     - person A takes a box from the shipment without using the reconciliation procedure
@@ -662,10 +661,16 @@ def _move_not_delivered_box_instock_in_target_base(shipment, details):
     for detail in details:
         detail.lost_on = None
         detail.lost_by = None
-        detail.box.state = BoxState.Receiving
+
+    _bulk_update_box_state(
+        boxes=[d.box for d in details],
+        state=BoxState.Receiving,
+        user_id=user_id,
+        now=now,
+    )
 
 
-def _move_not_delivered_box_instock_in_source_base(user_id, details):
+def _move_not_delivered_box_instock_in_source_base(user_id, details, now):
     """Relevant in the following scenario:
     - the source side had physically removed a box from the shipment before sending,
       without digitally removing it
@@ -678,8 +683,14 @@ def _move_not_delivered_box_instock_in_source_base(user_id, details):
       corresponding shipment detail.
     """
     for detail in details:
-        detail.removed_on = utcnow()
+        detail.removed_on = now
         detail.removed_by = user_id
         detail.lost_on = None
         detail.lost_by = None
-        detail.box.state = BoxState.InStock
+
+    _bulk_update_box_state(
+        boxes=[d.box for d in details],
+        state=BoxState.InStock,
+        user_id=user_id,
+        now=now,
+    )

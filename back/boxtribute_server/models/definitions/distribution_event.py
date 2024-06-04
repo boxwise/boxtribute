@@ -8,7 +8,7 @@ from .location import Location
 from .user import User
 
 
-class DistributionEvent(db.Model):
+class DistributionEvent(db.Model):  # type: ignore
     name = CharField(null=True)
     planned_start_date_time = DateTimeField()
     planned_end_date_time = DateTimeField()

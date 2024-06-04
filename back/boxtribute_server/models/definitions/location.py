@@ -8,7 +8,7 @@ from .box_state import BoxState
 from .user import User
 
 
-class Location(db.Model):
+class Location(db.Model):  # type: ignore
     box_state = UIntForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],
@@ -39,7 +39,7 @@ class Location(db.Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted = DateTimeField(null=True, default=None)
+    deleted_on = DateTimeField(column_name="deleted", null=True, default=None)
     is_donated = IntegerField(constraints=[SQL("DEFAULT 0")])
     is_lost = IntegerField(constraints=[SQL("DEFAULT 0")])
     is_shop = IntegerField(column_name="is_market", constraints=[SQL("DEFAULT 0")])

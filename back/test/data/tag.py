@@ -14,7 +14,7 @@ def data():
             "description": "important",
             "name": "group1",
             "type": TagType.Beneficiary,
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 2,
@@ -23,7 +23,7 @@ def data():
             "description": "the description",
             "name": "pallet1",
             "type": TagType.Box,
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 3,
@@ -32,7 +32,7 @@ def data():
             "description": "for everything",
             "name": "tag-name",
             "type": TagType.All,
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 4,
@@ -41,16 +41,16 @@ def data():
             "description": "",
             "name": "new-tag-name",
             "type": TagType.All,
-            "deleted": None,
+            "deleted_on": None,
         },
         {
             "id": 5,
             "base": base_data()[0]["id"],
             "color": "#ffffff",
-            "description": "deleted because not required",
+            "description": "deleted_on because not required",
             "name": "group0",
             "type": TagType.Beneficiary,
-            "deleted": "2022-01-01",
+            "deleted_on": "2022-01-01",
         },
     ]
 

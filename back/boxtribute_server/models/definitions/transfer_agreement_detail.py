@@ -4,7 +4,7 @@ from .base import Base
 from .transfer_agreement import TransferAgreement
 
 
-class TransferAgreementDetail(db.Model):
+class TransferAgreementDetail(db.Model):  # type: ignore
     transfer_agreement = UIntForeignKeyField(
         model=TransferAgreement, on_update="CASCADE"
     )

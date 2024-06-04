@@ -56,7 +56,7 @@ def test_queries(auth0_client, endpoint):
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) == count
 
-    for resource, count in zip(["beneficiaries", "products"], [469, 212]):
+    for resource, count in zip(["beneficiaries", "products"], [469, 312]):
         query = f"query {{ {resource} {{ totalCount }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert response["totalCount"] == count

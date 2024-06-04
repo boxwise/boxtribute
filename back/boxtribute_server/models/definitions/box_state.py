@@ -3,7 +3,7 @@ from peewee import CharField
 from ...db import db
 
 
-class BoxState(db.Model):
+class BoxState(db.Model):  # type: ignore
     label = CharField(unique=True)
 
     class Meta:

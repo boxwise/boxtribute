@@ -489,9 +489,8 @@ def test_standard_product_instantiation_mutations(
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response["deletedOn"].startswith(today)
-    assert response["lastModifiedOn"].startswith(today)
-    assert response["deletedOn"] == response["lastModifiedOn"]
-    assert response["lastModifiedBy"] == {"id": user_id}
+    assert response["lastModifiedOn"] is None
+    assert response["lastModifiedBy"] is None
 
     # Test case 8.2.85
     custom_product_id = str(default_product["id"])

@@ -8,7 +8,7 @@ from .organisation import Organisation
 from .user import User
 
 
-class TransferAgreement(db.Model):
+class TransferAgreement(db.Model):  # type: ignore
     source_organisation = UIntForeignKeyField(model=Organisation, on_update="CASCADE")
     target_organisation = UIntForeignKeyField(model=Organisation, on_update="CASCADE")
     state = EnumCharField(

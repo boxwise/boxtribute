@@ -5,7 +5,7 @@ from ..fields import UIntForeignKeyField
 from .user import User
 
 
-class DbChangeHistory(db.Model):
+class DbChangeHistory(db.Model):  # type: ignore
     change_date = DateTimeField(column_name="changedate", null=True)
     changes = TextField()
     from_float = FloatField(null=True)

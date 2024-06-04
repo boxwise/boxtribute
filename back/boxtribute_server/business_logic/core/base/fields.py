@@ -34,7 +34,7 @@ def resolve_base_locations(base_obj, _):
     return Location.select().where(
         Location.base == base_obj.id,
         Location.type == LocationType.ClassicLocation,
-        Location.deleted.is_null(),
+        Location.deleted_on.is_null(),
     )
 
 
@@ -49,7 +49,7 @@ def resolve_base_tags(base_obj, _, resource_type=None):
         filter_condition = Tag.type << [TagType.Beneficiary, TagType.All]
 
     return Tag.select().where(
-        Tag.base == base_obj.id, Tag.deleted.is_null(), filter_condition
+        Tag.base == base_obj.id, Tag.deleted_on.is_null(), filter_condition
     )
 
 

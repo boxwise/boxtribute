@@ -7,7 +7,7 @@ from .organisation import Organisation
 from .user import User
 
 
-class Base(db.Model):
+class Base(db.Model):  # type: ignore
     name = CharField(null=True)
     currency_name = CharField(
         column_name="currencyname", constraints=[SQL("DEFAULT 'Tokens'")]

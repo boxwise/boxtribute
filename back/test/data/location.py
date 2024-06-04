@@ -15,7 +15,7 @@ def default_location_data():
         "box_state": default_box_state_data()["id"],
         "base": base_data()[0]["id"],
         "is_stockroom": 0,
-        "deleted": None,
+        "deleted_on": None,
         "is_donated": 0,
         "is_lost": 0,
         "is_shop": True,
@@ -76,7 +76,7 @@ def another_distribution_spot_data():
 def deleted_location_data():
     data = default_location_data()
     data["id"] = 7
-    data["deleted"] = datetime(2021, 1, 1)
+    data["deleted_on"] = datetime(2021, 1, 1)
     return data
 
 

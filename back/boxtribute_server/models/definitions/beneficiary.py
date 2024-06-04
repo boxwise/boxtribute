@@ -6,7 +6,7 @@ from .base import Base
 from .user import User
 
 
-class Beneficiary(db.Model):
+class Beneficiary(db.Model):  # type: ignore
     signed = IntegerField(column_name="approvalsigned", constraints=[SQL("DEFAULT 0")])
     bicycle_ban = DateField(column_name="bicycleban", null=True)
     bicycle_ban_comment = TextField(
@@ -39,7 +39,7 @@ class Beneficiary(db.Model):
     date_of_signature = ZeroDateTimeField(
         default=None, constraints=[SQL("DEFAULT '0000-00-00 00:00:00'")]
     )
-    deleted = ZeroDateTimeField()
+    deleted_on = ZeroDateTimeField(column_name="deleted")
     email = CharField(constraints=[SQL("DEFAULT ''")])
     extra_portion = IntegerField(
         column_name="extraportion", constraints=[SQL("DEFAULT 0")]

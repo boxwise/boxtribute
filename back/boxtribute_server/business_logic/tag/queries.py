@@ -15,4 +15,4 @@ def resolve_tag(*_, id):
 
 @query.field("tags")
 def resolve_tags(*_):
-    return Tag.select().where(Tag.deleted.is_null() & authorized_bases_filter(Tag))
+    return Tag.select().where(Tag.deleted_on.is_null() & authorized_bases_filter(Tag))

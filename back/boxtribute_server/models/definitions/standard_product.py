@@ -9,7 +9,7 @@ from .size_range import SizeRange
 from .user import User
 
 
-class StandardProduct(db.Model):
+class StandardProduct(db.Model):  # type: ignore
     name = CharField()
     category = UIntForeignKeyField(
         model=ProductCategory,

@@ -23,11 +23,11 @@ def derive_beneficiary_filter(filter_input):
 
     active = filter_input.get("active")
     if active is not None:
-        # By default, the 'deleted' DateTimeField is '0000-00-00 00:00:00' which
+        # By default, the 'deleted_on' DateTimeField is '0000-00-00 00:00:00' which
         # evaluates to both NULL and NOT NULL. Hence in order to find actual dates
         # (indicating inactive beneficiaries) use >0 instead of IS NOT NULL
         condition &= (
-            Beneficiary.deleted.is_null() if active else Beneficiary.deleted > 0
+            Beneficiary.deleted_on.is_null() if active else Beneficiary.deleted_on > 0
         )
 
     is_volunteer = filter_input.get("is_volunteer")

@@ -6,7 +6,7 @@ from .size_range import SizeRange
 from .user import User
 
 
-class Size(db.Model):
+class Size(db.Model):  # type: ignore
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         column_name="created_by",

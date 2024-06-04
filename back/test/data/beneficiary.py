@@ -39,7 +39,7 @@ def relative_beneficiary_data():
         "group_identifier": "1234",
         "is_volunteer": True,
         "not_registered": True,
-        "deleted": datetime(2021, 12, 31),  # == not active
+        "deleted_on": datetime(2021, 12, 31),  # == not active
     }
 
 

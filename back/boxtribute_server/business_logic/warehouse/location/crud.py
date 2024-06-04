@@ -1,9 +1,8 @@
-from ....db import db
 from ....enums import BoxState
 from ....models.definitions.location import Location
 from ....models.utils import (
+    safely_handle_deletion,
     save_creation_to_history,
-    save_deletion_to_history,
     save_update_to_history,
     utcnow,
 )
@@ -82,13 +81,8 @@ def update_location(
     return location
 
 
-@save_deletion_to_history
+@safely_handle_deletion
 def delete_location(*, user_id, location):
-    """Soft-delete given location by setting the 'deleted' timestamp.
-    Return the soft-deleted location.
-    """
-    location.deleted = utcnow()
+    """Soft-delete given location. Return the soft-deleted location."""
     location.visible = False
-    with db.database.atomic():
-        location.save()
     return location
