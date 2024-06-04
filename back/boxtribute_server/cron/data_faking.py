@@ -34,7 +34,10 @@ from ..business_logic.warehouse.location.crud import create_location, delete_loc
 from ..business_logic.warehouse.product.crud import (
     create_custom_product,
     delete_product,
+    disable_standard_product,
     edit_custom_product,
+    edit_standard_product_instantiation,
+    enable_standard_product,
 )
 from ..business_logic.warehouse.qr_code.crud import create_qr_code
 from ..db import db
@@ -53,6 +56,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.qr_code import QrCode
 from ..models.definitions.size import Size
+from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.utils import convert_ids
@@ -82,7 +86,7 @@ NR_OF_BENEFICIARIES_PER_SMALL_BASE = (
 )
 NR_OF_BOXES_PER_BASE = 100
 NR_OF_BOXES_PER_LARGE_BASE = 500
-NR_OF_QR_CODES = (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE
+NR_OF_QR_CODES = (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE + 99
 
 
 class Generator:
@@ -467,6 +471,8 @@ class Generator:
             "T-Shirts": 1,
             "Jackets": 1,
         }
+        standard_products = list(StandardProduct.select())
+        enabled_standard_products = {b: [] for b in self.base_ids}
 
         genders = [
             ProductGender.Women,
@@ -556,6 +562,16 @@ class Generator:
                 )
                 self.products[b].append(product)
 
+            for standard_product in self.fake.random_elements(
+                standard_products, unique=True, length=25
+            ):
+                product = enable_standard_product(
+                    standard_product_id=standard_product.id,
+                    base_id=b,
+                    user_id=self._user_id(b),
+                )
+                enabled_standard_products[b].append(product)
+
             # Delete a product
             to_be_deleted_product = create_custom_product(
                 category_id=12,
@@ -605,6 +621,29 @@ class Generator:
                     product=product,
                     user_id=self._user_id(b),
                 )
+            for product in self.fake.random_elements(enabled_standard_products[b]):
+                edit_standard_product_instantiation(
+                    price=self.fake.random_int(max=100),
+                    id=product.id,
+                    product=product,
+                    user_id=self._user_id(b),
+                )
+            for product in self.fake.random_elements(enabled_standard_products[b]):
+                edit_standard_product_instantiation(
+                    comment=self.fake.sentence(nb_words=2),
+                    id=product.id,
+                    product=product,
+                    user_id=self._user_id(b),
+                )
+
+            # Disable some standard products
+            for product in self.fake.random_elements(
+                enabled_standard_products[b], unique=True, length=5
+            ):
+                disable_standard_product(product=product, user_id=self._user_id(b))
+                enabled_standard_products[b].remove(product)
+
+            self.products[b].extend(enabled_standard_products[b])
 
     def _generate_qr_codes(self):
         users = [user for users in self.users.values() for user in users]
@@ -822,12 +861,21 @@ class Generator:
                 ):
                     product_matching[source_product.id] = target_product
                     break
+
         for detail in details:
             assert detail.box in prepared_boxes, detail.box.label_identifier
+
+            try:
+                target_product = product_matching[detail.box.product_id]
+            except KeyError:
+                # If the box contains a standard product that's not enabled in the
+                # target base, assign a random custom product of the target base
+                target_product = self.fake.random_element(self.products[target_base_id])
+
             update_inputs.append(
                 {
                     "id": detail.id,
-                    "target_product_id": product_matching[detail.box.product_id].id,
+                    "target_product_id": target_product.id,
                     "target_location_id": self.fake.random_element(target_location_ids),
                     "target_size_id": detail.box.size_id,
                     "target_quantity": detail.box.number_of_items,
