@@ -1,17 +1,26 @@
 from pathlib import Path
 
 from ..db import db
+from ..utils import in_staging_environment
 from .data_faking import Generator
 
-MINIMAL_SEED_FILEPATH = Path(__file__).parent.resolve().parent.parent / "minimal.sql"
+SEED_FILENAME = "init.sql" if in_staging_environment() else "minimal.sql"
+SEED_FILEPATH = Path(__file__).parent.resolve().parent.parent / SEED_FILENAME
 
 
 def reseed_db():
     # For testing locally, run
     # dotenv run flask --debug --app boxtribute_server.dev_main:app run -p 5005
     # curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
-    with db.database.cursor() as cursor, open(MINIMAL_SEED_FILEPATH) as seed:
+    with db.database.cursor() as cursor, open(SEED_FILEPATH) as seed:
         execute_sql_statements_from_file(cursor, seed)
+
+    if in_staging_environment():
+        # Seed the staging DB with the large init.sql dump and skip running the
+        # fake-data generation because the long runtime causes the connection to the
+        # GCloud MySQL server to be interrupted
+        return
+
     generator = Generator()
     generator.run()
 
