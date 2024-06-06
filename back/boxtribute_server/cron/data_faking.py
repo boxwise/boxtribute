@@ -157,14 +157,12 @@ class Generator:
         # is chosen such that eventually the newest changes don't happen in the future
         start = datetime.now() - timedelta(weeks=75)
 
-        db.database.connection().ping()
         with freeze_time(start, auto_tick_seconds=about_two_hours + 2):
             self._generate_qr_codes()
         with freeze_time(start, auto_tick_seconds=about_two_hours):
             self._generate_tags()
         with freeze_time(start, auto_tick_seconds=about_ten_hours):
             self._generate_locations()
-        db.database.connection().ping()
         with freeze_time(start, auto_tick_seconds=about_one_hour):
             self._generate_beneficiaries()
         with freeze_time(start, auto_tick_seconds=about_one_hour + 2):

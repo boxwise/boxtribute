@@ -123,7 +123,7 @@ The `db` docker-compose service runs on a dump (`back/init.sql`) generated from 
 
 You can also create the dump from a GUI like MySQL workbench or DBeaver.
 
-Commit and push the changes to the `init.sql` file, and copy them over to dropapp.
+Commit and push the changes to the `init.sql` file, and copy them over to dropapp. The dump serves as seed for the staging database shared by dropapp and v2.
 
 #### ORM
 
