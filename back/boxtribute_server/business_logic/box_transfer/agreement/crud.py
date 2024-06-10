@@ -111,7 +111,7 @@ def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone):
             .replace(tzinfo=None)
         )
     else:
-        valid_from = datetime.utcnow()
+        valid_from = utcnow().replace(tzinfo=None)
 
     if valid_until is not None:
         valid_until = (
