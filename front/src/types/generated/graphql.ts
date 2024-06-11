@@ -196,6 +196,7 @@ export type Box = ItemsCollection & {
   comment?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
+  deletedOn?: Maybe<Scalars['Datetime']>;
   distributionEvent?: Maybe<DistributionEvent>;
   history?: Maybe<Array<HistoryEntry>>;
   id: Scalars['ID'];

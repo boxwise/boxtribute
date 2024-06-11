@@ -44,7 +44,7 @@ class Box(db.Model):  # type: ignore
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted = DateTimeField(null=True, default=None)
+    deleted_on = DateTimeField(column_name="deleted", null=True, default=None)
     distribution_event = UIntForeignKeyField(
         column_name="distro_event_id",
         field="id",
