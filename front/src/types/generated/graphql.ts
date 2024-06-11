@@ -350,6 +350,9 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
+/**  The `BoxPage.pageInfo` field is always `null`.  */
+export type DeleteBoxesResult = BoxPage | InsufficientPermissionError;
+
 export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type DimensionInfo = BasicDimensionInfo & {
@@ -681,6 +684,8 @@ export type Mutation = {
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   deactivateBeneficiary?: Maybe<Beneficiary>;
+  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are silently filtered out.  */
+  deleteBoxes?: Maybe<DeleteBoxesResult>;
   deleteProduct?: Maybe<DeleteProductResult>;
   deleteTag?: Maybe<Tag>;
   disableStandardProduct?: Maybe<DisableStandardProductResult>;
@@ -890,6 +895,16 @@ export type MutationCreateTransferAgreementArgs = {
  */
 export type MutationDeactivateBeneficiaryArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationDeleteBoxesArgs = {
+  labelIdentifiers: Array<Scalars['String']>;
 };
 
 

@@ -10,6 +10,7 @@ from ....exceptions import (
     QrCodeAlreadyAssignedToBox,
 )
 from ....models.definitions.box import Box
+from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.tags_relation import TagsRelation
@@ -193,3 +194,35 @@ def update_box(
             )
 
     return box
+
+
+def delete_boxes(*, user_id, boxes):
+    """Soft-delete given boxes by setting the `deleted_on` field. Log every box deletion
+    in the history table.
+    Return the list of soft-deleted boxes.
+    """
+    if not boxes:
+        # bulk_update() fails with an empty list, hence return immediately. Happens if
+        # all boxes requested for deletion are prohibited for the user, non-existing,
+        # and/or already deleted.
+        return []
+
+    now = utcnow()
+    history_entries = []
+    for box in boxes:
+        box.deleted_on = now
+        history_entries.append(
+            DbChangeHistory(
+                changes="Record deleted",
+                table_name=Box._meta.table_name,
+                record_id=box.id,
+                user=user_id,
+                change_date=now,
+            )
+        )
+
+    with db.database.atomic():
+        Box.bulk_update(boxes, [Box.deleted_on])
+        DbChangeHistory.bulk_create(history_entries)
+
+    return boxes

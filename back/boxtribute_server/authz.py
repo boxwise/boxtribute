@@ -147,19 +147,25 @@ def _authorize(
 
 
 def authorized_bases_filter(
-    model: Type[Model] = Base, *, base_fk_field_name: str = "base"
+    model: Type[Model] = Base,
+    *,
+    base_fk_field_name: str = "base",
+    permission: Optional[str] = None,
 ) -> bool:
     """Derive base filter condition for given resource model depending the current
     user's base-specific permissions. The resource model must have a FK field referring
     to the Base model named 'base_fk_field_name'.
-    The lower-case model name must match the permission resource name.
+    The lower-case model name must match the permission resource name. Alternatively
+    it's possible to pass a specific permission of form 'resource:action'.
     See also `auth.requires_auth()`.
     """
     if g.user.is_god:
         return True
 
-    resource = convert_pascal_to_snake_case(model.__name__)
-    permission = f"{resource}:read"
+    if not permission:
+        resource = convert_pascal_to_snake_case(model.__name__)
+        permission = f"{resource}:read"
+
     _authorize(permission=permission, ignore_missing_base_info=True)
     base_ids = g.user.authorized_base_ids(permission)
     pattern = Base.id if model is Base else getattr(model, base_fk_field_name)

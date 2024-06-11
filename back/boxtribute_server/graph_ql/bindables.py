@@ -176,6 +176,7 @@ union_types = (
     UnionType("DisableStandardProductResult", resolve_type_by_class_name),
     UnionType("StandardProductResult", resolve_type_by_class_name),
     UnionType("StandardProductsResult", resolve_type_by_class_name),
+    UnionType("DeleteBoxesResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

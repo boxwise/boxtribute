@@ -7,6 +7,9 @@ type Mutation {
   createQrCode(boxLabelIdentifier: String): QrCode
   createBox(creationInput: BoxCreationInput): Box
   updateBox(updateInput: BoxUpdateInput): Box
+  " Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are silently filtered out. "
+  deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
+
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
   deactivateBeneficiary(id: ID!): Beneficiary

@@ -1,4 +1,5 @@
 import time
+from datetime import date
 
 import pytest
 from auth import mock_user_for_request
@@ -13,6 +14,8 @@ from utils import (
     assert_internal_server_error,
     assert_successful_request,
 )
+
+today = date.today().isoformat()
 
 
 def test_box_query_by_label_identifier(
@@ -115,6 +118,7 @@ def test_boxes_query(read_only_client, default_location_boxes):
 
 def test_box_mutations(
     client,
+    another_box,
     qr_code_without_box,
     default_size,
     another_size,
@@ -180,6 +184,7 @@ def test_box_mutations(
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
                 numberOfItems
+                labelIdentifier
                 location {{ id }}
                 product {{ id }}
                 size {{ id }}
@@ -189,6 +194,7 @@ def test_box_mutations(
             }}
         }}"""
     another_created_box = assert_successful_request(client, mutation)
+    another_created_box_label_identifier = another_created_box.pop("labelIdentifier")
     assert another_created_box == {
         "numberOfItems": number_of_items,
         "location": {"id": location_id},
@@ -290,7 +296,39 @@ def test_box_mutations(
         },
     ]
 
-    # Test cases 8.2.1, 8.2.2., 8.2.11
+    # Test case 8.2.25
+    label_identifiers = ",".join(
+        f'"{i}"'
+        for i in [created_box["labelIdentifier"], another_created_box_label_identifier]
+    )
+    mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
+            ...on BoxPage {{ elements {{
+                deletedOn
+                history {{ changes }}
+            }} }} }} }}"""
+    deleted_boxes = assert_successful_request(client, mutation)["elements"]
+    for box in deleted_boxes:
+        assert box["deletedOn"].startswith(today)
+        assert box["history"][0]["changes"] == "deleted record"
+
+    # Test cases 8.2.26, 8.2.27, 8.2.28
+    label_identifiers = ",".join(
+        f'"{i}"'
+        for i in [
+            another_box["label_identifier"],  # in base that user isn't authorized for
+            created_box["labelIdentifier"],  # already deleted box
+            99119911,  # non-existing box
+        ]
+    )
+    mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
+            ...on BoxPage {{ elements {{
+                deletedOn
+                history {{ changes }}
+            }} }} }} }}"""
+    deleted_boxes = assert_successful_request(client, mutation)["elements"]
+    assert deleted_boxes == []
+
+    # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
@@ -374,6 +412,24 @@ def test_box_mutations(
             "from_int": BoxState.InStock.value,
             "to_int": BoxState[state].value,
             "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "Record deleted",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "Record deleted",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 1,
             "table_name": "stock",
             "user": 8,
             "ip": None,
