@@ -226,3 +226,45 @@ def delete_boxes(*, user_id, boxes):
         DbChangeHistory.bulk_create(history_entries)
 
     return boxes
+
+
+def move_boxes_to_location(*, user_id, boxes, location):
+    """Update location and last_modified_* fields of the given boxes. Log every location
+    change in the history table.
+    Return the list of updated boxes.
+    """
+    if not boxes:
+        return []
+
+    now = utcnow()
+    history_entries = [
+        DbChangeHistory(
+            changes=Box.location.column_name,
+            table_name=Box._meta.table_name,
+            record_id=box.id,
+            user=user_id,
+            change_date=now,
+            from_int=box.location_id,
+            to_int=location.id,
+        )
+        for box in boxes
+    ]
+
+    box_ids = [box.id for box in boxes]
+    with db.database.atomic():
+        # Using Box.update(...).where(...) is better than Box.bulk_update() because the
+        # latter results in the less performant SQL
+        #   UPDATE stock SET location_id = CASE stock.id
+        #       WHEN 1 THEN 1
+        #       WHEN 2 THEN 1
+        #       ... END
+        #   WHERE stock.id in (1, 2, ...);
+        # cf. https://docs.peewee-orm.com/en/latest/peewee/querying.html#alternatives
+        Box.update(
+            location=location.id, last_modified_on=now, last_modified_by=user_id
+        ).where(Box.id << box_ids).execute()
+        DbChangeHistory.bulk_create(history_entries)
+
+    # Re-fetch updated box data because returning "boxes" would contain outdated objects
+    # with the old location
+    return list(Box.select().where(Box.id << box_ids))

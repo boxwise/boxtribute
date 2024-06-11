@@ -296,11 +296,29 @@ def test_box_mutations(
         },
     ]
 
-    # Test case 8.2.25
     label_identifiers = ",".join(
         f'"{i}"'
         for i in [created_box["labelIdentifier"], another_created_box_label_identifier]
     )
+    # Test case 8.2.22a, 8.2.22c
+    mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    location {{ id }}
+                    lastModifiedOn
+                    history {{ changes }}
+                }} }} }} }}"""
+    moved_boxes = assert_successful_request(client, mutation)["elements"]
+    assert moved_boxes[0]["location"]["id"] == location_id
+    assert moved_boxes[0]["lastModifiedOn"].startswith(today)
+    assert moved_boxes[0]["history"][0]["changes"] == (
+        f"changed box location from {null_box_state_location['name']} to "
+        f"{default_location['name']}"
+    )
+    # another_created_box is ignored because it's already in the requested location
+    assert len(moved_boxes) == 1
+
+    # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
             ...on BoxPage {{ elements {{
                 deletedOn
@@ -310,6 +328,24 @@ def test_box_mutations(
     for box in deleted_boxes:
         assert box["deletedOn"].startswith(today)
         assert box["history"][0]["changes"] == "deleted record"
+
+    # Test case 8.2.22b, 8.2.22d
+    label_identifiers = ",".join(
+        f'"{i}"'
+        for i in [
+            another_box["label_identifier"],  # in base that user isn't authorized for
+            99119911,  # non-existing box
+        ]
+    )
+    mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    location {{ id }}
+                    lastModifiedOn
+                    history {{ changes }}
+                }} }} }} }}"""
+    moved_boxes = assert_successful_request(client, mutation)["elements"]
+    assert moved_boxes == []
 
     # Test cases 8.2.26, 8.2.27, 8.2.28
     label_identifiers = ",".join(
@@ -411,6 +447,15 @@ def test_box_mutations(
             "changes": "box_state_id",
             "from_int": BoxState.InStock.value,
             "to_int": BoxState[state].value,
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "location_id",
+            "from_int": int(new_location_id),
+            "to_int": int(location_id),
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,

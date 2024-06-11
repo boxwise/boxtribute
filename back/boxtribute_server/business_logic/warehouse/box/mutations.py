@@ -2,11 +2,13 @@ from ariadne import MutationType
 from flask import g
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
+from ....errors import ResourceDoesNotExist
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
-from .crud import create_box, delete_boxes, update_box
+from ....models.utils import handle_non_existing_resource
+from .crud import create_box, delete_boxes, move_boxes_to_location, update_box
 
 mutation = MutationType()
 
@@ -78,6 +80,40 @@ def resolve_delete_boxes(*_, label_identifiers):
     return BoxPage(
         **{
             "elements": delete_boxes(user_id=g.user.id, boxes=boxes),
+            "total_count": len(boxes),
+            "page_info": None,  # not relevant
+        }
+    )
+
+
+@mutation.field("moveBoxesToLocation")
+@handle_unauthorized
+@handle_non_existing_resource
+def resolve_move_boxes_to_location(*_, update_input):
+    location_id = update_input["location_id"]
+    if (location := Location.get_or_none(location_id)) is None:
+        return ResourceDoesNotExist(name="Location", id=location_id)
+    authorize(permission="stock:write", base_id=location.base_id)
+
+    boxes = (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(
+            # Any non-existing boxes are silently ignored
+            Box.label_identifier << update_input["label_identifiers"],
+            # Any boxes that are not part of the user's base are silently ignored
+            authorized_bases_filter(Location, permission="stock:write"),
+            # Any boxes already in the new location are silently ignored
+            Box.location != location_id,
+        )
+        .order_by(Box.id)
+    )
+
+    return BoxPage(
+        **{
+            "elements": move_boxes_to_location(
+                user_id=g.user.id, boxes=boxes, location=location
+            ),
             "total_count": len(boxes),
             "page_info": None,  # not relevant
         }

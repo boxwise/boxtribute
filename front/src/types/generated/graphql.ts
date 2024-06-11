@@ -226,6 +226,11 @@ export type BoxCreationInput = {
   tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
+export type BoxMoveInput = {
+  labelIdentifiers: Array<Scalars['String']>;
+  locationId: Scalars['Int'];
+};
+
 /** Utility type holding a page of [`Boxes`]({{Types.Box}}). */
 export type BoxPage = {
   __typename?: 'BoxPage';
@@ -622,6 +627,9 @@ export type MetricsNumberOfSalesArgs = {
   before?: InputMaybe<Scalars['Date']>;
 };
 
+/**  The `BoxPage.pageInfo` field is always `null`.  */
+export type MoveBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
@@ -693,6 +701,8 @@ export type Mutation = {
   editStandardProductInstantiation?: Maybe<EditStandardProductInstantiationResult>;
   enableStandardProduct?: Maybe<EnableStandardProductResult>;
   markShipmentAsLost?: Maybe<Shipment>;
+  /**  Any boxes that are non-existing, already inside the requested location, and/or in a base that the user must not access are silently filtered out.  */
+  moveBoxesToLocation?: Maybe<MoveBoxesResult>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   moveNotDeliveredBoxesInStock?: Maybe<Shipment>;
@@ -975,6 +985,16 @@ export type MutationEnableStandardProductArgs = {
  */
 export type MutationMarkShipmentAsLostArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationMoveBoxesToLocationArgs = {
+  updateInput?: InputMaybe<BoxMoveInput>;
 };
 
 

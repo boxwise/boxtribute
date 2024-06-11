@@ -537,6 +537,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "stock:write"},
         ],
+        # Test case 8.2.22e
+        [
+            "moveBoxesToLocation",
+            'updateInput: { labelIdentifiers: ["12345678"], locationId: 1 }',
+            "...on InsufficientPermissionError { name }",
+            {"name": "stock:write"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -590,6 +597,13 @@ def test_mutate_insufficient_permission(
         [
             "disableStandardProduct",
             "instantiationId: 7",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+        # Test case 8.2.22f
+        [
+            "moveBoxesToLocation",
+            'updateInput: { labelIdentifiers: ["12345678"], locationId: 2 }',
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],
