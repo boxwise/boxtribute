@@ -229,14 +229,18 @@ def delete_boxes(*, user_id, boxes):
 
 
 def move_boxes_to_location(*, user_id, boxes, location):
-    """Update location and last_modified_* fields of the given boxes. Log every location
-    change in the history table.
+    """Update location and last_modified_* fields of the given boxes. If the new
+    location has a default box state assigned, change given boxes' state. Log every
+    location (and state) change in the history table.
     Return the list of updated boxes.
     """
     if not boxes:
         return []
 
     now = utcnow()
+    updated_fields = dict(
+        location=location.id, last_modified_on=now, last_modified_by=user_id
+    )
     history_entries = [
         DbChangeHistory(
             changes=Box.location.column_name,
@@ -248,7 +252,26 @@ def move_boxes_to_location(*, user_id, boxes, location):
             to_int=location.id,
         )
         for box in boxes
+        if box.location_id != location.id
     ]
+
+    if location.box_state_id is not None:
+        updated_fields["state"] = location.box_state_id
+        history_entries.extend(
+            [
+                DbChangeHistory(
+                    changes=Box.state.column_name,
+                    table_name=Box._meta.table_name,
+                    record_id=box.id,
+                    user=user_id,
+                    change_date=now,
+                    from_int=box.state_id,
+                    to_int=location.box_state_id,
+                )
+                for box in boxes
+                if box.state_id != location.box_state_id
+            ]
+        )
 
     box_ids = [box.id for box in boxes]
     with db.database.atomic():
@@ -260,9 +283,7 @@ def move_boxes_to_location(*, user_id, boxes, location):
         #       ... END
         #   WHERE stock.id in (1, 2, ...);
         # cf. https://docs.peewee-orm.com/en/latest/peewee/querying.html#alternatives
-        Box.update(
-            location=location.id, last_modified_on=now, last_modified_by=user_id
-        ).where(Box.id << box_ids).execute()
+        Box.update(**updated_fields).where(Box.id << box_ids).execute()
         DbChangeHistory.bulk_create(history_entries)
 
     # Re-fetch updated box data because returning "boxes" would contain outdated objects

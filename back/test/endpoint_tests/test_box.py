@@ -312,6 +312,9 @@ def test_box_mutations(
     assert moved_boxes[0]["location"]["id"] == location_id
     assert moved_boxes[0]["lastModifiedOn"].startswith(today)
     assert moved_boxes[0]["history"][0]["changes"] == (
+        f"changed box state from {BoxState.Lost.name} to {BoxState.InStock.name}"
+    )
+    assert moved_boxes[0]["history"][1]["changes"] == (
         f"changed box location from {null_box_state_location['name']} to "
         f"{default_location['name']}"
     )
@@ -456,6 +459,15 @@ def test_box_mutations(
             "changes": "location_id",
             "from_int": int(new_location_id),
             "to_int": int(location_id),
+            "record_id": box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.Lost.value,
+            "to_int": BoxState.InStock.value,
             "record_id": box_id,
             "table_name": "stock",
             "user": 8,
