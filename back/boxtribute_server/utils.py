@@ -48,3 +48,7 @@ def activate_logging():  # pragma: no cover
         from flask import current_app
 
         logger.parent = current_app.logger
+        handler = logging.FileHandler("back/peewee.log")
+        formatter = logging.Formatter("%(created)f | %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
