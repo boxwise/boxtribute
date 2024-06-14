@@ -544,6 +544,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "stock:write"},
         ],
+        # Test case 8.2.23e
+        [
+            "assignTagToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagId: 2 }',
+            "...on InsufficientPermissionError { name }",
+            {"name": "tag_relation:assign"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -606,6 +613,13 @@ def test_mutate_insufficient_permission(
             'updateInput: { labelIdentifiers: ["12345678"], locationId: 2 }',
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
+        ],
+        # Test case 8.2.23f
+        [
+            "assignTagToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagId: 4 }',
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
         ],
     ],
 )

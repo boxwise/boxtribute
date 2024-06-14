@@ -11,6 +11,8 @@ type Mutation {
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
   " Any boxes that are non-existing, already inside the requested location, and/or in a base that the user must not access are silently filtered out. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
+  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are silently filtered out. "
+  assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
 
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary

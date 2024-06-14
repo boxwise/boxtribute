@@ -178,6 +178,7 @@ union_types = (
     UnionType("StandardProductsResult", resolve_type_by_class_name),
     UnionType("DeleteBoxesResult", resolve_type_by_class_name),
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
+    UnionType("AssignTagToBoxesResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

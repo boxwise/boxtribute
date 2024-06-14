@@ -6,7 +6,7 @@ from auth import mock_user_for_request
 from boxtribute_server.business_logic.warehouse.box.crud import (
     BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
 )
-from boxtribute_server.enums import BoxState
+from boxtribute_server.enums import BoxState, TagType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import (
     assert_bad_user_input,
@@ -321,6 +321,42 @@ def test_box_mutations(
     # another_created_box is ignored because it's already in the requested location
     assert len(moved_boxes) == 1
 
+    # Test case 8.2.23a, 8.2.23c
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    tagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert tagged_boxes == [{"tags": [{"id": tag_id}]}]
+
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    tagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert tagged_boxes == []
+
+    generic_tag_id = str(tags[2]["id"])
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    tagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert tagged_boxes == [
+        {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
+    ]
+
+    # Test case 8.2.23h
+    beneficiary_tag_id = str(tags[0]["id"])
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
+                ...on TagTypeMismatchError {{ expectedType }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": TagType.Box.name}
+
     # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
             ...on BoxPage {{ elements {{
@@ -349,6 +385,15 @@ def test_box_mutations(
                 }} }} }} }}"""
     moved_boxes = assert_successful_request(client, mutation)["elements"]
     assert moved_boxes == []
+
+    # Test case 8.2.23b, 8.2.23d
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    tagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert tagged_boxes == []
 
     # Test cases 8.2.26, 8.2.27, 8.2.28
     label_identifiers = ",".join(

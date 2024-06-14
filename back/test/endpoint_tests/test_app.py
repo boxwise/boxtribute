@@ -322,6 +322,13 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { id name }",
             {"id": "0", "name": "Location"},
         ],
+        # Test case 8.2.23g
+        [
+            "assignTagToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagId: 0 }',
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Tag"},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(

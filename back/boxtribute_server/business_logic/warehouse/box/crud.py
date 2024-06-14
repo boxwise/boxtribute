@@ -289,3 +289,31 @@ def move_boxes_to_location(*, user_id, boxes, location):
     # Re-fetch updated box data because returning "boxes" would contain outdated objects
     # with the old location
     return list(Box.select().where(Box.id << box_ids))
+
+
+def assign_tag_to_boxes(*, user_id, boxes, tag):
+    """Add TagsRelation entries for given boxes and tag. Update last_modified_* fields
+    of the affected boxes.
+    Return the list of updated boxes.
+    """
+    if not boxes:
+        return []
+
+    tags_relations = [
+        {
+            "object_id": box.id,
+            "object_type": TaggableObjectType.Box,
+            "tag": tag.id,
+        }
+        for box in boxes
+    ]
+
+    box_ids = [box.id for box in boxes]
+    with db.database.atomic():
+        Box.update(last_modified_on=utcnow(), last_modified_by=user_id).where(
+            Box.id << box_ids
+        ).execute()
+        TagsRelation.insert_many(tags_relations).execute()
+
+    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
+    return boxes

@@ -44,3 +44,8 @@ class StandardProductAlreadyEnabledForBase(UserError):
 class ProductTypeMismatch(UserError):
     def __init__(self, *, expected_type):
         self.expected_type = expected_type
+
+
+class TagTypeMismatch(UserError):
+    def __init__(self, *, expected_type):
+        self.expected_type = expected_type

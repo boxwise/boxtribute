@@ -591,9 +591,14 @@ type StandardProductAlreadyEnabledForBaseError {
 type ProductTypeMismatchError {
   expectedType: ProductType!
 }
+type TagTypeMismatchError {
+  expectedType: TagType!
+}
 
 " The `BoxPage.pageInfo` field is always `null`. "
 union MoveBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+" The `BoxPage.pageInfo` field is always `null`. "
+union AssignTagToBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError
 " The `BoxPage.pageInfo` field is always `null`. "
 union DeleteBoxesResult = BoxPage | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError

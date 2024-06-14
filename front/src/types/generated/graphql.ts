@@ -14,6 +14,9 @@ export type Scalars = {
   Datetime: any;
 };
 
+/**  The `BoxPage.pageInfo` field is always `null`.  */
+export type AssignTagToBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+
 /**
  * Representation of a base.
  * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
@@ -213,6 +216,11 @@ export type Box = ItemsCollection & {
   size: Size;
   state: BoxState;
   tags?: Maybe<Array<Tag>>;
+};
+
+export type BoxAssignTagInput = {
+  labelIdentifiers: Array<Scalars['String']>;
+  tagId: Scalars['Int'];
 };
 
 /** GraphQL input types for mutations **only**. */
@@ -678,6 +686,8 @@ export type Mutation = {
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignBoxToDistributionEvent?: Maybe<Box>;
   assignTag?: Maybe<TaggableResource>;
+  /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are silently filtered out.  */
+  assignTagToBoxes?: Maybe<AssignTagToBoxesResult>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
@@ -764,6 +774,16 @@ export type MutationAssignBoxToDistributionEventArgs = {
  */
 export type MutationAssignTagArgs = {
   assignmentInput?: InputMaybe<TagOperationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAssignTagToBoxesArgs = {
+  updateInput?: InputMaybe<BoxAssignTagInput>;
 };
 
 
@@ -1825,6 +1845,11 @@ export enum TagType {
   Beneficiary = 'Beneficiary',
   Box = 'Box'
 }
+
+export type TagTypeMismatchError = {
+  __typename?: 'TagTypeMismatchError';
+  expectedType: TagType;
+};
 
 export type TagUpdateInput = {
   color?: InputMaybe<Scalars['String']>;
