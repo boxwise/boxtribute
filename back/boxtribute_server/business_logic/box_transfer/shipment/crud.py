@@ -22,7 +22,7 @@ from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.transfer_agreement import TransferAgreement
-from ....models.utils import create_history_entries, utcnow
+from ....models.utils import BATCH_SIZE, create_history_entries, utcnow
 from ..agreement.crud import retrieve_transfer_agreement_bases
 
 
@@ -123,8 +123,12 @@ def _bulk_update_box_state(*, boxes, state, user_id, now):
         box.state = state
         box.last_modified_on = now
         box.last_modified_by = user_id
-    Box.bulk_update(boxes, [Box.state, Box.last_modified_on, Box.last_modified_by])
-    DbChangeHistory.bulk_create(history_entries)
+    Box.bulk_update(
+        boxes,
+        [Box.state, Box.last_modified_on, Box.last_modified_by],
+        batch_size=BATCH_SIZE,
+    )
+    DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
 
 def cancel_shipment(*, shipment, user):
@@ -162,7 +166,9 @@ def cancel_shipment(*, shipment, user):
         )
         if details:
             ShipmentDetail.bulk_update(
-                details, [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
+                details,
+                [ShipmentDetail.removed_on, ShipmentDetail.removed_by],
+                batch_size=BATCH_SIZE,
             )
         shipment.save(only=[Shipment.state, Shipment.canceled_by, Shipment.canceled_on])
     return shipment
@@ -308,7 +314,7 @@ def _remove_boxes_from_shipment(
         _bulk_update_box_state(
             boxes=[d.box for d in details], state=box_state, user_id=user_id, now=now
         )
-        ShipmentDetail.bulk_update(details, fields=fields)
+        ShipmentDetail.bulk_update(details, fields=fields, batch_size=BATCH_SIZE)
 
 
 def _update_shipment_with_received_boxes(
@@ -401,6 +407,7 @@ def _update_shipment_with_received_boxes(
         Box.bulk_update(
             checked_in_boxes,
             [Box.state, Box.product, Box.location, Box.size, Box.number_of_items],
+            batch_size=BATCH_SIZE,
         )
         ShipmentDetail.bulk_update(
             details,
@@ -412,12 +419,13 @@ def _update_shipment_with_received_boxes(
                 ShipmentDetail.received_on,
                 ShipmentDetail.received_by,
             ],
+            batch_size=BATCH_SIZE,
         )
         TagsRelation.delete().where(
             (TagsRelation.object_type == TaggableObjectType.Box),
             TagsRelation.object_id << [box.id for box in checked_in_boxes],
         ).execute()
-        DbChangeHistory.bulk_create(history_entries)
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
 
 def _complete_shipment_if_applicable(*, shipment, user_id, now):
@@ -636,6 +644,7 @@ def move_not_delivered_boxes_in_stock(*, box_ids, user):
                     ShipmentDetail.removed_on,
                     ShipmentDetail.removed_by,
                 ],
+                batch_size=BATCH_SIZE,
             )
 
     if shipment.state != ShipmentState.Completed:

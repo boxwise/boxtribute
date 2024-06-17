@@ -14,7 +14,12 @@ from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.tags_relation import TagsRelation
-from ....models.utils import save_creation_to_history, save_update_to_history, utcnow
+from ....models.utils import (
+    BATCH_SIZE,
+    save_creation_to_history,
+    save_update_to_history,
+    utcnow,
+)
 from ...tag.crud import assign_tag, unassign_tag
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
@@ -222,7 +227,7 @@ def delete_boxes(*, user_id, boxes):
     box_ids = [box.id for box in boxes]
     with db.database.atomic():
         Box.update(deleted_on=now).where(Box.id << box_ids).execute()
-        DbChangeHistory.bulk_create(history_entries)
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
     # Re-fetch updated box data because returning "boxes" would contain outdated objects
     # with the unset deleted_on field
@@ -285,7 +290,7 @@ def move_boxes_to_location(*, user_id, boxes, location):
         #   WHERE stock.id in (1, 2, ...);
         # cf. https://docs.peewee-orm.com/en/latest/peewee/querying.html#alternatives
         Box.update(**updated_fields).where(Box.id << box_ids).execute()
-        DbChangeHistory.bulk_create(history_entries)
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
     # Re-fetch updated box data because returning "boxes" would contain outdated objects
     # with the old location
@@ -301,11 +306,11 @@ def assign_tag_to_boxes(*, user_id, boxes, tag):
         return []
 
     tags_relations = [
-        {
-            "object_id": box.id,
-            "object_type": TaggableObjectType.Box,
-            "tag": tag.id,
-        }
+        TagsRelation(
+            object_id=box.id,
+            object_type=TaggableObjectType.Box,
+            tag=tag.id,
+        )
         for box in boxes
     ]
 
@@ -314,7 +319,7 @@ def assign_tag_to_boxes(*, user_id, boxes, tag):
         Box.update(last_modified_on=utcnow(), last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
-        TagsRelation.insert_many(tags_relations).execute()
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     # Skip re-fetching box data (last_modified_* fields will be outdated in response)
     return boxes
