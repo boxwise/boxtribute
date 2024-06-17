@@ -726,6 +726,8 @@ export type Mutation = {
   startReceivingShipment?: Maybe<Shipment>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
+  /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are silently filtered out.  */
+  unassignTagFromBoxes?: Maybe<UnassignTagFromBoxesResult>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
@@ -1158,6 +1160,16 @@ export type MutationUnassignBoxFromDistributionEventArgs = {
  */
 export type MutationUnassignTagArgs = {
   unassignmentInput?: InputMaybe<TagOperationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUnassignTagFromBoxesArgs = {
+  updateInput?: InputMaybe<BoxAssignTagInput>;
 };
 
 
@@ -1983,6 +1995,9 @@ export enum TransferAgreementType {
   ReceivingFrom = 'ReceivingFrom',
   SendingTo = 'SendingTo'
 }
+
+/**  The `BoxPage.pageInfo` field is always `null`.  */
+export type UnassignTagFromBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
 
 export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';

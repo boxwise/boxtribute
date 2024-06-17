@@ -16,6 +16,7 @@ from .crud import (
     create_box,
     delete_boxes,
     move_boxes_to_location,
+    unassign_tag_from_boxes,
     update_box,
 )
 
@@ -165,6 +166,49 @@ def resolve_assign_tag_to_boxes(*_, update_input):
     return BoxPage(
         **{
             "elements": assign_tag_to_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
+            "total_count": len(boxes),
+            "page_info": None,  # not relevant
+        }
+    )
+
+
+@mutation.field("unassignTagFromBoxes")
+@handle_unauthorized
+@handle_non_existing_resource
+def resolve_unassign_tag_from_boxes(*_, update_input):
+    tag_id = update_input["tag_id"]
+    if (tag := Tag.get_or_none(tag_id)) is None:
+        return ResourceDoesNotExist(name="Tag", id=tag_id)
+    authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    if tag.type == TagType.Beneficiary:
+        return TagTypeMismatch(expected_type=TagType.Box)
+
+    boxes = (
+        Box.select(Box, Location)
+        .join(Location)
+        .join(
+            TagsRelation,
+            on=(
+                (TagsRelation.object_id == Box.id)
+                & (TagsRelation.object_type == TaggableObjectType.Box)
+                # Any boxes that don't have the tag assigned are silently ignored
+                & (TagsRelation.tag == tag_id)
+            ),
+        )
+        .where(
+            # Any non-existing boxes are silently ignored
+            Box.label_identifier << update_input["label_identifiers"],
+            # Any boxes that are not part of the user's base are silently ignored
+            authorized_bases_filter(Location, permission="stock:write"),
+        )
+        .order_by(Box.id)
+    )
+
+    return BoxPage(
+        **{
+            "elements": unassign_tag_from_boxes(
+                user_id=g.user.id, boxes=boxes, tag=tag
+            ),
             "total_count": len(boxes),
             "page_info": None,  # not relevant
         }

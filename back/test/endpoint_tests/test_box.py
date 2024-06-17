@@ -349,9 +349,41 @@ def test_box_mutations(
         {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
     ]
 
+    # Test case 8.2.24a
+    label_identifier = f'"{created_box["labelIdentifier"]}"'
+    mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifier}], tagId: {generic_tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    untagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert untagged_boxes == [{"tags": [{"id": tag_id}]}]
+
+    # Verify that tag is not removed from the other box
+    query = f"""query {{ box(labelIdentifier: "{another_created_box_label_identifier}")
+                    {{ tags {{ id }} }} }}"""
+    response = assert_successful_request(client, query)
+    assert response == {"tags": [{"id": tag_id}, {"id": generic_tag_id}]}
+
+    # Test case 8.2.24c
+    mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    untagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert untagged_boxes == [{"tags": [{"id": tag_id}]}]
+
     # Test case 8.2.23h
     beneficiary_tag_id = str(tags[0]["id"])
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
+                ...on TagTypeMismatchError {{ expectedType }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"expectedType": TagType.Box.name}
+
+    # Test case 8.2.24h
+    mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
                 ...on TagTypeMismatchError {{ expectedType }} }} }}"""
     response = assert_successful_request(client, mutation)
@@ -388,6 +420,15 @@ def test_box_mutations(
 
     # Test case 8.2.23b, 8.2.23d
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
+                ...on BoxPage {{ elements {{
+                    tags {{ id }}
+                }} }} }} }}"""
+    tagged_boxes = assert_successful_request(client, mutation)["elements"]
+    assert tagged_boxes == []
+
+    # Test case 8.2.24b, 8.2.24d
+    mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
                 ...on BoxPage {{ elements {{
                     tags {{ id }}

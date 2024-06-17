@@ -13,6 +13,8 @@ type Mutation {
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
   " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are silently filtered out. "
   assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
+  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are silently filtered out. "
+  unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
 
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
