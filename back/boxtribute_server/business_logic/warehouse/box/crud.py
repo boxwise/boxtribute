@@ -202,30 +202,31 @@ def delete_boxes(*, user_id, boxes):
     Return the list of soft-deleted boxes.
     """
     if not boxes:
-        # bulk_update() fails with an empty list, hence return immediately. Happens if
+        # bulk_create() fails with an empty list, hence return immediately. Happens if
         # all boxes requested for deletion are prohibited for the user, non-existing,
         # and/or already deleted.
         return []
 
     now = utcnow()
-    history_entries = []
-    for box in boxes:
-        box.deleted_on = now
-        history_entries.append(
-            DbChangeHistory(
-                changes="Record deleted",
-                table_name=Box._meta.table_name,
-                record_id=box.id,
-                user=user_id,
-                change_date=now,
-            )
+    history_entries = [
+        DbChangeHistory(
+            changes="Record deleted",
+            table_name=Box._meta.table_name,
+            record_id=box.id,
+            user=user_id,
+            change_date=now,
         )
+        for box in boxes
+    ]
 
+    box_ids = [box.id for box in boxes]
     with db.database.atomic():
-        Box.bulk_update(boxes, [Box.deleted_on])
+        Box.update(deleted_on=now).where(Box.id << box_ids).execute()
         DbChangeHistory.bulk_create(history_entries)
 
-    return boxes
+    # Re-fetch updated box data because returning "boxes" would contain outdated objects
+    # with the unset deleted_on field
+    return list(Box.select().where(Box.id << box_ids))
 
 
 def move_boxes_to_location(*, user_id, boxes, location):
