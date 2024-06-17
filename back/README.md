@@ -96,11 +96,11 @@ The development database is called `dropapp_dev` and the password is `dropapp_ro
 
 #### General notes on Docker network
 
-In the docker-compose file we define a separate Docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `db` and get back the appropriate container’s IP address.
+In `docker-compose.yml` we define a separate Docker network called `backend` to which the back-end containers are joined. Each container can now look up the host name `webapp` or `db` and get back the appropriate container’s IP address.
 To access the MySQL database, there are now four possibilities:
 
 1. Inside the `webapp` container, you reach the MySQL DB at the host `db` using port 3306
-1. You execute the MySQL command line client in the running container by `docker-compose exec db mysql -u root -pdropapp_root -D dropapp_dev`
+1. You execute the MySQL command line client in the running container by `docker compose exec db mysql -u root -pdropapp_root -D dropapp_dev`
 1. You connect to the MySQL host `localhost` using port 32000.
 1. You specify the IP-address of the gateway for the host using port 32000
 
@@ -116,8 +116,8 @@ Most of our developers use [MySQL workbench](https://dev.mysql.com/doc/workbench
 
 The `db` docker-compose service runs on a dump (`back/init.sql`) generated from a minimal DB seed enriched with fake data. To create the dump, e.g. when the fake-data generation has been updated, run
 
-    docker-compose rm -sf db
-    docker-compose up --build webapp
+    docker compose rm -sf db
+    docker compose up --build webapp
     curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
     mysqldump --routines --add-drop-table --disable-keys --extended-insert --gtid --tz-utc --dump-date --skip-lock-tables --disable-keys --quote-names --create-options --add-locks --protocol=tcp -u root -p --host=127.0.0.1 --port=32000 dropapp_dev > back/init.sql
 
@@ -144,7 +144,7 @@ activate_logging()
 
 The `pwiz` utility helps to generate peewee model definitions by inspecting a running database. It is already installed with the `peewee` package.
 
-1. Start the database by `docker-compose up db`
+1. Start the database by `docker compose up db`
 1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
 1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
 
@@ -162,7 +162,7 @@ For debugging an exception in an endpoint, direct your web browser to that endpo
 
 Enabling `pdb` is a bit involved since the Flask app is being run in a Docker container. On the command-line do (inspired by [this blog post](https://trstringer.com/python-flask-debug-docker-compose/))
 
-    docker-compose run -p 5005:5005 webapp python -m pdb -m boxtribute_server.dev_main
+    docker compose run -p 5005:5005 webapp python -m pdb -m boxtribute_server.dev_main
 
 At the beginning, code execution will pause twice for the `pdb` CLI. Press `c` to continue, or if you want to set a breakpoint, `b` with according arguments. The Flask app should have started as usual. Make a request that will trigger the breakpoint. For `pdb` debugger commands, see the [official documentation](https://docs.python.org/3/library/pdb.html#debugger-commands), and use the command `help`.
 
@@ -220,7 +220,7 @@ Our tests verify the production code on different levels:
 
 Most tests require a running MySQL server. Before executing tests for the first time, do
 
-    docker-compose up -d db
+    docker compose up -d db
 
 Run the test suite on your machine by executing
 
@@ -230,8 +230,7 @@ Add `-x` to stop at the first failure, and `-v` or `-vv` for increased verbosity
 
 You can also run the tests via `docker-compose`:
 
-    docker-compose up --build -d webapp  # only once
-    docker-compose exec webapp pytest
+    docker compose run --rm webapp pytest
 
 ### Test plan
 
@@ -350,7 +349,7 @@ For the production schema, documentation can be found online at `api.boxtribute.
 You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
 1. Activate the virtual environment
-1. Start the required services by `docker-compose up webapp`
+1. Start the required services by `docker compose up webapp`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
 1. Copy the displayed token
@@ -358,13 +357,11 @@ You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
+1. Re-fetch the schema to enable GraphQL code completion and documentation by clicking the circling arrows button in the bottom left.
+1. The documentation can be inspected from the button in the top left.
 1. A sample query you can try if it works is:
 
-        query {
-            organisations {
-                name
-            }
-        }
+        query { organisations { name } }
 
 If you lack an internet connection to communicate with Auth0, it might be beneficial to circumvent the authentication logic. You have to hardcode your client identity then. In the `boxtribute_server/auth.py` module, replace the body of the `decorated` function by
 
@@ -408,7 +405,7 @@ In production, the web app is run by the WSGI server `gunicorn` which serves as 
 
 Launch the production server by
 
-    ENVIRONMENT=production docker-compose up --build webapp
+    ENVIRONMENT=production docker compose up --build webapp
 
 In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to use auto-completion the GraphQL explorer.
 
@@ -420,7 +417,7 @@ For other environments, replace the URL with the resp. Auth0 domain.
 
 Eventually run
 
-    dotenv -f .env.staging run docker-compose up --build webapp
+    dotenv -f .env.staging run docker compose up --build webapp
 
 ## Performance evaluation
 

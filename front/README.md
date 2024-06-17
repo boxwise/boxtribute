@@ -39,13 +39,13 @@ The following commands need to be run for linting and formatting:
 
 ```sh
 # auto fix
-docker-compose exec front yarn lint
+docker compose exec front yarn lint
 
 # check formatting
-docker-compose exec front yarn format:check
+docker compose exec front yarn format:check
 
 # fix formatting
-docker-compose exec front yarn format:write
+docker compose exec front yarn format:write
 ```
 
 ### General linting and formatting rules
@@ -66,15 +66,15 @@ We are using docker to spin up our dev environment. The front folder is in sync 
 
 When you wish to add a dependency, e.g. when you make a change to your local `package.json`, you will need to rebuild the docker container and relaunch.
 
-You can add packages during development without rebuilding by installing it inside the container. Your changes will last until you "docker-compose down" and will be saved on host for next build.
+You can add packages during development without rebuilding by installing it inside the container. Your changes will last until you `docker compose down` and will be saved on host for next build.
 
 For example, to add XYZ to the `package.json` file in the `front` folder while developing, you can run this (make sure you run it in the project's root folder since docker compose is operating in that folder):
 
-      docker-compose exec front yarn add XYZ
+      docker compose exec front yarn add XYZ
 
 Afterwards:
 
-1. stop docker-compose and run `docker-compose up` again
+1. stop docker-compose and run `docker compose up` again
 2. run `yarn` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
 
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
@@ -93,10 +93,10 @@ Tests and test coverage can be run with the following command:
 
 ```sh
 # run tests
-docker-compose exec front yarn test
+docker compose exec front yarn test
 
 # test coverage
-docker-compose exec front yarn test:coverage
+docker compose exec front yarn test:coverage
 ```
 
 Here, a list of best practices you should follow when writing front-end tests with React Testing Library:

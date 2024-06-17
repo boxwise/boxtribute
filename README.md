@@ -50,7 +50,7 @@ At the end of this section, there are links to further instructions to set up ad
 
 1.  To build and start the involved Docker services, execute
 
-        docker-compose up
+        docker compose up
 
 1.  Open your web browser on `http://localhost:3000`
 
@@ -72,7 +72,7 @@ services:
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yaml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `front`.
+We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `front`.
 
 ## Development Database Seed
 
