@@ -10,7 +10,6 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
-from ....models.utils import handle_non_existing_resource
 from .crud import (
     assign_tag_to_boxes,
     create_box,
@@ -98,7 +97,6 @@ def resolve_delete_boxes(*_, label_identifiers):
 
 @mutation.field("moveBoxesToLocation")
 @handle_unauthorized
-@handle_non_existing_resource
 def resolve_move_boxes_to_location(*_, update_input):
     location_id = update_input["location_id"]
     if (location := Location.get_or_none(location_id)) is None:
@@ -132,7 +130,6 @@ def resolve_move_boxes_to_location(*_, update_input):
 
 @mutation.field("assignTagToBoxes")
 @handle_unauthorized
-@handle_non_existing_resource
 def resolve_assign_tag_to_boxes(*_, update_input):
     tag_id = update_input["tag_id"]
     if (tag := Tag.get_or_none(tag_id)) is None:
@@ -174,7 +171,6 @@ def resolve_assign_tag_to_boxes(*_, update_input):
 
 @mutation.field("unassignTagFromBoxes")
 @handle_unauthorized
-@handle_non_existing_resource
 def resolve_unassign_tag_from_boxes(*_, update_input):
     tag_id = update_input["tag_id"]
     if (tag := Tag.get_or_none(tag_id)) is None:
