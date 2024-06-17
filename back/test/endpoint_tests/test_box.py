@@ -400,11 +400,12 @@ def test_box_mutations(
         assert box["deletedOn"].startswith(today)
         assert box["history"][0]["changes"] == "deleted record"
 
-    # Test case 8.2.22b, 8.2.22d
+    # Test case 8.2.22b, 8.2.22d, 8.2.22h
     label_identifiers = ",".join(
         f'"{i}"'
         for i in [
             another_box["label_identifier"],  # in base that user isn't authorized for
+            created_box["labelIdentifier"],  # already deleted box
             99119911,  # non-existing box
         ]
     )
@@ -418,7 +419,7 @@ def test_box_mutations(
     moved_boxes = assert_successful_request(client, mutation)["elements"]
     assert moved_boxes == []
 
-    # Test case 8.2.23b, 8.2.23d
+    # Test case 8.2.23b, 8.2.23d, 8.2.23j
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
                 ...on BoxPage {{ elements {{
@@ -427,7 +428,7 @@ def test_box_mutations(
     tagged_boxes = assert_successful_request(client, mutation)["elements"]
     assert tagged_boxes == []
 
-    # Test case 8.2.24b, 8.2.24d
+    # Test case 8.2.24b, 8.2.24d, 8.2.24j
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
                 ...on BoxPage {{ elements {{
@@ -437,14 +438,6 @@ def test_box_mutations(
     assert tagged_boxes == []
 
     # Test cases 8.2.26, 8.2.27, 8.2.28
-    label_identifiers = ",".join(
-        f'"{i}"'
-        for i in [
-            another_box["label_identifier"],  # in base that user isn't authorized for
-            created_box["labelIdentifier"],  # already deleted box
-            99119911,  # non-existing box
-        ]
-    )
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
             ...on BoxPage {{ elements {{
                 deletedOn

@@ -113,6 +113,8 @@ def resolve_move_boxes_to_location(*_, update_input):
             authorized_bases_filter(Location, permission="stock:write"),
             # Any boxes already in the new location are silently ignored
             Box.location != location_id,
+            # Any deleted boxes are filtered out
+            (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
@@ -156,6 +158,8 @@ def resolve_assign_tag_to_boxes(*_, update_input):
             authorized_bases_filter(Location, permission="stock:write"),
             # Any boxes that already have the new tag assigned are silently ignored
             (TagsRelation.tag != tag.id) | (TagsRelation.tag.is_null()),
+            # Any deleted boxes are filtered out
+            (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
@@ -196,6 +200,8 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
             Box.label_identifier << update_input["label_identifiers"],
             # Any boxes that are not part of the user's base are silently ignored
             authorized_bases_filter(Location, permission="stock:write"),
+            # Any deleted boxes are filtered out
+            (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
