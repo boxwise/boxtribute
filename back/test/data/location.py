@@ -96,6 +96,11 @@ def non_default_box_state_location():
 
 
 @pytest.fixture
+def deleted_location():
+    return deleted_location_data()
+
+
+@pytest.fixture
 def distribution_spot():
     return distribution_spot_data()
 

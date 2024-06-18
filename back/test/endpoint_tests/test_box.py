@@ -125,6 +125,7 @@ def test_box_mutations(
     products,
     default_location,
     null_box_state_location,
+    deleted_location,
     tags,
 ):
     # Test case 8.2.1
@@ -327,6 +328,15 @@ def test_box_mutations(
         another_created_box_label_identifier
     ]
 
+    # Test case 8.2.22i
+    deleted_location_id = str(deleted_location["id"])
+    mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
+            labelIdentifiers: [{label_identifiers}],
+            locationId: {deleted_location_id} }} ) {{
+                ...on DeletedLocationError {{ name }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": f"{deleted_location['name']}"}
+
     # Test case 8.2.23a, 8.2.23c
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
@@ -414,6 +424,22 @@ def test_box_mutations(
                 ...on TagTypeMismatchError {{ expectedType }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"expectedType": TagType.Box.name}
+
+    # Test case 8.2.23i
+    deleted_tag_id = str(tags[4]["id"])
+    tag_name = tags[4]["name"]
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {deleted_tag_id} }} ) {{
+                ...on DeletedTagError {{ name }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": tag_name}
+
+    # Test case 8.2.24i
+    mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}], tagId: {deleted_tag_id} }} ) {{
+                ...on DeletedTagError {{ name }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": tag_name}
 
     # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{

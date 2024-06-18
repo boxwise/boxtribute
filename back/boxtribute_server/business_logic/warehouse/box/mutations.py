@@ -6,7 +6,12 @@ from peewee import JOIN
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
 from ....enums import TaggableObjectType, TagType
-from ....errors import ResourceDoesNotExist, TagTypeMismatch
+from ....errors import (
+    DeletedLocation,
+    DeletedTag,
+    ResourceDoesNotExist,
+    TagTypeMismatch,
+)
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
@@ -115,6 +120,8 @@ def resolve_move_boxes_to_location(*_, update_input):
     if (location := Location.get_or_none(location_id)) is None:
         return ResourceDoesNotExist(name="Location", id=location_id)
     authorize(permission="stock:write", base_id=location.base_id)
+    if location.deleted_on is not None:
+        return DeletedLocation(name=location.name)
 
     label_identifiers = set(update_input["label_identifiers"])
     boxes = (
@@ -148,6 +155,8 @@ def resolve_assign_tag_to_boxes(*_, update_input):
     if (tag := Tag.get_or_none(tag_id)) is None:
         return ResourceDoesNotExist(name="Tag", id=tag_id)
     authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    if tag.deleted_on is not None:
+        return DeletedTag(name=tag.name)
     if tag.type == TagType.Beneficiary:
         return TagTypeMismatch(expected_type=TagType.Box)
 
@@ -189,6 +198,8 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
     if (tag := Tag.get_or_none(tag_id)) is None:
         return ResourceDoesNotExist(name="Tag", id=tag_id)
     authorize(permission="tag_relation:assign", base_id=tag.base_id)
+    if tag.deleted_on is not None:
+        return DeletedTag(name=tag.name)
     if tag.type == TagType.Beneficiary:
         return TagTypeMismatch(expected_type=TagType.Box)
 

@@ -14,7 +14,7 @@ export type Scalars = {
   Datetime: any;
 };
 
-export type AssignTagToBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+export type AssignTagToBoxesResult = BoxResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
 
 /**
  * Representation of a base.
@@ -373,6 +373,16 @@ export type DeleteBoxesResult = BoxResult | InsufficientPermissionError;
 
 export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
+export type DeletedLocationError = {
+  __typename?: 'DeletedLocationError';
+  name: Scalars['String'];
+};
+
+export type DeletedTagError = {
+  __typename?: 'DeletedTagError';
+  name: Scalars['String'];
+};
+
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
   id?: Maybe<Scalars['Int']>;
@@ -640,7 +650,7 @@ export type MetricsNumberOfSalesArgs = {
   before?: InputMaybe<Scalars['Date']>;
 };
 
-export type MoveBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type MoveBoxesResult = BoxResult | DeletedLocationError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
@@ -2000,7 +2010,7 @@ export enum TransferAgreementType {
   SendingTo = 'SendingTo'
 }
 
-export type UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+export type UnassignTagFromBoxesResult = BoxResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
 
 export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';
