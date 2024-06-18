@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from ariadne import MutationType
 from flask import g
 from peewee import JOIN
@@ -22,8 +24,10 @@ from .crud import (
 mutation = MutationType()
 
 
-class BoxPage(dict):
-    pass
+@dataclass(kw_only=True)
+class BoxResult:
+    updated_boxes: list[Box]
+    invalid_box_label_identifiers: list[str]
 
 
 @mutation.field("createBox")
@@ -68,30 +72,39 @@ def resolve_update_box(*_, update_input):
     return update_box(user_id=g.user.id, **update_input)
 
 
+# Common logic for bulk-action resolvers:
+# - remove possible duplicates from input label identifiers
+# - filter out all boxes that
+#   - don't exist and/or
+#   - are in a location the user is prohibited to access and/or
+#   - are deleted and/or
+#   - (depending on the context) would not be affected by the action anyways
+# - perform the requested action on all valid boxes
+# - create list of invalid boxes (difference of the set of input label identifiers and
+#   the set of valid label identifiers)
+# - return valid, updated boxes and invalid box label identifiers as BoxResult data
+#   structure for GraphQL API
 @mutation.field("deleteBoxes")
 @handle_unauthorized
 def resolve_delete_boxes(*_, label_identifiers):
+    label_identifiers = set(label_identifiers)
     boxes = (
         Box.select(Box, Location)
         .join(Location)
         .where(
-            # Any non-existing boxes are silently ignored
             Box.label_identifier << label_identifiers,
-            # Any boxes that are not part of the user's base are silently ignored
             authorized_bases_filter(Location, permission="stock:write"),
-            # Any boxes that have already been deleted are silently ignored
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
+    valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    # Return as BoxPage data structure for GraphQL API
-    return BoxPage(
-        **{
-            "elements": delete_boxes(user_id=g.user.id, boxes=boxes),
-            "total_count": len(boxes),
-            "page_info": None,  # not relevant
-        }
+    return BoxResult(
+        updated_boxes=delete_boxes(user_id=g.user.id, boxes=boxes),
+        invalid_box_label_identifiers=sorted(
+            label_identifiers.difference(valid_box_label_identifiers)
+        ),
     )
 
 
@@ -103,30 +116,28 @@ def resolve_move_boxes_to_location(*_, update_input):
         return ResourceDoesNotExist(name="Location", id=location_id)
     authorize(permission="stock:write", base_id=location.base_id)
 
+    label_identifiers = set(update_input["label_identifiers"])
     boxes = (
         Box.select(Box, Location)
         .join(Location)
         .where(
-            # Any non-existing boxes are silently ignored
-            Box.label_identifier << update_input["label_identifiers"],
-            # Any boxes that are not part of the user's base are silently ignored
+            Box.label_identifier << label_identifiers,
             authorized_bases_filter(Location, permission="stock:write"),
             # Any boxes already in the new location are silently ignored
             Box.location != location_id,
-            # Any deleted boxes are filtered out
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
+    valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxPage(
-        **{
-            "elements": move_boxes_to_location(
-                user_id=g.user.id, boxes=boxes, location=location
-            ),
-            "total_count": len(boxes),
-            "page_info": None,  # not relevant
-        }
+    return BoxResult(
+        updated_boxes=move_boxes_to_location(
+            user_id=g.user.id, boxes=boxes, location=location
+        ),
+        invalid_box_label_identifiers=sorted(
+            label_identifiers.difference(valid_box_label_identifiers)
+        ),
     )
 
 
@@ -140,6 +151,7 @@ def resolve_assign_tag_to_boxes(*_, update_input):
     if tag.type == TagType.Beneficiary:
         return TagTypeMismatch(expected_type=TagType.Box)
 
+    label_identifiers = set(update_input["label_identifiers"])
     boxes = (
         Box.select(Box, Location)
         .join(Location)
@@ -152,24 +164,21 @@ def resolve_assign_tag_to_boxes(*_, update_input):
             ),
         )
         .where(
-            # Any non-existing boxes are silently ignored
-            Box.label_identifier << update_input["label_identifiers"],
-            # Any boxes that are not part of the user's base are silently ignored
+            Box.label_identifier << label_identifiers,
             authorized_bases_filter(Location, permission="stock:write"),
             # Any boxes that already have the new tag assigned are silently ignored
             (TagsRelation.tag != tag.id) | (TagsRelation.tag.is_null()),
-            # Any deleted boxes are filtered out
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
+    valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxPage(
-        **{
-            "elements": assign_tag_to_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
-            "total_count": len(boxes),
-            "page_info": None,  # not relevant
-        }
+    return BoxResult(
+        updated_boxes=assign_tag_to_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
+        invalid_box_label_identifiers=sorted(
+            label_identifiers.difference(valid_box_label_identifiers)
+        ),
     )
 
 
@@ -183,6 +192,7 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
     if tag.type == TagType.Beneficiary:
         return TagTypeMismatch(expected_type=TagType.Box)
 
+    label_identifiers = set(update_input["label_identifiers"])
     boxes = (
         Box.select(Box, Location)
         .join(Location)
@@ -196,22 +206,17 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
             ),
         )
         .where(
-            # Any non-existing boxes are silently ignored
-            Box.label_identifier << update_input["label_identifiers"],
-            # Any boxes that are not part of the user's base are silently ignored
+            Box.label_identifier << label_identifiers,
             authorized_bases_filter(Location, permission="stock:write"),
-            # Any deleted boxes are filtered out
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
     )
+    valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxPage(
-        **{
-            "elements": unassign_tag_from_boxes(
-                user_id=g.user.id, boxes=boxes, tag=tag
-            ),
-            "total_count": len(boxes),
-            "page_info": None,  # not relevant
-        }
+    return BoxResult(
+        updated_boxes=unassign_tag_from_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
+        invalid_box_label_identifiers=sorted(
+            label_identifiers.difference(valid_box_label_identifiers)
+        ),
     )

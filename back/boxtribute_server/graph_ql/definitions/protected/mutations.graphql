@@ -7,13 +7,13 @@ type Mutation {
   createQrCode(boxLabelIdentifier: String): QrCode
   createBox(creationInput: BoxCreationInput): Box
   updateBox(updateInput: BoxUpdateInput): Box
-  " Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are silently filtered out. "
+  " Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
-  " Any boxes that are non-existing, already inside the requested location, and/or in a base that the user must not access are silently filtered out. "
+  " Any boxes that are non-existing, already inside the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are silently filtered out. "
+  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
   assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
-  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are silently filtered out. "
+  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
   unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
 
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary

@@ -212,6 +212,14 @@ type BoxPage {
 }
 
 """
+Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing).
+"""
+type BoxResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+}
+
+"""
 Representation of a base.
 The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
 """
@@ -595,14 +603,10 @@ type TagTypeMismatchError {
   expectedType: TagType!
 }
 
-" The `BoxPage.pageInfo` field is always `null`. "
-union MoveBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
-" The `BoxPage.pageInfo` field is always `null`. "
-union AssignTagToBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError
-" The `BoxPage.pageInfo` field is always `null`. "
-union UnassignTagFromBoxesResult = BoxPage | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError
-" The `BoxPage.pageInfo` field is always `null`. "
-union DeleteBoxesResult = BoxPage | InsufficientPermissionError
+union MoveBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union AssignTagToBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError
+union UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError
+union DeleteBoxesResult = BoxResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError

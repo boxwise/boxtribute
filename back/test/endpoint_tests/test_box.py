@@ -296,19 +296,22 @@ def test_box_mutations(
         },
     ]
 
-    label_identifiers = ",".join(
-        f'"{i}"'
-        for i in [created_box["labelIdentifier"], another_created_box_label_identifier]
+    raw_label_identifiers = sorted(
+        [created_box["labelIdentifier"], another_created_box_label_identifier]
     )
+    label_identifiers = ",".join(f'"{i}"' for i in raw_label_identifiers)
     # Test case 8.2.22a, 8.2.22c
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
-                ...on BoxPage {{ elements {{
+                ...on BoxResult {{ updatedBoxes {{
                     location {{ id }}
                     lastModifiedOn
                     history {{ changes }}
-                }} }} }} }}"""
-    moved_boxes = assert_successful_request(client, mutation)["elements"]
+                }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    moved_boxes = response["updatedBoxes"]
     assert moved_boxes[0]["location"]["id"] == location_id
     assert moved_boxes[0]["lastModifiedOn"].startswith(today)
     assert moved_boxes[0]["history"][0]["changes"] == (
@@ -320,44 +323,63 @@ def test_box_mutations(
     )
     # another_created_box is ignored because it's already in the requested location
     assert len(moved_boxes) == 1
+    assert response["invalidBoxLabelIdentifiers"] == [
+        another_created_box_label_identifier
+    ]
 
     # Test case 8.2.23a, 8.2.23c
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    tagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert tagged_boxes == [{"tags": [{"id": tag_id}]}]
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [{"tags": [{"id": tag_id}]}],
+        "invalidBoxLabelIdentifiers": [another_created_box_label_identifier],
+    }
 
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    tagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert tagged_boxes == []
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     generic_tag_id = str(tags[2]["id"])
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    tagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert tagged_boxes == [
-        {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
-    ]
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [
+            {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
+        ],
+        "invalidBoxLabelIdentifiers": [],
+    }
 
     # Test case 8.2.24a
     label_identifier = f'"{created_box["labelIdentifier"]}"'
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifier}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    untagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert untagged_boxes == [{"tags": [{"id": tag_id}]}]
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [{"tags": [{"id": tag_id}]}],
+        "invalidBoxLabelIdentifiers": [],
+    }
 
     # Verify that tag is not removed from the other box
     query = f"""query {{ box(labelIdentifier: "{another_created_box_label_identifier}")
@@ -368,11 +390,15 @@ def test_box_mutations(
     # Test case 8.2.24c
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    untagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert untagged_boxes == [{"tags": [{"id": tag_id}]}]
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [{"tags": [{"id": tag_id}]}],
+        "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"]],
+    }
 
     # Test case 8.2.23h
     beneficiary_tag_id = str(tags[0]["id"])
@@ -391,60 +417,77 @@ def test_box_mutations(
 
     # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
-            ...on BoxPage {{ elements {{
-                deletedOn
-                history {{ changes }}
-            }} }} }} }}"""
-    deleted_boxes = assert_successful_request(client, mutation)["elements"]
-    for box in deleted_boxes:
+            ...on BoxResult {{
+                updatedBoxes {{
+                    deletedOn
+                    history {{ changes }}
+                }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    for box in response["updatedBoxes"]:
         assert box["deletedOn"].startswith(today)
         assert box["history"][0]["changes"] == "deleted record"
+    assert response["invalidBoxLabelIdentifiers"] == []
 
     # Test case 8.2.22b, 8.2.22d, 8.2.22h
-    label_identifiers = ",".join(
-        f'"{i}"'
-        for i in [
+    raw_label_identifiers = sorted(
+        [
             another_box["label_identifier"],  # in base that user isn't authorized for
             created_box["labelIdentifier"],  # already deleted box
-            99119911,  # non-existing box
+            "99119911",  # non-existing box
         ]
     )
+    label_identifiers = ",".join(f'"{i}"' for i in raw_label_identifiers)
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    location {{ id }}
-                    lastModifiedOn
-                    history {{ changes }}
-                }} }} }} }}"""
-    moved_boxes = assert_successful_request(client, mutation)["elements"]
-    assert moved_boxes == []
+                ...on BoxResult {{
+                    updatedBoxes {{ id }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     # Test case 8.2.23b, 8.2.23d, 8.2.23j
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    tagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert tagged_boxes == []
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     # Test case 8.2.24b, 8.2.24d, 8.2.24j
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxPage {{ elements {{
-                    tags {{ id }}
-                }} }} }} }}"""
-    tagged_boxes = assert_successful_request(client, mutation)["elements"]
-    assert tagged_boxes == []
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     # Test cases 8.2.26, 8.2.27, 8.2.28
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
-            ...on BoxPage {{ elements {{
-                deletedOn
-                history {{ changes }}
-            }} }} }} }}"""
-    deleted_boxes = assert_successful_request(client, mutation)["elements"]
-    assert deleted_boxes == []
+            ...on BoxResult {{
+                updatedBoxes {{ id }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
