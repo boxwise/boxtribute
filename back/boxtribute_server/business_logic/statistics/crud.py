@@ -412,7 +412,7 @@ def compute_stock_overview(base_id):
                 & (TagsRelation.object_type == TaggableObjectType.Box)
             ),
         )
-        .where(Box.deleted_on.is_null())
+        .where((~Box.deleted_on) | (Box.deleted_on.is_null()))
         .group_by(Box.id)
     )
     facts = (
