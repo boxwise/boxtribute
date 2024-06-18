@@ -725,7 +725,7 @@ export type Mutation = {
   editStandardProductInstantiation?: Maybe<EditStandardProductInstantiationResult>;
   enableStandardProduct?: Maybe<EnableStandardProductResult>;
   markShipmentAsLost?: Maybe<Shipment>;
-  /**  Any boxes that are non-existing, already inside the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   moveBoxesToLocation?: Maybe<MoveBoxesResult>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;

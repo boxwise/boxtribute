@@ -129,9 +129,11 @@ def resolve_move_boxes_to_location(*_, update_input):
         .join(Location)
         .where(
             Box.label_identifier << label_identifiers,
-            authorized_bases_filter(Location, permission="stock:write"),
             # Any boxes already in the new location are silently ignored
             Box.location != location_id,
+            # Any boxes in a base other than the one of the requested location are
+            # ignored. No need for authz filter because already applied above
+            Location.base == location.base_id,
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)

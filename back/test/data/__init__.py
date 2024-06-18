@@ -44,6 +44,7 @@ from .location import (
     distribution_spot,
     non_default_box_state_location,
     null_box_state_location,
+    yet_another_location,
 )
 from .log import default_log
 from .organisation import another_organisation, default_organisation, organisations
@@ -187,6 +188,7 @@ __all__ = [
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
+    "yet_another_location",
 ]
 
 MODULE_DIRECTORY = pathlib.Path(__file__).resolve().parent

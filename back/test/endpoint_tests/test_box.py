@@ -124,9 +124,11 @@ def test_box_mutations(
     another_size,
     products,
     default_location,
+    yet_another_location,
     null_box_state_location,
     deleted_location,
     tags,
+    mocker,
 ):
     # Test case 8.2.1
     size_id = str(default_size["id"])
@@ -515,6 +517,24 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
     }
 
+    # Test case 8.2.22j
+    mock_user_for_request(mocker, base_ids=[1, 3])
+    another_location_id = str(yet_another_location["id"])  # in base 3
+    mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
+            labelIdentifiers: [{label_identifiers}],
+            locationId: {another_location_id} }} ) {{
+                ...on BoxResult {{
+                    updatedBoxes {{ id location {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [
+            {"id": str(another_box["id"]), "location": {"id": another_location_id}}
+        ],
+        "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"], "99119911"],
+    }
+
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(
@@ -526,7 +546,7 @@ def test_box_mutations(
             DbChangeHistory.user,
             DbChangeHistory.ip,
         )
-        .order_by(DbChangeHistory.change_date)
+        .order_by(DbChangeHistory.id)
         .dicts()
     )
     box_id = int(updated_box["id"])
@@ -635,6 +655,15 @@ def test_box_mutations(
             "from_int": None,
             "to_int": None,
             "record_id": box_id + 1,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
+            "changes": "location_id",
+            "from_int": 2,
+            "to_int": int(another_location_id),
+            "record_id": another_box["id"],
             "table_name": "stock",
             "user": 8,
             "ip": None,

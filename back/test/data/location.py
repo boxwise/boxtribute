@@ -80,9 +80,21 @@ def deleted_location_data():
     return data
 
 
+def yet_another_location_data():
+    data = default_location_data()
+    data["id"] = 8
+    data["base"] = base_data()[2]["id"]
+    return data
+
+
 @pytest.fixture
 def another_location():
     return another_location_data()
+
+
+@pytest.fixture
+def yet_another_location():
+    return yet_another_location_data()
 
 
 @pytest.fixture
@@ -134,5 +146,6 @@ def create():
             distribution_spot_data(),
             another_distribution_spot_data(),
             deleted_location_data(),
+            yet_another_location_data(),
         ]
     ).execute()
