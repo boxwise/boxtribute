@@ -408,11 +408,35 @@ Launch the production server by
 
 In production mode, inspection of the GraphQL server is disabled, i.e. it's not possible to use auto-completion the GraphQL explorer.
 
-If running the server with environment variables of a deployed environment (staging/demo/production) is desired, populate the corresponding .env file (e.g. `env.staging`). Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-staging tenant run
+If running the server locally with environment variables of a deployed environment (staging/demo/production) is desired, populate the corresponding .env file (e.g. `.env.staging`). Auth0 public key information can be stored locally to avoid the overhead when the server fetches it every time it receives a request and decodes the JWT. For the boxtribute-staging tenant run
 
     echo "AUTH0_PUBLIC_KEY=$(curl https://staging-login.boxtribute.org/pem | openssl x509 -pubkey -noout | tr -d '\n')" >> .env
 
 For other environments, replace the URL with the resp. Auth0 domain.
+
+<details>
+  <summary>Apply this patch to enable connecting the webapp service to the GCloud SQL proxy. </summary>
+```diff
+diff --git a/docker-compose.yml b/docker-compose.yml
+index c3180709..518d7689 100755
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -4,12 +4,7 @@ services:
+       context: ./back
+       args:
+         env: ${ENVIRONMENT:-development}
+-    ports:
+-      - 5005:5005
+-      # request localhost:5001 to run debugger in vscode (cf. README)
+-      - 5001:5001
+-    networks:
+-      - backend
++    network_mode: host
+     volumes:
+       - ./back:/app/back
+     environment:
+```
+</details>
 
 Eventually run
 
