@@ -2,7 +2,7 @@ from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
 from ...enums import BoxState as BoxStateEnum
-from ..fields import UIntForeignKeyField
+from ..fields import UIntForeignKeyField, ZeroDateTimeField
 from .box_state import BoxState
 from .distribution_event import DistributionEvent
 from .location import Location
@@ -44,7 +44,7 @@ class Box(db.Model):  # type: ignore
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted_on = DateTimeField(column_name="deleted", null=True, default=None)
+    deleted_on = ZeroDateTimeField(column_name="deleted", null=True, default=None)
     distribution_event = UIntForeignKeyField(
         column_name="distro_event_id",
         field="id",
