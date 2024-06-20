@@ -23,9 +23,9 @@ class InvalidDistributionEventState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(
             "distribution_event",
+            *args,
             expected_states=expected_states,
             actual_state=actual_state,
-            *args,
             **kwargs,
         )
 
