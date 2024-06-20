@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from ariadne import MutationType
 from flask import g
 from peewee import JOIN
+from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
 from ....enums import TaggableObjectType, TagType
@@ -201,9 +202,24 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
         return ResourceDoesNotExist(name="Tag", id=tag_id)
     authorize(permission="tag_relation:assign", base_id=tag.base_id)
     if tag.deleted_on is not None:
-        return DeletedTag(name=tag.name)
+        # When a tag is deleted, it is also unassigned from any resource, hence in
+        # theory unassigning a deleted tag should not happen. However we have to deal
+        # with legacy data (there are 1.3k boxes assigned to deleted tags) and want to
+        # be notified about it.
+        emit_sentry_message(
+            "User unassigned deleted tag from boxes",
+            level="warning",
+            extras={"tag_id": tag_id},
+        )
     if tag.type == TagType.Beneficiary:
-        return TagTypeMismatch(expected_type=TagType.Box)
+        # When a tag type changes, it is also unassigned from any resource, hence in
+        # theory boxes assigned with a Beneficiary tag should not occur. However we have
+        # to deal with legacy data and want to be notified about it.
+        emit_sentry_message(
+            "User unassigned Beneficiary-type tag from boxes",
+            level="warning",
+            extras={"tag_id": tag_id},
+        )
 
     label_identifiers = set(update_input["label_identifiers"])
     boxes = (

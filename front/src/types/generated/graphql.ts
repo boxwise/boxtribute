@@ -2010,7 +2010,7 @@ export enum TransferAgreementType {
   SendingTo = 'SendingTo'
 }
 
-export type UnassignTagFromBoxesResult = BoxResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+export type UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';

@@ -423,9 +423,15 @@ def test_box_mutations(
     # Test case 8.2.24h
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
-                ...on TagTypeMismatchError {{ expectedType }} }} }}"""
+                ...on BoxResult {{
+                    updatedBoxes {{ id }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response == {"expectedType": TagType.Box.name}
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     # Test case 8.2.23i
     deleted_tag_id = str(tags[4]["id"])
@@ -439,9 +445,15 @@ def test_box_mutations(
     # Test case 8.2.24i
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {deleted_tag_id} }} ) {{
-                ...on DeletedTagError {{ name }} }} }}"""
+                ...on BoxResult {{
+                    updatedBoxes {{ id }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response == {"name": tag_name}
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
 
     # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
