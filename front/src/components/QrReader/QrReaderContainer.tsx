@@ -1,4 +1,4 @@
-import { useCallback, useState, useContext } from "react";
+import { useCallback, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -11,6 +11,7 @@ import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/us
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
+import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -28,6 +29,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
+  const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
       setTimeout(() => {
@@ -36,6 +38,28 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     },
     [setIsProcessingQrCode],
   );
+
+  // TODO: copy, tests, prettier, PR
+  const checkCameraPermission = () => {
+    navigator.mediaDevices
+    .getUserMedia({
+      audio: false,
+      video: true,
+    })
+    .catch((error) => {
+      if (error.name === "NotAllowedError") {
+        console.error(
+          "User needs to grant this page permission to access the camera.",
+        );
+        setIsCameraNotPermited(true);
+      } else {
+        console.error(`getUserMedia error: ${error.name}`, error);
+        triggerError({
+          message: "No camera is available on your device.",
+        });
+      }
+    });
+  }
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
@@ -126,15 +150,26 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     [checkLabelIdentifier, navigate, triggerError, onSuccess],
   );
 
+  useEffect(() => {
+    checkCameraPermission();
+  },[])
+
   return (
-    <QrReader
+    <>
+      {isCameraNotPermited && <>
+        <AlertWithoutAction alertText="Camera permission was not allowed. Please unblock your camera in the address bar, reload the page, and then grant permission to your camera." />
+        <br />
+      </>}
+      <QrReader
       isMultiBox={isMultiBox}
       onTabSwitch={(index) => setIsMultiBox(index === 1)}
       onScan={onScan}
       onFindBoxByLabel={onFindBoxByLabel}
       findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
       onSuccess={onSuccess}
-    />
+      />
+    </>
+
   );
 }
 
