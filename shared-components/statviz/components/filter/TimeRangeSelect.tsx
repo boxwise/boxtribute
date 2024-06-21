@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateField } from "../../..";
 import { date2String } from "../../../utils/helpers";
+import { trackFilter } from "../../../utils/heapTracking";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z
@@ -49,25 +50,29 @@ export default function TimeRangeSelect() {
     if (!searchParams.get("to")) {
       searchParams.append("to", date2String(new Date()));
     }
-    const from = new Date(searchParams.get("from")!);
-    const to = new Date(searchParams.get("to")!);
+    const from = searchParams.get("from")!;
+    const to = searchParams.get("to")!;
 
     if (toFormValue === undefined) {
-      setValue("to", date2String(to));
+      setValue("to", to);
     }
 
     if (fromFormValue === undefined) {
-      setValue("from", date2String(from));
+      setValue("from", from);
     }
 
-    if (toFormValue && new Date(toFormValue) !== to) {
+    if (toFormValue && date2String(new Date(toFormValue)) !== to) {
+      const newToDate = date2String(new Date(toFormValue));
       searchParams.delete("to");
-      searchParams.append("to", date2String(new Date(toFormValue)));
+      searchParams.append("to", newToDate);
+      trackFilter({ filterId: "timerange", newToDate, from });
     }
 
-    if (fromFormValue && new Date(fromFormValue) !== from) {
+    if (fromFormValue && date2String(new Date(fromFormValue)) !== from) {
+      const newFromDate = date2String(new Date(fromFormValue));
       searchParams.delete("from");
-      searchParams.append("from", date2String(new Date(fromFormValue)));
+      searchParams.append("from", newFromDate);
+      trackFilter({ filterId: "timerange", from: newFromDate, to });
     }
 
     if (searchParams.toString() !== currentQuery) {

@@ -25,6 +25,8 @@ import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import useValueFilter from "../../../hooks/useValueFilter";
 import ValueFilter from "../../filter/ValueFilter";
 
+const visId = "StockOverviewPie";
+
 interface ISizeDim {
   sizeId: number;
   sizeName: Maybe<string> | undefined;
@@ -251,6 +253,7 @@ export default function StockOverviewPie({
       </Modal>
       <VisHeader
         onExport={onExport}
+        visTrackingId={visId}
         defaultHeight={800}
         defaultWidth={800}
         heading={heading}

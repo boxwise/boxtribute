@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IFilterValue } from "../components/filter/ValueFilter";
+import { trackFilter } from "../../utils/heapTracking";
 
 export default function useValueFilter<T>(
   values: (IFilterValue & T)[],
@@ -25,6 +26,7 @@ export default function useValueFilter<T>(
     searchParams.append(filterId, selected.urlId);
 
     setSearchParams(searchParams);
+    trackFilter({ filterId, value: selected.label });
   };
 
   return { onFilterChange, filterValue };
