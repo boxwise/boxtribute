@@ -211,7 +211,7 @@ Here, is a list of intro tutorials for each technologies / frameworks / language
 #### Back-end
 
 - [Ariadne](https://ariadnegraphql.org/docs/flask-integration.html)
-- [Python 3.12](https://devguide.python.org/)
+- [Python 3.10](https://devguide.python.org/)
 - [Flask](https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/)
 - [PeeWee](http://docs.peewee-orm.com/en/latest/peewee/quickstart.html)
 - [MySQL Community Edition](https://www.mysql.com/products/community/)

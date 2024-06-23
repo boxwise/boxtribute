@@ -1,10 +1,7 @@
 ARG env
 
-# using alpine for smallest docker image from https://hub.docker.com/_/python
-FROM python:3.12.2-alpine3.19 AS base
-
-# Install dependencies for package compilation on macOS
-RUN apk add --no-cache build-base libffi-dev
+# using alpine for smallest docker image
+FROM python:3.10.4-alpine3.15 AS base
 
 WORKDIR /app
 # install packages separately to use docker build-caching so we don't need to
@@ -16,7 +13,7 @@ RUN pip install -r requirements.txt -r requirements-dev.txt && rm requirements*.
 # Simulate editable install for boxtribute-server package. This is required to resolve imports
 # (editable installing is not possible during Docker build since the code directory is only
 # mounted at container runtime)
-RUN echo "/app/back" > /usr/local/lib/python3.12/site-packages/boxtribute-server.egg-link
+RUN echo "/app/back" > /usr/local/lib/python3.10/site-packages/boxtribute-server.egg-link
 ENV PYTHONPATH=/app/back
 
 # Build two stages for the conditions production/development
