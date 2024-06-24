@@ -173,13 +173,14 @@ def resolve_assign_tag_to_boxes(*_, update_input):
             on=(
                 (TagsRelation.object_id == Box.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.tag == tag.id)
             ),
         )
         .where(
             Box.label_identifier << label_identifiers,
             authorized_bases_filter(Location, permission="stock:write"),
-            # Any boxes that already have the new tag assigned are silently ignored
-            (TagsRelation.tag != tag.id) | (TagsRelation.tag.is_null()),
+            # Any boxes that already have the new tag assigned are ignored
+            TagsRelation.tag.is_null(),
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)

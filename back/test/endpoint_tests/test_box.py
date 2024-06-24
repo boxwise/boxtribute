@@ -379,6 +379,29 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": [],
     }
 
+    another_generic_tag_id = str(tags[5]["id"])
+    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}],
+            tagId: {another_generic_tag_id} }} ) {{
+                ...on BoxResult {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": generic_tag_id},
+                    {"id": another_generic_tag_id},
+                ]
+            }
+            for _ in range(2)
+        ],
+        "invalidBoxLabelIdentifiers": [],
+    }
+
     # Test case 8.2.24a
     label_identifier = f'"{created_box["labelIdentifier"]}"'
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
@@ -389,7 +412,7 @@ def test_box_mutations(
                 }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": tag_id}]}],
+        "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
         "invalidBoxLabelIdentifiers": [],
     }
 
@@ -397,7 +420,9 @@ def test_box_mutations(
     query = f"""query {{ box(labelIdentifier: "{another_created_box_label_identifier}")
                     {{ tags {{ id }} }} }}"""
     response = assert_successful_request(client, query)
-    assert response == {"tags": [{"id": tag_id}, {"id": generic_tag_id}]}
+    assert response == {
+        "tags": [{"id": tag_id}, {"id": generic_tag_id}, {"id": another_generic_tag_id}]
+    }
 
     # Test case 8.2.24c
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
@@ -408,7 +433,7 @@ def test_box_mutations(
                 }} }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": tag_id}]}],
+        "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
         "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"]],
     }
 

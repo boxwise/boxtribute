@@ -79,10 +79,16 @@ def test_tags_query(
                 },
             ],
         },
+        {
+            "id": str(tags[5]["id"]),
+            "name": tags[5]["name"],
+            "type": tags[5]["type"].name,
+            "taggedResources": [],
+        },
     ]
 
 
-def test_tags_mutations(client, tags, another_beneficiary, lost_box):
+def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lost_box):
     # Test case 4.2.9
     deleted_tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {deleted_tag_id}) {{
@@ -99,7 +105,7 @@ def test_tags_mutations(client, tags, another_beneficiary, lost_box):
     query = """query { tags { id } }"""
     all_tags = assert_successful_request(client, query)
     # Expect the deleted tag to not appear in the list of active tags of base
-    assert all_tags == [{"id": str(t["id"])} for t in tags[1:3]]
+    assert all_tags == [{"id": str(t["id"])} for t in base1_active_tags[1:]]
 
     # Test case 4.2.1
     name = "Box Group 1"
@@ -379,9 +385,9 @@ def test_assign_tag_with_invalid_resource_type(
 @pytest.mark.parametrize(
     "filter_input,tag_ids",
     [
-        ["", ["1", "2", "3"]],
-        ["(resourceType: Box)", ["2", "3"]],
-        ["(resourceType: Beneficiary)", ["1", "3"]],
+        ["", ["1", "2", "3", "6"]],
+        ["(resourceType: Box)", ["2", "3", "6"]],
+        ["(resourceType: Beneficiary)", ["1", "3", "6"]],
     ],
 )
 def test_base_tags_query(read_only_client, filter_input, tag_ids):
