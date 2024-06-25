@@ -14,6 +14,8 @@ export type Scalars = {
   Datetime: any;
 };
 
+export type AssignTagToBoxesResult = BoxResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+
 /**
  * Representation of a base.
  * The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
@@ -196,6 +198,7 @@ export type Box = ItemsCollection & {
   comment?: Maybe<Scalars['String']>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
+  deletedOn?: Maybe<Scalars['Datetime']>;
   distributionEvent?: Maybe<DistributionEvent>;
   history?: Maybe<Array<HistoryEntry>>;
   id: Scalars['ID'];
@@ -214,6 +217,11 @@ export type Box = ItemsCollection & {
   tags?: Maybe<Array<Tag>>;
 };
 
+export type BoxAssignTagInput = {
+  labelIdentifiers: Array<Scalars['String']>;
+  tagId: Scalars['Int'];
+};
+
 /** GraphQL input types for mutations **only**. */
 export type BoxCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
@@ -225,12 +233,24 @@ export type BoxCreationInput = {
   tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
+export type BoxMoveInput = {
+  labelIdentifiers: Array<Scalars['String']>;
+  locationId: Scalars['Int'];
+};
+
 /** Utility type holding a page of [`Boxes`]({{Types.Box}}). */
 export type BoxPage = {
   __typename?: 'BoxPage';
   elements: Array<Box>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int'];
+};
+
+/** Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing). */
+export type BoxResult = {
+  __typename?: 'BoxResult';
+  invalidBoxLabelIdentifiers: Array<Scalars['String']>;
+  updatedBoxes: Array<Box>;
 };
 
 /** Classificators for [`Box`]({{Types.Box}}) state. */
@@ -349,7 +369,19 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
+export type DeleteBoxesResult = BoxResult | InsufficientPermissionError;
+
 export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+
+export type DeletedLocationError = {
+  __typename?: 'DeletedLocationError';
+  name: Scalars['String'];
+};
+
+export type DeletedTagError = {
+  __typename?: 'DeletedTagError';
+  name: Scalars['String'];
+};
 
 export type DimensionInfo = BasicDimensionInfo & {
   __typename?: 'DimensionInfo';
@@ -618,6 +650,8 @@ export type MetricsNumberOfSalesArgs = {
   before?: InputMaybe<Scalars['Date']>;
 };
 
+export type MoveBoxesResult = BoxResult | DeletedLocationError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
@@ -666,6 +700,8 @@ export type Mutation = {
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignBoxToDistributionEvent?: Maybe<Box>;
   assignTag?: Maybe<TaggableResource>;
+  /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  assignTagToBoxes?: Maybe<AssignTagToBoxesResult>;
   cancelShipment?: Maybe<Shipment>;
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
@@ -680,6 +716,8 @@ export type Mutation = {
   createTag?: Maybe<Tag>;
   createTransferAgreement?: Maybe<TransferAgreement>;
   deactivateBeneficiary?: Maybe<Beneficiary>;
+  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  deleteBoxes?: Maybe<DeleteBoxesResult>;
   deleteProduct?: Maybe<DeleteProductResult>;
   deleteTag?: Maybe<Tag>;
   disableStandardProduct?: Maybe<DisableStandardProductResult>;
@@ -687,6 +725,8 @@ export type Mutation = {
   editStandardProductInstantiation?: Maybe<EditStandardProductInstantiationResult>;
   enableStandardProduct?: Maybe<EnableStandardProductResult>;
   markShipmentAsLost?: Maybe<Shipment>;
+  /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  moveBoxesToLocation?: Maybe<MoveBoxesResult>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
   moveNotDeliveredBoxesInStock?: Maybe<Shipment>;
@@ -700,6 +740,8 @@ export type Mutation = {
   startReceivingShipment?: Maybe<Shipment>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
+  /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  unassignTagFromBoxes?: Maybe<UnassignTagFromBoxesResult>;
   updateBeneficiary?: Maybe<Beneficiary>;
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
@@ -748,6 +790,16 @@ export type MutationAssignBoxToDistributionEventArgs = {
  */
 export type MutationAssignTagArgs = {
   assignmentInput?: InputMaybe<TagOperationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationAssignTagToBoxesArgs = {
+  updateInput?: InputMaybe<BoxAssignTagInput>;
 };
 
 
@@ -897,6 +949,16 @@ export type MutationDeactivateBeneficiaryArgs = {
  * - input argument: creationInput/updateInput
  * - input type: <Resource>CreationInput/UpdateInput
  */
+export type MutationDeleteBoxesArgs = {
+  labelIdentifiers: Array<Scalars['String']>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
 export type MutationDeleteProductArgs = {
   id: Scalars['ID'];
 };
@@ -959,6 +1021,16 @@ export type MutationEnableStandardProductArgs = {
  */
 export type MutationMarkShipmentAsLostArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationMoveBoxesToLocationArgs = {
+  updateInput?: InputMaybe<BoxMoveInput>;
 };
 
 
@@ -1102,6 +1174,16 @@ export type MutationUnassignBoxFromDistributionEventArgs = {
  */
 export type MutationUnassignTagArgs = {
   unassignmentInput?: InputMaybe<TagOperationInput>;
+};
+
+
+/**
+ * Naming convention:
+ * - input argument: creationInput/updateInput
+ * - input type: <Resource>CreationInput/UpdateInput
+ */
+export type MutationUnassignTagFromBoxesArgs = {
+  updateInput?: InputMaybe<BoxAssignTagInput>;
 };
 
 
@@ -1790,6 +1872,11 @@ export enum TagType {
   Box = 'Box'
 }
 
+export type TagTypeMismatchError = {
+  __typename?: 'TagTypeMismatchError';
+  expectedType: TagType;
+};
+
 export type TagUpdateInput = {
   color?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
@@ -1922,6 +2009,8 @@ export enum TransferAgreementType {
   ReceivingFrom = 'ReceivingFrom',
   SendingTo = 'SendingTo'
 }
+
+export type UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';

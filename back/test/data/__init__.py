@@ -40,9 +40,11 @@ from .location import (
     base1_classic_locations,
     base1_undeleted_classic_locations,
     default_location,
+    deleted_location,
     distribution_spot,
     non_default_box_state_location,
     null_box_state_location,
+    yet_another_location,
 )
 from .log import default_log
 from .organisation import another_organisation, default_organisation, organisations
@@ -152,6 +154,7 @@ __all__ = [
     "default_transfer_agreement",
     "default_user",
     "default_users",
+    "deleted_location",
     "distribution_spot",
     "distro_spot5_distribution_events",
     "distro_spot5_distribution_events_before_return_state",
@@ -185,6 +188,7 @@ __all__ = [
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
+    "yet_another_location",
 ]
 
 MODULE_DIRECTORY = pathlib.Path(__file__).resolve().parent

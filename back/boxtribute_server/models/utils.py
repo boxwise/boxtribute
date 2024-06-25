@@ -13,6 +13,9 @@ from .definitions.history import DbChangeHistory
 from .definitions.product_category import ProductCategory
 from .definitions.size_range import SizeRange
 
+# Batch size for bulk insert/update operations
+BATCH_SIZE = 100
+
 
 def utcnow():
     """Return current datetime in UTC, in second precision (the MySQL database is
@@ -135,7 +138,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 change_date=now,
             )
             with db.database.atomic():
-                DbChangeHistory.bulk_create(entries)
+                DbChangeHistory.bulk_create(entries, batch_size=BATCH_SIZE)
                 if entries:
                     result.last_modified_on = now
                     result.last_modified_by = kwargs["user_id"]

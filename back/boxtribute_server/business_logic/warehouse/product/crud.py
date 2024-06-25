@@ -116,7 +116,7 @@ def _boxes_still_assigned_to_product(product):
         box.label_identifier
         for box in Box.select(Box.label_identifier).where(
             Box.product == product.id,
-            (Box.deleted.is_null()) | (Box.deleted == 0),
+            (Box.deleted_on.is_null()) | (Box.deleted_on == 0),
         )
     ]
 
