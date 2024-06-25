@@ -324,6 +324,12 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
 }
 ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2]
 ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
+    "deleteBoxes",
+    "moveBoxesToLocation",
+    "assignTagToBoxes",
+    "unassignTagFromBoxes",
+)
+ALL_ALLOWED_MUTATIONS[5] = ALL_ALLOWED_MUTATIONS[4] + (
     "createCustomProduct",
     "editCustomProduct",
     "deleteProduct",
@@ -331,7 +337,7 @@ ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
-ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[2] + (
+ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[5] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
     "createDistributionEvent",
