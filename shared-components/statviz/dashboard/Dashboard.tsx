@@ -23,7 +23,7 @@ export default function Dashboard() {
         pos="sticky"
         top="0"
         background="white"
-        zIndex={5}
+        zIndex={2}
       >
         <WrapItem w="350">
           <Center>
