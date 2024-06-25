@@ -303,7 +303,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (50,155,'Manage menu functions','cms_functions',24,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
   (67,42,'Manage products','products',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_products'),
   (87,35,'Checkout','check_out',7,NULL,NULL,NULL,NULL,0,0,1,0,0,'checkout_beneficiaries'),
-  (90,99,'Manage boxes','stock',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
+  (90,99,'Classic Manage boxes','stock',3,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (92,35,'Give tokens <span>to</span> all','give2all',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tokens'),
   (96,128,'Sales reports','sales_list',16,NULL,NULL,NULL,NULL,0,0,1,0,0,'list_sales'),
   (99,NULL,'Inventory','',1,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
@@ -340,9 +340,13 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (156,42,'User groups','cms_usergroups',21,NULL,NULL,NULL,NULL,0,0,1,0,1,'be_god'),
   (157,155,'Bases','camps',22,NULL,NULL,NULL,NULL,0,1,1,0,1,'manage_base,be_god'),
   (158,161,'Add beneficiary','people_add',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_beneficiaries'),
-  (160,99,'Stock Overview (<span>beta</span>)','stock_overview',3,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
+  (160,99,'Stock Overview','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
   (161,NULL,'Beneficiaries','',2,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
-  (162,42,'Manage tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags');
+  (162,42,'Manage tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
+  (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
+  (164,163,'Manage Shipments','shipments',0,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_shipments'),
+  (165,163,'Manage Agreements','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
+  (166,99,'Manage Boxes v2 (<span>beta</span>)','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory');
 /*!40000 ALTER TABLE `cms_functions` ENABLE KEYS */;
 UNLOCK TABLES;
 
