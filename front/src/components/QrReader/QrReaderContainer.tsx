@@ -49,11 +49,13 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     })
     .catch((error) => {
       if (error.name === "NotAllowedError") {
+        // eslint-disable-next-line no-console
         console.error(
           "User needs to grant this page permission to access the camera.",
         );
         setIsCameraNotPermited(true);
       } else {
+        // eslint-disable-next-line no-console
         console.error(`getUserMedia error: ${error.name}`, error);
         triggerError({
           message: "No camera is available on your device.",
