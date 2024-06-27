@@ -39,8 +39,9 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     [setIsProcessingQrCode],
   );
 
-  // TODO: copy, tests, prettier, PR
+  // TODO: copy, prettier
   const checkCameraPermission = () => {
+    // TODO: mock this for tests
     navigator.mediaDevices
     .getUserMedia({
       audio: false,
@@ -152,7 +153,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   useEffect(() => {
     checkCameraPermission();
-  },[])
+  })
 
   return (
     <>
