@@ -30,6 +30,7 @@ const mockedUseNotification = vi.mocked(useNotification);
 mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
 mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 
+// This is needed to mock the `navigator.mediaDevices.getUserMedia` function used to ask users for camera permissions in order to scan QR codes.
 const mockGetUserMedia = vi.fn(async () => {
   return new Promise<void>(resolve => {
     resolve()
