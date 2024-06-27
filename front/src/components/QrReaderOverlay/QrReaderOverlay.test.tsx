@@ -19,18 +19,6 @@ vi.mock("components/QrReader/components/QrReaderScanner");
 const mockedUseAuth0 = vi.mocked(useAuth0);
 const mockedQrReader = vi.mocked(QrReaderScanner);
 
-const mockGetUserMedia = vi.fn(async () => {
-  return new Promise<void>(resolve => {
-      resolve()
-  })
-})
-
-Object.defineProperty(navigator, 'mediaDevices', {
-  value: {
-      getUserMedia: mockGetUserMedia,
-  },
-})
-
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
 });

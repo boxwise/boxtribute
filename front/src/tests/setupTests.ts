@@ -30,6 +30,18 @@ const mockedUseNotification = vi.mocked(useNotification);
 mockedUseErrorHandling.mockReturnValue({ triggerError: mockedTriggerError });
 mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 
+const mockGetUserMedia = vi.fn(async () => {
+  return new Promise<void>(resolve => {
+    resolve()
+  })
+})
+
+Object.defineProperty(navigator, 'mediaDevices', {
+  value: {
+    getUserMedia: mockGetUserMedia,
+  },
+})
+
 beforeEach(() => {
   // Reset the cache before each test
   cache.restore(emptyCache);
