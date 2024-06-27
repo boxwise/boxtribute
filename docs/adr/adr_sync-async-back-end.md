@@ -82,6 +82,16 @@ From the [ariadne GitHub forum](https://github.com/mirumee/ariadne/discussions/1
 
 </details>
 
+<details>
+  <summary>From hackernews:</summary>
+
+1. [Discussion of Python asyncio](https://news.ycombinator.com/item?id=33547323), as introduced in [this blog post](https://superfastpython.com/python-asyncio/)
+    - emphasis on using Python async for I/O bound tasks only
+    - [gevent mentioned as alternative](https://news.ycombinator.com/item?id=33553316), also [here](https://news.ycombinator.com/item?id=33551049)
+    - [trap of miss-defining sync/async endpoints with FastAPI](https://github.com/tiangolo/fastapi/issues/260#issuecomment-495945630)
+
+</details>
+
 ## Consequences
 
 What becomes easier or more difficult to do because of this change?
@@ -102,6 +112,7 @@ What becomes easier or more difficult to do because of this change?
 - (+) subscriptions are supported
 - (+) calls to external APIs are non-blocking
 - (o) little team experience with development of async Python
+- (o) uncertainty about the hosting of the BE service because ASGI might not be supported in Google App Engine
 - (-) risk and expense of replacing web-framework (Flask) and ORM (peewee) with async counterparts
 
 ### Details: Move to fully async BE
@@ -112,13 +123,23 @@ The most straightforward way seems to [replace Flask by its async counterpart Qu
 - add await to testing client (simple since it's centrally defined)
 - switch CORS package: instead of flask-cors, [quart-cors](https://github.com/pgjones/quart-cors) (maintained but only ~20 stars on GitHub; flask-cors has 850 stars)
 - switch ORM integration: we use peewee's builtin `FlaskDB` utility to tie Flask and the ORM together. I couldn't find a similar utility for Quart and peewee-async. Implementing it ourselves is not too tedious I suppose (borrowing from [quart-db](https://github.com/pgjones/quart-db)) but I'd prefer to use a community-proven package
+- **!!!** integrate it into the cloud: as an ASGI framework, [Quart cannot work with Google App Engine](https://stackoverflow.com/a/59277154/3865876) though some [claim it's possible](https://medium.com/analytics-vidhya/deploying-fastapi-application-in-google-app-engine-in-standard-environment-dc061d3277a) and `uvicorn` (most popular Python ASGI server implementation) documentation shows [how to setup an ASGI app with gunicorn](https://www.uvicorn.org/#running-with-gunicorn)
 
 ## Further reading
 
+### Important
+
+* https://www.aeracode.org/2018/02/19/python-async-simplified/
+* https://bbc.github.io/cloudfit-public-docs/asyncio/asyncio-part-5.html
+* [Tutorial and analysis of using Flask and gevent](https://iximiuz.com/en/posts/flask-gevent-tutorial/)
+* https://docs.litestar.dev/latest/topics/sync-vs-async.html
+
+### Good to know
+
+* [huge asyncio tutorial](https://superfastpython.com/python-asyncio/)
 * [peewee author's criticizing asyncio](https://charlesleifer.com/blog/asyncio/)
 * [blog post about what effect using sync/async has on codebases](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/)
 * [blog post about relationship of async Python code and databases](https://techspot.zzzeek.org/2015/02/15/asynchronous-python-and-databases/)
-* [Tutorial and analysis of using Flask and gevent](https://iximiuz.com/en/posts/flask-gevent-tutorial/)
 * [blog post with real-world asyncio Python example](https://www.roguelynn.com/words/asyncio-we-did-it-wrong/)
 * [older article about calling sync code from async code](https://bbc.github.io/cloudfit-public-docs/asyncio/asyncio-part-5.html)
 * [reddit thread about using async in Flask](https://www.reddit.com/r/flask/comments/xvw1vi/misunderstandings_about_how_async_works_with/)
