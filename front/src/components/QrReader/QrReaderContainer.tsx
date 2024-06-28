@@ -18,6 +18,8 @@ interface IQrReaderContainerProps {
   onSuccess: () => void;
 }
 
+const CAMERA_NOT_PERMITED_TEXT = "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
+
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id;
@@ -160,7 +162,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   return (
     <>
       {isCameraNotPermited && <>
-        <AlertWithoutAction alertText="Camera permission was not allowed. Please unblock your camera in the address bar, reload the page, and then grant permission to your camera." />
+        <AlertWithoutAction alertText={CAMERA_NOT_PERMITED_TEXT} />
         <br />
       </>}
       <QrReader
