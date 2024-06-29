@@ -52,8 +52,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         setIsCameraNotPermited(true);
       } else {
         triggerError({
-          userMessage: "No camera is available on your device.",
-          message: `getUserMedia error: ${error.name}`
+          message: "No camera is available on your device.",
         });
       }
     });
