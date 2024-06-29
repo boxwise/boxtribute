@@ -268,7 +268,11 @@ jobs:
           name: Generate GAE app.yaml file
           command: |
             sed 's/service: v2-staging/service: << parameters.serviceName >>/g' app.yaml > app-<< parameters.serviceName >>.yaml
-            if [ << parameters.serviceName >> == v2-production ]; then echo -e "\ninstance_class: F2" >> app-<< parameters.serviceName >>.yaml; fi;
+            if [ << parameters.serviceName >> == v2-production ]; then
+                echo -e "\ninstance_class: F2" >> app-<< parameters.serviceName >>.yaml
+                # https://cloud.google.com/appengine/docs/standard/python3/runtime#entrypoint_best_practices
+                echo -e "\nworkers = 4" >> gunicorn.conf.py
+            fi;
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
