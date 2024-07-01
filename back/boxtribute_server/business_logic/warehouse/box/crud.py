@@ -54,7 +54,7 @@ def create_box(
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
 
-    for i in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
+    for _ in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
             new_box = Box()
             new_box.comment = comment

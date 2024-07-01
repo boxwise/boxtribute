@@ -93,9 +93,9 @@ class InvalidTransferAgreementState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(
             "transfer agreement",
+            *args,
             expected_states=expected_states,
             actual_state=actual_state,
-            *args,
             **kwargs,
         )
 
@@ -138,9 +138,9 @@ class InvalidShipmentState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(
             "shipment",
+            *args,
             expected_states=expected_states,
             actual_state=actual_state,
-            *args,
             **kwargs,
         )
 

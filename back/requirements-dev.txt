@@ -11,3 +11,4 @@ types-Flask-Cors==4.0.0.20240523
 types-peewee==3.17.5.20240626
 types-setuptools==70.1.0.20240627
 types-PyMySQL==1.1.0.20240524
+flake8-bugbear==24.4.26

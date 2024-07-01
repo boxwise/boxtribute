@@ -1016,9 +1016,9 @@ def test_access_in_transit_or_not_delivered_box(
 
     # user is in unrelated base (ID 2) and NOT permitted to view the box
     mock_user_for_request(mocker, base_ids=[2], organisation_id=2, user_id=3)
-    for box_id, query in queries.items():
+    for query in queries.values():
         assert_forbidden_request(read_only_client, query)
-    for box_id, query in qr_queries.items():
+    for query in qr_queries.values():
         assert_forbidden_request(read_only_client, query, value={"box": None})
 
 
