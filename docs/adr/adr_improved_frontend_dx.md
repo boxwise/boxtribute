@@ -8,7 +8,9 @@ Author: [Felipe](https://github.com/fhenrich33)
 Proposed, Implementing
 
 ## Context
-Frontend development experience in its current form is quite lacking. Imposes a lot of artificial difficulties, tooling doesn't work as expected, and adds friction to our FE contributors.
+Frontend development experience in its current form is quite lacking. It imposes a lot of artificial difficulties, tooling doesn't work as expected and adds friction to our FE contributors.
+
+Local installation of packages and tooling might not play well with the codebase. Things like TS, ESlint, and Prettier might not work at all without a lot of fiddling. 
 
 We want to make FE development better.
 
@@ -16,8 +18,9 @@ We want to make FE development better.
 
 1. We must make FE onboarding and development seamless.
 2. Implementation must play well with the current FE setup (React/Vite).
-3. Implementation must work well with our CI/CD pipeline.
-4. We must NOT interfere with BE tooling and development.
+3. To add to the prior point: it must be maintainable with minimal hassle in the long term.
+4. Implementation must work well with our CI/CD pipeline.
+5. We must NOT interfere with BE tooling and development.
 
 ## Considered options
 
@@ -29,7 +32,7 @@ Current tooling like `Vite`, `TypeScript`, `ESLint`, and `Prettier` remains the 
 
 Monorepo management:
 
-1. **[Turborepo](https://turbo.build/repo/docs):** Does a lot of lifting for us automatically, is content aware so it only works on relevant files, caches results of deterministic tasks locally ([and remotely](https://turbo.build/repo/docs/core-concepts/remote-caching), if we have a need for it in the future), and works seamlessly with current and suggested tooling.
+1. **[Turborepo](https://turbo.build/repo/docs):** Does a lot of lifting for us automatically (type checking, formatting, testing, building, and more), is content aware so it only works on relevant files, caches results of deterministic tasks locally ([and remotely](https://turbo.build/repo/docs/core-concepts/remote-caching), if we have a need for it in the future), and works seamlessly with current and suggested tooling.
 2. **[pnpm workspaces](https://pnpm.io/workspaces):** A safer option, at the cost of doing what `Turborepo` does in a more laborious and manual way.
 
 ## Decision
