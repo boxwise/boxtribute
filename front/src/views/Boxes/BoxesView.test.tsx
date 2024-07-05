@@ -493,9 +493,9 @@ describe("4.8.1 - Initial load of Page", () => {
         },
       );
       // Test case 4.8.1.2
-      expect(
+      await waitFor(async () => expect(
         await screen.findByText(/could not fetch boxes data! Please try reloading the page./i),
-      ).toBeInTheDocument();
+      ).toBeInTheDocument());
     });
   });
 
