@@ -10,10 +10,16 @@ from ....exceptions import (
     QrCodeAlreadyAssignedToBox,
 )
 from ....models.definitions.box import Box
+from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.tags_relation import TagsRelation
-from ....models.utils import save_creation_to_history, save_update_to_history, utcnow
+from ....models.utils import (
+    BATCH_SIZE,
+    save_creation_to_history,
+    save_update_to_history,
+    utcnow,
+)
 from ...tag.crud import assign_tag, unassign_tag
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
@@ -193,3 +199,150 @@ def update_box(
             )
 
     return box
+
+
+def delete_boxes(*, user_id, boxes):
+    """Soft-delete given boxes by setting the `deleted_on` field. Log every box deletion
+    in the history table.
+    Return the list of soft-deleted boxes.
+    """
+    if not boxes:
+        # bulk_create() fails with an empty list, hence return immediately. Happens if
+        # all boxes requested for deletion are prohibited for the user, non-existing,
+        # and/or already deleted.
+        return []
+
+    now = utcnow()
+    history_entries = [
+        DbChangeHistory(
+            changes="Record deleted",
+            table_name=Box._meta.table_name,
+            record_id=box.id,
+            user=user_id,
+            change_date=now,
+        )
+        for box in boxes
+    ]
+
+    box_ids = [box.id for box in boxes]
+    with db.database.atomic():
+        Box.update(deleted_on=now).where(Box.id << box_ids).execute()
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+
+    # Re-fetch updated box data because returning "boxes" would contain outdated objects
+    # with the unset deleted_on field
+    return list(Box.select().where(Box.id << box_ids))
+
+
+def move_boxes_to_location(*, user_id, boxes, location):
+    """Update location and last_modified_* fields of the given boxes. If the new
+    location has a default box state assigned, change given boxes' state. Log every
+    location (and state) change in the history table.
+    Return the list of updated boxes.
+    """
+    if not boxes:
+        return []
+
+    now = utcnow()
+    updated_fields = dict(
+        location=location.id, last_modified_on=now, last_modified_by=user_id
+    )
+    history_entries = [
+        DbChangeHistory(
+            changes=Box.location.column_name,
+            table_name=Box._meta.table_name,
+            record_id=box.id,
+            user=user_id,
+            change_date=now,
+            from_int=box.location_id,
+            to_int=location.id,
+        )
+        for box in boxes
+        if box.location_id != location.id
+    ]
+
+    if location.box_state_id is not None:
+        updated_fields["state"] = location.box_state_id
+        history_entries.extend(
+            [
+                DbChangeHistory(
+                    changes=Box.state.column_name,
+                    table_name=Box._meta.table_name,
+                    record_id=box.id,
+                    user=user_id,
+                    change_date=now,
+                    from_int=box.state_id,
+                    to_int=location.box_state_id,
+                )
+                for box in boxes
+                if box.state_id != location.box_state_id
+            ]
+        )
+
+    box_ids = [box.id for box in boxes]
+    with db.database.atomic():
+        # Using Box.update(...).where(...) is better than Box.bulk_update() because the
+        # latter results in the less performant SQL
+        #   UPDATE stock SET location_id = CASE stock.id
+        #       WHEN 1 THEN 1
+        #       WHEN 2 THEN 1
+        #       ... END
+        #   WHERE stock.id in (1, 2, ...);
+        # cf. https://docs.peewee-orm.com/en/latest/peewee/querying.html#alternatives
+        Box.update(**updated_fields).where(Box.id << box_ids).execute()
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+
+    # Re-fetch updated box data because returning "boxes" would contain outdated objects
+    # with the old location
+    return list(Box.select().where(Box.id << box_ids))
+
+
+def assign_tag_to_boxes(*, user_id, boxes, tag):
+    """Add TagsRelation entries for given boxes and tag. Update last_modified_* fields
+    of the affected boxes.
+    Return the list of updated boxes.
+    """
+    if not boxes:
+        return []
+
+    tags_relations = [
+        TagsRelation(
+            object_id=box.id,
+            object_type=TaggableObjectType.Box,
+            tag=tag.id,
+        )
+        for box in boxes
+    ]
+
+    box_ids = [box.id for box in boxes]
+    with db.database.atomic():
+        Box.update(last_modified_on=utcnow(), last_modified_by=user_id).where(
+            Box.id << box_ids
+        ).execute()
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
+
+    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
+    return boxes
+
+
+def unassign_tag_from_boxes(*, user_id, boxes, tag):
+    """Remove TagsRelation rows containing the given tag. Update last_modified_* fields
+    of the affected boxes.
+    Return the list of updated boxes.
+    """
+    if not boxes:
+        return []
+
+    box_ids = [box.id for box in boxes]
+    with db.database.atomic():
+        Box.update(last_modified_on=utcnow(), last_modified_by=user_id).where(
+            Box.id << box_ids
+        ).execute()
+        TagsRelation.delete().where(
+            TagsRelation.tag == tag.id,
+            TagsRelation.object_id << box_ids,
+            TagsRelation.object_type == TaggableObjectType.Box,
+        ).execute()
+
+    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
+    return boxes

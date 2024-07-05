@@ -77,7 +77,11 @@ class UIntForeignKeyField(ForeignKeyField):
 
 
 class ZeroDateTimeField(DateTimeField):
-    """Custom class to convert MySQL zero DATETIME field value into None."""
+    """Custom class to convert MySQL zero DATETIME field value into None.
+    If this is not used, peewee will return the zero datetime as string, and the
+    conversion in `graph_ql.scalars` will fail with the message 'GraphQLError:
+    str.replace() takes no keyword arguments'.
+    """
 
     def adapt(self, value):
         if value == "0000-00-00 00:00:00":

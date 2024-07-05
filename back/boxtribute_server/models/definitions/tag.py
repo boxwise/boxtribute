@@ -2,7 +2,7 @@ from peewee import CharField, DateTimeField, IntegerField, TextField
 
 from ...db import db
 from ...enums import TagType
-from ..fields import EnumCharField, UIntForeignKeyField
+from ..fields import EnumCharField, UIntForeignKeyField, ZeroDateTimeField
 from .base import Base
 from .user import User
 
@@ -19,7 +19,7 @@ class Tag(db.Model):  # type: ignore
     created_by = UIntForeignKeyField(
         column_name="created_by", field="id", model=User, null=True
     )
-    deleted_on = DateTimeField(column_name="deleted", null=True)
+    deleted_on = ZeroDateTimeField(column_name="deleted", null=True)
     description = TextField()
     name = CharField(column_name="label")
     last_modified_on = DateTimeField(column_name="modified", null=True)

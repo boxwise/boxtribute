@@ -40,6 +40,7 @@ type Box implements ItemsCollection {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  deletedOn: Datetime
   comment: String
   tags: [Tag!]
   history: [HistoryEntry!]
@@ -208,6 +209,14 @@ type BoxPage {
   elements: [Box!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+"""
+Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing).
+"""
+type BoxResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
 }
 
 """
@@ -590,7 +599,20 @@ type StandardProductAlreadyEnabledForBaseError {
 type ProductTypeMismatchError {
   expectedType: ProductType!
 }
+type TagTypeMismatchError {
+  expectedType: TagType!
+}
+type DeletedLocationError {
+  name: String!
+}
+type DeletedTagError {
+  name: String!
+}
 
+union MoveBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
+union AssignTagToBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
+union UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteBoxesResult = BoxResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError

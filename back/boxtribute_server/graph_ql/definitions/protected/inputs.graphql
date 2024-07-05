@@ -25,6 +25,16 @@ input BoxUpdateInput {
   tagIdsToBeAdded: [Int!]
 }
 
+input BoxMoveInput {
+  labelIdentifiers: [String!]!
+  locationId: Int!
+}
+
+input BoxAssignTagInput {
+  labelIdentifiers: [String!]!
+  tagId: Int!
+}
+
 input CustomProductCreationInput {
   name: String!
   categoryId: Int!

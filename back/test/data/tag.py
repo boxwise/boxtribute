@@ -52,6 +52,15 @@ def data():
             "type": TagType.Beneficiary,
             "deleted_on": "2022-01-01",
         },
+        {
+            "id": 6,
+            "base": base_data()[0]["id"],
+            "color": "#123456",
+            "description": "for all",
+            "name": "tag-for-all",
+            "type": TagType.All,
+            "deleted_on": None,
+        },
     ]
 
 
@@ -62,7 +71,7 @@ def tags():
 
 @pytest.fixture
 def base1_active_tags():
-    return data()[:3]
+    return data()[:3] + [data()[5]]
 
 
 def create():

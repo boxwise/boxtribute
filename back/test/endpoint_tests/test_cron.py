@@ -98,6 +98,12 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
         == (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE
     )
 
+    # Simulate staging environment
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+    response = cron_client.get(reseed_db_path, headers=headers)
+    assert response.status_code == 200
+    assert response.json == {"message": "reseed-db job executed"}
+
     # Server error because patched file contains invalid SQL
     with patch("builtins.open", mock_open(read_data="invalid sql;")):
         response = cron_client.get(reseed_db_path, headers=headers)

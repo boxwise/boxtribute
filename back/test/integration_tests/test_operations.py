@@ -20,9 +20,9 @@ def test_queries(auth0_client, endpoint):
     queried_box = _assert_successful_request(auth0_client, query)["box"]
     assert queried_box == {"id": "100000000"}
 
-    query = """query { box(labelIdentifier: "328765") { state size { id } } }"""
+    query = 'query { box(labelIdentifier: "328765") { deletedOn state size { id } } }'
     queried_box = _assert_successful_request(auth0_client, query)
-    assert queried_box == {"state": "Donated", "size": {"id": "68"}}
+    assert queried_box == {"state": "Donated", "size": {"id": "68"}, "deletedOn": None}
 
     query = """query { beneficiary(id: 100000001) { dateOfBirth } }"""
     queried_beneficiary = _assert_successful_request(auth0_client, query)
