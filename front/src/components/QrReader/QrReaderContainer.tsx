@@ -19,6 +19,7 @@ interface IQrReaderContainerProps {
 }
 
 const CAMERA_NOT_PERMITED_TEXT = "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
+const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS = "Camera access was denied. Please unblock camera access by tapping the AA icon > Website Settings > set Camera permission to \"Allow\".";
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
@@ -40,6 +41,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     },
     [setIsProcessingQrCode],
   );
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   const checkCameraPermission = () => {
     navigator.mediaDevices
@@ -155,7 +158,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   return (
     <>
       {isCameraNotPermited && <>
-        <AlertWithoutAction alertText={CAMERA_NOT_PERMITED_TEXT} />
+        <AlertWithoutAction alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT} />
         <br />
       </>}
       <QrReader

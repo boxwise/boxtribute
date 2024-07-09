@@ -44,6 +44,15 @@ Object.defineProperty(navigator, 'mediaDevices', {
   },
 })
 
+// TODO: Function for test what text is displayed deppending on userAgent?
+// Mock the `navigator.userAgent` property to check for iOS browsers.
+Object.defineProperty(navigator, "userAgent", {
+  get: function () {
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
+  },
+  // configurable: true
+});
+
 beforeEach(() => {
   // Reset the cache before each test
   cache.restore(emptyCache);
