@@ -374,6 +374,6 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /assign all/i })).toBeInTheDocument();
   // Alert appears because box was assigned to shipment and thus not inStock.
-  expect(screen.queryByRole("alert")).toBeInTheDocument();
+  expect(screen.getByRole("alert")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /assign all/i })).toBeDisabled();
 });

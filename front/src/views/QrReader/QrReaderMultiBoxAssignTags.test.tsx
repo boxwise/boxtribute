@@ -253,5 +253,5 @@ it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", as
   await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
   expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /assign all/i })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /assign all/i })).toBeInTheDocument();
 }, 10000);
