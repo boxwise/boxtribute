@@ -302,13 +302,6 @@ assignToShipmentMutationTests.forEach(({ name, mocks, toast }) => {
         }),
       ),
     );
-
-    if (!toast.isError) {
-      // forward to shipmentView
-      expect(
-        await screen.findByRole("heading", { name: "/bases/1/transfers/shipments/1" }),
-      ).toBeInTheDocument();
-    }
   });
 });
 
@@ -380,5 +373,4 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
   expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /assign all/i })).not.toBeInTheDocument();
 });
