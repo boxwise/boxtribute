@@ -372,5 +372,8 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   // click link to remove all not failed boxes
   await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
   expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /assign all/i })).toBeInTheDocument();
+  // Alert appears because box was assigned to shipment and thus not inStock.
+  expect(screen.queryByRole("alert")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /assign all/i })).toBeDisabled();
 });
