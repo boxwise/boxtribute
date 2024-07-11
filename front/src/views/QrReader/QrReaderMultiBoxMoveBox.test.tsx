@@ -240,8 +240,8 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
   expect(submitButton).not.toBeDisabled();
   await user.click(submitButton);
 
-  // selected boxes reduced by one
-  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
+  // selected boxes remains the same
+  expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
   // toast shown
   await waitFor(() =>
@@ -258,7 +258,7 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
 
   // click link to remove all not failed boxes
   await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
-  expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
+  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /move all/i })).not.toBeInTheDocument();
 });
