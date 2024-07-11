@@ -129,7 +129,6 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
     },
     [
       assignBoxesToShipment,
-      currentBaseId,
       onSuccess,
       scannedBoxesQueryResult.data?.scannedBoxes,
     ],
