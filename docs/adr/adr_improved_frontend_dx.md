@@ -34,7 +34,7 @@ Current tooling like `Vite`, `TypeScript`, `ESLint`, and `Prettier` remains the 
 Monorepo management:
 
 1. **[Turborepo](https://turbo.build/repo/docs):** Does a lot of lifting for us automatically (type checking, formatting, testing, building, and more), is content aware as it only works on relevant files, caches results of deterministic tasks locally ([and remotely](https://turbo.build/repo/docs/core-concepts/remote-caching), if we require it in the future), and works seamlessly with current and suggested tooling. This wasn't only adopted by major frameworks, libraries, and vendors, but it was also made by the second major React stakeholder: Vercel/NextJS.
-2. **[pnpm workspaces](https://pnpm.io/workspaces):** A safer option, at the cost of doing what `Turborepo` does more laboriously and manually. Not a demerit, it's quite doable. It's just that we might be leaving guaranteed wins on the table.
+2. **[pnpm workspaces](https://pnpm.io/workspaces):** A safer option, at the cost of doing what `Turborepo` does more laboriously and manually. This is not a demerit (as this is used along with the previous option), it's quite doable. It's just that we might be leaving guaranteed wins on the table.
 
 ## Decision
 The considered options should be an improvement over the current FE setup, both in my own experience and what can be observed in our industry at the time of this writing. Most of these are expected to be installed locally or are already commonplace to FE developers. These also shouldn't interfere with the BE developer experience in any way.
@@ -50,7 +50,7 @@ https://turbo.build/repo/docs/guides/ci-vendors/circleci
 https://pnpm.io/continuous-integration
 
 ## Consequences
-There's an initial ramp-up time to change to the suggested implementation. The largest time sink is adapting to our Docker setup. However, these tools, strategies, and changes are rather safe options, as not only prominent libraries and frameworks already use them, but my anecdotal experience with these was very positive. It also paves the way for leveraging next-generation bundlers (e.g. Turbopack, Rspcack, Rolldown, Farm, Mako, et al) once they mature, as these are designed to play rather well with commonly used JS tooling. Thus leaving a path for upgradeability in the mid-term.
+There's an initial ramp-up time to change to the suggested implementation. The largest time sink is adapting to our Docker setup. However, these tools, strategies, and changes are rather safe options, as not only prominent libraries and frameworks already use them, but my anecdotal experience with these was very positive. It also paves the way for leveraging next-generation bundlers (e.g. Turbopack, Rspcack, Rolldown, Farm, Mako, et al) once they mature, as these are designed to play rather well with commonly used JS tooling. Thus leaving a path for upgradeability in the mid to long term.
 
 For newcomers, and developers who came from old standards: they only need to run the commands, then get acclimated if they desire to push for changes.
 
@@ -58,7 +58,7 @@ For newcomers, and developers who came from old standards: they only need to run
 
 Video used as one of the foundations for the implementation suggestion: https://www.youtube.com/watch?v=hRyU0bN7qhw
 
-Repos used as reference and inspiration for the mentioned tools and architecture:
+Repos, docs used as reference and inspiration for the mentioned tools and architecture:
 
 https://turbo.build/repo/docs
 
