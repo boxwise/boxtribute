@@ -26,7 +26,7 @@ export interface ISankeyChart {
   heading?: string | false;
   timestamp?: string | false;
   timerange?: string | false;
-  rendered?: () => void;
+  rendered?: (ref: HTMLDivElement) => void;
 }
 
 export default function SankeyChart(chart: ISankeyChart) {
@@ -36,7 +36,7 @@ export default function SankeyChart(chart: ISankeyChart) {
     if (ref.current === null) return;
     if (!chart.rendered) return;
 
-    chart.rendered();
+    chart.rendered(ref.current);
 
     /**
      * TODO: Exhaustive Deps disabled as we use useEffect as a watcher for "ref" only
