@@ -105,7 +105,12 @@ function App() {
             <Route
               index
               element={
-                <Protected component={<Dashboard />} redirectPath={prevLocation} minBeta={3} />
+                <Protected
+                  component={<Dashboard />}
+                  redirectPath={prevLocation}
+                  minBeta={3}
+                  requiredAbp={[["view_inventory", "view_shipments", "view_beneficiary_graph"]]}
+                />
               }
             />
           </Route>
