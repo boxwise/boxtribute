@@ -18,7 +18,7 @@ function HeaderMenuContainer() {
     return [
       {
         text: "Statistics",
-        requiredAbp: [],
+        requiredAbp: [["view_inventory", "view_shipments", "view_beneficiary_graph"]],
         minBeta: 3,
         links: [
           {
