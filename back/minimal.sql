@@ -347,7 +347,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (164,163,'Manage Shipments','shipments',0,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_shipments'),
   (165,163,'Manage Agreements','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
   (166,99,'Manage Boxes v2 (<span>beta</span>)','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
-  (167,128,'Statistics v2 (<span>beta</span>)','statviz_dashboard',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_beneficiary_graph');
+  (167,128,'Dashboard v2 (<span>beta</span>)','statviz_dashboard',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_beneficiary_graph');
 /*!40000 ALTER TABLE `cms_functions` ENABLE KEYS */;
 UNLOCK TABLES;
 
