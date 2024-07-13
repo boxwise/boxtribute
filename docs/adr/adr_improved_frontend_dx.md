@@ -3,6 +3,8 @@ Decision Deadline: Next week (2024-07-15)
 
 Author: [Felipe](https://github.com/fhenrich33)
 
+Reviewed by: [Roanna](https://github.com/aerinsol), [Jia Lin](https://github.com/jlin95), [Philipp](https://github.com/pylipp)
+
 ## Status
 
 Proposed, Implementing
