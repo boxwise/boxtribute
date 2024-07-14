@@ -241,6 +241,13 @@ function CreateShipmentView() {
     </Alert>
   );
 
+  const networkErrorAlert = (
+    <Alert status="error">
+      <AlertIcon />
+      Network error
+    </Alert>
+  );
+
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
@@ -249,8 +256,12 @@ function CreateShipmentView() {
     return renderNoAcceptedAgreementsAlert;
   }
 
-  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) {
+  if (noPartnerOrgBaseData) {
     return renderErrorAlert;
+  }
+
+  if (allAcceptedTransferAgreements.error) {
+    return networkErrorAlert;
   }
 
   return (
