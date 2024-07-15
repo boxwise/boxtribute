@@ -203,7 +203,10 @@ jobs:
           command: |
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
             # overwrite environment variable because it must not depend on the CircleCI context
-            ENVIRONMENT=development MYSQL_PORT=3306 pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml
+            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml
+          environment:
+            ENVIRONMENT: development
+            MYSQL_PORT: 3306
       - store_test_results:
           path: test-results/junit.xml
       - store_artifacts:
