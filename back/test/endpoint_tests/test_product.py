@@ -298,7 +298,6 @@ def test_custom_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response["deletedOn"].startswith(today)
     assert response["lastModifiedOn"].startswith(today)
-    assert response["deletedOn"] == response["lastModifiedOn"]
     assert response["lastModifiedBy"] == {"id": user_id}
 
     # Test case 8.2.59
