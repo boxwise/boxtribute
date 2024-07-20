@@ -1,4 +1,4 @@
-import { EditIcon, AddIcon, MinusIcon } from "@chakra-ui/icons";
+import { EditIcon } from "@chakra-ui/icons";
 import {
   Box,
   Text,
@@ -23,6 +23,7 @@ import {
   SkeletonText,
   Icon,
 } from "@chakra-ui/react";
+import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
 import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import {
@@ -140,7 +141,7 @@ function BoxCard({
 
       <Divider />
       <Stack py={2} px={4}>
-        <Flex>
+        <Flex align="center">
           <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
             {numberOfItems}x {product?.name}
           </Heading>
@@ -150,6 +151,7 @@ function BoxCard({
             <Box alignContent="flex-end" marginLeft={2}>
               <Tooltip hasArrow shouldWrapChildren mt="3" label="add items" aria-label="A tooltip">
                 <IconButton
+                  variant="ghost"
                   onClick={onPlusOpen}
                   isDisabled={
                     BoxState.Lost === boxData?.state ||
@@ -158,12 +160,11 @@ function BoxCard({
                     boxInTransit ||
                     isLoading
                   }
-                  size="sm"
-                  border="2px"
+                  size="lg"
                   isRound
                   borderRadius="0"
                   aria-label="Search database"
-                  icon={<AddIcon />}
+                  icon={<FiPlusCircle />}
                   data-testid="increase-items"
                 />
               </Tooltip>
@@ -178,8 +179,8 @@ function BoxCard({
               >
                 <IconButton
                   onClick={onMinusOpen}
-                  border="2px"
-                  size="sm"
+                  variant="ghost"
+                  size="lg"
                   isDisabled={
                     BoxState.Lost === boxData?.state ||
                     BoxState.Scrap === boxData?.state ||
@@ -190,7 +191,7 @@ function BoxCard({
                   borderRadius="0"
                   isRound
                   aria-label="Search database"
-                  icon={<MinusIcon />}
+                  icon={<FiMinusCircle />}
                   data-testid="decrease-items"
                 />
               </Tooltip>
