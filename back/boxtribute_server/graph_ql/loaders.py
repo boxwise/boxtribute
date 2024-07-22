@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
 
@@ -39,6 +40,9 @@ class DataLoader(_DataLoader):
         return super().load(key)
 
 
+executor = ThreadPoolExecutor(max_workers=5)
+
+
 async def select(
     model, /, *conditions, fields=None, join_kwargs=None, group_field=None
 ):
@@ -54,7 +58,7 @@ async def select(
             query = query.group_by(group_field)
         return list(query.iterator())
 
-    return await asyncio.to_thread(utility_function)
+    return await asyncio.get_running_loop().run_in_executor(executor, utility_function)
 
 
 class SimpleDataLoader(DataLoader):
