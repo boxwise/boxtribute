@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 
 
-def _parse_cli():
+def _create_cli_parser():
     parser = argparse.ArgumentParser(description=globals()["__doc__"])
     parser.add_argument("-u", "--username")
     parser.add_argument("-p", "--password")
@@ -39,11 +39,23 @@ def _parse_cli():
     parser.add_argument(
         "-m", "--management-api", action="store_true", help="fetch management API token"
     )
-    return parser.parse_args()
+    return parser
 
 
 def main():
-    options = _parse_cli()
+    parser = _create_cli_parser()
+    options = parser.parse_args()
+
+    if (
+        options.username is None
+        and options.password is None
+        and options.dotenv_filepath is None
+        and not options.test
+        and not options.management_api
+    ):
+        # Exit with help message if no CLI arguments passed
+        parser.print_help()
+        raise SystemExit(0)
 
     if options.verbose:
         logger.setLevel(logging.DEBUG)
