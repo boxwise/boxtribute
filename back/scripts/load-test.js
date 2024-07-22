@@ -5,7 +5,7 @@
 // 2. Launch the Docker service:
 //    ENVIRONMENT=production docker compose up --build webapp
 // 3. Fetch a JWT for authorization
-//    ./fetch_token
+//    ./back/fetch_token
 // 4. Store the value of `access_token` as `TEST_AUTH0_JWT` in the .env file
 // 5. Run the script with effective loading of variables from the .env file
 //    dotenv run k6 run back/scripts/load-test.js

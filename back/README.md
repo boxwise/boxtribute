@@ -351,7 +351,7 @@ You can experiment with the API in the `GraphiQL` GraphQL explorer.
 1. Activate the virtual environment
 1. Start the required services by `docker compose up webapp`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
-1. Simulate being a valid, logged-in user by fetching an authorization token: `./fetch_token --test`
+1. Simulate being a valid, logged-in user by fetching an authorization token: `./back/fetch_token --test`
 1. Copy the displayed token
 1. Insert the access token in the following format in the section called 'Headers' on the bottom left of the explorer.
 
