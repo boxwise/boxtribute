@@ -16,10 +16,8 @@ def resolve_distribution_events_tracking_group_tracking_entries(tracking_group_o
         base_id=tracking_group_obj.base_id,
     )
     return DistributionEventTrackingLogEntry.select().where(
-        (
-            DistributionEventTrackingLogEntry.distro_event_tracking_group_id
-            == tracking_group_obj.id
-        )
+        DistributionEventTrackingLogEntry.distro_event_tracking_group_id
+        == tracking_group_obj.id
     )
 
 
@@ -32,5 +30,5 @@ def resolve_distribution_events_tracking_group_distribution_events(
         base_id=tracking_group_obj.base_id,
     )
     return DistributionEvent.select().where(
-        (DistributionEvent.distro_event_tracking_group_id == tracking_group_obj.id)
+        DistributionEvent.distro_event_tracking_group_id == tracking_group_obj.id
     )

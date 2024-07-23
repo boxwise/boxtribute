@@ -137,13 +137,13 @@ def _authorize(
     if authorized:
         return authorized
     else:
-        for value, resource in zip(
+        for value, _resource in zip(
             [base_id, base_ids, organisation_id, organisation_ids, user_id],
             ["base", "bases", "organisation", "organisations", "user"],
         ):
             if value is not None:
                 break
-        raise Forbidden(resource=resource, value=value)
+        raise Forbidden(resource=_resource, value=value)
 
 
 def authorized_bases_filter(

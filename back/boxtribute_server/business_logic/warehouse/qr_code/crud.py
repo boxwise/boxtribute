@@ -19,7 +19,9 @@ def create_qr_code(*, user_id, box_label_identifier=None):
     with db.database.atomic():
         now = utcnow()
         new_qr_code = QrCode.create(created_on=now)
-        new_qr_code.code = hashlib.md5(str(new_qr_code.id).encode()).hexdigest()
+        new_qr_code.code = hashlib.md5(
+            str(new_qr_code.id).encode(), usedforsecurity=False
+        ).hexdigest()
         new_qr_code.save()
 
         DbChangeHistory.create(
