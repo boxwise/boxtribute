@@ -1,4 +1,6 @@
+import asyncio
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
 
@@ -37,6 +39,28 @@ class DataLoader(_DataLoader):
         return super().load(key)
 
 
+executor = ThreadPoolExecutor(max_workers=5)
+
+
+async def select(
+    model, /, *conditions, fields=None, join_kwargs=None, group_field=None
+):
+    def utility_function(*conditions, fields, join_kwargs):
+        query = model.select()
+        if fields is not None:
+            query = model.select(*fields)
+        if join_kwargs is not None:
+            query = query.join(**join_kwargs)
+        if conditions:
+            query = query.where(*conditions)
+        if group_field is not None:
+            query = query.group_by(group_field)
+        return list(query.iterator())
+
+    f = partial(utility_function, *conditions, fields=fields, join_kwargs=join_kwargs)
+    return await asyncio.get_running_loop().run_in_executor(executor, f)
+
+
 class SimpleDataLoader(DataLoader):
     """Custom implementation that batch-loads all requested rows of the specified data
     model, optionally enforcing authorization for the resource.
@@ -54,7 +78,7 @@ class SimpleDataLoader(DataLoader):
             permission = f"{resource}:read"
             authorize(permission=permission)
 
-        rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
+        rows = {r.id: r for r in await select(self.model, self.model.id << ids)}
         return [rows.get(i) for i in ids]
 
 
@@ -112,9 +136,12 @@ class ShipmentLoader(DataLoader):
     async def batch_load_fn(self, keys):
         shipments = {
             s.id: s
-            for s in Shipment.select().orwhere(
-                authorized_bases_filter(Shipment, base_fk_field_name="source_base_id"),
-                authorized_bases_filter(Shipment, base_fk_field_name="target_base_id"),
+            for s in await select(
+                Shipment,
+                authorized_bases_filter(Shipment, base_fk_field_name="source_base_id")
+                | authorized_bases_filter(
+                    Shipment, base_fk_field_name="target_base_id"
+                ),
             )
         }
         return [shipments.get(i) for i in keys]
@@ -125,7 +152,8 @@ class ShipmentsForAgreementLoader(DataLoader):
         # Select all shipments with given agreement IDs that the user is authorized for,
         # and group them by agreement ID
         shipments = defaultdict(list)
-        for shipment in Shipment.select().where(
+        for shipment in await select(
+            Shipment,
             Shipment.transfer_agreement << agreement_ids,
             authorized_bases_filter(Shipment, base_fk_field_name="source_base")
             | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
@@ -139,15 +167,17 @@ class TagsForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         tags = defaultdict(list)
         # maybe need different join type
-        for relation in TagsRelation.select(
-            TagsRelation.object_type, TagsRelation.object_id, Tag
-        ).join(
-            Tag,
-            on=(
-                (TagsRelation.tag == Tag.id)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-                & (TagsRelation.object_id << keys)
-                & (authorized_bases_filter(Tag))
+        for relation in await select(
+            TagsRelation,
+            fields=(TagsRelation.object_type, TagsRelation.object_id, Tag),
+            join_kwargs=dict(
+                dest=Tag,
+                on=(
+                    (TagsRelation.tag == Tag.id)
+                    & (TagsRelation.object_type == TaggableObjectType.Box)
+                    & (TagsRelation.object_id << keys)
+                    & (authorized_bases_filter(Tag))
+                ),
             ),
         ):
             tags[relation.object_id].append(relation.tag)
@@ -358,10 +388,11 @@ class ShipmentDetailsForShipmentLoader(DataLoader):
         # Join with Shipment model, such that authorization in ShipmentDetail resolvers
         # (detail.shipment.source_base_id) don't create additional DB queries
         details = defaultdict(list)
-        for detail in (
-            ShipmentDetail.select(ShipmentDetail, Shipment)
-            .join(Shipment)
-            .where(ShipmentDetail.shipment << shipment_ids)
+        for detail in await select(
+            ShipmentDetail,
+            ShipmentDetail.shipment << shipment_ids,
+            fields=[ShipmentDetail, Shipment],
+            join_kwargs={"dest": Shipment},
         ):
             details[detail.shipment_id].append(detail)
         # Return empty list if shipment has no details attached
@@ -372,7 +403,8 @@ class ShipmentDetailForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         details = {
             detail.box_id: detail
-            for detail in ShipmentDetail.select().where(
+            for detail in await select(
+                ShipmentDetail,
                 ShipmentDetail.box << keys,
                 ShipmentDetail.removed_on.is_null(),
                 ShipmentDetail.lost_on.is_null(),
@@ -388,7 +420,7 @@ class SizesForSizeRangeLoader(DataLoader):
         authorize(permission="size:read")
         # Mapping of size range ID to list of sizes
         sizes = defaultdict(list)
-        for size in Size.select():
+        for size in await select(Size):
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
