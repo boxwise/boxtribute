@@ -352,6 +352,8 @@ def compute_moved_boxes(base_id):
         (
             base_id,
             min_history_id,
+            TargetType.BoxState.name,
+            TargetType.BoxState.name,
             TargetType.OutgoingLocation.name,
             TargetType.OutgoingLocation.name,
             TargetType.Shipment.name,
