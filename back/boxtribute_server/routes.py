@@ -131,7 +131,7 @@ def cron(job_name):
         )
         return jsonify({"message": "unauthorized"}), 401
 
-    permitted_databases = ["dropapp_dev", "dropapp_staging"]
+    permitted_databases = ["dropapp_dev", "dropapp_staging", "dropapp_demo"]
     if (db_name := os.environ["MYSQL_DB"]) not in permitted_databases:
         return jsonify({"message": f"Reset of '{db_name}' not permitted"}), 400
 
