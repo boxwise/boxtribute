@@ -4,7 +4,9 @@ from ..db import db
 from ..utils import in_demo_environment, in_staging_environment
 from .data_faking import Generator
 
-SEED_FILENAME = "init.sql" if in_staging_environment() else "minimal.sql"
+SEED_FILENAME = (
+    "init.sql" if (in_staging_environment() or in_demo_environment()) else "minimal.sql"
+)
 SEED_FILEPATH = Path(__file__).parent.resolve().parent.parent / SEED_FILENAME
 
 
