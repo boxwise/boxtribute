@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..db import db
-from ..utils import in_staging_environment
+from ..utils import in_demo_environment, in_staging_environment
 from .data_faking import Generator
 
 SEED_FILENAME = "init.sql" if in_staging_environment() else "minimal.sql"
@@ -18,7 +18,7 @@ def reseed_db():
     # Seed the staging DB with the large init.sql dump and skip running the fake-data
     # generation because the long runtime causes the connection to the GCloud MySQL
     # server to be interrupted
-    if in_staging_environment():
+    if in_staging_environment() or in_demo_environment():
         # The seed contains Auth0 role IDs of the dev tenant which need to be replaced
         update_auth0_role_ids()
         return

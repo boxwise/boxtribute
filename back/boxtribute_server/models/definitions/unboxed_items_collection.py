@@ -1,8 +1,8 @@
-from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ..fields import UIntForeignKeyField
+from .distribution_event import DistributionEvent
 from .location import Location
 from .product import Product
 from .size import Size

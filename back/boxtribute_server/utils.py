@@ -9,6 +9,10 @@ def in_staging_environment() -> bool:
     return os.getenv("ENVIRONMENT") == "staging"
 
 
+def in_demo_environment() -> bool:
+    return os.getenv("ENVIRONMENT") == "demo"
+
+
 def in_production_environment() -> bool:
     return os.getenv("ENVIRONMENT") == "production"
 
