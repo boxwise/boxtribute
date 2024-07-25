@@ -30,7 +30,11 @@ BoxHistory AS (
         h.id AS id
     FROM history h
     JOIN ValidBoxes s ON h.record_id = s.id
-    AND ((h.to_int IS NOT null AND h.id >= %s) OR h.changes = "Record created")
+    AND ((h.to_int IS NOT null AND h.id >= %s)
+         OR h.changes = "Record created"
+         OR h.changes = "Record deleted"
+         OR h.changes = "Box was undeleted."
+        )
     AND h.tablename = 'stock'
     ORDER BY record_id, changedate DESC, id DESC
 ),
@@ -157,6 +161,30 @@ BoxStateChangeVersions AS (
     FROM HistoryReconstruction h
     WHERE h.changes = 'box_state_id'
 ),
+DeletedBoxes AS (
+    SELECT
+        h.box_id,
+        h.box_state_id,
+        date(h.changedate) as moved_on,
+        h.items AS number_of_items,
+        h.location_id,
+        h.product_id AS product,
+        h.size_id
+    FROM HistoryReconstruction h
+    WHERE h.changes = 'Record deleted'
+),
+UndeletedBoxes AS (
+    SELECT
+        h.box_id,
+        h.box_state_id,
+        date(h.changedate) as moved_on,
+        h.items AS number_of_items,
+        h.location_id,
+        h.product_id AS product,
+        h.size_id
+    FROM HistoryReconstruction h
+    WHERE h.changes = 'Box was undeleted.'
+),
 CreatedDonatedBoxes AS (
     SELECT
         h.box_id,
@@ -171,6 +199,48 @@ CreatedDonatedBoxes AS (
 )
 
 -- MAIN QUERY
+
+-- Collect information about deleted/undeleted boxes. Stats are labeled as "Deleted",
+-- with deleted boxes/items containing positive, and undeleted ones counting negative.
+select
+    t.moved_on,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    p.gender_id AS gender,
+    t.size_id,
+    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    "Deleted" AS target_id,
+    NULL AS organisation_name,
+    %s AS target_type,
+    count(t.box_id) AS boxes_count,
+    sum(t.number_of_items) AS items_count
+FROM DeletedBoxes t
+JOIN products p ON p.id = t.product
+JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+
+UNION ALL
+
+select
+    t.moved_on,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    p.gender_id AS gender,
+    t.size_id,
+    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    "Deleted" AS target_id,
+    NULL AS organisation_name,
+    %s AS target_type,
+    -count(t.box_id) AS boxes_count,
+    -sum(t.number_of_items) AS items_count
+FROM UndeletedBoxes t
+JOIN products p ON p.id = t.product
+JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock"
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+
+UNION ALL
 
 -- Collect information about boxes created in donated state
 select

@@ -175,14 +175,12 @@ class HistoryForBoxLoader(DataLoader):
             History.select(
                 # This translates to 'GROUP_CONCAT(h.id ORDER BY h.id DESC)'
                 fn.GROUP_CONCAT(
-                    NodeList(((History.id, SQL("ORDER BY"), History.id.desc())))
+                    NodeList((History.id, SQL("ORDER BY"), History.id.desc()))
                 )
                 .python_value(convert_ids)
                 .alias("ids"),
                 fn.GROUP_CONCAT(
-                    NodeList(
-                        ((History.change_date, SQL("ORDER BY"), History.id.desc()))
-                    )
+                    NodeList((History.change_date, SQL("ORDER BY"), History.id.desc()))
                 )
                 .python_value(partial(convert_ids, converter=datetime.fromisoformat))
                 .alias("change_dates"),
