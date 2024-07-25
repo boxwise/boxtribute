@@ -1,7 +1,7 @@
-from boxtribute_server.enums import DistributionEventState
 from peewee import CharField, DateTimeField
 
 from ...db import db
+from ...enums import DistributionEventState
 from ..fields import EnumCharField, UIntForeignKeyField
 from .distribution_events_tracking_group import DistributionEventsTrackingGroup
 from .location import Location
