@@ -18,43 +18,43 @@ function HeaderMenuContainer() {
     return [
       {
         text: "Statistics",
-        requiredAbp: [["view_inventory", "view_shipments", "view_beneficiary_graph"]],
+        requiredAbps: [["view_inventory", "view_shipments", "view_beneficiary_graph"]],
         minBeta: 3,
         links: [
           {
             link: `/bases/${baseId}/statviz`,
             name: "Dashboard",
-            requiredAbp: [],
+            requiredAbps: [],
             beta: true,
           },
         ],
       },
       {
         text: "Inventory",
-        requiredAbp: ["create_label"],
+        requiredAbps: ["create_label"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=qr`,
             name: "Print Box Labels",
-            requiredAbp: ["create_label"],
+            requiredAbps: ["create_label"],
             external: true,
           },
           {
             link: `/bases/${baseId}/boxes`,
             name: "Manage Boxes v2",
             beta: true,
-            requiredAbp: ["manage_inventory"],
+            requiredAbps: ["manage_inventory"],
           },
           {
             link: `${oldAppUrlWithBase}&action=stock`,
             name: "Classic Manage Boxes",
-            requiredAbp: ["manage_inventory"],
+            requiredAbps: ["manage_inventory"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=stock_overview`,
             name: "Stock Overview",
-            requiredAbp: ["view_inventory"],
+            requiredAbps: ["view_inventory"],
             external: true,
           },
         ],
@@ -62,19 +62,19 @@ function HeaderMenuContainer() {
       {
         text: "Transfers",
         minBeta: 2,
-        requiredAbp: ["view_shipments"],
+        requiredAbps: ["view_shipments"],
         links: [
           {
             link: `/bases/${baseId}/transfers/shipments`,
             name: "Manage Shipments",
             beta: true,
-            requiredAbp: ["view_shipments"],
+            requiredAbps: ["view_shipments"],
           },
           {
             link: `/bases/${baseId}/transfers/agreements`,
             name: "Manage Agreements",
             beta: true,
-            requiredAbp: ["view_transfer_agreements"],
+            requiredAbps: ["view_transfer_agreements"],
           },
         ],
       },
@@ -84,11 +84,11 @@ function HeaderMenuContainer() {
   const authorizedMenuItems: IMenuItemsGroupData[] = useMemo(
     () =>
       menuItems.reduce((acc, menuItem) => {
-        if (authorize({ requiredAbp: menuItem.requiredAbp, minBeta: menuItem.minBeta })) {
+        if (authorize({ requiredAbps: menuItem.requiredAbps, minBeta: menuItem.minBeta })) {
           acc.push({
             ...menuItem,
             links: menuItem.links.filter((subMenu) =>
-              authorize({ requiredAbp: subMenu.requiredAbp, minBeta: subMenu.minBeta }),
+              authorize({ requiredAbps: subMenu.requiredAbps, minBeta: subMenu.minBeta }),
             ),
           });
         }
