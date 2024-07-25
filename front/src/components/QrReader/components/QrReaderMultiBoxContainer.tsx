@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import {
@@ -36,7 +35,6 @@ interface IQrReaderMultiBoxContainerProps {
 }
 
 function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProps) {
-  const navigate = useNavigate();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const currentBaseId = globalPreferences.selectedBase?.id;
   // selected radio button
@@ -82,10 +80,6 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
         parseInt(locationId, 10),
       );
-      // remove all moved Boxes from the cache
-      if (moveBoxesResult?.movedLabelIdentifiers?.length) {
-        removeBoxesFromScannedBoxesByLabelIdentifier(moveBoxesResult.movedLabelIdentifiers);
-      }
       // To show in the UI which boxes failed
       setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
       // only if all Boxes were moved
@@ -96,7 +90,6 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
     [
       moveBoxes,
       onSuccess,
-      removeBoxesFromScannedBoxesByLabelIdentifier,
       scannedBoxesQueryResult.data?.scannedBoxes,
     ],
   );
@@ -107,10 +100,6 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
         tagIds.map((tagId) => parseInt(tagId, 10)),
       );
-      // remove all moved Boxes from the cache
-      if (assignTagsResult?.successfulLabelIdentifiers?.length) {
-        removeBoxesFromScannedBoxesByLabelIdentifier(assignTagsResult.successfulLabelIdentifiers);
-      }
       // To show in the UI which boxes failed
       setFailedBoxesFromAssignTags(assignTagsResult?.failedLabelIdentifiers ?? []);
       // only if all Boxes were moved
@@ -121,7 +110,6 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
     [
       assignTags,
       onSuccess,
-      removeBoxesFromScannedBoxesByLabelIdentifier,
       scannedBoxesQueryResult.data?.scannedBoxes,
     ],
   );
@@ -132,26 +120,16 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         shipmentId,
         scannedBoxesQueryResult.data?.scannedBoxes ?? [],
       );
-      // remove all assigned Boxes from the cache
-      if (assignBoxesToShipmentResult?.assignedBoxes?.length) {
-        removeBoxesFromScannedBoxesByLabelIdentifier(
-          assignBoxesToShipmentResult.assignedBoxes.map((box) => box.labelIdentifier),
-        );
-      }
       // To show in the UI which boxes failed
       setFailedBoxesFromAssignToShipment(assignBoxesToShipmentResult?.failedBoxes ?? []);
       // only if all Boxes were assigned
       if (assignBoxesToShipmentResult.kind === IAssignBoxToShipmentResultKind.SUCCESS) {
         onSuccess();
-        navigate(`/bases/${currentBaseId}/transfers/shipments/${shipmentId}`);
       }
     },
     [
       assignBoxesToShipment,
-      currentBaseId,
-      navigate,
       onSuccess,
-      removeBoxesFromScannedBoxesByLabelIdentifier,
       scannedBoxesQueryResult.data?.scannedBoxes,
     ],
   );
