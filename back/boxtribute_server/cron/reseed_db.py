@@ -133,6 +133,10 @@ DEMO_AUTH0_ROLE_IDS = {
     "base_3_label_creation": "rol_5nsnxGTKOsq5Q36D",
     "base_3_library_volunteer": "rol_rgPftpf2GDGN0fFP",
     "base_3_warehouse_volunteer": "rol_dygeJmfDmrXdvlmG",
+    "base_4_coordinator": "rol_OlxAuwTSUViCg1o9",
+    "base_4_free_shop_volunteer": "rol_YeJEYELuMadIYiml",
+    "base_4_label_creation": "rol_Xvm4DS5Rxu60vHxm",
+    "base_4_warehouse_volunteer": "rol_rr6vS0gNxkbqPk0W",
     "boxtribute_god": "rol_M4N5piyqWIe5l9Td",
     "warehouse_volunteer": "rol_fyybK5RykMrK7bIE",
 }
