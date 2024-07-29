@@ -274,7 +274,7 @@ type Organisation {
   id: ID!
   name: String!
   " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
-  bases: [Base!]
+  bases(filterInput: FilterBaseInput): [Base!]
 }
 
 """
@@ -485,6 +485,10 @@ input FilterBoxInput {
 input FilterProductInput {
   includeDeleted: Boolean = false
   type: ProductTypeFilter = Custom
+}
+
+input FilterBaseInput {
+  includeDeleted: Boolean = true
 }
 
 """

@@ -515,6 +515,10 @@ export type EmptyNameError = {
 
 export type EnableStandardProductResult = InsufficientPermissionError | InvalidPriceError | Product | ResourceDoesNotExistError | StandardProductAlreadyEnabledForBaseError | UnauthorizedForBaseError;
 
+export type FilterBaseInput = {
+  includeDeleted?: InputMaybe<Scalars['Boolean']>;
+};
+
 /**
  * Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
  * If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
@@ -1266,6 +1270,12 @@ export type Organisation = {
   bases?: Maybe<Array<Base>>;
   id: Scalars['ID'];
   name: Scalars['String'];
+};
+
+
+/** Representation of an organisation. */
+export type OrganisationBasesArgs = {
+  filterInput?: InputMaybe<FilterBaseInput>;
 };
 
 /** TODO: Add description here once specs are final/confirmed */

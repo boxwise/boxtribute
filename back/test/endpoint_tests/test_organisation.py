@@ -7,7 +7,17 @@ def test_organisation_query(
     default_organisation,
     default_beneficiaries,
     another_organisation,
+    inactive_organisation,
 ):
+    organisation_id = str(inactive_organisation["id"])
+    query = f"""query {{
+                organisation(id: "{organisation_id}") {{
+                    bases(filterInput: {{ includeDeleted: false }}) {{ id }}
+                }}
+            }}"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == {"bases": []}
+
     # Test case 99.1.8
     # The user is a member of base 1 for default_organisation. They can read name and ID
     # of the organisation's bases but the beneficiary data of base 1 ONLY

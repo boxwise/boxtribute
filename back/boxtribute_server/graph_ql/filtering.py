@@ -1,4 +1,5 @@
 from ..enums import ProductTypeFilter, TaggableObjectType
+from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.product import Product
@@ -115,7 +116,7 @@ def derive_box_filter(filter_input, selection=None):
 
 def derive_product_filter(filter_input):
     """Derive filter condition for select-query from given filter parameters. If no
-    parameters given, return True (i.e. no filtering applied).
+    parameters given, return empty conditions (i.e. no filtering applied).
     """
     include_deleted = False
     type_filter = ProductTypeFilter.Custom
@@ -135,5 +136,24 @@ def derive_product_filter(filter_input):
         conditions.append(Product.standard_product.is_null())
     elif type_filter == ProductTypeFilter.StandardInstantiation:
         conditions.append(Product.standard_product.is_null(False))
+
+    return conditions
+
+
+def derive_base_filter(filter_input):
+    """Derive filter condition for select-query from given filter parameters. If no
+    parameters given, return empty conditions (i.e. no filtering applied).
+    """
+    include_deleted = True
+    if filter_input:
+        include_deleted = filter_input.get("include_deleted")
+
+    conditions = []
+
+    if include_deleted is not True:
+        conditions.append(
+            # work-around for 0000-00-00 00:00:00 datetime fields in database
+            (Base.deleted_on.is_null() | (Base.deleted_on == 0)),
+        )
 
     return conditions
