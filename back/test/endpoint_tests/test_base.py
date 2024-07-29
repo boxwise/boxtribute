@@ -11,6 +11,7 @@ def test_bases_query(
                     id
                     name
                     currencyName
+                    deletedOn
                     beneficiaries { elements { id } }
                 }
             }"""
@@ -22,6 +23,7 @@ def test_bases_query(
             "id": str(default_base["id"]),
             "name": default_base["name"],
             "currencyName": default_base["currency_name"],
+            "deletedOn": None,
             "beneficiaries": {},
         }
     ]
@@ -31,9 +33,14 @@ def test_bases_query(
     response = assert_successful_request(read_only_client, query)
     assert response == []
 
-    query = """query { bases(filterInput: {includeDeleted: true}) { id } }"""
+    query = """query { bases(filterInput: {includeDeleted: true}) { id deletedOn } }"""
     response = assert_successful_request(read_only_client, query)
-    assert response == [{"id": str(deleted_base["id"])}]
+    assert response == [
+        {
+            "id": str(deleted_base["id"]),
+            "deletedOn": deleted_base["deleted_on"].isoformat() + "+00:00",
+        }
+    ]
 
 
 def test_base_query(

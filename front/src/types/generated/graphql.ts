@@ -25,6 +25,7 @@ export type Base = {
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
   beneficiaries?: Maybe<BeneficiaryPage>;
   currencyName?: Maybe<Scalars['String']>;
+  deletedOn?: Maybe<Scalars['Datetime']>;
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
   distributionEventsInReturnedFromDistributionState: Array<DistributionEvent>;
