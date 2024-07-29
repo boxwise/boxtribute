@@ -47,7 +47,12 @@ from .location import (
     yet_another_location,
 )
 from .log import default_log
-from .organisation import another_organisation, default_organisation, organisations
+from .organisation import (
+    another_organisation,
+    default_organisation,
+    inactive_organisation,
+    organisations,
+)
 from .packing_list_entry import packing_list_entry
 from .product import (
     another_product,
@@ -162,6 +167,7 @@ __all__ = [
     "expired_transfer_agreement",
     "god_user",
     "in_transit_box",
+    "inactive_organisation",
     "lost_box",
     "marked_for_shipment_box",
     "newest_standard_product",

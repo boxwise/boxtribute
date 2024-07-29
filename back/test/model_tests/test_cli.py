@@ -483,7 +483,7 @@ def test_remove_base_access(usergroup_data):
     remove_base_access(base_id=base_id, service=service, force=True)
 
     base = Base.get_by_id(base_id)
-    assert base.deleted.date() == date.today()
+    assert base.deleted_on.date() == date.today()
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     assert User.select(User.id, User._usergroup, User.name, User.email).dicts() == [

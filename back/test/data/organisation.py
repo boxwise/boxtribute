@@ -12,6 +12,10 @@ def data():
             "id": 2,
             "name": "Helpers",
         },
+        {
+            "id": 3,
+            "name": "Inactives",
+        },
     ]
 
 
@@ -28,6 +32,11 @@ def default_organisation():
 @pytest.fixture
 def another_organisation():
     return data()[1]
+
+
+@pytest.fixture
+def inactive_organisation():
+    return data()[2]
 
 
 def create():
