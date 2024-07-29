@@ -62,6 +62,11 @@ def another_base():
 
 
 @pytest.fixture
+def deleted_base():
+    return data()[4]
+
+
+@pytest.fixture
 def default_bases():
     return data()
 

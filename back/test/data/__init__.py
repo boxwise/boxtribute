@@ -4,7 +4,7 @@ import pathlib
 
 from boxtribute_server.db import db
 
-from .base import another_base, default_base, default_bases
+from .base import another_base, default_base, default_bases, deleted_base
 from .beneficiary import (
     another_beneficiary,
     another_relative_beneficiary,
@@ -159,6 +159,7 @@ __all__ = [
     "default_transfer_agreement",
     "default_user",
     "default_users",
+    "deleted_base",
     "deleted_location",
     "distribution_spot",
     "distro_spot5_distribution_events",

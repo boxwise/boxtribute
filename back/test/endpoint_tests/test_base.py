@@ -1,7 +1,10 @@
+from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
-def test_bases_query(read_only_client, default_base, default_beneficiaries):
+def test_bases_query(
+    read_only_client, default_base, deleted_base, default_beneficiaries, mocker
+):
     # Test case 99.1.1
     query = """query {
                 bases {
@@ -22,6 +25,15 @@ def test_bases_query(read_only_client, default_base, default_beneficiaries):
             "beneficiaries": {},
         }
     ]
+
+    mock_user_for_request(mocker, base_ids=[deleted_base["id"]])
+    query = """query { bases(filterInput: {includeDeleted: false}) { id } }"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == []
+
+    query = """query { bases(filterInput: {includeDeleted: true}) { id } }"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == [{"id": str(deleted_base["id"])}]
 
 
 def test_base_query(

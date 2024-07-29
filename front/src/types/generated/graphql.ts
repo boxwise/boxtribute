@@ -1495,6 +1495,11 @@ export type QueryBaseArgs = {
 };
 
 
+export type QueryBasesArgs = {
+  filterInput?: InputMaybe<FilterBaseInput>;
+};
+
+
 export type QueryBeneficiariesArgs = {
   filterInput?: InputMaybe<FilterBeneficiaryInput>;
   paginationInput?: InputMaybe<PaginationInput>;
