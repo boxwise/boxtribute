@@ -26,7 +26,7 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
     organisations {
       id
       name
-      bases {
+      bases(filterInput: {includeDeleted: false}) {
         id
         name
       }
