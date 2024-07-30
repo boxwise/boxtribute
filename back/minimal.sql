@@ -592,6 +592,7 @@ INSERT INTO `cms_usergroups` VALUES (1,'Head of Operations',NULL,NULL,NULL,NULL,
   (19,'Base Athens - Volunteer (Warehouse)',NULL,NULL,NULL,NULL,2,2,0,0,0,NULL),
   (20,'Base Athens - Volunteer (Free Shop)',NULL,NULL,NULL,NULL,2,2,0,0,0,NULL),
   (21,'Base Athens - Label Creation',NULL,NULL,NULL,NULL,2,2,0,0,0,NULL),
+  (99,'Boxtribute God',NULL,NULL,NULL,NULL,1,1,0,0,0,NULL),
   (100000000,'Base TestBase - Volunteer','2019-07-10 08:06:53',1,NULL,NULL,100000000,3,0,0,0,NULL),
   (100000001,'Base TestBase - Coordinator','2019-07-10 08:07:15',1,NULL,NULL,100000000,2,0,0,0,NULL),
   (100000002,'Head of Operations','2019-07-10 08:07:44',1,NULL,NULL,100000000,1,0,0,0,NULL),
@@ -1165,6 +1166,7 @@ INSERT INTO `cms_usergroups_roles` VALUES (1,'rol_tP8t9gMxhO1Odtdw','administrat
   (19,'rol_w72KK37egDY1uUNT','base_4_warehouse_volunteer'),
   (20,'rol_XTIQFQ3b26s3DjZV','base_4_free_shop_volunteer'),
   (21,'rol_AHcJDFIYs00BHWEc','base_4_label_creation'),
+  (99,'rol_3QTWeGl0OS53bjsE','boxtribute_god'),
   (100000000,'rol_fhYTMz4oiXK9ki2N','base_100000000_free_shop_volunteer'),
   (100000000,'rol_yQmOjE9C3KzvBABo','base_100000000_warehouse_volunteer'),
   (100000001,'rol_sutkrMkV7cyeOyOa','base_100000000_coordinator'),
@@ -1233,7 +1235,7 @@ CREATE TABLE `cms_users` (
 
 LOCK TABLES `cms_users` WRITE;
 /*!40000 ALTER TABLE `cms_users` DISABLE KEYS */;
-INSERT INTO `cms_users` VALUES (1,'bf13b44feae208fc808b1d6b2266edb7','some admin','some.admin@boxtribute.org',1,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,NULL,NULL,NULL,'',2,'0000-00-00 00:00:00',NULL,NULL,NULL),
+INSERT INTO `cms_users` VALUES (1,'bf13b44feae208fc808b1d6b2266edb7','some admin','some.admin@boxtribute.org',1,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,NULL,NULL,NULL,'',2,'0000-00-00 00:00:00',99,NULL,NULL),
   (2,'bf13b44feae208fc808b1d6b2266edb7','Jane Doe','jane.doe@boxaid.co',0,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,NULL,NULL,NULL,NULL,2,'0000-00-00 00:00:00',1,'0000-00-00','0000-00-00'),
   (3,'bf13b44feae208fc808b1d6b2266edb7','Joe Doe','joe.doe@boxaid.co',0,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,NULL,NULL,NULL,NULL,2,'0000-00-00 00:00:00',2,'0000-00-00','0000-00-00'),
   (4,'bf13b44feae208fc808b1d6b2266edb7','Volunteer','stagingenv_volunteer@boxtribute.org',0,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,NULL,NULL,NULL,NULL,2,'0000-00-00 00:00:00',3,'0000-00-00','0000-00-00'),
