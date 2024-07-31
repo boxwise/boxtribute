@@ -8,6 +8,8 @@ export interface IAlertWithoutActionProps {
 export interface IAlertWithActionProps extends IAlertWithoutActionProps {
   actionText: string;
   onActionClick: () => void;
+  // eslint-disable-next-line react/require-default-props
+  type?: "error" | "warning";
 }
 
 export function AlertWithoutAction({ alertText }: IAlertWithoutActionProps) {
@@ -21,9 +23,14 @@ export function AlertWithoutAction({ alertText }: IAlertWithoutActionProps) {
   );
 }
 
-export function AlertWithAction({ alertText, actionText, onActionClick }: IAlertWithActionProps) {
+export function AlertWithAction({
+  alertText,
+  actionText,
+  onActionClick,
+  type,
+}: IAlertWithActionProps) {
   return (
-    <Alert status="error" data-testid="ErrorAlert">
+    <Alert status={type ?? "error"} data-testid="ErrorAlert">
       <AlertIcon />
       <Stack direction="column">
         <chakra.span>{alertText}</chakra.span>

@@ -87,11 +87,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         onSuccess();
       }
     },
-    [
-      moveBoxes,
-      onSuccess,
-      scannedBoxesQueryResult.data?.scannedBoxes,
-    ],
+    [moveBoxes, onSuccess, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   const onAssignTags = useCallback(
@@ -107,11 +103,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         onSuccess();
       }
     },
-    [
-      assignTags,
-      onSuccess,
-      scannedBoxesQueryResult.data?.scannedBoxes,
-    ],
+    [assignTags, onSuccess, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   const onAssignBoxesToShipment = useCallback(
@@ -127,11 +119,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
         onSuccess();
       }
     },
-    [
-      assignBoxesToShipment,
-      onSuccess,
-      scannedBoxesQueryResult.data?.scannedBoxes,
-    ],
+    [assignBoxesToShipment, onSuccess, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   // Data preparation
@@ -230,6 +218,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
       )}
       {failedBoxesFromAssignToShipment.length > 0 && (
         <AlertWithAction
+          type="warning"
           alertText={
             <FailedBoxesFromAssingToShipmentAlert failedBoxes={failedBoxesFromAssignToShipment} />
           }
