@@ -12,19 +12,23 @@ import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
+import { useNotification } from "hooks/useNotification";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
 }
 
-const CAMERA_NOT_PERMITED_TEXT = "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
-const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS = "Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > \"Allow\".";
+const CAMERA_NOT_PERMITED_TEXT =
+  "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
+const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
+  'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow".';
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id;
   const navigate = useNavigate();
+  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
@@ -46,21 +50,23 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   const checkCameraPermission = () => {
     navigator.mediaDevices
-    .getUserMedia({
-      audio: false,
-      video: true,
-    })
-    .catch((error) => {
-      if (error.name === "NotAllowedError") {
-        setIsCameraNotPermited(true);
-      } else {
-        triggerError({
-          userMessage: "No camera is available on your device.",
-          message: `getUserMedia error: ${error.name}`
-        });
-      }
-    });
-  }
+      .getUserMedia({
+        audio: false,
+        video: true,
+      })
+      .catch((error) => {
+        if (error.name === "NotAllowedError") {
+          setIsCameraNotPermited(true);
+        } else {
+          createToast({
+            message: "No camera is available on your device.",
+            type: "warning",
+          });
+          // eslint-disable-next-line no-console
+          console.error(`getUserMedia error: ${error.name}`);
+        }
+      });
+  };
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
@@ -153,24 +159,28 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   useEffect(() => {
     checkCameraPermission();
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
-      {isCameraNotPermited && <>
-        <AlertWithoutAction alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT} />
-        <br />
-      </>}
+      {isCameraNotPermited && (
+        <>
+          <AlertWithoutAction
+            alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT}
+          />
+          <br />
+        </>
+      )}
       <QrReader
-      isMultiBox={isMultiBox}
-      onTabSwitch={(index) => setIsMultiBox(index === 1)}
-      onScan={onScan}
-      onFindBoxByLabel={onFindBoxByLabel}
-      findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
-      onSuccess={onSuccess}
+        isMultiBox={isMultiBox}
+        onTabSwitch={(index) => setIsMultiBox(index === 1)}
+        onScan={onScan}
+        onFindBoxByLabel={onFindBoxByLabel}
+        findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+        onSuccess={onSuccess}
       />
     </>
-
   );
 }
 
