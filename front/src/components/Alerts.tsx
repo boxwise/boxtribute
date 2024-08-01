@@ -3,18 +3,18 @@ import { Alert, AlertIcon, chakra, Stack } from "@chakra-ui/react";
 
 export interface IAlertWithoutActionProps {
   alertText: React.ReactNode;
+  // eslint-disable-next-line react/require-default-props
+  type?: "error" | "warning";
 }
 
 export interface IAlertWithActionProps extends IAlertWithoutActionProps {
   actionText: string;
   onActionClick: () => void;
-  // eslint-disable-next-line react/require-default-props
-  type?: "error" | "warning";
 }
 
-export function AlertWithoutAction({ alertText }: IAlertWithoutActionProps) {
+export function AlertWithoutAction({ alertText, type = "error" }: IAlertWithoutActionProps) {
   return (
-    <Alert status="error" data-testid="ErrorAlert">
+    <Alert status={type} data-testid="ErrorAlert">
       <>
         <AlertIcon />
         {alertText}
@@ -27,10 +27,10 @@ export function AlertWithAction({
   alertText,
   actionText,
   onActionClick,
-  type,
+  type = "error",
 }: IAlertWithActionProps) {
   return (
-    <Alert status={type ?? "error"} data-testid="ErrorAlert">
+    <Alert status={type} data-testid="ErrorAlert">
       <AlertIcon />
       <Stack direction="column">
         <chakra.span>{alertText}</chakra.span>
