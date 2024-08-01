@@ -25,6 +25,7 @@ export type Base = {
   /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
   beneficiaries?: Maybe<BeneficiaryPage>;
   currencyName?: Maybe<Scalars['String']>;
+  deletedOn?: Maybe<Scalars['Datetime']>;
   distributionEvents: Array<DistributionEvent>;
   distributionEventsBeforeReturnedFromDistributionState: Array<DistributionEvent>;
   distributionEventsInReturnedFromDistributionState: Array<DistributionEvent>;
@@ -514,6 +515,10 @@ export type EmptyNameError = {
 };
 
 export type EnableStandardProductResult = InsufficientPermissionError | InvalidPriceError | Product | ResourceDoesNotExistError | StandardProductAlreadyEnabledForBaseError | UnauthorizedForBaseError;
+
+export type FilterBaseInput = {
+  includeDeleted?: InputMaybe<Scalars['Boolean']>;
+};
 
 /**
  * Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
@@ -1268,6 +1273,12 @@ export type Organisation = {
   name: Scalars['String'];
 };
 
+
+/** Representation of an organisation. */
+export type OrganisationBasesArgs = {
+  filterInput?: InputMaybe<FilterBaseInput>;
+};
+
 /** TODO: Add description here once specs are final/confirmed */
 export type PackingListEntry = {
   __typename?: 'PackingListEntry';
@@ -1482,6 +1493,11 @@ export type Query = {
 
 export type QueryBaseArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryBasesArgs = {
+  filterInput?: InputMaybe<FilterBaseInput>;
 };
 
 

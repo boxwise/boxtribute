@@ -7,8 +7,22 @@ def test_organisation_query(
     default_organisation,
     default_beneficiaries,
     another_organisation,
+    inactive_organisation,
 ):
     # Test case 99.1.8
+    organisation_id = str(inactive_organisation["id"])
+    query = f"""query {{ organisation(id: {organisation_id}) {{ bases {{ id }} }} }}"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == {"bases": []}
+
+    query = f"""query {{
+                organisation(id: "{organisation_id}") {{
+                    bases(filterInput: {{ includeDeleted: true }}) {{ id }}
+                }}
+            }}"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == {"bases": [{"id": str(default_bases[4]["id"])}]}
+
     # The user is a member of base 1 for default_organisation. They can read name and ID
     # of the organisation's bases but the beneficiary data of base 1 ONLY
     organisation_id = str(default_organisation["id"])

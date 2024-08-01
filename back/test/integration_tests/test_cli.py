@@ -265,7 +265,7 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
     time.sleep(WAIT)
 
     base = Base.get_by_id(int(base_id))
-    assert base.deleted.date() == date.today()
+    assert base.deleted_on.date() == date.today()
 
     # Verify that no users have base ID 8 in their app_metadata any more
     users = auth0_management_api_client.get_users_of_base(base_id)
@@ -319,7 +319,7 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
     assert len(role_ids) == 1
 
     base = Base.get_by_id(int(base_id))
-    assert base.deleted is None
+    assert base.deleted_on is None
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     fields = {
@@ -480,7 +480,7 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     assert len(role_ids) == 0
 
     base = Base.get_by_id(int(base_id))
-    assert base.deleted.date() == date.today()
+    assert base.deleted_on.date() == date.today()
 
     cursor = db.database.execute_sql(
         """\
