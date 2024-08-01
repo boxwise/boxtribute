@@ -58,12 +58,10 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         if (error.name === "NotAllowedError") {
           setIsCameraNotPermited(true);
         } else {
-          createToast({
-            message: "No camera is available on your device.",
-            type: "warning",
+          triggerError({
+            userMessage: "No camera is available on your device.",
+            message: `getUserMedia error: ${error.name}`,
           });
-          // eslint-disable-next-line no-console
-          console.error(`getUserMedia error: ${error.name}`);
         }
       });
   };
