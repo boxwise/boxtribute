@@ -12,7 +12,6 @@ import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
-import { useNotification } from "hooks/useNotification";
 import QrReader from "./components/QrReader";
 
 interface IQrReaderContainerProps {
@@ -28,7 +27,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseId = globalPreferences.selectedBase?.id;
   const navigate = useNavigate();
-  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
