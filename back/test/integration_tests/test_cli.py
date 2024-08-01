@@ -19,6 +19,10 @@ logger.setLevel(logging.INFO)
 # time to wait for Auth0 database to index updated data fields
 WAIT = 5
 
+# suffix auth0 role names with a random test id so these tests can be safely run in parallel:
+# - using a date-time so these roles can be tracked down to the test run that created them
+# - using a random, to ensure in the unlikely event the tests are run at precisely the same 
+#   time, the test ids are unique
 test_id_static_suffix = "-TEST"
 test_id_suffix = f"{date.today().isoformat()}-{random.randint(0, 1000000)}{test_id_static_suffix}"
 
@@ -26,7 +30,6 @@ test_id_suffix = f"{date.today().isoformat()}-{random.randint(0, 1000000)}{test_
 def auth0_roles(auth0_management_api_client):
     # Set up test roles in Auth0
     interface = auth0_management_api_client._interface
-    #generate test id suffix with datetime and a uuid guaranteed to be increasing
     roles_data = [
         {"name": "administrator" + test_id_suffix, "description": "Org 1 Head of Operations"},
         {"name": "base_8_coordinator" + test_id_suffix, "description": "Base 8 coordinator"},
