@@ -23,7 +23,7 @@ import {
   SkeletonText,
   Icon,
 } from "@chakra-ui/react";
-import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
+import { BiSolidPlusCircle, BiSolidMinusCircle } from "react-icons/bi";
 import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import {
@@ -164,7 +164,7 @@ function BoxCard({
                   isRound
                   borderRadius="0"
                   aria-label="Search database"
-                  icon={<FiPlusCircle />}
+                  icon={<BiSolidPlusCircle />}
                   data-testid="increase-items"
                 />
               </Tooltip>
@@ -191,7 +191,7 @@ function BoxCard({
                   borderRadius="0"
                   isRound
                   aria-label="Search database"
-                  icon={<FiMinusCircle />}
+                  icon={<BiSolidMinusCircle />}
                   data-testid="decrease-items"
                 />
               </Tooltip>
