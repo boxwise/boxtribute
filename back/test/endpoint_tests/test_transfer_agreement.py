@@ -17,6 +17,7 @@ def test_transfer_agreement_query(
     default_shipment,
     sent_shipment,
     receiving_shipment,
+    transfer_agreements,
 ):
     # Test case 2.1.3
     agreement_id = str(default_transfer_agreement["id"])
@@ -74,6 +75,21 @@ def test_transfer_agreement_query(
             ]
         ],
     }
+
+    agreement_id = str(transfer_agreements[6]["id"])
+    query = f"""query {{ transferAgreement(id: {agreement_id}) {{
+                    sourceBases {{ id }}
+                    targetBases {{ id }}
+                }} }}"""
+    agreement = assert_successful_request(read_only_client, query)
+    assert agreement == {"sourceBases": [{"id": "1"}], "targetBases": []}
+
+    query = f"""query {{ transferAgreement(id: {agreement_id}) {{
+                    sourceBases {{ id }}
+                    targetBases(filterInput: {{ includeDeleted: true }}) {{ id }}
+                }} }}"""
+    agreement = assert_successful_request(read_only_client, query)
+    assert agreement == {"sourceBases": [{"id": "1"}], "targetBases": [{"id": "5"}]}
 
 
 def state_names(value):
