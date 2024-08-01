@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import time
 from datetime import date
 from unittest.mock import patch
@@ -18,17 +19,20 @@ logger.setLevel(logging.INFO)
 # time to wait for Auth0 database to index updated data fields
 WAIT = 5
 
+test_id_static_suffix = "-TEST"
+test_id_suffix = f"{date.today().isoformat()}-{random.randint(0, 1000000)}{test_id_static_suffix}"
 
 @pytest.fixture
 def auth0_roles(auth0_management_api_client):
     # Set up test roles in Auth0
     interface = auth0_management_api_client._interface
+    #generate test id suffix with datetime and a uuid guaranteed to be increasing
     roles_data = [
-        {"name": "administrator-TEST", "description": "Org 1 Head of Operations"},
-        {"name": "base_8_coordinator-TEST", "description": "Base 8 coordinator"},
-        {"name": "base_8_volunteer-TEST", "description": "Base 8 volunteer"},
-        {"name": "base_9_volunteer-TEST", "description": "Base 9 volunteer"},
-        {"name": "base_80_volunteer-TEST", "description": "Base 80 volunteer"},
+        {"name": "administrator" + test_id_suffix, "description": "Org 1 Head of Operations"},
+        {"name": "base_8_coordinator" + test_id_suffix, "description": "Base 8 coordinator"},
+        {"name": "base_8_volunteer" + test_id_suffix, "description": "Base 8 volunteer"},
+        {"name": "base_9_volunteer" + test_id_suffix, "description": "Base 9 volunteer"},
+        {"name": "base_80_volunteer" + test_id_suffix, "description": "Base 80 volunteer"},
     ]
     roles = {}
     for role_data in roles_data:
@@ -101,23 +105,23 @@ def auth0_users(auth0_management_api_client, auth0_roles):
                 raise e
             logger.info(f"User {user_data['user_id']} already exists")
     interface.roles.add_users(
-        auth0_roles["administrator-TEST"]["id"],
+        auth0_roles["administrator" + test_id_suffix]["id"],
         [user_id(0)],
     )
     interface.roles.add_users(
-        auth0_roles["base_8_coordinator-TEST"]["id"],
+        auth0_roles["base_8_coordinator" + test_id_suffix]["id"],
         [user_id(0)],
     )
     interface.roles.add_users(
-        auth0_roles["base_8_coordinator-TEST"]["id"],
+        auth0_roles["base_8_coordinator" + test_id_suffix]["id"],
         [user_id(1)],
     )
     interface.roles.add_users(
-        auth0_roles["base_8_volunteer-TEST"]["id"],
+        auth0_roles["base_8_volunteer" + test_id_suffix]["id"],
         [user_id(2), user_id(3)],
     )
     interface.roles.add_users(
-        auth0_roles["base_9_volunteer-TEST"]["id"],
+        auth0_roles["base_9_volunteer" + test_id_suffix]["id"],
         [user_id(4)],
     )
 
@@ -166,8 +170,8 @@ VALUES
     )
 
     data = [
-        auth0_roles["base_8_coordinator-TEST"]["id"],
-        "base_8_coordinator-TEST",
+        auth0_roles["base_8_coordinator" + test_id_suffix]["id"],
+        "base_8_coordinator" + test_id_suffix,
     ]
     for role_name, role in auth0_roles.items():
         data.append(role["id"])
@@ -217,8 +221,8 @@ VALUES
     user_ids = [int(u["user_id"]) for u in auth0_users]
     db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
     db.database.execute_sql(
-        """\
-DELETE FROM cms_usergroups_roles WHERE auth0_role_name LIKE "%%-TEST";"""
+        f"""\
+DELETE FROM cms_usergroups_roles WHERE auth0_role_name LIKE "%%{test_id_static_suffix}";"""
     )
     db.database.execute_sql(
         """\
@@ -423,9 +427,9 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
     assert data == (
-        ("administrator-TEST", 99999990),
-        ("base_9_volunteer-TEST", 99999993),
-        ("base_80_volunteer-TEST", 99999994),
+        ("administrator" + test_id_suffix, 99999990),
+        ("base_9_volunteer" + test_id_suffix, 99999993),
+        ("base_80_volunteer" + test_id_suffix, 99999994),
     )
 
     # Run another time
@@ -507,4 +511,4 @@ SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
-    assert data == (("base_80_volunteer-TEST", 99999994),)
+    assert data == (("base_80_volunteer" + test_id_suffix, 99999994),)
