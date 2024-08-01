@@ -144,7 +144,7 @@ def derive_base_filter(filter_input):
     """Derive filter condition for select-query from given filter parameters. If no
     parameters given, return empty conditions (i.e. no filtering applied).
     """
-    include_deleted = True
+    include_deleted = False
     if filter_input:
         include_deleted = filter_input.get("include_deleted")
 

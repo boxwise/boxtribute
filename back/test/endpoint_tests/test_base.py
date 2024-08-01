@@ -28,8 +28,13 @@ def test_bases_query(
         }
     ]
 
+    # Test case 99.1.1a
     mock_user_for_request(mocker, base_ids=[deleted_base["id"]])
     query = """query { bases(filterInput: {includeDeleted: false}) { id } }"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == []
+
+    query = """query { bases { id } }"""
     response = assert_successful_request(read_only_client, query)
     assert response == []
 

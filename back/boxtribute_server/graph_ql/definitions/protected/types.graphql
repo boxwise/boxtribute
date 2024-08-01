@@ -489,7 +489,7 @@ input FilterProductInput {
 }
 
 input FilterBaseInput {
-  includeDeleted: Boolean = true
+  includeDeleted: Boolean = false
 }
 
 """
