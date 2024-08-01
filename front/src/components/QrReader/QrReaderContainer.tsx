@@ -167,6 +167,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       {isCameraNotPermited && (
         <>
           <AlertWithoutAction
+            type="warning"
             alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT}
           />
           <br />
