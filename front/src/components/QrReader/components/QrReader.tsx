@@ -24,7 +24,6 @@ export interface IQrReaderProps {
   onTabSwitch: (index: number) => void;
   onScan: (result: string, multiScan: boolean) => void;
   onFindBoxByLabel: (label: string) => void;
-  onSuccess: () => void;
 }
 
 function QrReader({
@@ -33,7 +32,6 @@ function QrReader({
   onTabSwitch,
   onScan,
   onFindBoxByLabel,
-  onSuccess,
 }: IQrReaderProps) {
   // Zoom
   const [zoomLevel] = useState(1);
@@ -117,7 +115,7 @@ function QrReader({
             </FormControl>
           </TabPanel>
           <TabPanel px={0}>
-            <QrReaderMultiBoxContainer onSuccess={onSuccess} />
+            <QrReaderMultiBoxContainer />
           </TabPanel>
         </TabPanels>
       </Tabs>
