@@ -38,25 +38,25 @@ repos:
         args: ["--filter-files"]
       - id: eslint
         name: Lint Typescript files
-        entry: ./invoke_yarn lint
+        entry: ./invoke_pnpm lint
         types_or: [javascript, jsx, ts, tsx]
         language: script
         require_serial: true
       - id: prettier
         name: Format Typescript files
-        entry: ./invoke_yarn format
+        entry: ./invoke_pnpm format
         types_or: [javascript, jsx, ts, tsx]
         language: script
         require_serial: true
       - id: tsc
         name: Typecheck Typescript files
-        entry: ./invoke_yarn tsc
+        entry: ./invoke_pnpm tsc
         types_or: [ts, tsx]
         language: script
         require_serial: true
       - id: generate-graphql-ts-types
         name: Generate GraphQL Typescript definitions
-        entry: ./invoke_yarn graphql-types
+        entry: ./invoke_pnpm graphql-types
         types: [graphql]
         language: script
         require_serial: true

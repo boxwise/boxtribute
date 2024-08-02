@@ -1,28 +1,22 @@
 # Node version should match that of your production environment.
-FROM node:20.9.0
+FROM node:20.9.0 AS base
 
-# Set the Yarn version.
-ENV YARN_VERSION 1.22.19
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-# Set the work directory for the yarn workspace.
 WORKDIR /app
 
-# Build arguments to specify the service directory.
-ARG SERVICE_DIR
-
-# Set Yarn to the specific version.
-RUN yarn policies set-version $YARN_VERSION
-
-# Copy the root package.json and yarn.lock.
-COPY package.json .
-COPY yarn.lock .
+COPY package.json pnpm-lock.yaml ./
 COPY shared-components shared-components
 
-# Copy the service package.json and yarn.lock.
+# Copy the service package.json
+ARG SERVICE_DIR
 COPY ./${SERVICE_DIR}/package.json ${SERVICE_DIR}/
 
-# Install all workspace dependencies.
-RUN yarn install --frozen-lockfile
+# This docker image is only used for dev, so we don't try to optimise
+# with multi-stage builds by only including production dependencies right now
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Change to the specific service directory.
 WORKDIR /app/${SERVICE_DIR}
@@ -31,4 +25,4 @@ WORKDIR /app/${SERVICE_DIR}
 ENV GENERATE_SOURCEMAP=false
 
 # Start command for each service.
-CMD ["yarn", "dev"]
+CMD ["pnpm", "dev"]

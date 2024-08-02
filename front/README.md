@@ -7,9 +7,9 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 1. [Contribution Guidelines](../CONTRIBUTING.md)
 2. [Development Set-up](#development-set-up)
    1. [Set-up pre-commit](#set-up-pre-commit)
-   2. [Install node and yarn](#install-node-and-yarn)
+   2. [Install node and pnpm](#install-node-and-pnpm)
    3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
-3. [Note about yarn and Docker](#note-about-yarn-and-docker)
+3. [Note about pnpm and Docker](#note-about-pnpm-and-docker)
 4. [Testing](#testing)
 5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
 6. [About Apollo](#apollo)
@@ -24,9 +24,10 @@ Following the [general set-up steps](../README.md), here a few steps that make y
 The downside is that you need python to be installed on your computer.
 Please check the [back-end README](../back/README.md#set-up-pre-commit) to set it up.
 
-### Install node and yarn
+### Install node and pnpm
 
-For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE(e.g. VSCode).
+For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE (e.g. VSCode).
+
 We recommend you to install node through a [version control like nvm](https://github.com/nvm-sh/nvm). It provides you with much more clarity which version you are running and makes it easy to switch versions of node.
 
 ### Linting and Formatting in VSCode
@@ -39,13 +40,13 @@ The following commands need to be run for linting and formatting:
 
 ```sh
 # auto fix
-docker compose exec front yarn lint
+docker compose exec front pnpm lint
 
 # check formatting
-docker compose exec front yarn format:check
+docker compose exec front pnpm format:check
 
 # fix formatting
-docker compose exec front yarn format:write
+docker compose exec front pnpm format:write
 ```
 
 ### General linting and formatting rules
@@ -60,9 +61,9 @@ docker compose exec front yarn format:write
 - no vars
 - interfaces/type should start with "I"
 
-## Note about yarn and Docker
+## Note about pnpm and Docker
 
-We are using docker to spin up our dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the yarn development server should function.
+We are using docker to spin up our dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the pnpm development server should function.
 
 When you wish to add a dependency, e.g. when you make a change to your local `package.json`, you will need to rebuild the docker container and relaunch.
 
@@ -70,12 +71,12 @@ You can add packages during development without rebuilding by installing it insi
 
 For example, to add XYZ to the `package.json` file in the `front` folder while developing, you can run this (make sure you run it in the project's root folder since docker compose is operating in that folder):
 
-      docker compose exec front yarn add XYZ
+      docker compose exec front pnpm add XYZ
 
 Afterwards:
 
 1. stop docker-compose and run `docker compose up` again
-2. run `yarn` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
+2. run `pnpm` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
 
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
 
@@ -93,10 +94,10 @@ Tests and test coverage can be run with the following command:
 
 ```sh
 # run tests
-docker compose exec front yarn test
+docker compose exec front pnpm test
 
 # test coverage
-docker compose exec front yarn test:coverage
+docker compose exec front pnpm test:coverage
 ```
 
 Here, a list of best practices you should follow when writing front-end tests with React Testing Library:
@@ -173,7 +174,7 @@ The folder structure is as follows:
 ├── Dockerfile
 ├── README.md
 ├── package.json
-├── yarn.lock
+├── pnpm-lock.yaml
 ├── tsconfig.json
 ├── .prettierignore
 ├── .dockerignore

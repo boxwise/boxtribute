@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Utility script to invoke front-end style checks in the front directory, or other
-# tools in the repository using yarn
-# Usage: ./invoke_yarn lint|format|graphql-types FILE [FILE...]
+# tools in the repository using pnpm
+# Usage: ./invoke_pnpm lint|format|graphql-types FILE [FILE...]
 
 mode=$1
 shift
@@ -19,18 +19,18 @@ for file in "$@"; do
     fi
 done
 
-# TODO: move this to the pre-commit config. Otherwise people need to install yarn
+# TODO: move this to the pre-commit config. Otherwise people need to install pnpm
 if [[ "$mode" = "lint" ]]; then
-    yarn run lint:fix "$@"
+    pnpm lint:fix "$@"
 elif [[ "$mode" = "format" ]]; then
-    yarn run format:write "$@"
+    pnpm format:write "$@"
 elif [[ "$mode" = "tsc" ]]; then
     echo "${file_collections["shared-components"]}"
-    yarn --cwd front run tsc:precommit --noEmit "${file_collections["front"]}"
-    yarn --cwd statviz run tsc:precommit --noEmit "${file_collections["statviz"]}"
-    yarn --cwd shared-components run tsc:precommit --noEmit "${shared_components_files[@]}"
+    pnpm --cwd front run tsc:precommit --noEmit "${file_collections["front"]}"
+    pnpm --cwd statviz run tsc:precommit --noEmit "${file_collections["statviz"]}"
+    pnpm --cwd shared-components run tsc:precommit --noEmit "${shared_components_files[@]}"
 elif [[ "$mode" = "graphql-types" ]]; then
-    yarn --cwd front run generate-graphql-ts-types && yarn --cwd statviz run generate-graphql-ts-types
+    pnpm --cwd front run generate-graphql-ts-types && pnpm --cwd statviz run generate-graphql-ts-types
 else
     echo "Unknown mode: $mode" >&2
     exit 1
