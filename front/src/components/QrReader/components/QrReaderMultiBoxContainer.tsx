@@ -15,12 +15,9 @@ import { Stack } from "@chakra-ui/react";
 import { IBoxBasicFields, IGetScannedBoxesQuery } from "types/graphql-local-only";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
-import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
-import { IAssignTagsResultKind, useAssignTags } from "hooks/useAssignTags";
-import {
-  IAssignBoxToShipmentResultKind,
-  useAssignBoxesToShipment,
-} from "hooks/useAssignBoxesToShipment";
+import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { useAssignTags } from "hooks/useAssignTags";
+import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
@@ -30,11 +27,7 @@ import {
   NotInStockAlertText,
 } from "./AlertTexts";
 
-interface IQrReaderMultiBoxContainerProps {
-  onSuccess: () => void;
-}
-
-function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProps) {
+function QrReaderMultiBoxContainer() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const currentBaseId = globalPreferences.selectedBase?.id;
   // selected radio button
@@ -82,16 +75,8 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
       );
       // To show in the UI which boxes failed
       setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
-      // only if all Boxes were moved
-      if (moveBoxesResult.kind === IMoveBoxesResultKind.SUCCESS) {
-        onSuccess();
-      }
     },
-    [
-      moveBoxes,
-      onSuccess,
-      scannedBoxesQueryResult.data?.scannedBoxes,
-    ],
+    [moveBoxes, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   const onAssignTags = useCallback(
@@ -102,16 +87,8 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
       );
       // To show in the UI which boxes failed
       setFailedBoxesFromAssignTags(assignTagsResult?.failedLabelIdentifiers ?? []);
-      // only if all Boxes were moved
-      if (assignTagsResult.kind === IAssignTagsResultKind.SUCCESS) {
-        onSuccess();
-      }
     },
-    [
-      assignTags,
-      onSuccess,
-      scannedBoxesQueryResult.data?.scannedBoxes,
-    ],
+    [assignTags, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   const onAssignBoxesToShipment = useCallback(
@@ -122,16 +99,8 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
       );
       // To show in the UI which boxes failed
       setFailedBoxesFromAssignToShipment(assignBoxesToShipmentResult?.failedBoxes ?? []);
-      // only if all Boxes were assigned
-      if (assignBoxesToShipmentResult.kind === IAssignBoxToShipmentResultKind.SUCCESS) {
-        onSuccess();
-      }
     },
-    [
-      assignBoxesToShipment,
-      onSuccess,
-      scannedBoxesQueryResult.data?.scannedBoxes,
-    ],
+    [assignBoxesToShipment, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   // Data preparation
@@ -230,6 +199,7 @@ function QrReaderMultiBoxContainer({ onSuccess }: IQrReaderMultiBoxContainerProp
       )}
       {failedBoxesFromAssignToShipment.length > 0 && (
         <AlertWithAction
+          type="warning"
           alertText={
             <FailedBoxesFromAssingToShipmentAlert failedBoxes={failedBoxesFromAssignToShipment} />
           }

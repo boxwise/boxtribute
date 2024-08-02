@@ -175,7 +175,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         onScan={onScan}
         onFindBoxByLabel={onFindBoxByLabel}
         findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
-        onSuccess={onSuccess}
       />
     </>
   );
