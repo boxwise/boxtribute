@@ -56,6 +56,7 @@ jobs:
             - node_modules
             - front/node_modules
             - statviz/node_modules
+            - shared-components/node_modules
       - persist_to_workspace:
           root: ~/
           paths:
@@ -63,6 +64,7 @@ jobs:
             - node_modules
             - front/node_modules
             - statviz/node_modules
+            - shared-components/node_modules
 
   build-back:
     executor: python-executor
