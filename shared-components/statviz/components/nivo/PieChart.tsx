@@ -21,7 +21,7 @@ export interface IPieChart {
     level: number;
     grouping: string;
   };
-  rendered?: () => void;
+  rendered?: (ref: HTMLDivElement) => void;
   onClick?: (node) => void;
 }
 
@@ -31,7 +31,7 @@ export default function PieChart(chart: IPieChart) {
     if (ref.current === null) return;
     if (!chart.rendered) return;
 
-    chart.rendered();
+    chart.rendered(ref.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
