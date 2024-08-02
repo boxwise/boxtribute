@@ -1,13 +1,17 @@
+from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
-def test_bases_query(read_only_client, default_base, default_beneficiaries):
+def test_bases_query(
+    read_only_client, default_base, deleted_base, default_beneficiaries, mocker
+):
     # Test case 99.1.1
     query = """query {
                 bases {
                     id
                     name
                     currencyName
+                    deletedOn
                     beneficiaries { elements { id } }
                 }
             }"""
@@ -19,7 +23,27 @@ def test_bases_query(read_only_client, default_base, default_beneficiaries):
             "id": str(default_base["id"]),
             "name": default_base["name"],
             "currencyName": default_base["currency_name"],
+            "deletedOn": None,
             "beneficiaries": {},
+        }
+    ]
+
+    # Test case 99.1.1a
+    mock_user_for_request(mocker, base_ids=[deleted_base["id"]])
+    query = """query { bases(filterInput: {includeDeleted: false}) { id } }"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == []
+
+    query = """query { bases { id } }"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == []
+
+    query = """query { bases(filterInput: {includeDeleted: true}) { id deletedOn } }"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == [
+        {
+            "id": str(deleted_base["id"]),
+            "deletedOn": deleted_base["deleted_on"].isoformat() + "+00:00",
         }
     ]
 

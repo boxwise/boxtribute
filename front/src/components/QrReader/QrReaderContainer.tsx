@@ -155,13 +155,15 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   useEffect(() => {
     checkCameraPermission();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
       {isCameraNotPermited && (
         <>
           <AlertWithoutAction
+            type="warning"
             alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT}
           />
           <br />

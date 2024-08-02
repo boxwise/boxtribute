@@ -478,11 +478,11 @@ def test_authorization(read_only_client, mocker):
 
 def test_public_query_validation(read_only_client):
     for query in [
-        "query { beneficiaryDemographics(baseId: 5) { facts { age } } }",
-        "query { createdBoxes(baseId: 5) { facts { productId } } }",
-        "query { topProductsCheckedOut(baseId: 5) { facts { productId } } }",
-        "query { topProductsDonated(baseId: 5) { facts { productId } } }",
-        "query { movedBoxes(baseId: 5) { facts { categoryId } } }",
-        "query { stockOverview(baseId: 5) { facts { categoryId } } }",
+        "query { beneficiaryDemographics(baseId: 99) { facts { age } } }",
+        "query { createdBoxes(baseId: 99) { facts { productId } } }",
+        "query { topProductsCheckedOut(baseId: 99) { facts { productId } } }",
+        "query { topProductsDonated(baseId: 99) { facts { productId } } }",
+        "query { movedBoxes(baseId: 99) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 99) { facts { categoryId } } }",
     ]:
         assert_bad_user_input(read_only_client, query, endpoint="public")
