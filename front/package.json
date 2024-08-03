@@ -7,7 +7,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.2.1",
     "@babel/runtime": "^7.20.13",
-    "@boxtribute/shared-components": "link:../shared-components",
+    "@boxtribute/shared-components": "workspace:*",
     "@fontsource/open-sans": "^4.5.14",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
     "@fortawesome/free-solid-svg-icons": "^6.4.2",

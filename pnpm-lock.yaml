@@ -199,7 +199,7 @@ importers:
         specifier: ^7.20.13
         version: 7.23.9
       '@boxtribute/shared-components':
-        specifier: link:../shared-components
+        specifier: workspace:*
         version: link:../shared-components
       '@fontsource/open-sans':
         specifier: ^4.5.14
@@ -329,7 +329,7 @@ importers:
   statviz:
     dependencies:
       '@boxtribute/shared-components':
-        specifier: link:../shared-components
+        specifier: workspace:*
         version: link:../shared-components
     devDependencies:
       '@graphql-codegen/client-preset':
