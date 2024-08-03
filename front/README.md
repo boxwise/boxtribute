@@ -63,7 +63,7 @@ docker compose exec front pnpm format:write
 
 ## Note about pnpm and Docker
 
-We are using docker to spin up our dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the pnpm development server should function.
+We are using docker to spin up our dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the node development server should function.
 
 When you wish to add a dependency, e.g. when you make a change to your local `package.json`, you will need to rebuild the docker container and relaunch.
 
