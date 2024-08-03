@@ -22,6 +22,7 @@ import {
   SkeletonCircle,
   SkeletonText,
   Icon,
+  VStack,
 } from "@chakra-ui/react";
 import { BiSolidPlusCircle, BiSolidMinusCircle } from "react-icons/bi";
 import { MdHistory } from "react-icons/md";
@@ -145,57 +146,65 @@ function BoxCard({
           <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
             {numberOfItems}x {product?.name}
           </Heading>
-
           <Spacer />
           <ButtonGroup gap="1">
-            <Box alignContent="flex-end" marginLeft={2}>
-              <Tooltip hasArrow shouldWrapChildren mt="3" label="add items" aria-label="A tooltip">
-                <IconButton
-                  variant="ghost"
-                  onClick={onPlusOpen}
-                  isDisabled={
-                    BoxState.Lost === boxData?.state ||
-                    BoxState.Scrap === boxData?.state ||
-                    BoxState.NotDelivered === boxData?.state ||
-                    boxInTransit ||
-                    isLoading
-                  }
-                  size="lg"
-                  isRound
-                  borderRadius="0"
-                  aria-label="Search database"
-                  icon={<BiSolidPlusCircle />}
-                  data-testid="increase-items"
-                />
-              </Tooltip>
-            </Box>
-            <Box alignContent="flex-end" marginRight={1}>
-              <Tooltip
-                hasArrow
-                label="remove items"
-                shouldWrapChildren
-                mt="3"
-                aria-label="A tooltip"
-              >
-                <IconButton
-                  onClick={onMinusOpen}
-                  variant="ghost"
-                  size="lg"
-                  isDisabled={
-                    BoxState.Lost === boxData?.state ||
-                    BoxState.Scrap === boxData?.state ||
-                    BoxState.NotDelivered === boxData?.state ||
-                    boxInTransit ||
-                    isLoading
-                  }
-                  borderRadius="0"
-                  isRound
-                  aria-label="Search database"
-                  icon={<BiSolidMinusCircle />}
-                  data-testid="decrease-items"
-                />
-              </Tooltip>
-            </Box>
+            <VStack spacing={0}>
+              <Box alignContent="flex-end">
+                <Tooltip
+                  hasArrow
+                  shouldWrapChildren
+                  mt="3"
+                  label="add items"
+                  aria-label="A tooltip"
+                >
+                  <IconButton
+                    variant="ghost"
+                    onClick={onPlusOpen}
+                    isDisabled={
+                      BoxState.Lost === boxData?.state ||
+                      BoxState.Scrap === boxData?.state ||
+                      BoxState.NotDelivered === boxData?.state ||
+                      boxInTransit ||
+                      isLoading
+                    }
+                    size="lg"
+                    isRound
+                    borderRadius="0"
+                    aria-label="Search database"
+                    icon={<BiSolidPlusCircle />}
+                    data-testid="increase-items"
+                  />
+                </Tooltip>
+              </Box>
+              <Box alignContent="flex-end">
+                <Tooltip
+                  hasArrow
+                  label="remove items"
+                  shouldWrapChildren
+                  mt="3"
+                  aria-label="A tooltip"
+                >
+                  <IconButton
+                    maxH="1em"
+                    onClick={onMinusOpen}
+                    variant="ghost"
+                    size="lg"
+                    isDisabled={
+                      BoxState.Lost === boxData?.state ||
+                      BoxState.Scrap === boxData?.state ||
+                      BoxState.NotDelivered === boxData?.state ||
+                      boxInTransit ||
+                      isLoading
+                    }
+                    borderRadius="0"
+                    isRound
+                    aria-label="Search database"
+                    icon={<BiSolidMinusCircle />}
+                    data-testid="decrease-items"
+                  />
+                </Tooltip>
+              </Box>
+            </VStack>
           </ButtonGroup>
         </Flex>
       </Stack>
