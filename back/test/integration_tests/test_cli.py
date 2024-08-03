@@ -276,6 +276,8 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
 
     # Verify that no users have base ID 8 in their app_metadata any more
     users = auth0_management_api_client.get_users_of_base(base_id)
+    # ensure ordering for comparison
+    users['single_base'].sort(key=lambda u: u["user_id"])
     assert users == {
         "single_base": [
             {
