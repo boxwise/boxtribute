@@ -218,7 +218,7 @@ VALUES
         data,
     )
 
-    yield
+    yield auth0_roles, auth0_users
 
     # Tear-down: delete everything created above
     user_ids = [int(u["user_id"]) for u in auth0_users]
@@ -322,10 +322,13 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
         ],
         "multi_base": [],
     }
+
+    # verify the roles still exist for the other bases
+    auth0_roles, _ = mysql_data
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
-    assert len(role_ids) == 1
+    assert auth0_roles[f"base_{base_id}_volunteer{test_role_name_suffix}"]['id'] in role_ids
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(80)
-    assert len(role_ids) == 1
+    assert auth0_roles[f"base_80_volunteer{test_role_name_suffix}"]['id'] in role_ids
 
     base = Base.get_by_id(int(base_id))
     assert base.deleted_on is None
