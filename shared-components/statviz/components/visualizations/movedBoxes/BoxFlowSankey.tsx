@@ -13,6 +13,8 @@ import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
 import Targetfilter from "../../filter/LocationFilter";
 
+const visId = "OutgoingBoxes";
+
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
@@ -175,6 +177,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   return (
     <Card>
       <VisHeader
+        visTrackingId={visId}
         onExport={onExport}
         defaultHeight={500}
         defaultWidth={1000}

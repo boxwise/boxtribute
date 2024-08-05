@@ -24,6 +24,8 @@ import CreatedBoxesGrouping, {
 } from "../../filter/CreatedBoxesGrouping";
 import useValueFilter from "../../../hooks/useValueFilter";
 
+const visId = "CreatedBoxes";
+
 interface ICreatedBoxesProps {
   width: string;
   height: string;
@@ -149,6 +151,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
     <Card>
       <VisHeader
         maxWidthPx={width}
+        visTrackingId={visId}
         heading={heading}
         onExport={onExport}
         defaultHeight={500}
