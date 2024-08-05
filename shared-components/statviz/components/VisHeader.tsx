@@ -31,6 +31,7 @@ import useTimerange from "../hooks/useTimerange";
 import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
+import { trackDownloadFormat } from "../utils/analytics/heap";
 
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
@@ -76,6 +77,7 @@ export default function VisHeader({
 
   const download = (e) => {
     isChartExporting(true);
+    trackDownloadFormat(e.target.value);
 
     const customIncludeProps = customIncludes!
       .filter((customInclude) => value.includes(customInclude.value))
