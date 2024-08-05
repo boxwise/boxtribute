@@ -6,7 +6,7 @@ PyMySQL==1.1.1
 peewee==3.17.6
 peewee-moves==2.1.0
 python-dotenv==1.0.1
-PyJWT[crypto]==2.8.0
+PyJWT[crypto]==2.9.0
 aiodataloader==0.4.0
 gunicorn
 auth0-python==4.7.1
