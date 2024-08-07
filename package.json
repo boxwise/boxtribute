@@ -12,7 +12,8 @@
     "lint:all": "pnpm lint shared-components front statviz",
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@apollo/client": "^3.8.1",
@@ -59,7 +60,6 @@
     "@typescript-eslint/parser": "^6.15.0",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.56.0",
-    "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.29.1",
@@ -77,5 +77,8 @@
     "@vitest/coverage-v8": "1.2.1",
     "@vitest/ui": "1.2.1",
     "jsdom": "24.0.0"
+  },
+  "lint-staged": {
+    "*.{js,json,md,yml,ts,tsx,jsx,css,scss}": "pnpm format:write:all"
   }
 }

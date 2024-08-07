@@ -10,16 +10,11 @@ module.exports = {
     "eslint:recommended",
     // TODO: try out plugin:@typescript-eslint/recommended-type-checked
     "plugin:@typescript-eslint/eslint-recommended",
-    // we generally want to follow the rules from airbnb as a base
-    // --> the extension of airbnb should be last so that it cannot be overriden by other configs
-    // airbnb uses the plugins eslint-plugin-import, eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-jsx-a11y
-    // --> we need to install these plugins as devDependencies and load their recommended settings first
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
-    "airbnb",
     // put prettier config last so that it can override all formatting rules
     "prettier",
   ],
