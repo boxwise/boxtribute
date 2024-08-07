@@ -80,6 +80,6 @@
     "vitest": "^1.1.3"
   },
   "lint-staged": {
-    "*.{js,json,md,yml,ts,tsx,jsx,css,scss}": "pnpm format:write:all"
+    "*.{js,json,ts,tsx}": "prettier --write"
   }
 }
