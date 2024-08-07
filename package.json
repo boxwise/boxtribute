@@ -13,7 +13,7 @@
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@apollo/client": "^3.8.1",
