@@ -36,27 +36,3 @@ repos:
         language: system
         require_serial: true
         args: ["--filter-files"]
-      - id: eslint
-        name: Lint Typescript files
-        entry: ./invoke_yarn lint
-        types_or: [javascript, jsx, ts, tsx]
-        language: script
-        require_serial: true
-      - id: prettier
-        name: Format Typescript files
-        entry: ./invoke_yarn format
-        types_or: [javascript, jsx, ts, tsx]
-        language: script
-        require_serial: true
-      - id: tsc
-        name: Typecheck Typescript files
-        entry: ./invoke_yarn tsc
-        types_or: [ts, tsx]
-        language: script
-        require_serial: true
-      - id: generate-graphql-ts-types
-        name: Generate GraphQL Typescript definitions
-        entry: ./invoke_yarn graphql-types
-        types: [graphql]
-        language: script
-        require_serial: true

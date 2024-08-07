@@ -1,0 +1,4 @@
+packages:
+  - front/**
+  - statviz/**
+  - shared-components/**

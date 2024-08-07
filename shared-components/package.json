@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "description": "Shared React components of Boxtribute FE Apps",
-  "main": "index.js",
   "scripts": {
+    "build": "pnpm generate-graphql-ts-types && tsc",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
+  },
+  "dependencies": {
+    "@graphql-typed-document-node/core": "3.2.0"
   }
 }

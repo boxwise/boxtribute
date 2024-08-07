@@ -6,7 +6,6 @@ orbs:
 executors:
   node-executor:
     docker:
-      # The node version is 20.9.0 and the yarn version is 1.22.19
       - image: cimg/node:20.9.0
   python-executor:
     docker:
@@ -41,23 +40,31 @@ jobs:
       - attach_workspace:
           at: ~/
       - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            sudo corepack enable
+            pnpm config set store-dir .pnpm-store
       - run:
           name: Install node packages for all front-ends
-          command: yarn install --frozen-lockfile
+          command: pnpm install --frozen-lockfile
       - save_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - ./.cache
-            - ./node_modules
-            - ./front/node_modules
-            - ./statviz/node_modules
-      - persist_to_workspace:
-          root: ~/
-          paths:
+            - .pnpm-store
             - node_modules
             - front/node_modules
             - statviz/node_modules
+            - shared-components/node_modules
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - .pnpm-store
+            - node_modules
+            - front/node_modules
+            - statviz/node_modules
+            - shared-components/node_modules
 
   build-back:
     executor: python-executor
@@ -115,12 +122,12 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            yarn lint:fix:all
-            yarn format:write:all
+            pnpm lint:fix:all
+            pnpm format:write:all
       - run:
           name: Build front
           command: |
-            yarn build
+            pnpm build
       - slack/notify-on-failure:
           only_for_branches: master,production
       # Add build to workspace
@@ -139,7 +146,7 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --test-timeout=40000
+            DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
       - store_test_results:
           path: coverage/junit.xml
       - store_artifacts:
