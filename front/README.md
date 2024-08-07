@@ -18,12 +18,6 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 
 Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the front-end.
 
-### Set-up pre-commit
-
-[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
-The downside is that you need python to be installed on your computer.
-Please check the [back-end README](../back/README.md#set-up-pre-commit) to set it up.
-
 ### Install node and pnpm
 
 For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE (e.g. VSCode).
