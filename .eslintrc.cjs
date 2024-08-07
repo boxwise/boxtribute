@@ -1,3 +1,4 @@
+/** @type {import("eslint").Linter.Config} */
 module.exports = {
   // It does not look for a configuration file upwards from the root directory.
   root: true,
