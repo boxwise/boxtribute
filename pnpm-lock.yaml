@@ -78,8 +78,8 @@ importers:
         specifier: ^2.29.3
         version: 2.30.0
       dom-to-image-more:
-        specifier: ^3.2.0
-        version: 3.2.0
+        specifier: ^3.3.1
+        version: 3.3.1
       framer-motion:
         specifier: ^10.15.1
         version: 10.18.0(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
@@ -6289,8 +6289,8 @@ packages:
   dom-serializer@1.4.1:
     resolution: {integrity: sha512-VHwB3KfrcOOkelEG2ZOfxqLZdfkil8PtJi4P8N2MMXucZq2yLp75ClViUlOVwyoHEDjYU433Aq+5zWP61+RGag==}
 
-  dom-to-image-more@3.2.0:
-    resolution: {integrity: sha512-2bGQTB6m17MBseVhIjShwZqqqCyVS9GgTykWqvVXMqr56fSgHhXnEvZfZkaSuHJYW3ICZQ3sZwAu+UY5tfsF9Q==}
+  dom-to-image-more@3.3.1:
+    resolution: {integrity: sha512-+NH+KEuFLJKVVS2NvStB+W2jOs3prDTzzEhvB/6xTh8SU/g4kqlRjbqyAIwZsOHmljR/pkgSBLHteeKIH40nBA==}
 
   dom-walk@0.1.2:
     resolution: {integrity: sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==}
@@ -16343,7 +16343,7 @@ snapshots:
       case-sensitive-paths-webpack-plugin: 2.4.0
       core-js: 3.35.0
       css-loader: 3.6.0(webpack@4.47.0)
-      file-loader: 6.2.0(webpack@4.47.0)
+      file-loader: 6.2.0(webpack@5.89.0(@swc/core@1.3.104)(esbuild@0.18.20))
       find-up: 5.0.0
       fork-ts-checker-webpack-plugin: 4.1.6(eslint@8.56.0)(typescript@5.3.3)(webpack@4.47.0)
       glob: 7.2.3
@@ -16925,7 +16925,7 @@ snapshots:
       core-js: 3.35.0
       css-loader: 3.6.0(webpack@4.47.0)
       express: 4.19.2
-      file-loader: 6.2.0(webpack@5.89.0(@swc/core@1.3.104)(esbuild@0.18.20))
+      file-loader: 6.2.0(webpack@4.47.0)
       find-up: 5.0.0
       fs-extra: 9.1.0
       html-webpack-plugin: 4.5.2(webpack@4.47.0)
@@ -20519,7 +20519,7 @@ snapshots:
       domhandler: 4.3.1
       entities: 2.2.0
 
-  dom-to-image-more@3.2.0: {}
+  dom-to-image-more@3.3.1: {}
 
   dom-walk@0.1.2: {}
 
