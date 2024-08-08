@@ -3,6 +3,7 @@ orbs:
   gcp-cli: circleci/gcp-cli@3.1.1
   slack: circleci/slack@3.4.2
   codecov: codecov/codecov@4.1.0
+  queue: eddiewebb/queue@3.2.1
 executors:
   node-executor:
     docker:
@@ -209,19 +210,32 @@ jobs:
           name: Run pytest
           command: |
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
-            # overwrite environment variable because it must not depend on the CircleCI context
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml
+            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml --ignore=test/auth0_integration_tests
+          environment:
+            ENVIRONMENT: development
+            MYSQL_PORT: 3306
+      - queue/until_front_of_line:
+          this-branch-only: false
+          max-wait-time: "10"
+          # this will not stop concurrency during multiple simultaneous re-runs
+          # but works in normal scenarios
+          my-pipeline: <<pipeline.number>>
+      - run:
+          name: Run pytest (cli tests only - auth0 dependency)
+          command: |
+            source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
+            pytest --cov-report xml:test-results/coverage-cli.xml --cov=boxtribute_server --junit-xml=test-results/junit-cli.xml test/auth0_integration_tests
           environment:
             ENVIRONMENT: development
             MYSQL_PORT: 3306
       - store_test_results:
-          path: test-results/junit.xml
+          path: test-results/junit*.xml
       - store_artifacts:
           path: test-results
       - slack/notify-on-failure:
           only_for_branches: master,production
       - codecov/upload:
-          file: test-results/coverage.xml
+          upload_args: -s test-results
           flags: backend
 
   deploy:
