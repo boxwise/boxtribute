@@ -1,21 +1,18 @@
 import { useMediaQuery } from "@chakra-ui/react";
+import { IAuthorizeProps } from "hooks/useAuthorization";
 import HeaderMenuDesktop from "./HeaderMenuDesktop";
 import HeaderMenuMobile from "./HeaderMenuMobile";
 
-export interface IMenuItemData {
+export interface IMenuItemData extends IAuthorizeProps {
   link: string;
   name: string;
   beta?: boolean;
-  minBeta?: number;
-  requiredAbp: string[];
   external?: boolean;
 }
 
-export interface IMenuItemsGroupData {
+export interface IMenuItemsGroupData extends IAuthorizeProps {
   text: string;
   links: IMenuItemData[];
-  minBeta?: number;
-  requiredAbp: string[];
 }
 
 export interface IHeaderMenuProps {
