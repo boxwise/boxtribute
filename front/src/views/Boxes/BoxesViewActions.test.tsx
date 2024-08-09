@@ -8,7 +8,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";

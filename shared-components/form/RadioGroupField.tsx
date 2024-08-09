@@ -17,7 +17,7 @@ export interface IRadioGroupFieldProps {
   errors: object;
   control: any;
   direction: StackDirection;
-  // eslint-disable-next-line react/require-default-props
+
   isRequired?: boolean;
 }
 

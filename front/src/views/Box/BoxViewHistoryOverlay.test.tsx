@@ -1,6 +1,6 @@
 import { vi, beforeEach, it, expect, describe } from "vitest";
 import { screen, render } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
 
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";

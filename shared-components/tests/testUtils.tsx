@@ -1,5 +1,6 @@
-/* eslint-disable react/function-component-definition */
-/* eslint-disable no-console */
+/* eslint-disable import/export */
+// TODO: Investigate possible render function overload.
+
 import React from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";

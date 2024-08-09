@@ -4,7 +4,6 @@ import _ from "lodash";
 import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 
-// eslint-disable-next-line no-shadow
 export enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
   ShipmentCanceled = "Shipment Canceled",

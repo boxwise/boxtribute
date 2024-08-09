@@ -59,8 +59,5 @@ export function StateCell({ value }: CellProps<any>) {
 }
 
 export function BoxesCell({ value }: CellProps<any>) {
-  return (
-    // eslint-disable-next-line no-nested-ternary
-    <chakra.span>{value ? (value === 1 ? "1 box" : `${value} boxes`) : ""}</chakra.span>
-  );
+  return <chakra.span>{value ? (value === 1 ? "1 box" : `${value} boxes`) : ""}</chakra.span>;
 }

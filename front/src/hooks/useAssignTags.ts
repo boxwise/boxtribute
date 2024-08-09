@@ -4,7 +4,6 @@ import { IAssign, generateAssignTagsRequest, isAssign } from "queries/dynamic-mu
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
-// eslint-disable-next-line no-shadow
 export enum IAssignTagsResultKind {
   SUCCESS = "success",
   FAIL = "fail",

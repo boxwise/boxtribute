@@ -53,7 +53,6 @@ import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 
-// eslint-disable-next-line no-shadow
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
   ShipmentCanceled = "Shipment Canceled",
@@ -388,8 +387,9 @@ function ShipmentView() {
         ShipmentActionEvent.ShipmentStarted,
       ].includes(history.action)
     ) {
-      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${history
-        .createdBy?.name}`;
+      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${
+        history.createdBy?.name
+      }`;
     } else {
       changes = `Box ${history.box}  is ${history.action
         .toLowerCase()

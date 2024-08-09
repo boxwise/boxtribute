@@ -23,7 +23,6 @@ import { qrReaderOverlayVar } from "queries/cache";
 import { colorIsBright } from "utils/helpers";
 import { ShipmentOption } from "components/Form/ShipmentOption";
 
-// eslint-disable-next-line no-shadow
 export enum IMultiBoxAction {
   moveBox = "moveBox",
   assignTags = "assignTags",
@@ -222,7 +221,6 @@ function QrReaderMultiBox({
                       borderRadius: "0",
                     }),
                     multiValue: (provided, state) => {
-                      // eslint-disable-next-line no-console
                       console.log(state);
                       return {
                         ...provided,

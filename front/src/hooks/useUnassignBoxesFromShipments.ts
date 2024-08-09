@@ -9,7 +9,6 @@ import {
 } from "queries/dynamic-mutations";
 import { useNotification } from "./useNotification";
 
-// eslint-disable-next-line no-shadow
 export enum IUnassignBoxesFromShipmentsResultKind {
   BAD_USER_INPUT = "badUserInput", // no Boxes with stored shipmentIds were passed to the function
   SUCCESS = "success",

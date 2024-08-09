@@ -1,6 +1,6 @@
 import { expect } from "vitest";
 import { act, screen, waitFor } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 
 type UserEvent = ReturnType<typeof userEvent.setup>;
 

@@ -7,11 +7,11 @@ export interface IDateFieldProps {
   errors: FieldErrors;
   control: any;
   register: any;
-  // eslint-disable-next-line react/require-default-props
+
   isRequired?: boolean;
-  // eslint-disable-next-line react/require-default-props
+
   minDate?: any;
-  // eslint-disable-next-line react/require-default-props
+
   maxDate?: any;
 }
 

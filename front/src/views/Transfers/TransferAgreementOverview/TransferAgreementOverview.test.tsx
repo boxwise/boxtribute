@@ -1,5 +1,5 @@
 import { it, expect } from "vitest";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";

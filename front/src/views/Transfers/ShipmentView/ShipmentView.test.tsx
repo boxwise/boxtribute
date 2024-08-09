@@ -5,7 +5,7 @@ import { GraphQLError } from "graphql";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState, ShipmentState } from "types/generated/graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";

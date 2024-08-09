@@ -2,7 +2,7 @@ import { vi, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { GraphQLError } from "graphql";
 import { base1 } from "mocks/bases";

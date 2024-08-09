@@ -28,6 +28,7 @@ if (sentryDsn) {
       new CaptureConsole({
         levels: ["error"],
       }),
+      // eslint-disable-next-line import/namespace
       new Sentry.BrowserTracing(),
     ],
     tracesSampleRate: parseFloat(import.meta.env.FRONT_SENTRY_TRACES_SAMPLE_RATE || "0.0"),

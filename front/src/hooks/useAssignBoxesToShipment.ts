@@ -12,7 +12,6 @@ import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
-// eslint-disable-next-line no-shadow
 export enum IAssignBoxToShipmentResultKind {
   BAD_USER_INPUT = "badUserInput", // no Boxes InStock were passed to the function
   SUCCESS = "success",
