@@ -33,7 +33,7 @@ export interface IBarChartCenterAxis {
   heading?: string;
   timerange?: string;
   timestamp?: string;
-  rendered?: () => void;
+  rendered?: (ref: HTMLDivElement) => void;
   settings?: {
     hideZeroY?: boolean;
     hideZeroX?: boolean;
@@ -56,7 +56,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     const firstRender = ref.current;
 
     if (firstRender && chart.rendered) {
-      chart.rendered();
+      chart.rendered(firstRender);
     }
   });
 

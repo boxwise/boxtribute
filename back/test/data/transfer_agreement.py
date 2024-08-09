@@ -67,6 +67,14 @@ def data():
             "valid_from": datetime(2021, 1, 1),
             "valid_until": datetime(2024, 12, 31),
         },
+        {
+            "id": 7,
+            "source_organisation": organisation_data()[0]["id"],
+            "target_organisation": organisation_data()[2]["id"],
+            "state": TransferAgreementState.Accepted,
+            "type": TransferAgreementType.Bidirectional,
+            "requested_by": default_user_data()["id"],
+        },
     ]
 
 

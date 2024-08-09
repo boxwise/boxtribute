@@ -1,0 +1,18 @@
+# Docs: https://docs.codecov.com/docs/codecovyml-reference
+codecov:
+  require_ci_to_pass: yes
+  notify:
+    after_n_builds: 2
+    wait_for_ci: yes
+coverage:
+  status:
+    # project doesn't work reliably, so show the result
+    # but don't fail anything
+    project:
+      default:
+        threshold: 100%
+    patch: true
+# https://docs.codecov.com/docs/flags#two-approaches-to-flag-management
+flag_management:
+  default_rules:
+    carryforward: true

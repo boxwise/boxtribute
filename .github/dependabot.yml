@@ -4,6 +4,14 @@ updates:
     directory: "/back/"
     schedule:
       interval: "weekly"
+    groups:
+      back-dev-deps:
+        dependency-type: development
+      back-prod-patch-update-deps:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+        - "patch"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"

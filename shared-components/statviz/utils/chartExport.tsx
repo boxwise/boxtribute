@@ -27,7 +27,7 @@ const exportChartWithSettings = (
   const exportContainer = createOffScreenContainer();
   const link = document.createElement("a");
 
-  const rendered = () => {
+  const rendered = (ref: HTMLDivElement) => {
     const downloadImage = (dataUrl: string) => {
       link.download = `chart.${exportFormat}`;
       link.href = dataUrl;
@@ -53,22 +53,13 @@ const exportChartWithSettings = (
 
     const exportImage = () => {
       if (exportFormat === "svg") {
-        domtoimage
-          .toSvg(exportContainer, defaultImageOptions)
-          .then(downloadImage)
-          .catch(handleError);
+        domtoimage.toSvg(ref, defaultImageOptions).then(downloadImage).catch(handleError);
       }
       if (exportFormat === "jpg") {
-        domtoimage
-          .toJpeg(exportContainer, defaultImageOptions)
-          .then(downloadImage)
-          .catch(handleError);
+        domtoimage.toJpeg(ref, defaultImageOptions).then(downloadImage).catch(handleError);
       }
       if (exportFormat === "png") {
-        domtoimage
-          .toPng(exportContainer, defaultImageOptions)
-          .then(downloadImage)
-          .catch(handleError);
+        domtoimage.toPng(ref, defaultImageOptions).then(downloadImage).catch(handleError);
       }
     };
 
