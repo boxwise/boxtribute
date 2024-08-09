@@ -70,9 +70,13 @@ For example, to add XYZ to the `package.json` file in the `front` folder while d
 Afterwards:
 
 1. stop docker-compose and run `docker compose up` again
-2. run `pnpm` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
+2. run `pnpm i` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
 
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
+
+## About Husky
+
+`husky` is a git hook tool that we use to format and lint staged files on pre-commits. In case you use a version manager tool (e.g. `nvm`, `asdf`), or run into trouble commiting your code, consult https://typicode.github.io/husky/how-to.html#node-version-managers-and-guis.
 
 ## Testing
 
@@ -90,8 +94,14 @@ Tests and test coverage can be run with the following command:
 # run tests
 docker compose exec front pnpm test
 
+# or locally
+pnpm test
+
 # test coverage
 docker compose exec front pnpm test:coverage
+
+# or locally
+pnpm test:coverage
 ```
 
 Here, a list of best practices you should follow when writing front-end tests with React Testing Library:
@@ -100,6 +110,11 @@ Here, a list of best practices you should follow when writing front-end tests wi
 - [Write tests that simulate user behavior rather than single components](https://kentcdodds.com/blog/write-fewer-longer-tests)
 - [Use the right queries in React Testing Library according to their priorization](https://testing-library.com/docs/queries/about#priority)
 - [Maybe use this Browser extension to find the best query](https://chrome.google.com/webstore/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
+
+## Mobile functional testing
+
+Using Boxtribute with a mobile device is one of the main use cases, therefore we should do some functional testing of the work we are doing whenever possible.
+Check https://developer.chrome.com/docs/devtools/remote-debugging/ to know how to debug local development with your Android phone. For Mac/Safari/iOS you will need a Mac and an iPhone simulator set up.
 
 ## Conventions for file and folder organisation
 
