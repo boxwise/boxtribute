@@ -77,8 +77,10 @@ export function FilteringSortingTable({ columns, tableData, initialState }: IBas
             prepareRow(row);
             return (
               <TableRow key={row.index} row={row}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                {row.cells.map((cell, idx) => (
+                  <Td {...cell.getCellProps()} key={idx}>
+                    {cell.render("Cell")}
+                  </Td>
                 ))}
               </TableRow>
             );
