@@ -4,7 +4,6 @@ import { generateMoveBoxRequest, isMove, IMove } from "queries/dynamic-mutations
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
-// eslint-disable-next-line no-shadow
 export enum IMoveBoxesResultKind {
   SUCCESS = "success",
   FAIL = "fail",

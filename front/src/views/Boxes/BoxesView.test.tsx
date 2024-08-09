@@ -1,6 +1,6 @@
 import { vi, it, describe, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
 import { screen, render, waitFor, within } from "tests/test-utils";
@@ -494,7 +494,11 @@ describe("4.8.1 - Initial load of Page", () => {
       );
       // Test case 4.8.1.2
       expect(
-        await screen.findByText(/could not fetch boxes data! Please try reloading the page./i, {}, { timeout: 5000 }),
+        await screen.findByText(
+          /could not fetch boxes data! Please try reloading the page./i,
+          {},
+          { timeout: 5000 },
+        ),
       ).toBeInTheDocument();
     });
   });

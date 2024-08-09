@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 interface IBreadcrumbItemData {
   label: string;
-  // eslint-disable-next-line react/require-default-props
+
   linkPath?: string;
 }
 
