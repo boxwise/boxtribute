@@ -31,7 +31,7 @@ import useTimerange from "../hooks/useTimerange";
 import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
-import { trackDownloadFormat } from "../utils/analytics/heap";
+import { trackDownloadByGraph } from "../utils/analytics/heap";
 
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
@@ -77,7 +77,9 @@ export default function VisHeader({
 
   const download = (e) => {
     isChartExporting(true);
-    trackDownloadFormat(e.target.value);
+    trackDownloadByGraph({
+      graphName: heading,
+    });
 
     const customIncludeProps = customIncludes!
       .filter((customInclude) => value.includes(customInclude.value))
@@ -181,7 +183,11 @@ export default function VisHeader({
                         </Checkbox>
                         <Checkbox {...getCheckboxProps({ value: "timestamp" })}>Timestamp</Checkbox>
                         {customIncludes!.map((option) => (
-                          <Checkbox id={randomId()} {...getCheckboxProps({ value: option.value })}>
+                          <Checkbox
+                            id={randomId()}
+                            {...getCheckboxProps({ value: option.value })}
+                            key={option.value}
+                          >
                             {option.value}
                           </Checkbox>
                         ))}

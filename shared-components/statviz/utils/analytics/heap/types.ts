@@ -3,15 +3,21 @@ type HeapEvent = Record<string, string | number>;
 interface IHeap {
   track: (name: string, event: HeapEvent) => void;
 }
-interface IDownloadEvent extends HeapEvent {
-  visTrackingId: string;
-  downloadFormat: string;
-  from: string;
-  to: string;
+
+interface IDownloadByGraphEvent extends HeapEvent {
+  graphName: string;
 }
 
-interface IDownloadByGraphEvent extends HeapEvent {}
+interface IDownloadByFormatAndGraphEvent extends IDownloadByGraphEvent {
+  downloadFormat: string;
+}
 
 type FilterValue = string | Array<string>;
 
-export type { IDownloadEvent, IDownloadByGraphEvent, IHeap, HeapEvent, FilterValue };
+export type {
+  IDownloadByFormatAndGraphEvent,
+  IDownloadByGraphEvent,
+  IHeap,
+  HeapEvent,
+  FilterValue,
+};
