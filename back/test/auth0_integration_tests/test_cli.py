@@ -236,7 +236,7 @@ VALUES
         data,
     )
 
-    yield auth0_roles, auth0_users
+    yield
 
     # Tear-down: delete everything created above
     user_ids = [int(u["user_id"]) for u in auth0_users]
@@ -261,7 +261,9 @@ DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
 
 # Patch interactive confirmation input; must be first argument for test function
 @patch("builtins.input", return_value="YES")
-def test_remove_base_access(patched_input, mysql_data, auth0_management_api_client):
+def test_remove_base_access(
+    patched_input, mysql_data, auth0_management_api_client, auth0_roles
+):
     base_id = "8"
     cli_main(
         [
@@ -342,15 +344,15 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
         "multi_base": [],
     }
 
-    # verify the roles still exist for the other bases
-    auth0_roles, _ = mysql_data
+    # Verify the roles still exist for the other bases. Since test runs might happen in
+    # parallel in CI, `get_single_base_user_role_ids` might return multiple roles that
+    # match the prefix `base_X`. Check that the corresponding role of the current test
+    # run is one of these roles.
+    suffix = f"_volunteer{test_role_name_suffix}"
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
-    assert (
-        auth0_roles[f"base_{base_id}_volunteer{test_role_name_suffix}"]["id"]
-        in role_ids
-    )
+    assert auth0_roles[f"base_{base_id}{suffix}"]["id"] in role_ids
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(80)
-    assert auth0_roles[f"base_80_volunteer{test_role_name_suffix}"]["id"] in role_ids
+    assert auth0_roles[f"base_80{suffix}"]["id"] in role_ids
 
     base = Base.get_by_id(int(base_id))
     assert base.deleted_on is None
