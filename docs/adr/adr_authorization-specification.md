@@ -82,7 +82,6 @@ Cf. [related ADR](./adr_auth0.md)
 
 Any user registered for boxtribute has their authorization data (`app_metadata`) stored in the Auth0 database. The user attributes are:
 
-- `is_god`: `"1"` for god user, `"0"` otherwise
 - `usergroup_id`: the ID of the usergroup the user belongs to
 - `base_ids`: a list of base IDs that the user has access to
 - `organisation_id`: the ID of the organisation the user belongs to
@@ -105,11 +104,12 @@ Field name | Kind | Description | Usage
 `azp` | standard | ID of client through which the JWT was requested | traceability of application used for authentication
 `gty` | standard | Grant type | -
 `sub` | standard | User ID | see [below](#representation-of-current-user)
-`https://www.boxtribute.com/email` | custom | User email | -
+`https://www.boxtribute.com/email` | custom | User email (only in access token) | -
 `https://www.boxtribute.com/roles` | custom | List of user's roles | -
 `https://www.boxtribute.com/base_ids` | custom | List of IDs of bases that the user has access to | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds (only in access token) | see [below](#representation-of-current-user)
+`https://www.boxtribute.com/actions` | custom | List of ABPs that the user holds (only in ID token) | -
 
 ### Implementation of authorization
 
