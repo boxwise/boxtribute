@@ -327,7 +327,6 @@ function TransferAgreementOverviewView() {
       {
         Header: "Status",
         accessor: "state",
-
         Cell: ({ ...cellProps }) => (
           <StatusCell onClick={openTransferAgreementOverlay} {...cellProps} />
         ),

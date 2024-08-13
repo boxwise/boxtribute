@@ -94,7 +94,6 @@ function ShipmentContent({
         id: "id",
         Header: "",
         show: showRemoveIcon,
-
         Cell: ({ row }: CellProps<any>) => (
           <RemoveBoxCell
             row={row}

@@ -76,7 +76,6 @@ export function QrReaderScanner({
       // check if video is available
       if (!isMediaDevicesAPIAvailable()) {
         const message = "QRReader: This browser doesn't support MediaDevices API.\"";
-
         console.error(message);
         onResult(multiScan, null, new Error(message), browserQRCodeReaderRef.current);
       }

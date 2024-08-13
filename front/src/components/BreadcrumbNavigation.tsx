@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 
 interface IBreadcrumbItemData {
   label: string;
-
   linkPath?: string;
 }
 

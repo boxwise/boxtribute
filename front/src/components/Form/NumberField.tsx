@@ -17,11 +17,8 @@ export interface INumberFieldProps {
   errors: object;
   control: any;
   register: any;
-
   showLabel?: boolean;
-
   showError?: boolean;
-
   testId?: any;
 }
 

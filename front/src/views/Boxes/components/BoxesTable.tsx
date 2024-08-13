@@ -122,11 +122,9 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-
           Header: ({ getToggleAllPageRowsSelectedProps }) => (
             <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
-
           Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
         ...col,

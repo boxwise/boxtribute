@@ -7,11 +7,8 @@ export interface IDateFieldProps {
   errors: FieldErrors;
   control: any;
   register: any;
-
   isRequired?: boolean;
-
   minDate?: any;
-
   maxDate?: any;
 }
 

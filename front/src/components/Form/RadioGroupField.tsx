@@ -17,7 +17,6 @@ export interface IRadioGroupFieldProps {
   errors: object;
   control: any;
   direction: StackDirection;
-
   isRequired?: boolean;
 }
 
