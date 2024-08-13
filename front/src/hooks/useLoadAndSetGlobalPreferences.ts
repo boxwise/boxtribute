@@ -16,6 +16,13 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   // retrieve base id from the url
   const baseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+  /**
+   * Infers intended base ID from URL.
+   * 
+   * Defaults to `"0"` if there's no base ID to still run the queries and cache results.
+   * 
+   * We will supress `'base=0'` errors in the `ApolloAuth0Provider` error handler as they originate from this parameter.
+   */
   const baseId = baseIdInput?.length && baseIdInput[1] || "0";
 
   const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
