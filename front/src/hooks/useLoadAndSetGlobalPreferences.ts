@@ -3,8 +3,9 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useLazyQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery, OrganisationAndBasesQuery } from "types/generated/graphql";
+import { ActionOptionsForBoxesViewQuery, MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery, OrganisationAndBasesQuery } from "types/generated/graphql";
 import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY, ORGANISATION_AND_BASES_QUERY } from "queries/queries";
+import { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
@@ -15,6 +16,7 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   // retrieve base id from the url
   const baseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+  const baseId = baseIdInput?.length && baseIdInput[1] || "0";
 
   const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
@@ -23,7 +25,15 @@ export const useLoadAndSetGlobalPreferences = () => {
   const [runLocationAndShipmentQuery] = useLazyQuery<MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery>(
     MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
     {
-      variables: { baseId: baseIdInput && baseIdInput[1] || "0" },
+      variables: { baseId },
+    },
+  );
+
+  // fetch options for actions on boxes
+  const [runActionOptionsForBoxesView] = useLazyQuery<ActionOptionsForBoxesViewQuery>(
+    ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
+    {
+      variables: { baseId },
     },
   );
 
@@ -31,8 +41,9 @@ export const useLoadAndSetGlobalPreferences = () => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
     if (user && !globalPreferences.selectedBase?.id) {
       runOrganisationAndBasesQuery();
-      // Eagerly run location and shipments query to try to cache results.
-      runLocationAndShipmentQuery()
+      // Eagerly run queries to try to cache results.
+      runLocationAndShipmentQuery();
+      runActionOptionsForBoxesView();
     }
   }, [runOrganisationAndBasesQuery, runLocationAndShipmentQuery, user, globalPreferences.selectedBase?.id]);
 
@@ -88,5 +99,5 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 
-  return { isLoading, error };
+  return { isLoading, error, baseId };
 };

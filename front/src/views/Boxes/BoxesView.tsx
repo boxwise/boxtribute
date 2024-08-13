@@ -1,6 +1,5 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { BoxesForBoxesViewQuery, ActionOptionsForBoxesViewQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
@@ -20,6 +19,7 @@ import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = gql`
@@ -96,8 +96,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
 `;
 
 function Boxes() {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useLoadAndSetGlobalPreferences();
 
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
