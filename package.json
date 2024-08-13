@@ -79,8 +79,13 @@
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "^1.1.3"
   },
+  "resolutions": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "graphql": "^16.8.1"
+  },
   "lint-staged": {
     "*.{js,ts,tsx}": "pnpm lint:fix --no-ignore",
-    "*.{js,json,ts,tsx}": "prettier --write"
+    "*.{js,json,ts,tsx}": "prettier --write",
+    "*": "pnpm -C front generate-graphql-ts-types && pnpm -C statviz generate-graphql-ts-types"
   }
 }
