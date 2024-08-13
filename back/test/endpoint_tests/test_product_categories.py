@@ -7,14 +7,12 @@ def test_product_category_query(read_only_client, default_product_category):
     query = f"""query {{ productCategory(id: {category_id}) {{
                 id
                 name
-                sizeRanges {{ id }}
                 hasGender
             }} }}"""
     category = assert_successful_request(read_only_client, query)
     assert category == {
         "id": category_id,
         "name": default_product_category["name"],
-        "sizeRanges": None,
         "hasGender": True,
     }
 
@@ -27,7 +25,6 @@ def test_product_categories_query(read_only_client):
                     products {
                         elements { id }
                     }
-                    sizeRanges { id }
                     hasGender
                 }
             }"""

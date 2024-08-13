@@ -124,7 +124,6 @@ type ProductCategory {
   name: String!
   " List of all products registered in bases the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage
-  sizeRanges: [SizeRange]
   " Non-clothing categories don't have a product gender. "
   hasGender: Boolean!
 }
@@ -178,7 +177,6 @@ type SizeRange {
   id: ID!
   label: String!
   sizes: [Size!]!
-  productCategory: [ProductCategory!]
 }
 
 """
@@ -240,12 +238,9 @@ type Base {
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
-  # TODO: rethink this query once the prototype testing is over
+  # TODO: rethink these queries once the prototype testing is over
   # probably better to have filter parameters and only one query operation
   distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
-
-  # TODO: rethink this query once the prototype testing is over (same as above)
-  # probably better to have filter parameters and only one query operation
   distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
 
   distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
@@ -278,9 +273,6 @@ type Organisation {
   bases(filterInput: FilterBaseInput): [Base!]
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEvent {
   id: ID!
   distributionSpot: DistributionSpot
@@ -299,9 +291,6 @@ type DistributionEvent {
   distributionEventsTrackingGroup: DistributionEventsTrackingGroup
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEventsTrackingEntry {
   id: ID!
   product: Product!
@@ -312,9 +301,6 @@ type DistributionEventsTrackingEntry {
   flowDirection: DistributionEventTrackingFlowDirection!
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEventsTrackingGroup {
   id: ID!
   state: DistributionEventsTrackingGroupState!
@@ -323,9 +309,6 @@ type DistributionEventsTrackingGroup {
   createdOn: Datetime!
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type PackingListEntry {
   id: ID!
   product: Product
@@ -335,13 +318,11 @@ type PackingListEntry {
   state: PackingListEntryState!
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionSpot implements Location {
   id: ID!
   name: String
   base: Base
+  " Not implemented, only for compatibility with Location interface "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   comment: String!
   latitude: Float
