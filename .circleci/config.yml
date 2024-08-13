@@ -211,7 +211,7 @@ jobs:
           name: Run pytest
           command: |
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml --ignore=test/auth0_integration_tests
+            pytest --cov-report xml:artifacts/coverage.xml --cov=boxtribute_server --junit-xml=artifacts/tests/junit.xml --ignore=test/auth0_integration_tests
           environment:
             ENVIRONMENT: development
             MYSQL_PORT: 3306
@@ -225,18 +225,18 @@ jobs:
           name: Run pytest (cli tests only - auth0 dependency)
           command: |
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
-            pytest --cov-report xml:test-results/coverage-cli.xml --cov=boxtribute_server --junit-xml=test-results/junit-cli.xml test/auth0_integration_tests
+            pytest --cov-report xml:artifacts/coverage-cli.xml --cov=boxtribute_server --junit-xml=artifacts/tests/junit-cli.xml test/auth0_integration_tests
           environment:
             ENVIRONMENT: development
             MYSQL_PORT: 3306
       - store_test_results:
-          path: test-results/junit*.xml
+          path: artifacts/tests
       - store_artifacts:
-          path: test-results
+          path: artifacts
       - slack/notify-on-failure:
           only_for_branches: master,production
       - codecov/upload:
-          upload_args: -s test-results
+          upload_args: -s artifacts
           flags: backend
 
   deploy:
