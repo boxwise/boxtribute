@@ -452,8 +452,8 @@ def test_authorization(read_only_client, mocker):
         assert_forbidden_request(read_only_client, query)
 
     # Test case 11.1.5
-    # Base 5 does not exist
-    query = "query { createdBoxes(baseId: 5) { facts { productId } } }"
+    # Base 99 does not exist
+    query = "query { createdBoxes(baseId: 99) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
     # Test case 11.1.6

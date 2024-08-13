@@ -60,7 +60,7 @@ On Windows run instead
 
 3.  Run the `pre-commit` checks to verify the setup (it might actually show some complaints)
 
-        pre-commit run --all-files
+        git ls-files -- back | xargs pre-commit run --files
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
 

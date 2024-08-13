@@ -1987,11 +1987,11 @@ export type TransferAgreement = {
   requestedBy: User;
   requestedOn: Scalars['Datetime'];
   shipments: Array<Shipment>;
-  /**  List of all bases of the source organisation included in the agreement  */
+  /**  List of all non-deleted bases of the source organisation included in the agreement  */
   sourceBases?: Maybe<Array<Base>>;
   sourceOrganisation: Organisation;
   state?: Maybe<TransferAgreementState>;
-  /**  List of all bases of the target organisation included in the agreement  */
+  /**  List of all non-deleted bases of the target organisation included in the agreement  */
   targetBases?: Maybe<Array<Base>>;
   targetOrganisation: Organisation;
   terminatedBy?: Maybe<User>;
@@ -1999,6 +1999,16 @@ export type TransferAgreement = {
   type: TransferAgreementType;
   validFrom: Scalars['Datetime'];
   validUntil?: Maybe<Scalars['Datetime']>;
+};
+
+
+export type TransferAgreementSourceBasesArgs = {
+  filterInput?: InputMaybe<FilterBaseInput>;
+};
+
+
+export type TransferAgreementTargetBasesArgs = {
+  filterInput?: InputMaybe<FilterBaseInput>;
 };
 
 export type TransferAgreementCreationInput = {

@@ -4,6 +4,19 @@ updates:
     directory: "/back/"
     schedule:
       interval: "weekly"
+    groups:
+      back-dev-deps:
+        dependency-type: development
+      back-prod-minor-update-deps:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+        - "minor"
+        - "patch"
+        exclude-patterns:
+            # Exclude because package versions are v0.x, hence minor updates might contain breaking changes
+            - "aiodataloader"
+            - "ariadne"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"

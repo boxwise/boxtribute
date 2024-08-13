@@ -19,23 +19,41 @@ logger.setLevel(logging.INFO)
 # time to wait for Auth0 database to index updated data fields
 WAIT = 5
 
-# suffix auth0 role names with a random test id so these tests can be safely run in parallel:
-# - using a date-time so these roles can be tracked down to the test run that created them
-# - using a random, to ensure in the unlikely event the tests are run at precisely the same 
-#   time, the test ids are unique
+# suffix auth0 role names so these tests can be safely run in parallel:
+# - using a date-time so roles can be tracked down to the test run that created them
+# - using a random, to ensure in the unlikely event the tests are run at precisely the
+#   same time, the test ids are unique
 test_role_name_static_suffix = "-TEST"
-test_role_name_suffix = f"{date.today().isoformat()}-{random.randint(0, 1000000)}{test_role_name_static_suffix}"
+today = date.today().isoformat()
+randint = random.randint(0, 1000000)
+test_role_name_suffix = f"{today}-{randint}{test_role_name_static_suffix}"
+
 
 @pytest.fixture
 def auth0_roles(auth0_management_api_client):
     # Set up test roles in Auth0
     interface = auth0_management_api_client._interface
     roles_data = [
-        {"name": "administrator" + test_role_name_suffix, "description": "Org 1 Head of Operations"},
-        {"name": "base_8_coordinator" + test_role_name_suffix, "description": "Base 8 coordinator"},
-        {"name": "base_8_volunteer" + test_role_name_suffix, "description": "Base 8 volunteer"},
-        {"name": "base_9_volunteer" + test_role_name_suffix, "description": "Base 9 volunteer"},
-        {"name": "base_80_volunteer" + test_role_name_suffix, "description": "Base 80 volunteer"},
+        {
+            "name": "administrator" + test_role_name_suffix,
+            "description": "Org 1 Head of Operations",
+        },
+        {
+            "name": "base_8_coordinator" + test_role_name_suffix,
+            "description": "Base 8 coordinator",
+        },
+        {
+            "name": "base_8_volunteer" + test_role_name_suffix,
+            "description": "Base 8 volunteer",
+        },
+        {
+            "name": "base_9_volunteer" + test_role_name_suffix,
+            "description": "Base 9 volunteer",
+        },
+        {
+            "name": "base_80_volunteer" + test_role_name_suffix,
+            "description": "Base 80 volunteer",
+        },
     ]
     roles = {}
     for role_data in roles_data:
@@ -225,7 +243,8 @@ VALUES
     db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
     db.database.execute_sql(
         f"""\
-DELETE FROM cms_usergroups_roles WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";"""
+DELETE FROM cms_usergroups_roles
+WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";"""
     )
     db.database.execute_sql(
         """\
@@ -242,7 +261,9 @@ DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
 
 # Patch interactive confirmation input; must be first argument for test function
 @patch("builtins.input", return_value="YES")
-def test_remove_base_access(patched_input, mysql_data, auth0_management_api_client):
+def test_remove_base_access(
+    patched_input, mysql_data, auth0_management_api_client, auth0_roles
+):
     base_id = "8"
     cli_main(
         [
@@ -276,6 +297,8 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
 
     # Verify that no users have base ID 8 in their app_metadata any more
     users = auth0_management_api_client.get_users_of_base(base_id)
+    # ensure ordering for comparison
+    users["single_base"].sort(key=lambda u: u["user_id"])
     assert users == {
         "single_base": [
             {
@@ -320,10 +343,16 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
         ],
         "multi_base": [],
     }
+
+    # Verify the roles still exist for the other bases. Since test runs might happen in
+    # parallel in CI, `get_single_base_user_role_ids` might return multiple roles that
+    # match the prefix `base_X`. Check that the corresponding role of the current test
+    # run is one of these roles.
+    suffix = f"_volunteer{test_role_name_suffix}"
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
-    assert len(role_ids) == 1
+    assert auth0_roles[f"base_{base_id}{suffix}"]["id"] in role_ids
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(80)
-    assert len(role_ids) == 1
+    assert auth0_roles[f"base_80{suffix}"]["id"] in role_ids
 
     base = Base.get_by_id(int(base_id))
     assert base.deleted_on is None
