@@ -86,7 +86,7 @@
   },
   "lint-staged": {
     "*": "pnpm graphql-gen",
-    "*.{js,ts,tsx}": "pnpm lint:fix --no-ignore",
+    "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
     "*.{js,json,ts,tsx}": "prettier --write"
   }
 }
