@@ -1,4 +1,4 @@
-from peewee import CompositeKey, DateTimeField, IntegerField
+from peewee import DateTimeField, IntegerField
 
 from ...db import db
 from ...enums import TaggableObjectType
@@ -31,5 +31,3 @@ class TagsRelation(db.Model):  # type: ignore
 
     class Meta:
         table_name = "tags_relations"
-        indexes = ((("object_id", "tag", "object_type"), True),)
-        primary_key = CompositeKey("object_id", "tag", "object_type")
