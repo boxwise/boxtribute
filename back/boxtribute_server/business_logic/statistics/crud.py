@@ -127,14 +127,17 @@ def compute_beneficiary_demographics(base_id):
             on=(
                 (TagsRelation.object_id == Beneficiary.id)
                 & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .where(Beneficiary.base == base_id)
         .group_by(
             SQL("gender"),
             SQL("age"),
-            SQL("created_on"),
-            SQL("deleted_on"),
+            created_on,
+            # Don't use SQL("deleted_on") because it will be confused with
+            # TagsRelation.deleted_on, resulting in incorrect grouping
+            deleted_on,
         )
         .dicts()
     )
@@ -241,6 +244,7 @@ def compute_created_boxes(base_id):
             on=(
                 (TagsRelation.object_id == boxes.c.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .group_by(
@@ -412,6 +416,7 @@ def compute_stock_overview(base_id):
             on=(
                 (TagsRelation.object_id == Box.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .where((~Box.deleted_on) | (Box.deleted_on.is_null()))
@@ -450,7 +455,7 @@ def compute_stock_overview(base_id):
         .dicts()
     )
     for fact in facts:
-        fact["tag_ids"] = convert_ids(fact["tag_ids"])
+        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
     dimensions = _generate_dimensions(
         "size", "location", "category", "tag", facts=facts
     )

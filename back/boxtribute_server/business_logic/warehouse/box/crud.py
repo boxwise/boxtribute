@@ -156,6 +156,7 @@ def update_box(
             for r in TagsRelation.select(TagsRelation.tag_id).where(
                 TagsRelation.object_type == TaggableObjectType.Box,
                 TagsRelation.object_id == box.id,
+                TagsRelation.deleted_on.is_null(),
             )
         )
         updated_tag_ids = set(tag_ids)
@@ -186,6 +187,7 @@ def update_box(
             for r in TagsRelation.select(TagsRelation.tag_id).where(
                 TagsRelation.object_type == TaggableObjectType.Box,
                 TagsRelation.object_id == box.id,
+                TagsRelation.deleted_on.is_null(),
             )
         )
         # Assign all tags that are part of the set of tags requested to be added but

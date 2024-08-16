@@ -105,6 +105,7 @@ def derive_box_filter(filter_input, selection=None):
                 (TagsRelation.object_type == TaggableObjectType.Box)
                 & (TagsRelation.object_id == Box.id)
                 & (TagsRelation.tag << tag_ids)
+                & (TagsRelation.deleted_on.is_null())
             ),
         ).distinct()
 

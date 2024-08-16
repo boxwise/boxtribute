@@ -147,13 +147,14 @@ class TagsForBoxLoader(DataLoader):
                 (TagsRelation.tag == Tag.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
                 & (TagsRelation.object_id << keys)
+                & (TagsRelation.deleted_on.is_null())
                 & (authorized_bases_filter(Tag))
             ),
         ):
             tags[relation.object_id].append(relation.tag)
 
         # Keys are in fact box IDs. Return empty list if box has no tags assigned
-        return [tags.get(i, []) for i in keys]
+        return [sorted(tags.get(i, []), key=lambda t: t.id) for i in keys]
 
 
 class HistoryForBoxLoader(DataLoader):
