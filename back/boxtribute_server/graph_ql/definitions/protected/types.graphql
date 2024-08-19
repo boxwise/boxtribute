@@ -1,7 +1,5 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
-
-
 interface ItemsCollection {
   id: ID!
   product: Product
@@ -20,7 +18,6 @@ type UnboxedItemsCollection implements ItemsCollection {
   location: Location
   distributionEvent: DistributionEvent
 }
-
 
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
@@ -158,12 +155,13 @@ type Tag {
   description: String
   color: String
   type: TagType!
+  " List of boxes and/or beneficiaries that have this tag assigned "
   taggedResources: [TaggableResource!]
   base: Base!
 }
 
 """
-Representation of product size.
+Representation of product size (e.g. clothing size "XL", shoe size 39).
 """
 type Size {
   id: ID!
@@ -171,11 +169,12 @@ type Size {
 }
 
 """
-Representation of group of sizes.
+Representation of group of sizes (e.g. clothing sizes "S, M, L, XL").
 """
 type SizeRange {
   id: ID!
   label: String!
+  " List of sizes belonging to the group "
   sizes: [Size!]!
 }
 
@@ -187,10 +186,11 @@ type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
+  " Used for ordering purposes "
   seq: Int
   isShop: Boolean!
   isStockroom: Boolean!
-  " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
+  " List of all [`Boxes`]({{Types.Box}}) (incl. deleted) in this classic location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   " Default state for boxes in this classic location"
   defaultBoxState: BoxState
@@ -226,14 +226,14 @@ type Base {
   name: String!
   organisation: Organisation!
   deletedOn: Datetime
-  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
+  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   currencyName: String
-  " List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  " List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
-  " List of all undeleted [`Products`]({{Types.Product}}) registered in this base "
+  " List of all non-deleted [`Products`]({{Types.Product}}) registered in this base "
   products(filterInput: FilterProductInput): [Product!]!
-  " List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
+  " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
@@ -245,6 +245,16 @@ type Base {
 
   distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
   distributionEventsStatistics: [DistributionEventsStatistics!]!
+}
+
+"""
+Representation of an organisation.
+"""
+type Organisation {
+  id: ID!
+  name: String!
+  " List of all non-deleted [`Bases`]({{Types.Base}}) managed by this organisation. Accessible for any authenticated user "
+  bases(filterInput: FilterBaseInput): [Base!]
 }
 
 type DistributionEventsStatistics {
@@ -261,16 +271,6 @@ type DistributionEventsStatistics {
   distroEventTrackingGroupId: String!
   productId: String!
   sizeId: String!
-}
-
-"""
-Representation of an organisation.
-"""
-type Organisation {
-  id: ID!
-  name: String!
-  " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
-  bases(filterInput: FilterBaseInput): [Base!]
 }
 
 type DistributionEvent {
@@ -331,17 +331,19 @@ type DistributionSpot implements Location {
 }
 
 """
-Representation of a user signed up for the web application.
-The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
+Representation of a boxtribute user.
 """
 type User {
   id: ID!
+  " The [`Organisation`]({{Types.Organisation}}) the user is a member of. Meaningful only if the currently authenticated user queries themselves "
   organisation: Organisation
+  " First and last name. Accessible to any authenticated user "
   name: String
+  " Available only if the currently authenticated user queries themselves "
   email: String
   validFirstDay: Date
   validLastDay: Date
-  " List of all [`Bases`]({{Types.Base}}) this user can access "
+  " List of all [`Bases`]({{Types.Base}}) this user can access. Meaningful only if the currently authenticated user queries themselves "
   bases: [Base]
   lastLogin: Datetime
   lastAction: Datetime
@@ -492,6 +494,9 @@ input PaginationInput {
   last: Int
 }
 
+"""
+Representation of an agreement between two organisations prior to start mutual shipments.
+"""
 type TransferAgreement {
   id: ID!
   sourceOrganisation: Organisation!
@@ -514,8 +519,12 @@ type TransferAgreement {
   shipments: [Shipment!]!
 }
 
+"""
+Representation of a shipment of boxes between two bases of two distinct organisations. The content is tracked via [`ShipmentDetails`]({{Types.ShipmentDetail}})
+"""
 type Shipment {
   id: ID!
+  " Unique identifier of the shipment, constructed from ID, start date, source and target base names. E.g. `S042-230815-THxLE` "
   labelIdentifier: String!
   sourceBase: Base!
   targetBase: Base!
@@ -534,6 +543,9 @@ type Shipment {
   details: [ShipmentDetail!]!
 }
 
+"""
+Representation of a box in a shipment. Boxes might be added or removed on the source side, and received or marked as lost on the target side. All properties (product, location, size, quantity) at source and target side are tracked here
+"""
 type ShipmentDetail {
   id: ID!
   sourceProduct: Product

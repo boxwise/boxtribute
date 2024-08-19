@@ -1,43 +1,48 @@
 type Query {
-  " Return all [`Bases`]({{Types.Base}}) that the client is authorized to view. "
+  " Return all non-deleted [`Bases`]({{Types.Base}}) that the client is authorized to view. "
   bases(filterInput: FilterBaseInput): [Base!]!
+  " Return [`Base`]({{Types.Base}})  with specified ID. Accessible for clients who are members of this base. "
   base(id: ID!): Base
-  " Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view. "
-  distributionSpots: [DistributionSpot!]!
-  distributionSpot(id: ID!): DistributionSpot
-  distributionEvent(id: ID!): DistributionEvent
-  packingListEntry(id: ID!): PackingListEntry
-  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
+  " Return [`Organisation`]({{Types.Organisation}}) with specified ID. "
   organisation(id: ID!): Organisation
-  " Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view. "
+  " Return all [`Organisations`]({{Types.Organisation}}). "
   organisations: [Organisation!]!
+  " Return [`User`]({{Types.User}}) with specified ID. Some fields might be restricted. "
   user(id: ID): User
-  " Return all [`Users`]({{Types.User}}) that the client is authorized to view. "
+  " Return all [`Users`]({{Types.User}}). Accessible for god users only "
   users: [User!]!
+  " Return [`Box`]({{Types.Box}}) with specified label identifier. For a box in InTransit, Receiving, or NotDelivered state, clients of both source and target base of the underlying shipment are allowed to view it. Otherwise the client must be permitted to access the base of the box location "
   box(labelIdentifier: String!): Box
+  " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
+  " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32) "
   qrCode(qrCode: String!): QrCode
   qrExists(qrCode: String): Boolean
+  " Return [`ClassicLocation`]({{Types.ClassicLocation}}) with specified ID. Accessible for clients who are members of the location's base "
   location(id: ID!): ClassicLocation
   " Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view. "
   locations: [ClassicLocation!]!
+  " Return [`Product`]({{Types.Product}}) with specified ID. Accessible for clients who are members of the product's base "
   product(id: ID!): Product
-  " Return all [`Products`]({{Types.Product}}) that the client is authorized to view. "
+  " Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage!
+  " Return [`StandardProduct`]({{Types.StandardProduct}}) with specified ID, or an error in case of insufficient permission or missing resource. "
   standardProduct(id: ID!): StandardProductResult
   " Return standard products of latest version. Optionally include all standard products enabled for specified base. "
   standardProducts(baseId: ID): StandardProductsResult
+  " Return [`ProductCategory`]({{Types.ProductCategory}}) with specified ID. "
   productCategory(id: ID!): ProductCategory
-  " Return all [`ProductCategories`]({{Types.ProductCategory}}) that the client is authorized to view. "
+  " Return all [`ProductCategories`]({{Types.ProductCategory}}). "
   productCategories: [ProductCategory!]!
+  " Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base "
   beneficiary(id: ID!): Beneficiary
-  " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. "
+  " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
-  """
-  Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type.
-  """
+  " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
+  " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "
   tag(id: ID!): Tag
+  " Return [`TransferAgreement`]({{Types.TransferAgreement}}) with specified ID. Clients are authorized to view an agreement if they're member of at least one of the agreement's source or target bases "
   transferAgreement(id: ID!): TransferAgreement
   """
   Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
@@ -45,6 +50,7 @@ type Query {
   regardless of agreement state. Optionally filter for agreements of certain state(s).
   """
   transferAgreements(states: [TransferAgreementState!]): [TransferAgreement!]!
+  " Return [`Shipment`]({{Types.Shipment}}) with specified ID. Clients are authorized to view a shipment if they're member of either the source or the target base "
   shipment(id: ID!): Shipment
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. "
   shipments: [Shipment!]!
@@ -60,4 +66,11 @@ type Query {
   topProductsDonated(baseId: Int!): TopProductsDonatedData
   movedBoxes(baseId: Int!): MovedBoxesData
   stockOverview(baseId: Int!): StockOverviewData
+
+  # Undocumented queries of the mobile-distribution feature
+  distributionSpots: [DistributionSpot!]!
+  distributionSpot(id: ID!): DistributionSpot
+  distributionEvent(id: ID!): DistributionEvent
+  packingListEntry(id: ID!): PackingListEntry
+  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
 }
