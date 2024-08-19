@@ -43,7 +43,9 @@ def test_distribution_event_tracking_group_statistics(
             "base_1/distro_event:write",
             "base_1/stock:write",
             "base_1/stock:read",
+            "base_1/tag:read",
             "base_1/unboxed_items_collection:write",
+            "tag_relation:assign",
         ],
     )
 

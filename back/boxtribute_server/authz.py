@@ -24,6 +24,7 @@ from .utils import (
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
+    "beneficiary_language",
     "gender",
     "history",
     "language",

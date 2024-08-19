@@ -9,6 +9,15 @@ from ....models.definitions.unboxed_items_collection import UnboxedItemsCollecti
 distribution_event = ObjectType("DistributionEvent")
 
 
+@distribution_event.field("distributionSpot")
+def resolve_distribution_event_distribution_spot(event_obj, _):
+    authorize(
+        permission="location:read",
+        base_id=event_obj.distribution_spot.base_id,
+    )
+    return event_obj.distribution_spot
+
+
 @distribution_event.field("boxes")
 def resolve_distribution_event_boxes(event_obj, _):
     authorize(
