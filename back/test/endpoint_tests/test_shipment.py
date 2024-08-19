@@ -289,6 +289,9 @@ def test_shipment_mutations_on_source_side(
                     "shipmentDetail": {"id": shipment_detail_id},
                     "history": [
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "created record"},
                     ],
                     "lastModifiedBy": {"id": source_base_user_id},
@@ -356,7 +359,7 @@ def test_shipment_mutations_on_source_side(
     assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert len(shipment["details"][0]["box"].pop("history")) == 3
-    assert len(shipment["details"][1]["box"].pop("history")) == 3
+    assert len(shipment["details"][1]["box"].pop("history")) == 6
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
@@ -485,6 +488,9 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -499,6 +505,9 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -718,7 +727,12 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
         ],
@@ -807,7 +821,12 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
                 "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
                 "targetProduct": None,
@@ -931,7 +950,12 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
         ],
@@ -1036,7 +1060,12 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
         ],
