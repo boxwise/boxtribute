@@ -48,9 +48,11 @@ export const useLoadAndSetGlobalPreferences = () => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
     if (user && !globalPreferences.selectedBase?.id) {
       runOrganisationAndBasesQuery();
-      // Eagerly run queries to try to cache results.
-      runLocationAndShipmentQuery();
-      runActionOptionsForBoxesView();
+      if (baseId !== "0") {
+        // Eagerly run queries to try to cache results.
+        runLocationAndShipmentQuery();
+        runActionOptionsForBoxesView();
+      }
     }
   }, [runOrganisationAndBasesQuery, runLocationAndShipmentQuery, user, globalPreferences.selectedBase?.id]);
 

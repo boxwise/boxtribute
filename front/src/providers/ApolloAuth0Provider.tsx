@@ -38,13 +38,6 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
       graphQLErrors.map(({ message, locations, path, extensions }) => {
-        // Supress 'base=0' errors. We are trying to preload queries and cache results.
-        if (
-          typeof extensions?.description === "string" &&
-          extensions?.description.includes("base=0")
-        )
-          return;
-
         triggerError({
           message: `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations)}, Path: ${path}, Extensions: ${JSON.stringify(extensions?.description)}`,
           userMessage: "Something went wrong!",
