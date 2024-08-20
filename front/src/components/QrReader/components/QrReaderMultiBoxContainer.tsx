@@ -18,6 +18,7 @@ import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssignTagsAlert,
@@ -25,10 +26,9 @@ import {
   FailedBoxesFromMoveBoxesAlert,
   NotInStockAlertText,
 } from "./AlertTexts";
-import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 function QrReaderMultiBoxContainer() {
-  const { baseId } = useLoadAndSetGlobalPreferences();
+  const { baseId } = useBaseIdParam();
 
   // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(IMultiBoxAction.moveBox);
