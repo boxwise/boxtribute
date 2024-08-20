@@ -11,7 +11,7 @@ WORKDIR /app
 
 # copy package files so we can restore packages as part of the 
 # image build process
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY shared-components shared-components
 # we use the same docker file for both front and statviz
 # services, so we need to pass in the service directory
