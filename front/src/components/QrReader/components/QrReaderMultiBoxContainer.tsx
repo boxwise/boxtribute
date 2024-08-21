@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import {
@@ -13,12 +13,12 @@ import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
 import { IBoxBasicFields, IGetScannedBoxesQuery } from "types/graphql-local-only";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssignTagsAlert,
@@ -28,8 +28,8 @@ import {
 } from "./AlertTexts";
 
 function QrReaderMultiBoxContainer() {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBase?.id;
+  const { baseId } = useBaseIdParam();
+
   // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(IMultiBoxAction.moveBox);
 
@@ -49,7 +49,7 @@ function QrReaderMultiBoxContainer() {
   const optionsQueryResult = useQuery<MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery>(
     MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
     {
-      variables: { baseId: currentBaseId },
+      variables: { baseId },
     },
   );
 
@@ -135,14 +135,14 @@ function QrReaderMultiBoxContainer() {
       optionsQueryResult.data?.shipments
         ?.filter(
           (shipment) =>
-            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
+            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === baseId,
         )
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           value: shipment.id,
           subTitle: shipment?.labelIdentifier,
         })) ?? [],
-    [currentBaseId, optionsQueryResult.data?.shipments],
+    [baseId, optionsQueryResult.data?.shipments],
   );
 
   // Assign To Shipment is default MultiBoxAction if there are shipments

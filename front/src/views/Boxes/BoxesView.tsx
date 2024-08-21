@@ -1,6 +1,5 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { BoxesForBoxesViewQuery, ActionOptionsForBoxesViewQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
@@ -15,6 +14,7 @@ import {
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
 import { useTableConfig } from "hooks/hooks";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
@@ -96,8 +96,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
 `;
 
 function Boxes() {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
