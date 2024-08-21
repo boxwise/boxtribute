@@ -101,6 +101,14 @@ function render(
 
   mockMatchMediaQuery(mediaQueryReturnValue);
 
+  // Mock BaseId URL Param.
+  // eslint-disable-next-line no-restricted-globals
+  Object.defineProperty(window, "location", {
+    value: {
+      pathname: `http://localhost:3000/bases/${globalPreferences ? globalPreferences.globalPreferences.selectedBase?.id : base1.id}/`,
+    },
+  });
+
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
       <GlobalPreferencesContext.Provider value={globalPreferences ?? globalPreferencesMock}>
