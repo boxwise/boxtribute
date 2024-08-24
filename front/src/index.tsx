@@ -28,6 +28,7 @@ if (sentryDsn) {
       new CaptureConsole({
         levels: ["error"],
       }),
+      // TODO: This is being exported, but TS/ESLint is complaining. Why?
       // eslint-disable-next-line import/namespace
       new Sentry.BrowserTracing(),
     ],
