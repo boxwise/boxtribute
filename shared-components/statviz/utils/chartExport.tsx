@@ -53,22 +53,13 @@ const exportChartWithSettings = (
 
     const exportImage = () => {
       if (exportFormat === "svg") {
-        domtoimage
-          .toSvg(ref, defaultImageOptions)
-          .then(downloadImage)
-          .catch(handleError);
+        domtoimage.toSvg(ref, defaultImageOptions).then(downloadImage).catch(handleError);
       }
       if (exportFormat === "jpg") {
-        domtoimage
-          .toJpeg(ref, defaultImageOptions)
-          .then(downloadImage)
-          .catch(handleError);
+        domtoimage.toJpeg(ref, defaultImageOptions).then(downloadImage).catch(handleError);
       }
       if (exportFormat === "png") {
-        domtoimage
-          .toPng(ref, defaultImageOptions)
-          .then(downloadImage)
-          .catch(handleError);
+        domtoimage.toPng(ref, defaultImageOptions).then(downloadImage).catch(handleError);
       }
     };
 

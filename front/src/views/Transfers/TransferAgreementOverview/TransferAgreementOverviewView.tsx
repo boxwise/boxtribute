@@ -327,7 +327,6 @@ function TransferAgreementOverviewView() {
       {
         Header: "Status",
         accessor: "state",
-        // eslint-disable-next-line react/no-unstable-nested-components
         Cell: ({ ...cellProps }) => (
           <StatusCell onClick={openTransferAgreementOverlay} {...cellProps} />
         ),

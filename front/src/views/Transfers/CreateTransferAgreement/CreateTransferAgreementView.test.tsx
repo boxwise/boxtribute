@@ -1,7 +1,7 @@
 import { vi, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import { screen, render, cleanup, fireEvent, waitFor } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { TransferAgreementType } from "types/generated/graphql";
