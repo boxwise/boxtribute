@@ -85,7 +85,7 @@
     "graphql": "^16.8.1"
   },
   "lint-staged": {
-    "*": "pnpm graphql-gen",
+    "*.{gql,graphql}": "pnpm graphql-gen",
     "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
     "*.{js,json,ts,tsx}": "prettier --write"
   }
