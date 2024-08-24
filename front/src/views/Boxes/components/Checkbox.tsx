@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable react/require-default-props */
 import React, { useEffect, forwardRef } from "react";
 
 // TODO rename
@@ -26,6 +24,8 @@ const useCombinedRefs = (...refs): React.MutableRefObject<any> => {
   return targetRef;
 };
 
+// TODO: Why this is complaining about missing component display name?
+// eslint-disable-next-line react/display-name
 const IndeterminateCheckbox = forwardRef<HTMLInputElement, IProps>(
   ({ indeterminate, ...rest }, ref: React.Ref<HTMLInputElement>) => {
     const defaultRef = React.useRef(null);

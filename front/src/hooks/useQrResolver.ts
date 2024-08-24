@@ -8,7 +8,6 @@ import {
 } from "types/generated/graphql";
 import { useErrorHandling } from "./useErrorHandling";
 
-// eslint-disable-next-line no-shadow
 export enum IQrResolverResultKind {
   SUCCESS = "success",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
