@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 import {
   Box,
   Box as BoxWrapper,
@@ -65,8 +64,8 @@ function ShipmentReceivingTable({
       <TableContainer maxW={maxTableWidth}>
         <Table {...getTableProps()} variant="simple" size="sm" borderColor="black">
           <Thead borderColor="black" borderWidth="1px">
-            {headerGroups.map((headerGroup) => (
-              <Tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroups.map((headerGroup, idx) => (
+              <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
                 <Th
                   style={{
                     borderBottom: "1px solid black",
@@ -109,12 +108,13 @@ function ShipmentReceivingTable({
           </Thead>
           <Tbody {...getTableBodyProps()}>
             {}
-            {rows.map((row) => {
+            {rows.map((row, idx) => {
               prepareRow(row);
 
               return (
                 <Tr
                   {...row.getRowProps()}
+                  key={idx}
                   style={{ border: "1px solid black" }}
                   onClick={() => onReconciliationBox(row.original.labelIdentifier)}
                 >

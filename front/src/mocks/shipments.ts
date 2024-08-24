@@ -170,7 +170,6 @@ export const generateMockShipment = ({
             numberOfItems: 12,
             product: product3,
             state:
-              // eslint-disable-next-line no-nested-ternary
               state === ShipmentState.Receiving
                 ? BoxState.Receiving
                 : state === ShipmentState.Sent

@@ -11,7 +11,7 @@ import { cache, boxReconciliationOverlayVar, IBoxReconciliationOverlayVar } from
 import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";

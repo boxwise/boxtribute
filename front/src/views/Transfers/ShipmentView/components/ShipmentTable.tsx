@@ -38,23 +38,26 @@ function ShipmentTable({ columns, data }: IShipmentTablePros) {
       <TableContainer maxW={maxTableWidth}>
         <Table {...getTableProps()} variant="simple" size="sm">
           <Thead>
-            {headerGroups.map((headerGroup) => (
-              <Tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <Th {...column.getHeaderProps()}>{column.render("Header")}</Th>
+            {headerGroups.map((headerGroup, idx) => (
+              <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
+                {headerGroup.headers.map((column, idx) => (
+                  <Th {...column.getHeaderProps()} key={idx}>
+                    {column.render("Header")}
+                  </Th>
                 ))}
               </Tr>
             ))}
           </Thead>
           <Tbody {...getTableBodyProps()}>
-            {rows.map((row) => {
+            {rows.map((row, idx) => {
               prepareRow(row);
               return (
-                <Tr {...row.getRowProps()}>
-                  {row.cells.map((cell) => (
+                <Tr {...row.getRowProps()} key={idx}>
+                  {row.cells.map((cell, idx) => (
                     <Td
                       data-testid={cell.column.id}
                       {...cell.getCellProps()}
+                      key={idx}
                       style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
                     >
                       {cell.render("Cell")}

@@ -1,7 +1,7 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import { screen, render, waitFor } from "tests/test-utils";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState } from "types/generated/graphql";

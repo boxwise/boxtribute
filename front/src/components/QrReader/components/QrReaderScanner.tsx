@@ -32,7 +32,6 @@ export type QrReaderScannerProps = {
 };
 
 const isMediaDevicesAPIAvailable = () => {
-  // eslint-disable-next-line no-shadow
   const isMediaDevicesAPIAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices;
 
   return isMediaDevicesAPIAvailable;
@@ -60,7 +59,6 @@ export function QrReaderScanner({
     };
 
     if (previewVideoRef.current == null) {
-      // eslint-disable-next-line no-console
       console.error("QR Reader: Video Element not (yet) available");
       return;
     }
@@ -78,7 +76,6 @@ export function QrReaderScanner({
       // check if video is available
       if (!isMediaDevicesAPIAvailable()) {
         const message = "QRReader: This browser doesn't support MediaDevices API.\"";
-        // eslint-disable-next-line no-console
         console.error(message);
         onResult(multiScan, null, new Error(message), browserQRCodeReaderRef.current);
       }
@@ -109,7 +106,6 @@ export function QrReaderScanner({
     }
   }, [delayBetweenScanAttempts, onResult, facingMode, zoom, previewVideoRef, multiScan]);
 
-  // eslint-disable-next-line arrow-body-style
   useEffect(() => {
     // This is the clean up function stopping the scanning.
     // It is triggered when the component unmounts or when multiScan changes.

@@ -122,11 +122,9 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-          // eslint-disable-next-line react/no-unstable-nested-components
           Header: ({ getToggleAllPageRowsSelectedProps }) => (
             <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
-          // eslint-disable-next-line react/no-unstable-nested-components
           Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
         ...col,

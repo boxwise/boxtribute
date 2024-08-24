@@ -35,7 +35,9 @@ export function FailedBoxesFromAssingToShipmentAlert({
       The following boxes were not assigned to the shipment:
       <UnorderedList>
         {failedBoxes.map((box) => (
-          <ListItem fontWeight="bold">{box.labelIdentifier}</ListItem>
+          <ListItem key={box.labelIdentifier} fontWeight="bold">
+            {box.labelIdentifier}
+          </ListItem>
         ))}
       </UnorderedList>
     </Text>
@@ -54,7 +56,9 @@ export function FailedBoxesFromMoveBoxesAlert({
       The following boxes were not moved:
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
-          <ListItem fontWeight="bold">{labelIdentifier}</ListItem>
+          <ListItem key={labelIdentifier} fontWeight="bold">
+            {labelIdentifier}
+          </ListItem>
         ))}
       </UnorderedList>
     </Text>
@@ -69,7 +73,9 @@ export function FailedBoxesFromAssignTagsAlert({
       The following boxes were not assigned tags:
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
-          <ListItem fontWeight="bold">{labelIdentifier}</ListItem>
+          <ListItem key={labelIdentifier} fontWeight="bold">
+            {labelIdentifier}
+          </ListItem>
         ))}
       </UnorderedList>
     </Text>
