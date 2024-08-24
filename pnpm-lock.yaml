@@ -82,8 +82,8 @@ importers:
         specifier: ^2.29.3
         version: 2.30.0
       dom-to-image-more:
-        specifier: ^3.2.0
-        version: 3.2.0
+        specifier: ^3.4.0
+        version: 3.4.0
       framer-motion:
         specifier: ^10.15.1
         version: 10.18.0(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
@@ -6346,8 +6346,8 @@ packages:
   dom-serializer@1.4.1:
     resolution: {integrity: sha512-VHwB3KfrcOOkelEG2ZOfxqLZdfkil8PtJi4P8N2MMXucZq2yLp75ClViUlOVwyoHEDjYU433Aq+5zWP61+RGag==}
 
-  dom-to-image-more@3.2.0:
-    resolution: {integrity: sha512-2bGQTB6m17MBseVhIjShwZqqqCyVS9GgTykWqvVXMqr56fSgHhXnEvZfZkaSuHJYW3ICZQ3sZwAu+UY5tfsF9Q==}
+  dom-to-image-more@3.4.0:
+    resolution: {integrity: sha512-8H2btkHkBcjTBKKz4hEIOqJUUk94JfAzbLIR7qKIKssbnum49MFvWf2G5+UrsPozmIgmbzJRSpn8LMcykTNdQg==}
 
   dom-walk@0.1.2:
     resolution: {integrity: sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==}
@@ -20827,7 +20827,7 @@ snapshots:
       domhandler: 4.3.1
       entities: 2.2.0
 
-  dom-to-image-more@3.2.0: {}
+  dom-to-image-more@3.4.0: {}
 
   dom-walk@0.1.2: {}
 
