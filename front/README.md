@@ -24,6 +24,8 @@ For almost all features of our development set-up you should also have [node](ht
 
 We recommend you to install node through a [version control like nvm](https://github.com/nvm-sh/nvm). It provides you with much more clarity which version you are running and makes it easy to switch versions of node.
 
+To install pnpm, see https://pnpm.io/installation. We recommend either using [npm global install](https://pnpm.io/installation#using-npm) or [Corepack](https://pnpm.io/installation#using-corepack).
+
 ### Linting and Formatting in VSCode
 
 We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
