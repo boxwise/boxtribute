@@ -3,7 +3,6 @@ import { Alert, AlertIcon, chakra, Stack } from "@chakra-ui/react";
 
 export interface IAlertWithoutActionProps {
   alertText: React.ReactNode;
-  // eslint-disable-next-line react/require-default-props
   type?: "error" | "warning";
 }
 

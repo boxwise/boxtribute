@@ -36,11 +36,11 @@ const mockGetUserMedia = vi.fn(async () => new Promise<void>(resolve => {
   resolve()
 }))
 
-Object.defineProperty(navigator, 'mediaDevices', {
+Object.defineProperty(navigator, "mediaDevices", {
   value: {
     getUserMedia: mockGetUserMedia,
   },
-})
+});
 
 // TODO: Function for test what text is displayed deppending on userAgent?
 // Mock the `navigator.userAgent` property to check for iOS browsers.

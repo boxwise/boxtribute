@@ -94,7 +94,6 @@ function ShipmentContent({
         id: "id",
         Header: "",
         show: showRemoveIcon,
-        // eslint-disable-next-line react/no-unstable-nested-components
         Cell: ({ row }: CellProps<any>) => (
           <RemoveBoxCell
             row={row}

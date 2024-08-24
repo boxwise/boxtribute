@@ -1,6 +1,6 @@
 import { vi, it, describe, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
 import { screen, render, waitFor, within } from "tests/test-utils";
