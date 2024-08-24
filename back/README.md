@@ -60,7 +60,7 @@ On Windows run instead
 
 3.  Run the `pre-commit` checks to verify the setup (it might actually show some complaints)
 
-        pre-commit run --all-files
+        git ls-files -- back | xargs pre-commit run --files
 
 Now you're all set up using Python code quality tools! `pre-commit` automatically checks the staged patch before committing. If it rejects a patch, add the corrections and try to commit again.
 
@@ -119,7 +119,7 @@ The `db` docker-compose service runs on a dump (`back/init.sql`) generated from 
     docker compose rm -sf db
     docker compose up --build webapp
     curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
-    mysqldump --routines --add-drop-table --disable-keys --extended-insert --gtid --tz-utc --dump-date --skip-lock-tables --disable-keys --quote-names --create-options --add-locks --protocol=tcp -u root -p --host=127.0.0.1 --port=32000 dropapp_dev > back/init.sql
+    mysqldump --routines --add-drop-table --disable-keys --extended-insert --gtid --tz-utc --dump-date --skip-lock-tables --disable-keys --quote-names --create-options --add-locks --protocol=tcp -u root -pdropapp_root --host=127.0.0.1 --port=32000 dropapp_dev > back/init.sql
 
 You can also create the dump from a GUI like MySQL workbench or DBeaver.
 

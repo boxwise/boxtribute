@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useToast, UseToastOptions } from "@chakra-ui/react";
 import { useCallback } from "react";
 

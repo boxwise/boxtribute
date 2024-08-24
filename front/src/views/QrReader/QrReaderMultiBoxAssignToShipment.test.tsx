@@ -1,6 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -302,13 +302,6 @@ assignToShipmentMutationTests.forEach(({ name, mocks, toast }) => {
         }),
       ),
     );
-
-    if (!toast.isError) {
-      // forward to shipmentView
-      expect(
-        await screen.findByRole("heading", { name: "/bases/1/transfers/shipments/1" }),
-      ).toBeInTheDocument();
-    }
   });
 });
 
@@ -358,8 +351,8 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   expect(submitButton).not.toBeDisabled();
   await user.click(submitButton);
 
-  // selected boxes reduced by one
-  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
+  // selected boxes remains the same
+  expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
   // toast shown
   await waitFor(() =>
@@ -378,7 +371,9 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
 
   // click link to remove all not failed boxes
   await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
-  expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /assign all/i })).not.toBeInTheDocument();
+  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /assign all/i })).toBeInTheDocument();
+  // Alert appears because box was assigned to shipment and thus not inStock.
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /assign all/i })).toBeDisabled();
 });

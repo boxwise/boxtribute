@@ -1,5 +1,6 @@
-/* eslint-disable react/function-component-definition */
-/* eslint-disable no-console */
+/* eslint-disable import/export */
+// TODO: Investigate possible render function overload.
+
 import { vi } from "vitest";
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
@@ -100,6 +101,14 @@ function render(
   };
 
   mockMatchMediaQuery(mediaQueryReturnValue);
+
+  // Mock BaseId URL Param.
+  // eslint-disable-next-line no-restricted-globals
+  Object.defineProperty(window, "location", {
+    value: {
+      pathname: `http://localhost:3000/bases/${globalPreferences ? globalPreferences.globalPreferences.selectedBase?.id : base1.id}/`,
+    },
+  });
 
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>

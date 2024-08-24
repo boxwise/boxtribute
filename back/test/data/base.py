@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from boxtribute_server.models.definitions.base import Base
 
@@ -12,6 +14,7 @@ def data():
             "currency_name": "dingo dollars",
             "seq": 1,
             "organisation": organisation_data()[0]["id"],
+            "deleted_on": None,
         },
         {
             "id": 2,
@@ -19,6 +22,7 @@ def data():
             "currency_name": "monster munch",
             "seq": 1,
             "organisation": organisation_data()[0]["id"],
+            "deleted_on": None,
         },
         {
             "id": 3,
@@ -26,6 +30,7 @@ def data():
             "currency_name": "mustard",
             "seq": 1,
             "organisation": organisation_data()[1]["id"],
+            "deleted_on": None,
         },
         {
             "id": 4,
@@ -33,6 +38,15 @@ def data():
             "currency_name": "pounds",
             "seq": 1,
             "organisation": organisation_data()[1]["id"],
+            "deleted_on": None,
+        },
+        {
+            "id": 5,
+            "name": "third base",
+            "currency_name": "euro",
+            "seq": 1,
+            "organisation": organisation_data()[2]["id"],
+            "deleted_on": datetime(2023, 1, 1),
         },
     ]
 
@@ -45,6 +59,11 @@ def default_base():
 @pytest.fixture
 def another_base():
     return data()[2]
+
+
+@pytest.fixture
+def deleted_base():
+    return data()[4]
 
 
 @pytest.fixture

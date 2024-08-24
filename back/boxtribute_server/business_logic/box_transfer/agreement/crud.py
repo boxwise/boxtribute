@@ -21,16 +21,19 @@ from ....models.utils import convert_ids, utcnow
 
 
 def _base_ids_of_organisation(organisation_id):
-    """Return IDs of that bases that belong to the organisation with given ID."""
+    """Return IDs of non-deleted bases that belong to the organisation with given ID."""
     return [
         b.id
-        for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
+        for b in Base.select(Base.id).where(
+            Base.organisation_id == organisation_id,
+            Base.deleted_on.is_null(),
+        )
     ]
 
 
 def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
     """Raise InvalidTransferAgreementBase exception if any of the given bases is not run
-    by the given organisation.
+    by the given organisation, or deleted.
     """
     organisation_base_ids = _base_ids_of_organisation(organisation_id)
     invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]

@@ -37,12 +37,12 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
-      graphQLErrors.map(({ message, locations, path }) =>
+      graphQLErrors.forEach(({ message, locations, path, extensions }) => {
         triggerError({
-          message: `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+          message: `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations)}, Path: ${path}, Extensions: ${JSON.stringify(extensions?.description)}`,
           userMessage: "Something went wrong!",
-        }),
-      );
+        });
+      });
     }
     if (networkError) {
       triggerError({

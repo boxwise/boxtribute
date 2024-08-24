@@ -21,7 +21,9 @@ def resolve_agreement_target_organisation(transfer_agreement_obj, info):
 
 
 @transfer_agreement.field("sourceBases")
-def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
+def resolve_transfer_agreement_source_bases(
+    transfer_agreement_obj, _, filter_input=None
+):
     source_bases = retrieve_transfer_agreement_bases(
         agreement=transfer_agreement_obj, kind="source"
     )
@@ -31,11 +33,15 @@ def resolve_transfer_agreement_source_bases(transfer_agreement_obj, _):
     authorize(
         permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
     )
-    return source_bases
+    if filter_input is not None and filter_input.get("include_deleted") is True:
+        return source_bases
+    return [b for b in source_bases if b.deleted_on is None]
 
 
 @transfer_agreement.field("targetBases")
-def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
+def resolve_transfer_agreement_target_bases(
+    transfer_agreement_obj, _, filter_input=None
+):
     source_bases = retrieve_transfer_agreement_bases(
         agreement=transfer_agreement_obj, kind="source"
     )
@@ -45,7 +51,9 @@ def resolve_transfer_agreement_target_bases(transfer_agreement_obj, _):
     authorize(
         permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
     )
-    return target_bases
+    if filter_input is not None and filter_input.get("include_deleted") is True:
+        return target_bases
+    return [b for b in target_bases if b.deleted_on is None]
 
 
 @transfer_agreement.field("shipments")

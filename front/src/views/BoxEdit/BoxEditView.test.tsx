@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
 import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { box123 } from "mocks/boxes";

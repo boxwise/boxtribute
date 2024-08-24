@@ -61,7 +61,7 @@ Protected.defaultProps = {
 
 function App() {
   const { logout } = useAuth0();
-  const { isLoading, error } = useLoadAndSetGlobalPreferences();
+  const { error } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
 
@@ -75,7 +75,6 @@ function App() {
   }, [location]);
 
   if (error) {
-    // eslint-disable-next-line no-console
     console.error(error);
     return (
       <>
@@ -87,9 +86,7 @@ function App() {
       </>
     );
   }
-  if (isLoading) {
-    return <div />;
-  }
+
   return (
     <Routes>
       <Route index />

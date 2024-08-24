@@ -452,8 +452,8 @@ def test_authorization(read_only_client, mocker):
         assert_forbidden_request(read_only_client, query)
 
     # Test case 11.1.5
-    # Base 5 does not exist
-    query = "query { createdBoxes(baseId: 5) { facts { productId } } }"
+    # Base 99 does not exist
+    query = "query { createdBoxes(baseId: 99) { facts { productId } } }"
     assert_forbidden_request(read_only_client, query)
 
     # Test case 11.1.6
@@ -478,11 +478,11 @@ def test_authorization(read_only_client, mocker):
 
 def test_public_query_validation(read_only_client):
     for query in [
-        "query { beneficiaryDemographics(baseId: 5) { facts { age } } }",
-        "query { createdBoxes(baseId: 5) { facts { productId } } }",
-        "query { topProductsCheckedOut(baseId: 5) { facts { productId } } }",
-        "query { topProductsDonated(baseId: 5) { facts { productId } } }",
-        "query { movedBoxes(baseId: 5) { facts { categoryId } } }",
-        "query { stockOverview(baseId: 5) { facts { categoryId } } }",
+        "query { beneficiaryDemographics(baseId: 99) { facts { age } } }",
+        "query { createdBoxes(baseId: 99) { facts { productId } } }",
+        "query { topProductsCheckedOut(baseId: 99) { facts { productId } } }",
+        "query { topProductsDonated(baseId: 99) { facts { productId } } }",
+        "query { movedBoxes(baseId: 99) { facts { categoryId } } }",
+        "query { stockOverview(baseId: 99) { facts { categoryId } } }",
     ]:
         assert_bad_user_input(read_only_client, query, endpoint="public")

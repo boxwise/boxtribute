@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { OrganisationAndBasesQuery } from "types/generated/graphql";
 import { ORGANISATION_AND_BASES_QUERY } from "queries/queries";
+import { useBaseIdParam } from "./useBaseIdParam";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
@@ -12,6 +13,8 @@ export const useLoadAndSetGlobalPreferences = () => {
   const location = useLocation();
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
   const [error, setError] = useState<string>();
+
+  const { baseId } = useBaseIdParam()
 
   const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
@@ -21,7 +24,8 @@ export const useLoadAndSetGlobalPreferences = () => {
     if (user && !globalPreferences.selectedBase?.id) {
       runOrganisationAndBasesQuery();
     }
-  }, [runOrganisationAndBasesQuery, user, globalPreferences.selectedBase?.id]);
+  }, [runOrganisationAndBasesQuery,
+    user, globalPreferences.selectedBase?.id]);
 
   // set available bases
   useEffect(() => {
@@ -34,11 +38,9 @@ export const useLoadAndSetGlobalPreferences = () => {
           payload: bases,
         });
 
-        // retrieve base id from the url
-        const baseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
         // validate if requested base is in the array of available bases
-        if (baseIdInput != null) {
-          const matchingBase = bases.find((base) => base.id === baseIdInput[1]);
+        if (baseId !== "0") {
+          const matchingBase = bases.find((base) => base.id === baseId);
           if (matchingBase) {
             // set selected base
             dispatch({
@@ -65,14 +67,7 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [
-    data,
-    isOrganisationAndBasesQueryLoading,
-    dispatch,
-    location.pathname,
-    globalPreferences?.selectedBase?.id,
-    navigate,
-  ]);
+  }, [data, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, globalPreferences?.selectedBase?.id, navigate, baseId]);
 
   const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 

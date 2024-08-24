@@ -17,11 +17,8 @@ export interface INumberFieldProps {
   errors: object;
   control: any;
   register: any;
-  // eslint-disable-next-line react/require-default-props
   showLabel?: boolean;
-  // eslint-disable-next-line react/require-default-props
   showError?: boolean;
-  // eslint-disable-next-line react/require-default-props
   testId?: any;
 }
 

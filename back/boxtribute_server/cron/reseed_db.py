@@ -4,7 +4,9 @@ from ..db import db
 from ..utils import in_demo_environment, in_staging_environment
 from .data_faking import Generator
 
-SEED_FILENAME = "init.sql" if in_staging_environment() else "minimal.sql"
+SEED_FILENAME = (
+    "init.sql" if (in_staging_environment() or in_demo_environment()) else "minimal.sql"
+)
 SEED_FILEPATH = Path(__file__).parent.resolve().parent.parent / SEED_FILENAME
 
 
@@ -15,9 +17,9 @@ def reseed_db():
     with db.database.cursor() as cursor, open(SEED_FILEPATH) as seed:
         execute_sql_statements_from_file(cursor, seed)
 
-    # Seed the staging DB with the large init.sql dump and skip running the fake-data
-    # generation because the long runtime causes the connection to the GCloud MySQL
-    # server to be interrupted
+    # Seed the staging/demo DB with the large init.sql dump and skip running the
+    # fake-data generation because the long runtime causes the connection to the GCloud
+    # MySQL server to be interrupted
     if in_staging_environment() or in_demo_environment():
         # The seed contains Auth0 role IDs of the dev tenant which need to be replaced
         update_auth0_role_ids()
@@ -53,6 +55,8 @@ def execute_sql_statements_from_file(cursor, sql_file):
 
 
 # Obtained from staging/tenant.yaml in the system-management repo
+# 1. Convert to JSON: dasel -f tenant.yaml -r yaml -w json > tenant.json
+# 2. Change data structure: jq '.roles | map({(.name): .id}) | add' tenant.json
 STAGING_AUTH0_ROLE_IDS = {
     "administrator": "rol_I49URaIyhBnMQHJQ",
     "base_100000000_coordinator": "rol_tcBvcFXhVekggU8H",
@@ -104,8 +108,51 @@ STAGING_AUTH0_ROLE_IDS = {
 }
 
 
+DEMO_AUTH0_ROLE_IDS = {
+    "administrator": "rol_op4UNr1UtE1wJsa9",
+    "base_100000000_coordinator": "rol_Vw7ufFoqp4sunt0D",
+    "base_100000000_free_shop_volunteer": "rol_45SoLF5ExZpR8c4D",
+    "base_100000000_label_creation": "rol_Yo0RoX9Jj608S90x",
+    "base_100000000_library_volunteer": "rol_Am7LTDQvyoeP4fvs",
+    "base_100000000_warehouse_volunteer": "rol_nqsovW11U6knqajN",
+    "base_100000001_coordinator": "rol_yxO1hxJlDg6PisFU",
+    "base_100000001_free_shop_volunteer": "rol_1VnGx7URodlD7Nc4",
+    "base_100000001_label_creation": "rol_muIeQrZ0P7MEDluy",
+    "base_100000001_library_volunteer": "rol_onEjTcGJ7a5POcPn",
+    "base_100000001_warehouse_volunteer": "rol_bCLxWbN4FwiX5TiO",
+    "base_1_coordinator": "rol_Ph8BOcANdYLDQrIE",
+    "base_1_free_shop_volunteer": "rol_yP4RsBfpW3vTTdiW",
+    "base_1_label_creation": "rol_kFXWQedhsisZnjuL",
+    "base_1_library_volunteer": "rol_4YwmG5QogoWHBOmn",
+    "base_1_warehouse_volunteer": "rol_8GhKyFhbZkEHYP0f",
+    "base_2_coordinator": "rol_EYKFuEd1sw2v127e",
+    "base_2_free_shop_volunteer": "rol_HuL7HiLFKPVw69Zm",
+    "base_2_label_creation": "rol_lPdKTOzdHouc0Kum",
+    "base_2_library_volunteer": "rol_IIvTCKV1q6ZodJtK",
+    "base_2_warehouse_volunteer": "rol_M5sW5aR9S1H6P3jN",
+    "base_3_coordinator": "rol_Ah0OjBn2UyxAMrMB",
+    "base_3_free_shop_volunteer": "rol_IhnLdlP4HGtt7Ejl",
+    "base_3_label_creation": "rol_5nsnxGTKOsq5Q36D",
+    "base_3_library_volunteer": "rol_rgPftpf2GDGN0fFP",
+    "base_3_warehouse_volunteer": "rol_dygeJmfDmrXdvlmG",
+    "base_4_coordinator": "rol_OlxAuwTSUViCg1o9",
+    "base_4_free_shop_volunteer": "rol_YeJEYELuMadIYiml",
+    "base_4_label_creation": "rol_Xvm4DS5Rxu60vHxm",
+    "base_4_warehouse_volunteer": "rol_rr6vS0gNxkbqPk0W",
+    "boxtribute_god": "rol_M4N5piyqWIe5l9Td",
+    "warehouse_volunteer": "rol_fyybK5RykMrK7bIE",
+}
+
+
 def update_auth0_role_ids():
-    nr_roles = len(STAGING_AUTH0_ROLE_IDS)
+    if in_staging_environment():
+        role_ids = STAGING_AUTH0_ROLE_IDS
+    elif in_demo_environment():
+        role_ids = DEMO_AUTH0_ROLE_IDS
+    else:  # pragma: no cover
+        raise ValueError("Invalid environment")
+
+    nr_roles = len(role_ids)
     when_then_statements = nr_roles * "WHEN %s THEN %s "
     command = f"""\
 UPDATE cms_usergroups_roles
@@ -117,5 +164,5 @@ SET auth0_role_id =
     db.database.execute_sql(
         command,
         # convert mapping of role names and IDs into flat list
-        [item for role_info in STAGING_AUTH0_ROLE_IDS.items() for item in role_info],
+        [item for role_info in role_ids.items() for item in role_info],
     )

@@ -68,7 +68,7 @@ The naming convention for RBP is a singular noun (the resource; multi-word nouns
 
 Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:write`, `stock:read`, `tag_relation:read`, and `beneficiary:read`.
 
-The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0).
+The ground truth for permissions management are the Auth0 Action scripts. Any updates to the scripts are downloaded to the [System Management repository](https://github.com/boxwise/system-management). The links to the Auth0 scripts are found in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0), along with other information about RBPs, ABPs, and dropapp menues.
 
 ### User management in Auth0
 
@@ -82,7 +82,6 @@ Cf. [related ADR](./adr_auth0.md)
 
 Any user registered for boxtribute has their authorization data (`app_metadata`) stored in the Auth0 database. The user attributes are:
 
-- `is_god`: `"1"` for god user, `"0"` otherwise
 - `usergroup_id`: the ID of the usergroup the user belongs to
 - `base_ids`: a list of base IDs that the user has access to
 - `organisation_id`: the ID of the organisation the user belongs to
@@ -91,6 +90,8 @@ During registration, the user manually gets assigned a role, indicating their us
 
 When the user has successfully logged in, a custom Auth0 post-login action script runs ([`create-dynamic-permissions`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/create-dynamic-permissions/code.js)). The script creates a JWT with the content derived from user authorization data and their role.
 Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format). Auth0 permissions assigned to the user currently have no effect.
+
+Auth0 also offers the feature to assign permissions to user roles. Although these permissions were once seeded when creating the roles, they might become outdated, and should not be relied upon. Using Auth0 permissions is also less flexible than the permissions management in the Action scripts.
 
 #### Specification of custom JWT
 
@@ -105,11 +106,12 @@ Field name | Kind | Description | Usage
 `azp` | standard | ID of client through which the JWT was requested | traceability of application used for authentication
 `gty` | standard | Grant type | -
 `sub` | standard | User ID | see [below](#representation-of-current-user)
-`https://www.boxtribute.com/email` | custom | User email | -
+`https://www.boxtribute.com/email` | custom | User email (only in access token) | -
 `https://www.boxtribute.com/roles` | custom | List of user's roles | -
 `https://www.boxtribute.com/base_ids` | custom | List of IDs of bases that the user has access to | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds (only in access token) | see [below](#representation-of-current-user)
+`https://www.boxtribute.com/actions` | custom | List of ABPs that the user holds (only in ID token) | -
 
 ### Implementation of authorization
 

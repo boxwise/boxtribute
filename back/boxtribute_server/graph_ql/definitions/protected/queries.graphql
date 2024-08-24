@@ -1,6 +1,6 @@
 type Query {
   " Return all [`Bases`]({{Types.Base}}) that the client is authorized to view. "
-  bases: [Base!]!
+  bases(filterInput: FilterBaseInput): [Base!]!
   base(id: ID!): Base
   " Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view. "
   distributionSpots: [DistributionSpot!]!

@@ -30,7 +30,7 @@ class Base(db.Model):  # type: ignore
         null=True,
     )
     delete_inactive_users = IntegerField(constraints=[SQL("DEFAULT 30")])
-    deleted = DateTimeField(null=True, default=None)
+    deleted_on = DateTimeField(null=True, column_name="deleted", default=None)
     dropcap_adult = IntegerField(
         column_name="dropcapadult", constraints=[SQL("DEFAULT 99999")]
     )
