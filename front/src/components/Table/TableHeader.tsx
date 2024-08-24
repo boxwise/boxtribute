@@ -9,10 +9,10 @@ interface IFilteringSortingTableHeaderProps {
 export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingTableHeaderProps) {
   return (
     <Thead>
-      {headerGroups.map((headerGroup: HeaderGroup) => (
-        <Tr {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((column) => (
-            <Th {...column.getHeaderProps()} color="black">
+      {headerGroups.map((headerGroup: HeaderGroup, idx) => (
+        <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
+          {headerGroup.headers.map((column, idx) => (
+            <Th {...column.getHeaderProps()} color="black" key={idx}>
               <HStack alignItems="center" spacing={1}>
                 {column.isSorted && column.isSortedDesc && (
                   <TriangleDownIcon aria-label="sorted descending" />

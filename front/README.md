@@ -18,17 +18,13 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 
 Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the front-end.
 
-### Set-up pre-commit
-
-[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, before you are committing your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
-The downside is that you need python to be installed on your computer.
-Please check the [back-end README](../back/README.md#set-up-pre-commit) to set it up.
-
 ### Install node and pnpm
 
 For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE (e.g. VSCode).
 
 We recommend you to install node through a [version control like nvm](https://github.com/nvm-sh/nvm). It provides you with much more clarity which version you are running and makes it easy to switch versions of node.
+
+To install pnpm, see https://pnpm.io/installation. We recommend either using [npm global install](https://pnpm.io/installation#using-npm) or [Corepack](https://pnpm.io/installation#using-corepack).
 
 ### Linting and Formatting in VSCode
 
@@ -76,9 +72,13 @@ For example, to add XYZ to the `package.json` file in the `front` folder while d
 Afterwards:
 
 1. stop docker-compose and run `docker compose up` again
-2. run `pnpm` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
+2. run `pnpm i` in your local front folder (so that your tooling like VSCode also picks up the changes, like new TS types etc)
 
 (This advice has come from https://github.com/BretFisher/node-docker-good-defaults)
+
+## About Husky
+
+`husky` is a git hook tool that we use to format and lint staged files on pre-commits. In case you use a version manager tool (e.g. `nvm`, `asdf`), or run into trouble commiting your code, consult https://typicode.github.io/husky/how-to.html#node-version-managers-and-guis.
 
 ## Testing
 
@@ -96,8 +96,14 @@ Tests and test coverage can be run with the following command:
 # run tests
 docker compose exec front pnpm test
 
+# or locally
+pnpm test
+
 # test coverage
 docker compose exec front pnpm test:coverage
+
+# or locally
+pnpm test:coverage
 ```
 
 Here, a list of best practices you should follow when writing front-end tests with React Testing Library:
@@ -106,6 +112,11 @@ Here, a list of best practices you should follow when writing front-end tests wi
 - [Write tests that simulate user behavior rather than single components](https://kentcdodds.com/blog/write-fewer-longer-tests)
 - [Use the right queries in React Testing Library according to their priorization](https://testing-library.com/docs/queries/about#priority)
 - [Maybe use this Browser extension to find the best query](https://chrome.google.com/webstore/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
+
+## Mobile functional testing
+
+Using Boxtribute with a mobile device is one of the main use cases, therefore we should do some functional testing of the work we are doing whenever possible.
+Check https://developer.chrome.com/docs/devtools/remote-debugging/ to know how to debug local development with your Android phone. For Mac/Safari/iOS you will need a Mac and an iPhone simulator set up.
 
 ## Conventions for file and folder organisation
 
