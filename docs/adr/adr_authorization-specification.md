@@ -68,7 +68,7 @@ The naming convention for RBP is a singular noun (the resource; multi-word nouns
 
 Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:write`, `stock:read`, `tag_relation:read`, and `beneficiary:read`.
 
-The mapping of usergroup to ABPs, and ABP to RBPs is listed in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0).
+The ground truth for permissions management are the Auth0 Action scripts. Any updates to the scripts are downloaded to the [System Management repository](https://github.com/boxwise/system-management). The links to the Auth0 scripts are found in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0), along with other information about RBPs, ABPs, and dropapp menues.
 
 ### User management in Auth0
 
@@ -90,6 +90,8 @@ During registration, the user manually gets assigned a role, indicating their us
 
 When the user has successfully logged in, a custom Auth0 post-login action script runs ([`create-dynamic-permissions`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/create-dynamic-permissions/code.js)). The script creates a JWT with the content derived from user authorization data and their role.
 Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format). Auth0 permissions assigned to the user currently have no effect.
+
+Auth0 also offers the feature to assign permissions to user roles. Although these permissions were once seeded when creating the roles, they might become outdated, and should not be relied upon. Using Auth0 permissions is also less flexible than the permissions management in the Action scripts.
 
 #### Specification of custom JWT
 

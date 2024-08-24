@@ -32,11 +32,9 @@ mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 
 // This is needed to mock the `navigator.mediaDevices.getUserMedia` function,
 // used to ask users for camera permissions in order to scan QR codes.
-const mockGetUserMedia = vi.fn(async () => {
-  return new Promise<void>((resolve) => {
-    resolve();
-  });
-});
+const mockGetUserMedia = vi.fn(async () => new Promise<void>(resolve => {
+  resolve()
+}))
 
 Object.defineProperty(navigator, "mediaDevices", {
   value: {
@@ -47,8 +45,8 @@ Object.defineProperty(navigator, "mediaDevices", {
 // TODO: Function for test what text is displayed deppending on userAgent?
 // Mock the `navigator.userAgent` property to check for iOS browsers.
 Object.defineProperty(navigator, "userAgent", {
-  get: function () {
-    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0";
+  get() {
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
   },
   // configurable: true
 });
