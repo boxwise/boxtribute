@@ -1,6 +1,4 @@
-"""
-GraphQL input types for mutations **only**.
-"""
+# GraphQL input types for mutations **only**.
 input BoxCreationInput {
   productId: Int!
   sizeId: Int!
@@ -111,7 +109,7 @@ input TransferAgreementCreationInput {
   initiatingOrganisationId: Int!
   partnerOrganisationId: Int!
   type: TransferAgreementType!
-  # pass local date
+  " Validity dates must be in local time "
   validFrom: Date
   validUntil: Date
   initiatingOrganisationBaseIds: [Int!]!

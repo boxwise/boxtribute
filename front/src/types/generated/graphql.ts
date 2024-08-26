@@ -22,7 +22,7 @@ export type AssignTagToBoxesResult = BoxResult | DeletedTagError | InsufficientP
  */
 export type Base = {
   __typename?: 'Base';
-  /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base  */
+  /**  List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters  */
   beneficiaries?: Maybe<BeneficiaryPage>;
   currencyName?: Maybe<Scalars['String']>;
   deletedOn?: Maybe<Scalars['Datetime']>;
@@ -33,13 +33,13 @@ export type Base = {
   distributionEventsTrackingGroups: Array<DistributionEventsTrackingGroup>;
   distributionSpots: Array<DistributionSpot>;
   id: Scalars['ID'];
-  /**  List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base  */
+  /**  List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base  */
   locations: Array<ClassicLocation>;
   name: Scalars['String'];
   organisation: Organisation;
-  /**  List of all undeleted [`Products`]({{Types.Product}}) registered in this base  */
+  /**  List of all non-deleted [`Products`]({{Types.Product}}) registered in this base  */
   products: Array<Product>;
-  /**  List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}})  */
+  /**  List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}})  */
   tags?: Maybe<Array<Tag>>;
 };
 
@@ -223,7 +223,6 @@ export type BoxAssignTagInput = {
   tagId: Scalars['Int'];
 };
 
-/** GraphQL input types for mutations **only**. */
 export type BoxCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
   locationId: Scalars['Int'];
@@ -292,7 +291,7 @@ export type BoxesStillAssignedToProductError = {
 export type ClassicLocation = Location & {
   __typename?: 'ClassicLocation';
   base?: Maybe<Base>;
-  /**  List of all the [`Boxes`]({{Types.Box}}) in this classic location  */
+  /**  List of all [`Boxes`]({{Types.Box}}) (incl. deleted) in this classic location  */
   boxes?: Maybe<BoxPage>;
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
@@ -304,6 +303,7 @@ export type ClassicLocation = Location & {
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
   name?: Maybe<Scalars['String']>;
+  /**  Used for ordering purposes  */
   seq?: Maybe<Scalars['Int']>;
 };
 
@@ -394,7 +394,6 @@ export type Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimen
 
 export type DisableStandardProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
-/** TODO: Add description here once specs are final/confirmed */
 export type DistributionEvent = {
   __typename?: 'DistributionEvent';
   boxes: Array<Box>;
@@ -449,7 +448,6 @@ export type DistributionEventsStatistics = {
   sizeLabel: Scalars['String'];
 };
 
-/** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsTrackingEntry = {
   __typename?: 'DistributionEventsTrackingEntry';
   dateTimeOfTracking: Scalars['Datetime'];
@@ -461,7 +459,6 @@ export type DistributionEventsTrackingEntry = {
   size: Size;
 };
 
-/** TODO: Add description here once specs are final/confirmed */
 export type DistributionEventsTrackingGroup = {
   __typename?: 'DistributionEventsTrackingGroup';
   createdOn: Scalars['Datetime'];
@@ -476,10 +473,10 @@ export enum DistributionEventsTrackingGroupState {
   InProgress = 'InProgress'
 }
 
-/** TODO: Add description here once specs are final/confirmed */
 export type DistributionSpot = Location & {
   __typename?: 'DistributionSpot';
   base?: Maybe<Base>;
+  /**  Not implemented, only for compatibility with Location interface  */
   boxes?: Maybe<BoxPage>;
   comment: Scalars['String'];
   distributionEvents: Array<DistributionEvent>;
@@ -490,7 +487,6 @@ export type DistributionSpot = Location & {
 };
 
 
-/** TODO: Add description here once specs are final/confirmed */
 export type DistributionSpotBoxesArgs = {
   filterInput?: InputMaybe<FilterBoxInput>;
   paginationInput?: InputMaybe<PaginationInput>;
@@ -694,356 +690,232 @@ export type MovedBoxesResult = {
   targetId: Scalars['ID'];
 };
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type Mutation = {
   __typename?: 'Mutation';
+  /**  Change state of specified transfer agreement to `Accepted`. Only valid for agreements in `UnderReview` state. The client must be member of all agreement target bases.  */
   acceptTransferAgreement?: Maybe<TransferAgreement>;
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignBoxToDistributionEvent?: Maybe<Box>;
   assignTag?: Maybe<TaggableResource>;
   /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   assignTagToBoxes?: Maybe<AssignTagToBoxesResult>;
+  /**  Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment.  */
   cancelShipment?: Maybe<Shipment>;
+  /**  Change state of specified transfer agreement to `Canceled`. Only valid for agreements in `UnderReview` or `Accepted` state. The client must be member of either all agreement target bases or all agreement source bases.  */
   cancelTransferAgreement?: Maybe<TransferAgreement>;
   changeDistributionEventState?: Maybe<DistributionEvent>;
   completeDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
+  /**  Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary.  */
   createBeneficiary?: Maybe<Beneficiary>;
+  /**  Create a new box in a location, containing items of certain product and size. Optionally pass tags to assign to the box.  */
   createBox?: Maybe<Box>;
+  /**  Create a new custom product in a base, specifying properties like name, gender, size range, and price. Return errors in case of invalid input. The client must be member of the specified base.  */
   createCustomProduct?: Maybe<CreateCustomProductResult>;
   createDistributionEvent?: Maybe<DistributionEvent>;
   createDistributionSpot?: Maybe<DistributionSpot>;
   createQrCode?: Maybe<QrCode>;
+  /**  Create a new shipment between two bases. The specified transfer agreement must be in `Accepted` state. The client must be member of the specified source base.  */
   createShipment?: Maybe<Shipment>;
+  /**  Create a new tag for a base, described by name, color and type.  */
   createTag?: Maybe<Tag>;
+  /**  Create new transfer agreement with with a partner organisation (the client's organisation is the initiating organisation). By default, the agreement is established with non-deleted bases of the partner organisation, and is infinitely valid. As a result, any base added to that organisation afterwards will NOT be part of the agreement; instead a new agreement needs to be established. If an accepted agreement with the same set of organisations and bases already exists, an error is returned. The client must be member of all bases of the initiating organisation.   */
   createTransferAgreement?: Maybe<TransferAgreement>;
+  /**  Deactivate beneficiary with specified ID.  */
   deactivateBeneficiary?: Maybe<Beneficiary>;
   /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   deleteBoxes?: Maybe<DeleteBoxesResult>;
+  /**  Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in.  */
   deleteProduct?: Maybe<DeleteProductResult>;
+  /**  Soft-delete tag with specified ID.  */
   deleteTag?: Maybe<Tag>;
+  /**  Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in.  */
   disableStandardProduct?: Maybe<DisableStandardProductResult>;
+  /**  Edit properties of the custom product with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in.  */
   editCustomProduct?: Maybe<EditCustomProductResult>;
+  /**  Edit properties of the standard product instantiation with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in.  */
   editStandardProductInstantiation?: Maybe<EditStandardProductInstantiationResult>;
+  /**  Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base.  */
   enableStandardProduct?: Maybe<EnableStandardProductResult>;
+  /**  Change state of specified shipment to `Lost`, and state of all contained `InTransit` boxes to `NotDelivered`. Only valid for shipments in `Sent` state. The client must be member of either source or target base of the shipment.  */
   markShipmentAsLost?: Maybe<Shipment>;
   /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   moveBoxesToLocation?: Maybe<MoveBoxesResult>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
+  /**  Change state of boxes that were accidentally marked as `NotDelivered` back to `InStock`.  */
   moveNotDeliveredBoxesInStock?: Maybe<Shipment>;
+  /**  Change state of specified transfer agreement to `Rejected`. Only valid for agreements in `UnderReview` state. The client must be member of all agreement target bases.  */
   rejectTransferAgreement?: Maybe<TransferAgreement>;
   removeAllPackingListEntriesFromDistributionEventForProduct?: Maybe<Scalars['Boolean']>;
   removeItemsFromUnboxedItemsCollection?: Maybe<UnboxedItemsCollection>;
   removePackingListEntryFromDistributionEvent?: Maybe<DistributionEvent>;
+  /**  Change state of specified shipment to `Sent`, and state of all contained `MarkedForShipment` boxes to `InTransit`. Only valid for shipments in `Preparing` state. The client must be member of the shipment source base.  */
   sendShipment?: Maybe<Shipment>;
   setReturnedNumberOfItemsForDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingEntry>;
   startDistributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
+  /**  Change state of specified shipment to `Receiving`, and state of all contained `InTransit` boxes to `Receiving`. Only valid for shipments in `Sent` state. The client must be member of the shipment target base.  */
   startReceivingShipment?: Maybe<Shipment>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
   /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   unassignTagFromBoxes?: Maybe<UnassignTagFromBoxesResult>;
+  /**  Update one or more properties of a beneficiary with specified ID.  */
   updateBeneficiary?: Maybe<Beneficiary>;
+  /**  Update one or more properties of a box with specified label identifier.  */
   updateBox?: Maybe<Box>;
   updatePackingListEntry?: Maybe<PackingListEntry>;
   updateSelectedProductsForDistributionEventPackingList?: Maybe<DistributionEvent>;
+  /**  Add boxes to or remove boxes from the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base.  */
   updateShipmentWhenPreparing?: Maybe<Shipment>;
+  /**  Reconcile boxes or mark them as lost during shipment receival on the target side. Only valid if shipment is in `Receiving` state. If all boxes are reconciled, the state automatically updates to `Completed`. The client must be member of the shipment target base.  */
   updateShipmentWhenReceiving?: Maybe<Shipment>;
+  /**  Update one or more properties of a tag with specified ID.  */
   updateTag?: Maybe<Tag>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationAcceptTransferAgreementArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationAddPackingListEntryToDistributionEventArgs = {
   creationInput: PackingListEntryInput;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationAssignBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationAssignTagArgs = {
   assignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationAssignTagToBoxesArgs = {
   updateInput?: InputMaybe<BoxAssignTagInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCancelShipmentArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCancelTransferAgreementArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationChangeDistributionEventStateArgs = {
   distributionEventId: Scalars['ID'];
   newState: DistributionEventState;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCompleteDistributionEventsTrackingGroupArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateBeneficiaryArgs = {
   creationInput?: InputMaybe<BeneficiaryCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateBoxArgs = {
   creationInput?: InputMaybe<BoxCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateCustomProductArgs = {
   creationInput?: InputMaybe<CustomProductCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateDistributionEventArgs = {
   creationInput?: InputMaybe<DistributionEventCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateDistributionSpotArgs = {
   creationInput?: InputMaybe<DistributionSpotCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateQrCodeArgs = {
   boxLabelIdentifier?: InputMaybe<Scalars['String']>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateShipmentArgs = {
   creationInput?: InputMaybe<ShipmentCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateTagArgs = {
   creationInput?: InputMaybe<TagCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationCreateTransferAgreementArgs = {
   creationInput?: InputMaybe<TransferAgreementCreationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationDeactivateBeneficiaryArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationDeleteBoxesArgs = {
   labelIdentifiers: Array<Scalars['String']>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationDeleteProductArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationDeleteTagArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationDisableStandardProductArgs = {
   instantiationId: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationEditCustomProductArgs = {
   editInput?: InputMaybe<CustomProductEditInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationEditStandardProductInstantiationArgs = {
   editInput?: InputMaybe<StandardProductInstantiationEditInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationEnableStandardProductArgs = {
   enableInput?: InputMaybe<StandardProductEnableInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMarkShipmentAsLostArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMoveBoxesToLocationArgs = {
   updateInput?: InputMaybe<BoxMoveInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMoveItemsFromBoxToDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
@@ -1051,11 +923,6 @@ export type MutationMoveItemsFromBoxToDistributionEventArgs = {
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
   distributionEventsTrackingGroupId: Scalars['ID'];
   numberOfItems: Scalars['Int'];
@@ -1065,73 +932,38 @@ export type MutationMoveItemsFromReturnTrackingGroupToBoxArgs = {
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationMoveNotDeliveredBoxesInStockArgs = {
   boxIds: Array<Scalars['String']>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationRejectTransferAgreementArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationRemoveAllPackingListEntriesFromDistributionEventForProductArgs = {
   distributionEventId: Scalars['ID'];
   productId: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationRemoveItemsFromUnboxedItemsCollectionArgs = {
   id: Scalars['ID'];
   numberOfItems: Scalars['Int'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationRemovePackingListEntryFromDistributionEventArgs = {
   packingListEntryId: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationSendShipmentArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationSetReturnedNumberOfItemsForDistributionEventsTrackingGroupArgs = {
   distributionEventsTrackingGroupId: Scalars['ID'];
   numberOfItems: Scalars['Int'];
@@ -1140,94 +972,49 @@ export type MutationSetReturnedNumberOfItemsForDistributionEventsTrackingGroupAr
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationStartDistributionEventsTrackingGroupArgs = {
   baseId: Scalars['ID'];
   distributionEventIds: Array<Scalars['ID']>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationStartReceivingShipmentArgs = {
   id: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUnassignBoxFromDistributionEventArgs = {
   boxLabelIdentifier: Scalars['ID'];
   distributionEventId: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUnassignTagArgs = {
   unassignmentInput?: InputMaybe<TagOperationInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUnassignTagFromBoxesArgs = {
   updateInput?: InputMaybe<BoxAssignTagInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdateBeneficiaryArgs = {
   updateInput?: InputMaybe<BeneficiaryUpdateInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdateBoxArgs = {
   updateInput?: InputMaybe<BoxUpdateInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdatePackingListEntryArgs = {
   numberOfItems: Scalars['Int'];
   packingListEntryId: Scalars['ID'];
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdateSelectedProductsForDistributionEventPackingListArgs = {
   distributionEventId: Scalars['ID'];
   productIdsToAdd: Array<Scalars['ID']>;
@@ -1235,31 +1022,16 @@ export type MutationUpdateSelectedProductsForDistributionEventPackingListArgs = 
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdateShipmentWhenPreparingArgs = {
   updateInput?: InputMaybe<ShipmentWhenPreparingUpdateInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdateShipmentWhenReceivingArgs = {
   updateInput?: InputMaybe<ShipmentWhenReceivingUpdateInput>;
 };
 
 
-/**
- * Naming convention:
- * - input argument: creationInput/updateInput
- * - input type: <Resource>CreationInput/UpdateInput
- */
 export type MutationUpdateTagArgs = {
   updateInput?: InputMaybe<TagUpdateInput>;
 };
@@ -1267,7 +1039,7 @@ export type MutationUpdateTagArgs = {
 /** Representation of an organisation. */
 export type Organisation = {
   __typename?: 'Organisation';
-  /**  List of all [`Bases`]({{Types.Base}}) managed by this organisation  */
+  /**  List of all non-deleted [`Bases`]({{Types.Base}}) managed by this organisation. Accessible for any authenticated user  */
   bases?: Maybe<Array<Base>>;
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -1279,7 +1051,6 @@ export type OrganisationBasesArgs = {
   filterInput?: InputMaybe<FilterBaseInput>;
 };
 
-/** TODO: Add description here once specs are final/confirmed */
 export type PackingListEntry = {
   __typename?: 'PackingListEntry';
   id: Scalars['ID'];
@@ -1366,7 +1137,6 @@ export type ProductCategory = {
   name: Scalars['String'];
   /**  List of all products registered in bases the client is authorized to view.  */
   products?: Maybe<ProductPage>;
-  sizeRanges?: Maybe<Array<Maybe<SizeRange>>>;
 };
 
 
@@ -1433,51 +1203,63 @@ export type QrCode = {
 
 export type Query = {
   __typename?: 'Query';
+  /**  Return [`Base`]({{Types.Base}})  with specified ID. Accessible for clients who are members of this base.  */
   base?: Maybe<Base>;
-  /**  Return all [`Bases`]({{Types.Base}}) that the client is authorized to view.  */
+  /**  Return all non-deleted [`Bases`]({{Types.Base}}) that the client is authorized to view.  */
   bases: Array<Base>;
-  /**  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view.  */
+  /**  Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter.  */
   beneficiaries: BeneficiaryPage;
+  /**  Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base  */
   beneficiary?: Maybe<Beneficiary>;
   beneficiaryDemographics?: Maybe<BeneficiaryDemographicsData>;
+  /**  Return [`Box`]({{Types.Box}}) with specified label identifier. For a box in InTransit, Receiving, or NotDelivered state, clients of both source and target base of the underlying shipment are allowed to view it. Otherwise the client must be permitted to access the base of the box location  */
   box?: Maybe<Box>;
+  /**  Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters  */
   boxes: BoxPage;
   createdBoxes?: Maybe<CreatedBoxesData>;
   distributionEvent?: Maybe<DistributionEvent>;
   distributionEventsTrackingGroup?: Maybe<DistributionEventsTrackingGroup>;
   distributionSpot?: Maybe<DistributionSpot>;
-  /**  Return all [`DistributionSpots`]({{Types.DistributionSpot}}) that the client is authorized to view.  */
   distributionSpots: Array<DistributionSpot>;
+  /**  Return [`ClassicLocation`]({{Types.ClassicLocation}}) with specified ID. Accessible for clients who are members of the location's base  */
   location?: Maybe<ClassicLocation>;
   /**  Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view.  */
   locations: Array<ClassicLocation>;
   /**  Return various metrics about stock and beneficiaries for client's organisation.  */
   metrics?: Maybe<Metrics>;
   movedBoxes?: Maybe<MovedBoxesData>;
+  /**  Return [`Organisation`]({{Types.Organisation}}) with specified ID.  */
   organisation?: Maybe<Organisation>;
-  /**  Return all [`Organisations`]({{Types.Organisation}}) that the client is authorized to view.  */
+  /**  Return all [`Organisations`]({{Types.Organisation}}).  */
   organisations: Array<Organisation>;
   packingListEntry?: Maybe<PackingListEntry>;
+  /**  Return [`Product`]({{Types.Product}}) with specified ID. Accessible for clients who are members of the product's base  */
   product?: Maybe<Product>;
-  /**  Return all [`ProductCategories`]({{Types.ProductCategory}}) that the client is authorized to view.  */
+  /**  Return all [`ProductCategories`]({{Types.ProductCategory}}).  */
   productCategories: Array<ProductCategory>;
+  /**  Return [`ProductCategory`]({{Types.ProductCategory}}) with specified ID.  */
   productCategory?: Maybe<ProductCategory>;
-  /**  Return all [`Products`]({{Types.Product}}) that the client is authorized to view.  */
+  /**  Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view.  */
   products: ProductPage;
+  /**  Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32)  */
   qrCode?: Maybe<QrCode>;
   qrExists?: Maybe<Scalars['Boolean']>;
+  /**  Return [`Shipment`]({{Types.Shipment}}) with specified ID. Clients are authorized to view a shipment if they're member of either the source or the target base  */
   shipment?: Maybe<Shipment>;
   /**  Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view.  */
   shipments: Array<Shipment>;
+  /**  Return [`StandardProduct`]({{Types.StandardProduct}}) with specified ID, or an error in case of insufficient permission or missing resource.  */
   standardProduct?: Maybe<StandardProductResult>;
   /**  Return standard products of latest version. Optionally include all standard products enabled for specified base.  */
   standardProducts?: Maybe<StandardProductsResult>;
   stockOverview?: Maybe<StockOverviewData>;
+  /**  Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base  */
   tag?: Maybe<Tag>;
-  /** Return all [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. */
+  /**  Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type.  */
   tags: Array<Tag>;
   topProductsCheckedOut?: Maybe<TopProductsCheckedOutData>;
   topProductsDonated?: Maybe<TopProductsDonatedData>;
+  /**  Return [`TransferAgreement`]({{Types.TransferAgreement}}) with specified ID. Clients are authorized to view an agreement if they're member of at least one of the agreement's source or target bases  */
   transferAgreement?: Maybe<TransferAgreement>;
   /**
    * Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
@@ -1485,8 +1267,9 @@ export type Query = {
    * regardless of agreement state. Optionally filter for agreements of certain state(s).
    */
   transferAgreements: Array<TransferAgreement>;
+  /**  Return [`User`]({{Types.User}}) with specified ID. Some fields might be restricted.  */
   user?: Maybe<User>;
-  /**  Return all [`Users`]({{Types.User}}) that the client is authorized to view.  */
+  /**  Return all [`Users`]({{Types.User}}). Accessible for god users only  */
   users: Array<User>;
 };
 
@@ -1661,6 +1444,7 @@ export type ResourceDoesNotExistError = {
 
 export type Result = BeneficiaryDemographicsResult | CreatedBoxesResult | MovedBoxesResult | StockOverviewResult | TopProductsCheckedOutResult | TopProductsDonatedResult;
 
+/** Representation of a shipment of boxes between two bases of two distinct organisations. The content is tracked via [`ShipmentDetails`]({{Types.ShipmentDetail}}) */
 export type Shipment = {
   __typename?: 'Shipment';
   canceledBy?: Maybe<User>;
@@ -1669,6 +1453,7 @@ export type Shipment = {
   completedOn?: Maybe<Scalars['Datetime']>;
   details: Array<ShipmentDetail>;
   id: Scalars['ID'];
+  /**  Unique identifier of the shipment, constructed from ID, start date, source and target base names. E.g. `S042-230815-THxLE`  */
   labelIdentifier: Scalars['String'];
   receivingStartedBy?: Maybe<User>;
   receivingStartedOn?: Maybe<Scalars['Datetime']>;
@@ -1688,6 +1473,7 @@ export type ShipmentCreationInput = {
   transferAgreementId: Scalars['Int'];
 };
 
+/** Representation of a box in a shipment. Boxes might be added or removed on the source side, and received or marked as lost on the target side. All properties (product, location, size, quantity) at source and target side are tracked here */
 export type ShipmentDetail = {
   __typename?: 'ShipmentDetail';
   box: Box;
@@ -1741,19 +1527,19 @@ export type ShipmentWhenReceivingUpdateInput = {
   receivedShipmentDetailUpdateInputs?: InputMaybe<Array<ShipmentDetailUpdateInput>>;
 };
 
-/** Representation of product size. */
+/** Representation of product size (e.g. clothing size "XL", shoe size 39). */
 export type Size = {
   __typename?: 'Size';
   id: Scalars['ID'];
   label: Scalars['String'];
 };
 
-/** Representation of group of sizes. */
+/** Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"). */
 export type SizeRange = {
   __typename?: 'SizeRange';
   id: Scalars['ID'];
   label: Scalars['String'];
-  productCategory?: Maybe<Array<ProductCategory>>;
+  /**  List of sizes belonging to the group  */
   sizes: Array<Size>;
 };
 
@@ -1855,6 +1641,7 @@ export type Tag = {
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
+  /**  List of boxes and/or beneficiaries that have this tag assigned  */
   taggedResources?: Maybe<Array<TaggableResource>>;
   type: TagType;
 };
@@ -1978,6 +1765,7 @@ export type Transaction = {
   tokens?: Maybe<Scalars['Int']>;
 };
 
+/** Representation of an agreement between two organisations prior to start mutual shipments. */
 export type TransferAgreement = {
   __typename?: 'TransferAgreement';
   acceptedBy?: Maybe<User>;
@@ -2002,11 +1790,13 @@ export type TransferAgreement = {
 };
 
 
+/** Representation of an agreement between two organisations prior to start mutual shipments. */
 export type TransferAgreementSourceBasesArgs = {
   filterInput?: InputMaybe<FilterBaseInput>;
 };
 
 
+/** Representation of an agreement between two organisations prior to start mutual shipments. */
 export type TransferAgreementTargetBasesArgs = {
   filterInput?: InputMaybe<FilterBaseInput>;
 };
@@ -2018,6 +1808,7 @@ export type TransferAgreementCreationInput = {
   partnerOrganisationBaseIds?: InputMaybe<Array<Scalars['Int']>>;
   partnerOrganisationId: Scalars['Int'];
   type: TransferAgreementType;
+  /**  Validity dates must be in local time  */
   validFrom?: InputMaybe<Scalars['Date']>;
   validUntil?: InputMaybe<Scalars['Date']>;
 };
@@ -2056,19 +1847,19 @@ export type UnboxedItemsCollection = ItemsCollection & {
   size: Size;
 };
 
-/**
- * Representation of a user signed up for the web application.
- * The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
- */
+/** Representation of a boxtribute user. */
 export type User = {
   __typename?: 'User';
-  /**  List of all [`Bases`]({{Types.Base}}) this user can access  */
+  /**  List of all [`Bases`]({{Types.Base}}) this user can access. Meaningful only if the currently authenticated user queries themselves  */
   bases?: Maybe<Array<Maybe<Base>>>;
+  /**  Available only if the currently authenticated user queries themselves  */
   email?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   lastAction?: Maybe<Scalars['Datetime']>;
   lastLogin?: Maybe<Scalars['Datetime']>;
+  /**  First and last name. Accessible to any authenticated user  */
   name?: Maybe<Scalars['String']>;
+  /**  The [`Organisation`]({{Types.Organisation}}) the user is a member of. Meaningful only if the currently authenticated user queries themselves  */
   organisation?: Maybe<Organisation>;
   validFirstDay?: Maybe<Scalars['Date']>;
   validLastDay?: Maybe<Scalars['Date']>;
