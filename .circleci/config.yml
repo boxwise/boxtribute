@@ -125,6 +125,7 @@ jobs:
           command: |
             pnpm lint:fix:all
             pnpm format:write:all
+            pnpm generate-graphql-ts-types
       - run:
           name: Build front
           command: |
@@ -184,6 +185,9 @@ jobs:
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
             # https://pre-commit.com/#pre-commit-run
             git ls-files . | xargs pre-commit run --files
+          environment:
+            # Skip hook that requires docker-compose
+            SKIP: generate-graphql-ts-types
       - save_cache:
           key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
