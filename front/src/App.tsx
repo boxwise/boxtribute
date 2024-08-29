@@ -61,7 +61,7 @@ Protected.defaultProps = {
 
 function App() {
   const { logout } = useAuth0();
-  const { error } = useLoadAndSetGlobalPreferences();
+  const { isLoading, error } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
 
@@ -85,6 +85,11 @@ function App() {
         <Button onClick={() => logout()}>Logout</Button>
       </>
     );
+  }
+
+  // Need to do this when redirected from Dropapp (v1 Boxtribute app).
+  if (isLoading && /^\/qrreader\/\w+/.test(location.pathname)) {
+    return <div />;
   }
 
   return (
