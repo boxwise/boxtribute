@@ -89,7 +89,7 @@ function App() {
 
   // Need to do this when redirected from Dropapp (v1 Boxtribute app).
   if (isLoading && /^\/qrreader\/\w+/.test(location.pathname)) {
-    return <div />;
+    return <p>Fetching Bases and Boxes data...</p>;
   }
 
   return (
