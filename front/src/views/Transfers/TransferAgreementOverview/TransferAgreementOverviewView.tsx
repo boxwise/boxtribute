@@ -11,6 +11,7 @@ import {
   CancelTransferAgreementMutationVariables,
   RejectTransferAgreementMutation,
   RejectTransferAgreementMutationVariables,
+  ShipmentState,
   TransferAgreement,
   TransferAgreementsQuery,
   TransferAgreementState,
@@ -279,7 +280,10 @@ function TransferAgreementOverviewView() {
         // prepare shipment data
         const shipmentsTmp = [] as IShipmentBase[];
         element.shipments.forEach((shipment) => {
-          if (globalPreferences.availableBases !== undefined) {
+          if (((shipment.state === ShipmentState.Preparing) ||
+               (shipment.state === ShipmentState.Sent) ||
+               (shipment.state === ShipmentState.Receiving)) &&
+              (globalPreferences.availableBases !== undefined)) {
             if (
               shipment.targetBase != null &&
               globalPreferences.availableBases.findIndex(
