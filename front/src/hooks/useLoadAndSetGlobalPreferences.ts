@@ -21,11 +21,8 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
-    if (user && !globalPreferences.selectedBase?.id) {
-      runOrganisationAndBasesQuery();
-    }
-  }, [runOrganisationAndBasesQuery,
-    user, globalPreferences.selectedBase?.id]);
+    if (user && baseId === "0") runOrganisationAndBasesQuery();
+  }, [runOrganisationAndBasesQuery, user, baseId]);
 
   // set available bases
   useEffect(() => {
@@ -59,7 +56,7 @@ export const useLoadAndSetGlobalPreferences = () => {
         } else {
           // handle the case if the url does not start with "/bases/<number>"
           // prepend /bases/<newBaseId>
-          const newBaseId = globalPreferences?.selectedBase?.id ?? bases[0].id;
+          const newBaseId = baseId !== "0" ? baseId : bases[0].id;
           navigate(`/bases/${newBaseId}${location.pathname}`);
         }
       } else {
@@ -67,9 +64,9 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [data, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, globalPreferences?.selectedBase?.id, navigate, baseId]);
+  }, [data, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId]);
 
-  const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
+  const isLoading = !globalPreferences.availableBases;
 
   return { isLoading, error };
 };

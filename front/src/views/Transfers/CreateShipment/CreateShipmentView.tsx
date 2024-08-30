@@ -22,6 +22,7 @@ import CreateShipment, {
   IOrganisationBaseData,
   ICreateShipmentFormData,
 } from "./components/CreateShipment";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
   ${BASE_ORG_FIELDS_FRAGMENT}
@@ -64,7 +65,7 @@ function CreateShipmentView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
   const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
