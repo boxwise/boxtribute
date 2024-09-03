@@ -80,19 +80,23 @@ def update_tag(
 
     with db.database.atomic():
         if object_type_for_deletion is not None:
-            TagsRelation.delete().where(
-                (TagsRelation.object_type == object_type_for_deletion)
-                & (TagsRelation.tag == id)
+            TagsRelation.update(deleted_on=utcnow(), deleted_by=user_id).where(
+                TagsRelation.object_type == object_type_for_deletion,
+                TagsRelation.tag == id,
+                TagsRelation.deleted_on.is_null(),
             ).execute()
     return tag
 
 
 @safely_handle_deletion
 def delete_tag(*, user_id, tag):
-    """Soft-delete given tag. Unassign the tag from any resources by deleting respective
-    rows of the TagsRelation model.
+    """Soft-delete given tag. Unassign the tag from any resources by soft-deleting
+    respective rows of the TagsRelation model.
     """
-    TagsRelation.delete().where(TagsRelation.tag == tag.id).execute()
+    TagsRelation.update(deleted_on=utcnow(), deleted_by=user_id).where(
+        TagsRelation.tag == tag.id,
+        TagsRelation.deleted_on.is_null(),
+    ).execute()
     return tag
 
 
