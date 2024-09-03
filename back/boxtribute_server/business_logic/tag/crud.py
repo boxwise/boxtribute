@@ -111,36 +111,41 @@ def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
     ):
         raise IncompatibleTagTypeAndResourceType(tag=tag, resource_type=resource_type)
 
+    now = utcnow()
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
     resource = model.get_by_id(resource_id)
     resource.last_modified_by = user_id
-    resource.last_modified_on = utcnow()
+    resource.last_modified_on = now
 
     with db.database.atomic():
         TagsRelation.create(
             object_id=resource_id,
             object_type=resource_type,
             tag=id,
+            created_on=now,
+            created_by=user_id,
         )
         resource.save()
     return resource
 
 
 def unassign_tag(*, user_id, id, resource_id, resource_type):
-    """Delete TagsRelation entry defined by given tag ID, resource ID, and resource
+    """Soft-delete TagsRelation entry defined by given tag ID, resource ID, and resource
     type. Insert timestamp for modification in resource model.
     Return the resource that the tag was unassigned from.
     """
+    now = utcnow()
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
     resource = model.get_by_id(resource_id)
     resource.last_modified_by = user_id
-    resource.last_modified_on = utcnow()
+    resource.last_modified_on = now
 
     with db.database.atomic():
-        TagsRelation.delete().where(
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
             TagsRelation.tag == id,
             TagsRelation.object_id == resource_id,
             TagsRelation.object_type == resource_type,
+            TagsRelation.deleted_on.is_null(),
         ).execute()
         resource.save()
     return resource

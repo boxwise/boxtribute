@@ -236,6 +236,7 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
                 & (TagsRelation.object_type == TaggableObjectType.Box)
                 # Any boxes that don't have the tag assigned are silently ignored
                 & (TagsRelation.tag == tag_id)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .where(
