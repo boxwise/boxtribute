@@ -421,9 +421,10 @@ def _update_shipment_with_received_boxes(
             ],
             batch_size=BATCH_SIZE,
         )
-        TagsRelation.delete().where(
-            (TagsRelation.object_type == TaggableObjectType.Box),
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+            TagsRelation.object_type == TaggableObjectType.Box,
             TagsRelation.object_id << [box.id for box in checked_in_boxes],
+            TagsRelation.deleted_on.is_null(),
         ).execute()
         DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 

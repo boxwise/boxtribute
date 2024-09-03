@@ -120,7 +120,7 @@ def test_boxes_query(read_only_client, default_location_boxes):
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2, 3]}})
                         {{ totalCount }} }}"""
     boxes = assert_successful_request(read_only_client, query)
-    assert boxes == {"totalCount": 2}
+    assert boxes == {"totalCount": 3}
 
 
 def test_box_mutations(

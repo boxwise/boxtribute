@@ -604,6 +604,7 @@ def test_shipment_mutations_on_target_side(
     default_box,
     in_transit_box,
     another_in_transit_box,
+    tags,
 ):
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
@@ -634,6 +635,7 @@ def test_shipment_mutations_on_target_side(
     detail_id = str(default_shipment_detail["id"])
     another_detail_id = str(another_shipment_detail["id"])
     removed_detail_id = str(removed_shipment_detail["id"])
+    tag_name = tags[2]["name"]
 
     def _create_mutation(
         *,
@@ -705,6 +707,7 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": f"assigned tag '{tag_name}' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -783,6 +786,8 @@ def test_shipment_mutations_on_target_side(
                             + f"to {another_product['name']}"
                         },
                         {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": f"removed tag '{tag_name}' from box"},
+                        {"changes": f"assigned tag '{tag_name}' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -960,6 +965,7 @@ def test_shipment_mutations_on_target_side(
             },
         ],
     }
+    # The box associated with default_shipment_detail
     box_label_identifier = in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
@@ -1034,6 +1040,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to NotDelivered"},
+                        {"changes": "assigned tag 'tag-name' to box"},
                         {"changes": "created record"},
                     ],
                 },
