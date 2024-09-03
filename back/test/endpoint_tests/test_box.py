@@ -422,6 +422,12 @@ def test_box_mutations(
         "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
         "invalidBoxLabelIdentifiers": [],
     }
+    query = f"""query {{ box(labelIdentifier: {label_identifier})
+                    {{ history {{ changes }} }} }}"""
+    response = assert_successful_request(client, query)
+    history = response["history"]
+    assert {"changes": f"""assigned tag '{tags[2]["name"]}' to box"""} in history
+    assert {"changes": f"""removed tag '{tags[2]["name"]}' from box"""} in history
 
     # Verify that tag is not removed from the other box
     query = f"""query {{ box(labelIdentifier: "{another_created_box_label_identifier}")
@@ -719,35 +725,57 @@ def test_update_box_tag_ids(client, default_box, tags):
     # Test case 8.2.11c
     label_identifier = default_box["label_identifier"]
     tag_id = str(tags[1]["id"])
+    tag_name = tags[1]["name"]
     another_tag_id = str(tags[2]["id"])
+    another_tag_name = tags[2]["name"]
 
-    # Default box has tag ID 2 assigned already. Remove it and add tag ID 3
+    # Default box has tags 2 and 3 assigned already. Remove 2 and keep 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIds: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIds: [{another_tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": another_tag_id}]}
+    assert updated_box["tags"] == [{"id": another_tag_id}]
+    assert updated_box["history"][0] == {
+        "changes": f"removed tag '{tag_name}' from box"
+    }
 
     # Now add tag ID 2 back while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIds: [{tag_id},{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIds: [{tag_id},{another_tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
 
+    time.sleep(1)
     # Remove all assigned tags when passing empty list
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIds: [] }} ) {{ tags {{ id }} }} }}"""
+                    tagIds: [] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": []}
+    assert updated_box["tags"] == []
+    assert updated_box["history"][0] == {
+        "changes": f"removed tag '{another_tag_name}' from box"
+    }
+    assert updated_box["history"][1] == {
+        "changes": f"removed tag '{tag_name}' from box"
+    }
 
     # Add tag ID 2
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}]
+    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
 
     # Add the same tag again without an error being thrown
     mutation = f"""mutation {{ updateBox(updateInput : {{
@@ -756,12 +784,18 @@ def test_update_box_tag_ids(client, default_box, tags):
     updated_box = assert_successful_request(client, mutation)
     assert updated_box == {"tags": [{"id": tag_id}]}
 
+    time.sleep(1)
     # Add tag ID 3. Both tags are assigned to the box
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["history"][0] == {
+        "changes": f"assigned tag '{another_tag_name}' to box"
+    }
 
 
 def _format(parameter):
