@@ -34,7 +34,7 @@
     "@visx/grid": "^3.3.0",
     "@visx/group": "^3.3.0",
     "@visx/mock-data": "^3.3.0",
-    "@visx/responsive": "^3.3.0",
+    "@visx/responsive": "^3.10.2",
     "@visx/scale": "^3.3.0",
     "@visx/shape": "^3.3.0",
     "@visx/tooltip": "^3.3.0",
