@@ -70,13 +70,13 @@ function Protected({
  */
 function DropappRedirect({ path }: DropappRedirectProps) {
   const { user } = useAuth0();
-  let pathToRedirect = "/";
+  let pathToRedirect = "/error";
 
   if (!user || !user["https://www.boxtribute.com/base_ids"])
     return <Navigate to={pathToRedirect} replace />;
 
   const baseId = user["https://www.boxtribute.com/base_ids"][0];
-  const baseURL = `/bases/${baseId}$`;
+  const baseURL = `/bases/${baseId}`;
   const urlParam = location.pathname.split("/").at(-1);
 
   switch (path) {
@@ -127,7 +127,7 @@ function App() {
 
   return (
     <Routes>
-      <Route index />
+      <Route index element={<Navigate to="/qrreader" />} />
       <Route path="bases">
         <Route index />
         <Route path=":baseId" element={<Layout />}>
