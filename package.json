@@ -11,8 +11,8 @@
     "lint:fix": "pnpm lint --fix",
     "lint:all": "pnpm lint shared-components front statviz",
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "TZ=UTC vitest",
+    "test:coverage": "TZ=UTC vitest run --coverage",
     "graphql-gen": "pnpm -C front generate-graphql-ts-types && pnpm -C statviz generate-graphql-ts-types",
     "prepare": "husky || true"
   },
