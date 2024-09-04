@@ -251,10 +251,9 @@ function BTBox() {
         shipmentId,
       });
     } else if (shipmentId && boxData?.state === BoxState.InTransit) {
-      const newBaseId = globalPreferences.selectedBase?.id;
-      navigate(`/bases/${newBaseId}/transfers/shipments/${shipmentId}`);
+      navigate(`/bases/${currentBaseId}/transfers/shipments/${shipmentId}`);
     }
-  }, [boxData, globalPreferences, navigate]);
+  }, [boxData, globalPreferences, navigate, currentBaseId]);
 
   const loading =
     allData.networkStatus !== NetworkStatus.ready ||
