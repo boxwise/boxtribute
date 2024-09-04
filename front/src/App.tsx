@@ -24,23 +24,31 @@ import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 
-interface IProtectedRouteProps {
+type ProtectedRouteProps = {
   component: ReactElement;
   redirectPath: string | undefined;
   requiredAbp?: string[];
   minBeta?: number;
-}
+};
 
-function Protected({ component, redirectPath, requiredAbp, minBeta }: IProtectedRouteProps) {
+type DropappRedirectProps = {
+  path: "/boxes/:boxId" | "/boxes/create/:qrCodeHash" | "/qrreader" | "/qrreader:qrCodeHash";
+};
+
+function Protected({
+  component,
+  redirectPath,
+  requiredAbp = [],
+  minBeta = 0,
+}: ProtectedRouteProps) {
   const { triggerError } = useErrorHandling();
   const { pathname: currentPath } = useLocation();
   const authorize = useAuthorization();
   const isAuthorized = authorize({ requiredAbp, minBeta });
 
   useEffect(() => {
-    if (!isAuthorized) {
+    if (!isAuthorized)
       triggerError({ message: "Access to this page is not permitted for your user group." });
-    }
   }, [isAuthorized, triggerError]);
 
   if (isAuthorized) {
@@ -54,10 +62,42 @@ function Protected({ component, redirectPath, requiredAbp, minBeta }: IProtected
     />
   );
 }
-Protected.defaultProps = {
-  requiredAbp: [],
-  minBeta: 0,
-};
+
+/**
+ * Handle Dropapp (Boxtribute V1 app) redirects whose paths don't start with `/bases/:baseId`.
+ *
+ * Fetch first available base id from user JWT token from Auth0 to prepend `/bases/:baseId` with that id, if available.
+ */
+function DropappRedirect({ path }: DropappRedirectProps) {
+  const { user } = useAuth0();
+  let pathToRedirect = "/";
+
+  if (!user || !user["https://www.boxtribute.com/base_ids"])
+    return <Navigate to={pathToRedirect} replace />;
+
+  const baseId = user["https://www.boxtribute.com/base_ids"][0];
+  const baseURL = `/bases/${baseId}$`;
+  const urlParam = location.pathname.split("/").at(-1);
+
+  switch (path) {
+    case "/boxes/:boxId":
+      pathToRedirect = `${baseURL}/boxes/${urlParam}`;
+      break;
+    case "/boxes/create/:qrCodeHash":
+      pathToRedirect = `${baseURL}/boxes/create/${urlParam}`;
+      break;
+    case "/qrreader":
+      pathToRedirect = `${baseURL}/qrreader`;
+      break;
+    case "/qrreader:qrCodeHash":
+      pathToRedirect = `${baseURL}/qrreader/${urlParam}`;
+      break;
+    default:
+      break;
+  }
+
+  return <Navigate to={pathToRedirect} replace />;
+}
 
 function App() {
   const { logout } = useAuth0();
@@ -69,9 +109,7 @@ function App() {
   useEffect(() => {
     const regex = /^\/bases\/\d+\//;
     // only store previous location if a base is selected
-    if (regex.test(location.pathname)) {
-      setPrevLocation(location.pathname);
-    }
+    if (regex.test(location.pathname)) setPrevLocation(location.pathname);
   }, [location]);
 
   if (error) {
@@ -222,6 +260,14 @@ function App() {
             </Route>
           </Route>
         </Route>
+      </Route>
+      <Route path="boxes">
+        <Route path=":boxId" element={<DropappRedirect path="/boxes/:boxId" />} />
+        <Route path="create" element={<DropappRedirect path="/boxes/create/:qrCodeHash" />} />
+      </Route>
+      <Route path="qrreader">
+        <Route index element={<DropappRedirect path="/qrreader" />} />
+        <Route path=":qrCodeHash" element={<DropappRedirect path="/qrreader:qrCodeHash" />} />
       </Route>
       <Route path="/*" element={<NotFoundView />} />
     </Routes>

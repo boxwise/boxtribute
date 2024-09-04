@@ -56,11 +56,6 @@ export const useLoadAndSetGlobalPreferences = () => {
             // this error is set if the requested base is not part of the available bases
             setError("The requested base is not available to you.");
           }
-        } else {
-          // handle the case if the url does not start with "/bases/<number>"
-          // prepend /bases/<newBaseId>
-          const newBaseId = globalPreferences?.selectedBase?.id ?? bases[0].id;
-          navigate(`/bases/${newBaseId}${location.pathname}`);
         }
       } else {
         // this error is set if the bases query returned an empty array for bases
