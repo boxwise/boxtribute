@@ -1,0 +1,88 @@
+import categoryDim from "./categoryDim";
+import sizeDim from "./sizeDim";
+
+const facts = [
+  {
+    __typename: "StockOverviewResult",
+    productName: "Jumper",
+    categoryId: 3,
+    gender: "Men",
+    boxesCount: 1,
+    itemsCount: 47,
+    sizeId: 1,
+    tagIds: [1],
+    boxState: "InStock",
+    locationId: 12,
+  },
+  {
+    __typename: "StockOverviewResult",
+    productName: "Jumper",
+    categoryId: 3,
+    gender: "Women",
+    boxesCount: 1,
+    itemsCount: 47,
+    sizeId: 2,
+    tagIds: [1, 2],
+    boxState: "InStock",
+    locationId: 12,
+  },
+  {
+    __typename: "StockOverviewResult",
+    productName: "Jumper",
+    categoryId: 3,
+    gender: "Girl",
+    boxesCount: 1,
+    itemsCount: 47,
+    sizeId: 1,
+    tagIds: [4],
+    boxState: "InStock",
+    locationId: 125,
+  },
+  {
+    __typename: "StockOverviewResult",
+    productName: "Trouser",
+    categoryId: 3,
+    gender: "Men",
+    boxesCount: 1,
+    itemsCount: 47,
+    sizeId: 1,
+    tagIds: [4],
+    boxState: "InStock",
+    locationId: 12,
+  },
+  {
+    __typename: "StockOverviewResult",
+    productName: 'Tro!^%$"user',
+    categoryId: 3,
+    gender: "Mixed",
+    boxesCount: 1,
+    itemsCount: 47,
+    sizeId: 1,
+    tagIds: [],
+    boxState: "InStock",
+    locationId: 125,
+  },
+  {
+    __typename: "StockOverviewResult",
+    productName: "Trouser",
+    categoryId: 3,
+    gender: "Men",
+    boxesCount: 1,
+    itemsCount: 47,
+    sizeId: 3,
+    tagIds: [],
+    boxState: "InStock",
+    locationId: 12,
+  },
+];
+
+export default {
+  stockOverview: {
+    __typename: "StockOverviewData",
+    facts,
+    dimensions: {
+      category: categoryDim,
+      size: sizeDim,
+    },
+  },
+};

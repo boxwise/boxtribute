@@ -5,7 +5,7 @@ import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
 import { gql } from "../../../../types/generated";
 
-const CREATED_BOXES_QUERY = gql(`
+export const CREATED_BOXES_QUERY = gql(`
   query createdBoxes($baseId: Int!) {
     createdBoxes(baseId: $baseId) {
       facts {
