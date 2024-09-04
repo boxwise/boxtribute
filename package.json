@@ -40,7 +40,7 @@
     "@visx/tooltip": "^3.3.0",
     "chakra-react-select": "^4.4.3",
     "date-fns": "^2.29.3",
-    "dom-to-image-more": "^3.2.0",
+    "dom-to-image-more": "^3.4.3",
     "framer-motion": "^10.15.1",
     "graphql": "^16.8.1",
     "lodash": "^4.17.21",
