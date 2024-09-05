@@ -20,6 +20,7 @@ import CreateTransferAgreement, {
 } from "./components/CreateTransferAgreement";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { IAcceptedTransferAgreement } from "../TransferAgreementOverview/TransferAgreementOverviewView";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export const ALL_ORGS_AND_BASES_QUERY = gql`
   query AllOrganisationsAndBases {
@@ -71,7 +72,7 @@ function CreateTransferAgreementView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});

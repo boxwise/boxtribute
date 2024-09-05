@@ -34,6 +34,7 @@ import {
 } from "./components/TableCells";
 import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreement[];
@@ -87,7 +88,7 @@ function TransferAgreementOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
 
   // variables in URL
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   // State to pass Data from a row to the Overlay
@@ -280,10 +281,12 @@ function TransferAgreementOverviewView() {
         // prepare shipment data
         const shipmentsTmp = [] as IShipmentBase[];
         element.shipments.forEach((shipment) => {
-          if (((shipment.state === ShipmentState.Preparing) ||
-               (shipment.state === ShipmentState.Sent) ||
-               (shipment.state === ShipmentState.Receiving)) &&
-              (globalPreferences.availableBases !== undefined)) {
+          if (
+            (shipment.state === ShipmentState.Preparing ||
+              shipment.state === ShipmentState.Sent ||
+              shipment.state === ShipmentState.Receiving) &&
+            globalPreferences.availableBases !== undefined
+          ) {
             if (
               shipment.targetBase != null &&
               globalPreferences.availableBases.findIndex(

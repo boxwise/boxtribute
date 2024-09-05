@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,9 +17,9 @@ import {
 // TODO: move to global queries file
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import BoxEdit, { IBoxEditFormDataOutput } from "./components/BoxEdit";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
   ${TAG_OPTIONS_FRAGMENT}
@@ -92,8 +92,7 @@ function BoxEditView() {
 
   // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
   const allBoxAndFormData = useQuery<

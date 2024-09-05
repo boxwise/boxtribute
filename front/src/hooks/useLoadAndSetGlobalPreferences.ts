@@ -14,23 +14,20 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
   const [error, setError] = useState<string>();
 
-  const { baseId } = useBaseIdParam()
+  const { baseId } = useBaseIdParam();
 
-  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
+  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBasesData }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
-    if (user && !globalPreferences.selectedBase?.id) {
-      runOrganisationAndBasesQuery();
-    }
-  }, [runOrganisationAndBasesQuery,
-    user, globalPreferences.selectedBase?.id]);
+    if (user && !globalPreferences.selectedBase?.id) runOrganisationAndBasesQuery();
+  }, [globalPreferences.selectedBase?.id, runOrganisationAndBasesQuery, user]);
 
   // set available bases
   useEffect(() => {
-    if (!isOrganisationAndBasesQueryLoading && data != null) {
-      const { bases } = data;
+    if (!isOrganisationAndBasesQueryLoading && organisationAndBasesData != null) {
+      const { bases } = organisationAndBasesData;
 
       if (bases.length > 0) {
         dispatch({
@@ -57,6 +54,7 @@ export const useLoadAndSetGlobalPreferences = () => {
             setError("The requested base is not available to you.");
           }
         } else {
+          // TODO: to be removed with https://trello.com/c/LXJ0Hxqo/1509-20-forwarding-from-dropapp-mobilephp-to-v2
           // handle the case if the url does not start with "/bases/<number>"
           // prepend /bases/<newBaseId>
           const newBaseId = globalPreferences?.selectedBase?.id ?? bases[0].id;
@@ -67,9 +65,9 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [data, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, globalPreferences?.selectedBase?.id, navigate, baseId]);
+  }, [organisationAndBasesData, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id]);
 
-  const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
+  const isLoading = !globalPreferences.availableBases;
 
   return { isLoading, error };
 };

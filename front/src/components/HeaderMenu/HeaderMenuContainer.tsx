@@ -1,15 +1,14 @@
-import { useContext, useMemo } from "react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useMemo } from "react";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
 import { useAuthorization } from "hooks/useAuthorization";
 import HeaderMenu, { IMenuItemsGroupData } from "./HeaderMenu";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function HeaderMenuContainer() {
   const authorize = useAuthorization();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   // TODO: do this at route definition
