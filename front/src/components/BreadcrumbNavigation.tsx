@@ -4,7 +4,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/r
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import APILoadingIndicator from "./APILoadingIndicator";
+import { BreadcrumbNavigationSkeleton } from "./Skeletons";
 
 interface IBreadcrumbItemData {
   label: string;
@@ -39,7 +39,7 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
   const baseName = globalPreferences.selectedBase?.name;
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
-  if (isGlobalStateLoading) return <APILoadingIndicator />;
+  if (isGlobalStateLoading) return <BreadcrumbNavigationSkeleton />;
 
   return (
     <Breadcrumb separator={<ChevronRightIcon />} fontSize="md" mb={4}>
