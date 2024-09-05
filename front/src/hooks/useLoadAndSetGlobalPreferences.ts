@@ -68,7 +68,7 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [data, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, globalPreferences?.selectedBase?.id, navigate, baseId]);
+  }, [isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id, data]);
 
   const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 
