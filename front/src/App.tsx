@@ -70,6 +70,11 @@ function Protected({
  */
 function DropappRedirect({ path }: DropappRedirectProps) {
   const { user } = useAuth0();
+  /**
+   * Redirect to this `/error`, non-existent path by default, which will lead to `<NotFoundView />`.
+   *
+   * Otherwise, redirect to one of the valid paths in `DropappRedirectProps`.
+   */
   let pathToRedirect = "/error";
 
   if (!user || !user["https://www.boxtribute.com/base_ids"])
@@ -89,7 +94,7 @@ function DropappRedirect({ path }: DropappRedirectProps) {
     case "/qrreader":
       pathToRedirect = `${baseURL}/qrreader`;
       break;
-    case "/qrreader:qrCodeHash":
+    case "/qrreader/:qrCodeHash":
       pathToRedirect = `${baseURL}/qrreader/${urlParam}`;
       break;
     default:
