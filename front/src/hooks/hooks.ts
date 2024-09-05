@@ -1,11 +1,11 @@
-import { useState, useCallback, useContext } from "react";
+import { useState, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { UseToastOptions, ToastPosition } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
 import { Filters, SortingRule } from "react-table";
+import { useBaseIdParam } from "./useBaseIdParam";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -21,9 +21,7 @@ export const useHandleLogout = () => {
   const handleLogout = () => {
     // only redirect in staging and production environments
     if (import.meta.env.FRONT_ENVIRONMENT !== "development") {
-      window.location.href = `${
-        import.meta.env.FRONT_OLD_APP_BASE_URL
-      }/index.php?action=logoutfromv2`;
+      window.location.href = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;
     } else {
       logout();
     }
@@ -33,8 +31,7 @@ export const useHandleLogout = () => {
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id;
+  const { baseId } = useBaseIdParam();
   if (baseId == null) {
     throw new Error("Could not extract baseId from URL");
   }
@@ -67,9 +64,9 @@ export const useToggle = (initialValue = false) => {
   return [value, toggle] as [boolean, () => void];
 };
 
+// TODO: Probably need to refactor to remove this, seems unnecessary.
 export const useGlobalSiteState = () => {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBase?.id!;
+  const { baseId: currentBaseId } = useBaseIdParam();
   const navigate = useNavigate();
 
   return {

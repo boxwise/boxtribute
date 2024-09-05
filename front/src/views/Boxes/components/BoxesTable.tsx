@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useTransition } from "react";
+import React, { useEffect, useMemo, useTransition } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -32,7 +32,6 @@ import {
 } from "components/Table/Filter";
 import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
 import { IUseTableConfigReturnType } from "hooks/hooks";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -41,6 +40,7 @@ import {
   prepareBoxesForBoxesViewQueryVariables,
 } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -63,8 +63,7 @@ function BoxesTable({
   setSelectedBoxes,
   selectedRowsArePending,
 }: IBoxesTableProps) {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
