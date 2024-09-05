@@ -55,7 +55,7 @@ docker compose exec front pnpm format:write
 - no console.log
 - no debugger statements
 - no vars
-- always use types instead of interfaces whenever possible (with small exceptions, like classes and internal libraries)
+- interfaces/type should start with "I"
 
 ## Note about pnpm and Docker
 
