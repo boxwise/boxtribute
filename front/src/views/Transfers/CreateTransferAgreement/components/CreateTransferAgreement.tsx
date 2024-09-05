@@ -16,8 +16,6 @@ import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import DateField from "components/Form/DateField";
 import { addDays } from "date-fns";
-import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import APILoadingIndicator from "components/APILoadingIndicator";
 
 export interface IBaseData {
   id: string;
@@ -123,7 +121,6 @@ function CreateTransferAgreement({
   const [validUntilMinDate, setValidUntilMinDate] = useState("");
   const partnerOrganisation = watch("partnerOrganisation");
   const validFrom = watch("validFrom");
-  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   useEffect(() => {
     if (partnerOrganisation != null) {
@@ -176,8 +173,6 @@ function CreateTransferAgreement({
     currentOrganisation?.bases,
     validFrom,
   ]);
-
-  if (isGlobalStateLoading) return <APILoadingIndicator />;
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
