@@ -32,7 +32,7 @@ type ProtectedRouteProps = {
 };
 
 type DropappRedirectProps = {
-  path: "/boxes/:boxId" | "/boxes/create/:qrCodeHash" | "/qrreader" | "/qrreader:qrCodeHash";
+  path: "/boxes/:boxId" | "/boxes/create/:qrCodeHash" | "/qrreader" | "/qrreader/:qrCodeHash";
 };
 
 function Protected({
@@ -267,7 +267,7 @@ function App() {
       </Route>
       <Route path="qrreader">
         <Route index element={<DropappRedirect path="/qrreader" />} />
-        <Route path=":qrCodeHash" element={<DropappRedirect path="/qrreader:qrCodeHash" />} />
+        <Route path=":qrCodeHash" element={<DropappRedirect path="/qrreader/:qrCodeHash" />} />
       </Route>
       <Route path="/*" element={<NotFoundView />} />
     </Routes>
