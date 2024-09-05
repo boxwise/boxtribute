@@ -53,12 +53,6 @@ export const useLoadAndSetGlobalPreferences = () => {
             // this error is set if the requested base is not part of the available bases
             setError("The requested base is not available to you.");
           }
-        } else {
-          // TODO: to be removed with https://trello.com/c/LXJ0Hxqo/1509-20-forwarding-from-dropapp-mobilephp-to-v2
-          // handle the case if the url does not start with "/bases/<number>"
-          // prepend /bases/<newBaseId>
-          const newBaseId = globalPreferences?.selectedBase?.id ?? bases[0].id;
-          navigate(`/bases/${newBaseId}${location.pathname}`);
         }
       } else {
         // this error is set if the bases query returned an empty array for bases
