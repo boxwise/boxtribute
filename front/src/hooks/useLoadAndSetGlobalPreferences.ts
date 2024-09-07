@@ -14,9 +14,9 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
   const [error, setError] = useState<string>();
 
-  const { baseId } = useBaseIdParam()
+  const { baseId } = useBaseIdParam();
 
-  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
+  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
@@ -29,8 +29,8 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   // set available bases
   useEffect(() => {
-    if (!isOrganisationAndBasesQueryLoading && data != null) {
-      const { bases } = data;
+    if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData != null) {
+      const { bases } = organisationAndBaseData;
 
       if (bases.length > 0) {
         dispatch({
@@ -68,7 +68,7 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id, data]);
+  }, [organisationAndBaseData, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id]);
 
   const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 
