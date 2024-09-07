@@ -167,6 +167,7 @@ describe("4.5 Test Cases", () => {
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
+          selectedBase: organisation1.bases[0],
         },
       },
     });
@@ -207,6 +208,7 @@ describe("4.5 Test Cases", () => {
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
+          selectedBase: organisation1.bases[0],
         },
       },
     });
@@ -237,6 +239,7 @@ describe("4.5 Test Cases", () => {
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
+          selectedBase: organisation1.bases[0],
         },
       },
     });
@@ -285,6 +288,7 @@ describe("4.5 Test Cases", () => {
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
+          selectedBase: organisation1.bases[0],
         },
       },
     });
@@ -307,6 +311,7 @@ describe("4.5 Test Cases", () => {
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
+          selectedBase: organisation1.bases[0],
         },
       },
     });
@@ -336,6 +341,7 @@ describe("4.5 Test Cases", () => {
         globalPreferences: {
           organisation: { id: organisation1.id, name: organisation1.name },
           availableBases: organisation1.bases,
+          selectedBase: organisation1.bases[0],
         },
       },
     });
@@ -362,6 +368,7 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
       globalPreferences: {
         organisation: { id: organisation1.id, name: organisation1.name },
         availableBases: organisation1.bases,
+        selectedBase: organisation1.bases[0],
       },
     },
   });
