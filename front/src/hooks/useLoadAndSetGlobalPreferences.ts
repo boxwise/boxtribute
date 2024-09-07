@@ -16,18 +16,21 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const { baseId } = useBaseIdParam();
 
-  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBasesData }] =
+  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
-    if (user && !globalPreferences.selectedBase?.id) runOrganisationAndBasesQuery();
-  }, [globalPreferences.selectedBase?.id, runOrganisationAndBasesQuery, user]);
+    if (user && !globalPreferences.selectedBase?.id) {
+      runOrganisationAndBasesQuery();
+    }
+  }, [runOrganisationAndBasesQuery,
+    user, globalPreferences.selectedBase?.id]);
 
   // set available bases
   useEffect(() => {
-    if (!isOrganisationAndBasesQueryLoading && organisationAndBasesData != null) {
-      const { bases } = organisationAndBasesData;
+    if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData != null) {
+      const { bases } = organisationAndBaseData;
 
       if (bases.length > 0) {
         dispatch({
@@ -59,9 +62,9 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [organisationAndBasesData, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id]);
+  }, [organisationAndBaseData, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id]);
 
-  const isLoading = !globalPreferences.availableBases;
+  const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 
   return { isLoading, error };
 };

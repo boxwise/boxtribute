@@ -20,6 +20,10 @@ import {
 import { FaWarehouse } from "react-icons/fa";
 import { ShipmentIcon } from "./Icon/Transfer/ShipmentIcon";
 
+export function BreadcrumbNavigationSkeleton() {
+  return <Skeleton height="24px" width="500px" mb={4} />;
+}
+
 export function TableSkeleton() {
   return (
     <Stack data-testid="TableSkeleton">

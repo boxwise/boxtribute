@@ -35,6 +35,7 @@ import {
 import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreement[];
@@ -86,6 +87,7 @@ function TransferAgreementOverviewView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
   const { baseId } = useBaseIdParam();
@@ -369,7 +371,7 @@ function TransferAgreementOverviewView() {
         Could not fetch transfer agreement data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading) {
+  } else if (loading || isGlobalStateLoading) {
     transferAgreementTable = <TableSkeleton />;
   } else {
     transferAgreementTable = (

@@ -23,6 +23,7 @@ import CreateShipment, {
   ICreateShipmentFormData,
 } from "./components/CreateShipment";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
   ${BASE_ORG_FIELDS_FRAGMENT}
@@ -63,6 +64,7 @@ function CreateShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
   const { baseId } = useBaseIdParam();
@@ -221,7 +223,7 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (allAcceptedTransferAgreements.loading) {
+  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) {
     return <APILoadingIndicator />;
   }
 
