@@ -65,8 +65,8 @@ Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
 type QrCode {
   id: ID!
   code: String!
-  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated) "
-  box: Box
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated), or an error in case of insufficient permission or missing authorization for box's base "
+  box: BoxResult
   createdOn: Datetime
 }
 
@@ -617,8 +617,11 @@ union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoes
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
+union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
+union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
 
 type Metrics {
   """

@@ -72,7 +72,9 @@ export const CREATE_BOX_MUTATION = gql`
       qrCode {
         code
         box {
-          labelIdentifier
+          ...on Box {
+            labelIdentifier
+          }
         }
       }
     }

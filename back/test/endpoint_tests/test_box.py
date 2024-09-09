@@ -84,11 +84,8 @@ def test_box_query_by_label_identifier(
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     # Test case 8.1.5
     query = f"""query {{
-                qrCode(qrCode: "{default_qr_code['code']}") {{
-                    box {{
-                        labelIdentifier
-                    }}
-                }}
+                qrCode(code: "{default_qr_code['code']}") {{
+                    ...on QrCode {{ box {{ ...on Box {{ labelIdentifier }} }} }} }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
@@ -984,7 +981,8 @@ def test_access_in_transit_or_not_delivered_box(
         return f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
 
     def _create_qr_query(qr_code):
-        return f"""query {{ qrCode(qrCode: "{qr_code['code']}") {{ box {{ id }} }} }}"""
+        return f"""query {{ qrCode(code: "{qr_code['code']}") {{
+            ...on QrCode {{ box {{ ...on Box {{ id }} }} }} }} }}"""
 
     queries = {
         str(in_transit_box["id"]): _create_query(in_transit_box["label_identifier"]),
