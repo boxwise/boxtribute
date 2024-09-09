@@ -164,7 +164,6 @@ def deactivate_beneficiary(*, beneficiary):
     return beneficiary
 
 
-@save_creation_to_history
 def create_transaction(
     *,
     beneficiary_id=None,
