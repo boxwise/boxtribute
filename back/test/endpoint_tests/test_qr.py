@@ -8,14 +8,14 @@ def test_qr_exists_query(read_only_client, default_qr_code):
     # Test case 8.1.33
     code = default_qr_code["code"]
     query = f"""query CheckQrExistence {{
-                qrExists(qrCode: "{code}")
+                qrExists(code: "{code}")
             }}"""
     qr_exists = assert_successful_request(read_only_client, query)
     assert qr_exists
 
     # Test case 8.1.34
     query = """query CheckQrExistence {
-                qrExists(qrCode: "000")
+                qrExists(code: "000")
             }"""
     qr_exists = assert_successful_request(read_only_client, query)
     assert not qr_exists

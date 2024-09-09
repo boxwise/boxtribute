@@ -1382,7 +1382,7 @@ export type QueryQrCodeArgs = {
 
 
 export type QueryQrExistsArgs = {
-  qrCode?: InputMaybe<Scalars['String']>;
+  code?: InputMaybe<Scalars['String']>;
 };
 
 

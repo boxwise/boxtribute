@@ -59,7 +59,7 @@ def operation_name(operation):
         # Test case 8.1.3
         """box( labelIdentifier: "12345678") { id }""",
         # Test case 8.1.35
-        """qrExists( qrCode: "1337beef" )""",
+        """qrExists( code: "1337beef" )""",
     ],
     ids=operation_name,
 )

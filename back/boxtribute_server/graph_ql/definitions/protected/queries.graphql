@@ -17,7 +17,7 @@ type Query {
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
   " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
   qrCode(code: String!): QrCodeResult!
-  qrExists(qrCode: String): Boolean
+  qrExists(code: String): Boolean
   " Return [`ClassicLocation`]({{Types.ClassicLocation}}) with specified ID. Accessible for clients who are members of the location's base "
   location(id: ID!): ClassicLocation
   " Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view. "

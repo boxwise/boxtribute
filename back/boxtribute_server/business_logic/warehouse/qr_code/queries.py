@@ -8,10 +8,10 @@ query = QueryType()
 
 
 @query.field("qrExists")
-def resolve_qr_exists(*_, qr_code):
+def resolve_qr_exists(*_, code):
     authorize(permission="qr:read")
     try:
-        QrCode.get_id_from_code(qr_code)
+        QrCode.get_id_from_code(code)
     except QrCode.DoesNotExist:
         return False
     return True
