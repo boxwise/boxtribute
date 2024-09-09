@@ -1837,7 +1837,10 @@ export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';
   /**  e.g. 'product:write' present but not for requested base  */
   id: Scalars['ID'];
+  /**  Empty string if base does not exist  */
   name: Scalars['String'];
+  /**  Empty string if base does not exist  */
+  organisationName: Scalars['String'];
 };
 
 export type UnboxedItemsCollection = ItemsCollection & {
@@ -1949,7 +1952,7 @@ export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
 }>;
 
 
-export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode: { __typename: 'InsufficientPermissionError', name: string } | { __typename: 'QrCode', code: string, box?: { __typename: 'Box', labelIdentifier: string, state: BoxState, comment?: string | null, lastModifiedOn?: any | null, location?: { __typename?: 'ClassicLocation', id: string, base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', id: string, base?: { __typename?: 'Base', id: string } | null } | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null } | { __typename: 'InsufficientPermissionError', name: string } | { __typename: 'UnauthorizedForBaseError', name: string } | null } | { __typename: 'ResourceDoesNotExistError', name: string } };
+export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode: { __typename: 'InsufficientPermissionError', name: string } | { __typename: 'QrCode', code: string, box?: { __typename: 'Box', labelIdentifier: string, state: BoxState, comment?: string | null, lastModifiedOn?: any | null, location?: { __typename?: 'ClassicLocation', id: string, base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', id: string, base?: { __typename?: 'Base', id: string } | null } | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null } | { __typename: 'InsufficientPermissionError', name: string } | { __typename: 'UnauthorizedForBaseError', name: string, organisationName: string } | null } | { __typename: 'ResourceDoesNotExistError', name: string } };
 
 export type CheckIfQrExistsInDbQueryVariables = Exact<{
   qrCode: Scalars['String'];

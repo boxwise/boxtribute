@@ -222,8 +222,8 @@ def test_update_non_existent_resource(
             "createCustomProduct",
             """creationInput:
             { baseId: 0, name: "a", categoryId: 1, sizeRangeId: 1, gender: none}""",
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "0"},
+            "...on UnauthorizedForBaseError { id name organisationName }",
+            {"id": "0", "name": "", "organisationName": ""},
         ],
         # Test case 8.2.37
         [
@@ -273,8 +273,8 @@ def test_update_non_existent_resource(
         [
             "enableStandardProduct",
             """enableInput: { baseId: 0, standardProductId: 2 }""",
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "0"},
+            "...on UnauthorizedForBaseError { id name organisationName }",
+            {"id": "0", "name": "", "organisationName": ""},
         ],
         # Test case 8.2.63
         [

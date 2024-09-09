@@ -52,6 +52,7 @@ export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
           }
           ...on UnauthorizedForBaseError {
             name
+            organisationName
           }
         }
       }

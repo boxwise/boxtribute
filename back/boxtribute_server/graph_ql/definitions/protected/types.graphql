@@ -579,7 +579,10 @@ type ResourceDoesNotExistError {
 type UnauthorizedForBaseError {
   " e.g. 'product:write' present but not for requested base "
   id: ID!
+  " Empty string if base does not exist "
   name: String!
+  " Empty string if base does not exist "
+  organisationName: String!
 }
 type InvalidPriceError {
   value: Int!

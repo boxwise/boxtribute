@@ -298,7 +298,12 @@ def test_invalid_permission_for_location_boxes(read_only_client, mocker):
 
 
 def test_invalid_permission_for_qr_code_box(
-    read_only_client, mocker, default_qr_code, another_qr_code_with_box
+    read_only_client,
+    mocker,
+    default_qr_code,
+    another_qr_code_with_box,
+    another_base,
+    another_organisation,
 ):
     # Test case 8.1.10
     # Verify missing stock:read permission
@@ -330,12 +335,18 @@ def test_invalid_permission_for_qr_code_box(
     query = f"""query {{ qrCode(code: "{code}") {{
         ...on QrCode {{
             box {{
-                ...on UnauthorizedForBaseError {{ id name }}
+                ...on UnauthorizedForBaseError {{ id name organisationName }}
                 ...on Box {{
                     tags {{ taggedResources {{ ...on Beneficiary {{ id }} }} }}
             }} }} }} }} }}"""
     response = assert_successful_request(read_only_client, query)
-    assert response == {"box": {"id": "3", "name": ""}}
+    assert response == {
+        "box": {
+            "id": "3",
+            "name": another_base["name"],
+            "organisationName": another_organisation["name"],
+        }
+    }
 
 
 def test_invalid_permission_for_organisation_bases(
