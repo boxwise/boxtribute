@@ -258,7 +258,7 @@ function CreateShipmentView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath=".." />
       <Center>
         <CreateShipment
           isLoading={createShipmentMutationState.loading}
