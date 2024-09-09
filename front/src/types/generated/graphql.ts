@@ -14,7 +14,7 @@ export type Scalars = {
   Datetime: any;
 };
 
-export type AssignTagToBoxesResult = BoxResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+export type AssignTagToBoxesResult = BoxesResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
 
 /**
  * Representation of a base.
@@ -247,8 +247,8 @@ export type BoxPage = {
 };
 
 /** Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing). */
-export type BoxResult = {
-  __typename?: 'BoxResult';
+export type BoxesResult = {
+  __typename?: 'BoxesResult';
   invalidBoxLabelIdentifiers: Array<Scalars['String']>;
   updatedBoxes: Array<Box>;
 };
@@ -370,7 +370,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type DeleteBoxesResult = BoxResult | InsufficientPermissionError;
+export type DeleteBoxesResult = BoxesResult | InsufficientPermissionError;
 
 export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
@@ -651,7 +651,7 @@ export type MetricsNumberOfSalesArgs = {
   before?: InputMaybe<Scalars['Date']>;
 };
 
-export type MoveBoxesResult = BoxResult | DeletedLocationError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type MoveBoxesResult = BoxesResult | DeletedLocationError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
@@ -697,7 +697,7 @@ export type Mutation = {
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignBoxToDistributionEvent?: Maybe<Box>;
   assignTag?: Maybe<TaggableResource>;
-  /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   assignTagToBoxes?: Maybe<AssignTagToBoxesResult>;
   /**  Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment.  */
   cancelShipment?: Maybe<Shipment>;
@@ -722,7 +722,7 @@ export type Mutation = {
   createTransferAgreement?: Maybe<TransferAgreement>;
   /**  Deactivate beneficiary with specified ID.  */
   deactivateBeneficiary?: Maybe<Beneficiary>;
-  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   deleteBoxes?: Maybe<DeleteBoxesResult>;
   /**  Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in.  */
   deleteProduct?: Maybe<DeleteProductResult>;
@@ -738,7 +738,7 @@ export type Mutation = {
   enableStandardProduct?: Maybe<EnableStandardProductResult>;
   /**  Change state of specified shipment to `Lost`, and state of all contained `InTransit` boxes to `NotDelivered`. Only valid for shipments in `Sent` state. The client must be member of either source or target base of the shipment.  */
   markShipmentAsLost?: Maybe<Shipment>;
-  /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   moveBoxesToLocation?: Maybe<MoveBoxesResult>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
@@ -757,7 +757,7 @@ export type Mutation = {
   startReceivingShipment?: Maybe<Shipment>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   unassignTag?: Maybe<TaggableResource>;
-  /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   unassignTagFromBoxes?: Maybe<UnassignTagFromBoxesResult>;
   /**  Update one or more properties of a beneficiary with specified ID.  */
   updateBeneficiary?: Maybe<Beneficiary>;
@@ -1827,7 +1827,7 @@ export enum TransferAgreementType {
   SendingTo = 'SendingTo'
 }
 
-export type UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';

@@ -31,7 +31,7 @@ mutation = MutationType()
 
 
 @dataclass(kw_only=True)
-class BoxResult:
+class BoxesResult:
     updated_boxes: list[Box]
     invalid_box_label_identifiers: list[str]
 
@@ -89,7 +89,7 @@ def resolve_update_box(*_, update_input):
 # - perform the requested action on all valid boxes
 # - create list of invalid boxes (difference of the set of input label identifiers and
 #   the set of valid label identifiers)
-# - return valid, updated boxes and invalid box label identifiers as BoxResult data
+# - return valid, updated boxes and invalid box label identifiers as BoxesResult data
 #   structure for GraphQL API
 @mutation.field("deleteBoxes")
 @handle_unauthorized
@@ -107,7 +107,7 @@ def resolve_delete_boxes(*_, label_identifiers):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxResult(
+    return BoxesResult(
         updated_boxes=delete_boxes(user_id=g.user.id, boxes=boxes),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
@@ -142,7 +142,7 @@ def resolve_move_boxes_to_location(*_, update_input):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxResult(
+    return BoxesResult(
         updated_boxes=move_boxes_to_location(
             user_id=g.user.id, boxes=boxes, location=location
         ),
@@ -189,7 +189,7 @@ def resolve_assign_tag_to_boxes(*_, update_input):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxResult(
+    return BoxesResult(
         updated_boxes=assign_tag_to_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
@@ -247,7 +247,7 @@ def resolve_unassign_tag_from_boxes(*_, update_input):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxResult(
+    return BoxesResult(
         updated_boxes=unassign_tag_from_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
