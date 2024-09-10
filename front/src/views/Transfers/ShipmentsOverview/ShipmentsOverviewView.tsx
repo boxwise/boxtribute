@@ -182,7 +182,7 @@ function ShipmentsOverviewView() {
     <>
       <BreadcrumbNavigation
         items={[
-          { label: "Aid Transfers", linkPath: "/transfers/agreements" },
+          { label: "Aid Transfers", linkPath: "../../transfers/agreements", relative: "path" },
           { label: "Manage Shipments" },
         ]}
       />

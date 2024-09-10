@@ -9,6 +9,7 @@ import { BreadcrumbNavigationSkeleton } from "./Skeletons";
 interface IBreadcrumbItemData {
   label: string;
   linkPath?: string;
+  relative?: "route" | "path";
 }
 
 interface IBreadcrumbNavigationProps {
@@ -55,7 +56,7 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
       </BreadcrumbItem>
       {items.map((item) => (
         <BreadcrumbItem key={`breadcrumb${item.label}`}>
-          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"}>
+          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"} relative={item.relative ?? "route"}>
             {item.label}
           </BreadcrumbLink>
         </BreadcrumbItem>

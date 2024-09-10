@@ -611,7 +611,7 @@ function ShipmentView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath=".." />
       {shipmentViewComponents}
       <ShipmentOverlay
         isOpen={isShipmentOverlayOpen}
