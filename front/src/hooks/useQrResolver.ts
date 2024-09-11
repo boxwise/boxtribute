@@ -52,7 +52,7 @@ export const useQrResolver = () => {
         })
         .then(({ data, errors }) => {
           if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions.code : undefined;
+            const errorCode = errors ? errors[0].extensions?.code : undefined;
             if (errorCode === "FORBIDDEN") {
               triggerError({
                 message: "You don't have permission to access this box!",
