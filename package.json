@@ -25,7 +25,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@nivo/bar": "0.84.0",
     "@nivo/core": "0.84.0",
-    "@nivo/pie": "0.84.0",
+    "@nivo/pie": "0.87.0",
     "@nivo/sankey": "0.84.0",
     "@nivo/sunburst": "0.87.0",
     "@tidyjs/tidy": "^2.5.2",
