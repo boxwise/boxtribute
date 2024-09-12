@@ -1,3 +1,5 @@
+from peewee import JOIN
+
 from ...db import db
 from ...enums import TaggableObjectType, TagType
 from ...exceptions import IncompatibleTagTypeAndResourceType
@@ -106,6 +108,8 @@ def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
     given resource (a box or a beneficiary). Insert timestamp for modification in
     resource model.
     Validate that tag type and resource type are compatible.
+    If the requested tag is already assigned to the resource, return the unmodified
+    resource immediately.
     Return the resource.
     """
     tag = Tag.get_by_id(id) if tag is None else tag
@@ -116,9 +120,27 @@ def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
     ):
         raise IncompatibleTagTypeAndResourceType(tag=tag, resource_type=resource_type)
 
-    now = utcnow()
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
-    resource = model.get_by_id(resource_id)
+    resource = (
+        model.select(model, TagsRelation.tag)
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            on=(
+                (TagsRelation.object_id == model.id)
+                & (TagsRelation.object_type == resource_type)
+                & (TagsRelation.tag == tag.id)
+                & TagsRelation.deleted_on.is_null()
+            ),
+        )
+        .where(model.id == resource_id)
+        .objects()  # make .tag a direct attribute of resource
+        .get()
+    )
+    if resource.tag is not None:
+        return resource
+
+    now = utcnow()
     resource.last_modified_by = user_id
     resource.last_modified_on = now
 

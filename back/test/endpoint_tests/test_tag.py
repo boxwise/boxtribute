@@ -191,6 +191,9 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                 }} }}"""
     box = assert_successful_request(client, mutation)
     assert box == {"tags": [{"id": tag_id}]}
+    # Verify that tag can only be assigned once
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": [{"id": tag_id}]}
 
     # Test case 4.2.14
     beneficiary_id = str(another_beneficiary["id"])
