@@ -39,7 +39,7 @@
     "@visx/shape": "^3.3.0",
     "@visx/tooltip": "^3.3.0",
     "chakra-react-select": "^4.9.2",
-    "date-fns": "^2.29.3",
+    "date-fns": "^3.6.0",
     "dom-to-image-more": "^3.4.3",
     "framer-motion": "^11.5.4",
     "graphql": "^16.8.1",
