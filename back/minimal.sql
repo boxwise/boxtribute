@@ -2193,8 +2193,8 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20240523182223,'PopulateStandardProductsTable','2024-05-27 13:01:16','2024-05-27 13:01:16',0),
   (20240624155306,'DeleteDuplicateBoxDeletions','2024-07-13 22:49:45','2024-07-13 22:49:45',0),
   (20240701112808,'UpdateSmlSizegroup','2024-07-01 10:22:44','2024-07-01 10:22:44',0),
-  (20240827120508,'CleanHistoryTransactions','2024-09-09 07:48:21','2024-09-09 07:48:22',0),
-  (20240814154516,'AddTemporalColumnsToTagsRelations','2024-09-12 07:48:21','2024-09-12 07:48:22',0);
+  (20240814154516,'AddTemporalColumnsToTagsRelations','2024-09-12 07:48:21','2024-09-12 07:48:22',0),
+  (20240827120508,'CleanHistoryTransactions','2024-09-09 07:48:21','2024-09-09 07:48:22',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
