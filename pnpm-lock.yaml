@@ -140,8 +140,8 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(vitest@1.6.0)
       '@vitest/ui':
-        specifier: 1.2.1
-        version: 1.2.1(vitest@1.6.0)
+        specifier: 1.6.0
+        version: 1.6.0(vitest@1.6.0)
       eslint:
         specifier: ^8.56.0
         version: 8.57.0
@@ -192,7 +192,7 @@ importers:
         version: 5.0.1(typescript@5.6.2)(vite@5.4.4)
       vitest:
         specifier: ^1.1.3
-        version: 1.6.0(@vitest/ui@1.2.1)(jsdom@25.0.0)
+        version: 1.6.0(@vitest/ui@1.6.0)(jsdom@25.0.0)
 
   front:
     dependencies:
@@ -11107,7 +11107,7 @@ packages:
       std-env: 3.7.0
       strip-literal: 2.1.0
       test-exclude: 6.0.0
-      vitest: 1.6.0(@vitest/ui@1.2.1)(jsdom@25.0.0)
+      vitest: 1.6.0(@vitest/ui@1.6.0)(jsdom@25.0.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11142,28 +11142,19 @@ packages:
       tinyspy: 2.2.1
     dev: true
 
-  /@vitest/ui@1.2.1(vitest@1.6.0):
-    resolution: {integrity: sha512-5kyEDpH18TB13Keutk5VScWG+LUDfPJOL2Yd1hqX+jv6+V74tp4ZYcmTgx//WDngiZA5PvX3qCHQ5KrhGzPbLg==}
+  /@vitest/ui@1.6.0(vitest@1.6.0):
+    resolution: {integrity: sha512-k3Lyo+ONLOgylctiGovRKy7V4+dIN2yxstX3eY5cWFXH6WP+ooVX79YSyi0GagdTQzLmT43BF27T0s6dOIPBXA==}
     peerDependencies:
-      vitest: ^1.0.0
+      vitest: 1.6.0
     dependencies:
-      '@vitest/utils': 1.2.1
+      '@vitest/utils': 1.6.0
       fast-glob: 3.3.2
       fflate: 0.8.2
       flatted: 3.3.1
       pathe: 1.1.2
       picocolors: 1.1.0
       sirv: 2.0.4
-      vitest: 1.6.0(@vitest/ui@1.2.1)(jsdom@25.0.0)
-    dev: true
-
-  /@vitest/utils@1.2.1:
-    resolution: {integrity: sha512-bsH6WVZYe/J2v3+81M5LDU8kW76xWObKIURpPrOXm2pjBniBu2MERI/XP60GpS4PHU3jyK50LUutOwrx4CyHUg==}
-    dependencies:
-      diff-sequences: 29.6.3
-      estree-walker: 3.0.3
-      loupe: 2.3.7
-      pretty-format: 29.7.0
+      vitest: 1.6.0(@vitest/ui@1.6.0)(jsdom@25.0.0)
     dev: true
 
   /@vitest/utils@1.6.0:
@@ -25859,7 +25850,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitest@1.6.0(@vitest/ui@1.2.1)(jsdom@25.0.0):
+  /vitest@1.6.0(@vitest/ui@1.6.0)(jsdom@25.0.0):
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -25888,7 +25879,7 @@ packages:
       '@vitest/runner': 1.6.0
       '@vitest/snapshot': 1.6.0
       '@vitest/spy': 1.6.0
-      '@vitest/ui': 1.2.1(vitest@1.6.0)
+      '@vitest/ui': 1.6.0(vitest@1.6.0)
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.4
       chai: 4.5.0
