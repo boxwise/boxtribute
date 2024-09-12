@@ -29,7 +29,9 @@ type Mutation {
   updateTag(updateInput: TagUpdateInput): Tag
   " Soft-delete tag with specified ID. "
   deleteTag(id: ID!): Tag
+  " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
   assignTag(assignmentInput: TagOperationInput): TaggableResource
+  " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
   unassignTag(unassignmentInput: TagOperationInput): TaggableResource
 
   " Create new transfer agreement with with a partner organisation (the client's organisation is the initiating organisation). By default, the agreement is established with non-deleted bases of the partner organisation, and is infinitely valid. As a result, any base added to that organisation afterwards will NOT be part of the agreement; instead a new agreement needs to be established. If an accepted agreement with the same set of organisations and bases already exists, an error is returned. The client must be member of all bases of the initiating organisation.  "

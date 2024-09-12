@@ -560,6 +560,7 @@ export type HistoryEntry = {
   __typename?: 'HistoryEntry';
   changeDate?: Maybe<Scalars['Datetime']>;
   changes: Scalars['String'];
+  /**  IDs are not guaranteed to be unique due to history data being pulled from multiple sources  */
   id: Scalars['ID'];
   user?: Maybe<User>;
 };
@@ -696,6 +697,7 @@ export type Mutation = {
   acceptTransferAgreement?: Maybe<TransferAgreement>;
   addPackingListEntryToDistributionEvent?: Maybe<PackingListEntry>;
   assignBoxToDistributionEvent?: Maybe<Box>;
+  /**  Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing  */
   assignTag?: Maybe<TaggableResource>;
   /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   assignTagToBoxes?: Maybe<AssignTagToBoxesResult>;
@@ -756,6 +758,7 @@ export type Mutation = {
   /**  Change state of specified shipment to `Receiving`, and state of all contained `InTransit` boxes to `Receiving`. Only valid for shipments in `Sent` state. The client must be member of the shipment target base.  */
   startReceivingShipment?: Maybe<Shipment>;
   unassignBoxFromDistributionEvent?: Maybe<Box>;
+  /**  Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing  */
   unassignTag?: Maybe<TaggableResource>;
   /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   unassignTagFromBoxes?: Maybe<UnassignTagFromBoxesResult>;
