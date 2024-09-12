@@ -30,11 +30,11 @@ def create_beneficiary(
     signature=None,
     date_of_signature=None,
     tag_ids=None,
+    now,
 ):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
     """
-    now = utcnow()
     data = dict(
         first_name=first_name,
         last_name=last_name,
@@ -112,6 +112,7 @@ def update_beneficiary(
     family_head_id=None,
     registered=None,
     signature=None,
+    now,
     **data,
 ):
     """Look up an existing Beneficiary given an ID, and update all requested fields,
@@ -152,7 +153,7 @@ def update_beneficiary(
 
 
 @safely_handle_deletion
-def deactivate_beneficiary(*, beneficiary):
+def deactivate_beneficiary(*, beneficiary, **_):
     if beneficiary.family_head_id is None:
         # Deactivate all children of a parent
         children = Beneficiary.select().where(
@@ -164,7 +165,6 @@ def deactivate_beneficiary(*, beneficiary):
     return beneficiary
 
 
-@save_creation_to_history
 def create_transaction(
     *,
     beneficiary_id=None,
