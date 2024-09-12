@@ -3012,12 +3012,21 @@ DROP TABLE IF EXISTS `tags_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags_relations` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(11) unsigned NOT NULL,
   `object_type` varchar(255) NOT NULL DEFAULT 'People',
   `tag_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`object_id`,`tag_id`,`object_type`),
+  `created_on` datetime DEFAULT NULL,
+  `created_by_id` int(11) unsigned DEFAULT NULL,
+  `deleted_on` datetime DEFAULT NULL,
+  `deleted_by_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `created_by_id` (`created_by_id`),
+  KEY `deleted_by_id` (`deleted_by_id`),
+  CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tags_relations_ibfk_5` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tags_relations_ibfk_6` FOREIGN KEY (`deleted_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
