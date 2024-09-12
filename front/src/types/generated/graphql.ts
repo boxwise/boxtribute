@@ -273,9 +273,9 @@ export type BoxUpdateInput = {
   productId?: InputMaybe<Scalars['Int']>;
   sizeId?: InputMaybe<Scalars['Int']>;
   state?: InputMaybe<BoxState>;
-  /**  List of all tags that shall be assigned to the box  */
+  /**  List of all tags that shall be assigned to the box. Any requested tags already assigned to the box will not be assigned again  */
   tagIds?: InputMaybe<Array<Scalars['Int']>>;
-  /**  List of tags that shall be assigned in addition to already assigned tags  */
+  /**  List of tags that shall be assigned in addition to already assigned tags. Any requested tags already assigned to the box will not be assigned again  */
   tagIdsToBeAdded?: InputMaybe<Array<Scalars['Int']>>;
 };
 
