@@ -46,6 +46,7 @@ type Box implements ItemsCollection {
 }
 
 type HistoryEntry {
+  " IDs are not guaranteed to be unique due to history data being pulled from multiple sources "
   id: ID!
   changes: String!
   changeDate: Datetime
