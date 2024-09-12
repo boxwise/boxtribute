@@ -82,7 +82,7 @@ def create_box(
                             "created_on": now,
                             "created_by": user_id,
                         }
-                        for tag_id in tag_ids
+                        for tag_id in set(tag_ids)
                     ]
                     TagsRelation.insert_many(tags_relations).execute()
                 return new_box
