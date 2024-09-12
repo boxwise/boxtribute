@@ -78,6 +78,8 @@ def create_beneficiary(
                     "object_id": new_beneficiary.id,
                     "object_type": TaggableObjectType.Beneficiary,
                     "tag": tag_id,
+                    "created_on": now,
+                    "created_by": user_id,
                 }
                 for tag_id in set(tag_ids)
             ]
