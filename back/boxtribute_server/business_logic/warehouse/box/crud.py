@@ -30,6 +30,7 @@ def create_box(
     location_id,
     user_id,
     size_id,
+    now,
     comment="",
     number_of_items=None,
     qr_code=None,
@@ -42,8 +43,6 @@ def create_box(
     generation still fails, raise a BoxCreationFailed exception.
     Assign any given tags to the newly created box.
     """
-
-    now = utcnow()
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     location_box_state_id = Location.get_by_id(location_id).box_state_id
@@ -118,6 +117,7 @@ def create_box(
 def update_box(
     label_identifier,
     user_id,
+    now,
     comment=None,
     number_of_items=None,
     location_id=None,
@@ -131,7 +131,6 @@ def update_box(
     Insert timestamp for modification and return the box.
     """
     box = Box.get(Box.label_identifier == label_identifier)
-    now = utcnow()
 
     if comment is not None:
         box.comment = comment

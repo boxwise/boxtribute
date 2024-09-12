@@ -4,7 +4,6 @@ from ....models.utils import (
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
-    utcnow,
 )
 
 
@@ -18,9 +17,9 @@ def create_location(
     is_stockroom=False,
     description="",
     user_id,
+    now,
 ):
     """Insert information for a new Location in the database."""
-    now = utcnow()
     return Location.create(
         name=name,
         base=base_id,
@@ -58,6 +57,7 @@ def update_location(
     is_stockroom=None,
     is_shop=None,
     user_id,
+    **_,
 ):
     """Look up an existing Location given an ID, and update all requested fields.
     Insert timestamp for modification and return the location.
@@ -82,7 +82,7 @@ def update_location(
 
 
 @safely_handle_deletion
-def delete_location(*, user_id, location):
+def delete_location(*, user_id, location, **_):
     """Soft-delete given location. Return the soft-deleted location."""
     location.visible = False
     return location

@@ -22,9 +22,9 @@ def create_tag(
     type,
     user_id,
     base_id,
+    now,
 ):
     """Insert information for a new Tag in the database."""
-    now = utcnow()
     return Tag.create(
         color=color,
         created=now,
@@ -55,6 +55,7 @@ def update_tag(
     color=None,
     type=None,
     user_id,
+    now,
 ):
     """Look up an existing Tag given an ID, and update all requested fields.
     If the tag type is changed from All/Beneficiary to Box, remove the tag from all
@@ -80,7 +81,7 @@ def update_tag(
 
     with db.database.atomic():
         if object_type_for_deletion is not None:
-            TagsRelation.update(deleted_on=utcnow(), deleted_by=user_id).where(
+            TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
                 TagsRelation.object_type == object_type_for_deletion,
                 TagsRelation.tag == id,
                 TagsRelation.deleted_on.is_null(),
@@ -89,11 +90,11 @@ def update_tag(
 
 
 @safely_handle_deletion
-def delete_tag(*, user_id, tag):
+def delete_tag(*, user_id, tag, now):
     """Soft-delete given tag. Unassign the tag from any resources by soft-deleting
     respective rows of the TagsRelation model.
     """
-    TagsRelation.update(deleted_on=utcnow(), deleted_by=user_id).where(
+    TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
         TagsRelation.tag == tag.id,
         TagsRelation.deleted_on.is_null(),
     ).execute()
