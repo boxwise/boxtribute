@@ -176,6 +176,7 @@ def resolve_assign_tag_to_boxes(*_, update_input):
                 (TagsRelation.object_id == Box.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
                 & (TagsRelation.tag == tag.id)
+                & TagsRelation.deleted_on.is_null()
             ),
         )
         .where(
