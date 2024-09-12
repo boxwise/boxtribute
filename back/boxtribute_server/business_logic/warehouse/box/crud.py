@@ -20,7 +20,6 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
-from ...tag.crud import assign_tag, unassign_tag
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
@@ -132,6 +131,7 @@ def update_box(
     Insert timestamp for modification and return the box.
     """
     box = Box.get(Box.label_identifier == label_identifier)
+    now = utcnow()
 
     if comment is not None:
         box.comment = comment
@@ -165,22 +165,26 @@ def update_box(
 
         # Unassign all tags that were previously assigned to the box but are not part
         # of the updated set of tags
-        for tag_id in assigned_tag_ids.difference(updated_tag_ids):
-            unassign_tag(
-                user_id=user_id,
-                id=tag_id,
-                resource_id=box.id,
-                resource_type=TaggableObjectType.Box,
-            )
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+            TagsRelation.tag << assigned_tag_ids.difference(updated_tag_ids),
+            TagsRelation.object_id == box.id,
+            TagsRelation.object_type == TaggableObjectType.Box,
+            TagsRelation.deleted_on.is_null(),
+        ).execute()
+
         # Assign all tags that are part of the updated set of tags but were previously
         # not assigned to the box
-        for tag_id in updated_tag_ids.difference(assigned_tag_ids):
-            assign_tag(
-                user_id=user_id,
-                id=tag_id,
-                resource_id=box.id,
-                resource_type=TaggableObjectType.Box,
+        tags_relations = [
+            TagsRelation(
+                object_id=box.id,
+                object_type=TaggableObjectType.Box,
+                tag=tag_id,
+                created_on=now,
+                created_by=user_id,
             )
+            for tag_id in updated_tag_ids.difference(assigned_tag_ids)
+        ]
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     if tag_ids_to_be_added is not None:
         # Find all tag IDs that are currently assigned to the box
@@ -194,13 +198,17 @@ def update_box(
         )
         # Assign all tags that are part of the set of tags requested to be added but
         # were previously not assigned to the box
-        for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids):
-            assign_tag(
-                user_id=user_id,
-                id=tag_id,
-                resource_id=box.id,
-                resource_type=TaggableObjectType.Box,
+        tags_relations = [
+            TagsRelation(
+                object_id=box.id,
+                object_type=TaggableObjectType.Box,
+                tag=tag_id,
+                created_on=now,
+                created_by=user_id,
             )
+            for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids)
+        ]
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     return box
 
