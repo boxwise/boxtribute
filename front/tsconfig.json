@@ -7,10 +7,8 @@
     /* The following linting settings we might want to get rid of in the future */
     "allowSyntheticDefaultImports": true,
     "strictFunctionTypes": false,
-    "noImplicitAny": false,
+    "noImplicitAny": false
   },
   /* "types": ["vite/client"], not sure if needed */
-  "include": ["src"],
-  /* exclude Distributions from type checking */
-  "exclude": ["src/views/Distributions"],
+  "include": ["src"]
 }

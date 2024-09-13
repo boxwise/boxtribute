@@ -11,14 +11,10 @@ import {
   Text,
   Button,
 } from "@chakra-ui/react";
-import React from "react";
 import { DistributionEventState } from "types/generated/graphql";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
-import {
-  DistributionSpotEnrichedData,
-  DistroEventForSpot,
-} from "views/Distributions/types";
+import { DistributionSpotEnrichedData, DistroEventForSpot } from "views/Distributions/types";
 
 interface DistroSpotsProps {
   distroSpots: DistributionSpotEnrichedData[];
@@ -72,11 +68,7 @@ const DistroSpots = ({
                   onDistroEventClick={onDistroEventClick}
                 />
 
-                <Button
-                  onClick={() =>
-                    onCreateNewDistroEventForDistroSpotClick(distroSpot.id)
-                  }
-                >
+                <Button onClick={() => onCreateNewDistroEventForDistroSpotClick(distroSpot.id)}>
                   Create New Event
                 </Button>
               </AccordionPanel>
@@ -128,19 +120,20 @@ const DistroEventsAccordionForDistroSpotContainer = ({
   onDistroEventClick: (distroEventId: string) => void;
 }) => {
   const completedEvents = distroEvents.filter(
-    (distroEvent) => distroEvent.state === DistributionEventState.Completed
+    (distroEvent) => distroEvent.state === DistributionEventState.Completed,
   );
   const nonCompletedEvents = distroEvents.filter(
-    (distroEvent) => distroEvent.state !== DistributionEventState.Completed
+    (distroEvent) => distroEvent.state !== DistributionEventState.Completed,
   );
 
   return (
     <List>
-      {nonCompletedEvents.map((distroEvent, i) => {
+      {nonCompletedEvents.map((distroEvent) => {
         return (
           <DistributionEventListItem
             distroEvent={distroEvent}
             onDistroEventClick={onDistroEventClick}
+            key={distroEvent.id}
           />
         );
       })}

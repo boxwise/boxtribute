@@ -1,15 +1,7 @@
-import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import DistroSpotsContainer from "./DistroSpotsContainer";
 import { StorybookApolloProvider } from "tests/test-utils";
-import {
-  DistributionEventState,
-  DistroSpotsForBaseIdQuery,
-  DistroSpotsForBaseIdQueryVariables,
-} from "types/generated/graphql";
-import { graphql } from "msw";
-// import { worker } from "mocks/browser";
 
 export default {
   title: "Mobile Distro Events/Distro Spots/List View/Container",
