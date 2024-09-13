@@ -15,19 +15,25 @@ interface ITableRowProps {
 
 function TableRow({ row, children }: ITableRowProps) {
   const navigate = useNavigate();
+  const { key, ...props } = row.getRowProps();
   if (typeof row.original.href === "string" && row.original.href.length > 0) {
     return (
       <Tr
         onClick={() => navigate(row.original.href)}
         _hover={{ bg: "brandYellow.100" }}
         cursor="pointer"
-        {...row.getRowProps()}
+        key={key}
+        {...props}
       >
         {children}
       </Tr>
     );
   }
-  return <Tr {...row.getRowProps()}>{children}</Tr>;
+  return (
+    <Tr key={key} {...props}>
+      {children}
+    </Tr>
+  );
 }
 
 interface IInitialStateFilters {
