@@ -1,7 +1,22 @@
 import { it, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import MovedBoxesDataContainer, { MOVED_BOXES_QUERY } from "./MovedBoxesDataContainer";
 import { render, screen } from "../../../../tests/testUtils";
+import { GraphQLError } from "graphql";
+
+export class MockedGraphQLError extends GraphQLError {
+  constructor(errorCode?: string, errorDescription?: string) {
+    super(
+      "Mocked GraphQL Error",
+      errorCode ? { extensions: { code: errorCode, description: errorDescription } } : undefined,
+    );
+  }
+}
+
+export class MockedGraphQLNetworkError extends Error {
+  constructor() {
+    super("Mocked GraphQL Network Error!");
+  }
+}
 
 const mockFailedMovedBoxesQuery = ({ baseId = "1", networkError = false }) => ({
   request: {
@@ -12,9 +27,9 @@ const mockFailedMovedBoxesQuery = ({ baseId = "1", networkError = false }) => ({
     ? undefined
     : {
         data: null,
-        errors: [new GraphQLError("Error!")],
+        errors: [new MockedGraphQLError()],
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new MockedGraphQLNetworkError() : undefined,
 });
 
 const movedBoxesDataTests = [

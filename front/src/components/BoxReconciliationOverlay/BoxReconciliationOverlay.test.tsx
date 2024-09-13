@@ -6,7 +6,6 @@ import { mockAuthenticatedUser } from "mocks/hooks";
 import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
 import { organisation1 } from "mocks/organisations";
-import { GraphQLError } from "graphql";
 import { cache, boxReconciliationOverlayVar, IBoxReconciliationOverlayVar } from "queries/cache";
 import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
@@ -15,6 +14,7 @@ import { userEvent } from "@testing-library/user-event";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
+import { MockedGraphQLError, MockedGraphQLNetworkError } from "mocks/functions";
 
 vi.mock("@auth0/auth0-react");
 // @ts-ignore
@@ -57,7 +57,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new MockedGraphQLError()],
   },
 };
 
@@ -115,9 +115,9 @@ const mockUpdateShipmentWhenReceivingMutation = ({
           : {
               updateShipmentWhenReceiving: generateMockShipment({ state: ShipmentState.Receiving }),
             },
-        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+        errors: graphQlError ? [new MockedGraphQLError()] : undefined,
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new MockedGraphQLNetworkError() : undefined,
 });
 
 const noDeliveryTests = [

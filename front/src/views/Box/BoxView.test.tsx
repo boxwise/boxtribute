@@ -1,5 +1,4 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import { screen, render, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
@@ -10,7 +9,11 @@ import { product1, product3, products } from "mocks/products";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "views/BoxEdit/BoxEditView";
 import { tags } from "mocks/tags";
 import { textContentMatcher } from "tests/helpers";
-import { mockMatchMediaQuery } from "mocks/functions";
+import {
+  MockedGraphQLError,
+  MockedGraphQLNetworkError,
+  mockMatchMediaQuery,
+} from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
@@ -280,7 +283,7 @@ const initialFailedQuery = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new MockedGraphQLError()],
   },
 };
 
@@ -323,7 +326,7 @@ const updateNumberOfItemsFailedMutation = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new MockedGraphQLError()],
   },
 };
 
@@ -336,7 +339,7 @@ const moveLocationOfBoxFailedMutation = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new MockedGraphQLError()],
   },
 };
 
@@ -348,7 +351,7 @@ const moveLocationOfBoxNetworkFailedMutation = {
       newLocationId: 10,
     },
   },
-  error: new Error(),
+  error: new MockedGraphQLNetworkError(),
 };
 
 beforeEach(() => {

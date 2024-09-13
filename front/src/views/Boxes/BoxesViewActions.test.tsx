@@ -10,7 +10,6 @@ import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
-import { GraphQLError } from "graphql";
 import { gql } from "@apollo/client";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
@@ -18,6 +17,7 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "@sentry/react";
 import { mockedCreateToast } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
+import { MockedGraphQLError, MockedGraphQLNetworkError } from "mocks/functions";
 
 const boxesQuery = ({
   state = BoxState.InStock,
@@ -92,9 +92,9 @@ const mutation = ({
     ? undefined
     : {
         data: graphQlError ? null : resultData,
-        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+        errors: graphQlError ? [new MockedGraphQLError()] : undefined,
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new MockedGraphQLNetworkError() : undefined,
 });
 
 vi.mock("@auth0/auth0-react");

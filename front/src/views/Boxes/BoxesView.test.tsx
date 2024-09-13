@@ -1,5 +1,4 @@
 import { vi, it, describe, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import { userEvent } from "@testing-library/user-event";
 import { base2 } from "mocks/bases";
 import { organisation1, organisation2 } from "mocks/organisations";
@@ -11,6 +10,7 @@ import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { cache } from "queries/cache";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
+import { MockedGraphQLError, MockedGraphQLNetworkError } from "mocks/functions";
 
 const boxesQuery = {
   request: {
@@ -400,7 +400,7 @@ const initialQueryNetworkError = {
     },
   },
 
-  error: new Error(),
+  error: new MockedGraphQLNetworkError(),
 };
 
 const initialQueryGraphQLError = {
@@ -417,7 +417,7 @@ const initialQueryGraphQLError = {
     data: {
       boxes: null,
     },
-    errors: [new GraphQLError("Error!")],
+    errors: [new MockedGraphQLError()],
   },
 };
 

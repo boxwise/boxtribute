@@ -1,5 +1,4 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -20,6 +19,7 @@ import { generateAssignTagsRequest } from "queries/dynamic-mutations";
 import { tagsArray } from "mocks/tags";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
+import { MockedGraphQLError, MockedGraphQLNetworkError } from "mocks/functions";
 
 const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
@@ -62,9 +62,9 @@ const mockTagsQuery = ({
               ],
               base: { locations, tags: tagsArray },
             },
-        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+        errors: graphQlError ? [new MockedGraphQLError()] : undefined,
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new MockedGraphQLNetworkError() : undefined,
 });
 
 const generateAssignTagsResponse = ({ labelIdentifiers, newTagId, failLabelIdentifier }) => {
@@ -107,9 +107,9 @@ const mockAssignTagsMutation = ({
               newTagId,
               failLabelIdentifier,
             }),
-        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+        errors: graphQlError ? [new MockedGraphQLError()] : undefined,
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new MockedGraphQLNetworkError() : undefined,
 });
 
 vi.mock("@auth0/auth0-react");

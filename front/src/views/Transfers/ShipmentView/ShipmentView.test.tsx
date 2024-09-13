@@ -1,12 +1,11 @@
 import { vi, beforeEach, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
-import { GraphQLError } from "graphql";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { BoxState, ShipmentState } from "types/generated/graphql";
 import { userEvent } from "@testing-library/user-event";
-import { mockMatchMediaQuery } from "mocks/functions";
+import { MockedGraphQLError, mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
 
@@ -103,7 +102,7 @@ const initialQueryNetworkError = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new MockedGraphQLError()],
   },
 };
 
