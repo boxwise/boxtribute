@@ -108,9 +108,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    await act(async () => {
-      await user.click(multiBoxTab);
-    });
+    await user.click(multiBoxTab);
 
     // 3.4.3.1 - no QR-codes were successfully scanned yet.
     const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -122,9 +120,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
-    await act(async () => {
-      await user.click(scanButton);
-    });
+    await user.click(scanButton);
 
     // toast shown
     await waitFor(() =>
@@ -137,9 +133,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 
     // second scan?
     if (toasts.length === 2) {
-      await act(async () => {
-        await user.click(scanButton);
-      });
+      await user.click(scanButton);
       // toast shown
       await waitFor(() =>
         expect(toasts[1].isError ? mockedTriggerError : mockedCreateToast).toHaveBeenCalledWith(
@@ -162,9 +156,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
       expect(deleteScannedBoxesButton).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /undo last scan/i })).toBeInTheDocument();
       // 3.4.4.1 - Pressing the delete button
-      await act(async () => {
-        await user.click(deleteScannedBoxesButton);
-      });
+      await user.click(deleteScannedBoxesButton);
       expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
     }
   });
@@ -275,9 +267,7 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    await act(async () => {
-      await user.click(multiBoxTab);
-    });
+    await user.click(multiBoxTab);
 
     // 3.4.3.1 - no QR-codes were successfully scanned yet.
     const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -289,9 +279,7 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
-    await act(async () => {
-      await user.click(scanButton);
-    });
+    await user.click(scanButton);
 
     // toast shown
     await waitFor(() =>
