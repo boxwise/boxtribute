@@ -1,6 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { userEvent } from "@testing-library/user-event";
-import { screen, render, waitFor, act } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 import { mockAuthenticatedUser } from "mocks/hooks";
@@ -65,10 +65,7 @@ const qrScanningInMultiBoxTabTests = [
   {
     name: "3.4.3.2 - user scans QR code of same org with associated box",
     hash: "QrWithBoxFromSameBase",
-    mocks: [
-      mockSuccessfulQrQuery({ hash: "QrWithBoxFromSameBase" }),
-      mockEmptyLocationsTagsShipmentsQuery,
-    ],
+    mocks: [mockSuccessfulQrQuery({ hash: "QrWithBoxFromSameBase" })],
     boxCount: 1,
     toasts: [{ message: /Box 123 was added/i, isError: false }],
   },
@@ -101,7 +98,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
     render(<QrReaderView />, {
       routePath: "/bases/:baseId/qrreader",
       initialUrl: "/bases/1/qrreader",
-      mocks,
+      mocks: [mockEmptyLocationsTagsShipmentsQuery, ...mocks],
       cache,
     });
 
@@ -197,7 +194,6 @@ const qrScanningInMultiBoxTabTestsFailing = [
     hash: "QrWithBoxFromOtherOrganisation",
     isBoxtributeQr: true,
     mocks: [
-      mockEmptyLocationsTagsShipmentsQuery,
       mockFailedQrQuery({
         hash: "QrWithBoxFromOtherOrganisation",
         resultQrCode: "QrWithBoxFromOtherBase",
@@ -260,7 +256,7 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
     render(<QrReaderView />, {
       routePath: "/bases/:baseId/qrreader",
       initialUrl: "/bases/1/qrreader",
-      mocks,
+      mocks: [mockEmptyLocationsTagsShipmentsQuery, ...mocks],
       cache,
     });
 

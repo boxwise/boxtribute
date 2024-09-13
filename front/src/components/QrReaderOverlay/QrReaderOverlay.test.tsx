@@ -1,6 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { userEvent } from "@testing-library/user-event";
-import { screen, render, act, waitFor } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -9,10 +9,12 @@ import { mockImplementationOfQrReader } from "mocks/components";
 import {
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
 } from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
 import { mockedTriggerError } from "tests/setupTests";
 import { MockedGraphQLError } from "mocks/functions";
+import { locations } from "mocks/locations";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
@@ -38,6 +40,19 @@ const queryFindNoBoxAssociated = {
   },
 };
 
+const mockEmptyLocationsTagsShipmentsQuery = {
+  request: {
+    query: MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
+    variables: { baseId: "1" },
+  },
+  result: {
+    data: {
+      shipments: [],
+      base: { locations, tags: null },
+    },
+  },
+};
+
 it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
@@ -45,7 +60,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryFindNoBoxAssociated],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryFindNoBoxAssociated],
     additionalRoute: "/bases/1/boxes/123456",
   });
 
@@ -91,7 +106,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryFindBox],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryFindBox],
     additionalRoute: "/bases/1/boxes/123456",
   });
 
@@ -130,7 +145,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryFindBoxFromOtherOrg],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryFindBoxFromOtherOrg],
     additionalRoute: "/bases/1/boxes/123456",
   });
 
@@ -179,7 +194,7 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryNoBoxAssociatedWithQrCode],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryNoBoxAssociatedWithQrCode],
     additionalRoute: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode",
   });
 
@@ -219,7 +234,7 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryBoxAssociatedWithQrCode],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryBoxAssociatedWithQrCode],
     additionalRoute: "/bases/1/boxes/123",
   });
 
@@ -257,7 +272,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryBoxFromOtherOrganisation],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryBoxFromOtherOrganisation],
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -286,7 +301,7 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryBoxFromOtherOrganisation],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryBoxFromOtherOrganisation],
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -328,7 +343,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryHashNotInDb],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryHashNotInDb],
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -371,7 +386,7 @@ it("3.4.2.5c - Internal Server Error", async () => {
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryInternalServerError],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery, queryInternalServerError],
   });
 
   // 3.4.1.1 - Open QROverlay

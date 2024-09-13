@@ -4,13 +4,15 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 import { cache } from "queries/cache";
-import { beforeEach, vi } from "vitest";
+import { afterEach, beforeEach, MockInstance, vi } from "vitest";
 import "regenerator-runtime/runtime";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import { invariant } from "@apollo/client/utilities/globals";
 
+// @ts-ignore
+window.scrollTo = vi.fn();
 // -------- Apollo cache
 // extracting a cacheObject to reset the cache correctly later
 const emptyCache = cache.extract();
@@ -61,10 +63,18 @@ Object.defineProperty(navigator, "userAgent", {
   // configurable: true
 });
 
+let consoleMock: MockInstance;
+
 beforeEach(() => {
   // Reset the cache before each test
   cache.restore(emptyCache);
   // Reset the mocked toast before each test
   mockedTriggerError.mockClear();
   mockedCreateToast.mockClear();
+  // consoleMock = vi.spyOn(console, "error").mockImplementation((...args) => {
+  //   //throw new Error(`console.error was called with arguments: ${args}`);
+  // });
+});
+afterEach(() => {
+  //consoleMock.mockRestore();
 });
