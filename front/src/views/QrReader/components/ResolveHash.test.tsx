@@ -1,7 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
-import { GraphQLError } from "graphql";
 import { generateMockBox } from "mocks/boxes";
 import { mockImplementationOfQrReader } from "mocks/components";
 import { mockAuthenticatedUser } from "mocks/hooks";
@@ -11,6 +10,7 @@ import { BoxState } from "types/generated/graphql";
 import { render, screen, waitFor } from "tests/test-utils";
 import { mockedTriggerError } from "tests/setupTests";
 import ResolveHash from "./ResolveHash";
+import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
@@ -90,9 +90,9 @@ const mockFailedQrQuery = ({
     ? undefined
     : {
         data: null,
-        errors: [new GraphQLError("Error!", { extensions: { code: errorCode } })],
+        errors: [new FakeGraphQLError(errorCode)],
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
 const FailedQrScanningTests = [

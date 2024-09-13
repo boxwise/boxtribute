@@ -24,7 +24,7 @@ import {
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
-import { mockMatchMediaQuery } from "mocks/functions";
+import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -75,22 +75,35 @@ function render(
     mediaQueryReturnValue?: boolean;
   },
 ) {
-  // Log if there is an error in the mock
-  const mockLink = new MockLink(mocks);
-  const errorLoggingLink = onError(({ graphQLErrors, networkError }) => {
+  // set showWarnings to false, as we'll log them via the onError callback instead
+  const mockLink = new MockLink(mocks, undefined, { showWarnings: false });
+  const errorLoggingLink = onError((error: any) => {
+    const { graphQLErrors, networkError } = error;
     if (graphQLErrors) {
-      graphQLErrors.map(({ message, locations, path }) =>
-        console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-        ),
-      );
+      for (const error of graphQLErrors) {
+        // log errors, but only if they aren't ones we set up in a mock
+        // TODO: figure out how to fail the outer test once these are fixed
+        if (!(error instanceof FakeGraphQLError)) {
+          console.error(`[GraphQL error]: ${error}`);
+        }
+      }
+      return;
     }
     if (networkError) {
-      console.error(`[Network error]: ${networkError}`);
+      // log errors, but only if they aren't ones we set up in a mock
+      // TODO: figure out how to fail the outer test once these are fixed
+      if (!(networkError instanceof FakeGraphQLNetworkError)) {
+        console.error(`[GraphQL network error]: ${networkError}`);
+      }
+      return;
     }
+    console.error(`[Unknown Error]: ${error}`);
   });
-  const link = ApolloLink.from([errorLoggingLink, mockLink]);
+  mockLink.setOnError((error) => {
+    console.error(`[MockLink Error]: ${error}`);
+  });
 
+  const link = ApolloLink.from([errorLoggingLink, mockLink]);
   const globalPreferencesMock: IGlobalPreferencesContext = {
     dispatch: vi.fn(),
     globalPreferences: {
