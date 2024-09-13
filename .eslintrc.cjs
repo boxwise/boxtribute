@@ -27,6 +27,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   settings: {
+    react: { version: "detect" },
     // --------- Import Plugin Settings ---------
     // This defines the parser to use for .ts and .tsx files
     "import/parsers": {
