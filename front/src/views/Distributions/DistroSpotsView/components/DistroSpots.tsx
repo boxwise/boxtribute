@@ -155,6 +155,7 @@ const DistroEventsAccordionForDistroSpotContainer = ({
                     <DistributionEventListItem
                       distroEvent={distroEvent}
                       onDistroEventClick={onDistroEventClick}
+                      key={distroEvent.id}
                     />
                   );
                 })}

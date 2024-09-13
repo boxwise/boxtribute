@@ -10,6 +10,7 @@ import {
 import { Select } from "chakra-react-select";
 import { FC, ReactNode, useMemo } from "react";
 import { MdFilterList, MdFilterListAlt } from "react-icons/md";
+import { FilterValue } from "react-table";
 
 // Fix for https://github.com/chakra-ui/chakra-ui/issues/5896
 export const PopoverTrigger: FC<{ children: ReactNode }> = OrigPopoverTrigger;
@@ -24,7 +25,19 @@ function ObjectToString(object: Object) {
   return Object.values(object).join(" - ");
 }
 
-export function SelectColumnFilterUI({ options, render, filterValue, setFilter, id }) {
+export function SelectColumnFilterUI({
+  options,
+  render,
+  filterValue,
+  setFilter,
+  id,
+}: {
+  options: ISelectOption[];
+  render: (type: "Header" | "Footer" | string, props?: object) => React.ReactNode;
+  filterValue: FilterValue;
+  setFilter: any;
+  id: string;
+}) {
   // Render a multi-select box
   return (
     <Popover>
@@ -70,6 +83,14 @@ export function SelectColumnFilterUI({ options, render, filterValue, setFilter, 
 // https://react-table-v7.tanstack.com/docs/examples/filtering
 export function SelectColumnFilter({
   column: { render, filterValue, setFilter, preFilteredRows, id },
+}: {
+  column: {
+    render: (string) => string;
+    filterValue: any;
+    setFilter: any;
+    preFilteredRows: any;
+    id: string;
+  };
 }) {
   // Calculate the options for filtering
   // using the preFilteredRows
