@@ -63,8 +63,6 @@ module.exports = {
     // we do not need to import React in every file
     "react/react-in-jsx-scope": "off",
     "react/jsx-props-no-spreading": "off",
-    // TODO: turn this on
-    "react/prop-types": "off",
     // matter of preference (allows to use props.propName instead of deconstructing props first)
     "react/destructuring-assignment": "off",
     // allow other than jsx extensions

@@ -1,8 +1,15 @@
 import { chakra } from "@chakra-ui/react";
+import { IDropdownOption } from "./SelectField";
 
-export function ShipmentOption(props) {
-  const { isDisabled, innerProps, data } = props;
-
+export function ShipmentOption({
+  isDisabled,
+  innerProps,
+  data,
+}: {
+  isDisabled: boolean;
+  innerProps: object;
+  data: IDropdownOption;
+}) {
   if (isDisabled) {
     return null;
   }
