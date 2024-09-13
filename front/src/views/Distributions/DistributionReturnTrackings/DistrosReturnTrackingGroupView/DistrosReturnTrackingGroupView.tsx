@@ -336,7 +336,7 @@ const DistrosReturnTrackingGroupView = () => {
       variables: {
         distributionEventsTrackingGroupId: trackingGroupId!,
       },
-    }).then((res) => {
+    }).then(() => {
       // TODO: do better success and error handling here
       // (so: user feedback and - in error case - additional error logging)
       navigate(`/bases/${baseId}/distributions/return-trackings`);
