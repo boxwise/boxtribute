@@ -10,7 +10,6 @@ export const getHeap = (): IHeap => {
   return {
     // Note that on production the global heap object is returned
     track: (name, event) => {
-      // eslint-disable-next-line no-console
       console.log(`Tracked ${name}, event: ${JSON.stringify(event)}`);
     },
   };
