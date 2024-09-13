@@ -63,7 +63,7 @@ export default function VisHeader({
   defaultWidth,
   defaultHeight,
   chartProps,
-  customIncludes,
+  customIncludes = [],
 }: IVisHeaderProps) {
   const [inputWidth, setInputWidth] = useState(defaultWidth);
   const [inputHeight, setInputHeight] = useState(defaultHeight);
@@ -233,7 +233,3 @@ export default function VisHeader({
     </CardHeader>
   );
 }
-
-VisHeader.defaultProps = {
-  customIncludes: [],
-};

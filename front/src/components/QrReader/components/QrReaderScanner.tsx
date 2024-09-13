@@ -39,10 +39,10 @@ const isMediaDevicesAPIAvailable = () => {
 
 export function QrReaderScanner({
   multiScan,
-  zoom,
-  facingMode,
+  zoom = 1,
+  facingMode = "environment",
   onResult,
-  scanPeriod: delayBetweenScanAttempts,
+  scanPeriod: delayBetweenScanAttempts = 500,
 }: QrReaderScannerProps) {
   // this ref is needed to pass/preview the video stream coming from BrowserQrCodeReader to the the user
   const previewVideoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
@@ -138,8 +138,3 @@ export function QrReaderScanner({
 }
 
 QrReaderScanner.displayName = "QrReader";
-QrReaderScanner.defaultProps = {
-  facingMode: "environment",
-  zoom: 1,
-  scanPeriod: 500,
-};
