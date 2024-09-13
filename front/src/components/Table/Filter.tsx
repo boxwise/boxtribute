@@ -85,7 +85,7 @@ export function SelectColumnFilter({
   column: { render, filterValue, setFilter, preFilteredRows, id },
 }: {
   column: {
-    render: (string) => string;
+    render: (type: "Header" | "Footer" | string, props?: object) => React.ReactNode;
     filterValue: any;
     setFilter: any;
     preFilteredRows: any;
