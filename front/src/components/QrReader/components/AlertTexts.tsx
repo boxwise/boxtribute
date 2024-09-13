@@ -31,8 +31,8 @@ export function FailedBoxesFromAssingToShipmentAlert({
   failedBoxes,
 }: IFailedBoxesFromAssingToShipmentAlertProps) {
   return (
-    <Text>
-      The following boxes were not assigned to the shipment:
+    <>
+      <Text>The following boxes were not assigned to the shipment:</Text>
       <UnorderedList>
         {failedBoxes.map((box) => (
           <ListItem key={box.labelIdentifier} fontWeight="bold">
@@ -40,7 +40,7 @@ export function FailedBoxesFromAssingToShipmentAlert({
           </ListItem>
         ))}
       </UnorderedList>
-    </Text>
+    </>
   );
 }
 
@@ -52,8 +52,8 @@ export function FailedBoxesFromMoveBoxesAlert({
   failedBoxes,
 }: IFailedBoxesFromMoveBoxesAlertProps) {
   return (
-    <Text>
-      The following boxes were not moved:
+    <>
+      <Text>The following boxes were not moved:</Text>
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
           <ListItem key={labelIdentifier} fontWeight="bold">
@@ -61,7 +61,7 @@ export function FailedBoxesFromMoveBoxesAlert({
           </ListItem>
         ))}
       </UnorderedList>
-    </Text>
+    </>
   );
 }
 
@@ -69,8 +69,8 @@ export function FailedBoxesFromAssignTagsAlert({
   failedBoxes,
 }: IFailedBoxesFromMoveBoxesAlertProps) {
   return (
-    <Text>
-      The following boxes were not assigned tags:
+    <>
+      <Text>The following boxes were not assigned tags:</Text>
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
           <ListItem key={labelIdentifier} fontWeight="bold">
@@ -78,6 +78,6 @@ export function FailedBoxesFromAssignTagsAlert({
           </ListItem>
         ))}
       </UnorderedList>
-    </Text>
+    </>
   );
 }
