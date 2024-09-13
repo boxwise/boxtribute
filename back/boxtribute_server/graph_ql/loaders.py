@@ -23,6 +23,7 @@ from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
 from ..models.utils import convert_ids
 from ..utils import convert_pascal_to_snake_case
@@ -466,6 +467,15 @@ class SizesForSizeRangeLoader(DataLoader):
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
+
+
+class UnitsForDimensionLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        # Mapping of size range ID (dimension) to list of units
+        units = defaultdict(list)
+        for unit in Unit.select().iterator():
+            units[unit.dimension_id].append(unit)
+        return [units.get(i, []) for i in keys]
 
 
 class EnabledBasesForStandardProductLoader(DataLoader):

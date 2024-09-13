@@ -172,13 +172,24 @@ type Size {
 }
 
 """
-Representation of group of sizes (e.g. clothing sizes "S, M, L, XL").
+Representation of dimensional unit (e.g. kilogram or liter)
+"""
+type Unit {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+"""
+Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a dimension (mass or volume).
 """
 type SizeRange {
   id: ID!
   label: String!
   " List of sizes belonging to the group "
   sizes: [Size!]!
+  " List of units belonging to the dimension "
+  units: [Unit!]!
 }
 
 """

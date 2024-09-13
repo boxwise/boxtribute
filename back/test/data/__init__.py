@@ -90,6 +90,7 @@ from .size_range import another_size_range, default_size_range
 from .standard_product import (
     another_standard_product,
     default_standard_product,
+    measure_standard_product,
     newest_standard_product,
     standard_products,
 )
@@ -103,6 +104,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
+from .unit import mass_units, units
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
@@ -171,6 +173,8 @@ __all__ = [
     "inactive_organisation",
     "lost_box",
     "marked_for_shipment_box",
+    "mass_units",
+    "measure_standard_product",
     "newest_standard_product",
     "non_default_box_state_location",
     "not_delivered_box",
@@ -195,6 +199,7 @@ __all__ = [
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
+    "units",
     "yet_another_location",
 ]
 
@@ -216,6 +221,7 @@ _NAMES = [
     "standard_product",
     "product",
     "size",
+    "unit",
     "box",
     "beneficiary",
     "transfer_agreement",

@@ -2489,7 +2489,7 @@ CREATE TABLE `sizegroup` (
   `label` varchar(255) NOT NULL,
   `seq` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2520,7 +2520,9 @@ INSERT INTO `sizegroup` VALUES
 (23,'Children by year (2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15)',11),(24,'Children by year (individual years)',12),
 (25,'Children by year (0-2, 2-4, 5-7, 8-10, 11-13, 14-17)', 13),
 (26,'All shoe sizes (<23-48)',61),
-(27,'Sock sizes',62);
+(27,'Sock sizes',62),
+(28,'Mass',3),
+(29,'Volume',4);
 /*!40000 ALTER TABLE `sizegroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3290,20 +3292,15 @@ DROP TABLE IF EXISTS `units`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `units` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(20) NOT NULL,
-  `longlabel` varchar(255) DEFAULT NULL,
-  `seq` int(11) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `created_by` int(11) unsigned DEFAULT NULL,
-  `modified` datetime DEFAULT NULL,
-  `modified_by` int(11) unsigned DEFAULT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `symbol` varchar(255) NOT NULL,
+  `conversion_factor` decimal(36,18) unsigned NOT NULL,
+  `dimension_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `created_by` (`created_by`),
-  KEY `modified_by` (`modified_by`),
-  CONSTRAINT `units_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `units_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+  KEY `dimension_id` (`dimension_id`),
+  CONSTRAINT `units_ibfk_1` FOREIGN KEY (`dimension_id`) REFERENCES `sizegroup` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3312,7 +3309,19 @@ CREATE TABLE `units` (
 
 LOCK TABLES `units` WRITE;
 /*!40000 ALTER TABLE `units` DISABLE KEYS */;
-INSERT INTO `units` VALUES (1,'liter','liter',3,NULL,NULL,NULL,NULL),(2,'kg','kilogram',2,NULL,NULL,NULL,NULL),(3,'g','gram',1,NULL,NULL,NULL,NULL),(4,'piece','piece',4,NULL,NULL,NULL,NULL);
+INSERT INTO `units` VALUES
+  (1,'kilogram','kg',1.0,28),
+  (2,'liter','l',1.0,29),
+  (3,'milliliter','ml',1000.0,29),
+  (4,'gram','g',1000.0,28),
+  (5,'milligram','mg',1000000.0,28),
+  (6,'metric ton','t',0.001,28),
+  (7,'pound','lb',2.2046,28),
+  (8,'ounce','oz',35.274,28),
+  (9,'gallon (US)','gal (US)',0.2642,29),
+  (10,'pint (US)','pt (US)',2.1134,29),
+  (11,'fluid ounce (US)','fl oz (US)',33.814,29)
+;
 /*!40000 ALTER TABLE `units` ENABLE KEYS */;
 UNLOCK TABLES;
 

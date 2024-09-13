@@ -8,7 +8,12 @@ today = date.today().isoformat()
 
 
 def test_standard_product_query(
-    read_only_client, default_standard_product, another_standard_product, mocker
+    read_only_client,
+    default_standard_product,
+    another_standard_product,
+    measure_standard_product,
+    mass_units,
+    mocker,
 ):
     # Test case 8.1.41
     query = f"""query {{
@@ -38,7 +43,23 @@ def test_standard_product_query(
         "deprecatedBy": None,
         "deprecatedOn": None,
     }
-
+    query = f"""query {{
+                standardProduct(id: {measure_standard_product['id']}) {{
+                ... on StandardProduct {{
+                    sizeRange {{
+                        sizes {{ id }}
+                        units {{ id }}
+                    }}
+                    gender
+                }} }} }}"""
+    product = assert_successful_request(read_only_client, query)
+    assert product == {
+        "gender": ProductGender(measure_standard_product["gender"]).name,
+        "sizeRange": {
+            "sizes": [],
+            "units": [{"id": str(u["id"])} for u in mass_units],
+        },
+    }
     query = f"""query {{
                 standardProduct(id: {another_standard_product['id']}) {{
                 ... on StandardProduct {{

@@ -1539,13 +1539,15 @@ export type Size = {
   label: Scalars['String'];
 };
 
-/** Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"). */
+/** Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a dimension (mass or volume). */
 export type SizeRange = {
   __typename?: 'SizeRange';
   id: Scalars['ID'];
   label: Scalars['String'];
   /**  List of sizes belonging to the group  */
   sizes: Array<Size>;
+  /**  List of units belonging to the dimension  */
+  units: Array<Unit>;
 };
 
 /**
@@ -1850,6 +1852,14 @@ export type UnboxedItemsCollection = ItemsCollection & {
   numberOfItems?: Maybe<Scalars['Int']>;
   product?: Maybe<Product>;
   size: Size;
+};
+
+/** Representation of dimensional unit (e.g. kilogram or liter) */
+export type Unit = {
+  __typename?: 'Unit';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  symbol: Scalars['String'];
 };
 
 /** Representation of a boxtribute user. */
