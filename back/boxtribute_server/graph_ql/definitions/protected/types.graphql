@@ -468,7 +468,7 @@ input FilterBoxInput {
 
 input FilterProductInput {
   includeDeleted: Boolean = false
-  type: ProductTypeFilter = Custom
+  type: ProductTypeFilter = All
 }
 
 input FilterBaseInput {
