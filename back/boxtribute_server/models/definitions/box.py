@@ -90,6 +90,7 @@ class Box(db.Model):  # type: ignore
         column_name="size_id",
         field="id",
         model=Size,
+        null=True,
         on_update="CASCADE",
         on_delete="RESTRICT",
     )

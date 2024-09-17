@@ -99,7 +99,7 @@ type MovedBoxesResult {
   categoryId: Int!
   productName: String!
   gender: ProductGender!
-  sizeId: Int!
+  sizeId: Int
   " Shipment target organisation name; null for BoxState/OutgoingLocation target types "
   organisationName: String
   tagIds: [Int!]
@@ -123,7 +123,7 @@ type StockOverviewResult {
   categoryId: Int!
   productName: String!
   gender: ProductGender!
-  sizeId: Int!
+  sizeId: Int
   tagIds: [Int!]
   locationId: Int!
   boxState: BoxState!
