@@ -159,6 +159,16 @@ def created_in_donated_location_box_data():
     return data
 
 
+def measure_product_box_data():
+    data = box_without_qr_code_data()
+    data["id"] = 17
+    data["label_identifier"] = "88111177"
+    data["product"] = product_data()[7]["id"]
+    data["size"] = None
+    data["state"] = BoxState.InStock
+    return data
+
+
 def donated_boxes_data():
     return [
         donated_box_data(),
@@ -184,6 +194,7 @@ def data():
         not_delivered_box_data(),
         another_not_delivered_box_data(),
         created_in_donated_location_box_data(),
+        measure_product_box_data(),
         box_in_another_location_with_qr_code_data(),
     ]
 
@@ -246,6 +257,11 @@ def not_delivered_box():
 @pytest.fixture
 def another_not_delivered_box():
     return another_not_delivered_box_data()
+
+
+@pytest.fixture
+def measure_product_box():
+    return measure_product_box_data()
 
 
 def create():

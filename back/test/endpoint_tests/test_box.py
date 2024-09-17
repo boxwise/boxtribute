@@ -607,7 +607,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[21:] == [
+    assert history[22:] == [
         {
             "changes": "Record created",
             "from_int": None,
@@ -821,27 +821,27 @@ def _format(parameter):
     "filters,number",
     [
         # Test case 8.1.7
-        [[{"states": "[InStock]"}], 1],
+        [[{"states": "[InStock]"}], 2],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
         [[{"states": "[InTransit]"}], 2],
         [[{"states": "[Receiving]"}], 0],
         [[{"states": "[NotDelivered]"}], 2],
-        [[{"states": "[InStock,Lost]"}], 2],
+        [[{"states": "[InStock,Lost]"}], 3],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 13],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 14],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 13],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 11],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 14],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 12],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 12],
+        [[{"productGender": "Women"}], 13],
         [[{"productGender": "Men"}], 0],
         [[{"productId": "1"}], 11],
         [[{"productId": "2"}], 0],
         [[{"sizeId": "1"}], 12],
         [[{"sizeId": "2"}], 1],
-        [[{"productCategoryId": "1"}], 12],
+        [[{"productCategoryId": "1"}], 13],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],

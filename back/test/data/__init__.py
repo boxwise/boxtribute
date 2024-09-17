@@ -24,6 +24,7 @@ from .box import (
     in_transit_box,
     lost_box,
     marked_for_shipment_box,
+    measure_product_box,
     not_delivered_box,
 )
 from .box_state import default_box_state
@@ -174,6 +175,7 @@ __all__ = [
     "lost_box",
     "marked_for_shipment_box",
     "mass_units",
+    "measure_product_box",
     "measure_standard_product",
     "newest_standard_product",
     "non_default_box_state_location",

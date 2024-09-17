@@ -51,6 +51,10 @@ def data():
     ]
 
 
+def gram_unit_data():
+    return data()[3]
+
+
 @pytest.fixture
 def units():
     return data()

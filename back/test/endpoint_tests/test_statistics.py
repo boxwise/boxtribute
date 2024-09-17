@@ -64,7 +64,7 @@ def test_query_beneficiary_demographics(
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
 def test_query_created_boxes(
-    read_only_client, products, product_categories, tags, endpoint
+    read_only_client, base1_undeleted_products, product_categories, tags, endpoint
 ):
     query = """query { createdBoxes(baseId: 1) {
         facts {
@@ -77,10 +77,11 @@ def test_query_created_boxes(
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
-    assert len(facts) == 3
+    assert len(facts) == 4
     assert facts[0]["boxesCount"] == 12
     assert facts[1]["boxesCount"] == 1
     assert facts[2]["boxesCount"] == 1
+    assert facts[3]["boxesCount"] == 1
     assert data == {
         "dimensions": {
             "product": [
@@ -89,7 +90,7 @@ def test_query_created_boxes(
                     "name": p["name"],
                     "gender": ProductGender(p["gender"]).name,
                 }
-                for p in [products[0], products[2], products[4]]
+                for p in base1_undeleted_products
             ],
             "category": [
                 {"id": c["id"], "name": c["name"]}
@@ -408,6 +409,17 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "joggers",
             "sizeId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.InStock.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": "rice",
+            "sizeId": None,
             "tagIds": [],
         },
     ]
