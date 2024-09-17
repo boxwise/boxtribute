@@ -2,8 +2,7 @@ import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
 import { FaWarehouse } from "react-icons/fa";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
@@ -20,6 +19,7 @@ import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -39,8 +39,7 @@ function BoxesActionsAndTable({
   availableColumns,
 }: IBoxesActionsAndTableProps) {
   const navigate = useNavigate();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   const { createToast } = useNotification();
 

@@ -10,5 +10,5 @@ PyJWT[crypto]==2.9.0
 aiodataloader==0.4.0
 gunicorn
 auth0-python==4.7.1
-Faker==28.1.0
+Faker==28.4.1
 freezegun==1.5.1

@@ -11,9 +11,11 @@ import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
   // If forwarded from AgreementsOverview
   const location = useLocation();
 
@@ -164,7 +166,7 @@ function ShipmentsOverviewView() {
         Could not fetch shipment data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading) {
+  } else if (loading || isGlobalStateLoading) {
     shipmentsTable = <TableSkeleton />;
   } else {
     shipmentsTable = (
@@ -180,7 +182,7 @@ function ShipmentsOverviewView() {
     <>
       <BreadcrumbNavigation
         items={[
-          { label: "Aid Transfers", linkPath: "/transfers/agreements" },
+          { label: "Aid Transfers", linkPath: "../../transfers/agreements", relative: "path" },
           { label: "Manage Shipments" },
         ]}
       />

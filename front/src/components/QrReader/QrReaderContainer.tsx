@@ -1,6 +1,5 @@
-import { useCallback, useState, useContext, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
   ILabelIdentifierResolvedValue,
@@ -13,6 +12,7 @@ import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
@@ -24,8 +24,7 @@ const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
   'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow".';
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id;
+  const { baseId } = useBaseIdParam();
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();

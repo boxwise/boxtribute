@@ -35,7 +35,7 @@ export const useLabelIdentifierResolver = () => {
         })
         .then(({ data, errors }) => {
           if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions.code : undefined;
+            const errorCode = errors ? errors[0].extensions?.code : undefined;
             if (errorCode === "FORBIDDEN") {
               return {
                 kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,
