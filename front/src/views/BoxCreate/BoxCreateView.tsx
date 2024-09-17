@@ -1,11 +1,10 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   AllProductsAndLocationsForBaseQuery,
   AllProductsAndLocationsForBaseQueryVariables,
@@ -18,6 +17,7 @@ import {
 import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
@@ -86,8 +86,7 @@ function BoxCreateView() {
   const { createToast } = useNotification();
 
   // variables in URL
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
@@ -176,7 +175,7 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          const errorCode = mutationResult.errors[0].extensions.code;
+          const errorCode = mutationResult.errors[0].extensions?.code;
           if (errorCode === "BAD_USER_INPUT") {
             triggerError({
               message: "The QR code is already used for another box.",

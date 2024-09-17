@@ -107,7 +107,7 @@ export const useAssignBoxesToShipment = () => {
         .then(({ data, errors }) => {
           setIsLoading(false);
           if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions.code : undefined;
+            const errorCode = errors ? errors[0].extensions?.code : undefined;
             // Example: the user is not of the sending base
             if (errorCode === "FORBIDDEN") {
               if (showErrors)
@@ -168,9 +168,8 @@ export const useAssignBoxesToShipment = () => {
           if (assignedBoxes.length) {
             if (showToasts)
               createToast({
-                message: `${
-                  assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
-                } successfully assigned to the shipment.`,
+                message: `${assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
+                  } successfully assigned to the shipment.`,
               });
           }
           // Not all Boxes were assigned
@@ -232,7 +231,7 @@ export const useAssignBoxesToShipment = () => {
         .then(({ data, errors }) => {
           setIsLoading(false);
           if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions.code : undefined;
+            const errorCode = errors ? errors[0].extensions?.code : undefined;
             // Example: the user is not of the sending base
             if (errorCode === "FORBIDDEN") {
               if (showToastMessage)
@@ -290,11 +289,10 @@ export const useAssignBoxesToShipment = () => {
           if (unassignedBoxes.length) {
             if (showToastMessage)
               createToast({
-                message: `${
-                  unassignedBoxes.length === 1
-                    ? "A Box was"
-                    : `${unassignedBoxes.length} Boxes were`
-                } successfully removed from the shipment.`,
+                message: `${unassignedBoxes.length === 1
+                  ? "A Box was"
+                  : `${unassignedBoxes.length} Boxes were`
+                  } successfully removed from the shipment.`,
               });
           }
           // Not all Boxes were unassigned

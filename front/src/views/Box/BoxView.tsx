@@ -62,6 +62,7 @@ import { formatDateKey, prepareBoxHistoryEntryText } from "utils/helpers";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 // Queries and Mutations
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
@@ -150,7 +151,7 @@ function BTBox() {
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentBaseId = globalPreferences.selectedBase?.id;
+  const { baseId: currentBaseId } = useBaseIdParam();
   const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
@@ -250,10 +251,9 @@ function BTBox() {
         shipmentId,
       });
     } else if (shipmentId && boxData?.state === BoxState.InTransit) {
-      const newBaseId = globalPreferences.selectedBase?.id;
-      navigate(`/bases/${newBaseId}/transfers/shipments/${shipmentId}`);
+      navigate(`/bases/${currentBaseId}/transfers/shipments/${shipmentId}`);
     }
-  }, [boxData, globalPreferences, navigate]);
+  }, [boxData, globalPreferences, navigate, currentBaseId]);
 
   const loading =
     allData.networkStatus !== NetworkStatus.ready ||

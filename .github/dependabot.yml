@@ -26,11 +26,17 @@ updates:
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
+    open-pull-requests-limit: 10
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     assignees:
       - "fhenrich33"
     # Always increase the minimum version requirement to match the new version.
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
+    groups:
+      nivo-deps:
+        dependency-type: "production"
+        patterns:
+          - "^@nivo/.*"

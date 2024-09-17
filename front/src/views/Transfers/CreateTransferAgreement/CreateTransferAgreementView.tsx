@@ -20,6 +20,8 @@ import CreateTransferAgreement, {
 } from "./components/CreateTransferAgreement";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { IAcceptedTransferAgreement } from "../TransferAgreementOverview/TransferAgreementOverviewView";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 export const ALL_ORGS_AND_BASES_QUERY = gql`
   query AllOrganisationsAndBases {
@@ -69,9 +71,10 @@ function CreateTransferAgreementView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
@@ -195,7 +198,11 @@ function CreateTransferAgreementView() {
   };
 
   // Handle Loading State
-  if (allFormOptions.loading || createTransferAgreementMutationState.loading) {
+  if (
+    allFormOptions.loading ||
+    createTransferAgreementMutationState.loading ||
+    isGlobalStateLoading
+  ) {
     return <APILoadingIndicator />;
   }
 
@@ -210,7 +217,7 @@ function CreateTransferAgreementView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/agreements" />
+      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath=".." />
       {createTransferAgreementMutationState.error &&
         createTransferAgreementMutationState.error.graphQLErrors.some(
           (error: any) =>

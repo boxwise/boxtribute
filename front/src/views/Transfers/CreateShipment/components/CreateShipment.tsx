@@ -12,15 +12,15 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useNavigate } from "react-router-dom";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export interface IBaseData {
   id: string;
@@ -66,8 +66,7 @@ function CreateShipment({
   onSubmit,
 }: ICreateShipmentProps) {
   const navigate = useNavigate();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   // React Hook Form with zod validation
   const {

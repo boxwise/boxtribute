@@ -14,9 +14,9 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { globalPreferences, dispatch } = useContext(GlobalPreferencesContext);
   const [error, setError] = useState<string>();
 
-  const { baseId } = useBaseIdParam()
+  const { baseId } = useBaseIdParam();
 
-  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data }] =
+  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData }] =
     useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
@@ -29,8 +29,8 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   // set available bases
   useEffect(() => {
-    if (!isOrganisationAndBasesQueryLoading && data != null) {
-      const { bases } = data;
+    if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData != null) {
+      const { bases } = organisationAndBaseData;
 
       if (bases.length > 0) {
         dispatch({
@@ -56,18 +56,13 @@ export const useLoadAndSetGlobalPreferences = () => {
             // this error is set if the requested base is not part of the available bases
             setError("The requested base is not available to you.");
           }
-        } else {
-          // handle the case if the url does not start with "/bases/<number>"
-          // prepend /bases/<newBaseId>
-          const newBaseId = globalPreferences?.selectedBase?.id ?? bases[0].id;
-          navigate(`/bases/${newBaseId}${location.pathname}`);
         }
       } else {
         // this error is set if the bases query returned an empty array for bases
         setError("There are no available bases.");
       }
     }
-  }, [data, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, globalPreferences?.selectedBase?.id, navigate, baseId]);
+  }, [organisationAndBaseData, isOrganisationAndBasesQueryLoading, dispatch, location.pathname, navigate, baseId, globalPreferences?.selectedBase?.id]);
 
   const isLoading = !globalPreferences.availableBases || !globalPreferences.selectedBase?.id;
 
