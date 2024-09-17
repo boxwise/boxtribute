@@ -188,6 +188,16 @@ class Generator:
         newest_resource_modified_on = _max_value(
             Box.created_on,
             Box.last_modified_on,
+            Tag.created,
+            Tag.last_modified_on,
+            Beneficiary.created_on,
+        )
+        with freeze_time(newest_resource_modified_on, auto_tick_seconds=about_one_hour):
+            self._delete_tags()
+
+        newest_resource_modified_on = _max_value(
+            Box.created_on,
+            Box.last_modified_on,
             TransferAgreement.requested_on,
             TransferAgreement.accepted_on,
         )
@@ -284,7 +294,8 @@ class Generator:
                     user_id=self._user_id(b),
                 )
 
-            # Delete some tags
+    def _delete_tags(self):
+        for b in self.base_ids:
             for tag in self.fake.random_elements(
                 self.tags[b], length=NR_OF_DELETED_TAGS_PER_BASE, unique=True
             ):
@@ -787,6 +798,18 @@ class Generator:
                 update_box(
                     label_identifier=box.label_identifier,
                     comment=self.fake.sentence(nb_words=2),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=25):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    tag_ids=self.fake.random_sample(box_tag_ids, length=2),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=25):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    tag_ids_to_be_added=[self.fake.random_element(box_tag_ids)],
                     user_id=self._user_id(b),
                 )
 
