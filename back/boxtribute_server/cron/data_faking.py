@@ -219,10 +219,8 @@ class Generator:
         cursor = db.database.execute_sql(
             """\
     SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) FROM cms_users u
-    INNER JOIN cms_usergroups cu
-    ON u.cms_usergroups_id = cu.id
     INNER JOIN cms_usergroups_camps cuc
-    ON cu.id = cuc.cms_usergroups_id
+    ON u.cms_usergroups_id = cuc.cms_usergroups_id
     AND cuc.camp_id in %s
     GROUP BY cuc.camp_id
     ;""",
