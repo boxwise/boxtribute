@@ -200,6 +200,8 @@ export type Box = ItemsCollection & {
   createdBy?: Maybe<User>;
   createdOn?: Maybe<Scalars['Datetime']>;
   deletedOn?: Maybe<Scalars['Datetime']>;
+  /**  Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null  */
+  displayUnit?: Maybe<Unit>;
   distributionEvent?: Maybe<DistributionEvent>;
   /**  Sorted by date, newest first  */
   history?: Maybe<Array<HistoryEntry>>;
@@ -210,6 +212,8 @@ export type Box = ItemsCollection & {
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
   /**  If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side)  */
   location?: Maybe<Location>;
+  /**  The value of the measure, expressed in ``unit``. If the box holds a product with size (e.g. clothing), its measure value is null  */
+  measureValue?: Maybe<Scalars['Float']>;
   numberOfItems?: Maybe<Scalars['Int']>;
   /**  If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side)  */
   product?: Maybe<Product>;

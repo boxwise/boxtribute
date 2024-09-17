@@ -2945,6 +2945,8 @@ CREATE TABLE `stock` (
   `box_id` varchar(11) NOT NULL DEFAULT '',
   `product_id` int(11) unsigned NOT NULL,
   `size_id` int(11) unsigned NOT NULL,
+  `display_unit_id` int(11) unsigned DEFAULT NULL,
+  `measure_value` decimal(36,18) unsigned DEFAULT NULL,
   `items` int(11) DEFAULT NULL,
   `location_id` int(11) unsigned NOT NULL,
   `distro_event_id` int(11) unsigned DEFAULT NULL,
@@ -2967,12 +2969,14 @@ CREATE TABLE `stock` (
   KEY `created_by` (`created_by`),
   KEY `modified_by` (`modified_by`),
   KEY `distro_event_id` (`distro_event_id`),
+  KEY `display_unit_id` (`display_unit_id`),
   CONSTRAINT `stock_ibfk_10` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_11` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_14` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_15` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_16` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_17` FOREIGN KEY (`distro_event_id`) REFERENCES `distro_events` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `stock_ibfk_18` FOREIGN KEY (`display_unit_id`) REFERENCES `units` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_3` FOREIGN KEY (`qr_id`) REFERENCES `qr` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_9` FOREIGN KEY (`box_state_id`) REFERENCES `box_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=100000247 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
@@ -2985,8 +2989,8 @@ CREATE TABLE `stock` (
 LOCK TABLES `stock` WRITE;
 /*!40000 ALTER TABLE `stock` DISABLE KEYS */;
 INSERT INTO `stock` VALUES
-  (100000000,'328765',1163,68,50,100000002,NULL,100000000,'Cypress seed test box','2015-01-01 11:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5),
-  (100000001,'235563',1165,68,50,100000005,NULL,100000001,'50 dummy products','2019-09-29 18:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5);
+  (100000000,'328765',1163,68,NULL,NULL,50,100000002,NULL,100000000,'Cypress seed test box','2015-01-01 11:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5),
+  (100000001,'235563',1165,68,NULL,NULL,50,100000005,NULL,100000001,'50 dummy products','2019-09-29 18:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5);
 /*!40000 ALTER TABLE `stock` ENABLE KEYS */;
 UNLOCK TABLES;
 

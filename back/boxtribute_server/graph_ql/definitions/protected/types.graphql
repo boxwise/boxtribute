@@ -34,6 +34,10 @@ type Box implements ItemsCollection {
   product: Product
   " If the box holds a 'measure' product (i.e. classified by a package measure like 500gr), its size is null "
   size: Size
+  " Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null "
+  displayUnit: Unit
+  " The value of the measure, expressed in ``unit``. If the box holds a product with size (e.g. clothing), its measure value is null "
+  measureValue: Float
   state: BoxState!
   qrCode: QrCode
   createdBy: User

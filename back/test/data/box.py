@@ -14,6 +14,7 @@ from .qr_code import (
     qr_code_for_not_delivered_box_data,
 )
 from .size import another_size_data, default_size_data
+from .unit import gram_unit_data
 from .user import default_user_data
 
 
@@ -31,6 +32,8 @@ def default_box_data():
         "size": default_size_data()["id"],
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
+        "display_unit": None,
+        "measure_value": None,
     }
 
 
@@ -165,6 +168,8 @@ def measure_product_box_data():
     data["label_identifier"] = "88111177"
     data["product"] = product_data()[7]["id"]
     data["size"] = None
+    data["display_unit"] = gram_unit_data()["id"]
+    data["measure_value"] = 0.5
     data["state"] = BoxState.InStock
     return data
 

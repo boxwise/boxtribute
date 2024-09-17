@@ -1,4 +1,4 @@
-from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
+from peewee import SQL, CharField, DateTimeField, DecimalField, IntegerField, TextField
 
 from ...db import db
 from ...enums import BoxState as BoxStateEnum
@@ -9,6 +9,7 @@ from .location import Location
 from .product import Product
 from .qr_code import QrCode
 from .size import Size
+from .unit import Unit
 from .user import User
 
 
@@ -93,6 +94,22 @@ class Box(db.Model):  # type: ignore
         null=True,
         on_update="CASCADE",
         on_delete="RESTRICT",
+    )
+    # The unit that the measure is displayed in the front-end in
+    display_unit = UIntForeignKeyField(
+        column_name="display_unit_id",
+        field="id",
+        model=Unit,
+        null=True,
+        on_update="CASCADE",
+        on_delete="RESTRICT",
+    )
+    # The value of the measure in the dimension's base unit (kilogram for mass, liter
+    # for volume). Multiply by unit.conversion_factor to obtain value in FE unit
+    measure_value = DecimalField(
+        max_digits=36,
+        decimal_places=18,
+        null=True,
     )
 
     class Meta:

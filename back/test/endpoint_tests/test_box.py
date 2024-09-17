@@ -19,7 +19,12 @@ today = date.today().isoformat()
 
 
 def test_box_query_by_label_identifier(
-    read_only_client, default_box, tags, in_transit_box, default_shipment_detail
+    read_only_client,
+    default_box,
+    tags,
+    in_transit_box,
+    default_shipment_detail,
+    measure_product_box,
 ):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
@@ -31,6 +36,8 @@ def test_box_query_by_label_identifier(
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
+                    displayUnit {{ id }}
+                    measureValue
                     state
                     qrCode {{ id }}
                     createdBy {{ id }}
@@ -54,6 +61,8 @@ def test_box_query_by_label_identifier(
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
+        "displayUnit": None,
+        "measureValue": None,
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
@@ -88,6 +97,22 @@ def test_box_query_by_label_identifier(
                 }} }}"""
     queried_box = assert_successful_request(read_only_client, query)
     assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
+
+    label_identifier = measure_product_box["label_identifier"]
+    query = f"""query {{
+                box(labelIdentifier: "{label_identifier}") {{
+                    product {{ id }}
+                    size {{ id }}
+                    displayUnit {{ id }}
+                    measureValue
+                }} }}"""
+    box = assert_successful_request(read_only_client, query)
+    assert box == {
+        "product": {"id": str(measure_product_box["product"])},
+        "size": None,
+        "displayUnit": {"id": str(measure_product_box["display_unit"])},
+        "measureValue": 1000 * measure_product_box["measure_value"],
+    }
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
