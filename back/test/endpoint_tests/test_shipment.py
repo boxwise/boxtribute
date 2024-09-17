@@ -1,3 +1,4 @@
+import time
 from datetime import date, datetime
 
 import pytest
@@ -741,6 +742,7 @@ def test_shipment_mutations_on_target_side(
         ],
     }
 
+    time.sleep(1)
     # Test case 3.2.34a
     shipment = assert_successful_request(
         client,
@@ -785,8 +787,8 @@ def test_shipment_mutations_on_target_side(
                             "changes": "changed product type from Indigestion tablets "
                             + f"to {another_product['name']}"
                         },
-                        {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": f"removed tag '{tag_name}' from box"},
+                        {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": f"assigned tag '{tag_name}' to box"},
                         {"changes": "created record"},
                     ],
