@@ -201,6 +201,7 @@ export type Box = ItemsCollection & {
   createdOn?: Maybe<Scalars['Datetime']>;
   deletedOn?: Maybe<Scalars['Datetime']>;
   distributionEvent?: Maybe<DistributionEvent>;
+  /**  Sorted by date, newest first  */
   history?: Maybe<Array<HistoryEntry>>;
   id: Scalars['ID'];
   /**  Sequence of numbers for identifying the box, usually written on box label  */
@@ -560,7 +561,6 @@ export type HistoryEntry = {
   __typename?: 'HistoryEntry';
   changeDate?: Maybe<Scalars['Datetime']>;
   changes: Scalars['String'];
-  /**  IDs are not guaranteed to be unique due to history data being pulled from multiple sources  */
   id: Scalars['ID'];
   user?: Maybe<User>;
 };

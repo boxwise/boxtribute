@@ -40,13 +40,13 @@ type Box implements ItemsCollection {
   deletedOn: Datetime
   comment: String
   tags: [Tag!]
+  " Sorted by date, newest first "
   history: [HistoryEntry!]
   " Returns null if box is not part of an active shipment "
   shipmentDetail: ShipmentDetail
 }
 
 type HistoryEntry {
-  " IDs are not guaranteed to be unique due to history data being pulled from multiple sources "
   id: ID!
   changes: String!
   changeDate: Datetime

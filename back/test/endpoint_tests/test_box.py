@@ -42,7 +42,7 @@ def test_box_query_by_label_identifier(
                         color
                     }}
                     shipmentDetail {{ id }}
-                    history {{ changes }}
+                    history {{ id changes }}
                 }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)
@@ -72,10 +72,10 @@ def test_box_query_by_label_identifier(
         ],
         "shipmentDetail": None,
         "history": [
-            {"changes": "assigned tag 'pallet1' to box"},
-            {"changes": "removed tag 'pallet1' from box"},
-            {"changes": "assigned tag 'pallet1' to box"},
-            {"changes": "created record"},
+            {"id": "ta4", "changes": "assigned tag 'pallet1' to box"},
+            {"id": "tr3", "changes": "removed tag 'pallet1' from box"},
+            {"id": "ta3", "changes": "assigned tag 'pallet1' to box"},
+            {"id": "2", "changes": "created record"},
         ],
     }
 

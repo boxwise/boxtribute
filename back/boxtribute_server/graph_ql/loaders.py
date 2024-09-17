@@ -179,7 +179,7 @@ class HistoryForBoxLoader(DataLoader):
                     fn.GROUP_CONCAT(
                         NodeList((History.id, SQL("ORDER BY"), History.id.desc()))
                     )
-                    .python_value(convert_ids)
+                    .python_value(partial(convert_ids, converter=str))
                     .alias("ids"),
                     fn.GROUP_CONCAT(
                         NodeList(
@@ -345,7 +345,7 @@ class HistoryForBoxLoader(DataLoader):
             + (
                 # Information about all tag assignments
                 TagsRelation.select(
-                    fn.GROUP_CONCAT(TagsRelation.id).alias("ids"),
+                    fn.GROUP_CONCAT(fn.CONCAT("ta", TagsRelation.id)).alias("ids"),
                     fn.GROUP_CONCAT(TagsRelation.created_on).alias("change_dates"),
                     fn.GROUP_CONCAT(TagsRelation.created_by).alias("user_ids"),
                     fn.GROUP_CONCAT(
@@ -363,7 +363,7 @@ class HistoryForBoxLoader(DataLoader):
             + (
                 # Information about all tag removals
                 TagsRelation.select(
-                    fn.GROUP_CONCAT(TagsRelation.id).alias("ids"),
+                    fn.GROUP_CONCAT(fn.CONCAT("tr", TagsRelation.id)).alias("ids"),
                     fn.GROUP_CONCAT(TagsRelation.deleted_on).alias("change_dates"),
                     fn.GROUP_CONCAT(TagsRelation.deleted_by).alias("user_ids"),
                     fn.GROUP_CONCAT(
