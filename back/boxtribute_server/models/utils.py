@@ -75,12 +75,14 @@ def _save_to_history(f, changes):
     @wraps(f)
     def inner(*args, **kwargs):
         with db.database.atomic():
-            result = f(*args, **kwargs)
+            # Create single timestamp to use for DbChangeHistory entry AND to pass to f
+            # for fields like created_on
+            now = utcnow()
+            result = f(*args, **kwargs, now=now)
             # Skip creating history entry if e.g. UserError returned
             if not isinstance(result, db.Model):
                 return result
 
-            now = utcnow()
             if "deleted" in changes:
                 result.deleted_on = now
                 result.save()
@@ -125,12 +127,14 @@ def save_update_to_history(*, id_field_name="id", fields):
             # e.g. Box.get(Box.label_identifier == "123456")
             old_resource = model.get(id_field == kwargs[id_field_name])
 
-            result = f(*args, **kwargs)
+            # Create single timestamp to use for DbChangeHistory entry AND to pass to f
+            # for fields like created_on (e.g. in TagsRelation model)
+            now = utcnow()
+            result = f(*args, **kwargs, now=now)
             # Skip creating history entry if e.g. UserError returned
             if not isinstance(result, db.Model):
                 return result
 
-            now = utcnow()
             entries = create_history_entries(
                 old_resource=old_resource,
                 new_resource=result,

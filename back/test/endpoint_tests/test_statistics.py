@@ -258,7 +258,7 @@ def test_query_moved_boxes(
                 "targetId": base_name,
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
-                "tagIds": [],
+                "tagIds": [3],
             },
             {
                 "boxesCount": 1,
@@ -364,7 +364,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "tagIds": [],
+            "tagIds": [3],
         },
         {
             "boxState": BoxState.Donated.name,

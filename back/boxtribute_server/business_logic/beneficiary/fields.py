@@ -21,6 +21,7 @@ def resolve_beneficiary_tags(beneficiary_obj, _):
         .where(
             (TagsRelation.object_id == beneficiary_obj.id)
             & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+            & (TagsRelation.deleted_on.is_null())
         )
     )
 

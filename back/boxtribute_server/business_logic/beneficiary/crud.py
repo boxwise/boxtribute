@@ -30,11 +30,11 @@ def create_beneficiary(
     signature=None,
     date_of_signature=None,
     tag_ids=None,
+    now,
 ):
     """Insert information for a new Beneficiary in the database. Update the
     languages in the corresponding cross-reference table.
     """
-    now = utcnow()
     data = dict(
         first_name=first_name,
         last_name=last_name,
@@ -78,6 +78,8 @@ def create_beneficiary(
                     "object_id": new_beneficiary.id,
                     "object_type": TaggableObjectType.Beneficiary,
                     "tag": tag_id,
+                    "created_on": now,
+                    "created_by": user_id,
                 }
                 for tag_id in set(tag_ids)
             ]
@@ -112,6 +114,7 @@ def update_beneficiary(
     family_head_id=None,
     registered=None,
     signature=None,
+    now,
     **data,
 ):
     """Look up an existing Beneficiary given an ID, and update all requested fields,
@@ -152,7 +155,7 @@ def update_beneficiary(
 
 
 @safely_handle_deletion
-def deactivate_beneficiary(*, beneficiary):
+def deactivate_beneficiary(*, beneficiary, **_):
     if beneficiary.family_head_id is None:
         # Deactivate all children of a parent
         children = Beneficiary.select().where(

@@ -24,7 +24,12 @@ def test_tag_query(read_only_client, tags):
 
 
 def test_tags_query(
-    read_only_client, tags, default_beneficiary, default_box, box_without_qr_code
+    read_only_client,
+    tags,
+    default_beneficiary,
+    default_box,
+    box_without_qr_code,
+    in_transit_box,
 ):
     # Test case 4.1.1
     query = """query { tags {
@@ -76,6 +81,10 @@ def test_tags_query(
                 {
                     "__typename": "Box",
                     "id": str(box_without_qr_code["id"]),
+                },
+                {
+                    "__typename": "Box",
+                    "id": str(in_transit_box["id"]),
                 },
             ],
         },
@@ -182,6 +191,9 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                 }} }}"""
     box = assert_successful_request(client, mutation)
     assert box == {"tags": [{"id": tag_id}]}
+    # Verify that tag can only be assigned once
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": [{"id": tag_id}]}
 
     # Test case 4.2.14
     beneficiary_id = str(another_beneficiary["id"])
@@ -285,7 +297,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
     [
         [1, TagType.Box.name, [], "Box"],
         [2, TagType.Beneficiary.name, [], "Beneficiary"],
-        [3, TagType.Box.name, [2, 3], "Box"],
+        [3, TagType.Box.name, [2, 3, 9], "Box"],
         [3, TagType.Beneficiary.name, [1], "Beneficiary"],
         [1, TagType.All.name, [1], "Beneficiary"],
     ],

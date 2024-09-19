@@ -20,7 +20,6 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
-from ...tag.crud import assign_tag, unassign_tag
 
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
@@ -31,6 +30,7 @@ def create_box(
     location_id,
     user_id,
     size_id,
+    now,
     comment="",
     number_of_items=None,
     qr_code=None,
@@ -43,8 +43,6 @@ def create_box(
     generation still fails, raise a BoxCreationFailed exception.
     Assign any given tags to the newly created box.
     """
-
-    now = utcnow()
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     location_box_state_id = Location.get_by_id(location_id).box_state_id
@@ -81,8 +79,10 @@ def create_box(
                             "object_id": new_box.id,
                             "object_type": TaggableObjectType.Box,
                             "tag": tag_id,
+                            "created_on": now,
+                            "created_by": user_id,
                         }
-                        for tag_id in tag_ids
+                        for tag_id in set(tag_ids)
                     ]
                     TagsRelation.insert_many(tags_relations).execute()
                 return new_box
@@ -117,6 +117,7 @@ def create_box(
 def update_box(
     label_identifier,
     user_id,
+    now,
     comment=None,
     number_of_items=None,
     location_id=None,
@@ -156,28 +157,33 @@ def update_box(
             for r in TagsRelation.select(TagsRelation.tag_id).where(
                 TagsRelation.object_type == TaggableObjectType.Box,
                 TagsRelation.object_id == box.id,
+                TagsRelation.deleted_on.is_null(),
             )
         )
         updated_tag_ids = set(tag_ids)
 
         # Unassign all tags that were previously assigned to the box but are not part
         # of the updated set of tags
-        for tag_id in assigned_tag_ids.difference(updated_tag_ids):
-            unassign_tag(
-                user_id=user_id,
-                id=tag_id,
-                resource_id=box.id,
-                resource_type=TaggableObjectType.Box,
-            )
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+            TagsRelation.tag << assigned_tag_ids.difference(updated_tag_ids),
+            TagsRelation.object_id == box.id,
+            TagsRelation.object_type == TaggableObjectType.Box,
+            TagsRelation.deleted_on.is_null(),
+        ).execute()
+
         # Assign all tags that are part of the updated set of tags but were previously
         # not assigned to the box
-        for tag_id in updated_tag_ids.difference(assigned_tag_ids):
-            assign_tag(
-                user_id=user_id,
-                id=tag_id,
-                resource_id=box.id,
-                resource_type=TaggableObjectType.Box,
+        tags_relations = [
+            TagsRelation(
+                object_id=box.id,
+                object_type=TaggableObjectType.Box,
+                tag=tag_id,
+                created_on=now,
+                created_by=user_id,
             )
+            for tag_id in updated_tag_ids.difference(assigned_tag_ids)
+        ]
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     if tag_ids_to_be_added is not None:
         # Find all tag IDs that are currently assigned to the box
@@ -186,17 +192,22 @@ def update_box(
             for r in TagsRelation.select(TagsRelation.tag_id).where(
                 TagsRelation.object_type == TaggableObjectType.Box,
                 TagsRelation.object_id == box.id,
+                TagsRelation.deleted_on.is_null(),
             )
         )
         # Assign all tags that are part of the set of tags requested to be added but
         # were previously not assigned to the box
-        for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids):
-            assign_tag(
-                user_id=user_id,
-                id=tag_id,
-                resource_id=box.id,
-                resource_type=TaggableObjectType.Box,
+        tags_relations = [
+            TagsRelation(
+                object_id=box.id,
+                object_type=TaggableObjectType.Box,
+                tag=tag_id,
+                created_on=now,
+                created_by=user_id,
             )
+            for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids)
+        ]
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     return box
 
@@ -305,18 +316,21 @@ def assign_tag_to_boxes(*, user_id, boxes, tag):
     if not boxes:
         return []
 
+    now = utcnow()
     tags_relations = [
         TagsRelation(
             object_id=box.id,
             object_type=TaggableObjectType.Box,
             tag=tag.id,
+            created_on=now,
+            created_by=user_id,
         )
         for box in boxes
     ]
 
     box_ids = [box.id for box in boxes]
     with db.database.atomic():
-        Box.update(last_modified_on=utcnow(), last_modified_by=user_id).where(
+        Box.update(last_modified_on=now, last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
@@ -326,22 +340,24 @@ def assign_tag_to_boxes(*, user_id, boxes, tag):
 
 
 def unassign_tag_from_boxes(*, user_id, boxes, tag):
-    """Remove TagsRelation rows containing the given tag. Update last_modified_* fields
-    of the affected boxes.
+    """Soft-delete TagsRelation rows containing the given tag. Update last_modified_*
+    fields of the affected boxes.
     Return the list of updated boxes.
     """
     if not boxes:
         return []
 
     box_ids = [box.id for box in boxes]
+    now = utcnow()
     with db.database.atomic():
-        Box.update(last_modified_on=utcnow(), last_modified_by=user_id).where(
+        Box.update(last_modified_on=now, last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
-        TagsRelation.delete().where(
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
             TagsRelation.tag == tag.id,
             TagsRelation.object_id << box_ids,
             TagsRelation.object_type == TaggableObjectType.Box,
+            TagsRelation.deleted_on.is_null(),
         ).execute()
 
     # Skip re-fetching box data (last_modified_* fields will be outdated in response)

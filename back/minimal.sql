@@ -2216,7 +2216,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
 (20240422163115,'AddStandardProductFk','2024-05-27 12:39:05','2024-05-27 12:39:06',0),
   (20240523182223,'PopulateStandardProductsTable','2024-05-27 13:01:16','2024-05-27 13:01:16',0),
   (20240624155306,'DeleteDuplicateBoxDeletions','2024-07-13 22:49:45','2024-07-13 22:49:45',0),
-  (20240701112808,'UpdateSmlSizegroup','2024-07-01 10:22:44','2024-07-01 10:22:44',0);
+  (20240701112808,'UpdateSmlSizegroup','2024-07-01 10:22:44','2024-07-01 10:22:44',0),
+  (20240814154516,'AddTemporalColumnsToTagsRelations','2024-09-12 07:48:21','2024-09-12 07:48:22',0),
+  (20240827120508,'CleanHistoryTransactions','2024-09-09 07:48:21','2024-09-09 07:48:22',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3034,12 +3036,21 @@ DROP TABLE IF EXISTS `tags_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags_relations` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(11) unsigned NOT NULL,
   `object_type` varchar(255) NOT NULL DEFAULT 'People',
   `tag_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`object_id`,`tag_id`,`object_type`),
+  `created_on` datetime DEFAULT NULL,
+  `created_by_id` int(11) unsigned DEFAULT NULL,
+  `deleted_on` datetime DEFAULT NULL,
+  `deleted_by_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `created_by_id` (`created_by_id`),
+  KEY `deleted_by_id` (`deleted_by_id`),
+  CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tags_relations_ibfk_5` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tags_relations_ibfk_6` FOREIGN KEY (`deleted_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
