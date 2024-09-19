@@ -79,6 +79,7 @@ export default function VisHeader({
     isChartExporting(true);
     trackDownloadByGraph({
       graphName: heading,
+      downloadFormat: e.target.value,
     });
 
     const customIncludeProps = customIncludes!
