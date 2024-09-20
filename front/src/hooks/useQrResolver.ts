@@ -79,7 +79,7 @@ export const useQrResolver = () => {
               qrHash: hash,
             } as IQrResolvedValue;
           }
-          if (data?.qrCode?.__typename === "QrCode" && !data?.qrCode?.box) {
+          if (!data?.qrCode?.box) {
             return {
               kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
               qrHash: hash,
@@ -88,7 +88,7 @@ export const useQrResolver = () => {
           return {
             kind: IQrResolverResultKind.SUCCESS,
             qrHash: hash,
-            box: data?.qrCode?.__typename === "QrCode" && data?.qrCode?.box,
+            box: data?.qrCode?.box,
           } as IQrResolvedValue;
         })
         .catch((err) => {
