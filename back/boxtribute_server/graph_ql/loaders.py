@@ -165,6 +165,29 @@ class HistoryForBoxLoader(DataLoader):
         ToSize = Size.alias()
         ToBoxState = BoxState.alias()
 
+        # Subquery to exclude assigned-tag messages at the time of box creation
+        CreatedTagsRelation = (
+            TagsRelation.select(
+                fn.CONCAT("ta", TagsRelation.id).alias("change_id"),
+                TagsRelation.created_on,
+                TagsRelation.created_by,
+                fn.CONCAT("assigned tag '", Tag.name, "' to box").alias("message"),
+                TagsRelation.object_id,
+            )
+            .join(Tag)
+            .join(
+                Box,
+                on=(
+                    (TagsRelation.object_id == Box.id)
+                    & (TagsRelation.object_type == TaggableObjectType.Box),
+                ),
+            )
+            .where(
+                TagsRelation.created_on != Box.created_on,
+                TagsRelation.created_on.is_null(False),
+            )
+        )
+
         # Increase the default of 1024 (would be exceeded for concat'ing the change_date
         # column of a box with 54 or more history entries).
         db.database.execute_sql("SET SESSION group_concat_max_len = 10000;")
@@ -343,22 +366,20 @@ class HistoryForBoxLoader(DataLoader):
                 .group_by(History.record_id)
             )
             + (
-                # Information about all tag assignments
+                # Information about tag assignments
                 TagsRelation.select(
-                    fn.GROUP_CONCAT(fn.CONCAT("ta", TagsRelation.id)).alias("ids"),
-                    fn.GROUP_CONCAT(TagsRelation.created_on).alias("change_dates"),
-                    fn.GROUP_CONCAT(TagsRelation.created_by).alias("user_ids"),
-                    fn.GROUP_CONCAT(
-                        fn.CONCAT("assigned tag '", Tag.name, "' to box")
-                    ).alias("messages"),
-                    TagsRelation.object_id.alias("record_id"),
+                    fn.GROUP_CONCAT(CreatedTagsRelation.c.change_id).alias("ids"),
+                    fn.GROUP_CONCAT(CreatedTagsRelation.c.created_on).alias(
+                        "change_dates"
+                    ),
+                    fn.GROUP_CONCAT(CreatedTagsRelation.c.created_by_id).alias(
+                        "user_ids"
+                    ),
+                    fn.GROUP_CONCAT(CreatedTagsRelation.c.message).alias("messages"),
+                    CreatedTagsRelation.c.object_id.alias("record_id"),
                 )
-                .join(Tag)
-                .where(
-                    TagsRelation.object_type == TaggableObjectType.Box,
-                    TagsRelation.created_on.is_null(False),
-                )
-                .group_by(TagsRelation.object_id)
+                .from_(CreatedTagsRelation)
+                .group_by(CreatedTagsRelation.c.object_id)
             )
             + (
                 # Information about all tag removals
