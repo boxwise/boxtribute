@@ -201,6 +201,7 @@ def test_box_mutations(
                 qrCode {{ id }}
                 state
                 tags {{ id }}
+                history {{ changes }}
             }}
         }}"""
     another_created_box = assert_successful_request(client, mutation)
@@ -213,6 +214,7 @@ def test_box_mutations(
         "qrCode": {"id": str(qr_code_without_box["id"])},
         "state": BoxState.InStock.name,
         "tags": [{"id": tag_id}],
+        "history": [{"changes": "created record"}],
     }
 
     # Wait for one second here such that the second-precision change_date of the
