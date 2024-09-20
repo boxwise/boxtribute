@@ -217,7 +217,7 @@ function CreateTransferAgreementView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath="/transfers/agreements" />
+      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath=".." />
       {createTransferAgreementMutationState.error &&
         createTransferAgreementMutationState.error.graphQLErrors.some(
           (error: any) =>

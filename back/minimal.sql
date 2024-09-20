@@ -612,7 +612,13 @@ INSERT INTO `cms_usergroups` VALUES (1,'Head of Operations',NULL,NULL,NULL,NULL,
   (100000208,'Base DummyTestBaseWithBoxes - Volunteer','2023-02-09 14:56:25',1,NULL,NULL,100000001,3,0,0,0,NULL),
   (100000209,'Base DummyTestBaseWithBoxes - Volunteer (Warehouse)','2023-02-09 14:56:25',1,NULL,NULL,100000001,3,0,0,0,NULL),
   (100000210,'Base DummyTestBaseWithBoxes - Volunteer (Free Shop)','2023-02-09 14:56:25',1,NULL,NULL,100000001,3,0,0,0,NULL),
-  (100000211,'Base DummyTestBaseWithBoxes - Label Creation','2023-02-09 14:56:25',1,NULL,NULL,100000001,3,0,0,0,NULL);
+  (100000211,'Base DummyTestBaseWithBoxes - Label Creation','2023-02-09 14:56:25',1,NULL,NULL,100000001,3,0,0,0,NULL),
+  (100004258,'Base Lesvos - External Free Shop Checkout','2024-09-13 00:45:02',NULL,NULL,NULL,1,3,0,0,0,NULL),
+  (100004259,'Base Athens - External Free Shop Checkout','2024-09-13 00:45:23',NULL,NULL,NULL,2,3,0,0,0,NULL),
+  (100004260,'Base Samos - External Free Shop Checkout','2024-09-13 00:45:43',NULL,NULL,NULL,2,3,0,0,0,NULL),
+  (100004261,'Base Thessaloniki - External Free Shop Checkout','2024-09-13 00:46:04',NULL,NULL,NULL,2,3,0,0,0,NULL),
+  (100004262,'Base TestBase - External Free Shop Checkout','2024-09-13 00:46:31',NULL,NULL,NULL,100000000,3,0,0,0,NULL),
+  (100004263,'Base DummyTestBaseWithBoxes - External Free Shop Checkout','2024-09-13 00:46:59',NULL,NULL,NULL,100000001,3,0,0,0,NULL);
 /*!40000 ALTER TABLE `cms_usergroups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -640,7 +646,7 @@ CREATE TABLE `cms_usergroups_camps` (
 
 LOCK TABLES `cms_usergroups_camps` WRITE;
 /*!40000 ALTER TABLE `cms_usergroups_camps` DISABLE KEYS */;
-INSERT INTO `cms_usergroups_camps` VALUES (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(2,10),(3,10),(4,10),(2,11),(3,12),(2,13),(3,14),(2,15),(3,15),(2,16),(3,16),(4,17),(4,18),(4,19),(4,20),(4,21),(100000000,100000000),(100000000,100000001),(100000000,100000002),(100000000,100000003),(1,100000196),(3,100000197),(3,100000198),(3,100000199),(2,100000200),(2,100000201),(2,100000202),(100000000,100000203),(100000000,100000204),(100000000,100000205),(100000001,100000206),(100000001,100000207),(100000001,100000208),(100000001,100000209),(100000001,100000210),(100000001,100000211);
+INSERT INTO `cms_usergroups_camps` VALUES (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(2,10),(3,10),(4,10),(2,11),(3,12),(2,13),(3,14),(2,15),(3,15),(2,16),(3,16),(4,17),(4,18),(4,19),(4,20),(4,21),(100000000,100000000),(100000000,100000001),(100000000,100000002),(100000000,100000003),(1,100000196),(3,100000197),(3,100000198),(3,100000199),(2,100000200),(2,100000201),(2,100000202),(100000000,100000203),(100000000,100000204),(100000000,100000205),(100000001,100000206),(100000001,100000207),(100000001,100000208),(100000001,100000209),(100000001,100000210),(100000001,100000211),(1,100004258),(4,100004259),(3,100004260),(2,100004261),(100000000,100004262),(100000001,100004263);
 /*!40000 ALTER TABLE `cms_usergroups_camps` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1087,7 +1093,19 @@ INSERT INTO `cms_usergroups_functions` VALUES (43,1),
   (125,100000210),
   (158,100000210),
   (112,100000211),
-  (125,100000211);
+  (125,100000211),
+  (87,100004258),
+  (125,100004258),
+  (87,100004259),
+  (125,100004259),
+  (87,100004260),
+  (125,100004260),
+  (87,100004261),
+  (125,100004261),
+  (87,100004262),
+  (125,100004262),
+  (87,100004263),
+  (125,100004263);
 /*!40000 ALTER TABLE `cms_usergroups_functions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1187,7 +1205,13 @@ INSERT INTO `cms_usergroups_roles` VALUES (1,'rol_tP8t9gMxhO1Odtdw','administrat
   (100000208,'rol_FQpwSEpzBol859GG','base_100000001_free_shop_volunteer'),
   (100000209,'rol_4bw3b4Y0BJLnXh2x','base_100000001_warehouse_volunteer'),
   (100000210,'rol_FQpwSEpzBol859GG','base_100000001_free_shop_volunteer'),
-  (100000211,'rol_YRUA56fYsnv3FocH','base_100000001_label_creation');
+  (100000211,'rol_YRUA56fYsnv3FocH','base_100000001_label_creation'),
+  (100004258,'rol_I22RHLj4kd11YHlW','base_1_external_free_shop_checkout'),
+  (100004259,'rol_sQZBQHBCPnOrT45i','base_4_external_free_shop_checkout'),
+  (100004260,'rol_kO9tO1Ohh32xj1lI','base_3_external_free_shop_checkout'),
+  (100004261,'rol_DIdLw2yaUFw31j8n','base_2_external_free_shop_checkout'),
+  (100004262,'rol_RGzSiCSwYXE5vi3s','base_100000000_external_free_shop_checkout'),
+  (100004263,'rol_yWWIUeoxGS2SsmAy','base_100000001_external_free_shop_checkout');
 /*!40000 ALTER TABLE `cms_usergroups_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2192,7 +2216,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
 (20240422163115,'AddStandardProductFk','2024-05-27 12:39:05','2024-05-27 12:39:06',0),
   (20240523182223,'PopulateStandardProductsTable','2024-05-27 13:01:16','2024-05-27 13:01:16',0),
   (20240624155306,'DeleteDuplicateBoxDeletions','2024-07-13 22:49:45','2024-07-13 22:49:45',0),
-  (20240701112808,'UpdateSmlSizegroup','2024-07-01 10:22:44','2024-07-01 10:22:44',0);
+  (20240701112808,'UpdateSmlSizegroup','2024-07-01 10:22:44','2024-07-01 10:22:44',0),
+  (20240814154516,'AddTemporalColumnsToTagsRelations','2024-09-12 07:48:21','2024-09-12 07:48:22',0),
+  (20240827120508,'CleanHistoryTransactions','2024-09-09 07:48:21','2024-09-09 07:48:22',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3010,12 +3036,21 @@ DROP TABLE IF EXISTS `tags_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags_relations` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `object_id` int(11) unsigned NOT NULL,
   `object_type` varchar(255) NOT NULL DEFAULT 'People',
   `tag_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`object_id`,`tag_id`,`object_type`),
+  `created_on` datetime DEFAULT NULL,
+  `created_by_id` int(11) unsigned DEFAULT NULL,
+  `deleted_on` datetime DEFAULT NULL,
+  `deleted_by_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `created_by_id` (`created_by_id`),
+  KEY `deleted_by_id` (`deleted_by_id`),
+  CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tags_relations_ibfk_5` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tags_relations_ibfk_6` FOREIGN KEY (`deleted_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

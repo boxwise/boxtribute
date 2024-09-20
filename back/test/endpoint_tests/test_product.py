@@ -51,7 +51,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
     "filter_input,ids",
     [
         # Test case 8.1.26
-        ["includeDeleted: true", [1, 3, 4]],
+        ["includeDeleted: true", [1, 3, 4, 5, 6]],
         ["type: Custom", [1, 3]],
         ["type: StandardInstantiation", [5]],
         ["type: All", [1, 3, 5]],

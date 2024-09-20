@@ -40,6 +40,7 @@ type Box implements ItemsCollection {
   deletedOn: Datetime
   comment: String
   tags: [Tag!]
+  " Sorted by date, newest first "
   history: [HistoryEntry!]
   " Returns null if box is not part of an active shipment "
   shipmentDetail: ShipmentDetail
@@ -468,7 +469,7 @@ input FilterBoxInput {
 
 input FilterProductInput {
   includeDeleted: Boolean = false
-  type: ProductTypeFilter = Custom
+  type: ProductTypeFilter = All
 }
 
 input FilterBaseInput {

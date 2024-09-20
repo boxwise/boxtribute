@@ -15,7 +15,6 @@ from ....models.utils import (
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
-    utcnow,
 )
 
 
@@ -32,6 +31,7 @@ def create_custom_product(
     price=0,
     comment=None,
     in_shop=False,
+    now,
 ):
     if price < 0:
         return InvalidPrice(value=price)
@@ -43,7 +43,7 @@ def create_custom_product(
     product.base = base_id
     product.category = category_id
     product.comment = comment
-    product.created_on = utcnow()
+    product.created_on = now
     product.created_by = user_id
     product.gender = gender
     product.name = name
@@ -79,6 +79,7 @@ def edit_custom_product(
     price=None,
     comment=None,
     in_shop=None,
+    **_,  # swallow now parameter passed by save_update_to_history
 ):
     if product.standard_product_id is not None:
         return ProductTypeMismatch(expected_type=ProductType.Custom)
@@ -123,7 +124,7 @@ def _boxes_still_assigned_to_product(product):
 
 @safely_handle_deletion
 @handle_non_existing_resource
-def delete_product(*, user_id, product):
+def delete_product(*, user_id, product, **_):
     if product.standard_product_id is not None:
         return ProductTypeMismatch(expected_type=ProductType.Custom)
 
@@ -144,6 +145,7 @@ def enable_standard_product(
     price=0,
     comment=None,
     in_shop=False,
+    now,
 ):
     if price < 0:
         return InvalidPrice(value=price)
@@ -170,7 +172,7 @@ def enable_standard_product(
     product.price = price
     product.comment = comment
     product.in_shop = in_shop
-    product.created_on = utcnow()
+    product.created_on = now
     product.created_by = user_id
     product.standard_product = standard_product
     with db.database.atomic():
@@ -196,6 +198,7 @@ def edit_standard_product_instantiation(
     price=None,
     comment=None,
     in_shop=None,
+    **_,
 ):
     if product.standard_product_id is None:
         return ProductTypeMismatch(expected_type=ProductType.StandardInstantiation)
@@ -219,7 +222,7 @@ def edit_standard_product_instantiation(
 
 @safely_handle_deletion
 @handle_non_existing_resource
-def disable_standard_product(*, user_id, product):
+def disable_standard_product(*, user_id, product, **_):
     if product.standard_product_id is None:
         return ProductTypeMismatch(expected_type=ProductType.StandardInstantiation)
 

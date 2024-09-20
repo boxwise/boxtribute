@@ -105,6 +105,7 @@ def derive_box_filter(filter_input, selection=None):
                 (TagsRelation.object_type == TaggableObjectType.Box)
                 & (TagsRelation.object_id == Box.id)
                 & (TagsRelation.tag << tag_ids)
+                & (TagsRelation.deleted_on.is_null())
             ),
         ).distinct()
 
@@ -119,10 +120,10 @@ def derive_product_filter(filter_input):
     parameters given, return empty conditions (i.e. no filtering applied).
     """
     include_deleted = False
-    type_filter = ProductTypeFilter.Custom
+    type_filter = ProductTypeFilter.All
     if filter_input:
         include_deleted = filter_input.get("include_deleted")
-        type_filter = filter_input.get("type", ProductTypeFilter.Custom)
+        type_filter = filter_input.get("type", ProductTypeFilter.All)
 
     conditions = []
 
