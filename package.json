@@ -76,7 +76,7 @@
     "prettier": "^3.1.1",
     "tsc-files": "^1.1.4",
     "typescript": "^5.3.3",
-    "vite": "^5.3.4",
+    "vite": "^5.4.7",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^1.1.3"
   },
