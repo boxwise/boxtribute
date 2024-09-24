@@ -55,6 +55,11 @@ async def resolve_box_location(box_obj, info):
         return
 
 
+@box.field("displayUnit")
+def resolve_box_unit(box_obj, info):
+    return info.context["unit_loader"].load(box_obj.display_unit_id)
+
+
 @box.field("measureValue")
 def resolve_box_measure_value(box_obj, _):
     if box_obj.display_unit_id is None:

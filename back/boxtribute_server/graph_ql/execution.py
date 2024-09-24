@@ -22,6 +22,7 @@ from .loaders import (
     SizesForSizeRangeLoader,
     TagsForBoxLoader,
     TransferAgreementLoader,
+    UnitLoader,
     UnitsForDimensionLoader,
     UserLoader,
 )
@@ -55,6 +56,7 @@ def execute_async(*, schema, introspection=None):
             "tags_for_box_loader": TagsForBoxLoader(),
             "transfer_agreement_loader": TransferAgreementLoader(),
             "units_for_dimension_loader": UnitsForDimensionLoader(),
+            "unit_loader": UnitLoader(),
             "user_loader": UserLoader(),
         }
 

@@ -89,6 +89,11 @@ class SizeLoader(SimpleDataLoader):
         super().__init__(Size)
 
 
+class UnitLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Unit)
+
+
 class OrganisationLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(Organisation)
