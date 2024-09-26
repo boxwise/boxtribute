@@ -203,7 +203,7 @@ def test_query_moved_boxes(
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
-            organisationName boxesCount itemsCount
+            measureName organisationName boxesCount itemsCount
         }
         dimensions { target { id name type } }
         } }"""
@@ -219,6 +219,7 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "jackets",
                 "sizeId": 2,
+                "measureName": None,
                 "gender": "Women",
                 "targetId": location_name,
                 "organisationName": None,
@@ -231,6 +232,7 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
+                "measureName": None,
                 "gender": "Women",
                 "targetId": location_name,
                 "organisationName": None,
@@ -243,6 +245,7 @@ def test_query_moved_boxes(
                 "categoryId": 12,
                 "productName": "joggers",
                 "sizeId": 1,
+                "measureName": None,
                 "gender": "Boy",
                 "targetId": location_name,
                 "organisationName": None,
@@ -255,6 +258,7 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
+                "measureName": None,
                 "gender": "Women",
                 "targetId": base_name,
                 "organisationName": org_name,
@@ -267,6 +271,7 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "new product",
                 "sizeId": 1,
+                "measureName": None,
                 "gender": "Women",
                 "targetId": base_name,
                 "organisationName": org_name,
@@ -279,6 +284,7 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
+                "measureName": None,
                 "gender": "Women",
                 "targetId": BoxState.Lost.name,
                 "organisationName": None,

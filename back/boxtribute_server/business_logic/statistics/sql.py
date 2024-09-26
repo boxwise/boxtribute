@@ -7,6 +7,8 @@ WITH recursive ValidBoxes AS (
         s.location_id,
         s.size_id,
         s.box_state_id,
+        s.display_unit_id,
+        s.measure_value,
         s.product_id
     FROM stock s
     JOIN locations l ON s.location_id = l.id AND l.camp_id = %s
@@ -22,6 +24,8 @@ BoxHistory AS (
         s.product_id AS stock_product_id,
         s.size_id AS stock_size_id,
         s.box_state_id AS stock_box_state_id,
+        s.display_unit_id AS stock_display_unit_id,
+        s.measure_value AS stock_measure_value,
         h.record_id,
         h.changes,
         h.changedate,
@@ -48,6 +52,8 @@ HistoryReconstruction AS (
         h.to_int,
         h.changes,
         h.changedate,
+        h.stock_display_unit_id,
+        h.stock_measure_value,
         IF(h.changes <> 'items',
                 -- The current change is NOT about number of items, hence the correct number of items
                 -- of the box at this time must be inferred
@@ -157,6 +163,8 @@ BoxStateChangeVersions AS (
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
+        h.stock_display_unit_id,
+        h.stock_measure_value,
         h.size_id
     FROM HistoryReconstruction h
     WHERE h.changes = 'box_state_id'
@@ -169,6 +177,8 @@ DeletedBoxes AS (
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
+        h.stock_display_unit_id,
+        h.stock_measure_value,
         h.size_id
     FROM HistoryReconstruction h
     WHERE h.changes = 'Record deleted'
@@ -181,6 +191,8 @@ UndeletedBoxes AS (
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
+        h.stock_display_unit_id,
+        h.stock_measure_value,
         h.size_id
     FROM HistoryReconstruction h
     WHERE h.changes = 'Box was undeleted.'
@@ -193,6 +205,8 @@ CreatedDonatedBoxes AS (
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
+        h.stock_display_unit_id,
+        h.stock_measure_value,
         h.size_id
     FROM HistoryReconstruction h
     WHERE h.changes = 'Record created' and h.box_state_id = 5
@@ -208,6 +222,7 @@ select
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
+    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     "Deleted" AS target_id,
     NULL AS organisation_name,
@@ -217,8 +232,9 @@ select
 FROM DeletedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, measure_name
 
 UNION ALL
 
@@ -228,6 +244,7 @@ select
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
+    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     "Deleted" AS target_id,
     NULL AS organisation_name,
@@ -237,18 +254,20 @@ select
 FROM UndeletedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, measure_name
 
 UNION ALL
 
 -- Collect information about boxes created in donated state
-select
+SELECT
     t.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
+    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
     NULL AS organisation_name,
@@ -258,18 +277,20 @@ select
 FROM CreatedDonatedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, measure_name
 
 UNION ALL
 
 -- Collect information about boxes being moved between states InStock and Donated
-select
+SELECT
     t.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
+    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
     NULL AS organisation_name,
@@ -291,10 +312,11 @@ select
 FROM BoxStateChangeVersions t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
+LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
 WHERE (t.prev_box_state_id = 1 AND t.box_state_id = 5) OR
       (t.prev_box_state_id = 5 AND t.box_state_id = 1)
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, measure_name
 
 UNION ALL
 
@@ -306,6 +328,8 @@ SELECT
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     d.source_size_id AS size_id,
+    -- neglect possible history of box's measure_value
+    CONCAT(ROUND(b.measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     c.name AS target_id,
     o.label AS organisation_name,
@@ -324,8 +348,10 @@ ON
 JOIN camps c ON c.id = sh.target_base_id
 JOIN organisations o on o.id = c.organisation_id
 JOIN products p ON p.id = d.source_product_id
+JOIN stock b ON b.id = d.box_id
+LEFT OUTER JOIN units u ON u.id = b.display_unit_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name, measure_name
 
 UNION ALL
 
@@ -338,6 +364,7 @@ SELECT
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     b.size_id,
+    CONCAT(ROUND(b.measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     bs.label AS target_id,
     NULL AS organisation_name,
@@ -356,7 +383,8 @@ ON
     h.to_int IN (2, 6) -- (Lost, Scrap)
 JOIN products p ON p.id = b.product_id AND p.camp_id = %s
 JOIN box_state bs on bs.id = h.to_int
+LEFT OUTER JOIN units u ON u.id = b.display_unit_id
 LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, b.size_id, bs.label
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, b.size_id, bs.label, measure_name
 ;
 """

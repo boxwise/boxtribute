@@ -100,6 +100,7 @@ type MovedBoxesResult {
   productName: String!
   gender: ProductGender!
   sizeId: Int
+  measureName: String
   " Shipment target organisation name; null for BoxState/OutgoingLocation target types "
   organisationName: String
   tagIds: [Int!]
