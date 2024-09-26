@@ -124,6 +124,7 @@ type StockOverviewResult {
   productName: String!
   gender: ProductGender!
   sizeId: Int
+  measureName: String
   tagIds: [Int!]
   locationId: Int!
   boxState: BoxState!

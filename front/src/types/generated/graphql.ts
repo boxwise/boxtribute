@@ -1640,6 +1640,7 @@ export type StockOverviewResult = {
   gender: ProductGender;
   itemsCount: Scalars['Int'];
   locationId: Scalars['Int'];
+  measureName?: Maybe<Scalars['String']>;
   productName: Scalars['String'];
   sizeId?: Maybe<Scalars['Int']>;
   tagIds?: Maybe<Array<Scalars['Int']>>;

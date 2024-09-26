@@ -15,6 +15,7 @@ from ...models.definitions.size import Size
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
+from ...models.definitions.unit import Unit
 from ...models.utils import compute_age, convert_ids
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
@@ -406,6 +407,8 @@ def compute_stock_overview(base_id):
             Box.location.alias("location_id"),
             Box.state.alias("box_state"),
             Box.product.alias("product_id"),
+            Box.measure_value,
+            Box.display_unit,
             Box.number_of_items.alias("number_of_items"),
             tag_ids.alias("tag_ids"),
         )
@@ -429,6 +432,9 @@ def compute_stock_overview(base_id):
             boxes.c.box_state,
             Product.category.alias("category_id"),
             fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            fn.CONCAT(
+                fn.ROUND(boxes.c.measure_value * Unit.conversion_factor, 2), Unit.symbol
+            ).alias("measure_name"),
             Product.gender.alias("gender"),
             boxes.c.tag_ids,
             fn.COUNT(boxes.c.id).alias("boxes_count"),
@@ -444,12 +450,14 @@ def compute_stock_overview(base_id):
             ),
         )
         .join(Product, on=(boxes.c.product_id == Product.id))
+        .left_outer_join(Unit, on=(boxes.c.display_unit_id == Unit.id))
         .group_by(
             SQL("size_id"),
             SQL("location_id"),
             SQL("box_state"),
             SQL("category_id"),
             SQL("product_name"),
+            SQL("measure_name"),
             SQL("gender"),
         )
         .dicts()

@@ -314,7 +314,7 @@ def test_query_stock_overview(
 ):
     query = """query { stockOverview(baseId: 1) {
         facts { categoryId productName gender sizeId locationId boxState tagIds
-            itemsCount boxesCount }
+            measureName itemsCount boxesCount }
         dimensions { location { id name } }
     } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
@@ -332,6 +332,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [2, 3],
         },
         {
@@ -343,6 +344,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [3],
         },
         {
@@ -354,6 +356,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [],
         },
         {
@@ -365,6 +368,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [3],
         },
         {
@@ -376,6 +380,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [],
         },
         {
@@ -387,6 +392,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [],
         },
         {
@@ -398,6 +404,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "jackets",
             "sizeId": 2,
+            "measureName": None,
             "tagIds": [],
         },
         {
@@ -409,6 +416,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "joggers",
             "sizeId": 1,
+            "measureName": None,
             "tagIds": [],
         },
         {
@@ -420,6 +428,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "rice",
             "sizeId": None,
+            "measureName": "500.00g",
             "tagIds": [],
         },
     ]
