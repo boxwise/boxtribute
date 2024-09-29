@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateField } from "../../..";
 import { date2String } from "../../../utils/helpers";
+import { trackFilter } from "../../utils/analytics/heap";
 
 export const FilterCreatedOnFormScheme = z.object({
   from: z
@@ -62,12 +63,21 @@ export default function TimeRangeSelect() {
 
     if (toFormValue && new Date(toFormValue) !== to) {
       searchParams.delete("to");
-      searchParams.append("to", date2String(new Date(toFormValue)));
+      const newToDate = date2String(new Date(toFormValue));
+      const stringifiedForm = date2String(from);
+      searchParams.append("to", newToDate);
+      trackFilter({ filterId: "timeRange", newToDate, stringifiedForm });
     }
 
     if (fromFormValue && new Date(fromFormValue) !== from) {
       searchParams.delete("from");
       searchParams.append("from", date2String(new Date(fromFormValue)));
+      const stringifiedTo = date2String(to);
+      trackFilter({
+        filterId: "timerange",
+        from: date2String(new Date(fromFormValue)),
+        stringifiedTo,
+      });
     }
 
     if (searchParams.toString() !== currentQuery) {
