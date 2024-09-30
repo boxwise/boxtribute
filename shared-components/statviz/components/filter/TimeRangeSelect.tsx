@@ -64,9 +64,9 @@ export default function TimeRangeSelect() {
     if (toFormValue && new Date(toFormValue) !== to) {
       searchParams.delete("to");
       const newToDate = date2String(new Date(toFormValue));
-      const stringifiedForm = date2String(from);
+      const stringifiedFrom = date2String(from);
       searchParams.append("to", newToDate);
-      trackFilter({ filterId: "timeRange", newToDate, stringifiedForm });
+      trackFilter({ filterId: "timeRange", newToDate, stringifiedFrom });
     }
 
     if (fromFormValue && new Date(fromFormValue) !== from) {
