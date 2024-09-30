@@ -222,7 +222,9 @@ select
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
-    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
+    CONCAT(ROUND(t.stock_measure_value, 3),
+           CASE u.dimension_id WHEN 28 THEN 'kg' WHEN 29 THEN 'l' ELSE '' END
+    ) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     "Deleted" AS target_id,
     NULL AS organisation_name,
@@ -244,7 +246,9 @@ select
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
-    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
+    CONCAT(ROUND(t.stock_measure_value, 3),
+           CASE u.dimension_id WHEN 28 THEN 'kg' WHEN 29 THEN 'l' ELSE '' END
+    ) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     "Deleted" AS target_id,
     NULL AS organisation_name,
@@ -267,7 +271,9 @@ SELECT
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
-    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
+    CONCAT(ROUND(t.stock_measure_value, 3),
+           CASE u.dimension_id WHEN 28 THEN 'kg' WHEN 29 THEN 'l' ELSE '' END
+    ) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
     NULL AS organisation_name,
@@ -290,7 +296,9 @@ SELECT
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     t.size_id,
-    CONCAT(ROUND(t.stock_measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
+    CONCAT(ROUND(t.stock_measure_value, 3),
+           CASE u.dimension_id WHEN 28 THEN 'kg' WHEN 29 THEN 'l' ELSE '' END
+    ) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     loc.label AS target_id,
     NULL AS organisation_name,
@@ -329,7 +337,9 @@ SELECT
     p.gender_id AS gender,
     d.source_size_id AS size_id,
     -- neglect possible history of box's measure_value
-    CONCAT(ROUND(b.measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
+    CONCAT(ROUND(b.measure_value, 3),
+           CASE u.dimension_id WHEN 28 THEN 'kg' WHEN 29 THEN 'l' ELSE '' END
+    ) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     c.name AS target_id,
     o.label AS organisation_name,
@@ -364,7 +374,9 @@ SELECT
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
     b.size_id,
-    CONCAT(ROUND(b.measure_value * u.conversion_factor, 2), u.symbol) AS measure_name,
+    CONCAT(ROUND(b.measure_value, 3),
+           CASE u.dimension_id WHEN 28 THEN 'kg' WHEN 29 THEN 'l' ELSE '' END
+    ) AS measure_name,
     GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
     bs.label AS target_id,
     NULL AS organisation_name,

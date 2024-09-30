@@ -1,6 +1,6 @@
 from functools import wraps
 
-from peewee import JOIN, SQL, fn
+from peewee import JOIN, SQL, Case, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
@@ -433,7 +433,8 @@ def compute_stock_overview(base_id):
             Product.category.alias("category_id"),
             fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
             fn.CONCAT(
-                fn.ROUND(boxes.c.measure_value * Unit.conversion_factor, 2), Unit.symbol
+                fn.ROUND(boxes.c.measure_value, 3),
+                Case(Unit.dimension_id, ((28, "kg"), (29, "l")), ""),
             ).alias("measure_name"),
             Product.gender.alias("gender"),
             boxes.c.tag_ids,

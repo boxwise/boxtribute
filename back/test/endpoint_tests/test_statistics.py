@@ -434,7 +434,7 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "rice",
             "sizeId": None,
-            "measureName": "500.00g",
+            "measureName": "0.500kg",
             "tagIds": [],
         },
     ]
