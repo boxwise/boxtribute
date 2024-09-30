@@ -2944,7 +2944,7 @@ CREATE TABLE `stock` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `box_id` varchar(11) NOT NULL DEFAULT '',
   `product_id` int(11) unsigned NOT NULL,
-  `size_id` int(11) unsigned NOT NULL,
+  `size_id` int(11) unsigned DEFAULT NULL,
   `display_unit_id` int(11) unsigned DEFAULT NULL,
   `measure_value` decimal(36,18) unsigned DEFAULT NULL,
   `items` int(11) DEFAULT NULL,
