@@ -50,33 +50,32 @@ export default function TimeRangeSelect() {
     if (!searchParams.get("to")) {
       searchParams.append("to", date2String(new Date()));
     }
-    const from = new Date(searchParams.get("from")!);
-    const to = new Date(searchParams.get("to")!);
+    const from = searchParams.get("from")!;
+    const to = searchParams.get("to")!;
 
     if (toFormValue === undefined) {
-      setValue("to", date2String(to));
+      setValue("to", to);
     }
 
     if (fromFormValue === undefined) {
-      setValue("from", date2String(from));
+      setValue("from", from);
     }
 
-    if (toFormValue && new Date(toFormValue) !== to) {
+    if (toFormValue && date2String(new Date(toFormValue)) !== to) {
       searchParams.delete("to");
       const newToDate = date2String(new Date(toFormValue));
-      const stringifiedFrom = date2String(from);
       searchParams.append("to", newToDate);
-      trackFilter({ filterId: "timeRange", newToDate, stringifiedFrom });
+      trackFilter({ filterId: "timeRange", newToDate, from });
     }
 
-    if (fromFormValue && new Date(fromFormValue) !== from) {
+    if (fromFormValue && date2String(new Date(fromFormValue)) !== from) {
+      const newFromDate = date2String(new Date(fromFormValue));
       searchParams.delete("from");
-      searchParams.append("from", date2String(new Date(fromFormValue)));
-      const stringifiedTo = date2String(to);
+      searchParams.append("from", newFromDate);
       trackFilter({
-        filterId: "timerange",
-        from: date2String(new Date(fromFormValue)),
-        stringifiedTo,
+        filterId: "timeRange",
+        from: newFromDate,
+        to,
       });
     }
 
