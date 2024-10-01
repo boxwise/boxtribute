@@ -264,22 +264,22 @@ def _update_shipment_with_prepared_boxes(
         )
     )
     details = [
-        {
-            "shipment": shipment.id,
-            "box": box.id,
-            "source_product": box.product_id,
-            "source_location": box.location_id,
-            "source_size": box.size_id,
-            "source_quantity": box.number_of_items,
-            "created_by": user_id,
-        }
+        ShipmentDetail(
+            shipment=shipment.id,
+            box=box.id,
+            source_product=box.product_id,
+            source_location=box.location_id,
+            source_size=box.size_id,
+            source_quantity=box.number_of_items,
+            created_by=user_id,
+        )
         for box in boxes
     ]
 
     _bulk_update_box_state(
         boxes=boxes, state=BoxState.MarkedForShipment, user_id=user_id, now=now
     )
-    ShipmentDetail.insert_many(details).execute()
+    ShipmentDetail.bulk_create(details, batch_size=BATCH_SIZE)
 
 
 def _remove_boxes_from_shipment(
