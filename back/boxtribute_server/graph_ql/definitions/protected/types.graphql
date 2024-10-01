@@ -26,9 +26,11 @@ type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
+  " If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   location: Location
   distributionEvent: DistributionEvent
   numberOfItems: Int
+  " If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   product: Product
   size: Size!
   state: BoxState!

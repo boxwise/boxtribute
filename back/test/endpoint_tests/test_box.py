@@ -34,6 +34,7 @@ def test_box_query_by_label_identifier(
                     state
                     qrCode {{ id }}
                     createdBy {{ id }}
+                    lastModifiedBy {{ id }}
                     deletedOn
                     comment
                     tags {{
@@ -56,6 +57,7 @@ def test_box_query_by_label_identifier(
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
+        "lastModifiedBy": {"id": str(default_box["last_modified_by"])},
         "deletedOn": None,
         "comment": None,
         "tags": [
@@ -584,7 +586,10 @@ def test_box_mutations(
         "updatedBoxes": [
             {"id": str(another_box["id"]), "location": {"id": another_location_id}}
         ],
-        "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"], "99119911"],
+        # Identifiers will be alphabetically sorted in the response
+        "invalidBoxLabelIdentifiers": sorted(
+            [created_box["labelIdentifier"], "99119911"]
+        ),
     }
 
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25

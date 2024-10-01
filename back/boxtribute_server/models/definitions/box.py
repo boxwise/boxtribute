@@ -68,6 +68,7 @@ class Box(db.Model):  # type: ignore
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
+        object_id_name="last_modified_by_id",
     )
     product = UIntForeignKeyField(
         column_name="product_id",

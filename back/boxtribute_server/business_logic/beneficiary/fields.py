@@ -80,3 +80,13 @@ def resolve_beneficiary_active(beneficiary_obj, _):
 def resolve_beneficiary_base(beneficiary_obj, info):
     authorize(permission="base:read", base_id=beneficiary_obj.base_id)
     return info.context["base_loader"].load(beneficiary_obj.base_id)
+
+
+@beneficiary.field("createdBy")
+def resolve_beneficiary_created_by(beneficiary_obj, info):
+    return info.context["user_loader"].load(beneficiary_obj.created_by_id)
+
+
+@beneficiary.field("lastModifiedBy")
+def resolve_beneficiary_last_modified_by(beneficiary_obj, info):
+    return info.context["user_loader"].load(beneficiary_obj.last_modified_by_id)

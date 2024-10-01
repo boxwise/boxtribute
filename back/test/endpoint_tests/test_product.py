@@ -25,6 +25,8 @@ def test_product_query(read_only_client, default_product, default_size, another_
                     gender
                     comment
                     createdBy {{ id }}
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
                     deletedOn
                 }}
             }}"""
@@ -43,6 +45,8 @@ def test_product_query(read_only_client, default_product, default_size, another_
         "comment": default_product["comment"],
         "gender": "Women",
         "createdBy": {"id": str(default_product["created_by"])},
+        "lastModifiedOn": None,
+        "lastModifiedBy": None,
         "deletedOn": default_product["deleted_on"],
     }
 

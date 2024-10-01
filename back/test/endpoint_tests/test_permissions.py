@@ -396,6 +396,15 @@ def test_invalid_permission_for_box_field(read_only_client, mocker, default_box,
     assert_forbidden_request(read_only_client, query, value={field: None})
 
 
+def test_invalid_permission_for_box_size(read_only_client, mocker, default_box):
+    # Test case 8.1.9
+    # verify missing size:read permission
+    mock_user_for_request(mocker, permissions=["stock:read"])
+    query = f"""query {{ box(labelIdentifier: "{default_box["label_identifier"]}")
+                {{ size {{ id }} }} }}"""
+    assert_forbidden_request(read_only_client, query)
+
+
 @pytest.mark.parametrize(
     "field", ["sourceLocation", "targetLocation", "sourceProduct", "targetProduct"]
 )
