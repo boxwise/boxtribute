@@ -208,8 +208,10 @@ export type Box = ItemsCollection & {
   labelIdentifier: Scalars['String'];
   lastModifiedBy?: Maybe<User>;
   lastModifiedOn?: Maybe<Scalars['Datetime']>;
+  /**  If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side)  */
   location?: Maybe<Location>;
   numberOfItems?: Maybe<Scalars['Int']>;
+  /**  If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side)  */
   product?: Maybe<Product>;
   qrCode?: Maybe<QrCode>;
   /**  Returns null if box is not part of an active shipment  */
