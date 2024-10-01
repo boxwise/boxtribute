@@ -584,7 +584,10 @@ def test_box_mutations(
         "updatedBoxes": [
             {"id": str(another_box["id"]), "location": {"id": another_location_id}}
         ],
-        "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"], "99119911"],
+        # Identifiers will be alphabetically sorted in the response
+        "invalidBoxLabelIdentifiers": sorted(
+            [created_box["labelIdentifier"], "99119911"]
+        ),
     }
 
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
