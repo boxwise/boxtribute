@@ -61,6 +61,7 @@ class Beneficiary(db.Model):  # type: ignore
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
+        object_id_name="last_modified_by_id",
     )
     not_registered = IntegerField(
         column_name="notregistered", constraints=[SQL("DEFAULT 0")], default=False

@@ -67,6 +67,16 @@ def resolve_box_shipment_detail(box_obj, info):
     return info.context["shipment_detail_for_box_loader"].load(box_obj.id)
 
 
+@box.field("createdBy")
+def resolve_box_created_by(box_obj, info):
+    return info.context["user_loader"].load(box_obj.created_by_id)
+
+
+@box.field("lastModifiedBy")
+def resolve_box_last_modified_by(box_obj, info):
+    return info.context["user_loader"].load(box_obj.last_modified_by_id)
+
+
 @history_entry.field("user")
 def resolve_history_entry_user(history_entry_obj, info):
     return info.context["user_loader"].load(history_entry_obj.user_id)

@@ -34,6 +34,7 @@ def test_box_query_by_label_identifier(
                     state
                     qrCode {{ id }}
                     createdBy {{ id }}
+                    lastModifiedBy {{ id }}
                     deletedOn
                     comment
                     tags {{
@@ -56,6 +57,7 @@ def test_box_query_by_label_identifier(
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
+        "lastModifiedBy": {"id": str(default_box["last_modified_by"])},
         "deletedOn": None,
         "comment": None,
         "tags": [

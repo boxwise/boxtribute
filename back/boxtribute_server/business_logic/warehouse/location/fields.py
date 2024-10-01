@@ -31,3 +31,13 @@ def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=
 def resolve_location_base(location_obj, info):
     authorize(permission="base:read", base_id=location_obj.base_id)
     return info.context["base_loader"].load(location_obj.base_id)
+
+
+@classic_location.field("createdBy")
+def resolve_location_created_by(location_obj, info):
+    return info.context["user_loader"].load(location_obj.created_by_id)
+
+
+@classic_location.field("lastModifiedBy")
+def resolve_location_last_modified_by(location_obj, info):
+    return info.context["user_loader"].load(location_obj.last_modified_by_id)

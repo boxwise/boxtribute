@@ -30,6 +30,8 @@ def test_location_query(
                     defaultBoxState
                     createdOn
                     createdBy {{ id }}
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
                 }}
             }}"""
     queried_location = assert_successful_request(read_only_client, query)
@@ -44,6 +46,8 @@ def test_location_query(
         "defaultBoxState": BoxState(default_location["box_state"]).name,
         "createdOn": None,
         "createdBy": {"id": str(default_location["created_by"])},
+        "lastModifiedOn": None,
+        "lastModifiedBy": None,
     }
 
     query = f"""query {{ location(id: "{distribution_spot['id']}") {{ id }} }}"""

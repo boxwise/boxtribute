@@ -55,6 +55,7 @@ class Product(db.Model):  # type: ignore
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
+        object_id_name="last_modified_by_id",
     )
     name = CharField()
     size_range = UIntForeignKeyField(
