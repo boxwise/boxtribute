@@ -1779,7 +1779,7 @@ CREATE TABLE `shipment_detail` (
   `target_product_id` int unsigned DEFAULT NULL,
   `source_quantity` int DEFAULT NULL,
   `target_quantity` int DEFAULT NULL,
-  `source_size_id` int unsigned NOT NULL,
+  `source_size_id` int unsigned DEFAULT NULL,
   `target_size_id` int unsigned DEFAULT NULL,
   `source_location_id` int unsigned NOT NULL,
   `target_location_id` int unsigned DEFAULT NULL,
