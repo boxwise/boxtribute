@@ -178,6 +178,37 @@ class NegativeNumberOfItems(Exception):
     }
 
 
+class NegativeMeasureValue(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: negative value for 'measureValue'",
+    }
+
+
+class IncompatibleSizeAndMeasureInput(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: either 'sizeId' or 'displayUnitId'+"
+        "'measureValue' required",
+    }
+
+
+class InsufficientMeasureInput(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: both 'displayUnitId' and 'measureValue' "
+        "required",
+    }
+
+
+class DisplayUnitProductMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: dimensions of 'displayUnit' and 'product' "
+        "not matching",
+    }
+
+
 class ServiceError(Exception):
     def __init__(self, *, code, message):
         self.code = code

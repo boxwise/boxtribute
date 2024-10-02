@@ -105,7 +105,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .unit import mass_units, units
+from .unit import gram_unit, mass_units, units
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
@@ -170,6 +170,7 @@ __all__ = [
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
     "god_user",
+    "gram_unit",
     "in_transit_box",
     "inactive_organisation",
     "lost_box",

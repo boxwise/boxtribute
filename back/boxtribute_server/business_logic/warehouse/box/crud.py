@@ -1,4 +1,5 @@
 import random
+from decimal import Decimal
 
 import peewee
 
@@ -6,14 +7,20 @@ from ....db import db
 from ....enums import BoxState, TaggableObjectType
 from ....exceptions import (
     BoxCreationFailed,
+    DisplayUnitProductMismatch,
+    IncompatibleSizeAndMeasureInput,
+    InsufficientMeasureInput,
+    NegativeMeasureValue,
     NegativeNumberOfItems,
     QrCodeAlreadyAssignedToBox,
 )
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
+from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.tags_relation import TagsRelation
+from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
     save_creation_to_history,
@@ -29,8 +36,10 @@ def create_box(
     product_id,
     location_id,
     user_id,
-    size_id,
     now,
+    size_id=None,
+    display_unit_id=None,
+    measure_value=None,
     comment="",
     number_of_items=None,
     qr_code=None,
@@ -43,14 +52,38 @@ def create_box(
     generation still fails, raise a BoxCreationFailed exception.
     Assign any given tags to the newly created box.
     """
+    if number_of_items is not None and number_of_items < 0:
+        raise NegativeNumberOfItems()
+
+    if size_id is None and display_unit_id is None and measure_value is None:
+        raise IncompatibleSizeAndMeasureInput()
+    elif size_id is not None and (
+        display_unit_id is not None or measure_value is not None
+    ):
+        raise IncompatibleSizeAndMeasureInput()
+    elif (display_unit_id is None and measure_value is not None) or (
+        display_unit_id is not None and measure_value is None
+    ):
+        raise InsufficientMeasureInput()
+    elif display_unit_id is not None:
+        if measure_value < 0:
+            raise NegativeMeasureValue()
+
+        display_unit = Unit.get_by_id(display_unit_id)
+        product_size_range = (
+            Product.select(Product.size_range_id)
+            .where(Product.id == product_id)
+            .scalar()
+        )
+        if display_unit.dimension_id != product_size_range:
+            raise DisplayUnitProductMismatch()
+
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     location_box_state_id = Location.get_by_id(location_id).box_state_id
     box_state = (
         BoxState.InStock if location_box_state_id is None else location_box_state_id
     )
-    if number_of_items is not None and number_of_items < 0:
-        raise NegativeNumberOfItems()
 
     for _ in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
@@ -67,6 +100,13 @@ def create_box(
             new_box.size = size_id
             new_box.state = box_state
             new_box.qr_code = qr_id
+            new_box.display_unit = display_unit_id
+
+            if measure_value is not None:
+                # Convert from display unit to dimensional base unit
+                new_box.measure_value = (
+                    Decimal(measure_value) / display_unit.conversion_factor
+                )
 
             with db.database.atomic():
                 new_box.save()
