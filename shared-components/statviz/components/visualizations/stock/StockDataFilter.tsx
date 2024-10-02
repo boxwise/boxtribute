@@ -1,7 +1,7 @@
 import { useReactiveVar } from "@apollo/client";
 import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
-import { StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
+import { BoxState, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import StockCharts from "./StockCharts";
 import {
   boxesOrItemsFilterValues,
@@ -39,6 +39,10 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
         ),
       );
     }
+
+    filters.push(
+      filter((fact: StockOverviewResult) => fact.boxState === BoxState.InStock)
+    );
 
     if (filter.length > 0) {
       return {
