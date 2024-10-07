@@ -37,6 +37,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "standard_product",
     "tag_relation",
     "transaction",
+    "unit",
     "user",
 )
 

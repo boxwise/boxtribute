@@ -472,6 +472,8 @@ class Generator:
             15: ["Inhalation device"],
         }
         baby_products = ["Shirts", "Jackets", "Trousers"]  # category 8
+        mass_measure_products = ["Rice", "Pasta", "Chickpeas", "Sugar", "Cereal"]
+        volume_measure_products = ["Sauce", "Milk", "Vegetable oil"]
         size_ranges = {
             "Underwear": 6,  # Mixed sizes
             "Tights": 6,
@@ -581,6 +583,20 @@ class Generator:
                 )
                 enabled_standard_products[b].append(product)
 
+            for names, size_range_id in zip(
+                [mass_measure_products, volume_measure_products], [28, 29]
+            ):
+                for name in names:
+                    product = create_custom_product(
+                        category_id=11,
+                        size_range_id=size_range_id,
+                        gender=ProductGender.none,
+                        base_id=b,
+                        name=name,
+                        price=self.fake.random_int(max=100),
+                        user_id=self._user_id(b),
+                    )
+                    self.products[b].append(product)
             # Delete a product
             to_be_deleted_product = create_custom_product(
                 category_id=12,

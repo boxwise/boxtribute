@@ -20,7 +20,7 @@ class ShipmentDetail(db.Model):  # type: ignore
     target_location = UIntForeignKeyField(
         model=Location, on_update="CASCADE", null=True
     )
-    source_size = UIntForeignKeyField(model=Size, on_update="CASCADE")
+    source_size = UIntForeignKeyField(model=Size, on_update="CASCADE", null=True)
     target_size = UIntForeignKeyField(model=Size, on_update="CASCADE", null=True)
     source_quantity = IntegerField()
     target_quantity = IntegerField(null=True)

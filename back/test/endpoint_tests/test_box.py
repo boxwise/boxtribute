@@ -19,7 +19,12 @@ today = date.today().isoformat()
 
 
 def test_box_query_by_label_identifier(
-    read_only_client, default_box, tags, in_transit_box, default_shipment_detail
+    read_only_client,
+    default_box,
+    tags,
+    in_transit_box,
+    default_shipment_detail,
+    measure_product_box,
 ):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
@@ -31,6 +36,8 @@ def test_box_query_by_label_identifier(
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
+                    displayUnit {{ id }}
+                    measureValue
                     state
                     qrCode {{ id }}
                     createdBy {{ id }}
@@ -54,6 +61,8 @@ def test_box_query_by_label_identifier(
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
+        "displayUnit": None,
+        "measureValue": None,
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
@@ -88,6 +97,22 @@ def test_box_query_by_label_identifier(
                 }} }}"""
     queried_box = assert_successful_request(read_only_client, query)
     assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
+
+    label_identifier = measure_product_box["label_identifier"]
+    query = f"""query {{
+                box(labelIdentifier: "{label_identifier}") {{
+                    product {{ id }}
+                    size {{ id }}
+                    displayUnit {{ id }}
+                    measureValue
+                }} }}"""
+    box = assert_successful_request(read_only_client, query)
+    assert box == {
+        "product": {"id": str(measure_product_box["product"])},
+        "size": None,
+        "displayUnit": {"id": str(measure_product_box["display_unit"])},
+        "measureValue": 1000 * measure_product_box["measure_value"],
+    }
 
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
@@ -607,7 +632,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[21:] == [
+    assert history[22:] == [
         {
             "changes": "Record created",
             "from_int": None,
@@ -821,27 +846,27 @@ def _format(parameter):
     "filters,number",
     [
         # Test case 8.1.7
-        [[{"states": "[InStock]"}], 1],
+        [[{"states": "[InStock]"}], 2],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
         [[{"states": "[InTransit]"}], 2],
         [[{"states": "[Receiving]"}], 0],
         [[{"states": "[NotDelivered]"}], 2],
-        [[{"states": "[InStock,Lost]"}], 2],
+        [[{"states": "[InStock,Lost]"}], 3],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 13],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 14],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 13],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 11],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 14],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 12],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 12],
+        [[{"productGender": "Women"}], 13],
         [[{"productGender": "Men"}], 0],
         [[{"productId": "1"}], 11],
         [[{"productId": "2"}], 0],
         [[{"sizeId": "1"}], 12],
         [[{"sizeId": "2"}], 1],
-        [[{"productCategoryId": "1"}], 12],
+        [[{"productCategoryId": "1"}], 13],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],

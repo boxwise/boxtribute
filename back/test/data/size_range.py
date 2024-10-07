@@ -16,7 +16,17 @@ def data():
             "label": "XS, S, M, L, XL",
             "seq": 1,
         },
+        {"id": 28, "label": "Mass", "seq": 3},
+        {"id": 29, "label": "Volume", "seq": 4},
     ]
+
+
+def mass_dimension_data():
+    return data()[4]
+
+
+def volume_dimension_data():
+    return data()[5]
 
 
 @pytest.fixture

@@ -55,6 +55,20 @@ async def resolve_box_location(box_obj, info):
         return
 
 
+@box.field("displayUnit")
+def resolve_box_unit(box_obj, info):
+    return info.context["unit_loader"].load(box_obj.display_unit_id)
+
+
+@box.field("measureValue")
+def resolve_box_measure_value(box_obj, _):
+    if box_obj.display_unit_id is None:
+        # Boxes with size-products (i.e. clothing) don't have any measure value assigned
+        return
+    # Convert value from base dimension to front-end unit
+    return box_obj.display_unit.conversion_factor * box_obj.measure_value
+
+
 @box.field("state")
 def resolve_box_state(box_obj, _):
     # Instead of a BoxState instance return an integer for EnumType conversion

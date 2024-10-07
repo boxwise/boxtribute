@@ -1,9 +1,11 @@
 from ariadne import ObjectType
+from peewee import JOIN
 
 from ....authz import authorize
 from ....graph_ql.filtering import derive_box_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
+from ....models.definitions.unit import Unit
 
 classic_location = ObjectType("ClassicLocation")
 
@@ -17,7 +19,10 @@ def resolve_location_default_box_state(location_obj, _):
 @classic_location.field("boxes")
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="stock:read", base_id=location_obj.base_id)
-    filter_condition, selection = derive_box_filter(filter_input)
+    selection = Box.select(Box, Unit)  # for measureValue resolver
+    filter_condition, selection = derive_box_filter(filter_input, selection=selection)
+    selection = selection.join(Unit, JOIN.LEFT_OUTER, src=Box)
+
     return load_into_page(
         Box,
         Box.location == location_obj.id,

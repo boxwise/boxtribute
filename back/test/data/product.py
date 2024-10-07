@@ -9,6 +9,7 @@ from .product_category import default_product_category_data
 from .product_gender import data as all_product_gender_data
 from .product_gender import default_product_gender_data
 from .size_range import data as size_range_data
+from .size_range import mass_dimension_data
 from .standard_product import data as all_standard_product_data
 from .user import default_user_data
 
@@ -114,6 +115,20 @@ def data():
             "deleted_on": None,
             "standard_product": all_standard_product_data()[0]["id"],
         },
+        {
+            "id": 8,
+            "base": base_data()[0]["id"],
+            "name": "Rice",
+            "category": default_product_category_data()["id"],
+            "gender": default_product_gender_data()["id"],
+            "size_range": mass_dimension_data()["id"],
+            "in_shop": 0,
+            "price": 1,
+            "comment": None,
+            "created_by": default_user_data()["id"],
+            "deleted_on": None,
+            "standard_product": None,
+        },
     ]
 
 
@@ -134,12 +149,19 @@ def products():
 
 @pytest.fixture
 def base1_products(products):
-    return [products[0], products[2], products[3], products[4], products[5]]
+    return [
+        products[0],
+        products[2],
+        products[3],
+        products[4],
+        products[5],
+        products[7],
+    ]
 
 
 @pytest.fixture
 def base1_undeleted_products(products):
-    return [products[0], products[2], products[4]]
+    return [products[0], products[2], products[4], products[7]]
 
 
 def create():

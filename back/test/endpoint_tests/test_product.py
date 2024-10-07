@@ -55,12 +55,12 @@ def test_product_query(read_only_client, default_product, default_size, another_
     "filter_input,ids",
     [
         # Test case 8.1.26
-        ["includeDeleted: true", [1, 3, 4, 5, 6]],
-        ["type: Custom", [1, 3]],
+        ["includeDeleted: true", [1, 3, 4, 5, 6, 8]],
+        ["type: Custom", [1, 3, 8]],
         ["type: StandardInstantiation", [5]],
-        ["type: All", [1, 3, 5]],
+        ["type: All", [1, 3, 5, 8]],
         ["includeDeleted: true, type: StandardInstantiation", [5, 6]],
-        ["includeDeleted: true, type: All", [1, 3, 4, 5, 6]],
+        ["includeDeleted: true, type: All", [1, 3, 4, 5, 6, 8]],
     ],
 )
 def test_product_query_filtering(read_only_client, default_base, filter_input, ids):
@@ -313,7 +313,7 @@ def test_custom_product_mutations(
     assert response["labelIdentifiers"] == [
         b["label_identifier"]
         for b in default_boxes[1:-1]
-        if b["id"] not in [12, 13]  # test boxes with product IDs 5 and 3
+        if b["id"] not in [12, 13, 17]  # test boxes with product IDs 5, 3, and 8
     ]
 
     # Test case 8.2.59a

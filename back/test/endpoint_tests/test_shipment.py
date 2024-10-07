@@ -142,6 +142,7 @@ def test_shipment_mutations_on_source_side(
     another_marked_for_shipment_box,
     lost_box,
     marked_for_shipment_box,
+    measure_product_box,
     prepared_shipment_detail,
 ):
     # Test case 3.2.1a
@@ -189,6 +190,27 @@ def test_shipment_mutations_on_source_side(
         "details": [],
     }
 
+    box_label_identifier = measure_product_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    details {{
+                        sourceSize {{ id }}
+                        box {{ id measureValue }}
+                    }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {
+        "details": [
+            {
+                "sourceSize": None,
+                "box": {
+                    "id": str(measure_product_box["id"]),
+                    "measureValue": 500.0,
+                },
+            }
+        ]
+    }
     # Test case 3.2.20
     shipment_id = str(default_shipment["id"])
     update_input = f"""{{ id: {shipment_id},

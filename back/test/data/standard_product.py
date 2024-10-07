@@ -4,6 +4,7 @@ from boxtribute_server.models.definitions.standard_product import StandardProduc
 from .product_category import data as all_product_category_data
 from .product_gender import data as all_product_gender_data
 from .size_range import data as all_size_range_data
+from .size_range import mass_dimension_data
 from .user import default_user_data
 
 
@@ -36,6 +37,15 @@ def data():
             "version": 1,
             "added_by": default_user_data()["id"],
         },
+        {
+            "id": 4,
+            "name": "Flour",
+            "category": all_product_category_data()[1]["id"],
+            "gender": all_product_gender_data()[7]["id"],
+            "size_range": mass_dimension_data()["id"],
+            "version": 0,
+            "added_by": default_user_data()["id"],
+        },
     ]
 
 
@@ -52,6 +62,11 @@ def another_standard_product():
 @pytest.fixture
 def newest_standard_product():
     return data()[2]
+
+
+@pytest.fixture
+def measure_standard_product():
+    return data()[3]
 
 
 @pytest.fixture
