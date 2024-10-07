@@ -152,6 +152,7 @@ def create_box(
         Box.location,
         Box.comment,
         Box.state,
+        Box.display_unit,
     ],
 )
 def update_box(
@@ -163,6 +164,8 @@ def update_box(
     location_id=None,
     product_id=None,
     size_id=None,
+    display_unit_id=None,
+    measure_value=None,
     state=None,
     tag_ids=None,
     tag_ids_to_be_added=None,
@@ -188,6 +191,11 @@ def update_box(
         box.product = product_id
     if size_id is not None:
         box.size = size_id
+    if display_unit_id is not None:
+        box.display_unit = display_unit_id
+    if measure_value is not None:
+        display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
+        box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
     if tag_ids is not None:

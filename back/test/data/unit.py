@@ -56,6 +56,11 @@ def gram_unit_data():
 
 
 @pytest.fixture
+def pound_unit():
+    return data()[4]
+
+
+@pytest.fixture
 def gram_unit():
     return gram_unit_data()
 
