@@ -170,6 +170,7 @@ class HistoryForBoxLoader(DataLoader):
         ToLocation = Location.alias()
         ToSize = Size.alias()
         ToBoxState = BoxState.alias()
+        ToUnit = Unit.alias()
 
         # Subquery to exclude assigned-tag messages at the time of box creation
         CreatedTagsRelation = (
@@ -267,6 +268,15 @@ class HistoryForBoxLoader(DataLoader):
                                                 ),
                                             ),
                                             (
+                                                (History.changes == "display_unit_id"),
+                                                fn.CONCAT(
+                                                    "changed unit from ",
+                                                    Unit.symbol,
+                                                    " to ",
+                                                    ToUnit.symbol,
+                                                ),
+                                            ),
+                                            (
                                                 (History.changes == "box_state_id"),
                                                 fn.CONCAT(
                                                     "changed box state from ",
@@ -353,6 +363,20 @@ class HistoryForBoxLoader(DataLoader):
                 .left_outer_join(
                     ToSize,
                     on=((ToSize.id == History.to_int) & (History.changes == "size_id")),
+                )
+                .left_outer_join(
+                    Unit,
+                    on=(
+                        (Unit.id == History.from_int)
+                        & (History.changes == "display_unit_id")
+                    ),
+                )
+                .left_outer_join(
+                    ToUnit,
+                    on=(
+                        (ToUnit.id == History.to_int)
+                        & (History.changes == "display_unit_id")
+                    ),
                 )
                 .left_outer_join(
                     BoxState,

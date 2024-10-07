@@ -163,6 +163,7 @@ def test_box_mutations(
     deleted_location,
     tags,
     gram_unit,
+    pound_unit,
     mocker,
 ):
     # Test case 8.2.1
@@ -257,6 +258,8 @@ def test_box_mutations(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
+                id
+                labelIdentifier
                 location {{ id }}
                 product {{ id }}
                 size {{ id }}
@@ -265,6 +268,8 @@ def test_box_mutations(
             }}
         }}"""
     third_created_box = assert_successful_request(client, mutation)
+    third_created_box_id = int(third_created_box.pop("id"))
+    third_created_box_label_identifier = third_created_box.pop("labelIdentifier")
     assert third_created_box == {
         "location": {"id": location_id},
         "product": {"id": measure_product_id},
@@ -363,6 +368,96 @@ def test_box_mutations(
             "user": {"name": "coord"},
         },
     ]
+
+    new_unit_id = str(pound_unit["id"])
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    displayUnitId: {new_unit_id}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": new_unit_id},
+        "measureValue": measure_value
+        / gram_unit["conversion_factor"]
+        * pound_unit["conversion_factor"],
+    }
+
+    new_measure_value = 1200.0
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    measureValue: {new_measure_value}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": new_unit_id},
+        "measureValue": new_measure_value,
+    }
+
+    newest_measure_value = 1000.0
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    displayUnitId: {unit_id}
+                    measureValue: {newest_measure_value}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+                history {{
+                    id
+                    changes
+                    user {{ name }}
+                }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": unit_id},
+        "measureValue": newest_measure_value,
+        "history": [
+            # {
+            #     "id": "115",
+            #     "changes": f"changed measure value from {new_measure_value} to "
+            #     + f"{newest_measure_value}",
+            #     "user": {"name": "coord"},
+            # },
+            {
+                "id": "122",
+                "changes": f"changed unit from {pound_unit['symbol']} to "
+                + f"{gram_unit['symbol']}",
+                "user": {"name": "coord"},
+            },
+            # {
+            #     "id": "122",
+            #     "changes": f"changed measure value from {measure_value} to "
+            #     + f"{new_measure_value}",
+            #     "user": {"name": "coord"},
+            # },
+            {
+                "id": "121",
+                "changes": f"changed unit from {gram_unit['symbol']} to "
+                + f"{pound_unit['symbol']}",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "114",
+                "changes": "created record",
+                "user": {"name": "coord"},
+            },
+        ],
+    }
 
     raw_label_identifiers = sorted(
         [created_box["labelIdentifier"], another_created_box_label_identifier]
@@ -742,6 +837,24 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(unit_id),
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": int(new_unit_id),
+            "user": 8,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(new_unit_id),
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": int(unit_id),
+            "user": 8,
         },
         {
             "changes": "location_id",

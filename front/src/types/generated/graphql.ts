@@ -277,8 +277,10 @@ export enum BoxState {
 
 export type BoxUpdateInput = {
   comment?: InputMaybe<Scalars['String']>;
+  displayUnitId?: InputMaybe<Scalars['Int']>;
   labelIdentifier: Scalars['String'];
   locationId?: InputMaybe<Scalars['Int']>;
+  measureValue?: InputMaybe<Scalars['Float']>;
   numberOfItems?: InputMaybe<Scalars['Int']>;
   productId?: InputMaybe<Scalars['Int']>;
   sizeId?: InputMaybe<Scalars['Int']>;
