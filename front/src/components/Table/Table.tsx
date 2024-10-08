@@ -51,7 +51,7 @@ interface IBasicTableProps {
   initialState?: IInitialState;
 }
 
-export function FilteringSortingTable({ columns, tableData, initialState }: IBasicTableProps) {
+export function FilteringSortingTable({ columns, tableData, initialState = {} }: IBasicTableProps) {
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
@@ -96,7 +96,3 @@ export function FilteringSortingTable({ columns, tableData, initialState }: IBas
     </TableContainer>
   );
 }
-
-FilteringSortingTable.defaultProps = {
-  initialState: {},
-};
