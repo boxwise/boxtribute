@@ -13,7 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@sentry/integrations": "^7.72.0",
-    "@sentry/react": "^7.72.0",
+    "@sentry/react": "^8.33.1",
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.20.0",
     "chakra-react-select": "^4.4.3",
