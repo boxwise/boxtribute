@@ -11,12 +11,12 @@ updates:
         applies-to: version-updates
         dependency-type: production
         update-types:
-        - "minor"
-        - "patch"
+          - "minor"
+          - "patch"
         exclude-patterns:
-            # Exclude because package versions are v0.x, hence minor updates might contain breaking changes
-            - "aiodataloader"
-            - "ariadne"
+          # Exclude because package versions are v0.x, hence minor updates might contain breaking changes
+          - "aiodataloader"
+          - "ariadne"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
@@ -27,7 +27,11 @@ updates:
       - "pylipp"
   - package-ecosystem: "npm"
     open-pull-requests-limit: 10
-    directory: "/"
+    directories:
+      - "/"
+      - "/front"
+      - "/shared-components"
+      - "/statviz"
     schedule:
       interval: "daily"
     assignees:
