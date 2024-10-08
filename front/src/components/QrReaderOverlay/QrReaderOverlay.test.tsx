@@ -1,7 +1,7 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { GraphQLError } from "graphql";
 import { userEvent } from "@testing-library/user-event";
-import { screen, render, act, waitFor } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -51,18 +51,12 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await act(async () => {
-    await user.click(qrButton);
-  });
+  await user.click(qrButton);
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
-  await act(async () => {
-    await user.type(screen.getByRole("textbox"), "123456");
-  });
-  await act(async () => {
-    await user.click(findBoxButton);
-  });
+  await user.type(screen.getByRole("textbox"), "123456");
+  await user.click(findBoxButton);
 
   // error message appears
   await waitFor(() =>
@@ -103,9 +97,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await act(async () => {
-    await user.click(qrButton);
-  });
+  await user.click(qrButton);
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
