@@ -25,7 +25,7 @@
     "victory": "^36.6.8"
   },
   "devDependencies": {
-    "@chakra-ui/storybook-addon": "^4.0.16",
+    "@chakra-ui/storybook-addon": "^5.2.4",
     "@graphql-codegen/typescript": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^3.0.4",
     "@graphql-codegen/typescript-react-query": "^4.1.0",
