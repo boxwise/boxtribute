@@ -82,8 +82,8 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
       dom-to-image-more:
-        specifier: ^3.4.3
-        version: 3.4.4
+        specifier: ^3.4.5
+        version: 3.4.5
       framer-motion:
         specifier: ^11.5.4
         version: 11.5.4(react-dom@18.3.1)(react@18.3.1)
@@ -16895,8 +16895,8 @@ packages:
       entities: 2.2.0
     dev: true
 
-  /dom-to-image-more@3.4.4:
-    resolution: {integrity: sha512-J2isE0ZyboLEaDVBE72iHt7jzwU73AbdZmxdRVzcWFCwfo+9kWGWGbberhw2FAggs2MXZACuqqXW8w7QjXuc2A==}
+  /dom-to-image-more@3.4.5:
+    resolution: {integrity: sha512-xLkG5idpEPgfuf5bZ82kbNnXq4U4PAB4wd7Zun7cEHrYvjolMtTQdIlheQURS8jLy07TGZeWqoTqGW6onZr0Tw==}
     dev: false
 
   /dom-walk@0.1.2:
