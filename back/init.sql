@@ -2231,6 +2231,7 @@ CREATE TABLE `tags_relations` (
   KEY `tag_id` (`tag_id`),
   KEY `created_by_id` (`created_by_id`),
   KEY `deleted_by_id` (`deleted_by_id`),
+  KEY `tags_relations_object_id_tag_id_object_type` (`object_id`,`tag_id`,`object_type`),
   CONSTRAINT `tags_relations_ibfk_4` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tags_relations_ibfk_5` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `tags_relations_ibfk_6` FOREIGN KEY (`deleted_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
