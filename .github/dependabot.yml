@@ -27,11 +27,6 @@ updates:
       - "pylipp"
   - package-ecosystem: "npm"
     open-pull-requests-limit: 10
-    directories:
-      - "/"
-      - "/front"
-      - "/shared-components"
-      - "/statviz"
     schedule:
       interval: "daily"
     assignees:
