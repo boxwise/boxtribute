@@ -5,9 +5,9 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      back-dev-deps:
+      back-dev:
         dependency-type: development
-      back-prod-minor-update-deps:
+      back-prod-minor-update:
         applies-to: version-updates
         dependency-type: production
         update-types:
@@ -36,7 +36,7 @@ updates:
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
     groups:
-      dev:
+      front-dev-minor-update:
         dependency-type: "development"
         update-types:
           - "minor"
