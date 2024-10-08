@@ -45,7 +45,12 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      storybook-deps:
+        patterns:
+          - "^@storybook/.*"
       nivo-deps:
-        dependency-type: "production"
         patterns:
           - "^@nivo/.*"
+      visx-deps:
+        patterns:
+          - "^@visx/.*"
