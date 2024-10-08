@@ -9,6 +9,7 @@ from ....exceptions import (
     BoxCreationFailed,
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
+    InputFieldIsNotNone,
     InsufficientMeasureInput,
     NegativeMeasureValue,
     NegativeNumberOfItems,
@@ -174,6 +175,47 @@ def update_box(
     Insert timestamp for modification and return the box.
     """
     box = Box.get(Box.label_identifier == label_identifier)
+    box_contains_measure_product = box.size_id is None
+
+    if product_id is None:  # no product change
+        if box_contains_measure_product:
+            if size_id is not None:
+                raise InputFieldIsNotNone(field="sizeId")
+            if measure_value is not None and measure_value < 0:
+                raise NegativeMeasureValue()
+            if display_unit_id is not None:
+                display_unit = Unit.get_by_id(display_unit_id)
+                product_size_range = (
+                    Product.select(Product.size_range_id)
+                    .where(Product.id == box.product_id)
+                    .scalar()
+                )
+                if display_unit.dimension_id != product_size_range:
+                    raise DisplayUnitProductMismatch()
+        else:
+            if display_unit_id is not None:
+                raise InputFieldIsNotNone(field="displayUnitId")
+            if measure_value is not None:
+                raise InputFieldIsNotNone(field="measureValue")
+    else:
+        new_product = Product.get_by_id(product_id)
+        new_product_is_measure_product = new_product.size_range_id in [28, 29]
+
+        if box_contains_measure_product:
+            if new_product_is_measure_product:
+                if size_id is not None:
+                    raise InputFieldIsNotNone(field="sizeId")
+                if measure_value is not None and measure_value < 0:
+                    raise NegativeMeasureValue()
+                display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
+                if display_unit.dimension_id != new_product.size_range_id:
+                    raise DisplayUnitProductMismatch()
+        else:  # box contains size product
+            if not new_product_is_measure_product:
+                if display_unit_id is not None:
+                    raise InputFieldIsNotNone(field="displayUnitId")
+                if measure_value is not None:
+                    raise InputFieldIsNotNone(field="measureValue")
 
     if comment is not None:
         box.comment = comment

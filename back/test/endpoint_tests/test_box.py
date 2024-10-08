@@ -1172,10 +1172,13 @@ def test_mutate_box_with_non_existing_resource(
 def test_mutate_box_with_invalid_input(
     read_only_client,
     default_box,
+    measure_product_box,
     default_product,
     default_location,
     default_size,
     gram_unit,
+    liter_unit,
+    products,
 ):
     # Negative numberOfItems
     # Test case 8.2.10
@@ -1263,9 +1266,98 @@ def test_mutate_box_with_invalid_input(
 
     # Test case 8.2.19
     label_identifier = default_box["label_identifier"]
-    update_input = f"""{{
-                labelIdentifier: "{label_identifier}"
+    mandatory_input = f'labelIdentifier: "{label_identifier}"'
+    update_input = f"""{{ {mandatory_input}
                 numberOfItems: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19a
+    update_input = f"""{{ {mandatory_input}
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19b
+    size_product_id = str(products[2]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Operations on measure-product boxes
+    # Test case 8.2.19c
+    label_identifier = measure_product_box["label_identifier"]
+    mandatory_input = f'labelIdentifier: "{label_identifier}"'
+    update_input = f"""{{ {mandatory_input}
+                sizeId: 1
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19d
+    update_input = f"""{{ {mandatory_input}
+                measureValue: -50
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Mismatch of product size range (mass) and unit dimension (volume)
+    # Test case 8.2.19e
+    liter_unit_id = str(liter_unit["id"])
+    update_input = f"""{{ {mandatory_input}
+                displayUnitId: {liter_unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19c
+    another_measure_product_id = str(products[8]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+                sizeId: 1
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19d
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+                measureValue: -50
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19f
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
