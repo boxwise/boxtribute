@@ -40,7 +40,7 @@
     "@storybook/node-logger": "^7.5.3",
     "@storybook/preset-create-react-app": "^4.1.2",
     "@storybook/react": "^6.5.16",
-    "@storybook/testing-library": "^0.0.13",
+    "@storybook/testing-library": "^0.2.2",
     "@types/react-big-calendar": "^0.38.2",
     "@types/react-table": "^7.7.14",
     "@types/w3c-image-capture": "^1.0.6",
