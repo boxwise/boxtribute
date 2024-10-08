@@ -27,6 +27,8 @@ updates:
       - "pylipp"
   - package-ecosystem: "npm"
     open-pull-requests-limit: 10
+    directories:
+      - "/"
     schedule:
       interval: "daily"
     assignees:
@@ -44,3 +46,20 @@ updates:
         dependency-type: "production"
         patterns:
           - "^@nivo/.*"
+  - package-ecosystem: "npm"
+    open-pull-requests-limit: 10
+    directories:
+      - "/front"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "fhenrich33"
+    # Always increase the minimum version requirement to match the new version.
+    # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
+    versioning-strategy: "increase"
+    groups:
+      front-dev-minor-update:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
