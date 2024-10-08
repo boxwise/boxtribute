@@ -105,7 +105,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .unit import gram_unit, mass_units, pound_unit, units
+from .unit import gram_unit, liter_unit, mass_units, pound_unit, units
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
@@ -173,6 +173,7 @@ __all__ = [
     "gram_unit",
     "in_transit_box",
     "inactive_organisation",
+    "liter_unit",
     "lost_box",
     "marked_for_shipment_box",
     "mass_units",
