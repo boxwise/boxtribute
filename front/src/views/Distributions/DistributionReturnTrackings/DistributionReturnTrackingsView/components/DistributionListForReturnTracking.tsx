@@ -12,8 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { getDay, parseISO } from "date-fns";
-import isPast from "date-fns/isPast";
+import { getDay, parseISO, isPast } from "date-fns";
 import _ from "lodash";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -117,7 +116,7 @@ function DistributionListForReturnTracking({
         },
         fetchPolicy: "no-cache",
       })
-      .then(({ data, error, errors }) => {
+      .then(({ data }) => {
         navigate({
           pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
         });
@@ -155,9 +154,10 @@ function DistributionListForReturnTracking({
         </Heading>
         {showMessageAboutPastEventsNotYetInReturnState && (
           <Text backgroundColor="orange.100" textAlign="center">
-            <BellIcon /> You still have past events which are not yet in the "Returned" state.
+            <BellIcon /> You still have past events which are not yet in the &quot;Returned&quot;
+            state.
             <br />
-            In the "Distributions" Tab, you can change their state. <br />
+            In the &quot;Distributions&quot; Tab, you can change their state. <br />
             Only then they will be listed here.
           </Text>
         )}
@@ -182,9 +182,8 @@ function DistributionListForReturnTracking({
             );
             const allValuesOfCurrentGroup = events.map((el) => el.id);
             return (
-              <Box mb={4}>
+              <Box mb={4} key={date.toISOString()}>
                 <CheckboxGroup
-                  key={date.toISOString()}
                   groupName={groupName}
                   allValuesWithLabels={allValuesWithLabelsOfCurrentGroup}
                   selectedValues={selectedDistributionEventIds.filter((el) =>

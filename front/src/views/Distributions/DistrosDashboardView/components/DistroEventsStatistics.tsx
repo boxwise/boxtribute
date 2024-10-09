@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql, useApolloClient } from "@apollo/client";
 import {
   Stat,
   StatLabel,
@@ -13,14 +13,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import {
   DownloadDistributionEventsStatisticsQuery,
   DownloadDistributionEventsStatisticsQueryVariables,
 } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { VictoryPie } from "victory";
-import { useApolloClient } from "@apollo/client";
 
 export const DOWNLOAD_STATIC_DATA = gql`
   query DownloadDistributionEventsStatistics($baseId: ID!) {
@@ -126,11 +125,10 @@ const DistroEventsStatistics = () => {
       .then((result) => {
         const csvContent =
           "data:text/csv;charset=utf-8," +
-          exportCsvColumns.join(",") + "\n" +
+          exportCsvColumns.join(",") +
+          "\n" +
           result.data.base?.distributionEventsStatistics
-            .map((e) =>
-              exportCsvColumns.map((c) => e[c]).join(",")
-            )
+            .map((e) => exportCsvColumns.map((c) => e[c]).join(","))
             .join("\n");
 
         const dateStr = format(new Date(), "MM-dd-yyyy-HH-mm-ss");
