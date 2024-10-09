@@ -84,9 +84,6 @@ importers:
       dom-to-image-more:
         specifier: ^3.4.3
         version: 3.4.4
-      framer-motion:
-        specifier: ^11.5.4
-        version: 11.5.4(react-dom@18.3.1)(react@18.3.1)
       graphql:
         specifier: ^16.8.1
         version: 16.9.0
@@ -290,9 +287,6 @@ importers:
       '@types/react-table':
         specifier: ^7.7.14
         version: 7.7.20
-      '@types/w3c-image-capture':
-        specifier: ^1.0.6
-        version: 1.0.10
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.20(postcss@8.4.47)
@@ -1382,6 +1376,7 @@ packages:
       '@chakra-ui/transition': 2.1.0(framer-motion@11.11.4)(react@18.3.1)
       framer-motion: 11.11.4(react-dom@18.3.1)(react@18.3.1)
       react: 18.3.1
+    dev: true
 
   /@chakra-ui/menu@2.2.1(@chakra-ui/system@2.6.2)(framer-motion@11.5.4)(react@18.3.1):
     resolution: {integrity: sha512-lJS7XEObzJxsOwWQh7yfG4H8FzFPRP5hVPN/CL+JzytEINCSBvsCDHrYPQGp7jzpCi8vnTqQQGQe0f8dwnXd2g==}
@@ -2273,6 +2268,7 @@ packages:
       '@chakra-ui/shared-utils': 2.0.5
       framer-motion: 11.11.4(react-dom@18.3.1)(react@18.3.1)
       react: 18.3.1
+    dev: true
 
   /@chakra-ui/transition@2.1.0(framer-motion@11.5.4)(react@18.3.1):
     resolution: {integrity: sha512-orkT6T/Dt+/+kVwJNy7zwJ+U2xAZ3EU7M3XCs45RBvUnZDr/u9vdmaM/3D/rOpmQJWgQBwKPJleUXrYWUagEDQ==}
@@ -5441,19 +5437,9 @@ packages:
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
     dev: true
 
-  /@types/w3c-image-capture@1.0.10:
-    resolution: {integrity: sha512-7DR36sb0os7qVy2HI9wW6BV9oFjZVA8xnKM0cZGdL5XKa6ZgurA+U8T8xUNccERiWkvk641bAItMWCU++1B7jg==}
-    dependencies:
-      '@types/webrtc': 0.0.43
-    dev: true
-
   /@types/warning@3.0.3:
     resolution: {integrity: sha512-D1XC7WK8K+zZEveUPY+cf4+kgauk8N4eHr/XIHXGlGYkHLud6hK9lYfZk1ry1TNh798cZUCgb6MqGEG8DkJt6Q==}
     dev: false
-
-  /@types/webrtc@0.0.43:
-    resolution: {integrity: sha512-W5FyScaZ+nLb0CXP/4UaRiNr042RwW/RnLUZYt0uwveZN8w+X1gtt0bYIg9oMzt5ODiU/aQV/kyCFv24wfNrXA==}
-    dev: true
 
   /@types/wrap-ansi@3.0.0:
     resolution: {integrity: sha512-ltIpx+kM7g/MLRZfkbL7EsCEjfzCcScLpkg37eXEtx5kmrAKBkTJwd1GIAjDSL8wTpM6Hzn5YO4pSb91BEwu1g==}
@@ -6617,7 +6603,7 @@ packages:
       '@chakra-ui/icon': 3.2.0(@chakra-ui/system@2.6.2)(react@18.3.1)
       '@chakra-ui/layout': 2.3.1(@chakra-ui/system@2.6.2)(react@18.3.1)
       '@chakra-ui/media-query': 3.3.0(@chakra-ui/system@2.6.2)(react@18.3.1)
-      '@chakra-ui/menu': 2.2.1(@chakra-ui/system@2.6.2)(framer-motion@11.11.4)(react@18.3.1)
+      '@chakra-ui/menu': 2.2.1(@chakra-ui/system@2.6.2)(framer-motion@11.5.4)(react@18.3.1)
       '@chakra-ui/spinner': 2.1.0(@chakra-ui/system@2.6.2)(react@18.3.1)
       '@chakra-ui/system': 2.6.2(@emotion/react@11.13.3)(@emotion/styled@11.13.0)(react@18.3.1)
       '@emotion/react': 11.13.3(@types/react@18.3.11)(react@18.3.1)
@@ -8355,6 +8341,7 @@ packages:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tslib: 2.7.0
+    dev: true
 
   /framer-motion@11.5.4(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-E+tb3/G6SO69POkdJT+3EpdMuhmtCh9EWuK4I1DnIC23L7tFPrl8vxP+LSovwaw6uUr73rUbpb4FgK011wbRJQ==}
