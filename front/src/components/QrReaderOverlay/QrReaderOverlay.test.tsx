@@ -1,5 +1,4 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
@@ -13,6 +12,7 @@ import {
 } from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
 import { mockedTriggerError } from "tests/setupTests";
+import { FakeGraphQLError } from "mocks/functions";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
@@ -34,7 +34,7 @@ const queryFindNoBoxAssociated = {
     data: {
       box: null,
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
   },
 };
 
@@ -119,7 +119,7 @@ const queryFindBoxFromOtherOrg = {
     data: {
       box: null,
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+    errors: [new FakeGraphQLError("FORBIDDEN")],
   },
 };
 
@@ -246,7 +246,7 @@ const queryBoxFromOtherOrganisation = {
         box: null,
       },
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+    errors: [new FakeGraphQLError("FORBIDDEN")],
   },
 };
 
@@ -317,7 +317,7 @@ const queryHashNotInDb = {
   },
   result: {
     data: null,
-    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
   },
 };
 
@@ -360,7 +360,7 @@ const queryInternalServerError = {
   },
   result: {
     data: null,
-    errors: [new GraphQLError("Error!", { extensions: { code: "INTERNAL_SERVER_ERROR" } })],
+    errors: [new FakeGraphQLError("INTERNAL_SERVER_ERROR")],
   },
 };
 
