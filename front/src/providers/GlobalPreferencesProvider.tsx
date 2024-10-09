@@ -56,7 +56,7 @@ export const globalPreferencesReducer = (
   }
 };
 
-function GlobalPreferencesProvider({ children }: { children: React.ReactNode }) {
+function GlobalPreferencesProvider({ children }) {
   const [globalPreferences, dispatch] = useReducer(globalPreferencesReducer, {});
 
   const memoedGlobalPreferences = useMemo(

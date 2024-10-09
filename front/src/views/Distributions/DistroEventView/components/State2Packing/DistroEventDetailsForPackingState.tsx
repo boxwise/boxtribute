@@ -89,7 +89,7 @@ const PackingListEntry = ({
           if (res.errors && res.errors.length !== 0) {
             console.error(
               `GraphQL error while trying to move items from Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
-              res.errors,
+              res.errors
             );
             toast({
               title: "Error",
@@ -124,7 +124,7 @@ const PackingListEntry = ({
       moveItemsToDistributionEventMutation,
       packingAddBoxOrItemsForPackingListEntryOverlayState,
       toast,
-    ],
+    ]
   );
 
   const onAddBoxToDistributionEvent = useCallback(
@@ -148,7 +148,7 @@ const PackingListEntry = ({
           if (res.errors && res.errors.length !== 0) {
             console.error(
               `GraphQL error while trying to move Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
-              res.errors,
+              res.errors
             );
             toast({
               title: "Error",
@@ -183,11 +183,17 @@ const PackingListEntry = ({
       assignBoxToDistributionEventMutation,
       packingAddBoxOrItemsForPackingListEntryOverlayState,
       toast,
-    ],
+    ]
   );
 
   return (
-    <Flex alignItems="center" borderTop="1px" borderColor="gray.300" direction="row" pl={6}>
+    <Flex
+      alignItems="center"
+      borderTop="1px"
+      borderColor="gray.300"
+      direction="row"
+      pl={6}
+    >
       <Box
         as={Button}
         backgroundColor="transparent"
@@ -213,7 +219,7 @@ const PackingListEntry = ({
           backgroundColor="transparent"
           aria-label="Add items"
           icon={<AddIcon />}
-          onClick={() => {
+          onClick={(e) => {
             packingAddBoxOrItemsForPackingListEntryOverlayState.onOpen();
           }}
           color="teal"
@@ -224,15 +230,22 @@ const PackingListEntry = ({
         isOpen={packingAddBoxOrItemsForPackingListEntryOverlayState.isOpen}
         onClose={packingAddBoxOrItemsForPackingListEntryOverlayState.onClose}
         packingListEntry={packingListEntry}
-        onAddUnboxedItemsToDistributionEvent={onAddUnboxedItemsToDistributionEvent}
+        onAddUnboxedItemsToDistributionEvent={
+          onAddUnboxedItemsToDistributionEvent
+        }
         onAddBoxToDistributionEvent={onAddBoxToDistributionEvent}
       />
 
-      <Modal isOpen={isPackedListOverlayOpen} onClose={onPackedListOverlayClose}>
+      <Modal
+        isOpen={isPackedListOverlayOpen}
+        onClose={onPackedListOverlayClose}
+      >
         <ModalOverlay />
         <PackedContentListOverlayContainer
           packingListEntry={packingListEntry}
-          onDeleteBoxFromDistribution={function (): void {
+          onDeleteBoxFromDistribution={function (
+            boxLabelIdentifier: string
+          ): void {
             throw new Error("Function not implemented.");
           }}
         />
@@ -251,21 +264,27 @@ const DistroEventDetailsForPackingState = ({
   distributionEventId,
 }: // TODO: Group by product.id instead of name (because product name could be repeated)
 DistroEventDetailsForPackingStateProps) => {
-  const packingListEntriesWithTargetNumberOfItemsBiggerThanZero = packingListEntries.filter(
-    (el) => el.numberOfItems > 0,
+  const packingListEntriesWithTargetNumberOfItemsBiggerThanZero =
+    packingListEntries.filter((el) => el.numberOfItems > 0);
+  const packingListEntriesGroupedByProductName: Record<string, IPackingListEntryForPackingState[]> = _.groupBy(
+    packingListEntriesWithTargetNumberOfItemsBiggerThanZero,
+    (item) => item.product.id
   );
-  const packingListEntriesGroupedByProductName: Record<string, IPackingListEntryForPackingState[]> =
-    _.groupBy(packingListEntriesWithTargetNumberOfItemsBiggerThanZero, (item) => item.product.id);
 
   //TO DO Sort the sizes by size order
-  const packingListEntriesGroupedByProductNameAsArray = _(packingListEntriesGroupedByProductName)
+  const packingListEntriesGroupedByProductNameAsArray = _(
+    packingListEntriesGroupedByProductName
+  )
     .keys()
     .map((key) => {
-      const packingListEntries = packingListEntriesGroupedByProductName[key].map((el) => {
-        const actualNumberOfItemsPacked = el.matchingPackedItemsCollections.reduce(
-          (acc, cur) => acc + cur.numberOfItems,
-          0,
-        );
+      const packingListEntries = packingListEntriesGroupedByProductName[
+        key
+      ].map((el) => {
+        const actualNumberOfItemsPacked =
+          el.matchingPackedItemsCollections.reduce(
+            (acc, cur) => acc + cur.numberOfItems,
+            0
+          );
         return {
           ...el,
           actualNumberOfItemsPacked,
@@ -278,10 +297,12 @@ DistroEventDetailsForPackingStateProps) => {
           gender: packingListEntries[0].product.gender,
         },
         allPackingListEntriesFulfilled: packingListEntries.every(
-          (el) => el.actualNumberOfItemsPacked >= el.numberOfItems,
+          (el) => el.actualNumberOfItemsPacked >= el.numberOfItems
         ),
         packingListEntries: _(packingListEntries)
-          .sortBy((el) => (el.actualNumberOfItemsPacked >= el.numberOfItems ? 1 : -1))
+          .sortBy((el) =>
+            el.actualNumberOfItemsPacked >= el.numberOfItems ? 1 : -1
+          )
           .value(),
       };
     })
@@ -298,12 +319,14 @@ DistroEventDetailsForPackingStateProps) => {
 
   return (
     <>
-      <Button onClick={onClickScanBoxesForDistroEvent}>Scan Boxes for this Distro Event</Button>
+      <Button onClick={onClickScanBoxesForDistroEvent}>
+        Scan Boxes for this Distro Event
+      </Button>
       <VStack spacing={0}>
         <Heading size="md">Packing List</Heading>
         <Accordion allowToggle px={3} py={3}>
           {packingListEntriesGroupedByProductNameAsArray.map(
-            (packingEntriesArrayForProductName) => {
+            (packingEntriesArrayForProductName, i) => {
               return (
                 <AccordionItem
                   w={[300, 420, 500]}
@@ -329,26 +352,28 @@ DistroEventDetailsForPackingStateProps) => {
                       <AccordionIcon />
                     </AccordionButton>
                   </Flex>
-                  {packingEntriesArrayForProductName.packingListEntries.map((item) => (
-                    <AccordionPanel
-                      py={0}
-                      bg={
-                        item.actualNumberOfItemsPacked >= item.numberOfItems
-                          ? "green.100"
-                          : "red.100"
-                      }
-                      key={item.id}
-                    >
-                      <PackingListEntry
-                        packingListEntry={item}
-                        distributionEventId={distributionEventId}
-                      />
-                    </AccordionPanel>
-                  ))}
+                  {packingEntriesArrayForProductName.packingListEntries.map(
+                    (item) => (
+                      <AccordionPanel
+                        py={0}
+                        bg={
+                          item.actualNumberOfItemsPacked >= item.numberOfItems
+                            ? "green.100"
+                            : "red.100"
+                        }
+                      >
+                        <PackingListEntry
+                          packingListEntry={item}
+                          key={item.id}
+                          distributionEventId={distributionEventId}
+                        />
+                      </AccordionPanel>
+                    )
+                  )}
                 </AccordionItem>
               );
             },
-            [],
+            []
           )}
         </Accordion>
         {/* <Button my={2} onClick={() => {}} colorScheme="blue">
@@ -360,8 +385,8 @@ DistroEventDetailsForPackingStateProps) => {
           Add additional items to this Distro Event
         </Button>
         <Text fontSize="xs">
-          * You can add additional items to this event, even if they are not listed on the Packing
-          list.
+          * You can add additional items to this event, even if they are not
+          listed on the Packing list.
         </Text>
       </VStack>
     </>

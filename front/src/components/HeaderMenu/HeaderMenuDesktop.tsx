@@ -107,7 +107,7 @@ function HeaderMenuDesktopContent({ ...props }: IHeaderMenuProps) {
   );
 }
 
-function HeaderMenuDesktopContainer({ children }: { children: React.ReactNode }) {
+function HeaderMenuDesktopContainer({ children }) {
   return (
     <Flex
       as="nav"

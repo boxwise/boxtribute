@@ -1,3 +1,4 @@
+import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import DistroSpots from "./DistroSpots";
 import { DistributionSpotEnrichedData } from "views/Distributions/types";
@@ -54,7 +55,9 @@ export default {
   parameters: {},
 } as ComponentMeta<typeof DistroSpots>;
 
-const Template: ComponentStory<typeof DistroSpots> = (args) => <DistroSpots {...args} />;
+const Template: ComponentStory<typeof DistroSpots> = (args) => (
+  <DistroSpots {...args} />
+);
 
 export const Default = Template.bind({});
 Default.args = {

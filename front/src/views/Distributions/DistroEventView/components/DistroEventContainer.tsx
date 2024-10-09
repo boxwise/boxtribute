@@ -120,8 +120,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
           <Heading as="h3" size="md">
             Returned from Distribution
           </Heading>
-          You didn&apos;t start any Return Tracking for this Event yet. <br /> To do so, please go
-          to the{" "}
+          You didn't start any Return Tracking for this Event yet. <br /> To do so, please go to the{" "}
           <Link
             variant={"inline-link"}
             as={RouterLink}
@@ -195,9 +194,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
               Mark as Returned From Distribution
             </AlertDialogHeader>
 
-            <AlertDialogBody>
-              Are you sure? You can&apos;t undo this action afterwards.
-            </AlertDialogBody>
+            <AlertDialogBody>Are you sure? You can't undo this action afterwards.</AlertDialogBody>
 
             <AlertDialogFooter>
               <Button
