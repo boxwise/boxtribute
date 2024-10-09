@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from "@storybook/addon-actions";
@@ -113,9 +113,9 @@ export default {
   title: "Boxes/Create/Component",
   component: BoxCreate,
   parameters: {},
-} as ComponentMeta<typeof BoxCreate>;
+} as Meta<typeof BoxCreate>;
 
-const Template: ComponentStory<typeof BoxCreate> = (args) => <BoxCreate {...args} />;
+const Template: StoryFn<typeof BoxCreate> = (args) => <BoxCreate {...args} />;
 
 const mockedProps: IBoxCreateProps = {
   productAndSizesData: mockedProducts,

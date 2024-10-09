@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import { addDays, addHours } from "date-fns";
 import { DistributionEventState } from "types/generated/graphql";
 import DistroEventsCalendarContainer from "./DistroEventsCalendarContainer";
@@ -8,11 +8,11 @@ export default {
   component: DistroEventsCalendarContainer,
   parameters: {},
   decorators: [],
-} as ComponentMeta<typeof DistroEventsCalendarContainer>;
+} as Meta<typeof DistroEventsCalendarContainer>;
 
-const Template: ComponentStory<typeof DistroEventsCalendarContainer> = (
-  args
-) => <DistroEventsCalendarContainer {...args} />;
+const Template: StoryFn<typeof DistroEventsCalendarContainer> = (args) => (
+  <DistroEventsCalendarContainer {...args} />
+);
 
 const todayAtTenThirty = new Date();
 todayAtTenThirty.setHours(10, 30, 0, 0);

@@ -6,7 +6,6 @@
   "description": "Boxtribute v2 FE",
   "dependencies": {
     "@auth0/auth0-react": "^2.2.1",
-    "@babel/runtime": "^7.20.13",
     "@boxtribute/shared-components": "workspace:*",
     "@fontsource/open-sans": "^4.5.14",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
@@ -25,30 +24,28 @@
     "victory": "^36.6.8"
   },
   "devDependencies": {
-    "@chakra-ui/storybook-addon": "^4.0.16",
+    "@chakra-ui/storybook-addon": "^5.2.4",
+    "@chromatic-com/storybook": "^1",
     "@graphql-codegen/typescript": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^3.0.4",
     "@graphql-codegen/typescript-react-query": "^4.1.0",
     "@sentry/types": "^7.72.0",
-    "@storybook/addon-actions": "^7.3.2",
-    "@storybook/addon-essentials": "^7.2.3",
-    "@storybook/addon-interactions": "^7.5.3",
-    "@storybook/addon-links": "^7.2.3",
-    "@storybook/builder-webpack5": "^7.5.1",
-    "@storybook/jest": "^0.2.3",
-    "@storybook/manager-webpack5": "^6.5.16",
-    "@storybook/node-logger": "^7.5.3",
-    "@storybook/preset-create-react-app": "^4.1.2",
-    "@storybook/react": "^6.5.16",
-    "@storybook/testing-library": "^0.0.13",
+    "@storybook/addon-actions": "^8.3.5",
+    "@storybook/addon-essentials": "^8.3.5",
+    "@storybook/addon-interactions": "^8.3.5",
+    "@storybook/addon-links": "^8.3.5",
+    "@storybook/node-logger": "^8.3.5",
+    "@storybook/react": "^8.3.5",
+    "@storybook/react-vite": "^8.3.5",
+    "@storybook/test": "^8.3.5",
     "@types/react-big-calendar": "^0.38.2",
     "@types/react-table": "^7.7.14",
     "@types/w3c-image-capture": "^1.0.6",
     "autoprefixer": "^10.4.14",
-    "babel-plugin-named-exports-order": "^0.0.2",
     "msw": "^1.1.0",
     "mutationobserver-shim": "^0.3.7",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "storybook": "^8.3.5"
   },
   "scripts": {
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
@@ -68,8 +65,8 @@
     "format:check": "prettier --check --ignore-path ../.eslintignore",
     "format:write:all": "pnpm format:write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "format:write": "prettier --write --ignore-path ../.eslintignore",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "msw": {
     "workerDirectory": "public"
