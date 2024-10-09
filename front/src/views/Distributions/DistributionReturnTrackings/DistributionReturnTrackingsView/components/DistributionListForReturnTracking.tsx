@@ -12,8 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { getDay, parseISO } from "date-fns";
-import isPast from "date-fns/isPast";
+import { getDay, parseISO, isPast } from "date-fns";
 import _ from "lodash";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
