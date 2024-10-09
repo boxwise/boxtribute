@@ -39,28 +39,18 @@ updates:
     # Always increase the minimum version requirement to match the new version.
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
+    # ignore:
+    #   - dependency-name: "*"
+    #     update-types:
+    #       - "version-update:semver-patch"
     groups:
       front-dev-minor-update:
-        dependency-type: "development"
+        dependency-type: development
         update-types:
           - "minor"
           - "patch"
       front-prod-minor-update:
-        applies-to: version-updates
         dependency-type: production
         update-types:
           - "minor"
           - "patch"
-      storybook-deps:
-        patterns:
-          - "^@storybook/.*"
-      nivo-deps:
-        patterns:
-          - "^@nivo/.*"
-      visx-deps:
-        patterns:
-          - "^@visx/.*"
-      chakra-deps:
-        patterns:
-          - "^@chakra-ui/.*"
-          - "chakra-*"
