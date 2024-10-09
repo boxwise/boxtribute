@@ -52,14 +52,11 @@ updates:
           - "minor"
           - "patch"
       storybook-deps:
-        update-types: major
         patterns:
           - "^@storybook/.*"
       nivo-deps:
-        update-types: major
         patterns:
           - "^@nivo/.*"
       visx-deps:
-        update-types: major
         patterns:
           - "^@visx/.*"
