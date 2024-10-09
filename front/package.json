@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.2.1",
+    "@auth0/auth0-react": "^2.2.4",
     "@boxtribute/shared-components": "workspace:*",
     "@fontsource/open-sans": "^4.5.14",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
