@@ -45,12 +45,21 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      front-prod-minor-update:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - "minor"
+          - "patch"
       storybook-deps:
+        update-types: major
         patterns:
           - "^@storybook/.*"
       nivo-deps:
+        update-types: major
         patterns:
           - "^@nivo/.*"
       visx-deps:
+        update-types: major
         patterns:
           - "^@visx/.*"
