@@ -23,6 +23,7 @@ import {
   useRowSelect,
   usePagination,
   Row,
+  CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { QueryReference, useReadQuery } from "@apollo/client";
@@ -121,10 +122,12 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-          Header: ({ getToggleAllPageRowsSelectedProps }) => (
+          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => (
             <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
-          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+          Cell: ({ row }: CellProps<any, any>) => (
+            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+          ),
         },
         ...col,
       ]);

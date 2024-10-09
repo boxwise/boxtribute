@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Dashboard from "@boxtribute/shared-components/Statviz/Dashboard/Dashboard";
+import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 
 // test precommit
 function App() {
