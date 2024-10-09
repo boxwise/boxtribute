@@ -127,7 +127,7 @@ class CurrentUser:
         self,
         *,
         id,
-        organisation_id=None,
+        organisation_id,
         is_god=False,
         base_ids=None,
         beta_feature_scope=None,
@@ -138,11 +138,11 @@ class CurrentUser:
         avoid accidental manipulation.
         The `organisation_id` field is set to None for god users.
         """
-        self._id = id
-        self._organisation_id = None if is_god else organisation_id
+        self._id = int(id)
+        self._organisation_id = None if is_god else int(organisation_id)
         self._is_god = is_god
         self._base_ids = base_ids or {}
-        self._beta_feature_scope = beta_feature_scope or 0
+        self._beta_feature_scope = int(beta_feature_scope or 0)
         self._timezone = timezone
 
     @classmethod
@@ -198,7 +198,7 @@ class CurrentUser:
                     # Organisation Head-of-Ops don't have base_ prefixes, permission
                     # granted for all bases indicated by custom 'base_ids' claim
                     permission = raw_permission
-                    ids = payload[f"{JWT_CLAIM_PREFIX}/base_ids"]
+                    ids = [int(i) for i in payload[f"{JWT_CLAIM_PREFIX}/base_ids"]]
                 base_ids[permission].update(ids)
 
                 resource, method = permission.split(":")

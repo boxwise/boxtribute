@@ -156,17 +156,17 @@ Upon successful decoding, the JWT payload is returned as Python dictionary.
 
 The current user is programmatically represented by the `auth.CurrentUser` class. It has the read-only attributes
 
-- `id`: the user ID
-- `organisation_id`: ID of the organisation that the user belongs to. If the user is a god user, it is `None`
-- `is_god`: whether the user is god user or not (default: false)
-- `_base_ids`: a data structure indicating the bases in which the user is allowed to access specific resources. This structure has to be queried via the `CurrentUser.authorized_base_ids()` method, passing in an RBP name.
-- `timezone`: timezone identifier determined by Auth0, e.g. "Europe/Berlin"
+- `id` (integer): the user ID
+- `organisation_id` (integer): ID of the organisation that the user belongs to. If the user is a god user, it is `None`
+- `is_god` (boolean): whether the user is god user or not (default: false)
+- `_base_ids`(list of integers): a data structure indicating the bases in which the user is allowed to access specific resources. This structure has to be queried via the `CurrentUser.authorized_base_ids()` method, passing in an RBP name.
+- `timezone` (string): timezone identifier determined by Auth0, e.g. "Europe/Berlin"
 
 The decoded JWT payload is converted into a `CurrentUser` instance with the following procedure:
 
 - if the list of the `roles` custom claim contains `"boxtribute_god"`, the attribute `is_god` is set to true
 - the `organisation_id` custom claim is copied to the eponymous attribute
-- the user ID is extracted from the `sub` claim and assigned to `id`
+- the user ID is extracted from the `sub` claim by stripping the `auth0|` prefix, and assigned to `id`
 - if `is_god` is false, the permissions custom claim is parsed:
     - an element of form `base_X/permission` (`permission` is an RBP of form `resource:method`) results in the entry `{permission: [X]` for `base_ids`
     - if multiple base IDs are given, they are grouped: `base_X-Y/permission` results in `{permission: [X, Y]` (in order to reduce payload size)
