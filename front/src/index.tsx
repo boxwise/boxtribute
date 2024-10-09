@@ -6,9 +6,9 @@ import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import * as Sentry from "@sentry/react";
-import { CaptureConsole } from "@sentry/integrations";
 import App from "./App";
 import { theme } from "./utils/theme";
+import { browserTracingIntegration, captureConsoleIntegration } from "@sentry/react";
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
@@ -25,12 +25,10 @@ if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
     integrations: [
-      new CaptureConsole({
+      captureConsoleIntegration({
         levels: ["error"],
       }),
-      // TODO: This is being exported, but TS/ESLint is complaining. Why?
-      // eslint-disable-next-line import/namespace
-      new Sentry.BrowserTracing(),
+      browserTracingIntegration(),
     ],
     tracesSampleRate: parseFloat(import.meta.env.FRONT_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
     environment: import.meta.env.FRONT_SENTRY_ENVIRONMENT,
