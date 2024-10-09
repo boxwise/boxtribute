@@ -60,3 +60,7 @@ updates:
       visx-deps:
         patterns:
           - "^@visx/.*"
+      chakra-deps:
+        patterns:
+          - "^@chakra-ui/.*"
+          - "chakra-*"
