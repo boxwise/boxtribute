@@ -42,7 +42,7 @@
     "@types/react-table": "^7.7.14",
     "@types/w3c-image-capture": "^1.0.6",
     "autoprefixer": "^10.4.14",
-    "msw": "^1.1.0",
+    "msw": "^2.4.9",
     "mutationobserver-shim": "^0.3.7",
     "prop-types": "^15.8.1",
     "storybook": "^8.3.5"
