@@ -27,7 +27,7 @@
     "@chakra-ui/storybook-addon": "^5.2.4",
     "@chromatic-com/storybook": "^1",
     "@graphql-codegen/typescript": "^3.0.1",
-    "@graphql-codegen/typescript-operations": "^3.0.4",
+    "@graphql-codegen/typescript-operations": "^4.3.0",
     "@graphql-codegen/typescript-react-query": "^4.1.0",
     "@sentry/types": "^7.72.0",
     "@storybook/addon-actions": "^8.3.5",
