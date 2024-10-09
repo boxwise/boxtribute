@@ -115,6 +115,8 @@ function UnboxedItemsCollectionListEntry({
 
 function UnboxedItemsCollectionList({
   unboxedItemsCollectionData,
+  productId,
+  sizeId,
 }: {
   unboxedItemsCollectionData: UnboxedItemsCollectionData[];
   productId: string;

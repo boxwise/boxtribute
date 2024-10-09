@@ -1,17 +1,9 @@
 import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormLabel,
-  Heading,
-  Switch,
-  Tab,
+  Box, Button, Checkbox, Flex, FormLabel, Heading, Switch, Tab,
   TabList,
   TabPanel,
   TabPanels,
-  Tabs,
-  VStack,
+  Tabs, VStack
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useContext, useState } from "react";
@@ -80,53 +72,58 @@ const AddItemsToPackingList = ({
     .uniq()
     .value();
 
-  const productDataWithPackingListEntriesSignals = productData.map((productDataPoint) => ({
-    ...productDataPoint,
-    hasPackingListEntries: packingListEntries.some(
-      (entry) => entry.product.id === productDataPoint.id,
-    ),
-  }));
+  const productDataWithPackingListEntriesSignals = productData.map(
+    (productDataPoint) => ({
+      ...productDataPoint,
+      hasPackingListEntries: packingListEntries.some(
+        (entry) => entry.product.id === productDataPoint.id
+      ),
+    })
+  );
 
   const ctx = useContext(DistroEventDetailsForPlanningStateContext);
 
-  const [checkedProductIds, setCheckedProductIds] = useState(productIdsWithPackingListEntries);
+  const [checkedProductIds, setCheckedProductIds] = useState(
+    productIdsWithPackingListEntries
+  );
 
   const productsGroupedByGender: ProductsForGender[] = _.chain(
-    productDataWithPackingListEntriesSignals,
+    productDataWithPackingListEntriesSignals
   )
     .groupBy("gender")
     .map((value, key) => ({ gender: ProductGender[key], products: value }))
     .value();
 
-  const productsGroupedByGenderAndCategory: ProductsGroupedByCategoryForGender[] = _.chain(
-    productsGroupedByGender,
-  )
-    // const productsGroupedByGenderAndCategory = _.chain(productsGroupedByGender)
-    .map((productsGroupForGender) => {
-      const productsGroupedByCategory = _.chain(productsGroupForGender.products)
-        .groupBy("category.id")
-        .map((value, key) => ({
-          category: {
-            id: key,
-            name: value[0].category?.name ?? "Uncategeorized",
-          },
-          products: value,
-        }))
-        .value();
-      // return { ...productsGroupForGender, productsGroupedByCategory };
-      return {
-        gender: productsGroupForGender.gender,
-        productsForCategory: productsGroupedByCategory,
-      };
-    })
-    .value();
+  const productsGroupedByGenderAndCategory: ProductsGroupedByCategoryForGender[] =
+    _.chain(productsGroupedByGender)
+      // const productsGroupedByGenderAndCategory = _.chain(productsGroupedByGender)
+      .map((productsGroupForGender) => {
+        const productsGroupedByCategory = _.chain(
+          productsGroupForGender.products
+        )
+          .groupBy("category.id")
+          .map((value, key) => ({
+            category: {
+              id: key,
+              name: value[0].category?.name ?? "Uncategeorized",
+            },
+            products: value,
+          }))
+          .value();
+        // return { ...productsGroupForGender, productsGroupedByCategory };
+        return {
+          gender: productsGroupForGender.gender,
+          productsForCategory: productsGroupedByCategory,
+        };
+      })
+      .value();
 
   const onApplyClick = () => {
     const entriesToAdd = checkedProductIds.filter(
-      (p1) => !productIdsWithPackingListEntries.some((p2) => p1 === p2),
+      (p1) => !productIdsWithPackingListEntries.some((p2) => p1 === p2)
     );
     const entriesToRemove = productIdsWithPackingListEntries.filter(
-      (p1) => !checkedProductIds.some((p2) => p1 === p2),
+      (p1) => !checkedProductIds.some((p2) => p1 === p2)
     );
     ctx?.onUpdateProductsInPackingList(entriesToAdd, entriesToRemove);
     onClose();
@@ -135,7 +132,7 @@ const AddItemsToPackingList = ({
   };
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let updatedList = [...checkedProductIds];
+    var updatedList = [...checkedProductIds];
     if (event.target.checked) {
       updatedList = [...checkedProductIds, event.target.value];
     } else {
@@ -170,26 +167,33 @@ const AddItemsToPackingList = ({
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <TabPanel key={productsGroupForGender.gender || "No Gender"}>
               <VStack spacing={8}>
-                {productsGroupForGender.productsForCategory.map((productsGroupForCategory) => (
-                  <Box key={productsGroupForCategory.category.id}>
-                    <Heading fontSize="lg" fontWeight="bold" textAlign={"center"} mb={15}>
-                      {productsGroupForCategory.category.name}
-                    </Heading>
-                    <VStack>
-                      {productsGroupForCategory.products.map((product) => (
-                        <Checkbox
-                          key={product.id}
-                          value={product.id}
-                          checked={checkedProductIds.includes(product.id)}
-                          onChange={handleCheckboxChange}
-                          defaultChecked={product.hasPackingListEntries}
-                        >
-                          {product.name}
-                        </Checkbox>
-                      ))}
-                    </VStack>
-                  </Box>
-                ))}
+                {productsGroupForGender.productsForCategory.map(
+                  (productsGroupForCategory) => (
+                    <Box key={productsGroupForCategory.category.id}>
+                      <Heading
+                        fontSize="lg"
+                        fontWeight="bold"
+                        textAlign={"center"}
+                        mb={15}
+                      >
+                        {productsGroupForCategory.category.name}
+                      </Heading>
+                      <VStack>
+                        {productsGroupForCategory.products.map((product) => (
+                          <Checkbox
+                            key={product.id}
+                            value={product.id}
+                            checked={checkedProductIds.includes(product.id)}
+                            onChange={handleCheckboxChange}
+                            defaultChecked={product.hasPackingListEntries}
+                          >
+                            {product.name}
+                          </Checkbox>
+                        ))}
+                      </VStack>
+                    </Box>
+                  )
+                )}
               </VStack>
             </TabPanel>
           ))}

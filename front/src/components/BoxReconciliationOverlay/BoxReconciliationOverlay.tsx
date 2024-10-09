@@ -31,10 +31,6 @@ export function BoxReconciliationOverlay({
   closeOnOverlayClick = true,
   closeOnEsc = true,
   redirectToShipmentView = false,
-}: {
-  closeOnOverlayClick?: boolean;
-  closeOnEsc?: boolean;
-  redirectToShipmentView?: boolean;
 }) {
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();

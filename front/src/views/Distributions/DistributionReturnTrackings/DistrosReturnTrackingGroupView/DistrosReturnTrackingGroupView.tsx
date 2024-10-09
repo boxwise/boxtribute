@@ -336,7 +336,7 @@ const DistrosReturnTrackingGroupView = () => {
       variables: {
         distributionEventsTrackingGroupId: trackingGroupId!,
       },
-    }).then(() => {
+    }).then((res) => {
       // TODO: do better success and error handling here
       // (so: user feedback and - in error case - additional error logging)
       navigate(`/bases/${baseId}/distributions/return-trackings`);
@@ -383,9 +383,7 @@ const DistrosReturnTrackingGroupView = () => {
         trackingGroupId={trackingGroupId!}
         onDoneWithCountingClick={onDoneWithCountingClick}
       />
-      <Text size="small">
-        * This will track all left over number of items as &quot;Distributed&quot;.
-      </Text>
+      <Text size="small">* This will track all left over number of items as "Distributed".</Text>
 
       <AlertDialog
         isOpen={confirmFinishingReturnTrackingAlertState.isOpen}
@@ -403,7 +401,7 @@ const DistrosReturnTrackingGroupView = () => {
               Boxes assigned to the Distribution Events to zero. The system will then also calculate
               the number of distributed items for each Product/Size combination involved in the
               Distributions. This data will be used for Monitoring and Evaluation purposes. You
-              can&apos;t undo this action afterwards.
+              can't undo this action afterwards.
             </AlertDialogBody>
 
             <AlertDialogFooter>

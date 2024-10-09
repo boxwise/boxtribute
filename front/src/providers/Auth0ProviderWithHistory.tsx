@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
 
-function Auth0ProviderWithHistory({ children }: { children: React.ReactNode }) {
+function Auth0ProviderWithHistory({ children }) {
   const domain = import.meta.env.FRONT_AUTH0_DOMAIN as string;
   const clientId = import.meta.env.FRONT_AUTH0_CLIENT_ID as string;
   const audience = import.meta.env.FRONT_AUTH0_AUDIENCE as string;

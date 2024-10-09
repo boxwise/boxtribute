@@ -99,7 +99,7 @@ function HeaderMenuMobileContent({ onClickScanQrCode, menuItemsGroups }: IHeader
   );
 }
 
-function HeaderMenuMobileContainer({ children }: { children: React.ReactNode }) {
+function HeaderMenuMobileContainer({ children }) {
   return (
     <Flex as="nav" wrap="wrap" w="100%" pt={4} pb={4} color="black" zIndex="2">
       {children}
