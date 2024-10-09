@@ -34,6 +34,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
+  const [boxNotOnwned, setBoxNotOnwned] = useState("");
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
       setTimeout(() => {
@@ -69,6 +70,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
+      setBoxNotOnwned("");
       const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",
@@ -76,16 +78,23 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       switch (qrResolvedValue.kind) {
         case IQrResolverResultKind.SUCCESS: {
           const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
-          if (!multiScan) {
-            const boxBaseId = qrResolvedValue.box.location.base.id;
+          if (qrResolvedValue.box.__typename === "UnauthorizedForBaseError") {
+            setBoxNotOnwned(
+              `This box it at base ${qrResolvedValue.box.name}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
+            );
             setIsProcessingQrCode(false);
-            onSuccess();
-            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
           } else {
-            // Only execute for Multi Box tab
-            // add box reference to query for list of all scanned boxes
-            await addBoxToScannedBoxes(qrResolvedValue.box);
-            setIsProcessingQrCode(false);
+            if (!multiScan) {
+              const boxBaseId = qrResolvedValue.box.location.base.id;
+              setIsProcessingQrCode(false);
+              onSuccess();
+              navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+            } else {
+              // Only execute for Multi Box tab
+              // add box reference to query for list of all scanned boxes
+              await addBoxToScannedBoxes(qrResolvedValue.box);
+              setIsProcessingQrCode(false);
+            }
           }
           break;
         }
@@ -167,6 +176,12 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             type="warning"
             alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT}
           />
+          <br />
+        </>
+      )}
+      {boxNotOnwned !== "" && (
+        <>
+          <AlertWithoutAction type="warning" alertText={boxNotOnwned} />
           <br />
         </>
       )}

@@ -14,7 +14,7 @@ export type Scalars = {
   Datetime: any;
 };
 
-export type AssignTagToBoxesResult = BoxResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
+export type AssignTagToBoxesResult = BoxesResult | DeletedTagError | InsufficientPermissionError | ResourceDoesNotExistError | TagTypeMismatchError | UnauthorizedForBaseError;
 
 /**
  * Representation of a base.
@@ -249,12 +249,7 @@ export type BoxPage = {
   totalCount: Scalars['Int'];
 };
 
-/** Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing). */
-export type BoxResult = {
-  __typename?: 'BoxResult';
-  invalidBoxLabelIdentifiers: Array<Scalars['String']>;
-  updatedBoxes: Array<Box>;
-};
+export type BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError;
 
 /** Classificators for [`Box`]({{Types.Box}}) state. */
 export enum BoxState {
@@ -280,6 +275,13 @@ export type BoxUpdateInput = {
   tagIds?: InputMaybe<Array<Scalars['Int']>>;
   /**  List of tags that shall be assigned in addition to already assigned tags. Any requested tags already assigned to the box will not be assigned again  */
   tagIdsToBeAdded?: InputMaybe<Array<Scalars['Int']>>;
+};
+
+/** Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing). */
+export type BoxesResult = {
+  __typename?: 'BoxesResult';
+  invalidBoxLabelIdentifiers: Array<Scalars['String']>;
+  updatedBoxes: Array<Box>;
 };
 
 export type BoxesStillAssignedToProductError = {
@@ -373,7 +375,7 @@ export type DataCube = {
   facts?: Maybe<Array<Maybe<Result>>>;
 };
 
-export type DeleteBoxesResult = BoxResult | InsufficientPermissionError;
+export type DeleteBoxesResult = BoxesResult | InsufficientPermissionError;
 
 export type DeleteProductResult = BoxesStillAssignedToProductError | InsufficientPermissionError | Product | ProductTypeMismatchError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
@@ -654,7 +656,7 @@ export type MetricsNumberOfSalesArgs = {
   before?: InputMaybe<Scalars['Date']>;
 };
 
-export type MoveBoxesResult = BoxResult | DeletedLocationError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type MoveBoxesResult = BoxesResult | DeletedLocationError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
@@ -701,7 +703,7 @@ export type Mutation = {
   assignBoxToDistributionEvent?: Maybe<Box>;
   /**  Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing  */
   assignTag?: Maybe<TaggableResource>;
-  /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   assignTagToBoxes?: Maybe<AssignTagToBoxesResult>;
   /**  Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment.  */
   cancelShipment?: Maybe<Shipment>;
@@ -726,7 +728,7 @@ export type Mutation = {
   createTransferAgreement?: Maybe<TransferAgreement>;
   /**  Deactivate beneficiary with specified ID.  */
   deactivateBeneficiary?: Maybe<Beneficiary>;
-  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   deleteBoxes?: Maybe<DeleteBoxesResult>;
   /**  Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in.  */
   deleteProduct?: Maybe<DeleteProductResult>;
@@ -742,7 +744,7 @@ export type Mutation = {
   enableStandardProduct?: Maybe<EnableStandardProductResult>;
   /**  Change state of specified shipment to `Lost`, and state of all contained `InTransit` boxes to `NotDelivered`. Only valid for shipments in `Sent` state. The client must be member of either source or target base of the shipment.  */
   markShipmentAsLost?: Maybe<Shipment>;
-  /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   moveBoxesToLocation?: Maybe<MoveBoxesResult>;
   moveItemsFromBoxToDistributionEvent?: Maybe<UnboxedItemsCollection>;
   moveItemsFromReturnTrackingGroupToBox?: Maybe<DistributionEventsTrackingEntry>;
@@ -762,7 +764,7 @@ export type Mutation = {
   unassignBoxFromDistributionEvent?: Maybe<Box>;
   /**  Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing  */
   unassignTag?: Maybe<TaggableResource>;
-  /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list.  */
   unassignTagFromBoxes?: Maybe<UnassignTagFromBoxesResult>;
   /**  Update one or more properties of a beneficiary with specified ID.  */
   updateBeneficiary?: Maybe<Beneficiary>;
@@ -1199,12 +1201,14 @@ export type ProductTypeMismatchError = {
 /** Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}). */
 export type QrCode = {
   __typename?: 'QrCode';
-  /**  [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated)  */
-  box?: Maybe<Box>;
+  /**  [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated), or an error in case of insufficient permission or missing authorization for box's base  */
+  box?: Maybe<BoxResult>;
   code: Scalars['String'];
   createdOn?: Maybe<Scalars['Datetime']>;
   id: Scalars['ID'];
 };
+
+export type QrCodeResult = InsufficientPermissionError | QrCode | ResourceDoesNotExistError;
 
 export type Query = {
   __typename?: 'Query';
@@ -1246,8 +1250,8 @@ export type Query = {
   productCategory?: Maybe<ProductCategory>;
   /**  Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view.  */
   products: ProductPage;
-  /**  Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32)  */
-  qrCode?: Maybe<QrCode>;
+  /**  Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource.  */
+  qrCode: QrCodeResult;
   qrExists?: Maybe<Scalars['Boolean']>;
   /**  Return [`Shipment`]({{Types.Shipment}}) with specified ID. Clients are authorized to view a shipment if they're member of either the source or the target base  */
   shipment?: Maybe<Shipment>;
@@ -1378,12 +1382,12 @@ export type QueryProductsArgs = {
 
 
 export type QueryQrCodeArgs = {
-  qrCode: Scalars['String'];
+  code: Scalars['String'];
 };
 
 
 export type QueryQrExistsArgs = {
-  qrCode?: InputMaybe<Scalars['String']>;
+  code?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -1832,13 +1836,16 @@ export enum TransferAgreementType {
   SendingTo = 'SendingTo'
 }
 
-export type UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
+export type UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError;
 
 export type UnauthorizedForBaseError = {
   __typename?: 'UnauthorizedForBaseError';
   /**  e.g. 'product:write' present but not for requested base  */
   id: Scalars['ID'];
+  /**  Empty string if base does not exist  */
   name: Scalars['String'];
+  /**  Empty string if base does not exist  */
+  organisationName: Scalars['String'];
 };
 
 export type UnboxedItemsCollection = ItemsCollection & {
@@ -1950,7 +1957,7 @@ export type GetBoxLabelIdentifierForQrCodeQueryVariables = Exact<{
 }>;
 
 
-export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode?: { __typename?: 'QrCode', code: string, box?: { __typename?: 'Box', labelIdentifier: string, state: BoxState, comment?: string | null, lastModifiedOn?: any | null, location?: { __typename?: 'ClassicLocation', id: string, base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', id: string, base?: { __typename?: 'Base', id: string } | null } | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null } | null } | null };
+export type GetBoxLabelIdentifierForQrCodeQuery = { __typename?: 'Query', qrCode: { __typename: 'InsufficientPermissionError', name: string } | { __typename: 'QrCode', code: string, box?: { __typename: 'Box', labelIdentifier: string, state: BoxState, comment?: string | null, lastModifiedOn?: any | null, location?: { __typename?: 'ClassicLocation', id: string, base?: { __typename?: 'Base', id: string } | null } | { __typename?: 'DistributionSpot', id: string, base?: { __typename?: 'Base', id: string } | null } | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null } | { __typename: 'InsufficientPermissionError', name: string } | { __typename: 'UnauthorizedForBaseError', name: string, organisationName: string } | null } | { __typename: 'ResourceDoesNotExistError', name: string } };
 
 export type CheckIfQrExistsInDbQueryVariables = Exact<{
   qrCode: Scalars['String'];
@@ -2035,7 +2042,7 @@ export type CreateBoxMutationVariables = Exact<{
 }>;
 
 
-export type CreateBoxMutation = { __typename?: 'Mutation', createBox?: { __typename?: 'Box', labelIdentifier: string, qrCode?: { __typename?: 'QrCode', code: string, box?: { __typename?: 'Box', labelIdentifier: string } | null } | null } | null };
+export type CreateBoxMutation = { __typename?: 'Mutation', createBox?: { __typename?: 'Box', labelIdentifier: string, qrCode?: { __typename?: 'QrCode', code: string, box?: { __typename?: 'Box', labelIdentifier: string } | { __typename?: 'InsufficientPermissionError' } | { __typename?: 'UnauthorizedForBaseError' } | null } | null } | null };
 
 export type BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables = Exact<{
   baseId: Scalars['ID'];

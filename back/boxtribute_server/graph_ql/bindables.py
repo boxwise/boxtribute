@@ -180,6 +180,8 @@ union_types = (
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
     UnionType("AssignTagToBoxesResult", resolve_type_by_class_name),
     UnionType("UnassignTagFromBoxesResult", resolve_type_by_class_name),
+    UnionType("QrCodeResult", resolve_type_by_class_name),
+    UnionType("BoxResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

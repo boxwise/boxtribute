@@ -1,6 +1,6 @@
 from ariadne import ObjectType
 
-from ....authz import authorize_for_reading_box
+from ....authz import authorize_for_reading_box, handle_unauthorized
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 
@@ -8,6 +8,7 @@ qr_code = ObjectType("QrCode")
 
 
 @qr_code.field("box")
+@handle_unauthorized
 def resolve_qr_code_box(qr_code_obj, _):
     try:
         box = (
