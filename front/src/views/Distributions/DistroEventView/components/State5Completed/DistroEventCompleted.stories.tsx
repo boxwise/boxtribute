@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import DistroEventCompleted, { DistroEventData } from "./DistroEventCompleted";
 import { DistributionEventState, ProductGender } from "types/generated/graphql";
 
@@ -48,11 +48,9 @@ export default {
   title: "Mobile Distro Events/Distro Events/Detail View/State: 8 - Completed/Component",
   component: DistroEventCompleted,
   parameters: {},
-} as ComponentMeta<typeof DistroEventCompleted>;
+} as Meta<typeof DistroEventCompleted>;
 
-const Template: ComponentStory<typeof DistroEventCompleted> = (args) => (
-  <DistroEventCompleted {...args} />
-);
+const Template: StoryFn<typeof DistroEventCompleted> = (args) => <DistroEventCompleted {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
