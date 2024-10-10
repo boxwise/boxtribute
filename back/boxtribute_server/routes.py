@@ -13,7 +13,7 @@ from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
-from .utils import in_development_environment
+from .utils import in_development_environment, in_staging_environment
 
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
@@ -98,6 +98,11 @@ def api_token():
 @requires_auth
 def graphql_server():
     log_request_to_gcloud(context=WEBAPP_CONTEXT)
+
+    if in_staging_environment():
+        import googlecloudprofiler as profiler  # type: ignore
+
+        profiler.start(verbose=2, project_id=os.environ["GOOGLE_PROJECT_ID"])
 
     if not check_beta_feature_access(request.get_json()["query"]):
         return {"error": "No permission to access beta feature"}, 401
