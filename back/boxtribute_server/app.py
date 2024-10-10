@@ -9,6 +9,7 @@ from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
+from .utils import in_staging_environment
 
 
 def create_app():
@@ -63,6 +64,12 @@ def main(*blueprints):
             # attribute
             return
         return event
+
+    blueprint_names = [bp.name for bp in blueprints]
+    if in_staging_environment() and "app_bp" in blueprint_names:
+        import googlecloudprofiler as profiler  # type: ignore
+
+        profiler.start(verbose=2, project_id=os.environ["GOOGLE_PROJECT_ID"])
 
     # The SDK requires the parameters dns, and optionally, environment and release for
     # initialization. In the deployed GAE environments they are read from the
