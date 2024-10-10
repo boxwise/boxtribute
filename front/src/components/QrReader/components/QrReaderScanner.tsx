@@ -55,14 +55,12 @@ export function QrReaderScanner({
     useRef<BrowserQRCodeReader>(null);
 
   useEffect(() => {
-    if (isCameraNotPermited || previewVideoRef.current == null) return;
-
     const constraints = {
       facingMode,
       zoom,
     };
 
-    if (previewVideoRef.current == null) {
+    if (isCameraNotPermited || previewVideoRef.current == null) {
       console.error("QR Reader: Video Element not (yet) available");
       return;
     }
@@ -108,7 +106,15 @@ export function QrReaderScanner({
           }
         });
     }
-  }, [isCameraNotPermited, delayBetweenScanAttempts, onResult, facingMode, zoom, previewVideoRef, multiScan]);
+  }, [
+    isCameraNotPermited,
+    delayBetweenScanAttempts,
+    onResult,
+    facingMode,
+    zoom,
+    previewVideoRef,
+    multiScan,
+  ]);
 
   useEffect(() => {
     // This is the clean up function stopping the scanning.
