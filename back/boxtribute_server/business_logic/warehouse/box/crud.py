@@ -32,6 +32,13 @@ from ....models.utils import (
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
+def is_measure_product(product):
+    """Return True if the product's size range is either Mass or Volume, False
+    otherwise.
+    """
+    return product.size_range_id in [28, 29]
+
+
 @save_creation_to_history
 def create_box(
     product_id,
@@ -199,7 +206,7 @@ def update_box(
                 raise InputFieldIsNotNone(field="measureValue")
     else:
         new_product = Product.get_by_id(product_id)
-        new_product_is_measure_product = new_product.size_range_id in [28, 29]
+        new_product_is_measure_product = is_measure_product(new_product)
 
         if box_contains_measure_product:
             if new_product_is_measure_product:
