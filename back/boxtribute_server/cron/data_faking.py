@@ -29,7 +29,11 @@ from ..business_logic.box_transfer.shipment.crud import (
     update_shipment_when_receiving,
 )
 from ..business_logic.tag.crud import create_tag, delete_tag, update_tag
-from ..business_logic.warehouse.box.crud import create_box, update_box
+from ..business_logic.warehouse.box.crud import (
+    create_box,
+    is_measure_product,
+    update_box,
+)
 from ..business_logic.warehouse.location.crud import create_location, delete_location
 from ..business_logic.warehouse.product.crud import (
     create_custom_product,
@@ -59,6 +63,7 @@ from ..models.definitions.size import Size
 from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.unit import Unit
 from ..models.utils import convert_ids
 
 NR_BASES = 4
@@ -746,6 +751,18 @@ class Generator:
         )
         size_ids = {row.category: row.size_ids for row in result}
 
+        # Units for mass and volume dimension
+        unit_ids = {
+            row.dimension: row.unit_ids
+            for row in Unit.select(
+                Unit.dimension,
+                fn.GROUP_CONCAT(Unit.id).python_value(convert_ids).alias("unit_ids"),
+            )
+            .where(Unit.dimension << [28, 29])
+            .group_by(Unit.dimension)
+            .namedtuples()
+        }
+
         for b in self.base_ids:
             box_tag_ids = [
                 tag.id for tag in self.tags[b] if tag.type in [TagType.Box, TagType.All]
@@ -765,10 +782,24 @@ class Generator:
             nr_of_boxes = NR_OF_BOXES_PER_LARGE_BASE if b == 1 else NR_OF_BOXES_PER_BASE
             for _ in range(nr_of_boxes):
                 product = self.fake.random_element(self.products[b])
+
+                if is_measure_product(product):
+                    size_id = None
+                    display_unit_id = self.fake.random_element(
+                        unit_ids[product.size_range_id]
+                    )
+                    measure_value = 100 * self.fake.random_int(max=20)
+                else:
+                    size_id = self.fake.random_element(size_ids[product.category_id])
+                    display_unit_id = None
+                    measure_value = None
+
                 box = create_box(
                     product_id=product.id,
                     location_id=self.fake.random_element(in_stock_location_ids),
-                    size_id=self.fake.random_element(size_ids[product.category_id]),
+                    size_id=size_id,
+                    display_unit_id=display_unit_id,
+                    measure_value=measure_value,
                     number_of_items=self.fake.random_int(max=999),
                     comment=(
                         self.fake.sentence(nb_words=3) if self.fake.boolean(20) else ""
@@ -798,6 +829,10 @@ class Generator:
                 )
             for box in self.fake.random_elements(boxes, length=50):
                 product = self.fake.random_element(self.products[b])
+                if is_measure_product(product) or box.size_id is None:
+                    # New product is measure product; or box contains measure product,
+                    # hence changing size would be invalid
+                    continue
                 update_box(
                     label_identifier=box.label_identifier,
                     product_id=product.id,
@@ -808,6 +843,15 @@ class Generator:
                 update_box(
                     label_identifier=box.label_identifier,
                     number_of_items=self.fake.random_int(max=999),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
+                if box.size_id is not None:
+                    # Box contains size product; changing measure value would be invalid
+                    continue
+                update_box(
+                    label_identifier=box.label_identifier,
+                    measure_value=100 * self.fake.random_int(max=20),
                     user_id=self._user_id(b),
                 )
             for box in self.fake.random_elements(boxes, length=50):
