@@ -162,6 +162,8 @@ def test_box_mutations(
     null_box_state_location,
     deleted_location,
     tags,
+    gram_unit,
+    pound_unit,
     mocker,
 ):
     # Test case 8.2.1
@@ -244,6 +246,38 @@ def test_box_mutations(
         "history": [{"changes": "created record"}],
     }
 
+    # Test case 8.2.2d
+    unit_id = str(gram_unit["id"])
+    measure_product_id = str(products[7]["id"])
+    measure_value = 1500.0
+    creation_input = f"""{{
+                    productId: {measure_product_id}
+                    locationId: {location_id}
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{
+                id
+                labelIdentifier
+                location {{ id }}
+                product {{ id }}
+                size {{ id }}
+                displayUnit {{ id }}
+                measureValue
+            }}
+        }}"""
+    third_created_box = assert_successful_request(client, mutation)
+    third_created_box_id = int(third_created_box.pop("id"))
+    third_created_box_label_identifier = third_created_box.pop("labelIdentifier")
+    assert third_created_box == {
+        "location": {"id": location_id},
+        "product": {"id": measure_product_id},
+        "size": None,
+        "displayUnit": {"id": unit_id},
+        "measureValue": measure_value,
+    }
+
     # Wait for one second here such that the second-precision change_date of the
     # previous creation entry is different from the following change entries. We then
     # can verify that the sorting of history entries by most recent first works.
@@ -295,35 +329,35 @@ def test_box_mutations(
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "119",
+            "id": "120",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "119",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "118",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
+            "id": "117",
             "changes": f"changed the number of items from {original_number_of_items} "
             + f"to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "115",
+            "id": "116",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "114",
+            "id": "115",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
@@ -334,6 +368,96 @@ def test_box_mutations(
             "user": {"name": "coord"},
         },
     ]
+
+    new_unit_id = str(pound_unit["id"])
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    displayUnitId: {new_unit_id}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": new_unit_id},
+        "measureValue": measure_value
+        / gram_unit["conversion_factor"]
+        * pound_unit["conversion_factor"],
+    }
+
+    new_measure_value = 1200.0
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    measureValue: {new_measure_value}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": new_unit_id},
+        "measureValue": new_measure_value,
+    }
+
+    newest_measure_value = 1000.0
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    displayUnitId: {unit_id}
+                    measureValue: {newest_measure_value}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+                history {{
+                    id
+                    changes
+                    user {{ name }}
+                }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": unit_id},
+        "measureValue": newest_measure_value,
+        "history": [
+            # {
+            #     "id": "115",
+            #     "changes": f"changed measure value from {new_measure_value} to "
+            #     + f"{newest_measure_value}",
+            #     "user": {"name": "coord"},
+            # },
+            {
+                "id": "122",
+                "changes": f"changed unit from {pound_unit['symbol']} to "
+                + f"{gram_unit['symbol']}",
+                "user": {"name": "coord"},
+            },
+            # {
+            #     "id": "122",
+            #     "changes": f"changed measure value from {measure_value} to "
+            #     + f"{new_measure_value}",
+            #     "user": {"name": "coord"},
+            # },
+            {
+                "id": "121",
+                "changes": f"changed unit from {gram_unit['symbol']} to "
+                + f"{pound_unit['symbol']}",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "114",
+                "changes": "created record",
+                "user": {"name": "coord"},
+            },
+        ],
+    }
 
     raw_label_identifiers = sorted(
         [created_box["labelIdentifier"], another_created_box_label_identifier]
@@ -652,6 +776,15 @@ def test_box_mutations(
             "ip": None,
         },
         {
+            "changes": "Record created",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 2,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+        },
+        {
             "changes": "product_id",
             "from_int": int(product_id),
             "to_int": int(new_product_id),
@@ -704,6 +837,24 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(unit_id),
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": int(new_unit_id),
+            "user": 8,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(new_unit_id),
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": int(unit_id),
+            "user": 8,
         },
         {
             "changes": "location_id",
@@ -971,25 +1122,39 @@ def test_box_label_identifier_generation(
 
 
 @pytest.mark.parametrize(
-    "product_id,size_id,location_id,qr_code",
-    # Test cases 8.2.3, 8.2.4, 8.2.5,, 8.2.6, 8.2.12, 8.2.13, 8.2.14
-    [[0, 1, 1, "555"], [1, 0, 1, "555"], [1, 1, 0, "555"], [1, 1, 1, "000"]],
+    "product_id,size_id,location_id,qr_code,unit_id,measure_value",
+    [  # Test cases
+        [0, 1, 1, "555", "null", "null"],  # 8.2.3, 8.2.12
+        [1, 0, 1, "555", "null", "null"],  # 8.2.4, 8.2.13
+        [1, 1, 0, "555", "null", "null"],  # 8.2.5, 8.2.14
+        [1, 1, 1, "000", "null", "null"],  # 8.2.6
+        [1, "null", 1, "555", 0, 100],  # 8.2.4a
+    ],
 )
 def test_mutate_box_with_non_existing_resource(
-    read_only_client, default_box, product_id, size_id, location_id, qr_code
+    read_only_client,
+    default_box,
+    product_id,
+    size_id,
+    location_id,
+    qr_code,
+    unit_id,
+    measure_value,
 ):
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
                     qrCode: "{qr_code}"
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
 
     # Box QR code cannot be updated, hence no errors possible
-    if qr_code == "000":
+    if qr_code == "000" or measure_value == 100:
         return
 
     label_identifier = default_box["label_identifier"]
@@ -1004,16 +1169,26 @@ def test_mutate_box_with_non_existing_resource(
     assert_bad_user_input(read_only_client, mutation)
 
 
-def test_mutate_box_with_negative_number_of_items(
-    read_only_client, default_box, default_product, default_location, default_size
+def test_mutate_box_with_invalid_input(
+    read_only_client,
+    default_box,
+    measure_product_box,
+    default_product,
+    default_location,
+    default_size,
+    gram_unit,
+    liter_unit,
+    products,
 ):
+    # Negative numberOfItems
     # Test case 8.2.10
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
     product_id = str(default_product["id"])
-    creation_input = f"""{{
-                    productId: {product_id},
-                    locationId: {location_id},
+    mandatory_input = f"""productId: {product_id} locationId: {location_id}"""
+    unit_id = str(gram_unit["id"])
+    measure_value = 200
+    creation_input = f"""{{ {mandatory_input}
                     sizeId: {size_id},
                     numberOfItems: -3
                 }}"""
@@ -1021,11 +1196,168 @@ def test_mutate_box_with_negative_number_of_items(
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
 
+    # Test case 8.2.10a
+    creation_input = f"""{{
+                    productId: {product_id}
+                    locationId: {location_id}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10b
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id}
+                    displayUnitId: {unit_id}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id}
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10c
+    creation_input = f"""{{ {mandatory_input}
+                    displayUnitId: {unit_id}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10d - mismatch of product size range and unit dimension
+    creation_input = f"""{{ {mandatory_input}
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10e
+    creation_input = f"""{{ {mandatory_input}
+                    displayUnitId: {unit_id}
+                    measureValue: -200
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
     # Test case 8.2.19
     label_identifier = default_box["label_identifier"]
-    update_input = f"""{{
-                labelIdentifier: "{label_identifier}"
+    mandatory_input = f'labelIdentifier: "{label_identifier}"'
+    update_input = f"""{{ {mandatory_input}
                 numberOfItems: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19a
+    update_input = f"""{{ {mandatory_input}
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19b
+    size_product_id = str(products[2]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Operations on measure-product boxes
+    # Test case 8.2.19c
+    label_identifier = measure_product_box["label_identifier"]
+    mandatory_input = f'labelIdentifier: "{label_identifier}"'
+    update_input = f"""{{ {mandatory_input}
+                sizeId: 1
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19d
+    update_input = f"""{{ {mandatory_input}
+                measureValue: -50
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Mismatch of product size range (mass) and unit dimension (volume)
+    # Test case 8.2.19e
+    liter_unit_id = str(liter_unit["id"])
+    update_input = f"""{{ {mandatory_input}
+                displayUnitId: {liter_unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19c
+    another_measure_product_id = str(products[8]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+                sizeId: 1
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19d
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+                measureValue: -50
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19f
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""

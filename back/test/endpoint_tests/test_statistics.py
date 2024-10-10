@@ -90,7 +90,8 @@ def test_query_created_boxes(
                     "name": p["name"],
                     "gender": ProductGender(p["gender"]).name,
                 }
-                for p in base1_undeleted_products
+                # last product is not present in any box
+                for p in base1_undeleted_products[:-1]
             ],
             "category": [
                 {"id": c["id"], "name": c["name"]}
