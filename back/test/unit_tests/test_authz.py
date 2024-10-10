@@ -225,16 +225,20 @@ def test_missing_claims():
 
 def test_user_with_multiple_roles():
     permission = "stock:write"
-    # User is Head-of-Ops for base 2 but coordinator for base 1
+    # User is Head-of-Ops for base 2 but coordinator for base 1.
+    # Also verify casting of non-integer IDs and beta_feature_scope
     payload = {
-        f"{JWT_CLAIM_PREFIX}/organisation_id": 1,
-        f"{JWT_CLAIM_PREFIX}/base_ids": [2],
+        f"{JWT_CLAIM_PREFIX}/organisation_id": "1",
+        f"{JWT_CLAIM_PREFIX}/base_ids": ["2"],
         f"{JWT_CLAIM_PREFIX}/permissions": [permission, f"base_1/{permission}"],
         f"{JWT_CLAIM_PREFIX}/timezone": "Europe/Berlin",
+        f"{JWT_CLAIM_PREFIX}/beta_user": "4",
         f"{JWT_CLAIM_PREFIX}/roles": ["base_2_coordinator"],
         "sub": "auth0|42",
     }
     user = CurrentUser.from_jwt(payload)
+    assert user.organisation_id == 1
+    assert user.beta_feature_scope == 4
     assert sorted(user.authorized_base_ids(permission)) == [1, 2]
 
     assert authorize(user, permission=permission, base_id=1)
@@ -271,7 +275,9 @@ def test_check_beta_feature_access(mocker):
 
     # User with scope 0 can only access BoxView/BoxEdit pages, and queries
     beta_feature_scope = 0
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user = CurrentUser(
+        id=1, beta_feature_scope=beta_feature_scope, organisation_id=0
+    )
     for mutation in [
         "createQrCode",
         "createBox",
@@ -293,8 +299,7 @@ def test_check_beta_feature_access(mocker):
     )
 
     # User with scope 1 can additionally access BoxCreate/ScanBox pages
-    beta_feature_scope = 1
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user._beta_feature_scope = 1
     for mutation in ["createShipment", "deleteProduct", "deleteBoxes", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
@@ -309,8 +314,7 @@ def test_check_beta_feature_access(mocker):
     )
 
     # User with scope 2 can additionally access Transfers pages
-    beta_feature_scope = 2
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user._beta_feature_scope = 2
     for mutation in ["deleteBoxes", "deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
@@ -326,8 +330,7 @@ def test_check_beta_feature_access(mocker):
 
     # Scope 3 is the default, hence users with unregistered scope have the same
     # permissions
-    beta_feature_scope = 50
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user._beta_feature_scope = 50
     for mutation in ["deleteBoxes", "deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
@@ -342,8 +345,7 @@ def test_check_beta_feature_access(mocker):
     )
 
     # User with scope 3 can additionally access statviz data
-    beta_feature_scope = 3
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user._beta_feature_scope = 3
     for mutation in ["deleteBoxes", "deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
@@ -358,8 +360,7 @@ def test_check_beta_feature_access(mocker):
     )
 
     # User with scope 4 can additionally execute Box bulk actions
-    beta_feature_scope = 4
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user._beta_feature_scope = 4
     for mutation in ["deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
@@ -374,8 +375,7 @@ def test_check_beta_feature_access(mocker):
     )
 
     # User with scope 5 can additionally access Product pages
-    beta_feature_scope = 5
-    current_user = CurrentUser(id=1, beta_feature_scope=beta_feature_scope)
+    current_user._beta_feature_scope = 5
     for mutation in ["createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
@@ -399,7 +399,7 @@ def test_handle_unauthorized():
     # trying to authorize for resources other than base
     @handle_unauthorized
     def func():
-        current_user = CurrentUser(id=1)
+        current_user = CurrentUser(id=1, organisation_id=1)
         authorize(current_user=current_user, user_id=2)
 
     with pytest.raises(Forbidden) as exc_info:
@@ -410,7 +410,9 @@ def test_handle_unauthorized():
 
 
 def test_authorize_cross_organisation_access():
-    current_user = CurrentUser(id=1, base_ids={"box_state:read": [1]})
+    current_user = CurrentUser(
+        id=1, base_ids={"box_state:read": [1]}, organisation_id=1
+    )
     # No resource given
     with pytest.raises(ValueError):
         authorize_cross_organisation_access(current_user=current_user, base_id=1)
