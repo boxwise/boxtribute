@@ -27,6 +27,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   settings: {
+    react: { version: "detect" },
     // --------- Import Plugin Settings ---------
     // This defines the parser to use for .ts and .tsx files
     "import/parsers": {
@@ -56,20 +57,12 @@ module.exports = {
       {
         selector: "interface",
         format: ["PascalCase"],
-        custom: {
-          regex: "^I[A-Z]",
-          match: true,
-        },
       },
     ],
     // --------- React Plugin Rules ---------
     // we do not need to import React in every file
     "react/react-in-jsx-scope": "off",
     "react/jsx-props-no-spreading": "off",
-    // TODO: turn this on
-    "react/prop-types": "off",
-    // matter of preference (allows to use props.propName instead of deconstructing props first)
-    "react/destructuring-assignment": "off",
     // allow other than jsx extensions
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".ts", ".tsx"] }],
     // --------- Import Plugin Rules ---------
@@ -77,10 +70,6 @@ module.exports = {
     "import/no-extraneous-dependencies": ["error"],
     // ensure that all modules that are imported can be resolved to a module on the local filesystem
     "import/no-unresolved": [2, { caseSensitive: true }],
-    // if there is only a single export on a file, it does not have to be a default export
-    "import/prefer-default-export": "off",
-    // TODO: enable this rule at some point, we have quite a few circular imports due to type definitions being all over the place.
-    "import/no-cycle": ["off"],
     // ensure consistent use of file extension within the import statements
     "import/extensions": [
       "error",

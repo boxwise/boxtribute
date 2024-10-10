@@ -1,5 +1,4 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import DistroSpots from "./DistroSpots";
 import { DistributionSpotEnrichedData } from "views/Distributions/types";
 import { DistributionEventState } from "types/generated/graphql";
@@ -53,11 +52,9 @@ export default {
   title: "Mobile Distro Events/Distro Spots/List View/Component",
   component: DistroSpots,
   parameters: {},
-} as ComponentMeta<typeof DistroSpots>;
+} as Meta<typeof DistroSpots>;
 
-const Template: ComponentStory<typeof DistroSpots> = (args) => (
-  <DistroSpots {...args} />
-);
+const Template: StoryFn<typeof DistroSpots> = (args) => <DistroSpots {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

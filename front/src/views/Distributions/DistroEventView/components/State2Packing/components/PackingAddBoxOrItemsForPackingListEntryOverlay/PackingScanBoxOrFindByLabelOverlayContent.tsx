@@ -120,7 +120,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
 
   const onQrResult = useCallback(
     (result: string) => {
-      if (!!result) {
+      if (!result) {
         const qrCode = extractQrCodeFromUrl(result);
         if (qrCode == null) {
           console.error("Not a Boxtribute QR Code", qrCode);

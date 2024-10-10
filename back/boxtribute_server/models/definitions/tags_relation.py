@@ -31,3 +31,4 @@ class TagsRelation(db.Model):  # type: ignore
 
     class Meta:
         table_name = "tags_relations"
+        indexes = ((("object_id", "tag", "object_type"), False),)

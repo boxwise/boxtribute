@@ -38,10 +38,7 @@ interface IPackingListEntrieGroupForProduct {
   packingListEntries: IPackingListEntry[];
 }
 
-type OnUpdatePackingListEntry = (
-  packingListEntryId: string,
-  numberOfItems: number
-) => void;
+type OnUpdatePackingListEntry = (packingListEntryId: string, numberOfItems: number) => void;
 
 interface PackingListEntryTableRowProps {
   entry: IPackingListEntry;
@@ -61,26 +58,21 @@ const PackingListEntryTableRow = ({
     }
   };
 
-  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(
-    entry.numberOfItems
-  );
+  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(entry.numberOfItems);
 
   const { numberOfItems } = entry;
   useEffect(() => {
     setNumberOfItemsFormValue(numberOfItems);
   }, [numberOfItems]);
 
-  const backgroundColor =
-    entry.numberOfItems > 0 ? "blue.50" : "transparent";
+  const backgroundColor = entry.numberOfItems > 0 ? "blue.50" : "transparent";
 
   return (
     <Tr key={entry.id} backgroundColor={backgroundColor}>
       <Td>{entry.size?.label}</Td>
       <Td>
         <Editable
-          backgroundColor={
-            entry.numberOfItems > 0 ? "organe.100" : "transparent"
-          }
+          backgroundColor={entry.numberOfItems > 0 ? "organe.100" : "transparent"}
           value={numberOfItemsFormValue.toString()}
           onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
           onSubmit={onChangeHandlerForEntry}
@@ -169,9 +161,7 @@ const PackingListEntriesGroupForProduct = ({
               </Button>
               <Button
                 colorScheme="red"
-                onClick={() =>
-                  ctx.onRemoveAllPackingListEntriesForProduct(productId)
-                }
+                onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
                 ml={3}
               >
                 Delete
@@ -197,11 +187,10 @@ const DistroEventDetailsForPlanningState = ({
   packingListEntries,
   onAddItemsClick,
   onCopyPackingListFromPreviousEventsClick,
-  onRemoveItemFromPackingListClick,
 }: DistroEventDetailsForPlanningStateProps) => {
   const packingListEntriesGroupedByProductId = _.groupBy(
     packingListEntries,
-    (entry) => entry.product.id
+    (entry) => entry.product.id,
   );
   const packingListEntriesGroupedByProductIdAndName: IPackingListEntrieGroupForProduct[] =
     Object.keys(packingListEntriesGroupedByProductId).map((k) => {
@@ -226,17 +215,15 @@ const DistroEventDetailsForPlanningState = ({
       </Flex>
       <Heading size={"md"}>Packing List</Heading>
 
-      {packingListEntriesGroupedByProductIdAndName.map(
-        (packingListEntrieGroupForProduct) => (
-          <PackingListEntriesGroupForProduct
-            key={packingListEntrieGroupForProduct.productId}
-            data={packingListEntrieGroupForProduct}
-            onUpdatePackingListEntry={onUpdatePackingListEntry}
-          />
-        )
-      )}
+      {packingListEntriesGroupedByProductIdAndName.map((packingListEntrieGroupForProduct) => (
+        <PackingListEntriesGroupForProduct
+          key={packingListEntrieGroupForProduct.productId}
+          data={packingListEntrieGroupForProduct}
+          onUpdatePackingListEntry={onUpdatePackingListEntry}
+        />
+      ))}
       {packingListEntriesGroupedByProductIdAndName.length === 0 && (
-        <Text>You don't have any entries on your packing list yet.</Text>
+        <Text>You don&apos;t have any entries on your packing list yet.</Text>
       )}
     </>
   );

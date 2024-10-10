@@ -1,16 +1,12 @@
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import format from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import enUS from 'date-fns/locale/en-US'
-import { DistributionEventDetails } from 'views/Distributions/types';
-
+import { parse, format, startOfWeek, getDay } from "date-fns";
+import { enUS } from "date-fns/locale";
+import { DistributionEventDetails } from "views/Distributions/types";
 
 export interface DistroEventsCalendarProps {
-    distributionEvents: DistributionEventDetails[];
-    onClickOnDistroEvent: (distroEventId: string) => void;
+  distributionEvents: DistributionEventDetails[];
+  onClickOnDistroEvent: (distroEventId: string) => void;
 }
 
 const locales = {
@@ -25,15 +21,18 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const DistroEventsCalendarContainer = ({distributionEvents: distroEvents, onClickOnDistroEvent}: DistroEventsCalendarProps) => {
-  const events = distroEvents.map(distroEvent => {
+const DistroEventsCalendarContainer = ({
+  distributionEvents: distroEvents,
+  onClickOnDistroEvent,
+}: DistroEventsCalendarProps) => {
+  const events = distroEvents.map((distroEvent) => {
     return {
-        id: distroEvent.id,
-        title: `${distroEvent.name} (${distroEvent.distributionSpot.name})[${distroEvent.state}]`,
-        start: distroEvent.plannedStartDateTime,
-        end: distroEvent.plannedEndDateTime
-    }
-    });
+      id: distroEvent.id,
+      title: `${distroEvent.name} (${distroEvent.distributionSpot.name})[${distroEvent.state}]`,
+      start: distroEvent.plannedStartDateTime,
+      end: distroEvent.plannedEndDateTime,
+    };
+  });
 
   return (
     <Calendar
@@ -42,7 +41,7 @@ const DistroEventsCalendarContainer = ({distributionEvents: distroEvents, onClic
       defaultView="month"
       events={events}
       style={{ height: "100vh" }}
-      onSelectEvent={({id: eventId}) => onClickOnDistroEvent(eventId)}
+      onSelectEvent={({ id: eventId }) => onClickOnDistroEvent(eventId)}
     />
   );
 };

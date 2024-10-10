@@ -30,9 +30,9 @@ export function AreYouSureDialog({
   title,
   body,
   leftButtonText,
-  leftButtonProps,
+  leftButtonProps = {},
   rightButtonText,
-  rightButtonProps,
+  rightButtonProps = {},
   isLoading,
   isOpen,
   onClose,
@@ -70,8 +70,3 @@ export function AreYouSureDialog({
     </Modal>
   );
 }
-
-AreYouSureDialog.defaultProps = {
-  leftButtonProps: {},
-  rightButtonProps: {},
-};

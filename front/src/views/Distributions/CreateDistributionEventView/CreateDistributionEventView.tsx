@@ -1,15 +1,13 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CreateDistributionEventMutation,
   CreateDistributionEventMutationVariables,
   DistributionSpotQuery,
 } from "types/generated/graphql";
-import CreateDistroEvent, {
-  CreateDistroEventFormData,
-} from "./components/CreateDistributionEvent";
+import CreateDistroEvent, { CreateDistroEventFormData } from "./components/CreateDistributionEvent";
 import { addHours } from "date-fns";
 import { getISODateTimeFromDateAndTimeString } from "utils/helpers";
 import { Center } from "@chakra-ui/react";
@@ -47,8 +45,10 @@ const CreateDistributionEventView = () => {
     }
   `;
 
-  const { baseId, distributionSpotId } =
-    useParams<{ baseId: string; distributionSpotId: string }>();
+  const { baseId, distributionSpotId } = useParams<{
+    baseId: string;
+    distributionSpotId: string;
+  }>();
   const navigate = useNavigate();
 
   const [createDistributionEventMutation] = useMutation<
@@ -60,12 +60,9 @@ const CreateDistributionEventView = () => {
     (createDistroEventFormData: CreateDistroEventFormData) => {
       const plannedStartDateTime = getISODateTimeFromDateAndTimeString(
         createDistroEventFormData.eventDate,
-        createDistroEventFormData.eventTime
+        createDistroEventFormData.eventTime,
       );
-      const plannedEndDateTime = addHours(
-        plannedStartDateTime,
-        createDistroEventFormData.duration
-      );
+      const plannedEndDateTime = addHours(plannedStartDateTime, createDistroEventFormData.duration);
 
       createDistributionEventMutation({
         variables: {
@@ -83,22 +80,19 @@ const CreateDistributionEventView = () => {
             throw new Error(JSON.stringify(mutationResult.errors));
           }
           navigate(
-            `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`
+            `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`,
           );
         })
         .catch((error) => {
           console.error("Error while trying to create Distribution Event", error);
         });
     },
-    [baseId, createDistributionEventMutation, distributionSpotId, navigate]
+    [baseId, createDistributionEventMutation, distributionSpotId, navigate],
   );
 
-  const { data, loading, error } = useQuery<DistributionSpotQuery>(
-    DISTRIBUTION_SPOT_QUERY,
-    {
-      variables: { id: distributionSpotId },
-    }
-  );
+  const { data, loading, error } = useQuery<DistributionSpotQuery>(DISTRIBUTION_SPOT_QUERY, {
+    variables: { id: distributionSpotId },
+  });
 
   if (loading) {
     return <APILoadingIndicator />;
@@ -108,15 +102,8 @@ const CreateDistributionEventView = () => {
     return <div>Error!</div>;
   }
   if (data?.distributionSpot?.name == null) {
-    console.error(
-      "Error - Incomplete data in the database for this Distriubtion Spot",
-      data
-    );
-    return (
-      <div>
-        Error - Incomplete data in the database for this Distriubtion Spot
-      </div>
-    );
+    console.error("Error - Incomplete data in the database for this Distriubtion Spot", data);
+    return <div>Error - Incomplete data in the database for this Distriubtion Spot</div>;
   }
   return (
     <Center>

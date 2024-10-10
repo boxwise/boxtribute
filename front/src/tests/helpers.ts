@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import { act, screen, waitFor } from "tests/test-utils";
+import { screen, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 
 type UserEvent = ReturnType<typeof userEvent.setup>;
@@ -18,18 +18,14 @@ export async function assertOptionsInSelectField(
   subHeadings.forEach((subHeading) => {
     expect(screen.queryByText(subHeading)).not.toBeInTheDocument();
   });
-  await act(async () => {
-    await user.click(fieldControlInput);
-  });
+  await user.click(fieldControlInput);
   options.forEach(async (option) => {
     expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
   });
   subHeadings.forEach((subHeading) => {
     expect(screen.getByText(subHeading)).toBeInTheDocument();
   });
-  await act(async () => {
-    await user.click(elementOutside);
-  });
+  await user.click(elementOutside);
   options.forEach(async (option) => {
     await waitFor(() => {
       expect(screen.queryByText(option)).not.toBeInTheDocument();
