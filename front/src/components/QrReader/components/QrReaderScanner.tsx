@@ -29,6 +29,7 @@ export type QrReaderScannerProps = {
   zoom?: number;
   onResult: OnResultFunction;
   scanPeriod?: number;
+  isCameraNotPermited: boolean;
 };
 
 const isMediaDevicesAPIAvailable = () => {
@@ -43,6 +44,7 @@ export function QrReaderScanner({
   facingMode = "environment",
   onResult,
   scanPeriod: delayBetweenScanAttempts = 500,
+  isCameraNotPermited,
 }: QrReaderScannerProps) {
   // this ref is needed to pass/preview the video stream coming from BrowserQrCodeReader to the the user
   const previewVideoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
@@ -58,7 +60,7 @@ export function QrReaderScanner({
       zoom,
     };
 
-    if (previewVideoRef.current == null) {
+    if (isCameraNotPermited || previewVideoRef.current == null) {
       console.error("QR Reader: Video Element not (yet) available");
       return;
     }
@@ -104,7 +106,15 @@ export function QrReaderScanner({
           }
         });
     }
-  }, [delayBetweenScanAttempts, onResult, facingMode, zoom, previewVideoRef, multiScan]);
+  }, [
+    isCameraNotPermited,
+    delayBetweenScanAttempts,
+    onResult,
+    facingMode,
+    zoom,
+    previewVideoRef,
+    multiScan,
+  ]);
 
   useEffect(() => {
     // This is the clean up function stopping the scanning.

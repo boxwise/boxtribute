@@ -169,6 +169,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           facingMode={"environment"}
           zoom={1}
           scanPeriod={1000}
+          isCameraNotPermited={false}
           onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
         />
       </ModalBody>
