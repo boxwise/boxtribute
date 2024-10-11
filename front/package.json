@@ -15,7 +15,7 @@
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.20.0",
     "chakra-react-select": "^4.4.3",
-    "react-big-calendar": "^1.5.2",
+    "react-big-calendar": "^1.15.0",
     "react-icons": "^4.11.0",
     "react-table": "^7.8.0",
     "regenerator-runtime": "^0.14.0",
