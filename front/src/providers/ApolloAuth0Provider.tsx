@@ -3,12 +3,13 @@
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
 import { useState, useEffect, ReactNode } from "react";
-import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions } from "@apollo/client";
+import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions, ApolloLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { cache } from "queries/cache";
+import { getActiveSpan, startSpanManual } from "@sentry/react";
 
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { triggerError } = useErrorHandling();
@@ -34,6 +35,30 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
       "X-Clacks-Overhead": "GNU Terry Pratchett",
     },
   }));
+
+  function getTraceparentString() {
+    const span = getActiveSpan();
+    if (!span) {
+      return undefined;
+    }
+    return `00-${span.spanContext().traceId}-${span.spanContext().spanId}-0${span.spanContext().traceFlags}`;
+  }
+
+  const createSpanLink = new ApolloLink((operation, forward) => {
+    const result = startSpanManual({ name: `gql.${operation.operationName}` }, (span) => {
+      operation.setContext(({ headers = {} }) => ({
+        headers: {
+          ...headers,
+          traceparent: getTraceparentString(),
+        },
+      }));
+      return forward(operation).map((data) => {
+        span.end();
+        return data;
+      });
+    });
+    return result;
+  });
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
@@ -64,7 +89,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const client = new ApolloClient({
     cache,
     connectToDevTools: import.meta.env.FRONT_ENVIRONMENT !== "production",
-    link: auth0Link.concat(errorLink).concat(httpLink),
+    link: auth0Link.concat(errorLink).concat(createSpanLink).concat(httpLink),
     defaultOptions,
   });
 

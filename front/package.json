@@ -11,7 +11,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@sentry/react": "^8.33.1",
+    "@sentry/react": "^8.34.0",
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.20.0",
     "chakra-react-select": "^4.4.3",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.4",
     "@graphql-codegen/typescript": "^4.1.0",
-    "@sentry/types": "^8.33.1",
+    "@sentry/types": "^8.34.0",
     "@storybook/addon-actions": "^8.3.5",
     "@storybook/addon-essentials": "^8.3.5",
     "@storybook/addon-interactions": "^8.3.5",
