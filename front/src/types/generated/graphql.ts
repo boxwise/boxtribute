@@ -233,11 +233,13 @@ export type BoxAssignTagInput = {
 
 export type BoxCreationInput = {
   comment?: InputMaybe<Scalars['String']>;
+  displayUnitId?: InputMaybe<Scalars['Int']>;
   locationId: Scalars['Int'];
+  measureValue?: InputMaybe<Scalars['Float']>;
   numberOfItems?: InputMaybe<Scalars['Int']>;
   productId: Scalars['Int'];
   qrCode?: InputMaybe<Scalars['String']>;
-  sizeId: Scalars['Int'];
+  sizeId?: InputMaybe<Scalars['Int']>;
   tagIds?: InputMaybe<Array<Scalars['Int']>>;
 };
 
@@ -275,8 +277,10 @@ export enum BoxState {
 
 export type BoxUpdateInput = {
   comment?: InputMaybe<Scalars['String']>;
+  displayUnitId?: InputMaybe<Scalars['Int']>;
   labelIdentifier: Scalars['String'];
   locationId?: InputMaybe<Scalars['Int']>;
+  measureValue?: InputMaybe<Scalars['Float']>;
   numberOfItems?: InputMaybe<Scalars['Int']>;
   productId?: InputMaybe<Scalars['Int']>;
   sizeId?: InputMaybe<Scalars['Int']>;

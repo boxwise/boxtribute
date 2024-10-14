@@ -105,7 +105,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
-from .unit import mass_units, units
+from .unit import gram_unit, liter_unit, mass_units, pound_unit, units
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
@@ -170,8 +170,10 @@ __all__ = [
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
     "god_user",
+    "gram_unit",
     "in_transit_box",
     "inactive_organisation",
+    "liter_unit",
     "lost_box",
     "marked_for_shipment_box",
     "mass_units",
@@ -183,6 +185,7 @@ __all__ = [
     "null_box_state_location",
     "organisations",
     "packing_list_entry",
+    "pound_unit",
     "prepared_shipment_detail",
     "product_categories",
     "products",

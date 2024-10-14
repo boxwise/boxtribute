@@ -1,4 +1,5 @@
 import random
+from decimal import Decimal
 
 import peewee
 
@@ -6,14 +7,21 @@ from ....db import db
 from ....enums import BoxState, TaggableObjectType
 from ....exceptions import (
     BoxCreationFailed,
+    DisplayUnitProductMismatch,
+    IncompatibleSizeAndMeasureInput,
+    InputFieldIsNotNone,
+    InsufficientMeasureInput,
+    NegativeMeasureValue,
     NegativeNumberOfItems,
     QrCodeAlreadyAssignedToBox,
 )
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
+from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.tags_relation import TagsRelation
+from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
     save_creation_to_history,
@@ -24,13 +32,22 @@ from ....models.utils import (
 BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
+def is_measure_product(product):
+    """Return True if the product's size range is either Mass or Volume, False
+    otherwise.
+    """
+    return product.size_range_id in [28, 29]
+
+
 @save_creation_to_history
 def create_box(
     product_id,
     location_id,
     user_id,
-    size_id,
     now,
+    size_id=None,
+    display_unit_id=None,
+    measure_value=None,
     comment="",
     number_of_items=None,
     qr_code=None,
@@ -43,14 +60,38 @@ def create_box(
     generation still fails, raise a BoxCreationFailed exception.
     Assign any given tags to the newly created box.
     """
+    if number_of_items is not None and number_of_items < 0:
+        raise NegativeNumberOfItems()
+
+    if size_id is None and display_unit_id is None and measure_value is None:
+        raise IncompatibleSizeAndMeasureInput()
+    elif size_id is not None and (
+        display_unit_id is not None or measure_value is not None
+    ):
+        raise IncompatibleSizeAndMeasureInput()
+    elif (display_unit_id is None and measure_value is not None) or (
+        display_unit_id is not None and measure_value is None
+    ):
+        raise InsufficientMeasureInput()
+    elif display_unit_id is not None:
+        if measure_value < 0:
+            raise NegativeMeasureValue()
+
+        display_unit = Unit.get_by_id(display_unit_id)
+        product_size_range = (
+            Product.select(Product.size_range_id)
+            .where(Product.id == product_id)
+            .scalar()
+        )
+        if display_unit.dimension_id != product_size_range:
+            raise DisplayUnitProductMismatch()
+
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
     location_box_state_id = Location.get_by_id(location_id).box_state_id
     box_state = (
         BoxState.InStock if location_box_state_id is None else location_box_state_id
     )
-    if number_of_items is not None and number_of_items < 0:
-        raise NegativeNumberOfItems()
 
     for _ in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
         try:
@@ -67,6 +108,13 @@ def create_box(
             new_box.size = size_id
             new_box.state = box_state
             new_box.qr_code = qr_id
+            new_box.display_unit = display_unit_id
+
+            if measure_value is not None:
+                # Convert from display unit to dimensional base unit
+                new_box.measure_value = (
+                    Decimal(measure_value) / display_unit.conversion_factor
+                )
 
             with db.database.atomic():
                 new_box.save()
@@ -112,6 +160,7 @@ def create_box(
         Box.location,
         Box.comment,
         Box.state,
+        Box.display_unit,
     ],
 )
 def update_box(
@@ -123,6 +172,8 @@ def update_box(
     location_id=None,
     product_id=None,
     size_id=None,
+    display_unit_id=None,
+    measure_value=None,
     state=None,
     tag_ids=None,
     tag_ids_to_be_added=None,
@@ -131,6 +182,47 @@ def update_box(
     Insert timestamp for modification and return the box.
     """
     box = Box.get(Box.label_identifier == label_identifier)
+    box_contains_measure_product = box.size_id is None
+
+    if product_id is None:  # no product change
+        if box_contains_measure_product:
+            if size_id is not None:
+                raise InputFieldIsNotNone(field="sizeId")
+            if measure_value is not None and measure_value < 0:
+                raise NegativeMeasureValue()
+            if display_unit_id is not None:
+                display_unit = Unit.get_by_id(display_unit_id)
+                product_size_range = (
+                    Product.select(Product.size_range_id)
+                    .where(Product.id == box.product_id)
+                    .scalar()
+                )
+                if display_unit.dimension_id != product_size_range:
+                    raise DisplayUnitProductMismatch()
+        else:
+            if display_unit_id is not None:
+                raise InputFieldIsNotNone(field="displayUnitId")
+            if measure_value is not None:
+                raise InputFieldIsNotNone(field="measureValue")
+    else:
+        new_product = Product.get_by_id(product_id)
+        new_product_is_measure_product = is_measure_product(new_product)
+
+        if box_contains_measure_product:
+            if new_product_is_measure_product:
+                if size_id is not None:
+                    raise InputFieldIsNotNone(field="sizeId")
+                if measure_value is not None and measure_value < 0:
+                    raise NegativeMeasureValue()
+                display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
+                if display_unit.dimension_id != new_product.size_range_id:
+                    raise DisplayUnitProductMismatch()
+        else:  # box contains size product
+            if not new_product_is_measure_product:
+                if display_unit_id is not None:
+                    raise InputFieldIsNotNone(field="displayUnitId")
+                if measure_value is not None:
+                    raise InputFieldIsNotNone(field="measureValue")
 
     if comment is not None:
         box.comment = comment
@@ -148,6 +240,11 @@ def update_box(
         box.product = product_id
     if size_id is not None:
         box.size = size_id
+    if display_unit_id is not None:
+        box.display_unit = display_unit_id
+    if measure_value is not None:
+        display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
+        box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
     if tag_ids is not None:
