@@ -292,6 +292,7 @@ jobs:
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               SENTRY_PROFILES_SAMPLE_RATE=${SENTRY_PROFILES_SAMPLE_RATE}
               ENVIRONMENT=${ENVIRONMENT}
+              GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
               " > .env
       - run:
           name: Generate GAE app.yaml file
@@ -446,6 +447,7 @@ workflows:
               only:
                 - master
                 - production
+                - sentryTracing
       - install-node-packages:
           requires:
             - checkout-to-workspace
@@ -454,6 +456,7 @@ workflows:
               only:
                 - master
                 - production
+                - sentryTracing
 
       # staging
       - build-front:
@@ -465,6 +468,7 @@ workflows:
             branches:
               only:
                 - master
+                - sentryTracing
       - deploy:
           name: deploy-staging
           context: STAGING
@@ -475,6 +479,7 @@ workflows:
             branches:
               only:
                 - master
+                - sentryTracing
       - deploy-api:
           name: deploy-api-staging
           context: STAGING
