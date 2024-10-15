@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.8",
-    "@chakra-ui/icons": "^2.1.0",
-    "@chakra-ui/react": "^2.8.0",
+    "@chakra-ui/icons": "^2.2.4",
+    "@chakra-ui/react": "^2.10.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.9.0",
@@ -40,13 +40,13 @@
     "@visx/tooltip": "^3.3.0",
     "chakra-react-select": "^4.9.2",
     "date-fns": "^4.1.0",
-    "dom-to-image-more": "^3.4.3",
+    "dom-to-image-more": "^3.4.5",
     "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.1",
-    "react-router-dom": "^6.15.0",
+    "react-router-dom": "^6.27.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
