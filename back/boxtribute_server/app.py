@@ -13,6 +13,11 @@ from .utils import in_staging_environment
 
 
 def create_app():
+    if in_staging_environment():
+        import googlecloudprofiler as profiler  # type: ignore
+
+        profiler.start(verbose=2, project_id=os.environ["GOOGLE_PROJECT_ID"])
+
     return Flask(__name__, static_folder=None)
 
 
@@ -39,11 +44,6 @@ def configure_app(
 
 def main(*blueprints):
     """Integrate Sentry SDK. Create and configure Flask app."""
-
-    if in_staging_environment():
-        import googlecloudprofiler as profiler  # type: ignore
-
-        profiler.start(verbose=2, project_id=os.environ["GOOGLE_PROJECT_ID"])
 
     def before_sentry_send(event, hint):  # pragma: no cover
         """Callback for filtering error events right before sending to Sentry. This
