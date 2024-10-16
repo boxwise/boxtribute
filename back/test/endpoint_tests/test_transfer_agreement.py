@@ -1,3 +1,4 @@
+import time
 from datetime import date
 
 import pytest
@@ -167,6 +168,10 @@ def test_transfer_agreement_mutations(
         "shipments": [],
     }
 
+    # Test case 2.2.22
+    time.sleep(1)  # ensure newer valid_from timestamp
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
     # Provide all available fields in input
     # Test case 2.2.2
     valid_from = "2021-12-15"
@@ -193,26 +198,6 @@ def test_transfer_agreement_mutations(
         "comment": comment,
         "sourceBases": [{"id": "1"}],
         "targetBases": [{"id": "3"}, {"id": "4"}],
-        "shipments": [],
-    }
-
-    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
-        initiatingOrganisationId: {default_organisation['id']}
-        initiatingOrganisationBaseIds: [1]
-        type: {TransferAgreementType.ReceivingFrom.name}"""
-    agreement = assert_successful_request(client, _create_mutation(creation_input))
-    third_agreement_id = agreement.pop("id")
-    assert agreement.pop("validFrom").startswith(date.today().isoformat())
-    assert agreement == {
-        "sourceOrganisation": {"id": str(another_organisation["id"])},
-        "targetOrganisation": {"id": str(default_organisation["id"])},
-        "state": TransferAgreementState.UnderReview.name,
-        "type": TransferAgreementType.ReceivingFrom.name,
-        "requestedBy": {"id": "8"},
-        "validUntil": None,
-        "comment": None,
-        "sourceBases": [{"id": "3"}, {"id": "4"}],
-        "targetBases": [{"id": "1"}],
         "shipments": [],
     }
 
@@ -244,6 +229,27 @@ def test_transfer_agreement_mutations(
         validFrom: "{valid_from}"
         validUntil: "{valid_until}" """
     assert_bad_user_input(client, _create_mutation(creation_input))
+
+    # Test case 2.2.2
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [2]
+        type: {TransferAgreementType.ReceivingFrom.name}"""
+    agreement = assert_successful_request(client, _create_mutation(creation_input))
+    third_agreement_id = agreement.pop("id")
+    assert agreement.pop("validFrom").startswith(date.today().isoformat())
+    assert agreement == {
+        "sourceOrganisation": {"id": str(another_organisation["id"])},
+        "targetOrganisation": {"id": str(default_organisation["id"])},
+        "state": TransferAgreementState.UnderReview.name,
+        "type": TransferAgreementType.ReceivingFrom.name,
+        "requestedBy": {"id": "3"},
+        "validUntil": None,
+        "comment": None,
+        "sourceBases": [{"id": "3"}, {"id": "4"}],
+        "targetBases": [{"id": "2"}],
+        "shipments": [],
+    }
 
     mock_user_for_request(mocker, base_ids=[3, 4], organisation_id=2, user_id=2)
     # Test case 2.2.3
