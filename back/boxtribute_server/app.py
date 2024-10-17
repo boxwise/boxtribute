@@ -9,9 +9,15 @@ from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
+from .utils import in_staging_environment
 
 
 def create_app():
+    if in_staging_environment():
+        import googlecloudprofiler as profiler  # type: ignore
+
+        profiler.start(verbose=2, project_id=os.environ["GOOGLE_PROJECT_ID"])
+
     return Flask(__name__, static_folder=None)
 
 
