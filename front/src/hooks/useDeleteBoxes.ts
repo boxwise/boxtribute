@@ -25,10 +25,7 @@ export const DELETE_BOXES = gql`
     deleteBoxes(labelIdentifiers: $labelIdentifiers) {
       ... on BoxResult {
         updatedBoxes {
-          deletedOn
-          history {
-            changes
-          }
+          labelIdentifier
         }
         invalidBoxLabelIdentifiers
       }
@@ -59,7 +56,7 @@ export const useDeleteBoxes = () => {
           if (errors?.length) {
             const errorCode = errors[0]?.extensions?.code;
 
-            if (errorCode === "FORBIDDEN") {
+            if (errorCode === "InsufficientPermissionError") {
               if (showErrors) {
                 triggerError({
                   message: "You don't have the permissions to delete these boxes.",
@@ -101,12 +98,6 @@ export const useDeleteBoxes = () => {
                 message: `Invalid box identifiers: ${invalidIdentifiers.join(", ")}`,
               });
             }
-            return {
-              kind: IDeleteBoxResultKind.INVALID_IDENTIFIERS,
-              requestedBoxes: boxes,
-              deletedBoxes,
-              invalidIdentifiers,
-            } as IDeleteBoxResult;
           }
 
           return {
