@@ -1178,10 +1178,11 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
     }
 
 
-def _generate_create_shipment_mutation(*, source_base, target_base, agreement):
+def _generate_create_shipment_mutation(*, source_base, target_base, agreement=None):
     creation_input = f"""sourceBaseId: {source_base["id"]},
-                         targetBaseId: {target_base["id"]},
-                         transferAgreementId: {agreement["id"]}"""
+                         targetBaseId: {target_base["id"]} """
+    if agreement is not None:
+        creation_input += f"""transferAgreementId: {agreement["id"]}"""
     return f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
                     id }} }}"""
 
@@ -1252,6 +1253,18 @@ def test_shipment_mutations_create_with_invalid_base(
         source_base=default_bases[0],
         target_base=default_bases[3],  # not part of agreement
         agreement=default_transfer_agreement,
+    )
+
+
+def test_shipment_mutations_intra_org_invalid_input(read_only_client, default_bases):
+    # Test case 3.2.3a
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client, source_base=default_bases[0], target_base=default_bases[0]
+    )
+
+    # Test case 3.2.3b
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client, source_base=default_bases[0], target_base=default_bases[2]
     )
 
 
