@@ -131,6 +131,23 @@ def data():
             "completed_by": default_user_data()["id"],
             "completed_on": TIME,
         },
+        {
+            "id": 8,
+            "source_base": base_data()[0]["id"],
+            "target_base": base_data()[1]["id"],
+            "transfer_agreement": None,
+            "state": ShipmentState.Preparing,
+            "started_by": default_user_data()["id"],
+            "started_on": TIME,
+            "canceled_by": None,
+            "canceled_on": None,
+            "sent_by": None,
+            "sent_on": None,
+            "receiving_started_by": None,
+            "receiving_started_on": None,
+            "completed_by": None,
+            "completed_on": None,
+        },
     ]
 
 
@@ -162,6 +179,11 @@ def receiving_shipment():
 @pytest.fixture
 def completed_shipment():
     return data()[6]
+
+
+@pytest.fixture
+def intra_org_shipment():
+    return data()[7]
 
 
 @pytest.fixture
