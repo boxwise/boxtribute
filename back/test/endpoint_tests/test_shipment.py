@@ -82,6 +82,7 @@ def test_shipments_query(
     sent_shipment,
     receiving_shipment,
     completed_shipment,
+    intra_org_shipment,
 ):
     # Test case 3.1.1
     query = "query { shipments { id } }"
@@ -95,6 +96,7 @@ def test_shipments_query(
             sent_shipment,
             receiving_shipment,
             completed_shipment,
+            intra_org_shipment,
         ]
     ]
 
@@ -1647,3 +1649,91 @@ def test_move_not_delivered_box_as_member_of_neither_org(
     box_id = str(not_delivered_box["id"])
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
     assert_forbidden_request(read_only_client, mutation)
+
+
+def test_shipment_mutations_intra_org(
+    client,
+    default_bases,
+    default_organisation,
+    default_box,
+    mocker,
+):
+    # Test case 3.2.1a
+    source_base_id = default_bases[0]["id"]
+    target_base_id = default_bases[1]["id"]
+    creation_input = f"""sourceBaseId: {source_base_id}
+                         targetBaseId: {target_base_id}"""
+    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
+                    id
+                    sourceBase {{ id }}
+                    targetBase {{ id }}
+                    state
+                    startedBy {{ id }}
+                    startedOn
+                    sentBy {{ id }}
+                    sentOn
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
+                    completedBy {{ id }}
+                    completedOn
+                    canceledBy {{ id }}
+                    canceledOn
+                    transferAgreement {{ id }}
+                    details {{ id }}
+                }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    shipment_id = str(shipment.pop("id"))
+    assert shipment.pop("startedOn").startswith(today)
+    assert shipment == {
+        "sourceBase": {"id": str(source_base_id)},
+        "targetBase": {"id": str(target_base_id)},
+        "state": ShipmentState.Preparing.name,
+        "startedBy": {"id": source_base_user_id},
+        "sentBy": None,
+        "sentOn": None,
+        "receivingStartedBy": None,
+        "receivingStartedOn": None,
+        "completedBy": None,
+        "completedOn": None,
+        "canceledBy": None,
+        "canceledOn": None,
+        "transferAgreement": None,
+        "details": [],
+    }
+
+    box_label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    id
+                    details {{
+                        id
+                        shipment {{ id }}
+                        box {{ id state }}
+                    }} }} }}"""
+
+    mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Sent.name}
+
+    # Receiving-side mutations
+    mock_user_for_request(
+        mocker,
+        base_ids=[default_bases[1]["id"]],
+        organisation_id=default_organisation["id"],
+        user_id=target_base_user_id,
+    )
+    mutation = f"""mutation {{ startReceivingShipment(id: "{shipment_id}") {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Receiving.name}
+
+    # No products/locations for base 2 in test data; skipping until measure-product PR
+    # merged
+    mutation = f"""mutation {{ updateShipmentWhenReceiving(
+                updateInput: {{ id: {shipment_id} }}) {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Completed.name}
