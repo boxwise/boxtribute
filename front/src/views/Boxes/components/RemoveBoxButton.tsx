@@ -1,9 +1,22 @@
 import React, { useState } from "react";
+import { Row } from "react-table";
+
 import { Button, useMediaQuery } from "@chakra-ui/react";
 import { FaTrashAlt } from "react-icons/fa";
 import RemoveBoxOverlay from "./RemoveBoxOverlay";
+import { BoxRow } from "./types";
 
-const RemoveBoxesButton: React.FC = ({ onDeleteBoxes, actionsAreLoading, selectedBoxes }) => {
+interface RemoveBoxesButtonProps {
+  onDeleteBoxes: () => void;
+  actionsAreLoading: boolean;
+  selectedBoxes: Row<BoxRow>[];
+}
+
+const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
+  onDeleteBoxes,
+  actionsAreLoading,
+  selectedBoxes,
+}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
 

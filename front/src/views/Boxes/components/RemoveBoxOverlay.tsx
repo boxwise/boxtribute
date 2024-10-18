@@ -1,11 +1,13 @@
 import { SmallCloseIcon } from "@chakra-ui/icons";
 import { VStack, chakra } from "@chakra-ui/react";
 import { AreYouSureDialog } from "components/AreYouSure";
+import { Row } from "react-table";
+import { BoxRow } from "./types";
 
 interface IRemoveBoxOverlayProps {
   isLoading: boolean;
   isOpen: boolean;
-  selectedBoxes: string[];
+  selectedBoxes: Row<BoxRow>[];
   onClose: () => void;
   onRemove: () => void;
 }
