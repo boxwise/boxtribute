@@ -62,8 +62,3 @@ export function SelectButton({ label, options, onSelect, isDisabled, icon }: ISe
     </Menu>
   );
 }
-
-SelectButton.defaultProps = {
-  icon: undefined,
-  isDisabled: false,
-};
