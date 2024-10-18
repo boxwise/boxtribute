@@ -1,9 +1,10 @@
 import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
-import { FaWarehouse } from "react-icons/fa";
+import { FaWarehouse } from "react-icons/fa"; // Add Trash Icon for delete action
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
 import {
@@ -20,6 +21,7 @@ import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import RemoveBoxesButton from "./RemoveBoxButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -171,6 +173,30 @@ function BoxesActionsAndTable({
     );
   }, [unassignBoxesFromShipments, selectedBoxes]);
 
+  // Delete Boxes
+  const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
+
+  const onDeleteBoxes = useCallback(() => {
+    deleteBoxes(
+      selectedBoxes.map((box) => box.values as IBoxBasicFields),
+      true,
+      true,
+    ).then((deleteBoxesResult) => {
+      if (deleteBoxesResult.kind === "success") {
+        createToast({
+          type: "success",
+          message: "Boxes successfully deleted.",
+        });
+        onRefetch();
+      } else {
+        createToast({
+          type: "error",
+          message: "Could not delete the boxes. Please try again.",
+        });
+      }
+    });
+  }, [deleteBoxes, selectedBoxes, createToast, onRefetch]);
+
   useEffect(() => {
     if (unassignBoxesFromShipmentsResult) {
       const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
@@ -202,7 +228,8 @@ function BoxesActionsAndTable({
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
-    isUnassignBoxesFromShipmentsLoading;
+    isUnassignBoxesFromShipmentsLoading ||
+    isDeleteBoxesLoading;
 
   const actionButtons = useMemo(
     () => [
@@ -222,6 +249,12 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
+      <RemoveBoxesButton
+        onDeleteBoxes={onDeleteBoxes}
+        actionsAreLoading={actionsAreLoading}
+        selectedBoxes={selectedBoxes}
+        key="remove-boxes"
+      />,
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
           <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
@@ -236,10 +269,13 @@ function BoxesActionsAndTable({
       actionsAreLoading,
       shipmentOptions,
       onAssignBoxesToShipment,
+      onDeleteBoxes,
+      selectedBoxes,
       thereIsABoxMarkedForShipmentSelected,
       onUnassignBoxesToShipment,
     ],
   );
+
   return (
     <BoxesTable
       tableConfig={tableConfig}
