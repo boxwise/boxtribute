@@ -1,15 +1,7 @@
-import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import DistroSpotsContainer from "./DistroSpotsContainer";
 import { StorybookApolloProvider } from "tests/test-utils";
-import {
-  DistributionEventState,
-  DistroSpotsForBaseIdQuery,
-  DistroSpotsForBaseIdQueryVariables,
-} from "types/generated/graphql";
-import { graphql } from "msw";
-// import { worker } from "mocks/browser";
 
 export default {
   title: "Mobile Distro Events/Distro Spots/List View/Container",
@@ -56,11 +48,9 @@ export default {
       );
     },
   ],
-} as ComponentMeta<typeof DistroSpotsContainer>;
+} as Meta<typeof DistroSpotsContainer>;
 
-const Template: ComponentStory<typeof DistroSpotsContainer> = (args) => (
-  <DistroSpotsContainer {...args} />
-);
+const Template: StoryFn<typeof DistroSpotsContainer> = (args) => <DistroSpotsContainer {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

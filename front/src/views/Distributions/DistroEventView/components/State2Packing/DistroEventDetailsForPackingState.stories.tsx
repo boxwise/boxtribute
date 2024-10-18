@@ -1,11 +1,8 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
-import {
-  BoxData,
-  IPackingListEntryForPackingState,
-} from "views/Distributions/types";
+import { BoxData, IPackingListEntryForPackingState } from "views/Distributions/types";
 
 const mockedBoxesData: BoxData[] = [
   {
@@ -68,15 +65,14 @@ const mockedDistroEventPackingList: IPackingListEntryForPackingState[] = [
 ];
 
 export default {
-  title:
-    "Mobile Distro Events/Distro Events/Detail View/State: 4 - Packing/Component",
+  title: "Mobile Distro Events/Distro Events/Detail View/State: 4 - Packing/Component",
   component: DistroEventDetailsForPackingState,
   parameters: {},
-} as ComponentMeta<typeof DistroEventDetailsForPackingState>;
+} as Meta<typeof DistroEventDetailsForPackingState>;
 
-const Template: ComponentStory<typeof DistroEventDetailsForPackingState> = (
-  args
-) => <DistroEventDetailsForPackingState {...args} />;
+const Template: StoryFn<typeof DistroEventDetailsForPackingState> = (args) => (
+  <DistroEventDetailsForPackingState {...args} />
+);
 
 export const Default = Template.bind({});
 Default.args = {

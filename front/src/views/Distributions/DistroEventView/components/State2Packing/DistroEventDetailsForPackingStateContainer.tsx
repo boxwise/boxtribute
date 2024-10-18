@@ -154,10 +154,10 @@ const DistroEventDetailsForPackingStateContainer = ({
             },
           },
         ],
-        update: (cache, { data }) => {
+        update: (cache) => {
           cache.modify({
             fields: {
-              packingListEntriesForDistributionEvent(existingPackingListEntries) {},
+              packingListEntriesForDistributionEvent() {},
             },
           });
         },

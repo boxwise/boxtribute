@@ -51,6 +51,10 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         audio: false,
         video: true,
       })
+      .then(() => {
+        // Permission is granted, update state
+        setIsCameraNotPermited(false);
+      })
       .catch((error) => {
         if (error.name === "NotAllowedError") {
           setIsCameraNotPermited(true);
@@ -172,6 +176,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       )}
       <QrReader
         isMultiBox={isMultiBox}
+        isCameraNotPermited={isCameraNotPermited}
         onTabSwitch={(index) => setIsMultiBox(index === 1)}
         onScan={onScan}
         onFindBoxByLabel={onFindBoxByLabel}

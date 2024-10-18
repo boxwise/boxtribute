@@ -23,7 +23,13 @@ interface ISelectButtonProps {
   icon?: ReactElement;
 }
 
-export function SelectButton({ label, options, onSelect, isDisabled, icon }: ISelectButtonProps) {
+export function SelectButton({
+  label,
+  options,
+  onSelect,
+  isDisabled = false,
+  icon = undefined,
+}: ISelectButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   return (

@@ -110,7 +110,7 @@ import {
         UseResizeColumnsColumnProps<D>,
         UseSortByColumnProps<D> {}
 
-    export interface Cell<D extends Record<string, unknown> = Record<string, unknown>, V = any>
+    export interface Cell<D extends Record<string, unknown> = Record<string, unknown>>
       extends UseGroupByCellProps<D>,
         UseRowStateCellProps<D> {}
 

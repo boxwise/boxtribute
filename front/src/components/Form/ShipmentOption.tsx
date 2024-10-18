@@ -1,9 +1,21 @@
 import { chakra } from "@chakra-ui/react";
+import { IDropdownOption } from "./SelectField";
+import { GroupBase, OptionProps } from "chakra-react-select";
 
-export function ShipmentOption(props) {
-  const { isDisabled, innerProps, data } = props;
-
+export function ShipmentOption({
+  isDisabled,
+  innerProps,
+  data,
+}: OptionProps<
+  IDropdownOption | ((prevState: IDropdownOption) => IDropdownOption),
+  false,
+  GroupBase<IDropdownOption | ((prevState: IDropdownOption) => IDropdownOption)>
+>) {
   if (isDisabled) {
+    return null;
+  }
+  // supporting this scenario is not required
+  if (data != null && typeof data === "function") {
     return null;
   }
 

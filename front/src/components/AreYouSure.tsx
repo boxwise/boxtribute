@@ -30,9 +30,9 @@ export function AreYouSureDialog({
   title,
   body,
   leftButtonText,
-  leftButtonProps = {}, // Default values set here
+  leftButtonProps = {},
   rightButtonText,
-  rightButtonProps = {}, // Default values set here
+  rightButtonProps = {},
   isLoading,
   isOpen,
   onClose,
