@@ -145,6 +145,20 @@ class InvalidShipmentState(_InvalidResourceState):
         )
 
 
+class IdenticalShipmentSourceAndTargetBase(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Source and target base must not be identical",
+    }
+
+
+class ShipmentSourceAndTargetBaseOrganisationsMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Source and target base must be of same organisation",
+    }
+
+
 class InvalidShipmentDetailUpdateInput(Exception):
     def __init__(self, *args, model, detail, **kwargs):
         self.extensions = {
