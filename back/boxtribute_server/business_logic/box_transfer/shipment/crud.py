@@ -62,25 +62,29 @@ def _validate_bases_as_part_of_transfer_agreement(
             )
 
 
-def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, user):
+def create_shipment(
+    *, source_base_id, target_base_id, user, transfer_agreement_id=None
+):
     """Insert information for a new Shipment in the database.
+    If no transfer agreement is specified, an intra-org shipment will be created.
     Raise an InvalidTransferAgreementState exception if specified agreement has a state
     different from 'Accepted'.
     Raise an InvalidTransferAgreementBase exception if specified source or target base
     are not included in given agreement.
     """
-    agreement = TransferAgreement.get_by_id(transfer_agreement_id)
-    if agreement.state != TransferAgreementState.Accepted:
-        raise InvalidTransferAgreementState(
-            expected_states=[TransferAgreementState.Accepted],
-            actual_state=agreement.state,
-        )
+    if transfer_agreement_id is not None:
+        agreement = TransferAgreement.get_by_id(transfer_agreement_id)
+        if agreement.state != TransferAgreementState.Accepted:
+            raise InvalidTransferAgreementState(
+                expected_states=[TransferAgreementState.Accepted],
+                actual_state=agreement.state,
+            )
 
-    _validate_bases_as_part_of_transfer_agreement(
-        transfer_agreement=agreement,
-        source_base_id=source_base_id,
-        target_base_id=target_base_id,
-    )
+        _validate_bases_as_part_of_transfer_agreement(
+            transfer_agreement=agreement,
+            source_base_id=source_base_id,
+            target_base_id=target_base_id,
+        )
 
     return Shipment.create(
         source_base=source_base_id,
@@ -482,10 +486,13 @@ def update_shipment_when_preparing(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
 
-    _validate_bases_as_part_of_transfer_agreement(
-        transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
-        target_base_id=target_base_id,
-    )
+    if shipment.transfer_agreement_id is not None:
+        _validate_bases_as_part_of_transfer_agreement(
+            transfer_agreement=TransferAgreement.get_by_id(
+                shipment.transfer_agreement_id
+            ),
+            target_base_id=target_base_id,
+        )
 
     now = utcnow()
     with db.database.atomic():
