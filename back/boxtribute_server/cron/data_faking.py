@@ -883,12 +883,13 @@ class Generator:
             id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
         )
 
-        def _prepare_shipment(source_base_id, target_base_id):
+        def _prepare_shipment(source_base_id, target_base_id, *, intra_org=False):
+            agreement_id = None if intra_org else self.accepted_agreement.id
             user = org1_user if source_base_id == 1 else org2_user
             shipment = create_shipment(
                 source_base_id=source_base_id,
                 target_base_id=target_base_id,
-                transfer_agreement_id=self.accepted_agreement.id,
+                transfer_agreement_id=agreement_id,
                 user=user,
             )
             nr_prepared_boxes = 10
@@ -1001,6 +1002,36 @@ class Generator:
         target_base_id = 1
         shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
         send_shipment(shipment=shipment, user=org2_user)
+
+        # Intra-org shipment 2 -> 3. Preparing
+        source_base_id = 2
+        target_base_id = 3
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+
+        # Intra-org shipment 2 -> 3. Preparing, then canceled
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+        cancel_shipment(shipment=shipment, user=org2_user)
+
+        # Intra-org shipment 3 -> 4. Prepared and Sent
+        source_base_id = 3
+        target_base_id = 4
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+        send_shipment(shipment=shipment, user=org2_user)
+
+        # Intra-org shipment 4 -> 2. Prepared, sent, eventually started Receiving
+        source_base_id = 4
+        target_base_id = 2
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+        send_shipment(shipment=shipment, user=org2_user)
+        start_receiving_shipment(shipment=shipment, user=org2_user)
 
     def _generate_transactions(self):
         for b in self.base_ids:
