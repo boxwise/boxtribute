@@ -8,11 +8,14 @@ from ....enums import (
     TransferAgreementType,
 )
 from ....exceptions import (
+    IdenticalShipmentSourceAndTargetBase,
     InvalidShipmentDetailUpdateInput,
     InvalidShipmentState,
     InvalidTransferAgreementBase,
     InvalidTransferAgreementState,
+    ShipmentSourceAndTargetBaseOrganisationsMismatch,
 )
+from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.box_state import BoxState as BoxStateModel
 from ....models.definitions.history import DbChangeHistory
@@ -67,12 +70,33 @@ def create_shipment(
 ):
     """Insert information for a new Shipment in the database.
     If no transfer agreement is specified, an intra-org shipment will be created.
-    Raise an InvalidTransferAgreementState exception if specified agreement has a state
-    different from 'Accepted'.
-    Raise an InvalidTransferAgreementBase exception if specified source or target base
-    are not included in given agreement.
+
+    Validations for intra-org shipment:
+    - Raise an IdenticalShipmentSourceAndTargetBase exception if source and target base
+      are identical
+    - Raise a ShipmentSourceAndTargetBaseOrganisationsMismatch exception if source and
+      target base belong to different organisations
+
+    Validations for inter-org shipment:
+    - Raise an InvalidTransferAgreementState exception if specified agreement has a
+      state different from 'Accepted'.
+    - Raise an InvalidTransferAgreementBase exception if specified source or target base
+      are not included in given agreement.
     """
-    if transfer_agreement_id is not None:
+    if transfer_agreement_id is None:
+        if source_base_id == target_base_id:
+            raise IdenticalShipmentSourceAndTargetBase()
+
+        source_base_organisation_id = (
+            Base.select(Base.organisation).where(Base.id == source_base_id).scalar()
+        )
+        target_base_organisation_id = (
+            Base.select(Base.organisation).where(Base.id == target_base_id).scalar()
+        )
+        if source_base_organisation_id != target_base_organisation_id:
+            raise ShipmentSourceAndTargetBaseOrganisationsMismatch()
+
+    else:
         agreement = TransferAgreement.get_by_id(transfer_agreement_id)
         if agreement.state != TransferAgreementState.Accepted:
             raise InvalidTransferAgreementState(
