@@ -2377,7 +2377,7 @@ CREATE TABLE `shipment` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `source_base_id` int(11) unsigned NOT NULL,
   `target_base_id` int(11) unsigned NOT NULL,
-  `transfer_agreement_id` int(11) unsigned NOT NULL,
+  `transfer_agreement_id` int(11) unsigned DEFAULT NULL,
   `state` varchar(255) NOT NULL DEFAULT 'Preparing',
   `started_on` datetime NOT NULL,
   `started_by_id` int(11) unsigned NOT NULL,
