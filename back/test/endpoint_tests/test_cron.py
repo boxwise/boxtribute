@@ -13,7 +13,7 @@ from boxtribute_server.cron.data_faking import (
     NR_OF_CREATED_TAGS_PER_BASE,
     NR_OF_DELETED_TAGS_PER_BASE,
 )
-from utils import assert_bad_user_input, assert_successful_request
+from utils import assert_successful_request
 
 reseed_db_path = f"{CRON_PATH}/reseed-db"
 headers = [("X-AppEngine-Cron", "true")]
@@ -45,14 +45,16 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
 
     # Success; perform actual sourcing of seed (takes about 2s)
     # Create QR code and verify that it is removed after reseeding
-    mutation = "mutation { createQrCode { code } }"
+    mutation = "mutation { createQrCode { id code } }"
     response = assert_successful_request(cron_client, mutation)
     code = response["code"]
     response = cron_client.get(reseed_db_path, headers=headers)
     assert response.status_code == 200
     assert response.json == {"message": "reseed-db job executed"}
-    query = f"""query {{ qrCode(qrCode: "{code}") {{ id }} }}"""
-    response = assert_bad_user_input(cron_client, query)
+    query = f"""query {{ qrCode(code: "{code}") {{
+        ...on ResourceDoesNotExistError {{ id name }} }} }}"""
+    response = assert_successful_request(cron_client, query)
+    assert response == {"id": None, "name": "QrCode"}
 
     # Verify generation of fake data
     query = "query { tags { id } }"

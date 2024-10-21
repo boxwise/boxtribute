@@ -26,9 +26,13 @@ class InsufficientPermission(UserError):
 
 
 class UnauthorizedForBase(UserError):
-    def __init__(self, *, id, name):
+    def __init__(self, *, id, base):
         self.id = id
-        self.name = name
+        self.name = ""
+        self.organisation_name = ""
+        if base is not None:
+            self.name = base.name
+            self.organisation_name = base.organisation.name
 
 
 class BoxesStillAssignedToProduct(UserError):

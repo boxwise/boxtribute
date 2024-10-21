@@ -15,8 +15,8 @@ def test_queries(auth0_client, endpoint):
         return assert_successful_request(*args, **kwargs, endpoint=endpoint)
 
     query = """query BoxIdAndItems {
-                qrCode(qrCode: "093f65e080a295f8076b1c5722a46aa2") { box { id } }
-            }"""
+                qrCode(code: "093f65e080a295f8076b1c5722a46aa2") {
+                    ...on QrCode { box { ...on Box { id } } } } }"""
     queried_box = _assert_successful_request(auth0_client, query)["box"]
     assert queried_box == {"id": "100000000"}
 

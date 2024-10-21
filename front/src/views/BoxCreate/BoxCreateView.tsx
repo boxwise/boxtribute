@@ -72,7 +72,9 @@ export const CREATE_BOX_MUTATION = gql`
       qrCode {
         code
         box {
-          labelIdentifier
+          ... on Box {
+            labelIdentifier
+          }
         }
       }
     }
@@ -175,7 +177,7 @@ function BoxCreateView() {
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
-          const errorCode = mutationResult.errors[0].extensions?.code;
+          const errorCode = mutationResult.errors[0]?.extensions?.code;
           if (errorCode === "BAD_USER_INPUT") {
             triggerError({
               message: "The QR code is already used for another box.",

@@ -8,14 +8,14 @@ def test_qr_exists_query(read_only_client, default_qr_code):
     # Test case 8.1.33
     code = default_qr_code["code"]
     query = f"""query CheckQrExistence {{
-                qrExists(qrCode: "{code}")
+                qrExists(code: "{code}")
             }}"""
     qr_exists = assert_successful_request(read_only_client, query)
     assert qr_exists
 
     # Test case 8.1.34
     query = """query CheckQrExistence {
-                qrExists(qrCode: "000")
+                qrExists(code: "000")
             }"""
     qr_exists = assert_successful_request(read_only_client, query)
     assert not qr_exists
@@ -25,12 +25,12 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
     # Test case 8.1.30
     code = default_qr_code["code"]
     query = f"""query {{
-                qrCode(qrCode: "{code}") {{
+                qrCode(code: "{code}") {{ ...on QrCode {{
                     id
                     code
-                    box {{ id }}
+                    box {{ ...on Box {{ id }} }}
                     createdOn
-                }}
+                }} }}
             }}"""
     queried_code = assert_successful_request(read_only_client, query)
     assert queried_code == {
@@ -44,7 +44,8 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
 def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
     # Test case 8.1.2a
     code = qr_code_without_box["code"]
-    query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
+    query = f"""query {{ qrCode(code: "{code}") {{
+        ...on QrCode {{ box {{ ...on Box {{ id }} }} }} }} }}"""
     qr_code = assert_successful_request(read_only_client, query)
     assert qr_code == {"box": None}
 
@@ -61,10 +62,10 @@ def test_qr_code_mutation(client, box_without_qr_code):
         createQrCode(boxLabelIdentifier: "{box_without_qr_code['label_identifier']}")
         {{
             id
-            box {{
+            box {{ ...on Box {{
                 id
                 numberOfItems
-            }}
+            }} }}
         }}
     }}"""
     created_qr_code = assert_successful_request(client, mutation)
