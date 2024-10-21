@@ -1,6 +1,6 @@
 from functools import wraps
 
-from peewee import JOIN, SQL, Case, fn
+from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
@@ -12,6 +12,7 @@ from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
 from ...models.definitions.size import Size
+from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
@@ -55,6 +56,13 @@ def _generate_dimensions(*names, target_type=None, facts):
         dimensions["product"] = (
             Product.select(Product.id, Product.name, Product.gender)
             .where(Product.id << product_ids)
+            .dicts()
+        )
+
+    if "dimension" in names:
+        dimensions["dimension"] = (
+            SizeRange.select(SizeRange.id, SizeRange.label.alias("name"))
+            .where(SizeRange.id << [28, 29])
             .dicts()
         )
 
@@ -407,7 +415,10 @@ def compute_stock_overview(base_id):
             Box.location.alias("location_id"),
             Box.state.alias("box_state"),
             Box.product.alias("product_id"),
-            Box.measure_value,
+            # Round float to three significant digits
+            fn.ROUND(
+                Box.measure_value, 3 - fn.FLOOR(fn.LOG10(Box.measure_value) + 1)
+            ).alias("absolute_measure_value"),
             Box.display_unit,
             Box.number_of_items.alias("number_of_items"),
             tag_ids.alias("tag_ids"),
@@ -432,10 +443,8 @@ def compute_stock_overview(base_id):
             boxes.c.box_state,
             Product.category.alias("category_id"),
             fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
-            fn.CONCAT(
-                fn.ROUND(boxes.c.measure_value, 3),
-                Case(Unit.dimension_id, ((28, "kg"), (29, "l")), ""),
-            ).alias("measure_name"),
+            boxes.c.absolute_measure_value,
+            Unit.dimension.alias("dimension_id"),
             Product.gender.alias("gender"),
             boxes.c.tag_ids,
             fn.COUNT(boxes.c.id).alias("boxes_count"),
@@ -458,7 +467,8 @@ def compute_stock_overview(base_id):
             SQL("box_state"),
             SQL("category_id"),
             SQL("product_name"),
-            SQL("measure_name"),
+            SQL("absolute_measure_value"),
+            SQL("dimension_id"),
             SQL("gender"),
         )
         .dicts()
@@ -466,6 +476,6 @@ def compute_stock_overview(base_id):
     for fact in facts:
         fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
     dimensions = _generate_dimensions(
-        "size", "location", "category", "tag", facts=facts
+        "size", "location", "category", "tag", "dimension", facts=facts
     )
     return {"facts": facts, "dimensions": dimensions}

@@ -204,7 +204,7 @@ def test_query_moved_boxes(
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
-            measureName organisationName boxesCount itemsCount
+            absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
         }
         dimensions { target { id name type } }
         } }"""
@@ -220,7 +220,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "jackets",
                 "sizeId": 2,
-                "measureName": None,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": location_name,
                 "organisationName": None,
@@ -233,7 +234,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
-                "measureName": None,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": location_name,
                 "organisationName": None,
@@ -246,7 +248,8 @@ def test_query_moved_boxes(
                 "categoryId": 12,
                 "productName": "joggers",
                 "sizeId": 1,
-                "measureName": None,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Boy",
                 "targetId": location_name,
                 "organisationName": None,
@@ -259,7 +262,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
-                "measureName": None,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": base_name,
                 "organisationName": org_name,
@@ -272,7 +276,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "new product",
                 "sizeId": 1,
-                "measureName": None,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": base_name,
                 "organisationName": org_name,
@@ -285,7 +290,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
-                "measureName": None,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": BoxState.Lost.name,
                 "organisationName": None,
@@ -321,13 +327,14 @@ def test_query_stock_overview(
 ):
     query = """query { stockOverview(baseId: 1) {
         facts { categoryId productName gender sizeId locationId boxState tagIds
-            measureName itemsCount boxesCount }
-        dimensions { location { id name } }
+            absoluteMeasureValue dimensionId itemsCount boxesCount }
+        dimensions { location { id name } dimension { id name } }
     } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     product_name = default_product["name"].strip().lower()
     assert data["dimensions"] == {
-        "location": [{"id": default_location["id"], "name": default_location["name"]}]
+        "location": [{"id": default_location["id"], "name": default_location["name"]}],
+        "dimension": [{"id": 28, "name": "Mass"}, {"id": 29, "name": "Volume"}],
     }
     assert data["facts"] == [
         {
@@ -339,7 +346,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [2, 3],
         },
         {
@@ -351,7 +359,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [3],
         },
         {
@@ -363,7 +372,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -375,7 +385,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [3],
         },
         {
@@ -387,7 +398,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -399,7 +411,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -411,7 +424,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "jackets",
             "sizeId": 2,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -423,7 +437,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "joggers",
             "sizeId": 1,
-            "measureName": None,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -435,7 +450,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "rice",
             "sizeId": None,
-            "measureName": "0.500kg",
+            "absoluteMeasureValue": 0.5,
+            "dimensionId": 28,
             "tagIds": [],
         },
     ]

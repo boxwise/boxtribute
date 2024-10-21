@@ -99,8 +99,12 @@ type MovedBoxesResult {
   categoryId: Int!
   productName: String!
   gender: ProductGender!
+  " Null for boxes with measure-product "
   sizeId: Int
-  measureName: String
+  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
+  dimensionId: Int
+  " Null for boxes with size-product "
+  absoluteMeasureValue: Float
   " Shipment target organisation name; null for BoxState/OutgoingLocation target types "
   organisationName: String
   tagIds: [Int!]
@@ -113,6 +117,8 @@ type MovedBoxDataDimensions {
   size: [DimensionInfo]
   tag: [TagDimensionInfo!]!
   target: [TargetDimensionInfo]
+  " 'Dimension' in the sense of Mass or Volume "
+  dimension: [DimensionInfo!]!
 }
 
 type StockOverviewData implements DataCube {
@@ -124,8 +130,12 @@ type StockOverviewResult {
   categoryId: Int!
   productName: String!
   gender: ProductGender!
+  " Null for boxes with measure-product "
   sizeId: Int
-  measureName: String
+  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
+  dimensionId: Int
+  " Null for boxes with size-product "
+  absoluteMeasureValue: Float
   tagIds: [Int!]
   locationId: Int!
   boxState: BoxState!
@@ -138,6 +148,8 @@ type StockOverviewDataDimensions {
   size: [DimensionInfo!]!
   tag: [TagDimensionInfo!]!
   location: [DimensionInfo!]!
+  " 'Dimension' in the sense of Mass or Volume "
+  dimension: [DimensionInfo!]!
 }
 
 interface BasicDimensionInfo {
