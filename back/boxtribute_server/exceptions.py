@@ -193,14 +193,6 @@ class IncompatibleSizeAndMeasureInput(Exception):
     }
 
 
-class InsufficientMeasureInput(Exception):
-    extensions = {
-        "code": "BAD_USER_INPUT",
-        "description": "Invalid input: both 'displayUnitId' and 'measureValue' "
-        "required",
-    }
-
-
 class DisplayUnitProductMismatch(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",

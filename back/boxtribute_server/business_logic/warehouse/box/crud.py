@@ -10,7 +10,6 @@ from ....exceptions import (
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
-    InsufficientMeasureInput,
     NegativeMeasureValue,
     NegativeNumberOfItems,
     QrCodeAlreadyAssignedToBox,
@@ -63,17 +62,11 @@ def create_box(
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
 
-    if size_id is None and display_unit_id is None and measure_value is None:
-        raise IncompatibleSizeAndMeasureInput()
-    elif size_id is not None and (
-        display_unit_id is not None or measure_value is not None
-    ):
-        raise IncompatibleSizeAndMeasureInput()
-    elif (display_unit_id is None and measure_value is not None) or (
-        display_unit_id is not None and measure_value is None
-    ):
-        raise InsufficientMeasureInput()
-    elif display_unit_id is not None:
+    # The inputs size_id and the pair (display_unit_id, measure_value) are mutually
+    # exclusive.
+    if size_id is not None and display_unit_id is None and measure_value is None:
+        pass  # valid input
+    elif size_id is None and display_unit_id is not None and measure_value is not None:
         if measure_value < 0:
             raise NegativeMeasureValue()
 
@@ -85,6 +78,8 @@ def create_box(
         )
         if display_unit.dimension_id != product_size_range:
             raise DisplayUnitProductMismatch()
+    else:
+        raise IncompatibleSizeAndMeasureInput()
 
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
