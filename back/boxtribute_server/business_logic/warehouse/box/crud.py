@@ -161,6 +161,7 @@ def create_box(
         Box.comment,
         Box.state,
         Box.display_unit,
+        Box.measure_value,
     ],
 )
 def update_box(
