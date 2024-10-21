@@ -381,14 +381,14 @@ def test_box_mutations(
             }}
         }}"""
     updated_third_box = assert_successful_request(client, mutation)
+    measure_value *= pound_unit["conversion_factor"] / gram_unit["conversion_factor"]
+    rounded_measure_value = round(measure_value, 2)
     assert updated_third_box == {
         "displayUnit": {"id": new_unit_id},
-        "measureValue": measure_value
-        / gram_unit["conversion_factor"]
-        * pound_unit["conversion_factor"],
+        "measureValue": measure_value,
     }
 
-    new_measure_value = 1200.0
+    new_measure_value = 3.0  # in pound
     mutation = f"""mutation {{
             updateBox(
                 updateInput : {{
@@ -405,7 +405,7 @@ def test_box_mutations(
         "measureValue": new_measure_value,
     }
 
-    newest_measure_value = 1000.0
+    newest_measure_value = 1000.0  # in gram
     mutation = f"""mutation {{
             updateBox(
                 updateInput : {{
@@ -427,24 +427,24 @@ def test_box_mutations(
         "displayUnit": {"id": unit_id},
         "measureValue": newest_measure_value,
         "history": [
-            # {
-            #     "id": "115",
-            #     "changes": f"changed measure value from {new_measure_value} to "
-            #     + f"{newest_measure_value}",
-            #     "user": {"name": "coord"},
-            # },
             {
-                "id": "122",
+                "id": "124",
+                "changes": f"changed units of measure from {new_measure_value}0lb to "
+                + f"{newest_measure_value}0g",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "123",
                 "changes": f"changed unit from {pound_unit['symbol']} to "
                 + f"{gram_unit['symbol']}",
                 "user": {"name": "coord"},
             },
-            # {
-            #     "id": "122",
-            #     "changes": f"changed measure value from {measure_value} to "
-            #     + f"{new_measure_value}",
-            #     "user": {"name": "coord"},
-            # },
+            {
+                "id": "122",
+                "changes": f"changed units of measure from {rounded_measure_value}lb to"
+                + f" {new_measure_value}0lb",
+                "user": {"name": "coord"},
+            },
             {
                 "id": "121",
                 "changes": f"changed unit from {gram_unit['symbol']} to "
@@ -747,6 +747,8 @@ def test_box_mutations(
             DbChangeHistory.changes,
             DbChangeHistory.from_int,
             DbChangeHistory.to_int,
+            DbChangeHistory.from_float,
+            DbChangeHistory.to_float,
             DbChangeHistory.record_id,
             DbChangeHistory.table_name,
             DbChangeHistory.user,
@@ -765,6 +767,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record created",
@@ -774,6 +778,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record created",
@@ -783,6 +789,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "product_id",
@@ -792,6 +800,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "size_id",
@@ -801,6 +811,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "items",
@@ -810,6 +822,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "location_id",
@@ -819,6 +833,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": f"""comments changed from "" to "{comment}";""",
@@ -828,6 +844,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "box_state_id",
@@ -837,6 +855,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "display_unit_id",
@@ -846,6 +866,20 @@ def test_box_mutations(
             "table_name": "stock",
             "to_int": int(new_unit_id),
             "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": f"changed units of measure from {rounded_measure_value}lb to "
+            f"{new_measure_value}0lb",
+            "from_int": None,
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": 1.5,
+            "to_float": round(new_measure_value / pound_unit["conversion_factor"], 5),
         },
         {
             "changes": "display_unit_id",
@@ -855,6 +889,20 @@ def test_box_mutations(
             "table_name": "stock",
             "to_int": int(unit_id),
             "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": f"changed units of measure from {new_measure_value}0lb to "
+            f"{newest_measure_value}0g",
+            "from_int": None,
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": round(new_measure_value / pound_unit["conversion_factor"], 5),
+            "to_float": newest_measure_value / gram_unit["conversion_factor"],
         },
         {
             "changes": "location_id",
@@ -864,6 +912,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "box_state_id",
@@ -873,6 +923,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record deleted",
@@ -882,6 +934,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record deleted",
@@ -891,6 +945,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "location_id",
@@ -900,6 +956,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
     ]
 
