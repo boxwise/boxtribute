@@ -13,7 +13,7 @@ class Shipment(db.Model):  # type: ignore
     source_base = UIntForeignKeyField(model=Base, on_update="CASCADE")
     target_base = UIntForeignKeyField(model=Base, on_update="CASCADE")
     transfer_agreement = UIntForeignKeyField(
-        model=TransferAgreement, on_update="CASCADE"
+        model=TransferAgreement, on_update="CASCADE", null=True
     )
     state = EnumCharField(
         choices=ShipmentState,
