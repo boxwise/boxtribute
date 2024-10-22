@@ -35,11 +35,11 @@ export const ValueFilterSchema = z.object({
 export default function MultiSelectFilter({
   values,
   filterId,
-  placeholder,
+  placeholder = undefined,
   filterValue,
-  fieldLabel,
+  fieldLabel = "display by",
   onFilterChange,
-  defaultFilterValues,
+  defaultFilterValues = undefined,
 }: IValueFilterProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -78,9 +78,3 @@ export default function MultiSelectFilter({
     />
   );
 }
-
-MultiSelectFilter.defaultProps = {
-  defaultFilterValues: undefined,
-  fieldLabel: "display by",
-  placeholder: undefined,
-};

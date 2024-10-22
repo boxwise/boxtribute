@@ -391,7 +391,7 @@ ON
 JOIN products p ON p.id = b.product_id AND p.camp_id = %s
 JOIN box_state bs on bs.id = h.to_int
 LEFT OUTER JOIN units u ON u.id = b.display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
 GROUP BY moved_on, p.category_id, p.name, p.gender_id, b.size_id, bs.label, absolute_measure_value, dimension_id
 ;
 """

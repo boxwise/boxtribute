@@ -9,9 +9,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { isToday } from "date-fns";
-import isFuture from "date-fns/isFuture";
-import isPast from "date-fns/isPast";
+import { isFuture, isPast, isToday } from "date-fns";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
 import { DistributionEventState } from "types/generated/graphql";
@@ -31,27 +29,17 @@ const ListOfEvents = ({
       {distributionEventsListData.map((distributionEventData) => (
         <ListItem key={distributionEventData.id} my={5}>
           <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <Box
-              as="time"
-              dateTime={distributionEventData.plannedStartDateTime.toUTCString()}
-            >
+            <Box as="time" dateTime={distributionEventData.plannedStartDateTime.toUTCString()}>
               <DistributionEventTimeRangeDisplay
-                plannedStartDateTime={
-                  distributionEventData.plannedStartDateTime
-                }
+                plannedStartDateTime={distributionEventData.plannedStartDateTime}
                 plannedEndDateTime={distributionEventData.plannedEndDateTime}
               />
             </Box>
 
             <Heading size="md" my="2">
-              <LinkOverlay
-                to={getDistroEventDetailUrlById(distributionEventData.id)}
-                as={NavLink}
-              >
+              <LinkOverlay to={getDistroEventDetailUrlById(distributionEventData.id)} as={NavLink}>
                 {distributionEventData.distributionSpot.name}{" "}
-                {!!distributionEventData.name && (
-                  <>({distributionEventData.name})</>
-                )}
+                {!!distributionEventData.name && <>({distributionEventData.name})</>}
               </LinkOverlay>
             </Heading>
 
@@ -79,34 +67,28 @@ const DistributionList = ({
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
 
-  const distroEventsToday = sortedDistroEvents.filter((el) =>
-    isToday(el.plannedStartDateTime)
-  );
+  const distroEventsToday = sortedDistroEvents.filter((el) => isToday(el.plannedStartDateTime));
   const upcomingDistroEventsAfterToday = sortedDistroEvents.filter(
-    (el) =>
-      isFuture(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime)
+    (el) => isFuture(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime),
   );
 
   const pastDistroEvents = sortedDistroEvents.filter(
-    (el) => isPast(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime)
+    (el) => isPast(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime),
   );
   const pastNonCompletedDistroEvents = pastDistroEvents.filter(
-    (el) => el.state !== DistributionEventState.Completed
+    (el) => el.state !== DistributionEventState.Completed,
   );
   const pastCompletedDistroEvents = sortedDistroEvents.filter(
-    (el) => el.state === DistributionEventState.Completed
+    (el) => el.state === DistributionEventState.Completed,
   );
 
   const hasDistroEventsToday = distroEventsToday.length > 0;
-  const hasUpcomingDistroEventsAfterToday =
-    upcomingDistroEventsAfterToday.length > 0;
-  const showHeadingForUpcomingDistroEventsAfterTodaySection =
-    hasDistroEventsToday;
+  const hasUpcomingDistroEventsAfterToday = upcomingDistroEventsAfterToday.length > 0;
+  const showHeadingForUpcomingDistroEventsAfterTodaySection = hasDistroEventsToday;
 
   const hasPastDistroEvents = pastDistroEvents.length > 0;
   const hasPastCompletedDistroEvents = pastCompletedDistroEvents.length > 0;
-  const hasPastNonCompletedDistroEvents =
-    pastNonCompletedDistroEvents.length > 0;
+  const hasPastNonCompletedDistroEvents = pastNonCompletedDistroEvents.length > 0;
 
   return (
     <VStack>
@@ -126,9 +108,7 @@ const DistributionList = ({
               Upcoming
             </Heading>
           )}
-          <ListOfEvents
-            distributionEventsListData={upcomingDistroEventsAfterToday}
-          />
+          <ListOfEvents distributionEventsListData={upcomingDistroEventsAfterToday} />
         </>
       )}
 
@@ -142,9 +122,7 @@ const DistributionList = ({
               <Heading as="h5" size={"md"} pt={4}>
                 To be completed
               </Heading>
-              <ListOfEvents
-                distributionEventsListData={pastNonCompletedDistroEvents}
-              />
+              <ListOfEvents distributionEventsListData={pastNonCompletedDistroEvents} />
             </>
           )}
           {hasPastCompletedDistroEvents && (
@@ -152,9 +130,7 @@ const DistributionList = ({
               <Heading as="h5" size={"md"} pt={4}>
                 Completed
               </Heading>
-              <ListOfEvents
-                distributionEventsListData={pastCompletedDistroEvents}
-              />
+              <ListOfEvents distributionEventsListData={pastCompletedDistroEvents} />
             </>
           )}
         </>

@@ -1,5 +1,4 @@
 import { vi, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import { screen, render, cleanup, fireEvent, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/organisations";
@@ -12,6 +11,7 @@ import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
   CREATE_AGREEMENT_MUTATION,
 } from "./CreateTransferAgreementView";
+import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
 const initialQuery = {
   request: {
@@ -31,7 +31,7 @@ const initialQueryNetworkError = {
     variables: {},
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new FakeGraphQLError()],
   },
 };
 
@@ -72,7 +72,7 @@ const mutationNetworkError = {
       comment: "",
     },
   },
-  error: new Error(),
+  error: new FakeGraphQLNetworkError(),
 };
 
 const mutationIdenticalAgreementError = {
@@ -91,14 +91,7 @@ const mutationIdenticalAgreementError = {
   },
   result: {
     data: { createTransferAgreement: null },
-    errors: [
-      new GraphQLError("Error!", {
-        extensions: {
-          code: "BAD_USER_INPUT",
-          description: "An identical agreement already exists: ID 1",
-        },
-      }),
-    ],
+    errors: [new FakeGraphQLError("BAD_USER_INPUT", "An identical agreement already exists: ID 1")],
   },
 };
 

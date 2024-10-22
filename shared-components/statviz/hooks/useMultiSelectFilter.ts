@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IFilterValue } from "../components/filter/ValueFilter";
+import { trackFilter } from "../utils/analytics/heap";
 
 export const urlFilterValuesEncode = <T>(array: (IFilterValue & T)[]): string =>
   array.map((e) => encodeURIComponent(e.urlId)).join(",");
@@ -39,6 +40,7 @@ export default function useMultiSelectFilter<T>(
     }
     if (selected.length > 0) {
       searchParams.append(filterId, urlFilterValuesEncode(selected));
+      trackFilter({ filterId, value: selected[selected.length - 1].label });
     }
     setSearchParams(searchParams);
   };

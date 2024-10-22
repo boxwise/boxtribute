@@ -20,14 +20,28 @@ export function mockMatchMediaQuery(returnBool: Boolean) {
   });
 }
 
-// mock an Apollo GraphQLError
+export class FakeGraphQLError extends GraphQLError {
+  constructor(errorCode?: string, errorDescription?: string) {
+    super(
+      "Fake GraphQL Error",
+      errorCode ? { extensions: { code: errorCode, description: errorDescription } } : undefined,
+    );
+  }
+}
+
+export class FakeGraphQLNetworkError extends Error {
+  constructor() {
+    super("Fake GraphQL Network Error");
+  }
+}
+
 export const mockGraphQLError = (query, variables = {}) => ({
   request: {
     query,
     variables,
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new FakeGraphQLError()],
   },
 });
 
@@ -37,5 +51,5 @@ export const mockNetworkError = (query, variables = {}) => ({
     query,
     variables,
   },
-  error: new Error(),
+  error: new FakeGraphQLNetworkError(),
 });
