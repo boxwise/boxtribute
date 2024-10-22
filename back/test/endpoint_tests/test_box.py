@@ -310,11 +310,6 @@ def test_box_mutations(
                 size {{ id }}
                 product {{ id }}
                 state
-                history {{
-                    id
-                    changes
-                    user {{ name }}
-                }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
@@ -325,45 +320,84 @@ def test_box_mutations(
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["state"] == state
+
+    # Test case 8.2.11d
+    # Switch size-product -> measure-product
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    labelIdentifier: "{created_box["labelIdentifier"]}"
+                    productId: {measure_product_id}
+                    measureValue: 250
+                    displayUnitId: {unit_id}
+                }} ) {{
+                id
+                history {{
+                    id
+                    changes
+                    user {{ name }}
+                }}
+                size {{ id }}
+                product {{ id }}
+                displayUnit {{ id }}
+                measureValue
+            }}
+        }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["size"] is None
+    assert updated_box["product"]["id"] == measure_product_id
+    assert updated_box["displayUnit"]["id"] == unit_id
+    assert updated_box["measureValue"] == 250
     assert updated_box["history"] == [
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "120",
+            "id": "124",
+            "changes": 'changed units of measure from "" to 250.00g',
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "123",
+            "changes": f"changed product type from {products[2]['name']} to "
+            + f"{products[7]['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "122",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "119",
+            "id": "121",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "120",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "119",
             "changes": f"changed the number of items from {original_number_of_items} "
             + f"to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
+            "id": "118",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "115",
+            "id": "117",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "112",
+            "id": "116",
             "changes": "created record",
             "user": {"name": "coord"},
         },
@@ -415,6 +449,26 @@ def test_box_mutations(
                 }} ) {{
                 measureValue
                 displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": unit_id},
+        "measureValue": newest_measure_value,
+    }
+
+    # Test case 8.2.11e
+    # Switch measure-product -> size-product
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    productId: {product_id}
+                    sizeId: {size_id}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+                size {{ id }}
                 history {{
                     id
                     changes
@@ -424,35 +478,48 @@ def test_box_mutations(
         }}"""
     updated_third_box = assert_successful_request(client, mutation)
     assert updated_third_box == {
-        "displayUnit": {"id": unit_id},
-        "measureValue": newest_measure_value,
+        "displayUnit": None,
+        "measureValue": None,
+        "size": {"id": size_id},
         "history": [
             {
-                "id": "124",
+                "id": "132",
+                "changes": f"changed units of measure from {newest_measure_value}0g to "
+                + '""',
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "131",
+                "changes": f"changed product type from {products[7]['name']} to "
+                + f"{products[0]['name']}",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "130",
                 "changes": f"changed units of measure from {new_measure_value}0lb to "
                 + f"{newest_measure_value}0g",
                 "user": {"name": "coord"},
             },
             {
-                "id": "123",
+                "id": "129",
                 "changes": f"changed unit from {pound_unit['symbol']} to "
                 + f"{gram_unit['symbol']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "122",
+                "id": "128",
                 "changes": f"changed units of measure from {rounded_measure_value}lb to"
                 + f" {new_measure_value}0lb",
                 "user": {"name": "coord"},
             },
             {
-                "id": "121",
+                "id": "127",
                 "changes": f"changed unit from {gram_unit['symbol']} to "
                 + f"{pound_unit['symbol']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "114",
+                "id": "126",
                 "changes": "created record",
                 "user": {"name": "coord"},
             },
@@ -859,6 +926,50 @@ def test_box_mutations(
             "to_float": None,
         },
         {
+            "changes": "product_id",
+            "from_int": int(new_product_id),
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": int(measure_product_id),
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "size_id",
+            "from_int": int(new_size_id),
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": int(unit_id),
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": 'changed units of measure from "" to 250.00g',
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": None,
+            "to_float": 0.25,
+        },
+        {
             "changes": "display_unit_id",
             "from_int": int(unit_id),
             "ip": None,
@@ -903,6 +1014,53 @@ def test_box_mutations(
             "user": 8,
             "from_float": round(new_measure_value / pound_unit["conversion_factor"], 5),
             "to_float": newest_measure_value / gram_unit["conversion_factor"],
+        },
+        {
+            "changes": "product_id",
+            "from_int": int(measure_product_id),
+            "to_int": int(product_id),
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "size_id",
+            "from_int": None,
+            "to_int": int(size_id),
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(unit_id),
+            "to_int": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": f"changed units of measure from {newest_measure_value}0g to "
+            + '""',
+            "from_int": None,
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": round(
+                newest_measure_value / gram_unit["conversion_factor"], 5
+            ),
+            "to_float": None,
         },
         {
             "changes": "location_id",
