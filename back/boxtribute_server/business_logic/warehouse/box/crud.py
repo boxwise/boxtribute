@@ -10,6 +10,7 @@ from ....exceptions import (
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
+    MissingInputField,
     NegativeMeasureValue,
     NegativeNumberOfItems,
     QrCodeAlreadyAssignedToBox,
@@ -213,8 +214,30 @@ def update_box(
                 display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
                 if display_unit.dimension_id != new_product.size_range_id:
                     raise DisplayUnitProductMismatch()
+            else:
+                if display_unit_id is not None:
+                    raise InputFieldIsNotNone(field="displayUnitId")
+                if measure_value is not None:
+                    raise InputFieldIsNotNone(field="measureValue")
+                if size_id is None:
+                    raise MissingInputField(field="sizeId")
+                box.display_unit = None
+                box.measure_value = None
         else:  # box contains size product
-            if not new_product_is_measure_product:
+            if new_product_is_measure_product:
+                if size_id is not None:
+                    raise InputFieldIsNotNone(field="sizeId")
+                if measure_value is None:
+                    raise MissingInputField(field="measureValue")
+                if display_unit_id is None:
+                    raise MissingInputField(field="displayUnitId")
+                if measure_value < 0:
+                    raise NegativeMeasureValue()
+                display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
+                if display_unit.dimension_id != new_product.size_range_id:
+                    raise DisplayUnitProductMismatch()
+                box.size = None
+            else:
                 if display_unit_id is not None:
                     raise InputFieldIsNotNone(field="displayUnitId")
                 if measure_value is not None:

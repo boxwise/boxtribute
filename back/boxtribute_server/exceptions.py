@@ -209,6 +209,14 @@ class InputFieldIsNotNone(Exception):
         }
 
 
+class MissingInputField(Exception):
+    def __init__(self, *args, field, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"Input field '{field}' missing",
+        }
+
+
 class ServiceError(Exception):
     def __init__(self, *, code, message):
         self.code = code

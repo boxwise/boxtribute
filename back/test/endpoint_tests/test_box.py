@@ -1365,6 +1365,54 @@ def test_mutate_box_with_invalid_input(
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
 
+    # Switch from size product to measure product
+    # Test case 8.2.19g
+    measure_product_id = str(products[7]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                sizeId: {size_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19h
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                measureValue: 1000
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19i
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                measureValue: -1000
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19j
+    liter_unit_id = str(liter_unit["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                measureValue: 1000
+                displayUnitId: {liter_unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
     # Operations on measure-product boxes
     # Test case 8.2.19c
     label_identifier = measure_product_box["label_identifier"]
@@ -1386,7 +1434,6 @@ def test_mutate_box_with_invalid_input(
 
     # Mismatch of product size range (mass) and unit dimension (volume)
     # Test case 8.2.19e
-    liter_unit_id = str(liter_unit["id"])
     update_input = f"""{{ {mandatory_input}
                 displayUnitId: {liter_unit_id}
             }}"""
@@ -1416,6 +1463,33 @@ def test_mutate_box_with_invalid_input(
     # Test case 8.2.19f
     update_input = f"""{{ {mandatory_input}
                 productId: {another_measure_product_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19k
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19m
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                sizeId: {size_id}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                sizeId: {size_id}
+                displayUnitId: {unit_id}
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
