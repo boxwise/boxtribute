@@ -180,68 +180,37 @@ def update_box(
     """
     box = Box.get(Box.label_identifier == label_identifier)
     box_contains_measure_product = box.size_id is None
+    new_product = Product.get_by_id(product_id or box.product_id)
+    new_product_is_measure_product = is_measure_product(new_product)
 
-    if product_id is None:  # no product change
-        if box_contains_measure_product:
-            if size_id is not None:
-                raise InputFieldIsNotNone(field="sizeId")
-            if measure_value is not None and measure_value < 0:
-                raise NegativeMeasureValue()
-            if display_unit_id is not None:
-                display_unit = Unit.get_by_id(display_unit_id)
-                product_size_range = (
-                    Product.select(Product.size_range_id)
-                    .where(Product.id == box.product_id)
-                    .scalar()
-                )
-                if display_unit.dimension_id != product_size_range:
-                    raise DisplayUnitProductMismatch()
-        else:
-            if display_unit_id is not None:
-                raise InputFieldIsNotNone(field="displayUnitId")
-            if measure_value is not None:
-                raise InputFieldIsNotNone(field="measureValue")
+    if new_product_is_measure_product:
+        if size_id is not None:
+            raise InputFieldIsNotNone(field="sizeId")
     else:
-        new_product = Product.get_by_id(product_id)
-        new_product_is_measure_product = is_measure_product(new_product)
+        if display_unit_id is not None:
+            raise InputFieldIsNotNone(field="displayUnitId")
+        if measure_value is not None:
+            raise InputFieldIsNotNone(field="measureValue")
 
-        if box_contains_measure_product:
-            if new_product_is_measure_product:
-                if size_id is not None:
-                    raise InputFieldIsNotNone(field="sizeId")
-                if measure_value is not None and measure_value < 0:
-                    raise NegativeMeasureValue()
-                display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
-                if display_unit.dimension_id != new_product.size_range_id:
-                    raise DisplayUnitProductMismatch()
-            else:
-                if display_unit_id is not None:
-                    raise InputFieldIsNotNone(field="displayUnitId")
-                if measure_value is not None:
-                    raise InputFieldIsNotNone(field="measureValue")
-                if size_id is None:
-                    raise MissingInputField(field="sizeId")
-                box.display_unit = None
-                box.measure_value = None
-        else:  # box contains size product
-            if new_product_is_measure_product:
-                if size_id is not None:
-                    raise InputFieldIsNotNone(field="sizeId")
-                if measure_value is None:
-                    raise MissingInputField(field="measureValue")
-                if display_unit_id is None:
-                    raise MissingInputField(field="displayUnitId")
-                if measure_value < 0:
-                    raise NegativeMeasureValue()
-                display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
-                if display_unit.dimension_id != new_product.size_range_id:
-                    raise DisplayUnitProductMismatch()
-                box.size = None
-            else:
-                if display_unit_id is not None:
-                    raise InputFieldIsNotNone(field="displayUnitId")
-                if measure_value is not None:
-                    raise InputFieldIsNotNone(field="measureValue")
+    if box_contains_measure_product and not new_product_is_measure_product:
+        # switch measure-product -> size-product
+        if size_id is None:
+            raise MissingInputField(field="sizeId")
+        box.display_unit = None
+        box.measure_value = None
+    elif not box_contains_measure_product and new_product_is_measure_product:
+        # switch size-product -> measure-product
+        if measure_value is None:
+            raise MissingInputField(field="measureValue")
+        if display_unit_id is None:
+            raise MissingInputField(field="displayUnitId")
+        box.size = None
+
+    # Validate AFTER possible switch of product type (reset of display_unit)
+    if display_unit_id or box.display_unit_id:
+        display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
+        if display_unit.dimension_id != new_product.size_range_id:
+            raise DisplayUnitProductMismatch()
 
     if comment is not None:
         box.comment = comment
@@ -262,6 +231,8 @@ def update_box(
     if display_unit_id is not None:
         box.display_unit = display_unit_id
     if measure_value is not None:
+        if measure_value < 0:
+            raise NegativeMeasureValue()
         display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
         box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
