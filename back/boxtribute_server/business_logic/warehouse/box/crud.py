@@ -218,6 +218,7 @@ def update_box(
             raise MissingInputField(field="displayUnitId")
         box.size = None
 
+    display_unit = None
     # Validate AFTER possible switch of product type (reset of display_unit)
     if display_unit_id or box.display_unit_id:
         display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
@@ -246,7 +247,6 @@ def update_box(
     if measure_value is not None:
         if measure_value < 0:
             raise NegativeMeasureValue()
-        display_unit = Unit.get_by_id(display_unit_id or box.display_unit_id)
         box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
