@@ -76,25 +76,30 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         multiScan ? "cache-first" : "network-only",
       );
       switch (qrResolvedValue.kind) {
+        case IQrResolverResultKind.BOX_NO_PERMISSION: {
+          setBoxNotOnwned(`You don't have permission to access ${qrResolvedValue.box.name}`);
+          setIsProcessingQrCode(false);
+          break;
+        }
+        case IQrResolverResultKind.BOX_NOT_AUTHORIZED: {
+          setBoxNotOnwned(
+            `This box it at base ${qrResolvedValue.box.name}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
+          );
+          setIsProcessingQrCode(false);
+          break;
+        }
         case IQrResolverResultKind.SUCCESS: {
           const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
-          if (qrResolvedValue.box.__typename === "UnauthorizedForBaseError") {
-            setBoxNotOnwned(
-              `This box it at base ${qrResolvedValue.box.name}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
-            );
+          if (!multiScan) {
+            const boxBaseId = qrResolvedValue.box.location.base.id;
             setIsProcessingQrCode(false);
+            onSuccess();
+            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
           } else {
-            if (!multiScan) {
-              const boxBaseId = qrResolvedValue.box.location.base.id;
-              setIsProcessingQrCode(false);
-              onSuccess();
-              navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
-            } else {
-              // Only execute for Multi Box tab
-              // add box reference to query for list of all scanned boxes
-              await addBoxToScannedBoxes(qrResolvedValue.box);
-              setIsProcessingQrCode(false);
-            }
+            // Only execute for Multi Box tab
+            // add box reference to query for list of all scanned boxes
+            addBoxToScannedBoxes(qrResolvedValue.box);
+            setIsProcessingQrCode(false);
           }
           break;
         }
