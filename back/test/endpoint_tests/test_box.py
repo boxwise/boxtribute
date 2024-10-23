@@ -1743,3 +1743,66 @@ def test_box_with_large_history(
                     }} )
                 {{ history {{ changeDate changes }} }} }}"""
         assert_successful_request(client, mutation)
+
+
+def test_mutate_box_with_invalid_location_or_product(
+    read_only_client,
+    mocker,
+    default_product,
+    default_box,
+    another_product,
+    default_location,
+    another_location,
+    default_size,
+):
+    mock_user_for_request(mocker, base_ids=[1, 3])
+
+    # Test case 8.2.10f
+    # Product is registered in base 1, and location is from base 3; and vice versa
+    creation_input = f"""{{
+                    productId: {default_product["id"]},
+                    locationId: {another_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{
+                    productId: {another_product["id"]},
+                    locationId: {default_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.11n, 8.2.11o
+    label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {another_location["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         productId: {another_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {default_location["id"]}
+                         productId: {another_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {another_location["id"]}
+                         productId: {default_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)

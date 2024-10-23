@@ -13,6 +13,7 @@ from ....exceptions import (
     MissingInputField,
     NegativeMeasureValue,
     NegativeNumberOfItems,
+    ProductLocationBaseMismatch,
     QrCodeAlreadyAssignedToBox,
 )
 from ....models.definitions.box import Box
@@ -63,6 +64,19 @@ def create_box(
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
 
+    product = (
+        Product.select(Product.size_range, Product.base)
+        .where(Product.id == product_id)
+        .get()
+    )
+    location = (
+        Location.select(Location.box_state, Location.base)
+        .where(Location.id == location_id)
+        .get()
+    )
+    if product.base_id != location.base_id:
+        raise ProductLocationBaseMismatch()
+
     # The inputs size_id and the pair (display_unit_id, measure_value) are mutually
     # exclusive.
     if size_id is not None and display_unit_id is None and measure_value is None:
@@ -72,21 +86,15 @@ def create_box(
             raise NegativeMeasureValue()
 
         display_unit = Unit.get_by_id(display_unit_id)
-        product_size_range = (
-            Product.select(Product.size_range_id)
-            .where(Product.id == product_id)
-            .scalar()
-        )
-        if display_unit.dimension_id != product_size_range:
+        if display_unit.dimension_id != product.size_range_id:
             raise DisplayUnitProductMismatch()
     else:
         raise IncompatibleSizeAndMeasureInput()
 
     qr_id = QrCode.get_id_from_code(qr_code) if qr_code is not None else None
 
-    location_box_state_id = Location.get_by_id(location_id).box_state_id
     box_state = (
-        BoxState.InStock if location_box_state_id is None else location_box_state_id
+        BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
 
     for _ in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
@@ -182,6 +190,10 @@ def update_box(
     box_contains_measure_product = box.size_id is None
     new_product = Product.get_by_id(product_id or box.product_id)
     new_product_is_measure_product = is_measure_product(new_product)
+    new_location = Location.get_by_id(location_id or box.location_id)
+
+    if new_product.base_id != new_location.base_id:
+        raise ProductLocationBaseMismatch()
 
     if new_product_is_measure_product:
         if size_id is not None:
@@ -220,9 +232,10 @@ def update_box(
         box.number_of_items = number_of_items
     if location_id is not None:
         box.location = location_id
-        location_box_state_id = Location.get_by_id(location_id).box_state_id
         box.state = (
-            location_box_state_id if location_box_state_id is not None else box.state_id
+            new_location.box_state_id
+            if new_location.box_state_id is not None
+            else box.state_id
         )
     if product_id is not None:
         box.product = product_id
