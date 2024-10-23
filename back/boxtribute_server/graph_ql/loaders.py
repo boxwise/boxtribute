@@ -23,6 +23,7 @@ from ..models.definitions.size_range import SizeRange
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
 from ..models.utils import convert_ids
 from ..utils import convert_pascal_to_snake_case
@@ -86,6 +87,11 @@ class TransferAgreementLoader(SimpleDataLoader):
 class SizeLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(Size)
+
+
+class UnitLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(Unit)
 
 
 class OrganisationLoader(SimpleDataLoader):
@@ -164,6 +170,7 @@ class HistoryForBoxLoader(DataLoader):
         ToLocation = Location.alias()
         ToSize = Size.alias()
         ToBoxState = BoxState.alias()
+        ToUnit = Unit.alias()
 
         # Subquery to exclude assigned-tag messages at the time of box creation
         CreatedTagsRelation = (
@@ -261,6 +268,15 @@ class HistoryForBoxLoader(DataLoader):
                                                 ),
                                             ),
                                             (
+                                                (History.changes == "display_unit_id"),
+                                                fn.CONCAT(
+                                                    "changed unit from ",
+                                                    Unit.symbol,
+                                                    " to ",
+                                                    ToUnit.symbol,
+                                                ),
+                                            ),
+                                            (
                                                 (History.changes == "box_state_id"),
                                                 fn.CONCAT(
                                                     "changed box state from ",
@@ -347,6 +363,20 @@ class HistoryForBoxLoader(DataLoader):
                 .left_outer_join(
                     ToSize,
                     on=((ToSize.id == History.to_int) & (History.changes == "size_id")),
+                )
+                .left_outer_join(
+                    Unit,
+                    on=(
+                        (Unit.id == History.from_int)
+                        & (History.changes == "display_unit_id")
+                    ),
+                )
+                .left_outer_join(
+                    ToUnit,
+                    on=(
+                        (ToUnit.id == History.to_int)
+                        & (History.changes == "display_unit_id")
+                    ),
                 )
                 .left_outer_join(
                     BoxState,
@@ -466,6 +496,15 @@ class SizesForSizeRangeLoader(DataLoader):
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
+
+
+class UnitsForDimensionLoader(DataLoader):
+    async def batch_load_fn(self, keys):
+        # Mapping of size range ID (dimension) to list of units
+        units = defaultdict(list)
+        for unit in Unit.select().iterator():
+            units[unit.dimension_id].append(unit)
+        return [units.get(i, []) for i in keys]
 
 
 class EnabledBasesForStandardProductLoader(DataLoader):

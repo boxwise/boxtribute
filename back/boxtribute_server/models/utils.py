@@ -12,6 +12,7 @@ from ..errors import ResourceDoesNotExist
 from .definitions.history import DbChangeHistory
 from .definitions.product_category import ProductCategory
 from .definitions.size_range import SizeRange
+from .definitions.unit import Unit
 
 # Batch size for bulk insert/update operations
 BATCH_SIZE = 100
@@ -187,6 +188,37 @@ def create_history_entries(*, old_resource, new_resource, fields, change_date):
             entry.from_int = old_value
             entry.to_int = new_value
             entry.changes = field.column_name
+
+        elif field_name == "measure_value":
+            # Using the measure value data alone does not create any meaningful change
+            # message because unit information is missing.
+            # Because it's A) tedious to bring the unit into message construction in the
+            # HistoryForBoxLoader and B) possible that a unit change has happened after
+            # a measure value change (which requires reconstructing the unit at the time
+            # of the measure value change), a full (measure value + unit info) message
+            # is created here and stored
+            units = {u.id: u for u in Unit.select().namedtuples()}
+            if old_value is None:
+                entry.from_float = None
+                old_expression = '""'
+            else:
+                entry.from_float = float(old_value)
+                old_unit = units[old_resource.display_unit_id]
+                old_value = round(old_value * old_unit.conversion_factor, 2)
+                old_expression = f"{old_value}{old_unit.symbol}"
+
+            if new_value is None:
+                entry.to_float = None
+                new_expression = '""'
+            else:
+                entry.to_float = float(new_value)
+                new_unit = units[new_resource.display_unit_id]
+                new_value = round(new_value * new_unit.conversion_factor, 2)
+                new_expression = f"{new_value}{new_unit.symbol}"
+
+            entry.changes = f"""changed units of measure from \
+{old_expression} to {new_expression}"""
+
         else:
             entry.changes = f"""{field.column_name} changed from "{old_value}" \
 to "{new_value}";"""

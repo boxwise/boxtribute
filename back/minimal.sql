@@ -2218,7 +2218,12 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20240624155306,'DeleteDuplicateBoxDeletions','2024-07-13 22:49:45','2024-07-13 22:49:45',0),
   (20240701112808,'UpdateSmlSizegroup','2024-07-01 10:22:44','2024-07-01 10:22:44',0),
   (20240814154516,'AddTemporalColumnsToTagsRelations','2024-09-12 07:48:21','2024-09-12 07:48:22',0),
-  (20240827120508,'CleanHistoryTransactions','2024-09-09 07:48:21','2024-09-09 07:48:22',0);
+  (20240827120508,'CleanHistoryTransactions','2024-09-09 07:48:21','2024-09-09 07:48:22',0),
+  (20240913171707,'AddMassVolumeSizegroups','2024-09-30 12:34:56','2024-09-30 12:34:57',0),
+  (20240913172526,'UpdateUnitsTable','2024-09-30 12:35:56','2024-09-30 12:35:57',0),
+  (20240913175631,'AddUnitValueToStock','2024-09-30 12:36:56','2024-09-30 12:36:57',0),
+  (20240930122935,'MakeStockSizeNullable','2024-10-10 17:29:00','2024-10-10 17:29:01',0),
+  (20240930123110,'MakeShipmentDetailSourceSizeNullable','2024-10-10 17:29:02','2024-10-10 17:29:03',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2428,7 +2433,7 @@ CREATE TABLE `shipment_detail` (
   `target_product_id` int(11) unsigned DEFAULT NULL,
   `source_quantity` int(11),
   `target_quantity` int(11) DEFAULT NULL,
-  `source_size_id` int(11) unsigned NOT NULL,
+  `source_size_id` int(11) unsigned DEFAULT NULL,
   `target_size_id` int(11) unsigned DEFAULT NULL,
   `source_location_id` int(11) unsigned NOT NULL,
   `target_location_id` int(11) unsigned DEFAULT NULL,
@@ -2489,7 +2494,7 @@ CREATE TABLE `sizegroup` (
   `label` varchar(255) NOT NULL,
   `seq` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2520,7 +2525,9 @@ INSERT INTO `sizegroup` VALUES
 (23,'Children by year (2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15)',11),(24,'Children by year (individual years)',12),
 (25,'Children by year (0-2, 2-4, 5-7, 8-10, 11-13, 14-17)', 13),
 (26,'All shoe sizes (<23-48)',61),
-(27,'Sock sizes',62);
+(27,'Sock sizes',62),
+(28,'Mass',3),
+(29,'Volume',4);
 /*!40000 ALTER TABLE `sizegroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2942,7 +2949,9 @@ CREATE TABLE `stock` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `box_id` varchar(11) NOT NULL DEFAULT '',
   `product_id` int(11) unsigned NOT NULL,
-  `size_id` int(11) unsigned NOT NULL,
+  `size_id` int(11) unsigned DEFAULT NULL,
+  `display_unit_id` int(11) unsigned DEFAULT NULL,
+  `measure_value` decimal(36,18) unsigned DEFAULT NULL,
   `items` int(11) DEFAULT NULL,
   `location_id` int(11) unsigned NOT NULL,
   `distro_event_id` int(11) unsigned DEFAULT NULL,
@@ -2965,12 +2974,14 @@ CREATE TABLE `stock` (
   KEY `created_by` (`created_by`),
   KEY `modified_by` (`modified_by`),
   KEY `distro_event_id` (`distro_event_id`),
+  KEY `display_unit_id` (`display_unit_id`),
   CONSTRAINT `stock_ibfk_10` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_11` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_14` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_15` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_16` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_17` FOREIGN KEY (`distro_event_id`) REFERENCES `distro_events` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `stock_ibfk_18` FOREIGN KEY (`display_unit_id`) REFERENCES `units` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_3` FOREIGN KEY (`qr_id`) REFERENCES `qr` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `stock_ibfk_9` FOREIGN KEY (`box_state_id`) REFERENCES `box_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=100000247 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
@@ -2983,8 +2994,8 @@ CREATE TABLE `stock` (
 LOCK TABLES `stock` WRITE;
 /*!40000 ALTER TABLE `stock` DISABLE KEYS */;
 INSERT INTO `stock` VALUES
-  (100000000,'328765',1163,68,50,100000002,NULL,100000000,'Cypress seed test box','2015-01-01 11:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5),
-  (100000001,'235563',1165,68,50,100000005,NULL,100000001,'50 dummy products','2019-09-29 18:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5);
+  (100000000,'328765',1163,68,NULL,NULL,50,100000002,NULL,100000000,'Cypress seed test box','2015-01-01 11:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5),
+  (100000001,'235563',1165,68,NULL,NULL,50,100000005,NULL,100000001,'50 dummy products','2019-09-29 18:15:32',1,NULL,NULL,'0000-00-00 00:00:00',5);
 /*!40000 ALTER TABLE `stock` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3291,20 +3302,15 @@ DROP TABLE IF EXISTS `units`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `units` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `label` varchar(20) NOT NULL,
-  `longlabel` varchar(255) DEFAULT NULL,
-  `seq` int(11) DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `created_by` int(11) unsigned DEFAULT NULL,
-  `modified` datetime DEFAULT NULL,
-  `modified_by` int(11) unsigned DEFAULT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `symbol` varchar(255) NOT NULL,
+  `conversion_factor` decimal(36,18) unsigned NOT NULL,
+  `dimension_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `created_by` (`created_by`),
-  KEY `modified_by` (`modified_by`),
-  CONSTRAINT `units_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `units_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+  KEY `dimension_id` (`dimension_id`),
+  CONSTRAINT `units_ibfk_1` FOREIGN KEY (`dimension_id`) REFERENCES `sizegroup` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3313,7 +3319,19 @@ CREATE TABLE `units` (
 
 LOCK TABLES `units` WRITE;
 /*!40000 ALTER TABLE `units` DISABLE KEYS */;
-INSERT INTO `units` VALUES (1,'liter','liter',3,NULL,NULL,NULL,NULL),(2,'kg','kilogram',2,NULL,NULL,NULL,NULL),(3,'g','gram',1,NULL,NULL,NULL,NULL),(4,'piece','piece',4,NULL,NULL,NULL,NULL);
+INSERT INTO `units` VALUES
+  (1,'kilogram','kg',1.0,28),
+  (2,'liter','l',1.0,29),
+  (3,'milliliter','ml',1000.0,29),
+  (4,'gram','g',1000.0,28),
+  (5,'milligram','mg',1000000.0,28),
+  (6,'metric ton','t',0.001,28),
+  (7,'pound','lb',2.2046,28),
+  (8,'ounce','oz',35.274,28),
+  (9,'gallon (US)','gal (US)',0.2642,29),
+  (10,'pint (US)','pt (US)',2.1134,29),
+  (11,'fluid ounce (US)','fl oz (US)',33.814,29)
+;
 /*!40000 ALTER TABLE `units` ENABLE KEYS */;
 UNLOCK TABLES;
 

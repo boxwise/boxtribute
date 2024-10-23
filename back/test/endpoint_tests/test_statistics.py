@@ -64,7 +64,7 @@ def test_query_beneficiary_demographics(
 
 @pytest.mark.parametrize("endpoint", ["graphql", "public"])
 def test_query_created_boxes(
-    read_only_client, products, product_categories, tags, endpoint
+    read_only_client, base1_undeleted_products, product_categories, tags, endpoint
 ):
     query = """query { createdBoxes(baseId: 1) {
         facts {
@@ -77,10 +77,11 @@ def test_query_created_boxes(
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     facts = data.pop("facts")
-    assert len(facts) == 3
+    assert len(facts) == 4
     assert facts[0]["boxesCount"] == 12
     assert facts[1]["boxesCount"] == 1
     assert facts[2]["boxesCount"] == 1
+    assert facts[3]["boxesCount"] == 1
     assert data == {
         "dimensions": {
             "product": [
@@ -89,7 +90,8 @@ def test_query_created_boxes(
                     "name": p["name"],
                     "gender": ProductGender(p["gender"]).name,
                 }
-                for p in [products[0], products[2], products[4]]
+                # last product is not present in any box
+                for p in base1_undeleted_products[:-1]
             ],
             "category": [
                 {"id": c["id"], "name": c["name"]}
@@ -202,7 +204,7 @@ def test_query_moved_boxes(
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn targetId categoryId productName gender sizeId tagIds
-            organisationName boxesCount itemsCount
+            absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
         }
         dimensions { target { id name type } }
         } }"""
@@ -218,6 +220,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "jackets",
                 "sizeId": 2,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": location_name,
                 "organisationName": None,
@@ -230,6 +234,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": location_name,
                 "organisationName": None,
@@ -242,6 +248,8 @@ def test_query_moved_boxes(
                 "categoryId": 12,
                 "productName": "joggers",
                 "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Boy",
                 "targetId": location_name,
                 "organisationName": None,
@@ -254,6 +262,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": base_name,
                 "organisationName": org_name,
@@ -266,6 +276,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "new product",
                 "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": base_name,
                 "organisationName": org_name,
@@ -278,6 +290,8 @@ def test_query_moved_boxes(
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
                 "gender": "Women",
                 "targetId": BoxState.Lost.name,
                 "organisationName": None,
@@ -313,13 +327,14 @@ def test_query_stock_overview(
 ):
     query = """query { stockOverview(baseId: 1) {
         facts { categoryId productName gender sizeId locationId boxState tagIds
-            itemsCount boxesCount }
-        dimensions { location { id name } }
+            absoluteMeasureValue dimensionId itemsCount boxesCount }
+        dimensions { location { id name } dimension { id name } }
     } }"""
     data = assert_successful_request(read_only_client, query, endpoint=endpoint)
     product_name = default_product["name"].strip().lower()
     assert data["dimensions"] == {
-        "location": [{"id": default_location["id"], "name": default_location["name"]}]
+        "location": [{"id": default_location["id"], "name": default_location["name"]}],
+        "dimension": [{"id": 28, "name": "Mass"}, {"id": 29, "name": "Volume"}],
     }
     assert data["facts"] == [
         {
@@ -331,6 +346,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [2, 3],
         },
         {
@@ -342,6 +359,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [3],
         },
         {
@@ -353,6 +372,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -364,6 +385,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [3],
         },
         {
@@ -375,6 +398,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -386,6 +411,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -397,6 +424,8 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "jackets",
             "sizeId": 2,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
             "tagIds": [],
         },
         {
@@ -408,6 +437,21 @@ def test_query_stock_overview(
             "locationId": 1,
             "productName": "joggers",
             "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.InStock.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": "rice",
+            "sizeId": None,
+            "absoluteMeasureValue": 0.5,
+            "dimensionId": 28,
             "tagIds": [],
         },
     ]
