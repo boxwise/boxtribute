@@ -113,6 +113,7 @@ export const useQrResolver = () => {
           return {
             kind: IQrResolverResultKind.SUCCESS,
             qrHash: hash,
+            // @ts-ignore
             box: data?.qrCode?.box,
           } as IQrResolvedValue;
         })
