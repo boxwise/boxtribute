@@ -33,3 +33,13 @@ def resolve_product_type(product_obj, _):
     if product_obj.standard_product_id is None:
         return ProductType.Custom
     return ProductType.StandardInstantiation
+
+
+@product.field("createdBy")
+def resolve_product_created_by(product_obj, info):
+    return info.context["user_loader"].load(product_obj.created_by_id)
+
+
+@product.field("lastModifiedBy")
+def resolve_product_last_modified_by(product_obj, info):
+    return info.context["user_loader"].load(product_obj.last_modified_by_id)

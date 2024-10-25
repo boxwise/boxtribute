@@ -3,7 +3,7 @@
 interface ItemsCollection {
   id: ID!
   product: Product
-  size: Size!
+  size: Size
   numberOfItems: Int
   location: Location
   distributionEvent: DistributionEvent
@@ -12,7 +12,7 @@ interface ItemsCollection {
 type UnboxedItemsCollection implements ItemsCollection {
   id: ID!
   product: Product
-  size: Size!
+  size: Size
   numberOfItems: Int
   label: String
   location: Location
@@ -26,11 +26,18 @@ type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
+  " If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   location: Location
   distributionEvent: DistributionEvent
   numberOfItems: Int
+  " If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   product: Product
-  size: Size!
+  " If the box holds a 'measure' product (i.e. classified by a package measure like 500gr), its size is null "
+  size: Size
+  " Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null "
+  displayUnit: Unit
+  " The value of the measure, expressed in ``unit``. If the box holds a product with size (e.g. clothing), its measure value is null "
+  measureValue: Float
   state: BoxState!
   qrCode: QrCode
   createdBy: User
@@ -170,13 +177,24 @@ type Size {
 }
 
 """
-Representation of group of sizes (e.g. clothing sizes "S, M, L, XL").
+Representation of dimensional unit (e.g. kilogram or liter)
+"""
+type Unit {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+"""
+Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a dimension (mass or volume).
 """
 type SizeRange {
   id: ID!
   label: String!
   " List of sizes belonging to the group "
   sizes: [Size!]!
+  " List of units belonging to the dimension "
+  units: [Unit!]!
 }
 
 """

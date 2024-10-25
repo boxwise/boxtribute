@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import { ProductGender } from "types/generated/graphql";
 import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";
 
@@ -16,26 +16,26 @@ const mockedProductData: ProductDataForPackingList[] = [
   {
     id: "1",
     name: "Jacket",
-    category: {...clothingCategory},
-    gender: ProductGender.Men
+    category: { ...clothingCategory },
+    gender: ProductGender.Men,
   },
   {
     id: "2",
     name: "T-shirt",
-    category: {...clothingCategory},
-    gender: ProductGender.Men
+    category: { ...clothingCategory },
+    gender: ProductGender.Men,
   },
   {
     id: "3",
     name: "Skirt",
-    category: {...clothingCategory},
-    gender: ProductGender.Women
+    category: { ...clothingCategory },
+    gender: ProductGender.Women,
   },
   {
     id: "10",
     name: "Razor (50 pack)",
-    category: {...hygenicCategory},
-    gender: ProductGender.Men
+    category: { ...hygenicCategory },
+    gender: ProductGender.Men,
   },
 ];
 
@@ -43,9 +43,9 @@ export default {
   title: "Mobile Distro Events/Distro Events/Add Items to Packing List/Component",
   component: AddItemsToPackingList,
   parameters: {},
-} as ComponentMeta<typeof AddItemsToPackingList>;
+} as Meta<typeof AddItemsToPackingList>;
 
-const Template: ComponentStory<typeof AddItemsToPackingList> = (args) => (
+const Template: StoryFn<typeof AddItemsToPackingList> = (args) => (
   <AddItemsToPackingList {...args} />
 );
 

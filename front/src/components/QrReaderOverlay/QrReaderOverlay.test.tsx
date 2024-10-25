@@ -1,7 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
 import { userEvent } from "@testing-library/user-event";
-import { screen, render, act, waitFor } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -13,6 +12,7 @@ import {
 } from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
 import { mockedTriggerError } from "tests/setupTests";
+import { FakeGraphQLError } from "mocks/functions";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
@@ -34,7 +34,7 @@ const queryFindNoBoxAssociated = {
     data: {
       box: null,
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
   },
 };
 
@@ -51,18 +51,12 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await act(async () => {
-    await user.click(qrButton);
-  });
+  await user.click(qrButton);
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
-  await act(async () => {
-    await user.type(screen.getByRole("textbox"), "123456");
-  });
-  await act(async () => {
-    await user.click(findBoxButton);
-  });
+  await user.type(screen.getByRole("textbox"), "123456");
+  await user.click(findBoxButton);
 
   // error message appears
   await waitFor(() =>
@@ -103,9 +97,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await act(async () => {
-    await user.click(qrButton);
-  });
+  await user.click(qrButton);
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
@@ -127,7 +119,7 @@ const queryFindBoxFromOtherOrg = {
     data: {
       box: null,
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+    errors: [new FakeGraphQLError("FORBIDDEN")],
   },
 };
 
@@ -254,7 +246,7 @@ const queryBoxFromOtherOrganisation = {
         box: null,
       },
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+    errors: [new FakeGraphQLError("FORBIDDEN")],
   },
 };
 
@@ -325,7 +317,7 @@ const queryHashNotInDb = {
   },
   result: {
     data: null,
-    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
   },
 };
 
@@ -368,7 +360,7 @@ const queryInternalServerError = {
   },
   result: {
     data: null,
-    errors: [new GraphQLError("Error!", { extensions: { code: "INTERNAL_SERVER_ERROR" } })],
+    errors: [new FakeGraphQLError("INTERNAL_SERVER_ERROR")],
   },
 };
 

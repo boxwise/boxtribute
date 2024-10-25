@@ -53,6 +53,7 @@ class Location(db.Model):  # type: ignore
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
+        object_id_name="last_modified_by_id",
     )
     seq = IntegerField(null=True)
     visible = IntegerField(constraints=[SQL("DEFAULT 1")])

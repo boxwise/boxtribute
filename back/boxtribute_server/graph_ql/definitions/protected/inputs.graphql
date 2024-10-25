@@ -1,7 +1,9 @@
 # GraphQL input types for mutations **only**.
 input BoxCreationInput {
   productId: Int!
-  sizeId: Int!
+  sizeId: Int
+  displayUnitId: Int
+  measureValue: Float
   numberOfItems: Int
   locationId: Int!
   comment: String
@@ -13,6 +15,8 @@ input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
+  displayUnitId: Int
+  measureValue: Float
   numberOfItems: Int
   locationId: Int
   comment: String

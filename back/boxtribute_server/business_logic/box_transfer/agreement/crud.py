@@ -48,9 +48,9 @@ def _validate_unique_transfer_agreement(
     *, organisation_ids, base_ids, valid_from, valid_until
 ):
     """Validate that the agreement with given organisation IDs and base IDs is unique,
-    i.e. no other accepted agreement among the same organisations and with the same set
-    of involved bases (or a superset thereof), and with a fully overlapping validity
-    period must exist.
+    i.e. no other UnderReview or Accepted agreement among the same organisations and
+    with the same set of involved bases (or a superset thereof), and with a fully
+    overlapping validity period must exist.
     """
     convert_ids_to_set = lambda ids: set(convert_ids(ids))
     agreements = (
@@ -71,7 +71,8 @@ def _validate_unique_transfer_agreement(
         .where(
             TransferAgreement.source_organisation << organisation_ids,
             TransferAgreement.target_organisation << organisation_ids,
-            TransferAgreement.state == TransferAgreementState.Accepted,
+            TransferAgreement.state
+            << [TransferAgreementState.UnderReview, TransferAgreementState.Accepted],
             TransferAgreement.valid_from < valid_from,
         )
         .group_by(TransferAgreement.id)

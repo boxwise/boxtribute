@@ -24,6 +24,7 @@ from .box import (
     in_transit_box,
     lost_box,
     marked_for_shipment_box,
+    measure_product_box,
     not_delivered_box,
 )
 from .box_state import default_box_state
@@ -90,6 +91,7 @@ from .size_range import another_size_range, default_size_range
 from .standard_product import (
     another_standard_product,
     default_standard_product,
+    measure_standard_product,
     newest_standard_product,
     standard_products,
 )
@@ -103,6 +105,7 @@ from .transfer_agreement import (
     transfer_agreements,
     unidirectional_transfer_agreement,
 )
+from .unit import gram_unit, liter_unit, mass_units, pound_unit, units
 from .user import another_user, default_user, default_users, god_user
 
 __all__ = [
@@ -167,16 +170,22 @@ __all__ = [
     "distro_spot5_distribution_events_in_return_state",
     "expired_transfer_agreement",
     "god_user",
+    "gram_unit",
     "in_transit_box",
     "inactive_organisation",
+    "liter_unit",
     "lost_box",
     "marked_for_shipment_box",
+    "mass_units",
+    "measure_product_box",
+    "measure_standard_product",
     "newest_standard_product",
     "non_default_box_state_location",
     "not_delivered_box",
     "null_box_state_location",
     "organisations",
     "packing_list_entry",
+    "pound_unit",
     "prepared_shipment_detail",
     "product_categories",
     "products",
@@ -195,6 +204,7 @@ __all__ = [
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
+    "units",
     "yet_another_location",
 ]
 
@@ -216,6 +226,7 @@ _NAMES = [
     "standard_product",
     "product",
     "size",
+    "unit",
     "box",
     "beneficiary",
     "transfer_agreement",
