@@ -118,6 +118,7 @@ const SuccessfulQrScanningNoAuthorizationOrPermissonTests = [
   },
 ];
 
+// TODO: Needs fixing with which alert box shows up in the test. It appears that there's a query error within the test context.
 SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks }) => {
   it(name, async () => {
     mockImplementationOfQrReader(mockedQrReader, hash, true, true);

@@ -84,6 +84,7 @@ export const useQrResolver = () => {
               qrHash: hash,
             } as IQrResolvedValue;
           }
+          // @ts-ignore
           if (!data?.qrCode?.box) {
             return {
               kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
@@ -91,17 +92,21 @@ export const useQrResolver = () => {
             } as IQrResolvedValue;
           }
           // Handle valid not owned Box cases.
+          // @ts-ignore
           if (data.qrCode.box?.__typename === "InsufficientPermissionError")
             return {
               kind: IQrResolverResultKind.BOX_NO_PERMISSION,
               qrHash: hash,
+              // @ts-ignore
               box: data?.qrCode?.box,
             } as IQrResolvedValue;
 
+          // @ts-ignore
           if (data.qrCode.box?.__typename === "UnauthorizedForBaseError")
             return {
               kind: IQrResolverResultKind.BOX_NOT_AUTHORIZED,
               qrHash: hash,
+              // @ts-ignore
               box: data?.qrCode?.box,
             } as IQrResolvedValue;
 
