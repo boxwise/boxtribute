@@ -43,6 +43,9 @@ export const useQrResolver = () => {
   const [loading, setLoading] = useState(false);
   const apolloClient = useApolloClient();
 
+  /**
+   * @todo refactor function to be less repetitive, better comply with types.
+   */
   const resolveQrHash = useCallback(
     async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
@@ -53,67 +56,60 @@ export const useQrResolver = () => {
           fetchPolicy,
         })
         .then(({ data, errors }) => {
-          /**
-           * Payload to be handled by the `QrReaderContainer` component. 
-           * 
-           * Happy path with a box found will have a box attached to the payload if none of the other cases were met.
-           */
-          const payload: IQrResolvedValue = {
-            kind: IQrResolverResultKind.FAIL,
-            qrHash: hash
-          };
-
-          // Handle query error cases.
           if ((errors?.length || 0) > 0) {
             const errorCode = errors ? errors[0]?.extensions?.code : undefined;
             if (errorCode === "FORBIDDEN") {
               triggerError({
                 message: "You don't have permission to access this box!",
               });
-              payload.kind = IQrResolverResultKind.NOT_AUTHORIZED;
+              return {
+                kind: IQrResolverResultKind.NOT_AUTHORIZED,
+                qrHash: hash,
+              } as IQrResolvedValue;
             }
-
             if (errorCode === "BAD_USER_INPUT") {
               triggerError({
                 message: "No box found for this QR code!",
               });
-              payload.kind = IQrResolverResultKind.NOT_FOUND;
+              return {
+                kind: IQrResolverResultKind.NOT_FOUND,
+                qrHash: hash,
+              } as IQrResolvedValue;
             }
-
             triggerError({
               message: "QR code lookup failed. Please wait a bit and try again.",
             });
-            payload.kind = IQrResolverResultKind.FAIL;
+            return {
+              kind: IQrResolverResultKind.FAIL,
+              qrHash: hash,
+            } as IQrResolvedValue;
           }
-
-          // Handle error cases coming from query result data.
-          if (data.qrCode.__typename === "InsufficientPermissionError")
-            payload.kind = IQrResolverResultKind.NOT_AUTHORIZED;
-
-          if (data.qrCode.__typename === "ResourceDoesNotExistError")
-            payload.kind = IQrResolverResultKind.NOT_FOUND;
-
-          if (data.qrCode.__typename === "QrCode") {
-            // Handle valid QR code with no Box assigned.
-            if (!data.qrCode.box)
-              payload.kind = IQrResolverResultKind.NOT_ASSIGNED_TO_BOX;
-
-            // Handle valid not owned Box cases.
-            if (data.qrCode.box?.__typename === "InsufficientPermissionError")
-              payload.kind = IQrResolverResultKind.BOX_NO_PERMISSION;
-
-            if (data.qrCode.box?.__typename === "UnauthorizedForBaseError")
-              payload.kind = IQrResolverResultKind.BOX_NOT_AUTHORIZED;
-
-            // Handle valid Box cases.
-            payload.kind = IQrResolverResultKind.SUCCESS;
-            payload.box = data.qrCode.box;
+          if (!data?.qrCode?.box) {
+            return {
+              kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
+              qrHash: hash,
+            } as IQrResolvedValue;
           }
+          // Handle valid not owned Box cases.
+          if (data.qrCode.box?.__typename === "InsufficientPermissionError")
+            return {
+              kind: IQrResolverResultKind.BOX_NO_PERMISSION,
+              qrHash: hash,
+              box: data?.qrCode?.box,
+            } as IQrResolvedValue;
 
-          // Unlikely to happen, but just in case.
-          if (payload.kind === IQrResolverResultKind.FAIL) throw new Error("GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE resolved with an invalid type.");
+          if (data.qrCode.box?.__typename === "UnauthorizedForBaseError")
+            return {
+              kind: IQrResolverResultKind.BOX_NOT_AUTHORIZED,
+              qrHash: hash,
+              box: data?.qrCode?.box,
+            } as IQrResolvedValue;
 
-          return payload;
+          return {
+            kind: IQrResolverResultKind.SUCCESS,
+            qrHash: hash,
+            box: data?.qrCode?.box,
+          } as IQrResolvedValue;
         })
         .catch((err) => {
           triggerError({

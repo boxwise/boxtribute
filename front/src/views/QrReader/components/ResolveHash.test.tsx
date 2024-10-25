@@ -2,7 +2,7 @@ import { vi, beforeEach, it, expect } from "vitest";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 import { GraphQLError } from "graphql";
-import { generateMockBox } from "mocks/boxes";
+import { handleBoxGeneration } from "mocks/boxes";
 import { mockImplementationOfQrReader } from "mocks/components";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache } from "queries/cache";
@@ -25,6 +25,8 @@ const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "abc",
   isBoxAssociated = true,
+  isBoxSameBase = true,
+  isBoxSameOrg = true,
   labelIdentifier = "123",
   state = BoxState.InStock,
 }) => ({
@@ -38,7 +40,13 @@ const mockSuccessfulQrQuery = ({
       qrCode: {
         _typename: "QrCode",
         code: hash,
-        box: isBoxAssociated ? generateMockBox({ labelIdentifier, state }) : null,
+        box: handleBoxGeneration({
+          labelIdentifier,
+          state,
+          isBoxAssociated,
+          isBoxSameOrg,
+          isBoxSameBase,
+        }),
       },
     },
   },
@@ -93,6 +101,37 @@ const mockFailedQrQuery = ({
         errors: [new GraphQLError("Error!", { extensions: { code: errorCode } })],
       },
   error: networkError ? new Error() : undefined,
+});
+
+const SuccessfulQrScanningNoAuthorizationOrPermissonTests = [
+  {
+    name: "3.4.8.4 - User scans QR code of different org with associated box.",
+    hash: "QrBoxSameOrgNoAccess",
+    mocks: [mockSuccessfulQrQuery({ hash: "QrBoxSameOrgNoAccess", isBoxSameOrg: false })],
+    endRoute: "/bases/1/boxes/create/QrWithoutBox",
+  },
+  {
+    name: "3.4.8.5 - User scans QR code of same org, but different base with associated box. The user has no access to the other base.",
+    hash: "QrBoxSameOrgNoAccess",
+    mocks: [mockSuccessfulQrQuery({ hash: "QrBoxSameOrgNoAccess", isBoxSameBase: false })],
+    endRoute: "/bases/1/boxes/create/QrWithoutBox",
+  },
+];
+
+SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks }) => {
+  it(name, async () => {
+    mockImplementationOfQrReader(mockedQrReader, hash, true, true);
+    render(<ResolveHash />, {
+      routePath: "/bases/1/qrreader/:hash",
+      initialUrl: `/bases/1/qrreader/${hash}`,
+      mocks,
+      cache,
+    });
+
+    expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
+
+    expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
+  });
 });
 
 const FailedQrScanningTests = [
