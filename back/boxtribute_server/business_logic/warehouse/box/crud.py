@@ -10,6 +10,7 @@ from ....exceptions import (
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
+    LocationBaseMismatch,
     MissingInputField,
     NegativeMeasureValue,
     NegativeNumberOfItems,
@@ -190,7 +191,13 @@ def update_box(
     box_contains_measure_product = box.size_id is None
     new_product = Product.get_by_id(product_id or box.product_id)
     new_product_is_measure_product = is_measure_product(new_product)
-    new_location = Location.get_by_id(location_id or box.location_id)
+    old_location = Location.get_by_id(box.location_id)
+    new_location = (
+        Location.get_by_id(location_id) if location_id is not None else old_location
+    )
+
+    if old_location.base_id != new_location.base_id:
+        raise LocationBaseMismatch()
 
     if new_product.base_id != new_location.base_id:
         raise ProductLocationBaseMismatch()

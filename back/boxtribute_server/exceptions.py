@@ -222,6 +222,13 @@ class ProductLocationBaseMismatch(Exception):
     }
 
 
+class LocationBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of old and new location not matching",
+    }
+
+
 class InputFieldIsNotNone(Exception):
     def __init__(self, *args, field, **kwargs):
         self.extensions = {

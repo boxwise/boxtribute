@@ -1806,3 +1806,10 @@ def test_mutate_box_with_invalid_location_or_product(
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {another_location["id"]}
+                         productId: {another_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
