@@ -229,6 +229,20 @@ class LocationBaseMismatch(Exception):
     }
 
 
+class LocationTagBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of 'location' and 'tag' not matching",
+    }
+
+
+class TagBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of tags not matching",
+    }
+
+
 class InputFieldIsNotNone(Exception):
     def __init__(self, *args, field, **kwargs):
         self.extensions = {

@@ -11,17 +11,20 @@ from ....exceptions import (
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
     LocationBaseMismatch,
+    LocationTagBaseMismatch,
     MissingInputField,
     NegativeMeasureValue,
     NegativeNumberOfItems,
     ProductLocationBaseMismatch,
     QrCodeAlreadyAssignedToBox,
+    TagBaseMismatch,
 )
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
+from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
@@ -39,6 +42,21 @@ def is_measure_product(product):
     otherwise.
     """
     return product.size_range_id in [28, 29]
+
+
+def _validate_base_of_tags(*, tag_ids, location):
+    if len(tag_ids) == 0:
+        # Handle empty list when removing all assigned tags via updateBox
+        return
+
+    tag_base_ids = {t.base_id for t in Tag.select(Tag.base).where(Tag.id << tag_ids)}
+    if len(tag_base_ids) > 1:
+        # All requested tags must be registered in the same base
+        raise TagBaseMismatch()
+
+    tag_base_id = list(tag_base_ids)[0]
+    if location.base_id != tag_base_id:
+        raise LocationTagBaseMismatch()
 
 
 @save_creation_to_history
@@ -77,6 +95,9 @@ def create_box(
     )
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatch()
+
+    if tag_ids:
+        _validate_base_of_tags(tag_ids=tag_ids, location=location)
 
     # The inputs size_id and the pair (display_unit_id, measure_value) are mutually
     # exclusive.
@@ -258,6 +279,8 @@ def update_box(
     if state is not None:
         box.state = state
     if tag_ids is not None:
+        _validate_base_of_tags(tag_ids=tag_ids, location=new_location)
+
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
             r.tag_id
@@ -293,6 +316,8 @@ def update_box(
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     if tag_ids_to_be_added is not None:
+        _validate_base_of_tags(tag_ids=tag_ids_to_be_added, location=new_location)
+
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
             r.tag_id
