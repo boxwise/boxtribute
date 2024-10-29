@@ -454,6 +454,7 @@ workflows:
               only:
                 - master
                 - production
+                - enable-otel
       - install-node-packages:
           requires:
             - checkout-to-workspace
@@ -462,6 +463,7 @@ workflows:
               only:
                 - master
                 - production
+                - enable-otel
 
       # staging
       - build-front:
@@ -473,6 +475,7 @@ workflows:
             branches:
               only:
                 - master
+                - enable-otel
       - deploy:
           name: deploy-staging
           context: STAGING
@@ -483,6 +486,7 @@ workflows:
             branches:
               only:
                 - master
+                - enable-otel
       - deploy-api:
           name: deploy-api-staging
           context: STAGING
