@@ -9,6 +9,7 @@ from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
+from .utils import in_staging_environment
 
 
 def create_app():
@@ -76,6 +77,7 @@ def main(*blueprints):
     )
 
     app = create_app()
+    setup_opentelemetry(app)
     configure_app(
         app,
         *blueprints,
@@ -91,3 +93,44 @@ def main(*blueprints):
         replica_socket=os.getenv("MYSQL_REPLICA_SOCKET"),
     )
     return app
+
+
+def setup_opentelemetry(app):
+    if not in_staging_environment():
+        return
+
+    # https://cloud.google.com/stackdriver/docs/instrumentation/choose-approach#app_engine
+    # https://cloud.google.com/trace/docs/setup/python-ot
+    # https://github.com/GoogleCloudPlatform/opentelemetry-operations-python/blob/1f1775886d7314b113acd322633afb278f875687/samples/instrumentation-quickstart/setup_opentelemetry.py
+    from opentelemetry.sdk.resources import SERVICE_INSTANCE_ID, SERVICE_NAME, Resource
+
+    # No permission for trace.googleapis.com
+    # from opentelemetry import trace
+    # from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    # from opentelemetry.sdk.trace import TracerProvider
+    # from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+    from opentelemetry import metrics
+    from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+    from opentelemetry.sdk.metrics import MeterProvider
+    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+    resource = Resource.create(attributes={
+        # Use the PID as the service.instance.id to avoid duplicate timeseries
+        # from different Gunicorn worker processes.
+        SERVICE_INSTANCE_ID: f"worker-{os.getpid()}",
+    })
+
+    # tracer_provider = TracerProvider(resource=resource)
+    # processor = BatchSpanProcessor(OTLPSpanExporter())
+    # tracer_provider.add_span_processor(processor)
+    # trace.set_tracer_provider(tracer_provider)
+
+    reader = PeriodicExportingMetricReader(
+        OTLPMetricExporter()
+    )
+    meter_provider = MeterProvider(metric_readers=[reader], resource=resource)
+    metrics.set_meter_provider(meter_provider)
+
+    from opentelemetry.instrumentation.flask import FlaskInstrumentor
+    FlaskInstrumentor().instrument_app(app)
