@@ -11,7 +11,7 @@ function HeaderMenuContainer() {
   const { baseId } = useBaseIdParam();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
-  // Desktop Menu
+  // Fix tests
   // required ABPs, min. beta
   // pixel peeping
   // base switcher?
