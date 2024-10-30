@@ -118,6 +118,22 @@ Here, a list of best practices you should follow when writing front-end tests wi
 Using Boxtribute with a mobile device is one of the main use cases, therefore we should do some functional testing of the work we are doing whenever possible.
 Check https://developer.chrome.com/docs/devtools/remote-debugging/ to know how to debug local development with your Android phone. For Mac/Safari/iOS you will need a Mac and an iPhone simulator set up.
 
+Alernatively, one can connect to your local dev server through the IP address of your local docker container. Vite prints out the address when you start the server locally with e.g. `docker compose up`
+
+```
+front-1    |   VITE v5.4.8
+front-1    |
+front-1    |   ➜  Local:   http://localhost:3000/
+front-1    |   ➜  Network: http://172.27.1.3:3000/
+```
+
+However, auth0 will not forward you automatically to the login screen if you try to connect via this address since the auth0-spa-js library requires a 'secure' origin starting with `https://` or a localhost address. In order to connect to your local dev server from another device, it is hence easiest to run a HTTPS tunnel through [ngrok](https://ngrok.com/use-cases/developer-preview) or LocalTunnel. The steps are:
+
+1. create ngrok account
+2. install ngrok locally and add an authtoken
+3. start a tunnel by `ngrok http http://localhost:3000`
+4. Take the generated https address and put it in Auth0 in the "boxtribute-react" application under "Allowed Callback URLs".
+
 ## Conventions for file and folder organisation
 
 - Views of react-router paths go into the views folder
