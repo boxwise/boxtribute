@@ -11,6 +11,11 @@ function HeaderMenuContainer() {
   const { baseId } = useBaseIdParam();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
+  // Desktop Menu
+  // required ABPs, min. beta
+  // pixel peeping
+  // base switcher?
+
   // TODO: do this at route definition
   const menuItems: IMenuItemsGroupData[] = useMemo(() => {
     const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
@@ -21,6 +26,18 @@ function HeaderMenuContainer() {
         minBeta: 3,
         links: [
           {
+            link: `${oldAppUrlWithBase}&action=sales_list`,
+            name: "Sales Reports",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=fancygraphs`,
+            name: "Fancy Graphs",
+            requiredAbp: [],
+            external: true,
+          },
+          {
             link: `/bases/${baseId}/statviz`,
             name: "Dashboard",
             requiredAbp: [],
@@ -29,7 +46,7 @@ function HeaderMenuContainer() {
         ],
       },
       {
-        text: "Inventory",
+        text: "Aid Inventory",
         requiredAbp: ["create_label"],
         links: [
           {
@@ -40,7 +57,7 @@ function HeaderMenuContainer() {
           },
           {
             link: `/bases/${baseId}/boxes`,
-            name: "Manage Boxes v2",
+            name: "Manage Boxes",
             beta: true,
             requiredAbp: ["manage_inventory"],
           },
@@ -59,13 +76,13 @@ function HeaderMenuContainer() {
         ],
       },
       {
-        text: "Transfers",
+        text: "Aid Transfers",
         minBeta: 2,
         requiredAbp: ["view_shipments"],
         links: [
           {
             link: `/bases/${baseId}/transfers/shipments`,
-            name: "Manage Shipments",
+            name: "Manage Transfers",
             beta: true,
             requiredAbp: ["view_shipments"],
           },
@@ -74,6 +91,84 @@ function HeaderMenuContainer() {
             name: "Manage Agreements",
             beta: true,
             requiredAbp: ["view_transfer_agreements"],
+          },
+        ],
+      },
+      {
+        text: "Beneficiares",
+        requiredAbp: [],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=people_add`,
+            name: "Add Beneficiary",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=people`,
+            name: "Manage Beneficiares",
+            requiredAbp: [],
+            external: true,
+          },
+        ],
+      },
+      {
+        text: "Free Shop",
+        requiredAbp: [],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=checkout`,
+            name: "Checkout",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=container-stock`,
+            name: "Stockroom",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=give2all`,
+            name: "Give Tokens To All",
+            requiredAbp: [],
+            external: true,
+          },
+        ],
+      },
+      {
+        text: "Admin",
+        requiredAbp: [],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=tags`,
+            name: "Manage Tags",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=products`,
+            name: "Manage Products",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=locations`,
+            name: "Edit Warehouses",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=cms_users`,
+            name: "Manage Users",
+            requiredAbp: [],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=cms_usergroups`,
+            name: "User Groups",
+            requiredAbp: [],
+            external: true,
           },
         ],
       },
