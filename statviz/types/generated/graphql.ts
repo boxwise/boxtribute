@@ -133,6 +133,8 @@ export enum Language {
 export type MovedBoxDataDimensions = {
   __typename?: 'MovedBoxDataDimensions';
   category?: Maybe<Array<Maybe<DimensionInfo>>>;
+  /**  'Dimension' in the sense of Mass or Volume  */
+  dimension: Array<DimensionInfo>;
   size?: Maybe<Array<Maybe<DimensionInfo>>>;
   tag: Array<TagDimensionInfo>;
   target?: Maybe<Array<Maybe<TargetDimensionInfo>>>;
@@ -154,15 +156,20 @@ export type MovedBoxesData = DataCube & {
  */
 export type MovedBoxesResult = {
   __typename?: 'MovedBoxesResult';
+  /**  Null for boxes with size-product  */
+  absoluteMeasureValue?: Maybe<Scalars['Float']['output']>;
   boxesCount: Scalars['Int']['output'];
   categoryId: Scalars['Int']['output'];
+  /**  'Dimension' in the sense of Mass or Volume; null for boxes with size-product  */
+  dimensionId?: Maybe<Scalars['Int']['output']>;
   gender: ProductGender;
   itemsCount: Scalars['Int']['output'];
   movedOn: Scalars['Date']['output'];
   /**  Shipment target organisation name; null for BoxState/OutgoingLocation target types  */
   organisationName?: Maybe<Scalars['String']['output']>;
   productName: Scalars['String']['output'];
-  sizeId: Scalars['Int']['output'];
+  /**  Null for boxes with measure-product  */
+  sizeId?: Maybe<Scalars['Int']['output']>;
   tagIds?: Maybe<Array<Scalars['Int']['output']>>;
   targetId: Scalars['ID']['output'];
 };
@@ -266,6 +273,8 @@ export type StockOverviewData = DataCube & {
 export type StockOverviewDataDimensions = {
   __typename?: 'StockOverviewDataDimensions';
   category: Array<DimensionInfo>;
+  /**  'Dimension' in the sense of Mass or Volume  */
+  dimension: Array<DimensionInfo>;
   location: Array<DimensionInfo>;
   size: Array<DimensionInfo>;
   tag: Array<TagDimensionInfo>;
@@ -273,14 +282,19 @@ export type StockOverviewDataDimensions = {
 
 export type StockOverviewResult = {
   __typename?: 'StockOverviewResult';
+  /**  Null for boxes with size-product  */
+  absoluteMeasureValue?: Maybe<Scalars['Float']['output']>;
   boxState: BoxState;
   boxesCount: Scalars['Int']['output'];
   categoryId: Scalars['Int']['output'];
+  /**  'Dimension' in the sense of Mass or Volume; null for boxes with size-product  */
+  dimensionId?: Maybe<Scalars['Int']['output']>;
   gender: ProductGender;
   itemsCount: Scalars['Int']['output'];
   locationId: Scalars['Int']['output'];
   productName: Scalars['String']['output'];
-  sizeId: Scalars['Int']['output'];
+  /**  Null for boxes with measure-product  */
+  sizeId?: Maybe<Scalars['Int']['output']>;
   tagIds?: Maybe<Array<Scalars['Int']['output']>>;
 };
 
@@ -398,7 +412,7 @@ export type StockOverviewQueryVariables = Exact<{
 }>;
 
 
-export type StockOverviewQuery = { __typename?: 'Query', stockOverview?: { __typename?: 'StockOverviewData', facts: Array<{ __typename?: 'StockOverviewResult', productName: string, categoryId: number, gender: ProductGender, boxesCount: number, itemsCount: number, sizeId: number, tagIds?: Array<number> | null, boxState: BoxState, locationId: number }>, dimensions: { __typename?: 'StockOverviewDataDimensions', category: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }>, size: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }>, tag: Array<(
+export type StockOverviewQuery = { __typename?: 'Query', stockOverview?: { __typename?: 'StockOverviewData', facts: Array<{ __typename?: 'StockOverviewResult', productName: string, categoryId: number, gender: ProductGender, boxesCount: number, itemsCount: number, sizeId?: number | null, tagIds?: Array<number> | null, boxState: BoxState, locationId: number }>, dimensions: { __typename?: 'StockOverviewDataDimensions', category: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }>, size: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }>, tag: Array<(
         { __typename?: 'TagDimensionInfo' }
         & { ' $fragmentRefs'?: { 'TagFragmentFragment': TagFragmentFragment } }
       )>, location: Array<{ __typename?: 'DimensionInfo', id?: number | null, name?: string | null }> } } | null };
