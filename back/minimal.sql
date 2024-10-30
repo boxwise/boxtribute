@@ -2223,7 +2223,8 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20240913172526,'UpdateUnitsTable','2024-09-30 12:35:56','2024-09-30 12:35:57',0),
   (20240913175631,'AddUnitValueToStock','2024-09-30 12:36:56','2024-09-30 12:36:57',0),
   (20240930122935,'MakeStockSizeNullable','2024-10-10 17:29:00','2024-10-10 17:29:01',0),
-  (20240930123110,'MakeShipmentDetailSourceSizeNullable','2024-10-10 17:29:02','2024-10-10 17:29:03',0);
+  (20240930123110,'MakeShipmentDetailSourceSizeNullable','2024-10-10 17:29:02','2024-10-10 17:29:03',0),
+  (20241021111555,'MakeShipmentAgreementNullable','2024-10-30 13:15:29','2024-10-30 13:15:30',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2377,7 +2378,7 @@ CREATE TABLE `shipment` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `source_base_id` int(11) unsigned NOT NULL,
   `target_base_id` int(11) unsigned NOT NULL,
-  `transfer_agreement_id` int(11) unsigned NOT NULL,
+  `transfer_agreement_id` int(11) unsigned DEFAULT NULL,
   `state` varchar(255) NOT NULL DEFAULT 'Preparing',
   `started_on` datetime NOT NULL,
   `started_by_id` int(11) unsigned NOT NULL,

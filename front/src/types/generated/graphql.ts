@@ -1487,13 +1487,15 @@ export type Shipment = {
   startedOn: Scalars['Datetime']['output'];
   state?: Maybe<ShipmentState>;
   targetBase: Base;
-  transferAgreement: TransferAgreement;
+  /**  If no agreement associated with the shipment, it's an intra-org one  */
+  transferAgreement: Maybe<TransferAgreement>;
 };
 
 export type ShipmentCreationInput = {
   sourceBaseId: Scalars['Int']['input'];
   targetBaseId: Scalars['Int']['input'];
-  transferAgreementId: Scalars['Int']['input'];
+  /**  Passing null will create an intra-org shipment  */
+  transferAgreementId: Maybe<Scalars['Int']['input']>;
 };
 
 /** Representation of a box in a shipment. Boxes might be added or removed on the source side, and received or marked as lost on the target side. All properties (product, location, size, quantity) at source and target side are tracked here */
