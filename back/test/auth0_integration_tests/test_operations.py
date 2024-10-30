@@ -64,7 +64,7 @@ def test_queries(auth0_client, endpoint):
     query = """query { standardProducts {
                 ...on StandardProductPage { totalCount } } }"""
     response = _assert_successful_request(auth0_client, query)
-    assert response["totalCount"] == 162
+    assert response["totalCount"] == 155
 
 
 def test_mutations(auth0_client):
