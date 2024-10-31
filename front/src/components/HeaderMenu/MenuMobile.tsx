@@ -7,10 +7,8 @@ import {
   Box,
   Flex,
   IconButton,
-  Image,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItem,
   MenuList,
   Text,
@@ -19,16 +17,10 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import { useHandleLogout } from "hooks/hooks";
 import { NavLink } from "react-router-dom";
 
-import MenuIcon, { Icon } from "./MenuIcons";
+import { ACCOUNT_SETTINGS_URL } from "./consts";
 import { IHeaderMenuProps } from "./HeaderMenu";
-import BoxtributeLogo from "../../assets/images/boxtribute-logo.png";
-
-const ACCOUNT_SETTINGS_URL =
-  `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?action=cms_profile` as const;
-
-function Logo() {
-  return <Image src={BoxtributeLogo} maxH="3.5em" mb={1} />;
-}
+import BoxtributeLogo from "./BoxtributeLogo";
+import MenuIcon, { Icon } from "./MenuIcons";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -54,7 +46,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   return (
     <Flex as="nav" pt={4} pb={4} zIndex="2">
       <Flex justifyContent="space-between" w="100%" alignItems="center">
-        <Logo />
+        <BoxtributeLogo maxH="3.5em" mb={1} />
         <Menu>
           <MenuButton
             as={IconButton}
@@ -81,8 +73,8 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
             </MenuItem>
             <Accordion allowToggle>
               {menuItemsGroups.map((menu) => (
-                <AccordionItem key={menu.text}>
-                  <AccordionButton p={2} _hover={{ bg: "transparent" }}>
+                <AccordionItem key={menu.text} border={"none"}>
+                  <AccordionButton px={2} pb={2} pt={0} _hover={{ bg: "transparent" }}>
                     <SubItemBox>
                       <MenuIcon icon={menu.text as Icon} /> {menu.text}
                     </SubItemBox>
@@ -93,7 +85,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                       as={NavLink}
                       to={subMenu.link}
                       display="inline-flex"
-                      pb={2}
+                      pb={3}
                     >
                       {subMenu.name}
                     </AccordionPanel>
@@ -102,7 +94,9 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
               ))}
             </Accordion>
             <MenuItem
-              p={2}
+              px={2}
+              pb={2}
+              pt={0}
               bg="transparent"
               _hover={{ bg: "transparent" }}
               as={NavLink}
@@ -113,8 +107,14 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 Account
               </SubItemBox>
             </MenuItem>
-            <MenuDivider m={0} />
-            <MenuItem p={2} bg="transparent" _hover={{ bg: "transparent" }} onClick={handleLogout}>
+            <MenuItem
+              px={2}
+              pb={2}
+              pt={0}
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              onClick={handleLogout}
+            >
               <SubItemBox>Logout</SubItemBox>
             </MenuItem>
           </MenuList>
