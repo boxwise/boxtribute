@@ -47,6 +47,7 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
     initialUrl: "/bases/1",
     mocks: [queryFindNoBoxAssociated],
     additionalRoute: "/bases/1/boxes/123456",
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -93,6 +94,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
     initialUrl: "/bases/1",
     mocks: [queryFindBox],
     additionalRoute: "/bases/1/boxes/123456",
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -132,6 +134,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
     initialUrl: "/bases/1",
     mocks: [queryFindBoxFromOtherOrg],
     additionalRoute: "/bases/1/boxes/123456",
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -181,6 +184,7 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
     initialUrl: "/bases/1",
     mocks: [queryNoBoxAssociatedWithQrCode],
     additionalRoute: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode",
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -221,6 +225,7 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
     initialUrl: "/bases/1",
     mocks: [queryBoxAssociatedWithQrCode],
     additionalRoute: "/bases/1/boxes/123",
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -258,6 +263,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryBoxFromOtherOrganisation],
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -287,6 +293,7 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryBoxFromOtherOrganisation],
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -329,6 +336,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryHashNotInDb],
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
@@ -372,6 +380,7 @@ it("3.4.2.5c - Internal Server Error", async () => {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryInternalServerError],
+    mediaQueryReturnValue: false,
   });
 
   // 3.4.1.1 - Open QROverlay
