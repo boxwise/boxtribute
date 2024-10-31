@@ -55,21 +55,6 @@ export const useDeleteBoxes = () => {
           setIsLoading(false);
 
           if (errors?.length) {
-            const errorCode = errors[0]?.extensions?.code;
-
-            if (errorCode === "InsufficientPermissionError") {
-              if (showErrors) {
-                triggerError({
-                  message: "You don't have the permissions to delete these boxes.",
-                });
-              }
-              return {
-                kind: IDeleteBoxResultKind.NOT_AUTHORIZED,
-                requestedBoxes: boxes,
-                error: errors[0],
-              } as IDeleteBoxResult;
-            }
-
             if (showErrors) {
               triggerError({
                 message: "Could not delete boxes. Try again?",
@@ -82,30 +67,47 @@ export const useDeleteBoxes = () => {
             } as IDeleteBoxResult;
           }
 
-          const deletedBoxes = data?.deleteBoxes?.updatedBoxes || [];
-          const invalidIdentifiers = data?.deleteBoxes?.invalidBoxLabelIdentifiers || [];
+          const resultType = data?.deleteBoxes?.__typename;
+          if (resultType === "InsufficientPermissionError") {
+            if (showErrors) {
+              triggerError({
+                message: "You don't have the permissions to delete these boxes.",
+              });
+            }
+            return {
+              kind: IDeleteBoxResultKind.NOT_AUTHORIZED,
+              requestedBoxes: boxes,
+              error: errors?.[0],
+            } as IDeleteBoxResult;
+          }
 
-          if (deletedBoxes.length) {
-            if (showToasts) {
+          if (resultType === "BoxResult") {
+            const deletedBoxes = data?.deleteBoxes?.updatedBoxes || [];
+            const invalidIdentifiers = data?.deleteBoxes?.invalidBoxLabelIdentifiers || [];
+
+            if (deletedBoxes.length && showToasts) {
               createToast({
                 message: `${deletedBoxes.length === 1 ? "A box was" : `${deletedBoxes.length} boxes were`} successfully deleted.`,
               });
             }
-          }
 
-          if (invalidIdentifiers.length) {
-            if (showErrors) {
+            if (invalidIdentifiers.length && showErrors) {
               triggerError({
                 message: `Invalid box identifiers: ${invalidIdentifiers.join(", ")}`,
               });
             }
+
+            return {
+              kind: IDeleteBoxResultKind.SUCCESS,
+              requestedBoxes: boxes,
+              deletedBoxes,
+              invalidIdentifiers,
+            } as IDeleteBoxResult;
           }
 
           return {
-            kind: IDeleteBoxResultKind.SUCCESS,
+            kind: IDeleteBoxResultKind.FAIL,
             requestedBoxes: boxes,
-            deletedBoxes,
-            invalidIdentifiers,
           } as IDeleteBoxResult;
         })
         .catch((err) => {
