@@ -78,7 +78,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
 
     query = "query { products { totalCount } }"
     response = assert_successful_request(cron_client, query)
-    assert response["totalCount"] == 8 + 76 * 4  # minimal seed + generated
+    assert response["totalCount"] == 8 + 84 * 4  # minimal seed + generated
 
     query = "query { transferAgreements { id } }"
     response = assert_successful_request(cron_client, query)
@@ -86,7 +86,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
 
     query = "query { shipments { id } }"
     response = assert_successful_request(cron_client, query)
-    assert len(response) == 6
+    assert len(response) == 10
 
     nr_of_boxes = 0
     for base_id in [1, 2, 3, 4]:

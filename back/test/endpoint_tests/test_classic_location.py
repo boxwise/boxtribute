@@ -65,7 +65,7 @@ def test_locations_query(read_only_client, base1_classic_locations):
 def test_crud(client, default_base):
     from flask import g
 
-    g.user = CurrentUser(id=8)
+    g.user = CurrentUser(id=8, organisation_id=1)
     name = "test location"
     base_id = default_base["id"]
     location = create_location(

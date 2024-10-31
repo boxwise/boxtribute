@@ -317,7 +317,11 @@ jobs:
       - run:
           name: Deploy to GAE
           command: |
-            gcloud app deploy app-<< parameters.serviceName >>.yaml
+            if [ ! -z ${CIRCLE_TAG} ]; then
+              gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_TAG}
+            elif [ ! -z ${CIRCLE_SHA1} ]; then
+              gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1}
+            fi
       - slack/notify-on-failure:
           only_for_branches: master,production
 
@@ -409,7 +413,11 @@ jobs:
       - run:
           name: Deploy to GAE
           command: |
-            gcloud app deploy app-<< parameters.serviceName >>.yaml
+            if [ ! -z ${CIRCLE_TAG} ]; then
+              gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_TAG}
+            elif [ ! -z ${CIRCLE_SHA1} ]; then
+              gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1}
+            fi
       - slack/notify-on-failure:
           only_for_branches: master,production
 

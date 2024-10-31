@@ -145,6 +145,20 @@ class InvalidShipmentState(_InvalidResourceState):
         )
 
 
+class IdenticalShipmentSourceAndTargetBase(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Source and target base must not be identical",
+    }
+
+
+class ShipmentSourceAndTargetBaseOrganisationsMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Source and target base must be of same organisation",
+    }
+
+
 class InvalidShipmentDetailUpdateInput(Exception):
     def __init__(self, *args, model, detail, **kwargs):
         self.extensions = {
@@ -176,6 +190,73 @@ class NegativeNumberOfItems(Exception):
         "code": "BAD_USER_INPUT",
         "description": "Invalid input: negative value for 'numberOfItems'",
     }
+
+
+class NegativeMeasureValue(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: negative value for 'measureValue'",
+    }
+
+
+class IncompatibleSizeAndMeasureInput(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: either 'sizeId' or 'displayUnitId'+"
+        "'measureValue' required",
+    }
+
+
+class DisplayUnitProductMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: dimensions of 'displayUnit' and 'product' "
+        "not matching",
+    }
+
+
+class ProductLocationBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of 'location' and 'product' not matching",
+    }
+
+
+class LocationBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of old and new location not matching",
+    }
+
+
+class LocationTagBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of 'location' and 'tag' not matching",
+    }
+
+
+class TagBaseMismatch(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Invalid input: bases of tags not matching",
+    }
+
+
+class InputFieldIsNotNone(Exception):
+    def __init__(self, *args, field, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"Input field '{field}' must be None",
+        }
+
+
+class MissingInputField(Exception):
+    def __init__(self, *args, field, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"Input field '{field}' missing",
+        }
 
 
 class ServiceError(Exception):

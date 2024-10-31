@@ -56,7 +56,7 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
         if (box != null) {
           if (
             box.product?.id === packingListEntry.product.id &&
-            box.size.id === packingListEntry.size?.id
+            box.size?.id === packingListEntry.size?.id
           ) {
             return {
               isValid: true,

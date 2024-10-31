@@ -2,11 +2,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "msedge",
+      "request": "launch",
+      "name": "Launch Edge against localhost",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/front/src",
+      "userDataDir": false
+    },
+    {
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against localhost",
       "url": "http://localhost:3000",
-      "webRoot": ""
+      "webRoot": "${workspaceFolder}/front/src"
     }
   ]
 }

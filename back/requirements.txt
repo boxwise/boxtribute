@@ -1,14 +1,14 @@
 ariadne==0.23.0
 Flask==3.0.3
 Flask-Cors==5.0.0
-sentry-sdk[flask]==2.16.0
+sentry-sdk[flask]==2.17.0
 PyMySQL==1.1.1
-peewee==3.17.6
+peewee==3.17.7
 peewee-moves==2.1.0
 python-dotenv==1.0.1
 PyJWT[crypto]==2.9.0
 aiodataloader==0.4.0
 gunicorn
 auth0-python==4.7.2
-Faker==30.3.0
+Faker==30.8.1
 freezegun==1.5.1
