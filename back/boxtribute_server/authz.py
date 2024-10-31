@@ -324,9 +324,8 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
         "moveNotDeliveredBoxesInStock",
     ),
 }
-ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2]
+ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2] + ("deleteBoxes",)
 ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
-    "deleteBoxes",
     "moveBoxesToLocation",
     "assignTagToBoxes",
     "unassignTagFromBoxes",
