@@ -87,7 +87,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                       display="inline-flex"
                       pb={3}
                     >
-                      {subMenu.name}
+                      <MenuItem _hover={{ bg: "transparent" }}>{subMenu.name}</MenuItem>
                     </AccordionPanel>
                   ))}
                 </AccordionItem>
