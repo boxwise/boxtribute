@@ -1,6 +1,10 @@
 import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
+import {
+  LARGE_DESKTOP_SCREEN_MEDIA_QUERY,
+  SMALL_DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY,
+} from "./HeaderMenu/consts";
 
 /**
  * Renders the layout which is sitting in the routing at /bases/:baseId.
@@ -12,8 +16,8 @@ import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
  * @returns The rendered layout component.
  */
 function Layout() {
-  const [isDesktopScreen] = useMediaQuery("(min-width: 1280px)");
-  const [isTabletScreen] = useMediaQuery("(min-width: 1024px)");
+  const [isDesktopScreen] = useMediaQuery(LARGE_DESKTOP_SCREEN_MEDIA_QUERY);
+  const [isTabletScreen] = useMediaQuery(SMALL_DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY);
 
   // Account spacing for tablets and small desktop sizes.
   const isMidScreen = isTabletScreen && !isDesktopScreen;
