@@ -67,7 +67,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
       alignItems="center"
       justifyContent="space-between"
       position="sticky"
-      zIndex={2}
+      zIndex={3}
       w="100%"
     >
       <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
