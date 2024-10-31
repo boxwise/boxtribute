@@ -14,11 +14,7 @@ export type Icon =
   | "Admin"
   | "Account";
 
-type props = {
-  icon: Icon;
-};
-
-function MenuIcons({ icon }: props) {
+function MenuIcons({ icon }: { icon: Icon }) {
   switch (icon) {
     case "QRCode":
       return <RiQrCodeLine />;
