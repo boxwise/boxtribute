@@ -23,11 +23,12 @@ export interface IDeleteBoxResult {
 export const DELETE_BOXES = gql`
   mutation DeleteBoxes($labelIdentifiers: [String!]!) {
     deleteBoxes(labelIdentifiers: $labelIdentifiers) {
+      __typename
       ... on BoxResult {
-        updatedBoxes {
-          labelIdentifier
-        }
         invalidBoxLabelIdentifiers
+      }
+      ... on InsufficientPermissionError {
+        name
       }
     }
   }
