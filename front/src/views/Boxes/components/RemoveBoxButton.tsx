@@ -30,15 +30,17 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
 
   return (
     <>
-      <Button
-        onClick={handleOpenDialog}
-        isDisabled={actionsAreLoading || selectedBoxes.length === 0}
-        leftIcon={<FaTrashAlt />}
-        colorScheme="red"
-      >
-        {/* Only show the text if the screen is larger than 768px */}
-        {isLargerThan768 && `Remove Box${selectedBoxes.length > 1 ? "es" : ""}`}
-      </Button>
+      {selectedBoxes.length > 0 && (
+        <Button
+          onClick={handleOpenDialog}
+          isDisabled={actionsAreLoading || selectedBoxes.length === 0}
+          leftIcon={<FaTrashAlt />}
+          colorScheme="red"
+        >
+          {/* Only show the text if the screen is larger than 768px */}
+          {isLargerThan768 && `Remove Box${selectedBoxes.length > 1 ? "es" : ""}`}
+        </Button>
+      )}
 
       <RemoveBoxOverlay
         isLoading={actionsAreLoading}
