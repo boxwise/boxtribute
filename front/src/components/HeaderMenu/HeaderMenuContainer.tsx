@@ -11,11 +11,6 @@ function HeaderMenuContainer() {
   const { baseId } = useBaseIdParam();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
-  // Fix tests
-  // required ABPs, min. beta
-  // pixel peeping
-  // base switcher?
-
   // TODO: do this at route definition
   const menuItems: IMenuItemsGroupData[] = useMemo(() => {
     const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
@@ -28,13 +23,13 @@ function HeaderMenuContainer() {
           {
             link: `${oldAppUrlWithBase}&action=sales_list`,
             name: "Sales Reports",
-            requiredAbp: [],
+            requiredAbp: ["list_sales"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=fancygraphs`,
             name: "Fancy Graphs",
-            requiredAbp: [],
+            requiredAbp: ["view_beneficiary_graph"],
             external: true,
           },
           {
@@ -69,7 +64,7 @@ function HeaderMenuContainer() {
           },
           {
             link: `${oldAppUrlWithBase}&action=stock_overview`,
-            name: "Stock Overview",
+            name: "Stock Planning",
             requiredAbp: ["view_inventory"],
             external: true,
           },
@@ -82,7 +77,7 @@ function HeaderMenuContainer() {
         links: [
           {
             link: `/bases/${baseId}/transfers/shipments`,
-            name: "Manage Transfers",
+            name: "Manage Shipments",
             beta: true,
             requiredAbp: ["view_shipments"],
           },
@@ -96,42 +91,48 @@ function HeaderMenuContainer() {
       },
       {
         text: "Beneficiares",
-        requiredAbp: [],
+        requiredAbp: ["manage_beneficiaries"], // TODO: this or "view_beneficiaries"? "view_beneficiaries" doesn't seem to work.
         links: [
           {
             link: `${oldAppUrlWithBase}&action=people_add`,
             name: "Add Beneficiary",
-            requiredAbp: [],
+            requiredAbp: ["create_beneficiaries"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=people`,
             name: "Manage Beneficiares",
-            requiredAbp: [],
+            requiredAbp: ["manage_beneficiaries"],
             external: true,
           },
         ],
       },
       {
         text: "Free Shop",
-        requiredAbp: [],
+        requiredAbp: [], // TODO: revisit this. See https://trello.com/c/5IIOrOmY#comment-6720d286c59afc434a52e302
         links: [
           {
             link: `${oldAppUrlWithBase}&action=checkout`,
             name: "Checkout",
-            requiredAbp: [],
+            requiredAbp: ["checkout_beneficiaries"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=container-stock`,
             name: "Stockroom",
-            requiredAbp: [],
+            requiredAbp: ["view_inventory"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=market_schedule`,
+            name: "Generate market schedule",
+            requiredAbp: ["generate_market_schedule"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=give2all`,
             name: "Give Tokens To All",
-            requiredAbp: [],
+            requiredAbp: ["manage_tokens"],
             external: true,
           },
         ],
@@ -143,31 +144,25 @@ function HeaderMenuContainer() {
           {
             link: `${oldAppUrlWithBase}&action=tags`,
             name: "Manage Tags",
-            requiredAbp: [],
+            requiredAbp: ["manage_tags"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=products`,
             name: "Manage Products",
-            requiredAbp: [],
+            requiredAbp: ["manage_products"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=locations`,
             name: "Edit Warehouses",
-            requiredAbp: [],
+            requiredAbp: ["manage_warehouses"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=cms_users`,
             name: "Manage Users",
-            requiredAbp: [],
-            external: true,
-          },
-          {
-            link: `${oldAppUrlWithBase}&action=cms_usergroups`,
-            name: "User Groups",
-            requiredAbp: [],
+            requiredAbp: ["cms_users"],
             external: true,
           },
         ],
