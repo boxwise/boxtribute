@@ -22,8 +22,9 @@ function DesktopMenuItem({ menu }: { menu: IMenuItemsGroupData }) {
   function handleKeyboardNavigation(
     e: React.KeyboardEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLDivElement>,
   ) {
-    if (e.key === " ") onOpen();
-    if (e.key === "Escape") onClose();
+    if (e.key === "Escape") return onClose();
+    if (e.key === "Tab") return onClose();
+    if (e.key === " ") return onOpen();
   }
 
   return (
@@ -36,6 +37,7 @@ function DesktopMenuItem({ menu }: { menu: IMenuItemsGroupData }) {
         onMouseEnter={onOpen}
         onMouseLeave={onClose}
         onKeyUp={handleKeyboardNavigation}
+        onKeyDown={handleKeyboardNavigation}
       >
         {menu.text}
       </MenuButton>
@@ -56,7 +58,7 @@ function DesktopMenuItem({ menu }: { menu: IMenuItemsGroupData }) {
   );
 }
 
-// TODO: navigation outline on leave, keyboard navigation wonkiness?
+// TODO: navigation outline on leave.
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   return (
     <Flex
