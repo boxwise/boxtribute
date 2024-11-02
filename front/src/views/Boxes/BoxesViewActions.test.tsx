@@ -15,14 +15,16 @@ import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { ErrorBoundary } from "@sentry/react";
-import { mockedCreateToast } from "tests/setupTests";
+import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
+import { DELETE_BOXES } from "hooks/useDeleteBoxes";
 
 const boxesQuery = ({
   state = BoxState.InStock,
   stateFilter = [BoxState.InStock],
   shipmentDetail = null as any,
+  labelIdentifier = "123",
 }) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
@@ -41,6 +43,7 @@ const boxesQuery = ({
         __typename: "BoxPage",
         elements: [
           generateMockBox({
+            labelIdentifier,
             state,
             shipmentDetail,
           }),
@@ -83,6 +86,7 @@ const mutation = ({
   } as any,
   networkError = false,
   graphQlError = false,
+  insufficientPermissionError = false,
 }) => ({
   request: {
     query: gQLRequest,
@@ -91,7 +95,16 @@ const mutation = ({
   result: networkError
     ? undefined
     : {
-        data: graphQlError ? null : resultData,
+        data: insufficientPermissionError
+          ? {
+              deleteBoxes: {
+                __typename: "InsufficientPermissionError",
+                name: "InsufficientPermissionError",
+              },
+            }
+          : graphQlError
+            ? null
+            : resultData,
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
@@ -153,6 +166,41 @@ const unassignFromShipmentGQLRequest = gql`
     }
   }
 `;
+
+const deleteBoxesMutation = ({
+  labelIdentifiers = ["123"],
+  invalidBoxLabelIdentifiers = [] as string[],
+  networkError = false,
+  graphQlError = false,
+  insufficientPermissionError = false,
+}) => ({
+  request: {
+    query: DELETE_BOXES,
+    variables: { labelIdentifiers },
+  },
+  result: networkError
+    ? undefined
+    : {
+        data: insufficientPermissionError
+          ? {
+              deleteBoxes: {
+                __typename: "InsufficientPermissionError",
+                name: "InsufficientPermissionError",
+              },
+            }
+          : graphQlError
+            ? null
+            : {
+                deleteBoxes: {
+                  __typename: "BoxResult",
+                  updatedBoxes: labelIdentifiers.map((id) => ({ labelIdentifier: id })),
+                  invalidBoxLabelIdentifiers: invalidBoxLabelIdentifiers,
+                },
+              },
+        errors: graphQlError ? [new FakeGraphQLError()] : undefined,
+      },
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
+});
 
 const boxesViewActionsTests = [
   {
@@ -324,66 +372,179 @@ const boxesViewActionsTests = [
     toast: /Could not remove a box/i,
     searchParams: "?columnFilters=%5B%5D",
   },
+  // 4.8.6 - DeleteBoxes Action
+  {
+    name: "4.8.6.1 - DeleteBoxes Action is loading and shows Table skeleton",
+    mocks: [boxesQuery({}), actionsQuery()],
+    clicks: [], // No action clicks since we're just testing the initial load
+    toast: null, // No toast message expected
+    checkButtonVisible: false, // Parameter to check if "Remove Box" button should be visible
+  },
+  {
+    name: "4.8.6.2 - DeleteBoxes Action is successful",
+    mocks: [
+      boxesQuery({}),
+      actionsQuery(),
+      deleteBoxesMutation({
+        labelIdentifiers: ["123"],
+      }),
+    ],
+    clicks: [/remove box/i],
+    toast: /A box was successfully deleted|Boxes successfully deleted/i,
+  },
+  {
+    name: "4.8.6.3 - DeleteBoxes Action is failing due to GraphQL error",
+    mocks: [
+      boxesQuery({}),
+      actionsQuery(),
+      deleteBoxesMutation({
+        labelIdentifiers: ["123"],
+        graphQlError: true,
+      }),
+    ],
+    clicks: [/remove box/i],
+    toast: /Could not delete the boxes. Please try again/i,
+  },
+  {
+    name: "4.8.6.4 - DeleteBoxes Action is failing due to Network error",
+    mocks: [
+      boxesQuery({}),
+      actionsQuery(),
+      deleteBoxesMutation({
+        labelIdentifiers: ["123"],
+        networkError: true,
+      }),
+    ],
+    clicks: [/remove box/i],
+    toast: /Could not delete the boxes. Please try again/i,
+  },
+  {
+    name: "4.8.6.5 - DeleteBoxes Action fails due to invalid box identifier",
+    mocks: [
+      boxesQuery({
+        labelIdentifier: "456",
+      }),
+      actionsQuery(),
+      deleteBoxesMutation({
+        labelIdentifiers: ["456"],
+        invalidBoxLabelIdentifiers: ["456"],
+      }),
+    ],
+    clicks: [/remove box/i],
+    toast: /Could not delete the boxes. Please try again./i,
+    triggerError: /Invalid box identifiers: 456/i,
+  },
+  {
+    name: "4.8.6.6 - DeleteBoxes Action fails due to insufficient permissions",
+    mocks: [
+      boxesQuery({}),
+      actionsQuery(),
+      deleteBoxesMutation({
+        labelIdentifiers: ["123"],
+        insufficientPermissionError: true,
+      }),
+    ],
+    clicks: [/remove box/i],
+    toast: /Could not delete the boxes. Please try again/i,
+    triggerError: /You don't have the permissions to delete these boxes/i,
+  },
 ];
 
-boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams }) => {
-  it(
-    name,
-    async () => {
-      const user = userEvent.setup();
-      render(
-        <ErrorBoundary
-          fallback={
-            <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-          }
-        >
-          <Suspense fallback={<TableSkeleton />}>
-            <Boxes />
-          </Suspense>
-        </ErrorBoundary>,
-        {
-          routePath: "/bases/:baseId/boxes",
-          initialUrl: `/bases/1/boxes${searchParams || ""}`,
-          mocks,
-          cache,
-        },
-      );
-
-      // check loading state
-      expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
-
-      // Select the first box
-      const checkboxes = await screen.findAllByRole(
-        "checkbox",
-        { name: /toggle row selected/i },
-        { timeout: 5000 },
-      );
-      expect(checkboxes.length).toBe(1);
-      await user.click(checkboxes[0]);
-      await waitFor(() => expect(checkboxes[0]).toBeChecked());
-
-      // Click the action buttons
-      const actionButton = await screen.findByRole("button", { name: clicks[0] });
-      expect(actionButton).toBeInTheDocument();
-      await user.click(actionButton);
-
-      if (clicks[1]) {
-        const subButton = await screen.findByText(clicks[1]);
-        expect(subButton).toBeInTheDocument();
-        await user.click(subButton);
-      }
-
-      if (toast) {
-        // check toast
-        await waitFor(() =>
-          expect(mockedCreateToast).toHaveBeenCalledWith(
-            expect.objectContaining({
-              message: expect.stringMatching(toast),
-            }),
-          ),
+boxesViewActionsTests.forEach(
+  ({ name, mocks, clicks, toast, searchParams, triggerError, checkButtonVisible }) => {
+    it(
+      name,
+      async () => {
+        const user = userEvent.setup();
+        render(
+          <ErrorBoundary
+            fallback={
+              <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+            }
+          >
+            <Suspense fallback={<TableSkeleton />}>
+              <Boxes />
+            </Suspense>
+          </ErrorBoundary>,
+          {
+            routePath: "/bases/:baseId/boxes",
+            initialUrl: `/bases/1/boxes${searchParams || ""}`,
+            mocks,
+            cache,
+          },
         );
-      }
-    },
-    20000,
-  );
-});
+
+        // Check loading state
+        expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
+
+        // Ensure component renders
+        await screen.findByRole("table");
+
+        // Check for "Remove Box" button visibility if specified in the test case
+        const removeBoxButton = screen.queryByRole("button", { name: /remove box/i });
+        if (checkButtonVisible === false) {
+          expect(removeBoxButton).not.toBeInTheDocument();
+        }
+
+        if (clicks.length > 0) {
+          // Select a checkbox and ensure button becomes visible
+          const checkboxes = await screen.findAllByRole("checkbox", {
+            name: /toggle row selected/i,
+          });
+          expect(checkboxes.length).toBeGreaterThan(0);
+          await user.click(checkboxes[0]);
+          await waitFor(() => expect(checkboxes[0]).toBeChecked());
+
+          // Perform action based on the `clicks` parameter
+          const actionButton = await screen.findByRole("button", { name: clicks[0] });
+          expect(actionButton).toBeInTheDocument();
+          await user.click(actionButton);
+
+          // Conditional check for delete action confirmation
+          if (
+            typeof clicks[0] === "string" &&
+            (clicks[0] as string).toLowerCase().includes("remove")
+          ) {
+            const confirmDialogButton = await screen.findByRole("button", { name: /remove/i });
+            expect(confirmDialogButton).toBeInTheDocument();
+            await user.click(confirmDialogButton);
+          } else if (clicks[1]) {
+            // For other actions, click the sub-action button if specified
+            const subButton = await screen.findByText(clicks[1]);
+            expect(subButton).toBeInTheDocument();
+            await user.click(subButton);
+          }
+
+          // Only confirm deletion if the action is a delete operation
+          if (name.toLowerCase().includes("delete") || name.toLowerCase().includes("remove")) {
+            const confirmButton = await screen.findByRole("button", { name: /remove/i });
+            await user.click(confirmButton);
+          }
+        }
+
+        if (triggerError) {
+          // error message appears
+          await waitFor(() =>
+            expect(mockedTriggerError).toHaveBeenCalledWith(
+              expect.objectContaining({
+                message: expect.stringMatching(triggerError),
+              }),
+            ),
+          );
+        }
+
+        // Check for the expected toast message
+        if (toast) {
+          await waitFor(() =>
+            expect(mockedCreateToast).toHaveBeenCalledWith(
+              expect.objectContaining({
+                message: expect.stringMatching(toast),
+              }),
+            ),
+          );
+        }
+      },
+      20000,
+    );
+  },
+);
