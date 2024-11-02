@@ -1928,7 +1928,7 @@ export type DeleteBoxesMutationVariables = Exact<{
 }>;
 
 
-export type DeleteBoxesMutation = { __typename?: 'Mutation', deleteBoxes?: { __typename?: 'BoxResult', invalidBoxLabelIdentifiers: Array<string>, updatedBoxes: Array<{ __typename?: 'Box', labelIdentifier: string }> } | { __typename?: 'InsufficientPermissionError' } | null };
+export type DeleteBoxesMutation = { __typename?: 'Mutation', deleteBoxes?: { __typename: 'BoxResult', invalidBoxLabelIdentifiers: Array<string> } | { __typename: 'InsufficientPermissionError', name: string } | null };
 
 export type OrganisationBasicFieldsFragment = { __typename?: 'Organisation', id: string, name: string };
 
