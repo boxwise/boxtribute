@@ -95,6 +95,13 @@ export const useDeleteBoxes = () => {
               triggerError({
                 message: `Invalid box identifiers: ${invalidIdentifiers.join(", ")}`,
               });
+              if(invalidIdentifiers.length === labelIdentifiers.length) {
+                return {
+                  kind: IDeleteBoxResultKind.FAIL,
+                  requestedBoxes: boxes,
+                  invalidIdentifiers,
+                } as IDeleteBoxResult;
+              }
             }
 
             return {
