@@ -488,8 +488,15 @@ boxesViewActionsTests.forEach(
 
         if (clicks.length > 0) {
           // Select a checkbox and ensure button becomes visible
-          const checkboxes = await screen.findAllByRole("checkbox");
-          expect(checkboxes.length).toBeGreaterThan(0);
+          expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
+
+          // Select the first box
+          const checkboxes = await screen.findAllByRole(
+            "checkbox",
+            { name: /toggle row selected/i },
+            { timeout: 5000 },
+          );
+          expect(checkboxes.length).toBe(1);
           await user.click(checkboxes[0]);
           await waitFor(() => expect(checkboxes[0]).toBeChecked());
 
