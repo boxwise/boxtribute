@@ -488,9 +488,7 @@ boxesViewActionsTests.forEach(
 
         if (clicks.length > 0) {
           // Select a checkbox and ensure button becomes visible
-          const checkboxes = await screen.findAllByRole("checkbox", {
-            name: /toggle row selected/i,
-          });
+          const checkboxes = await screen.findAllByRole("checkbox");
           expect(checkboxes.length).toBeGreaterThan(0);
           await user.click(checkboxes[0]);
           await waitFor(() => expect(checkboxes[0]).toBeChecked());
