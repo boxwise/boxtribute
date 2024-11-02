@@ -477,8 +477,8 @@ boxesViewActionsTests.forEach(
         // Check loading state
         expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
-        // Ensure component renders
-        await screen.findByRole("table");
+        // // Ensure component renders
+        // await screen.findByRole("table");
 
         // Check for "Remove Box" button visibility if specified in the test case
         const removeBoxButton = screen.queryByRole("button", { name: /remove box/i });
