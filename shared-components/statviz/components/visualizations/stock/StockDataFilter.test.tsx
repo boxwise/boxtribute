@@ -1,9 +1,11 @@
 import { it, expect } from "vitest";
+import { filter, tidy } from "@tidyjs/tidy";
+
 import { userEvent } from "@testing-library/user-event";
 import { render, screen } from "../../../../tests/testUtils";
 
 import StockDataFilter from "./StockDataFilter";
-import { BoxState, ProductGender } from "../../../../types/generated/graphql";
+import { BoxState, ProductGender, StockOverviewResult } from "../../../../types/generated/graphql";
 
 it("x.x.x.x - User clicks on 'Gender' filter in drilldown chart", async () => {
   render(
@@ -80,4 +82,52 @@ it("x.x.x.x - User clicks on 'Gender' filter in drilldown chart", async () => {
   await userEvent.click(dropdownOption);
 
   expect(await screen.findByText(/Drilldown Chart of Instock Boxes/)).toBeInTheDocument();
+});
+
+it("should filter out only items with boxState === BoxState.InStock", () => {
+  // TODO: Make the data be returned in the mocks
+  const data: StockOverviewResult[] = [
+    {
+      __typename: "StockOverviewResult",
+      boxState: BoxState.InStock,
+      boxesCount: 1,
+      categoryId: 1,
+      gender: ProductGender.UnisexAdult,
+      itemsCount: 5,
+      locationId: 100000036,
+      productName: "underwear",
+      sizeId: 42,
+      tagIds: [45],
+    },
+    {
+      __typename: "StockOverviewResult",
+      boxState: BoxState.Donated,
+      boxesCount: 20,
+      categoryId: 2,
+      gender: ProductGender.UnisexAdult,
+      itemsCount: 8,
+      locationId: 100000036,
+      productName: "underwear",
+      sizeId: 38,
+      tagIds: [3],
+    },
+    {
+      __typename: "StockOverviewResult",
+      boxState: BoxState.InStock,
+      boxesCount: 15,
+      categoryId: 1,
+      gender: ProductGender.UnisexAdult,
+      itemsCount: 6,
+      locationId: 100000036,
+      productName: "underwear",
+      sizeId: 40,
+      tagIds: [1, 4],
+    },
+  ];
+
+  const inStockFilter = filter((fact: StockOverviewResult) => fact.boxState === BoxState.InStock);
+  const filteredData = tidy(data, inStockFilter) as StockOverviewResult[];
+
+  expect(filteredData.length).toBe(2);
+  expect(filteredData.every((fact) => fact.boxState === BoxState.InStock)).toBe(true);
 });
