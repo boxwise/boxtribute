@@ -744,7 +744,7 @@ export type Mutation = {
   createTransferAgreement?: Maybe<TransferAgreement>;
   /**  Deactivate beneficiary with specified ID.  */
   deactivateBeneficiary?: Maybe<Beneficiary>;
-  /**  Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
+  /**  Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list.  */
   deleteBoxes?: Maybe<DeleteBoxesResult>;
   /**  Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in.  */
   deleteProduct?: Maybe<DeleteProductResult>;

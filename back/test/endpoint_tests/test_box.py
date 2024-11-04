@@ -154,6 +154,9 @@ def test_box_mutations(
     client,
     another_box,
     qr_code_without_box,
+    box_without_qr_code,
+    in_transit_box,
+    not_delivered_box,
     default_size,
     another_size,
     products,
@@ -773,6 +776,32 @@ def test_box_mutations(
     assert response == {
         "updatedBoxes": [],
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
+    }
+
+    # Test case 8.2.28a
+    non_warehouse_raw_label_identifiers = sorted(
+        [
+            b["label_identifier"]
+            for b in [
+                box_without_qr_code,  # MarkedForShipment
+                in_transit_box,  # InTransit
+                not_delivered_box,  # NotDelivered
+            ]
+        ]
+    )
+    non_warehouse_label_identifiers = ",".join(
+        f'"{i}"' for i in non_warehouse_raw_label_identifiers
+    )
+    mutation = f"""mutation {{ deleteBoxes(
+        labelIdentifiers: [{non_warehouse_label_identifiers}] ) {{
+            ...on BoxResult {{
+                updatedBoxes {{ id }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": non_warehouse_raw_label_identifiers,
     }
 
     # Test cases 8.2.26, 8.2.27, 8.2.28
