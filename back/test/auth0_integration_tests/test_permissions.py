@@ -121,7 +121,13 @@ def test_usergroup_cross_organisation_permissions(
     expected_accessible_base_ids,
     expected_forbidden_base_ids,
     forbidden_beneficiary_id,
+    mocker,
 ):
+    # Pretend that the users have a sufficient beta-level to run the beneficiary
+    # migrations
+    mocker.patch("boxtribute_server.routes.check_beta_feature_access").return_value = (
+        True
+    )
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         username
     )
@@ -227,12 +233,6 @@ def test_god_user(dropapp_dev_client):
 
 
 def test_check_beta_feature_access(dropapp_dev_client, mocker):
-    # Enable testing of check_beta_feature_access() function
-    env_variables = os.environ.copy()
-    env_variables["CI"] = "false"
-    del env_variables["ENVIRONMENT"]
-    mocker.patch("os.environ", env_variables)
-
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "dev_coordinator@boxaid.org"
     )

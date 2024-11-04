@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from boxtribute_server.auth import (
     GOD_ROLE,
@@ -267,12 +265,6 @@ def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
 
 
 def test_check_beta_feature_access(mocker):
-    # Enable testing of check_beta_feature_access() function
-    env_variables = os.environ.copy()
-    env_variables["CI"] = "false"
-    del env_variables["ENVIRONMENT"]
-    mocker.patch("os.environ", env_variables)
-
     # User with scope 0 can only access BoxView/BoxEdit pages, and queries
     beta_feature_scope = 0
     current_user = CurrentUser(

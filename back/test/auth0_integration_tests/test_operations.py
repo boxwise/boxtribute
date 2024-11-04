@@ -67,7 +67,12 @@ def test_queries(auth0_client, endpoint):
     assert response["totalCount"] == 155
 
 
-def test_mutations(auth0_client):
+def test_mutations(auth0_client, mocker):
+    # Pretend that the users have a sufficient beta-level to run the beneficiary
+    # migrations
+    mocker.patch("boxtribute_server.routes.check_beta_feature_access").return_value = (
+        True
+    )
     auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "coordinator@coordinator.co"
     )
