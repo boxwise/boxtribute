@@ -339,7 +339,13 @@ ALL_ALLOWED_MUTATIONS[5] = ALL_ALLOWED_MUTATIONS[4] + (
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
-ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[5] + (
+ALL_ALLOWED_MUTATIONS[6] = ALL_ALLOWED_MUTATIONS[5] + (
+    # + mutations needed for bulk box creation
+    "createTag",
+    "updateTag",
+    "deleteTag",
+)
+ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[6] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
     "createDistributionEvent",
