@@ -75,15 +75,27 @@ def assert_internal_server_error(client, query, **kwargs):
     )
 
 
-def assert_successful_request(client, query, field=None, endpoint="graphql"):
+def assert_unauthorized(client, query, **kwargs):
+    """Send GraphQL request with query using given client.
+    Assert that a 401 response is returned.
+    """
+    return _assert_web_request(client, query, http_code=401, **kwargs)
+
+
+def assert_successful_request(client, query, field=None, **kwargs):
     """Send GraphQL request with query using given client.
     Assert response HTTP code 200, and return main response JSON data field.
     """
-    data = {"query": query}
-    response = client.post(f"/{endpoint}", json=data)
-    assert response.status_code == 200
-
-    assert "errors" not in response.json
-
+    response = _assert_web_request(client, query, field=field, **kwargs)
     field = field or _extract_field(query)
     return response.json["data"][field]
+
+
+def _assert_web_request(
+    client, query, *, http_code=200, field=None, endpoint="graphql"
+):
+    data = {"query": query}
+    response = client.post(f"/{endpoint}", json=data)
+    assert response.status_code == http_code
+    assert "errors" not in response.json
+    return response

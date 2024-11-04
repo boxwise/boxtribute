@@ -8,7 +8,11 @@ from auth import (
     get_authorization_header,
 )
 from boxtribute_server.auth import CurrentUser, decode_jwt, get_public_key
-from utils import assert_forbidden_request, assert_successful_request
+from utils import (
+    assert_forbidden_request,
+    assert_successful_request,
+    assert_unauthorized,
+)
 
 # Test user data in dropapp_dev database:
 # users: Volunteer - Coordinator - Head of Operations
@@ -237,9 +241,7 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
     assert_successful_request(dropapp_dev_client, mutation)
 
     mutation = "mutation { deleteTag(id: 1) { id } }"
-    data = {"query": mutation}
-    response = dropapp_dev_client.post("/graphql", json=data)
-    assert response.status_code == 401
+    response = assert_unauthorized(dropapp_dev_client, mutation)
     assert response.json["error"] == "No permission to access beta feature"
 
 
@@ -250,7 +252,5 @@ def test_check_public_api_access(dropapp_dev_client, mocker):
     mocker.patch("os.environ", env_variables)
 
     query = "query { beneficiaryDemographics(baseId: 1) { count } }"
-    data = {"query": query}
-    response = dropapp_dev_client.post("/public", json=data)
-    assert response.status_code == 401
+    response = assert_unauthorized(dropapp_dev_client, query, endpoint="public")
     assert response.json["error"] == "No permission to access public API"
