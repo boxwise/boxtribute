@@ -344,7 +344,17 @@ ALL_ALLOWED_MUTATIONS[6] = ALL_ALLOWED_MUTATIONS[5] + (
     "updateTag",
     "deleteTag",
 )
-ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[6] + (
+ALL_ALLOWED_MUTATIONS[98] = ALL_ALLOWED_MUTATIONS[6] + (
+    # !!!
+    # Any new mutation should be added here
+    # !!!
+    "createBeneficiary",
+    "updateBeneficiary",
+    "deactivateBeneficiary",
+    "assignTag",
+    "unassignTag",
+)
+ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[98] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
     "createDistributionEvent",
