@@ -340,7 +340,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (156,42,'User Groups','cms_usergroups',21,NULL,NULL,NULL,NULL,0,0,1,0,1,'be_god'),
   (157,155,'Bases','camps',22,NULL,NULL,NULL,NULL,0,1,1,0,1,'manage_base,be_god'),
   (158,161,'Add Beneficiary','people_add',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_beneficiaries'),
-  (160,99,'Stock Overview','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
+  (160,99,'Stock Planning','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
   (161,NULL,'Beneficiaries','',2,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (162,42,'Manage Tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
   (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
