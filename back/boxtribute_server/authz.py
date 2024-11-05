@@ -16,11 +16,7 @@ from .models.definitions.shipment import Shipment
 from .models.definitions.shipment_detail import ShipmentDetail
 from .models.definitions.transfer_agreement import TransferAgreement
 from .models.definitions.transfer_agreement_detail import TransferAgreementDetail
-from .utils import (
-    convert_pascal_to_snake_case,
-    in_ci_environment,
-    in_development_environment,
-)
+from .utils import convert_pascal_to_snake_case
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
@@ -344,7 +340,17 @@ ALL_ALLOWED_MUTATIONS[6] = ALL_ALLOWED_MUTATIONS[5] + (
     "updateTag",
     "deleteTag",
 )
-ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[6] + (
+ALL_ALLOWED_MUTATIONS[98] = ALL_ALLOWED_MUTATIONS[6] + (
+    # !!!
+    # Any new mutation should be added here
+    # !!!
+    "createBeneficiary",
+    "updateBeneficiary",
+    "deactivateBeneficiary",
+    "assignTag",
+    "unassignTag",
+)
+ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[98] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
     "createDistributionEvent",
@@ -373,10 +379,6 @@ def check_beta_feature_access(
     Fall back to default beta-feature scope if the one assigned to the user is not
     registered.
     """
-    if in_ci_environment() or in_development_environment():
-        # Skip check when running tests in CircleCI, or during local development
-        return True
-
     current_user = current_user or g.user
     if current_user.is_god:
         return True
