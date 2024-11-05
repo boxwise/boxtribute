@@ -149,6 +149,7 @@ jobs:
           name: Test front app and create reports
           command: |
             DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
+            DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test --test-timeout=40000
       - store_test_results:
           path: coverage/junit.xml
       - store_artifacts:
