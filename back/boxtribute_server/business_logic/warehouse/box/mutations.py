@@ -6,7 +6,7 @@ from peewee import JOIN
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
-from ....enums import TaggableObjectType, TagType
+from ....enums import BoxState, TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
     DeletedTag,
@@ -85,6 +85,8 @@ def resolve_update_box(*_, update_input):
 #   - don't exist and/or
 #   - are in a location the user is prohibited to access and/or
 #   - are deleted and/or
+#   - are not in a "warehouse" state (MarkedForShipment, InTransit, Receiving,
+#     NotDelivered) and/or
 #   - (depending on the context) would not be affected by the action anyways
 # - perform the requested action on all valid boxes
 # - create list of invalid boxes (difference of the set of input label identifiers and
@@ -101,6 +103,8 @@ def resolve_delete_boxes(*_, label_identifiers):
         .where(
             Box.label_identifier << label_identifiers,
             authorized_bases_filter(Location, permission="stock:write"),
+            Box.state
+            << (BoxState.InStock, BoxState.Lost, BoxState.Donated, BoxState.Scrap),
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
