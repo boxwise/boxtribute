@@ -70,6 +70,17 @@ Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:
 
 The ground truth for permissions management are the Auth0 Action scripts. Any updates to the scripts are downloaded to the [System Management repository](https://github.com/boxwise/system-management). The links to the Auth0 scripts are found in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0), along with other information about RBPs, ABPs, and dropapp menues.
 
+#### Beta-level
+
+There are two scenarios that require an additional guarding mechanism in boxtribute v2. We introduce a series of levels, each associated with certain available app functionality. The lowest level provides the least functionality, while each of the larger levels additively builds up on the previous one. We can now assign beta-level values to individual users to control their access to certain functionality because a user can only access functionality of a beta-level smaller or equal to the user's beta-level value.
+
+The default beta-level value is 3 (Nov 2024). On the back-end side, this is controlled in the [`authz` module](https://github.com/boxwise/boxtribute/blob/master/back/boxtribute_server/authz.py#L298-L299). On the user-management service side, an Auth0 Action script adds the beta-level value to the user's JWT.
+God users are not affected by beta-level checks. The beta-level mechanism is not used in dropapp.
+
+Details on the two scenarios:
+1. **Prevent use of functionality not yet accessible via the FE**. During the development cycle for v2, the back-end is usual extended with new functionality (e.g. a new mutation) before the UI implementation follows. This creates a gap during which the new mutation is already present in the GraphQL schema (and technically can be executed by users who pretend to be the front-end). However we don't want the mutation to be used, and hence associate it with a beta-level higher than the default beta-level value. Example: the `createTag` mutation is part of the GraphQL schema, hence any user with `tag:write` RBP (corresponding to `manage_tags` ABP, or at least coordinator role) could execute it. However the mutation is assigned to beta-level 6 which is larger than the default beta-level.
+2. **Restrict use of functionality to certain users**. Some new functionality might be made available to a subset of users for a certain testing period. Once it's decided who these users are (e.g. only certain bases or organisations), these users are assigned a beta-level value to enable them accessing the functionality to be tested. Example: box transfer feature which was enabled first for a sending and a receiving organisation.
+
 ### User management in Auth0
 
 [Auth0](https://auth0.com) is a service for managing user authentication and authorization. It serves as single source of truth. An authenticated user gets issued a JSON Web Token (JWT) in one of two variants holding their information: the ID token with authentication information, and the access token with authorization information. For signing the JWT we use the RS256 algorithm: the token will be signed with our private signing key and can be verified using our public signing key.
@@ -85,11 +96,12 @@ Any user registered for boxtribute has their authorization data (`app_metadata`)
 - `usergroup_id`: the ID of the usergroup the user belongs to
 - `base_ids`: a list of base IDs that the user has access to
 - `organisation_id`: the ID of the organisation the user belongs to
+- `beta_user` (optional): the largest beta-level the user is permitted to access
 
 During registration, the user manually gets assigned a role, indicating their usergroup and the bases they belong to. The role is named like `base_1_coordinator`.
 
-When the user has successfully logged in, a custom Auth0 post-login action script runs ([`create-dynamic-permissions`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/create-dynamic-permissions/code.js)). The script creates a JWT with the content derived from user authorization data and their role.
-Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format). Auth0 permissions assigned to the user currently have no effect.
+When the user has successfully logged in, two custom Auth0 post-login action scripts run ([`create-dynamic-permissions`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/create-dynamic-permissions/code.js) and [`add-beta-user-field`](https://github.com/boxwise/system-management/blob/main/services/auth0/dev/actions/add-beta-user-field/code.js)). The first script creates a JWT with the content derived from user authorization data and their role.
+Most importantly the script derives ABPs and base-specific RBPs for the current user (see below about their format). The second script assigns the user's beta-level value.
 
 Auth0 also offers the feature to assign permissions to user roles. Although these permissions were once seeded when creating the roles, they might become outdated, and should not be relied upon. Using Auth0 permissions is also less flexible than the permissions management in the Action scripts.
 
@@ -112,6 +124,7 @@ Field name | Kind | Description | Usage
 `https://www.boxtribute.com/organisation_id` | custom | ID of the organisation the user belongs to | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/permissions` | custom | List of RBPs that the user holds (only in access token) | see [below](#representation-of-current-user)
 `https://www.boxtribute.com/actions` | custom | List of ABPs that the user holds (only in ID token) | -
+`https://www.boxtribute.com/beta_user` | custom | the largest beta-level the user is permitted to access | -
 
 ### Implementation of authorization
 
@@ -161,6 +174,7 @@ The current user is programmatically represented by the `auth.CurrentUser` class
 - `is_god` (boolean): whether the user is god user or not (default: false)
 - `_base_ids`(list of integers): a data structure indicating the bases in which the user is allowed to access specific resources. This structure has to be queried via the `CurrentUser.authorized_base_ids()` method, passing in an RBP name.
 - `timezone` (string): timezone identifier determined by Auth0, e.g. "Europe/Berlin"
+- `beta_feature_scope` (integer): the largest beta-level the user is permitted to access
 
 The decoded JWT payload is converted into a `CurrentUser` instance with the following procedure:
 
