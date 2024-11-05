@@ -328,10 +328,9 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # Scope 3 is the default, hence users with unregistered scope have the same
-    # permissions
+    # Scope 3 is the default, hence users with unknown scope have the same permissions
     current_user._beta_feature_scope = 50
-    for mutation in ["deleteBoxes", "deleteProduct", "createTag"]:
+    for mutation in ["deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
     for mutation in ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]:
@@ -346,7 +345,7 @@ def test_check_beta_feature_access(mocker):
 
     # User with scope 3 can additionally access statviz data
     current_user._beta_feature_scope = 3
-    for mutation in ["deleteBoxes", "deleteProduct", "createTag"]:
+    for mutation in ["deleteProduct", "createTag"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_beta_feature_access(payload, current_user=current_user)
     for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
