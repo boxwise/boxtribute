@@ -47,6 +47,7 @@ A role reflects the user's responsibilities in the partner organisations. Curren
 - free shop volunteer
 - library volunteer
 - label creator
+- external free-shop checkout
 - God user (note: this is an application administration role and does not belong to a specific partner organisation)
 
 #### Permissions
