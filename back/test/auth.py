@@ -71,6 +71,7 @@ def _create_jwt_payload(
     user_id=8,
     is_god=False,
     permissions=None,
+    beta_feature_scope=99,
     timezone="Europe/London",
 ):
     """Create payload containing arbitrary authorization information of a user.
@@ -92,6 +93,7 @@ def _create_jwt_payload(
         f"{JWT_CLAIM_PREFIX}/email": email,
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
+        f"{JWT_CLAIM_PREFIX}/beta_user": beta_feature_scope,
         f"{JWT_CLAIM_PREFIX}/timezone": timezone,
         f"{JWT_CLAIM_PREFIX}/roles": (
             [GOD_ROLE] if is_god else [f"base_{base_ids[0]}_coordinator"]

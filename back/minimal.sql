@@ -340,7 +340,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (156,42,'User Groups','cms_usergroups',21,NULL,NULL,NULL,NULL,0,0,1,0,1,'be_god'),
   (157,155,'Bases','camps',22,NULL,NULL,NULL,NULL,0,1,1,0,1,'manage_base,be_god'),
   (158,161,'Add Beneficiary','people_add',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_beneficiaries'),
-  (160,99,'Stock Overview','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
+  (160,99,'Stock Planning','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
   (161,NULL,'Beneficiaries','',2,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (162,42,'Manage Tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
   (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
@@ -2225,7 +2225,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20240930122935,'MakeStockSizeNullable','2024-10-10 17:29:00','2024-10-10 17:29:01',0),
   (20240930123110,'MakeShipmentDetailSourceSizeNullable','2024-10-10 17:29:02','2024-10-10 17:29:03',0),
   (20241017193416,'UpdateDiaperStandardProducts','2024-10-30 13:15:06','2024-10-30 13:15:06',0),
-  (20241021111555,'MakeShipmentAgreementNullable','2024-10-30 13:15:29','2024-10-30 13:15:30',0);
+  (20241021111555,'MakeShipmentAgreementNullable','2024-10-30 13:15:29','2024-10-30 13:15:30',0),
+  (20241102132725,'UpdateCmsFunctionItems','2024-11-05 17:09:35','2024-11-05 17:09:36',0),
+  (20241102153022,'UpdateTranslateItems','2024-11-05 17:09:36','2024-11-05 17:09:36',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 

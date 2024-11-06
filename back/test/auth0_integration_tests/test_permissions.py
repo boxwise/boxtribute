@@ -8,7 +8,11 @@ from auth import (
     get_authorization_header,
 )
 from boxtribute_server.auth import CurrentUser, decode_jwt, get_public_key
-from utils import assert_forbidden_request, assert_successful_request
+from utils import (
+    assert_forbidden_request,
+    assert_successful_request,
+    assert_unauthorized,
+)
 
 # Test user data in dropapp_dev database:
 # users: Volunteer - Coordinator - Head of Operations
@@ -117,7 +121,13 @@ def test_usergroup_cross_organisation_permissions(
     expected_accessible_base_ids,
     expected_forbidden_base_ids,
     forbidden_beneficiary_id,
+    mocker,
 ):
+    # Pretend that the users have a sufficient beta-level to run the beneficiary
+    # migrations
+    mocker.patch("boxtribute_server.routes.check_beta_feature_access").return_value = (
+        True
+    )
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         username
     )
@@ -223,12 +233,6 @@ def test_god_user(dropapp_dev_client):
 
 
 def test_check_beta_feature_access(dropapp_dev_client, mocker):
-    # Enable testing of check_beta_feature_access() function
-    env_variables = os.environ.copy()
-    env_variables["CI"] = "false"
-    del env_variables["ENVIRONMENT"]
-    mocker.patch("os.environ", env_variables)
-
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "dev_coordinator@boxaid.org"
     )
@@ -237,9 +241,7 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
     assert_successful_request(dropapp_dev_client, mutation)
 
     mutation = "mutation { deleteTag(id: 1) { id } }"
-    data = {"query": mutation}
-    response = dropapp_dev_client.post("/graphql", json=data)
-    assert response.status_code == 401
+    response = assert_unauthorized(dropapp_dev_client, mutation)
     assert response.json["error"] == "No permission to access beta feature"
 
 
@@ -250,7 +252,5 @@ def test_check_public_api_access(dropapp_dev_client, mocker):
     mocker.patch("os.environ", env_variables)
 
     query = "query { beneficiaryDemographics(baseId: 1) { count } }"
-    data = {"query": query}
-    response = dropapp_dev_client.post("/public", json=data)
-    assert response.status_code == 401
+    response = assert_unauthorized(dropapp_dev_client, query, endpoint="public")
     assert response.json["error"] == "No permission to access public API"
