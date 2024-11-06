@@ -25,6 +25,10 @@ export const DELETE_BOXES = gql`
     deleteBoxes(labelIdentifiers: $labelIdentifiers) {
       __typename
       ... on BoxResult {
+        updatedBoxes {
+          labelIdentifier
+          deletedOn
+        }
         invalidBoxLabelIdentifiers
       }
       ... on InsufficientPermissionError {
@@ -77,7 +81,6 @@ export const useDeleteBoxes = () => {
             return {
               kind: IDeleteBoxResultKind.NOT_AUTHORIZED,
               requestedBoxes: boxes,
-              error: errors?.[0],
             } as IDeleteBoxResult;
           }
 
@@ -91,11 +94,13 @@ export const useDeleteBoxes = () => {
               });
             }
 
-            if (invalidIdentifiers.length && showErrors) {
-              triggerError({
-                message: `Invalid box identifiers: ${invalidIdentifiers.join(", ")}`,
-              });
-              if(invalidIdentifiers.length === labelIdentifiers.length) {
+            if (invalidIdentifiers.length) {
+              if (showErrors) {
+                triggerError({
+                  message: `The deletion failed for: ${invalidIdentifiers.join(", ")}`,
+                });
+              }
+              if (invalidIdentifiers.length === labelIdentifiers.length) {
                 return {
                   kind: IDeleteBoxResultKind.FAIL,
                   requestedBoxes: boxes,

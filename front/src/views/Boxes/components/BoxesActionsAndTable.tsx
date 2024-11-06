@@ -173,30 +173,6 @@ function BoxesActionsAndTable({
     );
   }, [unassignBoxesFromShipments, selectedBoxes]);
 
-  // Delete Boxes
-  const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
-
-  const onDeleteBoxes = useCallback(() => {
-    deleteBoxes(
-      selectedBoxes.map((box) => box.values as IBoxBasicFields),
-      true,
-      true,
-    ).then((deleteBoxesResult) => {
-      if (deleteBoxesResult.kind === "success") {
-        createToast({
-          type: "success",
-          message: "Boxes successfully deleted.",
-        });
-        onRefetch();
-      } else {
-        createToast({
-          type: "error",
-          message: "Could not delete the boxes. Please try again.",
-        });
-      }
-    });
-  }, [deleteBoxes, selectedBoxes, createToast, onRefetch]);
-
   useEffect(() => {
     if (unassignBoxesFromShipmentsResult) {
       const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
@@ -224,6 +200,12 @@ function BoxesActionsAndTable({
       flushResult();
     }
   }, [createToast, flushResult, unassignBoxesFromShipmentsResult]);
+
+  // Delete Boxes
+  const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
+  const onDeleteBoxes = useCallback(() => {
+    deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
+  }, [deleteBoxes, selectedBoxes]);
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
