@@ -215,6 +215,12 @@ function BoxesActionsAndTable({
 
   const actionButtons = useMemo(
     () => [
+      <RemoveBoxesButton
+        onDeleteBoxes={onDeleteBoxes}
+        actionsAreLoading={actionsAreLoading}
+        selectedBoxes={selectedBoxes}
+        key="remove-boxes"
+      />,
       <SelectButton
         label="Move to ..."
         options={locationOptions}
@@ -230,12 +236,6 @@ function BoxesActionsAndTable({
         icon={<ShipmentIcon />}
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
-      />,
-      <RemoveBoxesButton
-        onDeleteBoxes={onDeleteBoxes}
-        actionsAreLoading={actionsAreLoading}
-        selectedBoxes={selectedBoxes}
-        key="remove-boxes"
       />,
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
