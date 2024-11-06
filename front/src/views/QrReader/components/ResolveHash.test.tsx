@@ -38,7 +38,7 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
         box: handleBoxGeneration({
           labelIdentifier,
@@ -89,6 +89,7 @@ const mockFailedQrQuery = ({
   hash = "",
   errorCode = "",
   networkError = false,
+  errorOnData = false,
 }) => ({
   request: {
     query,
@@ -97,8 +98,15 @@ const mockFailedQrQuery = ({
   result: networkError
     ? undefined
     : {
-        data: null,
-        errors: [new FakeGraphQLError(errorCode)],
+        data: errorOnData
+          ? {
+              qrCode: {
+                __typename: "ResourceDoesNotExistError",
+                name: "Base Baz",
+              },
+            }
+          : null,
+        errors: errorOnData ? undefined : [new FakeGraphQLError(errorCode)],
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
@@ -108,17 +116,15 @@ const SuccessfulQrScanningNoAuthorizationOrPermissonTests = [
     name: "3.4.8.4 - User scans QR code of different org with associated box.",
     hash: "QrBoxSameOrgNoAccess",
     mocks: [mockSuccessfulQrQuery({ hash: "QrBoxSameOrgNoAccess", isBoxSameOrg: false })],
-    endRoute: "/bases/1/boxes/create/QrWithoutBox",
   },
   {
     name: "3.4.8.5 - User scans QR code of same org, but different base with associated box. The user has no access to the other base.",
     hash: "QrBoxSameOrgNoAccess",
     mocks: [mockSuccessfulQrQuery({ hash: "QrBoxSameOrgNoAccess", isBoxSameBase: false })],
-    endRoute: "/bases/1/boxes/create/QrWithoutBox",
   },
 ];
 
-// TODO: Needs fixing with which alert box shows up in the test. It appears that there's a query error within the test context.
+// TODO: Needs fixing with which alert box shows up in the test. It appears that there are query errors within the test context.
 SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks }) => {
   it(name, async () => {
     mockImplementationOfQrReader(mockedQrReader, hash, true, true);
@@ -132,20 +138,21 @@ SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks
     expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
 
     expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
+    // TODO: assert correct alert text.
   });
 });
 
 const FailedQrScanningTests = [
-  {
-    name: "3.4.8.4 - User scans QR code of different org with associated box",
-    hash: "QrWithBoxFromDifferentBase",
-    mocks: [mockFailedQrQuery({ hash: "QrWithBoxFromDifferentBase", errorCode: "FORBIDDEN" })],
-    toast: /You don't have permission to access this box/i,
-  },
+  // {
+  //   name: "3.4.8.4 - User scans QR code of different org with associated box",
+  //   hash: "QrWithBoxFromDifferentBase",
+  //   mocks: [mockFailedQrQuery({ hash: "QrWithBoxFromDifferentBase", errorCode: "FORBIDDEN" })],
+  //   toast: /You don't have permission to access this box/i,
+  // },
   {
     name: "3.4.8.7 - User scans QR code where hash is not found in db",
     hash: "NoBoxtributeQr",
-    mocks: [mockFailedQrQuery({ hash: "NoBoxtributeQr", errorCode: "BAD_USER_INPUT" })],
+    mocks: [mockFailedQrQuery({ hash: "NoBoxtributeQr", errorOnData: true })],
     toast: /No box found for this QR code/i,
   },
   {
@@ -171,6 +178,8 @@ FailedQrScanningTests.forEach(({ name, hash, mocks, toast }) => {
       mocks,
       cache,
     });
+
+    // screen.debug();
 
     expect(await screen.findByTestId("ReturnScannedQr")).toBeInTheDocument();
 

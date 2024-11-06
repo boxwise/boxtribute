@@ -165,7 +165,7 @@ const queryNoBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
-        code: "NoBoxAssociatedWithQrCode",
+        __typename: "ResourceDoesNotExistError",
         box: null,
       },
     },
@@ -242,11 +242,12 @@ const queryBoxFromOtherOrganisation = {
   result: {
     data: {
       qrCode: {
-        code: "BoxFromOtherOrganisation",
-        box: null,
+        __typename: "UnauthorizedForBaseError",
+        name: "Base Foo",
+        organisationName: "BoxAid",
       },
     },
-    errors: [new FakeGraphQLError("FORBIDDEN")],
+    errors: undefined,
   },
 };
 

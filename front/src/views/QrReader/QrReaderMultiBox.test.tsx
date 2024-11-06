@@ -31,7 +31,7 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
         box: isBoxAssociated ? generateMockBox({ labelIdentifier, state }) : null,
       },
@@ -168,6 +168,8 @@ const mockFailedQrQuery = ({
   errorCode = "",
   resultQrCode = null as string | null | undefined,
   networkError = false,
+  errorOnData = false,
+  errorOnDataTypeName = "ResourceDoesNotExistError",
 }) => ({
   request: {
     query,
@@ -176,17 +178,28 @@ const mockFailedQrQuery = ({
   result: networkError
     ? undefined
     : {
-        data:
-          resultQrCode != null
+        data: errorOnData
+          ? {
+              qrCode: {
+                __typename:
+                  errorOnDataTypeName === "InsufficientPermissionError"
+                    ? "QrCode"
+                    : errorOnDataTypeName,
+                name: "Base Baz",
+                code: hash,
+                box: { __typename: errorOnDataTypeName, name: "Base Baz" },
+              },
+            }
+          : resultQrCode != null
             ? {
                 qrCode: {
-                  _typename: "QrCode",
+                  __typename: "QrCode",
                   code: hash,
                   box: null,
                 },
               }
             : null,
-        errors: [new FakeGraphQLError(errorCode)],
+        errors: errorOnData ? undefined : [new FakeGraphQLError(errorCode)],
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
@@ -201,7 +214,8 @@ const qrScanningInMultiBoxTabTestsFailing = [
       mockFailedQrQuery({
         hash: "QrWithBoxFromOtherOrganisation",
         resultQrCode: "QrWithBoxFromOtherBase",
-        errorCode: "FORBIDDEN",
+        errorOnData: true,
+        errorOnDataTypeName: "InsufficientPermissionError",
       }),
     ],
     toasts: [{ message: /have permission to access this box/i, isError: true }],
@@ -221,10 +235,10 @@ const qrScanningInMultiBoxTabTestsFailing = [
       mockFailedQrQuery({
         hash: "QrHashNotInDb",
         resultQrCode: null,
-        errorCode: "BAD_USER_INPUT",
+        errorOnData: true,
       }),
     ],
-    toasts: [{ message: /No box found for this QR code/i, isError: true }],
+    toasts: [{ message: /No box associated to this QR code!/i, isError: true }],
   },
   {
     name: "3.4.3.9 - user scans QR code and server returns unexpected error",
