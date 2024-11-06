@@ -21,7 +21,7 @@ import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import RemoveBoxesButton from "./RemoveBoxButton";
+import RemoveBoxesButton from "./RemoveBoxesButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;

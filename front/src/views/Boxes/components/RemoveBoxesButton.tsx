@@ -3,7 +3,7 @@ import { Row } from "react-table";
 
 import { Button } from "@chakra-ui/react";
 import { FaTrashAlt } from "react-icons/fa";
-import RemoveBoxOverlay from "./RemoveBoxOverlay";
+import RemoveBoxesOverlay from "./RemoveBoxesOverlay";
 import { BoxRow } from "./types";
 
 interface RemoveBoxesButtonProps {
@@ -38,7 +38,7 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
         />
       )}
 
-      <RemoveBoxOverlay
+      <RemoveBoxesOverlay
         isLoading={actionsAreLoading}
         isOpen={isDialogOpen}
         selectedBoxes={selectedBoxes}

@@ -4,7 +4,7 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import { FaTrashAlt } from "react-icons/fa";
 
-interface IRemoveBoxOverlayProps {
+interface IRemoveBoxesOverlayProps {
   isLoading: boolean;
   isOpen: boolean;
   selectedBoxes: Row<BoxRow>[];
@@ -12,13 +12,13 @@ interface IRemoveBoxOverlayProps {
   onRemove: () => void;
 }
 
-function RemoveBoxOverlay({
+function RemoveBoxesOverlay({
   isLoading,
   isOpen,
   selectedBoxes,
   onClose,
   onRemove,
-}: IRemoveBoxOverlayProps) {
+}: IRemoveBoxesOverlayProps) {
   const title = `Delete Box${selectedBoxes.length > 1 ? "es" : ""}`;
   const body = (
     <VStack align="start" spacing={8}>
@@ -60,4 +60,4 @@ function RemoveBoxOverlay({
   );
 }
 
-export default RemoveBoxOverlay;
+export default RemoveBoxesOverlay;
