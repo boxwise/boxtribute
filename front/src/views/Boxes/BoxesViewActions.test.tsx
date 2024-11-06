@@ -371,7 +371,6 @@ const boxesViewActionsTests = [
     mocks: [boxesQuery({}), actionsQuery()],
     clicks: [], // No action clicks since we're just testing the initial load
     toast: null, // No toast message expected
-    checkButtonVisible: false, // Parameter to check if "Remove Box" button should be visible
   },
   {
     name: "4.8.6.2 - DeleteBoxes Action is successful",
@@ -382,7 +381,7 @@ const boxesViewActionsTests = [
         labelIdentifiers: ["123"],
       }),
     ],
-    clicks: [/remove box/i],
+    clicks: [/delete box/i],
     toast: /A box was successfully deleted|Boxes successfully deleted/i,
   },
   {
@@ -395,7 +394,7 @@ const boxesViewActionsTests = [
         graphQlError: true,
       }),
     ],
-    clicks: [/remove box/i],
+    clicks: [/delete box/i],
     triggerError: /Could not delete boxes./i,
   },
   {
@@ -408,7 +407,7 @@ const boxesViewActionsTests = [
         networkError: true,
       }),
     ],
-    clicks: [/remove box/i],
+    clicks: [/delete box/i],
     triggerError: /Could not delete boxes./i,
   },
   {
@@ -423,7 +422,7 @@ const boxesViewActionsTests = [
         invalidBoxLabelIdentifiers: ["456"],
       }),
     ],
-    clicks: [/remove box/i],
+    clicks: [/delete box/i],
     triggerError: /The deletion failed for: 456/i,
   },
   {
@@ -436,111 +435,105 @@ const boxesViewActionsTests = [
         insufficientPermissionError: true,
       }),
     ],
-    clicks: [/remove box/i],
+    clicks: [/delete box/i],
     triggerError: /You don't have the permissions to delete these boxes/i,
   },
 ];
 
-boxesViewActionsTests.forEach(
-  ({ name, mocks, clicks, toast, searchParams, triggerError, checkButtonVisible }) => {
-    it(
-      name,
-      async () => {
-        const user = userEvent.setup();
-        render(
-          <ErrorBoundary
-            fallback={
-              <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-            }
-          >
-            <Suspense fallback={<TableSkeleton />}>
-              <Boxes />
-            </Suspense>
-          </ErrorBoundary>,
-          {
-            routePath: "/bases/:baseId/boxes",
-            initialUrl: `/bases/1/boxes${searchParams || ""}`,
-            mocks,
-            cache,
-          },
+boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, triggerError }) => {
+  it(
+    name,
+    async () => {
+      const user = userEvent.setup();
+      render(
+        <ErrorBoundary
+          fallback={
+            <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+          }
+        >
+          <Suspense fallback={<TableSkeleton />}>
+            <Boxes />
+          </Suspense>
+        </ErrorBoundary>,
+        {
+          routePath: "/bases/:baseId/boxes",
+          initialUrl: `/bases/1/boxes${searchParams || ""}`,
+          mocks,
+          cache,
+        },
+      );
+
+      // Check loading state
+      expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
+
+      // Check for "Remove Box" button visibility if specified in the test case
+      const deleteBoxButton = screen.queryByTestId("delete-boxes-button");
+      expect(deleteBoxButton).not.toBeInTheDocument();
+
+      if (clicks.length > 0) {
+        // Select the first box
+        const checkboxes = await screen.findAllByRole(
+          "checkbox",
+          { name: /toggle row selected/i },
+          { timeout: 5000 },
         );
+        expect(checkboxes.length).toBe(1);
+        await user.click(checkboxes[0]);
+        await waitFor(() => expect(checkboxes[0]).toBeChecked());
 
-        // Check loading state
-        expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
-
-        // // Ensure component renders
-        // await screen.findByRole("table");
-
-        // Check for "Remove Box" button visibility if specified in the test case
-        const removeBoxButton = screen.queryByRole("button", { name: /remove box/i });
-        if (checkButtonVisible === false) {
-          expect(removeBoxButton).not.toBeInTheDocument();
-        }
-
-        if (clicks.length > 0) {
-          // Select a checkbox and ensure button becomes visible
-          expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
-
-          // Select the first box
-          const checkboxes = await screen.findAllByRole(
-            "checkbox",
-            { name: /toggle row selected/i },
-            { timeout: 5000 },
-          );
-          expect(checkboxes.length).toBe(1);
-          await user.click(checkboxes[0]);
-          await waitFor(() => expect(checkboxes[0]).toBeChecked());
-
+        // Conditional check for delete action confirmation
+        if (name.toLowerCase().includes("delete")) {
+          const removeBoxButton2 = await screen.findByTestId("delete-boxes-button", undefined, {
+            timeout: 5000,
+          });
+          expect(removeBoxButton2).toBeInTheDocument();
+          await user.click(removeBoxButton2);
+          const confirmDialogButton = await screen.findByRole("button", { name: /delete/i });
+          expect(confirmDialogButton).toBeInTheDocument();
+          await user.click(confirmDialogButton);
+        } else {
           // Perform action based on the `clicks` parameter
           const actionButton = await screen.findByRole("button", { name: clicks[0] });
           expect(actionButton).toBeInTheDocument();
           await user.click(actionButton);
-
-          // Conditional check for delete action confirmation
-          if (
-            typeof clicks[0] === "string" &&
-            (clicks[0] as string).toLowerCase().includes("remove")
-          ) {
-            const confirmDialogButton = await screen.findByRole("button", { name: /remove/i });
-            expect(confirmDialogButton).toBeInTheDocument();
-            await user.click(confirmDialogButton);
-          } else if (clicks[1]) {
-            // For other actions, click the sub-action button if specified
-            const subButton = await screen.findByText(clicks[1]);
-            expect(subButton).toBeInTheDocument();
-            await user.click(subButton);
-          }
-
-          // Only confirm deletion if the action is a delete operation
-          if (name.toLowerCase().includes("delete") || name.toLowerCase().includes("remove")) {
-            const confirmButton = await screen.findByRole("button", { name: /remove/i });
-            await user.click(confirmButton);
-          }
         }
 
-        if (triggerError) {
-          // error message appears
-          await waitFor(() =>
-            expect(mockedTriggerError).toHaveBeenCalledWith(
-              expect.objectContaining({
-                message: expect.stringMatching(triggerError),
-              }),
-            ),
-          );
+        if (clicks[1]) {
+          // For other actions, click the sub-action button if specified
+          const subButton = await screen.findByText(clicks[1]);
+          expect(subButton).toBeInTheDocument();
+          await user.click(subButton);
         }
 
-        // Check for the expected toast message
-        if (toast) {
-          await waitFor(() =>
-            expect(mockedCreateToast).toHaveBeenCalledWith(
-              expect.objectContaining({
-                message: expect.stringMatching(toast),
-              }),
-            ),
-          );
+        // Only confirm deletion if the action is a delete operation
+        if (name.toLowerCase().includes("delete")) {
+          const confirmButton = await screen.findByRole("button", { name: /delete/i });
+          await user.click(confirmButton);
         }
-      },
-      20000,
-    );
-  },
-);
+      }
+
+      if (triggerError) {
+        // error message appears
+        await waitFor(() =>
+          expect(mockedTriggerError).toHaveBeenCalledWith(
+            expect.objectContaining({
+              message: expect.stringMatching(triggerError),
+            }),
+          ),
+        );
+      }
+
+      // Check for the expected toast message
+      if (toast) {
+        await waitFor(() =>
+          expect(mockedCreateToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              message: expect.stringMatching(toast),
+            }),
+          ),
+        );
+      }
+    },
+    20000,
+  );
+});

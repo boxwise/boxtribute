@@ -35,6 +35,7 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
           isDisabled={actionsAreLoading || selectedBoxes.length === 0}
           leftIcon={<FaTrashAlt />}
           iconSpacing={0}
+          data-testid="delete-boxes-button"
         />
       )}
 
