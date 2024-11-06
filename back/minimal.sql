@@ -2225,7 +2225,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20240930122935,'MakeStockSizeNullable','2024-10-10 17:29:00','2024-10-10 17:29:01',0),
   (20240930123110,'MakeShipmentDetailSourceSizeNullable','2024-10-10 17:29:02','2024-10-10 17:29:03',0),
   (20241017193416,'UpdateDiaperStandardProducts','2024-10-30 13:15:06','2024-10-30 13:15:06',0),
-  (20241021111555,'MakeShipmentAgreementNullable','2024-10-30 13:15:29','2024-10-30 13:15:30',0);
+  (20241021111555,'MakeShipmentAgreementNullable','2024-10-30 13:15:29','2024-10-30 13:15:30',0),
+  (20241102132725,'UpdateCmsFunctionItems','2024-11-05 17:09:35','2024-11-05 17:09:36',0),
+  (20241102153022,'UpdateTranslateItems','2024-11-05 17:09:36','2024-11-05 17:09:36',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
