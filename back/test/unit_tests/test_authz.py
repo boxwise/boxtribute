@@ -6,12 +6,12 @@ from boxtribute_server.auth import (
     CurrentUser,
 )
 from boxtribute_server.authz import (
-    ALL_ALLOWED_MUTATIONS,
-    DEFAULT_BETA_FEATURE_SCOPE,
+    DEFAULT_MAX_BETA_LEVEL,
+    MUTATIONS_FOR_BETA_LEVEL,
     _authorize,
     authorize,
     authorize_cross_organisation_access,
-    check_beta_feature_access,
+    check_user_beta_level,
     handle_unauthorized,
 )
 from boxtribute_server.business_logic.statistics import statistics_queries
@@ -224,7 +224,7 @@ def test_missing_claims():
 def test_user_with_multiple_roles():
     permission = "stock:write"
     # User is Head-of-Ops for base 2 but coordinator for base 1.
-    # Also verify casting of non-integer IDs and beta_feature_scope
+    # Also verify casting of non-integer IDs and max_beta_level
     payload = {
         f"{JWT_CLAIM_PREFIX}/organisation_id": "1",
         f"{JWT_CLAIM_PREFIX}/base_ids": ["2"],
@@ -236,7 +236,7 @@ def test_user_with_multiple_roles():
     }
     user = CurrentUser.from_jwt(payload)
     assert user.organisation_id == 1
-    assert user.beta_feature_scope == 4
+    assert user.max_beta_level == 4
     assert sorted(user.authorized_base_ids(permission)) == [1, 2]
 
     assert authorize(user, permission=permission, base_id=1)
@@ -265,11 +265,9 @@ def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
 
 
 def test_check_beta_feature_access(mocker):
-    # User with scope 0 can only access BoxView/BoxEdit pages, and queries
-    beta_feature_scope = 0
-    current_user = CurrentUser(
-        id=1, beta_feature_scope=beta_feature_scope, organisation_id=0
-    )
+    # User with level 0 can only access BoxView/BoxEdit pages, and queries
+    max_beta_level = 0
+    current_user = CurrentUser(id=1, max_beta_level=max_beta_level, organisation_id=0)
     for mutation in [
         "createQrCode",
         "createBox",
@@ -280,19 +278,19 @@ def test_check_beta_feature_access(mocker):
         "createBeneficiary",
     ]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert not check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 1 can additionally access BoxCreate/ScanBox pages
-    current_user._beta_feature_scope = 1
+    # User with level 1 can additionally access BoxCreate/ScanBox pages
+    current_user._max_beta_level = 1
     for mutation in [
         "createShipment",
         "deleteProduct",
@@ -301,109 +299,109 @@ def test_check_beta_feature_access(mocker):
         "createBeneficiary",
     ]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert not check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 2 can additionally access Transfers pages
-    current_user._beta_feature_scope = 2
+    # User with level 2 can additionally access Transfers pages
+    current_user._max_beta_level = 2
     for mutation in ["deleteBoxes", "deleteProduct", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert not check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # Scope 3 is the default, hence users with unknown scope have the same permissions
-    current_user._beta_feature_scope = 50
+    # Level 3 is the default, hence users with unknown level have the same permissions
+    current_user._max_beta_level = 50
     for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[DEFAULT_MAX_BETA_LEVEL]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 3 can additionally access statviz data
-    current_user._beta_feature_scope = 3
+    # User with level 3 can additionally access statviz data
+    current_user._max_beta_level = 3
     for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 4 can additionally execute Box bulk actions
-    current_user._beta_feature_scope = 4
+    # User with level 4 can additionally execute Box bulk actions
+    current_user._max_beta_level = 4
     for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 5 can additionally access Product pages
-    current_user._beta_feature_scope = 5
+    # User with level 5 can additionally access Product pages
+    current_user._max_beta_level = 5
     for mutation in ["createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with scope 6 can additionally run tag mutations
-    current_user._beta_feature_scope = 6
+    # User with level 6 can additionally run tag mutations
+    current_user._max_beta_level = 6
     for mutation in ["createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
-        assert not check_beta_feature_access(payload, current_user=current_user)
-    for mutation in ALL_ALLOWED_MUTATIONS[beta_feature_scope]:
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
+        assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
         payload = f"query {{ {query} }}"
-        assert check_beta_feature_access(payload, current_user=current_user)
-    assert check_beta_feature_access(
+        assert check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
     current_user = CurrentUser(id=0, organisation_id=0, is_god=True)
-    assert check_beta_feature_access({}, current_user=current_user)
+    assert check_user_beta_level({}, current_user=current_user)
 
 
 def test_handle_unauthorized():

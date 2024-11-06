@@ -175,7 +175,7 @@ The current user is programmatically represented by the `auth.CurrentUser` class
 - `is_god` (boolean): whether the user is god user or not (default: false)
 - `_base_ids`(list of integers): a data structure indicating the bases in which the user is allowed to access specific resources. This structure has to be queried via the `CurrentUser.authorized_base_ids()` method, passing in an RBP name.
 - `timezone` (string): timezone identifier determined by Auth0, e.g. "Europe/Berlin"
-- `beta_feature_scope` (integer): the largest beta-level the user is permitted to access
+- `max_beta_level` (integer): the largest beta-level the user is permitted to access
 
 The decoded JWT payload is converted into a `CurrentUser` instance with the following procedure:
 
