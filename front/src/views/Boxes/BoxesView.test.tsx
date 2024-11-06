@@ -62,6 +62,7 @@ const boxesQuery = {
             tags: [],
             createdOn: "2021-10-29T15:02:40+00:00",
             lastModifiedOn: new Date().toISOString(),
+            deletedOn: null,
           },
           {
             __typename: "Box",
@@ -106,6 +107,7 @@ const boxesQuery = {
             ],
             createdOn: "2021-10-29T15:02:40+00:00",
             lastModifiedOn: new Date().toISOString(),
+            deletedOn: null,
           },
           {
             __typename: "Box",
@@ -211,6 +213,7 @@ const boxesQuery = {
             ],
             createdOn: "2021-10-29T15:02:40+00:00",
             lastModifiedOn: new Date().toISOString(),
+            deletedOn: null,
           },
         ],
         pageInfo: {
