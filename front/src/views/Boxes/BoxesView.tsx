@@ -58,6 +58,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = gql`
         comment
         createdOn
         lastModifiedOn
+        deletedOn
       }
     }
   }
