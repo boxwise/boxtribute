@@ -18,7 +18,7 @@ export class FakeGraphQLNetworkError extends Error {
   }
 }
 
-const mockFailedMovedBoxesQuery = ({ baseId = "1", networkError = false }) => ({
+const mockFailedMovedBoxesQuery = ({ baseId = 1, networkError = false }) => ({
   request: {
     query: MOVED_BOXES_QUERY,
     variables: { baseId },
