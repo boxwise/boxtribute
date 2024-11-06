@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Row } from "react-table";
 
-import { Button, useMediaQuery } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { FaTrashAlt } from "react-icons/fa";
 import RemoveBoxOverlay from "./RemoveBoxOverlay";
 import { BoxRow } from "./types";
@@ -18,7 +18,6 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
   selectedBoxes,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
 
   const handleOpenDialog = () => setIsDialogOpen(true);
   const handleCloseDialog = () => setIsDialogOpen(false);
@@ -35,12 +34,8 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
           onClick={handleOpenDialog}
           isDisabled={actionsAreLoading || selectedBoxes.length === 0}
           leftIcon={<FaTrashAlt />}
-          colorScheme="red"
-          iconSpacing={isLargerThan768 ? 2 : 0}
-        >
-          {/* Only show the text if the screen is larger than 768px */}
-          {isLargerThan768 && `Remove Box${selectedBoxes.length > 1 ? "es" : ""}`}
-        </Button>
+          iconSpacing={0}
+        />
       )}
 
       <RemoveBoxOverlay
