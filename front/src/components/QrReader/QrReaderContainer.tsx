@@ -34,7 +34,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
-  const [boxNotOnwned, setBoxNotOnwned] = useState("");
+  const [boxNotOwned, setBoxNotOwned] = useState("");
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
       setTimeout(() => {
@@ -74,19 +74,14 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
-      setBoxNotOnwned("");
+      setBoxNotOwned("");
       const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",
       );
       switch (qrResolvedValue.kind) {
-        case IQrResolverResultKind.BOX_NO_PERMISSION: {
-          setBoxNotOnwned(`You don't have permission to access ${qrResolvedValue.box.name}`);
-          setIsProcessingQrCode(false);
-          break;
-        }
-        case IQrResolverResultKind.BOX_NOT_AUTHORIZED: {
-          setBoxNotOnwned(
+        case IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE: {
+          setBoxNotOwned(
             `This box it at base ${qrResolvedValue.box.name}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
           );
           setIsProcessingQrCode(false);
@@ -188,9 +183,9 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           <br />
         </>
       )}
-      {boxNotOnwned !== "" && (
+      {boxNotOwned !== "" && (
         <>
-          <AlertWithoutAction type="warning" alertText={boxNotOnwned} />
+          <AlertWithoutAction type="warning" alertText={boxNotOwned} />
           <br />
         </>
       )}
