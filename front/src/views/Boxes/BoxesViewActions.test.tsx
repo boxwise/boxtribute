@@ -86,7 +86,6 @@ const mutation = ({
   } as any,
   networkError = false,
   graphQlError = false,
-  insufficientPermissionError = false,
 }) => ({
   request: {
     query: gQLRequest,
@@ -95,16 +94,7 @@ const mutation = ({
   result: networkError
     ? undefined
     : {
-        data: insufficientPermissionError
-          ? {
-              deleteBoxes: {
-                __typename: "InsufficientPermissionError",
-                name: "InsufficientPermissionError",
-              },
-            }
-          : graphQlError
-            ? null
-            : resultData,
+        data: graphQlError ? null : resultData,
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
@@ -193,7 +183,10 @@ const deleteBoxesMutation = ({
             : {
                 deleteBoxes: {
                   __typename: "BoxResult",
-                  updatedBoxes: labelIdentifiers.map((id) => ({ labelIdentifier: id })),
+                  updatedBoxes: labelIdentifiers.map((id) => ({
+                    labelIdentifier: id,
+                    deletedOn: new Date().toISOString(),
+                  })),
                   invalidBoxLabelIdentifiers: invalidBoxLabelIdentifiers,
                 },
               },
@@ -403,7 +396,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/remove box/i],
-    toast: /Could not delete the boxes. Please try again/i,
+    triggerError: /Could not delete boxes./i,
   },
   {
     name: "4.8.6.4 - DeleteBoxes Action is failing due to Network error",
@@ -416,7 +409,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/remove box/i],
-    toast: /Could not delete the boxes. Please try again/i,
+    triggerError: /Could not delete boxes./i,
   },
   {
     name: "4.8.6.5 - DeleteBoxes Action fails due to invalid box identifier",
@@ -431,8 +424,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/remove box/i],
-    toast: /Could not delete the boxes. Please try again./i,
-    triggerError: /Invalid box identifiers: 456/i,
+    triggerError: /The deletion failed for: 456/i,
   },
   {
     name: "4.8.6.6 - DeleteBoxes Action fails due to insufficient permissions",
@@ -445,7 +437,6 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/remove box/i],
-    toast: /Could not delete the boxes. Please try again/i,
     triggerError: /You don't have the permissions to delete these boxes/i,
   },
 ];

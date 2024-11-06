@@ -1928,7 +1928,7 @@ export type DeleteBoxesMutationVariables = Exact<{
 }>;
 
 
-export type DeleteBoxesMutation = { __typename?: 'Mutation', deleteBoxes?: { __typename: 'BoxResult', invalidBoxLabelIdentifiers: Array<string> } | { __typename: 'InsufficientPermissionError', name: string } | null };
+export type DeleteBoxesMutation = { __typename?: 'Mutation', deleteBoxes?: { __typename: 'BoxResult', invalidBoxLabelIdentifiers: Array<string>, updatedBoxes: Array<{ __typename?: 'Box', labelIdentifier: string, state: BoxState, deletedOn?: any | null }> } | { __typename: 'InsufficientPermissionError', name: string } | null };
 
 export type OrganisationBasicFieldsFragment = { __typename?: 'Organisation', id: string, name: string };
 
@@ -2108,7 +2108,7 @@ export type BoxesForBoxesViewQueryVariables = Exact<{
 }>;
 
 
-export type BoxesForBoxesViewQuery = { __typename?: 'Query', boxes: { __typename?: 'BoxPage', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, elements: Array<{ __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, state: BoxState, comment?: string | null, createdOn?: any | null, lastModifiedOn?: any | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, deletedOn?: any | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null }> } };
+export type BoxesForBoxesViewQuery = { __typename?: 'Query', boxes: { __typename?: 'BoxPage', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean }, elements: Array<{ __typename?: 'Box', labelIdentifier: string, numberOfItems?: number | null, state: BoxState, comment?: string | null, createdOn?: any | null, lastModifiedOn?: any | null, deletedOn?: any | null, product?: { __typename?: 'Product', id: string, name: string, gender?: ProductGender | null, deletedOn?: any | null } | null, size?: { __typename?: 'Size', id: string, label: string } | null, location?: { __typename?: 'ClassicLocation', id: string, name?: string | null } | { __typename?: 'DistributionSpot', id: string, name?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id: string, name: string, color?: string | null, description?: string | null, type: TagType }> | null, shipmentDetail?: { __typename?: 'ShipmentDetail', id: string, shipment: { __typename?: 'Shipment', id: string } } | null }> } };
 
 export type ActionOptionsForBoxesViewQueryVariables = Exact<{
   baseId: Scalars['ID']['input'];

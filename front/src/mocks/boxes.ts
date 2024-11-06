@@ -46,5 +46,6 @@ export const generateMockBox = ({
   createdOn: "2023-11-09T17:24:29+00:00",
   lastModifiedOn: "2023-11-19T10:24:29+00:00",
   distributionEvent: null,
+  deletedOn: null,
   __typename: "Box",
 });
