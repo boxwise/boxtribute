@@ -36,6 +36,7 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
           isDisabled={actionsAreLoading || selectedBoxes.length === 0}
           leftIcon={<FaTrashAlt />}
           colorScheme="red"
+          iconSpacing={isLargerThan768 ? 2 : 0}
         >
           {/* Only show the text if the screen is larger than 768px */}
           {isLargerThan768 && `Remove Box${selectedBoxes.length > 1 ? "es" : ""}`}
