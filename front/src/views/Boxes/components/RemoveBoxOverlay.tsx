@@ -1,8 +1,8 @@
-import { SmallCloseIcon } from "@chakra-ui/icons";
 import { VStack, chakra } from "@chakra-ui/react";
 import { AreYouSureDialog } from "components/AreYouSure";
 import { Row } from "react-table";
 import { BoxRow } from "./types";
+import { FaTrashAlt } from "react-icons/fa";
 
 interface IRemoveBoxOverlayProps {
   isLoading: boolean;
@@ -19,39 +19,29 @@ function RemoveBoxOverlay({
   onClose,
   onRemove,
 }: IRemoveBoxOverlayProps) {
-  let title = "";
-  let body;
-  let leftButtonText = "Cancel";
-  let leftButtonProps = {};
-  let onLeftButtonClick = () => onClose();
-  let rightButtonText = "Remove";
-  let rightButtonProps = {};
-  let onRightButtonClick = () => onClose();
-
-  if (selectedBoxes.length > 0) {
-    title = `Remove Box${selectedBoxes.length > 1 ? "es" : ""}`;
-    body = (
-      <VStack align="start" spacing={8}>
-        <chakra.span>
-          Do you want to <b>REMOVE</b> {selectedBoxes.length} box
-          {selectedBoxes.length > 1 ? "es" : ""}?
-        </chakra.span>
-        <chakra.span>
-          <b>Note:</b> This action cannot be undone.
-        </chakra.span>
-      </VStack>
-    );
-    leftButtonText = "Cancel";
-    leftButtonProps = {
-      colorScheme: "gray",
-    };
-    rightButtonText = `Remove Box${selectedBoxes.length > 1 ? "es" : ""}`;
-    rightButtonProps = {
-      colorScheme: "red",
-      leftIcon: <SmallCloseIcon />,
-    };
-    onRightButtonClick = () => onRemove();
-  }
+  const title = `Delete Box${selectedBoxes.length > 1 ? "es" : ""}`;
+  const body = (
+    <VStack align="start" spacing={8}>
+      <chakra.span>
+        Are you sure you want to <b style={{ color: "red" }}>DELETE</b> {selectedBoxes.length} box
+        {selectedBoxes.length > 1 ? "es" : ""}?
+      </chakra.span>
+      <chakra.span>
+        <b>Note:</b> This action cannot be undone.
+      </chakra.span>
+    </VStack>
+  );
+  const leftButtonText = "Nevermind";
+  const leftButtonProps = {
+    colorScheme: "gray",
+  };
+  const onLeftButtonClick = () => onClose();
+  const rightButtonText = "Yes, Delete";
+  const rightButtonProps = {
+    colorScheme: "red",
+    leftIcon: <FaTrashAlt />,
+  };
+  const onRightButtonClick = () => onRemove();
 
   return (
     <AreYouSureDialog
