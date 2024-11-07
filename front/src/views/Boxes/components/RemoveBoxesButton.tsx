@@ -19,7 +19,11 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleOpenDialog = () => setIsDialogOpen(true);
+  const handleOpenDialog = () => {
+    if (!actionsAreLoading && selectedBoxes.length !== 0) {
+      setIsDialogOpen(true);
+    }
+  };
   const handleCloseDialog = () => setIsDialogOpen(false);
 
   const handleConfirmRemove = () => {
@@ -29,16 +33,13 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
 
   return (
     <>
-      {selectedBoxes.length > 0 && (
-        <Button
-          onClick={handleOpenDialog}
-          isDisabled={actionsAreLoading || selectedBoxes.length === 0}
-          leftIcon={<FaTrashAlt />}
-          iconSpacing={0}
-          data-testid="delete-boxes-button"
-        />
-      )}
-
+      <Button
+        onClick={handleOpenDialog}
+        leftIcon={<FaTrashAlt />}
+        iconSpacing={0}
+        isDisabled={actionsAreLoading}
+        data-testid="delete-boxes-button"
+      />
       <RemoveBoxesOverlay
         isLoading={actionsAreLoading}
         isOpen={isDialogOpen}
