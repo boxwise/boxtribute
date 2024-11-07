@@ -227,8 +227,8 @@ importers:
         specifier: ^1.5.2
         version: 1.13.4(react-dom@18.3.1)(react@18.3.1)
       react-icons:
-        specifier: ^4.11.0
-        version: 4.12.0(react@18.3.1)
+        specifier: ^5.0.0
+        version: 5.3.0(react@18.3.1)
       react-table:
         specifier: ^7.8.0
         version: 7.8.0(react@18.3.1)
@@ -10034,8 +10034,8 @@ packages:
       react: 18.3.1
     dev: false
 
-  /react-icons@4.12.0(react@18.3.1):
-    resolution: {integrity: sha512-IBaDuHiShdZqmfc/TwHu6+d6k2ltNCf3AszxNmjJc1KUfXdEeRJOKyNvLmAHaarhzGmTSVygNdyu8/opXv2gaw==}
+  /react-icons@5.3.0(react@18.3.1):
+    resolution: {integrity: sha512-DnUk8aFbTyQPSkCfF8dbX6kQjXA9DktMeJqfjrg6cK9vwQVMxmcA3BfP4QoiztVmEHtwlTgLFsPuH2NskKT6eg==}
     peerDependencies:
       react: '*'
     dependencies:
