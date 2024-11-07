@@ -91,7 +91,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Beneficiaries",
-        requiredAbp: ["manage_beneficiaries"], // TODO: this or "view_beneficiaries"? "view_beneficiaries" doesn't seem to work.
+        requiredAbp: ["create_beneficiaries"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=people_add`,
@@ -109,7 +109,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Free Shop",
-        requiredAbp: [], // TODO: revisit this. See https://trello.com/c/5IIOrOmY#comment-6720d286c59afc434a52e302
+        requiredAbp: ["checkout_beneficiaries"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=checkout`,
@@ -139,7 +139,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Coordinator Admin",
-        requiredAbp: [],
+        requiredAbp: ["manage_volunteer"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=tags`,
@@ -162,7 +162,7 @@ function HeaderMenuContainer() {
           {
             link: `${oldAppUrlWithBase}&action=cms_users`,
             name: "Manage Users",
-            requiredAbp: ["cms_users"],
+            requiredAbp: ["manage_volunteer"],
             external: true,
           },
         ],
