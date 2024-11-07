@@ -79,7 +79,7 @@ export const useQrResolver = () => {
           } else if (data.qrCode.__typename === "InsufficientPermissionError") {
             // missing qr:read RBP
             triggerError({
-              message: `You don't have permission to access this QR-code!}`,
+              message: `You don't have permission to access this QR-code!`,
             });
             return {
               kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_QR,
@@ -96,7 +96,7 @@ export const useQrResolver = () => {
             } else if (data.qrCode.box?.__typename === "InsufficientPermissionError") {
               // missing stock:read RBP
               triggerError({
-                message: `You don't have permission to access this box!}`,
+                message: `You don't have permission to access this box!`,
               });
               return {
                 kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_BOX,
