@@ -264,6 +264,17 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
         }""",
         # Test case 9.2.22
         """deactivateBeneficiary( id: 4 ) { id }""",
+        # Test case 3.2.4c
+        """createShipment(
+            creationInput : {
+                sourceBaseId: 3,
+                targetBaseId: 4
+            }) { id }""",
+        """createShipment(
+            creationInput : {
+                sourceBaseId: 3,
+                targetBaseId: 1
+            }) { id }""",
     ],
     ids=operation_name,
 )

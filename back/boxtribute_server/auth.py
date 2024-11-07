@@ -127,10 +127,10 @@ class CurrentUser:
         self,
         *,
         id,
-        organisation_id=None,
+        organisation_id,
         is_god=False,
         base_ids=None,
-        beta_feature_scope=None,
+        max_beta_level=None,
         timezone=None,
     ):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
@@ -138,11 +138,11 @@ class CurrentUser:
         avoid accidental manipulation.
         The `organisation_id` field is set to None for god users.
         """
-        self._id = id
-        self._organisation_id = None if is_god else organisation_id
+        self._id = int(id)
+        self._organisation_id = None if is_god else int(organisation_id)
         self._is_god = is_god
         self._base_ids = base_ids or {}
-        self._beta_feature_scope = beta_feature_scope or 0
+        self._max_beta_level = int(max_beta_level or 0)
         self._timezone = timezone
 
     @classmethod
@@ -198,7 +198,7 @@ class CurrentUser:
                     # Organisation Head-of-Ops don't have base_ prefixes, permission
                     # granted for all bases indicated by custom 'base_ids' claim
                     permission = raw_permission
-                    ids = payload[f"{JWT_CLAIM_PREFIX}/base_ids"]
+                    ids = [int(i) for i in payload[f"{JWT_CLAIM_PREFIX}/base_ids"]]
                 base_ids[permission].update(ids)
 
                 resource, method = permission.split(":")
@@ -210,7 +210,7 @@ class CurrentUser:
 
         return cls(
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
-            beta_feature_scope=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
+            max_beta_level=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
             id=int(payload["sub"].replace("auth0|", "")),
             timezone=payload.get(f"{JWT_CLAIM_PREFIX}/timezone"),
             is_god=is_god,
@@ -221,8 +221,8 @@ class CurrentUser:
         return self._base_ids[permission]
 
     @property
-    def beta_feature_scope(self):
-        return self._beta_feature_scope
+    def max_beta_level(self):
+        return self._max_beta_level
 
     @property
     def id(self):

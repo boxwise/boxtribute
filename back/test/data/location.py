@@ -14,7 +14,6 @@ def default_location_data():
         "id": 1,
         "box_state": default_box_state_data()["id"],
         "base": base_data()[0]["id"],
-        "is_stockroom": 0,
         "deleted_on": None,
         "is_donated": 0,
         "is_lost": 0,

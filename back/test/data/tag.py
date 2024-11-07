@@ -61,6 +61,15 @@ def data():
             "type": TagType.All,
             "deleted_on": None,
         },
+        {
+            "id": 7,
+            "base": base_data()[2]["id"],
+            "color": "#00ff00",
+            "description": "base3 tag",
+            "name": "base3",
+            "type": TagType.All,
+            "deleted_on": None,
+        },
     ]
 
 

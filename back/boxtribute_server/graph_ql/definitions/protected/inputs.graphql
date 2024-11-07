@@ -124,7 +124,8 @@ input TransferAgreementCreationInput {
 input ShipmentCreationInput {
   sourceBaseId: Int!
   targetBaseId: Int!
-  transferAgreementId: Int!
+  " Passing null will create an intra-org shipment "
+  transferAgreementId: Int
 }
 
 input DistributionSpotCreationInput {

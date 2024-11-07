@@ -4,11 +4,11 @@ isort==5.13.2
 pre-commit==4.0.1
 pytest>=6.2.5
 pytest-mock==3.14.0
-pytest-cov==5.0.0
+pytest-cov==6.0.0
 pytest-clarity==1.0.1
-mypy==1.12.1
+mypy==1.13.0
 types-Flask-Cors==5.0.0.20240902
 types-peewee==3.17.7.20241017
-types-setuptools==75.2.0.20241019
-types-PyMySQL==1.1.0.20240524
-flake8-bugbear==24.8.19
+types-setuptools==75.2.0.20241025
+types-PyMySQL==1.1.0.20241103
+flake8-bugbear==24.10.31
