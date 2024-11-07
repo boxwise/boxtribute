@@ -139,7 +139,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Coordinator Admin",
-        requiredAbp: ["manage_volunteer"],
+        requiredAbp: ["manage_volunteers"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=tags`,
@@ -162,7 +162,7 @@ function HeaderMenuContainer() {
           {
             link: `${oldAppUrlWithBase}&action=cms_users`,
             name: "Manage Users",
-            requiredAbp: ["manage_volunteer"],
+            requiredAbp: ["manage_volunteers"],
             external: true,
           },
         ],

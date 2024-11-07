@@ -63,6 +63,7 @@ function MenuTablet({ menuItemsGroups }: IHeaderMenuProps) {
         onClick={onOpen}
         as={IconButton}
         aria-label="Options"
+        data-testid="menu-button"
         icon={<HamburgerIcon />}
         bg="transparent"
         _hover={{ bg: "transparent" }}
