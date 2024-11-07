@@ -90,7 +90,7 @@ function HeaderMenuContainer() {
         ],
       },
       {
-        text: "Beneficiares",
+        text: "Beneficiaries",
         requiredAbp: ["manage_beneficiaries"], // TODO: this or "view_beneficiaries"? "view_beneficiaries" doesn't seem to work.
         links: [
           {
@@ -101,7 +101,7 @@ function HeaderMenuContainer() {
           },
           {
             link: `${oldAppUrlWithBase}&action=people`,
-            name: "Manage Beneficiares",
+            name: "Manage Beneficiaries",
             requiredAbp: ["manage_beneficiaries"],
             external: true,
           },
@@ -138,7 +138,7 @@ function HeaderMenuContainer() {
         ],
       },
       {
-        text: "Admin",
+        text: "Coordinator Admin",
         requiredAbp: [],
         links: [
           {
