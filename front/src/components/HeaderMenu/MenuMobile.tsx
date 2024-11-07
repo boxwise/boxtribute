@@ -97,7 +97,8 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                       pb={3}
                       w={"100%"}
                     >
-                      {subMenu.name}
+                      {subMenu.name}&nbsp;
+                      {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
                     </AccordionPanel>
                   ))}
                 </AccordionItem>

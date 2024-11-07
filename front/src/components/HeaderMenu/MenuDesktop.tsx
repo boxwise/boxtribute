@@ -94,7 +94,8 @@ function MenuTablet({ menuItemsGroups }: IHeaderMenuProps) {
                       pb={2}
                       pl={8}
                     >
-                      {subMenu.name}
+                      {subMenu.name}&nbsp;
+                      {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
                     </AccordionPanel>
                   ))}
                 </AccordionItem>
