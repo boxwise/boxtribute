@@ -295,8 +295,13 @@ def authorize_cross_organisation_access(
     raise Forbidden(resource="base", value=base_id)
 
 
-DEFAULT_BETA_FEATURE_SCOPE = 3
-ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
+# MUTATIONS_FOR_BETA_LEVEL is a dict with a series of levels, each associated with
+# certain available app functionality (mutations). The lowest level provides the least
+# functionality, while each of the larger levels additively builds up on the previous
+# one. The user's maximum beta-level defines the functionality range that the user can
+# access.
+DEFAULT_MAX_BETA_LEVEL = 3
+MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
     # + mutations for BoxCreate/ScanBox pages
@@ -320,13 +325,13 @@ ALL_ALLOWED_MUTATIONS: Dict[int, Tuple[str, ...]] = {
         "moveNotDeliveredBoxesInStock",
     ),
 }
-ALL_ALLOWED_MUTATIONS[3] = ALL_ALLOWED_MUTATIONS[2] + ("deleteBoxes",)
-ALL_ALLOWED_MUTATIONS[4] = ALL_ALLOWED_MUTATIONS[3] + (
+MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + ("deleteBoxes",)
+MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "moveBoxesToLocation",
     "assignTagToBoxes",
     "unassignTagFromBoxes",
 )
-ALL_ALLOWED_MUTATIONS[5] = ALL_ALLOWED_MUTATIONS[4] + (
+MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createCustomProduct",
     "editCustomProduct",
     "deleteProduct",
@@ -334,13 +339,13 @@ ALL_ALLOWED_MUTATIONS[5] = ALL_ALLOWED_MUTATIONS[4] + (
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
-ALL_ALLOWED_MUTATIONS[6] = ALL_ALLOWED_MUTATIONS[5] + (
+MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     # + mutations needed for bulk box creation
     "createTag",
     "updateTag",
     "deleteTag",
 )
-ALL_ALLOWED_MUTATIONS[98] = ALL_ALLOWED_MUTATIONS[6] + (
+MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[6] + (
     # !!!
     # Any new mutation should be added here
     # !!!
@@ -350,7 +355,7 @@ ALL_ALLOWED_MUTATIONS[98] = ALL_ALLOWED_MUTATIONS[6] + (
     "assignTag",
     "unassignTag",
 )
-ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[98] + (
+MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
     "createDistributionEvent",
@@ -371,26 +376,27 @@ ALL_ALLOWED_MUTATIONS[99] = ALL_ALLOWED_MUTATIONS[98] + (
 )
 
 
-def check_beta_feature_access(
+def check_user_beta_level(
     payload: Dict[str, Any], *, current_user: Optional[CurrentUser] = None
 ) -> bool:
-    """Check whether the current user wants to execute a beta-feature request, and
-    whether they have sufficient beta-feature scope to run it.
-    Fall back to default beta-feature scope if the one assigned to the user is not
+    """Check whether the current user has sufficient beta-level to run the operations in
+    the payload.
+    Fall back to default maximum beta-level if the one assigned to the user is not
     registered.
+    For god users, this check is irrelevant.
     """
     current_user = current_user or g.user
     if current_user.is_god:
         return True
 
     if "query" in payload and any([q in payload for q in statistics_queries()]):
-        return current_user.beta_feature_scope >= 3
+        return current_user.max_beta_level >= 3
 
     if "mutation" not in payload:
         return True
 
     try:
-        allowed_mutations = ALL_ALLOWED_MUTATIONS[current_user.beta_feature_scope]
+        allowed_mutations = MUTATIONS_FOR_BETA_LEVEL[current_user.max_beta_level]
     except KeyError:
-        allowed_mutations = ALL_ALLOWED_MUTATIONS[DEFAULT_BETA_FEATURE_SCOPE]
+        allowed_mutations = MUTATIONS_FOR_BETA_LEVEL[DEFAULT_MAX_BETA_LEVEL]
     return any([m in payload for m in allowed_mutations])

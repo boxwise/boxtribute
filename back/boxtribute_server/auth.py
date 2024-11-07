@@ -130,7 +130,7 @@ class CurrentUser:
         organisation_id,
         is_god=False,
         base_ids=None,
-        beta_feature_scope=None,
+        max_beta_level=None,
         timezone=None,
     ):
         """The `base_ids` field is a mapping of a permission name to a list of base IDs
@@ -142,7 +142,7 @@ class CurrentUser:
         self._organisation_id = None if is_god else int(organisation_id)
         self._is_god = is_god
         self._base_ids = base_ids or {}
-        self._beta_feature_scope = int(beta_feature_scope or 0)
+        self._max_beta_level = int(max_beta_level or 0)
         self._timezone = timezone
 
     @classmethod
@@ -210,7 +210,7 @@ class CurrentUser:
 
         return cls(
             organisation_id=payload[f"{JWT_CLAIM_PREFIX}/organisation_id"],
-            beta_feature_scope=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
+            max_beta_level=payload.get(f"{JWT_CLAIM_PREFIX}/beta_user"),
             id=int(payload["sub"].replace("auth0|", "")),
             timezone=payload.get(f"{JWT_CLAIM_PREFIX}/timezone"),
             is_god=is_god,
@@ -221,8 +221,8 @@ class CurrentUser:
         return self._base_ids[permission]
 
     @property
-    def beta_feature_scope(self):
-        return self._beta_feature_scope
+    def max_beta_level(self):
+        return self._max_beta_level
 
     @property
     def id(self):

@@ -71,7 +71,7 @@ def _create_jwt_payload(
     user_id=8,
     is_god=False,
     permissions=None,
-    beta_feature_scope=99,
+    max_beta_level=99,
     timezone="Europe/London",
 ):
     """Create payload containing arbitrary authorization information of a user.
@@ -88,12 +88,16 @@ def _create_jwt_payload(
     If `base_ids` is specified, it is used to construct a prefix of form `base_X[-Y...]`
     for the default permissions. If `permissions` is specified too, it overwrites any
     previously set permissions.
+
+    The default user has the largest beta-level of 99 to facilitate the testing of all
+    mutations without having to patch the user in the resp. tests (the beta-level check
+    is verified in a dedicated unit test).
     """
     payload = {
         f"{JWT_CLAIM_PREFIX}/email": email,
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
-        f"{JWT_CLAIM_PREFIX}/beta_user": beta_feature_scope,
+        f"{JWT_CLAIM_PREFIX}/beta_user": max_beta_level,
         f"{JWT_CLAIM_PREFIX}/timezone": timezone,
         f"{JWT_CLAIM_PREFIX}/roles": (
             [GOD_ROLE] if is_god else [f"base_{base_ids[0]}_coordinator"]
