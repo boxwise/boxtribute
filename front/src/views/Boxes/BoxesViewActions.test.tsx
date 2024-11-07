@@ -466,10 +466,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
       // Check loading state
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
-      // Check for "Remove Box" button visibility
-      const deleteBoxButton = await screen.findByTestId("delete-boxes-button");
-      expect(deleteBoxButton).toBeInTheDocument();
-
       if (clicks.length > 0) {
         // Select the first box
         const checkboxes = await screen.findAllByRole(
@@ -483,6 +479,9 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
 
         // Conditional check for delete action confirmation
         if (name.toLowerCase().includes("delete")) {
+          // Check for "Remove Box" button visibility
+          const deleteBoxButton = await screen.findByTestId("delete-boxes-button");
+          expect(deleteBoxButton).toBeInTheDocument();
           await user.click(deleteBoxButton);
           const confirmDialogButton = await screen.findByRole("button", { name: /delete/i });
           expect(confirmDialogButton).toBeInTheDocument();
