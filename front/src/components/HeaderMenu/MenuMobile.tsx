@@ -9,6 +9,7 @@ import {
   IconButton,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
   MenuList,
   Text,
@@ -21,11 +22,11 @@ import { ACCOUNT_SETTINGS_URL } from "./consts";
 import { IHeaderMenuProps } from "./HeaderMenu";
 import BoxtributeLogo from "./BoxtributeLogo";
 import MenuIcon, { Icon } from "./MenuIcons";
+import { expandedMenuIndex } from "./expandedMenuIndex";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
     <Box
-      bg="gray.100"
       display="inline-flex"
       as="span"
       flex="1"
@@ -44,13 +45,14 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const { handleLogout } = useHandleLogout();
 
   return (
-    <Flex as="nav" pt={4} pb={4} zIndex="2">
+    <Flex as="nav" py={4} zIndex="2">
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
-        <Menu>
+        <Menu isLazy>
           <MenuButton
             as={IconButton}
             aria-label="Options"
+            data-testid="menu-button"
             icon={<HamburgerIcon />}
             bg="transparent"
             _hover={{ bg: "transparent" }}
@@ -62,6 +64,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
               aria-label="Scan QR code"
               data-testid="qr-code-button"
               px={2}
+              pb={0}
               bg="transparent"
               _hover={{ bg: "transparent" }}
               onClick={onClickScanQrCode}
@@ -71,10 +74,15 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 <Text fontWeight="bold">Scan QR Label</Text>
               </SubItemBox>
             </MenuItem>
-            <Accordion allowToggle>
+            <MenuDivider />
+            <Accordion allowMultiple defaultIndex={expandedMenuIndex()}>
               {menuItemsGroups.map((menu) => (
                 <AccordionItem key={menu.text} border={"none"}>
-                  <AccordionButton px={2} pb={2} pt={0} _hover={{ bg: "transparent" }}>
+                  <AccordionButton
+                    px={2}
+                    _hover={{ bg: "transparent" }}
+                    _expanded={{ bg: "#DC4F51", color: "white" }}
+                  >
                     <SubItemBox>
                       <MenuIcon icon={menu.text as Icon} /> {menu.text}
                     </SubItemBox>
@@ -85,18 +93,19 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                       as={NavLink}
                       to={subMenu.link}
                       display="inline-flex"
+                      bg="gray.100"
                       pb={3}
+                      w={"100%"}
                     >
-                      <MenuItem _hover={{ bg: "transparent" }}>{subMenu.name}</MenuItem>
+                      {subMenu.name}
                     </AccordionPanel>
                   ))}
                 </AccordionItem>
               ))}
             </Accordion>
+            <MenuDivider />
             <MenuItem
               px={2}
-              pb={2}
-              pt={0}
               bg="transparent"
               _hover={{ bg: "transparent" }}
               as={NavLink}
@@ -107,15 +116,13 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 Account
               </SubItemBox>
             </MenuItem>
-            <MenuItem
-              px={2}
-              pb={2}
-              pt={0}
-              bg="transparent"
-              _hover={{ bg: "transparent" }}
-              onClick={handleLogout}
-            >
-              <SubItemBox>Logout</SubItemBox>
+            <MenuItem px={2} bg="transparent" _hover={{ bg: "transparent" }} onClick={handleLogout}>
+              <SubItemBox>
+                <Box style={{ rotate: "90deg" }}>
+                  <MenuIcon icon="Logout" />
+                </Box>
+                Logout
+              </SubItemBox>
             </MenuItem>
           </MenuList>
         </Menu>

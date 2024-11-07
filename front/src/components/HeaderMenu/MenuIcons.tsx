@@ -1,18 +1,24 @@
 import { BiSolidStore } from "react-icons/bi";
 import { BsBox2HeartFill, BsClipboardHeartFill } from "react-icons/bs";
-import { FaShieldAlt } from "react-icons/fa";
 import { FaTruckPlane } from "react-icons/fa6";
-import { RiAccountCircleFill, RiBarChart2Fill, RiQrCodeLine } from "react-icons/ri";
+import {
+  RiAccountCircleFill,
+  RiBarChart2Fill,
+  RiKeyFill,
+  RiQrCodeLine,
+  RiLockStarFill,
+} from "react-icons/ri";
 
 export type Icon =
   | "QRCode"
   | "Statistics"
   | "Aid Inventory"
   | "Aid Transfers"
-  | "Beneficiares"
+  | "Beneficiaries"
   | "Free Shop"
-  | "Admin"
-  | "Account";
+  | "Coordinator Admin"
+  | "Account"
+  | "Logout";
 
 function MenuIcons({ icon }: { icon: Icon }) {
   switch (icon) {
@@ -24,14 +30,16 @@ function MenuIcons({ icon }: { icon: Icon }) {
       return <BsBox2HeartFill />;
     case "Aid Transfers":
       return <FaTruckPlane />;
-    case "Beneficiares":
+    case "Beneficiaries":
       return <BsClipboardHeartFill />;
     case "Free Shop":
       return <BiSolidStore />;
-    case "Admin":
-      return <FaShieldAlt />;
+    case "Coordinator Admin":
+      return <RiLockStarFill />;
     case "Account":
       return <RiAccountCircleFill />;
+    case "Logout":
+      return <RiKeyFill />;
     default:
       return <></>;
   }
