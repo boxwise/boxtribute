@@ -13,7 +13,6 @@ import {
 import { generateMockBox } from "mocks/boxes";
 import { mockedTriggerError } from "tests/setupTests";
 import { FakeGraphQLError } from "mocks/functions";
-import _ from "lodash";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
