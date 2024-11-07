@@ -13,6 +13,7 @@ import {
 import { generateMockBox } from "mocks/boxes";
 import { mockedTriggerError } from "tests/setupTests";
 import { FakeGraphQLError } from "mocks/functions";
+import _ from "lodash";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
@@ -165,7 +166,8 @@ const queryNoBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
-        __typename: "ResourceDoesNotExistError",
+        __typename: "QrCode",
+        code: "NoBoxAssociatedWithQrCode",
         box: null,
       },
     },
@@ -205,6 +207,7 @@ const queryBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "BoxAssociatedWithQrCode",
         box: generateMockBox({}),
       },
@@ -246,7 +249,7 @@ const queryBoxFromOtherOrganisation = {
         code: "BoxFromOtherOrganisation",
         box: {
           __typename: "UnauthorizedForBaseError",
-          name: "Base Foo",
+          baseName: "Base Foo",
           organisationName: "BoxAid",
         },
       },
@@ -317,8 +320,12 @@ const queryHashNotInDb = {
     },
   },
   result: {
-    data: null,
-    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
+    data: {
+      qrCode: {
+        __typename: "ResourceDoesNotExistError",
+        resourceName: "qr",
+      },
+    },
   },
 };
 
@@ -343,7 +350,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/No box found for this QR code/i),
+        message: expect.stringMatching(/This is not a Boxtribute QR code/i),
       }),
     ),
   );

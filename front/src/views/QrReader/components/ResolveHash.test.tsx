@@ -87,9 +87,10 @@ SuccessfulQrScanningTests.forEach(({ name, hash, mocks, endRoute }) => {
 const mockFailedQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "",
-  errorCode = "",
+  graphQlError = false,
   networkError = false,
-  errorOnData = false,
+  returnedQrTypeName = "QrCode",
+  returnedBoxTypeName = "Box",
 }) => ({
   request: {
     query,
@@ -97,17 +98,44 @@ const mockFailedQrQuery = ({
   },
   result: networkError
     ? undefined
-    : {
-        data: errorOnData
-          ? {
-              qrCode: {
-                __typename: "ResourceDoesNotExistError",
-                name: "Base Baz",
-              },
-            }
-          : null,
-        errors: errorOnData ? undefined : [new FakeGraphQLError(errorCode)],
-      },
+    : graphQlError
+      ? { errors: graphQlError ? undefined : [new FakeGraphQLError("Error")] }
+      : {
+          data:
+            returnedQrTypeName === "InsufficientPermissionError"
+              ? {
+                  qrCode: {
+                    __typename: returnedQrTypeName,
+                    permissionName: "qr:read",
+                  },
+                }
+              : returnedQrTypeName === "ResourceDoesNotExistError"
+                ? {
+                    qrCode: {
+                      __typename: returnedQrTypeName,
+                      resourceName: "qr",
+                    },
+                  }
+                : {
+                    qrCode: {
+                      __typename: "QrCode",
+                      code: hash,
+                      box:
+                        returnedBoxTypeName === "InsufficientPermissionError"
+                          ? {
+                              __typename: returnedBoxTypeName,
+                              permissionName: "stock:read",
+                            }
+                          : returnedBoxTypeName === "UnauthorizedForBaseError"
+                            ? {
+                                __typename: returnedBoxTypeName,
+                                baseName: "base",
+                                organisationName: "org",
+                              }
+                            : null,
+                    },
+                  },
+        },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
@@ -152,13 +180,18 @@ const FailedQrScanningTests = [
   {
     name: "3.4.8.7 - User scans QR code where hash is not found in db",
     hash: "NoBoxtributeQr",
-    mocks: [mockFailedQrQuery({ hash: "NoBoxtributeQr", errorOnData: true })],
-    toast: /No box found for this QR code/i,
+    mocks: [
+      mockFailedQrQuery({
+        hash: "NoBoxtributeQr",
+        returnedQrTypeName: "ResourceDoesNotExistError",
+      }),
+    ],
+    toast: /This is not a Boxtribute QR code/i,
   },
   {
     name: "3.4.8.8 - User scans QR code and server returns unexpected error",
     hash: "QrServerFailure",
-    mocks: [mockFailedQrQuery({ hash: "QrServerFailure", errorCode: "SERVER_ERROR" })],
+    mocks: [mockFailedQrQuery({ hash: "QrServerFailure", graphQlError: true })],
     toast: /QR code lookup failed. Please wait a bit and try again./i,
   },
   {
