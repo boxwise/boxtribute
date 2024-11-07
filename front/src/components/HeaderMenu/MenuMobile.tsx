@@ -75,7 +75,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
               </SubItemBox>
             </MenuItem>
             <MenuDivider />
-            <Accordion allowMultiple defaultIndex={expandedMenuIndex()}>
+            <Accordion defaultIndex={expandedMenuIndex()}>
               {menuItemsGroups.map((menu) => (
                 <AccordionItem key={menu.text} border={"none"}>
                   <AccordionButton
