@@ -1,5 +1,4 @@
 import { vi, it, expect } from "vitest";
-import { userEvent } from "@testing-library/user-event";
 import { screen, render } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
@@ -13,8 +12,6 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 const mockedQrReader = vi.mocked(QrReaderScanner);
 
 it("1.3.1 - Menus are available to the user depending on ABPs - Nothing", async () => {
-  const user = userEvent.setup();
-
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
 
@@ -23,17 +20,12 @@ it("1.3.1 - Menus are available to the user depending on ABPs - Nothing", async 
     initialUrl: "/bases/1",
   });
 
-  // Open the menu
-  await user.click(await screen.findByTestId("menu-button"));
-
   expect(screen.queryByRole("button", { name: /Statistics/i })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Aid Inventory/i })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Coordinator Admin/i })).not.toBeInTheDocument();
 }, 10000);
 
 it("1.3.2 - Menus are available to the user depending on ABPs - Aid Inventory", async () => {
-  const user = userEvent.setup();
-
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", ["create_label"], "3");
 
@@ -42,8 +34,6 @@ it("1.3.2 - Menus are available to the user depending on ABPs - Aid Inventory", 
     initialUrl: "/bases/1",
   });
 
-  // Open the menu
-  await user.click(await screen.findByTestId("menu-button"));
   expect(screen.getByRole("button", { name: /Statistics/i })).toBeInTheDocument();
 
   expect(screen.getByRole("button", { name: /Aid Inventory/i })).toBeInTheDocument();
@@ -55,8 +45,6 @@ it("1.3.2 - Menus are available to the user depending on ABPs - Aid Inventory", 
 }, 10000);
 
 it("1.3.3 - Menus are available to the user depending on ABPs - Aid Inventory w/ submenus Stock Planning, Manage Boxes", async () => {
-  const user = userEvent.setup();
-
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   mockAuthenticatedUser(
     mockedUseAuth0,
@@ -70,8 +58,6 @@ it("1.3.3 - Menus are available to the user depending on ABPs - Aid Inventory w/
     initialUrl: "/bases/1",
   });
 
-  // Open the menu
-  await user.click(await screen.findByTestId("menu-button"));
   expect(screen.queryByRole("button", { name: /Statistics/i })).not.toBeInTheDocument();
 
   expect(screen.getByRole("button", { name: /Aid Inventory/i })).toBeInTheDocument();
@@ -82,8 +68,6 @@ it("1.3.3 - Menus are available to the user depending on ABPs - Aid Inventory w/
 }, 10000);
 
 it("1.3.4 - Menus available to the user depending on ABPs - Coordinator Admin", async () => {
-  const user = userEvent.setup();
-
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", ["manage_volunteers"], "3");
 
@@ -92,16 +76,12 @@ it("1.3.4 - Menus available to the user depending on ABPs - Coordinator Admin", 
     initialUrl: "/bases/1",
   });
 
-  // Open the menu
-  await user.click(await screen.findByTestId("menu-button"));
   expect(screen.getByRole("button", { name: /Statistics/i })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Aid Inventory/i })).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: /Coordinator Admin/i })).toBeInTheDocument();
 }, 10000);
 
 it("1.3.5 - Menus available to the user depending on ABPs - Coordinator Admin w/ submenus Manage Products, Edit Warehouses", async () => {
-  const user = userEvent.setup();
-
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
   mockAuthenticatedUser(
     mockedUseAuth0,
@@ -115,8 +95,6 @@ it("1.3.5 - Menus available to the user depending on ABPs - Coordinator Admin w/
     initialUrl: "/bases/1",
   });
 
-  // Open the menu
-  await user.click(await screen.findByTestId("menu-button"));
   expect(screen.getByRole("button", { name: /Statistics/i })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Aid Inventory/i })).not.toBeInTheDocument();
 
