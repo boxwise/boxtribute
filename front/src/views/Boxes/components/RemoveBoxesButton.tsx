@@ -37,6 +37,7 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
         onClick={handleOpenDialog}
         leftIcon={<FaTrashAlt />}
         iconSpacing={0}
+        isDisabled={actionsAreLoading}
         data-testid="delete-boxes-button"
       />
       <RemoveBoxesOverlay
