@@ -31,7 +31,7 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
         box: isBoxAssociated ? generateMockBox({ labelIdentifier, state }) : null,
       },
@@ -165,9 +165,10 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 const mockFailedQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "",
-  errorCode = "",
-  resultQrCode = null as string | null | undefined,
+  graphQlError = false,
   networkError = false,
+  returnedQrTypeName = "QrCode",
+  returnedBoxTypeName = "Box",
 }) => ({
   request: {
     query,
@@ -175,33 +176,57 @@ const mockFailedQrQuery = ({
   },
   result: networkError
     ? undefined
-    : {
-        data:
-          resultQrCode != null
-            ? {
-                qrCode: {
-                  _typename: "QrCode",
-                  code: hash,
-                  box: null,
-                },
-              }
-            : null,
-        errors: [new FakeGraphQLError(errorCode)],
-      },
+    : graphQlError
+      ? { errors: graphQlError ? undefined : [new FakeGraphQLError("Error")] }
+      : {
+          data:
+            returnedQrTypeName === "InsufficientPermissionError"
+              ? {
+                  qrCode: {
+                    __typename: returnedQrTypeName,
+                    permissionName: "qr:read",
+                  },
+                }
+              : returnedQrTypeName === "ResourceDoesNotExistError"
+                ? {
+                    qrCode: {
+                      __typename: returnedQrTypeName,
+                      resourceName: "qr",
+                    },
+                  }
+                : {
+                    qrCode: {
+                      __typename: "QrCode",
+                      code: hash,
+                      box:
+                        returnedBoxTypeName === "InsufficientPermissionError"
+                          ? {
+                              __typename: returnedBoxTypeName,
+                              permissionName: "stock:read",
+                            }
+                          : returnedBoxTypeName === "UnauthorizedForBaseError"
+                            ? {
+                                __typename: returnedBoxTypeName,
+                                baseName: "base",
+                                organisationName: "org",
+                              }
+                            : null,
+                    },
+                  },
+        },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
 const qrScanningInMultiBoxTabTestsFailing = [
   {
     name: "3.4.3.5 - user scans QR code with associated box, but has no access",
-    hash: "QrWithBoxFromOtherOrganisation",
+    hash: "noStockReadPermission",
     isBoxtributeQr: true,
     mocks: [
       mockEmptyLocationsTagsShipmentsQuery,
       mockFailedQrQuery({
-        hash: "QrWithBoxFromOtherOrganisation",
-        resultQrCode: "QrWithBoxFromOtherBase",
-        errorCode: "FORBIDDEN",
+        hash: "noStockReadPermission",
+        returnedBoxTypeName: "InsufficientPermissionError",
       }),
     ],
     toasts: [{ message: /have permission to access this box/i, isError: true }],
@@ -220,11 +245,10 @@ const qrScanningInMultiBoxTabTestsFailing = [
     mocks: [
       mockFailedQrQuery({
         hash: "QrHashNotInDb",
-        resultQrCode: null,
-        errorCode: "BAD_USER_INPUT",
+        returnedQrTypeName: "ResourceDoesNotExistError",
       }),
     ],
-    toasts: [{ message: /No box found for this QR code/i, isError: true }],
+    toasts: [{ message: /This is not a Boxtribute QR code/i, isError: true }],
   },
   {
     name: "3.4.3.9 - user scans QR code and server returns unexpected error",
@@ -233,8 +257,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
     mocks: [
       mockFailedQrQuery({
         hash: "InternalServerError",
-        resultQrCode: null,
-        errorCode: "INTERNAL_SERVER_ERROR",
+        graphQlError: true,
       }),
     ],
     toasts: [{ message: /QR code lookup failed/i, isError: true }],

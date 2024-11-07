@@ -118,11 +118,8 @@ def test_box_query_by_label_identifier(
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     # Test case 8.1.5
     query = f"""query {{
-                qrCode(qrCode: "{default_qr_code['code']}") {{
-                    box {{
-                        labelIdentifier
-                    }}
-                }}
+                qrCode(code: "{default_qr_code['code']}") {{
+                    ...on QrCode {{ box {{ ...on Box {{ labelIdentifier }} }} }} }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
@@ -536,7 +533,7 @@ def test_box_mutations(
     # Test case 8.2.22a, 8.2.22c
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
-                ...on BoxResult {{ updatedBoxes {{
+                ...on BoxesResult {{ updatedBoxes {{
                     location {{ id }}
                     lastModifiedOn
                     history {{ changes }}
@@ -572,7 +569,7 @@ def test_box_mutations(
     # Test case 8.2.23a, 8.2.23c
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -584,7 +581,7 @@ def test_box_mutations(
 
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -597,7 +594,7 @@ def test_box_mutations(
     generic_tag_id = str(tags[2]["id"])
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -613,7 +610,7 @@ def test_box_mutations(
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}],
             tagId: {another_generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -636,7 +633,7 @@ def test_box_mutations(
     label_identifier = f'"{created_box["labelIdentifier"]}"'
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifier}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -663,7 +660,7 @@ def test_box_mutations(
     # Test case 8.2.24c
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -684,7 +681,7 @@ def test_box_mutations(
     # Test case 8.2.24h
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -706,7 +703,7 @@ def test_box_mutations(
     # Test case 8.2.24i
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {deleted_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -718,7 +715,7 @@ def test_box_mutations(
 
     # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
-            ...on BoxResult {{
+            ...on BoxesResult {{
                 updatedBoxes {{
                     deletedOn
                     history {{ changes }}
@@ -742,7 +739,7 @@ def test_box_mutations(
     label_identifiers = ",".join(f'"{i}"' for i in raw_label_identifiers)
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -755,7 +752,7 @@ def test_box_mutations(
     # Test case 8.2.23b, 8.2.23d, 8.2.23j
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -768,7 +765,7 @@ def test_box_mutations(
     # Test case 8.2.24b, 8.2.24d, 8.2.24j
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -794,7 +791,7 @@ def test_box_mutations(
     )
     mutation = f"""mutation {{ deleteBoxes(
         labelIdentifiers: [{non_warehouse_label_identifiers}] ) {{
-            ...on BoxResult {{
+            ...on BoxesResult {{
                 updatedBoxes {{ id }}
                 invalidBoxLabelIdentifiers
             }} }} }}"""
@@ -806,7 +803,7 @@ def test_box_mutations(
 
     # Test cases 8.2.26, 8.2.27, 8.2.28
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
-            ...on BoxResult {{
+            ...on BoxesResult {{
                 updatedBoxes {{ id }}
                 invalidBoxLabelIdentifiers
             }} }} }}"""
@@ -822,7 +819,7 @@ def test_box_mutations(
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}],
             locationId: {another_location_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id location {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -1713,7 +1710,8 @@ def test_access_in_transit_or_not_delivered_box(
         return f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
 
     def _create_qr_query(qr_code):
-        return f"""query {{ qrCode(qrCode: "{qr_code['code']}") {{ box {{ id }} }} }}"""
+        return f"""query {{ qrCode(code: "{qr_code['code']}") {{
+            ...on QrCode {{ box {{ ...on Box {{ id }} }} }} }} }}"""
 
     queries = {
         str(in_transit_box["id"]): _create_query(in_transit_box["label_identifier"]),

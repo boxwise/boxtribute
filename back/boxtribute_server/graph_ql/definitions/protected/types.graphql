@@ -73,8 +73,8 @@ Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
 type QrCode {
   id: ID!
   code: String!
-  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated) "
-  box: Box
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated), or an error in case of insufficient permission or missing authorization for box's base "
+  box: BoxResult
   createdOn: Datetime
 }
 
@@ -231,7 +231,7 @@ type BoxPage {
 """
 Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing).
 """
-type BoxResult {
+type BoxesResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
 }
@@ -599,7 +599,10 @@ type ResourceDoesNotExistError {
 type UnauthorizedForBaseError {
   " e.g. 'product:write' present but not for requested base "
   id: ID!
+  " Empty string if base does not exist "
   name: String!
+  " Empty string if base does not exist "
+  organisationName: String!
 }
 type InvalidPriceError {
   value: Int!
@@ -627,18 +630,21 @@ type DeletedTagError {
   name: String!
 }
 
-union MoveBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union AssignTagToBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
-union UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
-union DeleteBoxesResult = BoxResult | InsufficientPermissionError
+union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
+union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
+union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
+union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
+union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
 
 type Metrics {
   """

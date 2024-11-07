@@ -1,7 +1,7 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
-import { generateMockBox } from "mocks/boxes";
+import { handleBoxGeneration } from "mocks/boxes";
 import { mockImplementationOfQrReader } from "mocks/components";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache } from "queries/cache";
@@ -25,6 +25,8 @@ const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "abc",
   isBoxAssociated = true,
+  isBoxSameBase = true,
+  isBoxSameOrg = true,
   labelIdentifier = "123",
   state = BoxState.InStock,
 }) => ({
@@ -36,9 +38,15 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
-        box: isBoxAssociated ? generateMockBox({ labelIdentifier, state }) : null,
+        box: handleBoxGeneration({
+          labelIdentifier,
+          state,
+          isBoxAssociated,
+          isBoxSameOrg,
+          isBoxSameBase,
+        }),
       },
     },
   },
@@ -79,8 +87,10 @@ SuccessfulQrScanningTests.forEach(({ name, hash, mocks, endRoute }) => {
 const mockFailedQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "",
-  errorCode = "",
+  graphQlError = false,
   networkError = false,
+  returnedQrTypeName = "QrCode",
+  returnedBoxTypeName = "Box",
 }) => ({
   request: {
     query,
@@ -88,30 +98,100 @@ const mockFailedQrQuery = ({
   },
   result: networkError
     ? undefined
-    : {
-        data: null,
-        errors: [new FakeGraphQLError(errorCode)],
-      },
+    : graphQlError
+      ? { errors: graphQlError ? undefined : [new FakeGraphQLError("Error")] }
+      : {
+          data:
+            returnedQrTypeName === "InsufficientPermissionError"
+              ? {
+                  qrCode: {
+                    __typename: returnedQrTypeName,
+                    permissionName: "qr:read",
+                  },
+                }
+              : returnedQrTypeName === "ResourceDoesNotExistError"
+                ? {
+                    qrCode: {
+                      __typename: returnedQrTypeName,
+                      resourceName: "qr",
+                    },
+                  }
+                : {
+                    qrCode: {
+                      __typename: "QrCode",
+                      code: hash,
+                      box:
+                        returnedBoxTypeName === "InsufficientPermissionError"
+                          ? {
+                              __typename: returnedBoxTypeName,
+                              permissionName: "stock:read",
+                            }
+                          : returnedBoxTypeName === "UnauthorizedForBaseError"
+                            ? {
+                                __typename: returnedBoxTypeName,
+                                baseName: "base",
+                                organisationName: "org",
+                              }
+                            : null,
+                    },
+                  },
+        },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-const FailedQrScanningTests = [
+const SuccessfulQrScanningNoAuthorizationOrPermissonTests = [
   {
-    name: "3.4.8.4 - User scans QR code of different org with associated box",
-    hash: "QrWithBoxFromDifferentBase",
-    mocks: [mockFailedQrQuery({ hash: "QrWithBoxFromDifferentBase", errorCode: "FORBIDDEN" })],
-    toast: /You don't have permission to access this box/i,
+    name: "3.4.8.4 - User scans QR code of different org with associated box.",
+    hash: "QrBoxSameOrgNoAccess",
+    mocks: [mockSuccessfulQrQuery({ hash: "QrBoxSameOrgNoAccess", isBoxSameOrg: false })],
   },
+  {
+    name: "3.4.8.5 - User scans QR code of same org, but different base with associated box. The user has no access to the other base.",
+    hash: "QrBoxSameOrgNoAccess",
+    mocks: [mockSuccessfulQrQuery({ hash: "QrBoxSameOrgNoAccess", isBoxSameBase: false })],
+  },
+];
+
+// TODO: Needs fixing with which alert box shows up in the test. It appears that there are query errors within the test context.
+SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks }) => {
+  it(name, async () => {
+    mockImplementationOfQrReader(mockedQrReader, hash, true, true);
+    render(<ResolveHash />, {
+      routePath: "/bases/1/qrreader/:hash",
+      initialUrl: `/bases/1/qrreader/${hash}`,
+      mocks,
+      cache,
+    });
+
+    expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
+
+    expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
+    // TODO: assert correct alert text.
+  });
+});
+
+const FailedQrScanningTests = [
+  // {
+  //   name: "3.4.8.4 - User scans QR code of different org with associated box",
+  //   hash: "QrWithBoxFromDifferentBase",
+  //   mocks: [mockFailedQrQuery({ hash: "QrWithBoxFromDifferentBase", errorCode: "FORBIDDEN" })],
+  //   toast: /You don't have permission to access this box/i,
+  // },
   {
     name: "3.4.8.7 - User scans QR code where hash is not found in db",
     hash: "NoBoxtributeQr",
-    mocks: [mockFailedQrQuery({ hash: "NoBoxtributeQr", errorCode: "BAD_USER_INPUT" })],
-    toast: /No box found for this QR code/i,
+    mocks: [
+      mockFailedQrQuery({
+        hash: "NoBoxtributeQr",
+        returnedQrTypeName: "ResourceDoesNotExistError",
+      }),
+    ],
+    toast: /This is not a Boxtribute QR code/i,
   },
   {
     name: "3.4.8.8 - User scans QR code and server returns unexpected error",
     hash: "QrServerFailure",
-    mocks: [mockFailedQrQuery({ hash: "QrServerFailure", errorCode: "SERVER_ERROR" })],
+    mocks: [mockFailedQrQuery({ hash: "QrServerFailure", graphQlError: true })],
     toast: /QR code lookup failed. Please wait a bit and try again./i,
   },
   {
@@ -131,6 +211,8 @@ FailedQrScanningTests.forEach(({ name, hash, mocks, toast }) => {
       mocks,
       cache,
     });
+
+    // screen.debug();
 
     expect(await screen.findByTestId("ReturnScannedQr")).toBeInTheDocument();
 

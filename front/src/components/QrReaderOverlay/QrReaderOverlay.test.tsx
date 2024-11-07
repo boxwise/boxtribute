@@ -165,6 +165,7 @@ const queryNoBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "NoBoxAssociatedWithQrCode",
         box: null,
       },
@@ -205,6 +206,7 @@ const queryBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "BoxAssociatedWithQrCode",
         box: generateMockBox({}),
       },
@@ -242,11 +244,16 @@ const queryBoxFromOtherOrganisation = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "BoxFromOtherOrganisation",
-        box: null,
+        box: {
+          __typename: "UnauthorizedForBaseError",
+          baseName: "Base Foo",
+          organisationName: "BoxAid",
+        },
       },
     },
-    errors: [new FakeGraphQLError("FORBIDDEN")],
+    errors: undefined,
   },
 };
 
@@ -268,13 +275,9 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  await waitFor(() =>
-    expect(mockedTriggerError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringMatching(/You don't have permission to access this box/i),
-      }),
-    ),
-  );
+  expect(
+    await screen.findByText(/This box it at base Base Foo, which belongs to organization BoxAid./),
+  ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 10000);
@@ -316,8 +319,12 @@ const queryHashNotInDb = {
     },
   },
   result: {
-    data: null,
-    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
+    data: {
+      qrCode: {
+        __typename: "ResourceDoesNotExistError",
+        resourceName: "qr",
+      },
+    },
   },
 };
 
@@ -342,7 +349,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/No box found for this QR code/i),
+        message: expect.stringMatching(/This is not a Boxtribute QR code/i),
       }),
     ),
   );

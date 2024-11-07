@@ -34,6 +34,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
+  const [boxNotOwned, setBoxNotOwned] = useState("");
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
       setTimeout(() => {
@@ -73,11 +74,19 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
+      setBoxNotOwned("");
       const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",
       );
       switch (qrResolvedValue.kind) {
+        case IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE: {
+          setBoxNotOwned(
+            `This box it at base ${qrResolvedValue.box.baseName}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
+          );
+          setIsProcessingQrCode(false);
+          break;
+        }
         case IQrResolverResultKind.SUCCESS: {
           const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
           if (!multiScan) {
@@ -88,7 +97,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           } else {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
-            await addBoxToScannedBoxes(qrResolvedValue.box);
+            addBoxToScannedBoxes(qrResolvedValue.box);
             setIsProcessingQrCode(false);
           }
           break;
@@ -107,7 +116,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         default: {
           // the following cases should arrive here:
-          // NOT_AUTHORIZED, NOT_BOXTRIBUTE_QR,
+          // FAIL,NOT_AUTHORIZED_FOR_BOX, NOT_AUTHORIZED_FOR_QR,NO_BOXTRIBUTE_QR
           setIsProcessingQrCodeDelayed(false);
         }
       }
@@ -171,6 +180,12 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             type="warning"
             alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT}
           />
+          <br />
+        </>
+      )}
+      {boxNotOwned !== "" && (
+        <>
+          <AlertWithoutAction type="warning" alertText={boxNotOwned} />
           <br />
         </>
       )}

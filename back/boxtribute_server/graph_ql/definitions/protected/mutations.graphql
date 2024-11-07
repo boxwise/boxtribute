@@ -7,13 +7,13 @@ type Mutation {
   createBox(creationInput: BoxCreationInput): Box
   " Update one or more properties of a box with specified label identifier. "
   updateBox(updateInput: BoxUpdateInput): Box
-  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
-  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
-  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "

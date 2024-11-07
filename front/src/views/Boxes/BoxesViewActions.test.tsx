@@ -182,7 +182,7 @@ const deleteBoxesMutation = ({
             ? null
             : {
                 deleteBoxes: {
-                  __typename: "BoxResult",
+                  __typename: "BoxesResult",
                   updatedBoxes: labelIdentifiers.map((id) => ({
                     labelIdentifier: id,
                     deletedOn: new Date().toISOString(),

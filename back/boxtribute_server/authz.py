@@ -12,6 +12,7 @@ from .enums import BoxState, TransferAgreementState
 from .errors import InsufficientPermission, UnauthorizedForBase
 from .exceptions import Forbidden
 from .models.definitions.base import Base
+from .models.definitions.organisation import Organisation
 from .models.definitions.shipment import Shipment
 from .models.definitions.shipment_detail import ShipmentDetail
 from .models.definitions.transfer_agreement import TransferAgreement
@@ -64,7 +65,13 @@ def handle_unauthorized(f):
             if e.permission is not None:
                 return InsufficientPermission(name=e.permission)
             elif e.resource == "base":
-                return UnauthorizedForBase(id=e.value, name="")
+                base = (
+                    Base.select(Base.id, Base.name, Organisation.name)
+                    .join(Organisation)
+                    .where(Base.id == e.value)
+                    .get_or_none()
+                )
+                return UnauthorizedForBase(id=e.value, base=base)
             raise e
 
     return inner

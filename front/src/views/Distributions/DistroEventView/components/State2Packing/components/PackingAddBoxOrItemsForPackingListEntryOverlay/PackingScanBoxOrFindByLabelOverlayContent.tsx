@@ -138,6 +138,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
               variables: { qrCode },
             })
             .then(({ data }) => {
+              // @ts-ignore
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               if (boxLabelIdentifier == null) {
                 // onScanningDone([

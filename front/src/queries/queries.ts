@@ -38,10 +38,35 @@ export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = gql`
 export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
   ${BOX_BASIC_FIELDS_FRAGMENT}
   query GetBoxLabelIdentifierForQrCode($qrCode: String!) {
-    qrCode(qrCode: $qrCode) {
-      code
-      box {
-        ...BoxBasicFields
+    qrCode(code: $qrCode) {
+      __typename
+      ... on QrCode {
+        code
+        # if box is null NOT_ASSIGNED_TO_BOX
+        box {
+          __typename
+          # SUCCESS
+          ... on Box {
+            ...BoxBasicFields
+          }
+          # NOT_AUTHORIZED_FOR_BOX
+          ... on InsufficientPermissionError {
+            permissionName: name
+          }
+          # NOT_AUTHORIZED_FOR_BASE
+          ... on UnauthorizedForBaseError {
+            baseName: name
+            organisationName
+          }
+        }
+      }
+      # NOT_AUTHORIZED_FOR_QR
+      ... on InsufficientPermissionError {
+        permissionName: name
+      }
+      # NO_BOXTRIBUTE_QR
+      ... on ResourceDoesNotExistError {
+        resourceName: name
       }
     }
   }
@@ -49,7 +74,7 @@ export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
 
 export const CHECK_IF_QR_EXISTS_IN_DB = gql`
   query CheckIfQrExistsInDb($qrCode: String!) {
-    qrExists(qrCode: $qrCode)
+    qrExists(code: $qrCode)
   }
 `;
 

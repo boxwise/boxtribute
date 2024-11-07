@@ -34,7 +34,7 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
         box: generateMockBox({ labelIdentifier, state }),
       },
