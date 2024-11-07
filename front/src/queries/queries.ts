@@ -42,25 +42,31 @@ export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = gql`
       __typename
       ... on QrCode {
         code
+        # if box is null NOT_ASSIGNED_TO_BOX
         box {
           __typename
-          ...on Box {
+          # SUCCESS
+          ... on Box {
             ...BoxBasicFields
           }
-          ...on InsufficientPermissionError {
-            name
+          # NOT_AUTHORIZED_FOR_BOX
+          ... on InsufficientPermissionError {
+            permissionName: name
           }
-          ...on UnauthorizedForBaseError {
-            name
+          # NOT_AUTHORIZED_FOR_BASE
+          ... on UnauthorizedForBaseError {
+            baseName: name
             organisationName
           }
         }
       }
+      # NOT_AUTHORIZED_FOR_QR
       ... on InsufficientPermissionError {
-        name
+        permissionName: name
       }
+      # NO_BOXTRIBUTE_QR
       ... on ResourceDoesNotExistError {
-        name
+        resourceName: name
       }
     }
   }

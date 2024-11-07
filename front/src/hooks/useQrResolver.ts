@@ -11,11 +11,10 @@ import { useErrorHandling } from "./useErrorHandling";
 export enum IQrResolverResultKind {
   SUCCESS = "success",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
-  NOT_AUTHORIZED = "notAuthorized",
-  NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
+  NO_BOXTRIBUTE_QR = "noBoxtributeQr",
+  NOT_AUTHORIZED_FOR_QR = "notAuthorizedForQr",
   NOT_AUTHORIZED_FOR_BASE = "notAuthorizedForBase",
   NOT_AUTHORIZED_FOR_BOX = "notAuthorizedForBox",
-  NOT_FOUND = "notFound",
   FAIL = "fail",
   // TODO: implement the following two edge cases
   DELETED_BOX = "deletedBox",
@@ -27,7 +26,7 @@ export type IQrResolvedValue = {
   qrHash?: string;
   box?: any; // TODO: infer box type from generated type.
   error?: unknown;
-}
+};
 
 export const extractQrCodeFromUrl = (url): string | undefined => {
   // TODO: improve the accuracy of this regex
@@ -69,40 +68,50 @@ export const useQrResolver = () => {
           }
 
           if (data.qrCode.__typename === "ResourceDoesNotExistError") {
+            // Qr code does not exit in the DB
+            triggerError({
+              message: "This is not a Boxtribute QR code!",
+            });
             return {
-              kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
+              kind: IQrResolverResultKind.NO_BOXTRIBUTE_QR,
               qrHash: hash,
             } as IQrResolvedValue;
-          }
-
-          if (data.qrCode.__typename === "QrCode") {
+          } else if (data.qrCode.__typename === "InsufficientPermissionError") {
+            // missing qr:read RBP
+            triggerError({
+              message: `You don't have permission to access this QR-code!}`,
+            });
+            return {
+              kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_QR,
+              qrHash: hash,
+            } as IQrResolvedValue;
+          } else if (data.qrCode.__typename === "QrCode") {
+            // qr code exists in the DB
             if (!data?.qrCode?.box) {
+              // no box associated to this qr code
               return {
                 kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
                 qrHash: hash,
               } as IQrResolvedValue;
-            }
-
-            if (data.qrCode.box?.__typename === "InsufficientPermissionError") {
+            } else if (data.qrCode.box?.__typename === "InsufficientPermissionError") {
+              // missing stock:read RBP
               triggerError({
-                message: `You don't have permission to access ${qrResolvedValue.box.name}`
-              })
-
+                message: `You don't have permission to access this box!}`,
+              });
               return {
                 kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_BOX,
                 qrHash: hash,
                 box: data?.qrCode?.box,
               } as IQrResolvedValue;
-            }
-
-            if (data.qrCode.box?.__typename === "UnauthorizedForBaseError") {
+            } else if (data.qrCode.box?.__typename === "UnauthorizedForBaseError") {
+              // box is in another base
               return {
                 kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE,
                 qrHash: hash,
                 box: data?.qrCode?.box,
               } as IQrResolvedValue;
             }
-
+            // a box is found for the QR code
             return {
               kind: IQrResolverResultKind.SUCCESS,
               qrHash: hash,
@@ -153,7 +162,7 @@ export const useQrResolver = () => {
         });
 
         setLoading(false);
-        return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
+        return { kind: IQrResolverResultKind.NO_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
 
       const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
