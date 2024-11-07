@@ -5,18 +5,13 @@ import {
   AccordionPanel,
   Flex,
   Box,
-  Drawer,
-  useDisclosure,
-  Button,
   IconButton,
-  DrawerContent,
   Menu,
   MenuButton,
   Img,
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { HamburgerIcon } from "@chakra-ui/icons";
 import { NavLink } from "react-router-dom";
 
 import { ACCOUNT_SETTINGS_URL } from "./consts";
@@ -53,58 +48,50 @@ function UserMenu() {
 }
 
 function MenuTablet({ menuItemsGroups }: IHeaderMenuProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   return (
     <>
-      <Box h={20} />
+      <Box h={20} w={256} />
       <UserMenu />
-      <Button
-        onClick={onOpen}
-        as={IconButton}
-        aria-label="Options"
-        data-testid="menu-button"
-        icon={<HamburgerIcon />}
-        bg="transparent"
-        _hover={{ bg: "transparent" }}
-        _expanded={{ bg: "transparent" }}
-        size="lg"
+      <Flex
+        as="nav"
+        flexDirection="column"
+        h={"100%"}
+        w={256}
+        gap={16}
+        pt={6}
         position={"fixed"}
-        top={3}
-        left={4}
+        left={0}
+        top={0}
         zIndex={3}
-      />
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
-        <DrawerContent style={{ width: 256 }}>
-          <Flex as="nav" flexDirection="column" h={"100%"} w={256} gap={16} pt={6}>
-            <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-            <Accordion allowMultiple defaultIndex={expandedMenuIndex()}>
-              {menuItemsGroups.map((menu) => (
-                <AccordionItem key={menu.text}>
-                  <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
-                    <MenuIcon icon={menu.text as Icon} /> {menu.text}
-                  </AccordionButton>
-                  {menu.links.map((subMenu) => (
-                    <AccordionPanel
-                      key={subMenu.name}
-                      bg="gray.100"
-                      _hover={{ bg: "gray.200" }}
-                      as={NavLink}
-                      to={subMenu.link}
-                      display="flex"
-                      pb={2}
-                      pl={8}
-                    >
-                      {subMenu.name}&nbsp;
-                      {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
-                    </AccordionPanel>
-                  ))}
-                </AccordionItem>
+        boxShadow="base"
+        bg={"white"}
+      >
+        <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
+        <Accordion allowMultiple defaultIndex={expandedMenuIndex()}>
+          {menuItemsGroups.map((menu) => (
+            <AccordionItem key={menu.text}>
+              <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
+                <MenuIcon icon={menu.text as Icon} /> {menu.text}
+              </AccordionButton>
+              {menu.links.map((subMenu) => (
+                <AccordionPanel
+                  key={subMenu.name}
+                  bg="gray.100"
+                  _hover={{ bg: "gray.200" }}
+                  as={NavLink}
+                  to={subMenu.link}
+                  display="flex"
+                  pb={2}
+                  pl={8}
+                >
+                  {subMenu.name}&nbsp;
+                  {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
+                </AccordionPanel>
               ))}
-            </Accordion>
-          </Flex>
-        </DrawerContent>
-      </Drawer>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </Flex>
     </>
   );
 }
