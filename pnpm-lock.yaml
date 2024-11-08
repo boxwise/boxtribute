@@ -273,8 +273,8 @@ importers:
         specifier: ^8.3.5
         version: 8.3.5(storybook@8.3.5)
       '@types/react-big-calendar':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^1.15.0
+        version: 1.15.0
       '@types/react-table':
         specifier: ^7.7.20
         version: 7.7.20
@@ -2558,6 +2558,9 @@ packages:
   '@types/d3-timer@3.0.2':
     resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
 
+  '@types/date-arithmetic@4.1.4':
+    resolution: {integrity: sha512-p9eZ2X9B80iKiTW4ukVj8B4K6q9/+xFtQ5MGYA5HWToY9nL4EkhV9+6ftT2VHpVMEZb5Tv00Iel516bVdO+yRw==}
+
   '@types/doctrine@0.0.9':
     resolution: {integrity: sha512-eOIHzCUSH7SMfonMG1LsC2f8vxBFtho6NGBznK41R84YzPuvSBzrhEps33IsQiOW9+VL6NQ9DbjQJznk/S4uRA==}
 
@@ -2630,8 +2633,8 @@ packages:
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
 
-  '@types/react-big-calendar@0.15.0':
-    resolution: {integrity: sha512-EIs6igCyeKZm9Edr91eJOEy3jq71NQEDqr166N8qOlCTj4JjxWeJL3wMHtASTBbCXxi8wNTfapK/36aJR9Z8+g==}
+  '@types/react-big-calendar@1.15.0':
+    resolution: {integrity: sha512-eZF0HCwalF8bFaEpcxufrIEAu8m6UiTjqbuQk66i7RbuPbi4xjlJqFeQ6Pb6TCudZVZ5ttnz9AquQDvgKGM3cQ==}
 
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
@@ -4863,8 +4866,8 @@ packages:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  moment-timezone@0.5.45:
-    resolution: {integrity: sha512-HIWmqA86KcmCAhnMAN0wuDOARV/525R2+lOLotuGFzn4HO+FH+/645z2wx0Dt3iDv6/p61SIvKnDstISainhLQ==}
+  moment-timezone@0.5.46:
+    resolution: {integrity: sha512-ZXm9b36esbe7OmdABqIWJuBBiLLwAjrN7CE+7sYdCCx82Nabt1wHDj8TVseS59QIlfFPbOoiBPm6ca9BioG4hw==}
 
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
@@ -9364,6 +9367,8 @@ snapshots:
 
   '@types/d3-timer@3.0.2': {}
 
+  '@types/date-arithmetic@4.1.4': {}
+
   '@types/doctrine@0.0.9': {}
 
   '@types/escodegen@0.0.6': {}
@@ -9431,8 +9436,10 @@ snapshots:
 
   '@types/range-parser@1.2.7': {}
 
-  '@types/react-big-calendar@0.15.0':
+  '@types/react-big-calendar@1.15.0':
     dependencies:
+      '@types/date-arithmetic': 4.1.4
+      '@types/prop-types': 15.7.13
       '@types/react': 18.3.11
 
   '@types/react-dom@18.3.0':
@@ -12083,7 +12090,7 @@ snapshots:
 
   minipass@7.1.2: {}
 
-  moment-timezone@0.5.45:
+  moment-timezone@0.5.46:
     dependencies:
       moment: 2.30.1
 
@@ -12439,7 +12446,7 @@ snapshots:
       luxon: 3.5.0
       memoize-one: 6.0.0
       moment: 2.30.1
-      moment-timezone: 0.5.45
+      moment-timezone: 0.5.46
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
