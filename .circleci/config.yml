@@ -149,14 +149,26 @@ jobs:
           name: Test front app and create reports
           command: |
             DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
+      - run:
+          name: Test shared-components and create reports
+          command: |
+            DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
       - store_test_results:
           path: coverage/junit.xml
+      - store_test_results:
+          path: ../shared-components/coverage/junit.xml
       - store_artifacts:
           path: coverage
-          destination: coverage
+          destination: front-coverage
+      - store_artifacts:
+          path: ../shared-components/coverage
+          destination: shared-components-coverage
       - codecov/upload:
           flags: frontend
           file: coverage/coverage-final.json
+      - codecov/upload:
+          flags: sharedComponents
+          file: ../shared-components/coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
       - run:

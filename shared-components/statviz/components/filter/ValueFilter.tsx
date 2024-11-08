@@ -74,6 +74,7 @@ export default function ValueFilter({
       options={values}
       errors={errors}
       control={control}
+      data-testid="value-filter"
     />
   );
 }
