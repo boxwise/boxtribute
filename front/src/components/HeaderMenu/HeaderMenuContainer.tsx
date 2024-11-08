@@ -21,6 +21,18 @@ function HeaderMenuContainer() {
         minBeta: 3,
         links: [
           {
+            link: `${oldAppUrlWithBase}&action=sales_list`,
+            name: "Sales Reports",
+            requiredAbp: ["list_sales"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=fancygraphs`,
+            name: "Fancy Graphs",
+            requiredAbp: ["view_beneficiary_graph"],
+            external: true,
+          },
+          {
             link: `/bases/${baseId}/statviz`,
             name: "Dashboard",
             requiredAbp: [],
@@ -29,7 +41,7 @@ function HeaderMenuContainer() {
         ],
       },
       {
-        text: "Inventory",
+        text: "Aid Inventory",
         requiredAbp: ["create_label"],
         links: [
           {
@@ -40,7 +52,7 @@ function HeaderMenuContainer() {
           },
           {
             link: `/bases/${baseId}/boxes`,
-            name: "Manage Boxes v2",
+            name: "Manage Boxes",
             beta: true,
             requiredAbp: ["manage_inventory"],
           },
@@ -52,14 +64,14 @@ function HeaderMenuContainer() {
           },
           {
             link: `${oldAppUrlWithBase}&action=stock_overview`,
-            name: "Stock Overview",
+            name: "Stock Planning",
             requiredAbp: ["view_inventory"],
             external: true,
           },
         ],
       },
       {
-        text: "Transfers",
+        text: "Aid Transfers",
         minBeta: 2,
         requiredAbp: ["view_shipments"],
         links: [
@@ -74,6 +86,84 @@ function HeaderMenuContainer() {
             name: "Manage Agreements",
             beta: true,
             requiredAbp: ["view_transfer_agreements"],
+          },
+        ],
+      },
+      {
+        text: "Beneficiaries",
+        requiredAbp: ["create_beneficiaries"],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=people_add`,
+            name: "Add Beneficiary",
+            requiredAbp: ["create_beneficiaries"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=people`,
+            name: "Manage Beneficiaries",
+            requiredAbp: ["manage_beneficiaries"],
+            external: true,
+          },
+        ],
+      },
+      {
+        text: "Free Shop",
+        requiredAbp: ["checkout_beneficiaries"],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=checkout`,
+            name: "Checkout",
+            requiredAbp: ["checkout_beneficiaries"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=container-stock`,
+            name: "Stockroom",
+            requiredAbp: ["view_inventory"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=market_schedule`,
+            name: "Generate market schedule",
+            requiredAbp: ["generate_market_schedule"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=give2all`,
+            name: "Give Tokens To All",
+            requiredAbp: ["manage_tokens"],
+            external: true,
+          },
+        ],
+      },
+      {
+        text: "Coordinator Admin",
+        requiredAbp: ["manage_volunteers"],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=tags`,
+            name: "Manage Tags",
+            requiredAbp: ["manage_tags"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=products`,
+            name: "Manage Products",
+            requiredAbp: ["manage_products"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=locations`,
+            name: "Edit Warehouses",
+            requiredAbp: ["manage_warehouses"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=cms_users`,
+            name: "Manage Users",
+            requiredAbp: ["manage_volunteers"],
+            external: true,
           },
         ],
       },

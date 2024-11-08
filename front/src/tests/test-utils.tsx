@@ -116,7 +116,7 @@ function render(
   mockMatchMediaQuery(mediaQueryReturnValue);
 
   // Mock BaseId URL Param.
-   
+
   Object.defineProperty(window, "location", {
     value: {
       pathname: `http://localhost:3000/bases/${globalPreferences ? globalPreferences.globalPreferences.selectedBase?.id : base1.id}/`,
