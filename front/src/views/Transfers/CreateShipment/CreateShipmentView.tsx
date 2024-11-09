@@ -168,8 +168,8 @@ function CreateShipmentView() {
   // Handle Submission
   const onSubmitCreateShipmentForm = useCallback(
     (createShipmentFormData: ICreateShipmentFormData) => {
-      console.log(createShipmentFormData);
       // Find the possible agreement Ids for the partner base
+      // Or ignore this and return an empty array if this is a intra-org shipment between bases of the same organization.
       const agreementIds: Array<string> =
         createShipmentFormData.shipmentTarget === "currentOrg"
           ? []
@@ -179,7 +179,6 @@ function CreateShipmentView() {
               )
               .map((org) => org.agreementId) || [];
 
-      // Valid to not have agreements for intra org shipments.
       if (agreementIds.length === 0 && createShipmentFormData.shipmentTarget === "partners") {
         triggerError({
           message: "Error while trying to create a new shipment",
@@ -232,7 +231,6 @@ function CreateShipmentView() {
     return <APILoadingIndicator />;
   }
 
-  // Valid to not have agreements for intra org shipments.
   const renderNoAcceptedAgreementsAlert = (
     <Alert status="warning">
       <AlertIcon />
@@ -250,17 +248,14 @@ function CreateShipmentView() {
     </Alert>
   );
 
-  // Valid to not have agreements for intra org shipments.
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
-  // Valid to not have agreements for intra org shipments.
   if (noAcceptedAgreements) {
     return renderNoAcceptedAgreementsAlert;
   }
 
-  // Valid to not have agreements for intra org shipments.
   if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) {
     return renderErrorAlert;
   }

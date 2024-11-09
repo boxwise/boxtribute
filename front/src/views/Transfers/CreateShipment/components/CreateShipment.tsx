@@ -107,7 +107,7 @@ function CreateShipment({
   });
 
   setValueIntraOrg("receivingOrganisation", {
-    label: currentOrganisationLabel.split(" - ")[0],
+    label: currentOrganisationLabel,
     value: currentOrganisationId,
   });
 
@@ -116,6 +116,14 @@ function CreateShipment({
     label: organisation.name,
     value: organisation.id,
   }));
+
+  // Prepare options for the organisation field, but for intra-org shipments
+  const intraOrganisationOptions = currentOrganisationBases
+    .filter((base) => base.id !== baseId)
+    .map((base) => ({
+      value: base.id,
+      label: base.name,
+    }));
 
   // selected Option for organisation field
   const receivingOrganisation = watch("receivingOrganisation");
@@ -295,10 +303,7 @@ function CreateShipment({
                     placeholder="Please select a base"
                     errors={errorsIntraOrg}
                     control={controlIntraOrg}
-                    options={currentOrganisationBases.map((base) => ({
-                      value: base.id,
-                      label: base.name,
-                    }))}
+                    options={intraOrganisationOptions}
                   />
                 </ListItem>
               </List>
