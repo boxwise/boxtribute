@@ -2351,7 +2351,7 @@ export type AllAcceptedTransferAgreementsQuery = { __typename?: 'Query', base?: 
 export type CreateShipmentMutationVariables = Exact<{
   sourceBaseId: Scalars['Int']['input'];
   targetBaseId: Scalars['Int']['input'];
-  transferAgreementId: Scalars['Int']['input'];
+  transferAgreementId?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 

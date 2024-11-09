@@ -41,7 +41,7 @@ export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
 
 export const CREATE_SHIPMENT_MUTATION = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int!) {
+  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int) {
     createShipment(
       creationInput: {
         sourceBaseId: $sourceBaseId
@@ -109,6 +109,7 @@ function CreateShipmentView() {
   const currentBase = allAcceptedTransferAgreements?.data?.base;
   const currentOrganisationLabel = `${currentBase?.organisation?.name} - ${currentBase?.name}`;
   const currentOrganisationId = globalPreferences.organisation?.id;
+  const currentOrganisationBases = globalPreferences.availableBases;
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
       ?.filter(
@@ -167,15 +168,19 @@ function CreateShipmentView() {
   // Handle Submission
   const onSubmitCreateShipmentForm = useCallback(
     (createShipmentFormData: ICreateShipmentFormData) => {
+      console.log(createShipmentFormData);
       // Find the possible agreement Ids for the partner base
       const agreementIds: Array<string> =
-        acceptedTransferAgreementsPartnerData
-          ?.filter((org) =>
-            org.bases.some((base) => base.id === createShipmentFormData.receivingBase.value),
-          )
-          .map((org) => org.agreementId) || [];
+        createShipmentFormData.shipmentTarget === "currentOrg"
+          ? []
+          : acceptedTransferAgreementsPartnerData
+              ?.filter((org) =>
+                org.bases.some((base) => base.id === createShipmentFormData.receivingBase.value),
+              )
+              .map((org) => org.agreementId) || [];
 
-      if (agreementIds.length === 0) {
+      // Valid to not have agreements for intra org shipments.
+      if (agreementIds.length === 0 && createShipmentFormData.shipmentTarget === "partners") {
         triggerError({
           message: "Error while trying to create a new shipment",
         });
@@ -227,6 +232,7 @@ function CreateShipmentView() {
     return <APILoadingIndicator />;
   }
 
+  // Valid to not have agreements for intra org shipments.
   const renderNoAcceptedAgreementsAlert = (
     <Alert status="warning">
       <AlertIcon />
@@ -244,14 +250,17 @@ function CreateShipmentView() {
     </Alert>
   );
 
+  // Valid to not have agreements for intra org shipments.
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
+  // Valid to not have agreements for intra org shipments.
   if (noAcceptedAgreements) {
     return renderNoAcceptedAgreementsAlert;
   }
 
+  // Valid to not have agreements for intra org shipments.
   if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) {
     return renderErrorAlert;
   }
@@ -262,7 +271,9 @@ function CreateShipmentView() {
       <Center>
         <CreateShipment
           isLoading={createShipmentMutationState.loading}
+          currentOrganisationId={currentOrganisationId || ""}
           currentOrganisationLabel={currentOrganisationLabel}
+          currentOrganisationBases={currentOrganisationBases || []}
           organisationBaseData={partnerOrganisationBaseData}
           onSubmit={onSubmitCreateShipmentForm}
         />
