@@ -158,32 +158,6 @@ function CreateShipment({
     }
   }, [receivingOrganisation, resetField, setValue, organisationBaseData]);
 
-  const SubmitOrCancel = ({ isSubmitting }: { isSubmitting: boolean }) => (
-    <Stack spacing={4} mt={8}>
-      <Button
-        isLoading={isSubmitting || isLoading}
-        type="submit"
-        borderRadius="0"
-        w="full"
-        variant="solid"
-        backgroundColor="blue.500"
-        color="white"
-      >
-        Start New Shipment
-      </Button>
-      <Button
-        size="md"
-        type="button"
-        borderRadius="0"
-        w="full"
-        variant="outline"
-        onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-      >
-        Nevermind
-      </Button>
-    </Stack>
-  );
-
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={8} as="h1">
@@ -248,7 +222,29 @@ function CreateShipment({
                   </FormControl>
                 )}
               </Box>
-              <SubmitOrCancel isSubmitting={isSubmitting} />
+              <Stack spacing={4} mt={8}>
+                <Button
+                  isLoading={isSubmitting || isLoading}
+                  type="submit"
+                  borderRadius="0"
+                  w="full"
+                  variant="solid"
+                  backgroundColor="blue.500"
+                  color="white"
+                >
+                  Start New Shipment
+                </Button>
+                <Button
+                  size="md"
+                  type="button"
+                  borderRadius="0"
+                  w="full"
+                  variant="outline"
+                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+                >
+                  Nevermind
+                </Button>
+              </Stack>
             </form>
           </TabPanel>
           <TabPanel padding={0}>
@@ -269,7 +265,29 @@ function CreateShipment({
                   options={intraOrganisationOptions}
                 />
               </Box>
-              <SubmitOrCancel isSubmitting={isSubmittingIntraOrg} />
+              <Stack spacing={4} mt={8}>
+                <Button
+                  isLoading={isSubmittingIntraOrg || isLoading}
+                  type="submit"
+                  borderRadius="0"
+                  w="full"
+                  variant="solid"
+                  backgroundColor="blue.500"
+                  color="white"
+                >
+                  Start New Shipment
+                </Button>
+                <Button
+                  size="md"
+                  type="button"
+                  borderRadius="0"
+                  w="full"
+                  variant="outline"
+                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+                >
+                  Nevermind
+                </Button>
+              </Stack>
             </form>
           </TabPanel>
         </TabPanels>
