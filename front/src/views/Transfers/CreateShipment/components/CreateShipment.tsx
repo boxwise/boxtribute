@@ -65,7 +65,13 @@ export interface ICreateShipmentProps {
   isLoading: boolean;
   currentOrganisationId: string;
   currentOrganisationLabel: string;
+  /**
+   * Same/Intra-org base data.
+   */
   currentOrganisationBases: IBaseData[];
+  /**
+   * Target Organization for shipment base data.
+   */
   organisationBaseData: IOrganisationBaseData[];
   onSubmit: SubmitHandler<ICreateShipmentFormData>;
 }
@@ -148,7 +154,7 @@ function CreateShipment({
       );
 
       resetField("receivingBase");
-      // Put a default value for partnerOrganisationSelectedBases when there's only one option
+      // Put a default value for partnerOrganisationSelectedBases when there's only one option.
       if (basesForSelectedOrganisation?.bases.length === 1) {
         setValue("receivingBase", {
           label: basesForSelectedOrganisation?.bases[0].name,
@@ -159,6 +165,7 @@ function CreateShipment({
   }, [receivingOrganisation, resetField, setValue, organisationBaseData]);
 
   useEffect(() => {
+    // Put a default value for the intra-org base when there's only one option.
     if (intraOrganisationOptions.length === 1)
       setValueIntraOrg("receivingBase", {
         label: intraOrganisationOptions[0].label,
