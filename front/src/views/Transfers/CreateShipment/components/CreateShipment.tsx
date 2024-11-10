@@ -2,6 +2,8 @@ import {
   Box,
   Button,
   Center,
+  FormControl,
+  FormLabel,
   Heading,
   HStack,
   Stack,
@@ -12,6 +14,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  Textarea,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -32,6 +35,7 @@ export interface IOrganisationBaseData {
   id: string;
   name: string;
   bases: IBaseData[];
+  comment?: string;
 }
 
 // Define schema of the form
@@ -111,6 +115,7 @@ function CreateShipment({
   const organisationOptions: Array<IDropdownOption> = organisationBaseData?.map((organisation) => ({
     label: organisation.name,
     value: organisation.id,
+    comment: organisation.comment,
   }));
 
   // Prepare options for the organisation field, but for intra-org shipments
@@ -124,11 +129,13 @@ function CreateShipment({
   // selected Option for organisation field
   const receivingOrganisation = watch("receivingOrganisation");
 
+  // Display agreement comment, if any.
+  const [agreementNote, setAgreementNote] = useState("");
   // Prepare options for the base field
   const [basesOptions, setBasesOptions] = useState<IDropdownOption[]>([]);
 
   useEffect(() => {
-    if (receivingOrganisation != null) {
+    if (receivingOrganisation) {
       const basesForSelectedOrganisation = organisationBaseData.find(
         (organisation) => organisation.id === receivingOrganisation.value,
       );
@@ -151,6 +158,32 @@ function CreateShipment({
     }
   }, [receivingOrganisation, resetField, setValue, organisationBaseData]);
 
+  const SubmitOrCancel = ({ isSubmitting }: { isSubmitting: boolean }) => (
+    <Stack spacing={4} mt={8}>
+      <Button
+        isLoading={isSubmitting || isLoading}
+        type="submit"
+        borderRadius="0"
+        w="full"
+        variant="solid"
+        backgroundColor="blue.500"
+        color="white"
+      >
+        Start New Shipment
+      </Button>
+      <Button
+        size="md"
+        type="button"
+        borderRadius="0"
+        w="full"
+        variant="outline"
+        onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+      >
+        Nevermind
+      </Button>
+    </Stack>
+  );
+
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={8} as="h1">
@@ -170,31 +203,27 @@ function CreateShipment({
             </Text>
           </Center>
         </Box>
-        <Box border="2px">
-          <HStack mb={4} p={2}>
-            <ReceivingIcon />
-            <Text fontWeight="bold" fontSize="md">
-              RECEIVING
-            </Text>
-          </HStack>
-        </Box>
-        <Box border="2px" borderTop="none" borderBottom="none">
-          <TabList>
-            <Tab flex={1}>PARTNERS</Tab>
-            <Tab flex={1}>{currentOrganisationLabel}</Tab>
-          </TabList>
-          <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
-        </Box>
+        <HStack p={2} border="2px">
+          <ReceivingIcon />
+          <Text fontWeight="bold" fontSize="md">
+            RECEIVING
+          </Text>
+        </HStack>
+        <TabList border="2px" borderTop="none" borderBottom="none">
+          <Tab flex={1}>PARTNERS</Tab>
+          <Tab flex={1}>{currentOrganisationLabel}</Tab>
+        </TabList>
+        <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
         <TabPanels>
           <TabPanel padding={0}>
             <form onSubmit={handleSubmit(onSubmit)}>
+              <input
+                id="shipmentTarget"
+                type="hidden"
+                value="partners"
+                {...register("shipmentTarget")}
+              />
               <Box border="2px" mb={8} borderTop="none" p={2}>
-                <input
-                  id="shipmentTarget"
-                  type="hidden"
-                  value="partners"
-                  {...register("shipmentTarget")}
-                />
                 <SelectField
                   fieldId="receivingOrganisation"
                   fieldLabel="Organisation"
@@ -202,6 +231,7 @@ function CreateShipment({
                   options={organisationOptions}
                   errors={errors}
                   control={control}
+                  onChangeProp={(e) => setAgreementNote(e.comment)}
                 />
                 <SelectField
                   fieldId="receivingBase"
@@ -211,30 +241,14 @@ function CreateShipment({
                   control={control}
                   options={basesOptions}
                 />
+                {agreementNote && (
+                  <FormControl>
+                    <FormLabel>Note</FormLabel>
+                    <Textarea readOnly value={agreementNote} />
+                  </FormControl>
+                )}
               </Box>
-              <Stack spacing={4} mt={8}>
-                <Button
-                  isLoading={isSubmitting || isLoading}
-                  type="submit"
-                  borderRadius="0"
-                  w="full"
-                  variant="solid"
-                  backgroundColor="blue.500"
-                  color="white"
-                >
-                  Start New Shipment
-                </Button>
-                <Button
-                  size="md"
-                  type="button"
-                  borderRadius="0"
-                  w="full"
-                  variant="outline"
-                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-                >
-                  Nevermind
-                </Button>
-              </Stack>
+              <SubmitOrCancel isSubmitting={isSubmitting} />
             </form>
           </TabPanel>
           <TabPanel padding={0}>
@@ -255,29 +269,7 @@ function CreateShipment({
                   options={intraOrganisationOptions}
                 />
               </Box>
-              <Stack spacing={4} mt={8}>
-                <Button
-                  isLoading={isSubmittingIntraOrg || isLoading}
-                  type="submit"
-                  borderRadius="0"
-                  w="full"
-                  variant="solid"
-                  backgroundColor="blue.500"
-                  color="white"
-                >
-                  Start New Shipment
-                </Button>
-                <Button
-                  size="md"
-                  type="button"
-                  borderRadius="0"
-                  w="full"
-                  variant="outline"
-                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-                >
-                  Nevermind
-                </Button>
-              </Stack>
+              <SubmitOrCancel isSubmitting={isSubmittingIntraOrg} />
             </form>
           </TabPanel>
         </TabPanels>

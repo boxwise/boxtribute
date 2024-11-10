@@ -137,6 +137,7 @@ function CreateShipmentView() {
           name: agreement.targetOrganisation.name,
           bases: agreement.targetBases,
           agreementId: agreement.id,
+          agreementComment: agreement.comment,
         } as IAcceptedTransferAgreementsPartnerData;
       });
 
@@ -148,6 +149,7 @@ function CreateShipmentView() {
           id: agreement.id,
           name: agreement.name,
           bases: agreement.bases,
+          agreement: agreement.comment,
         }) as IOrganisationBaseData,
     )
     .reduce((accumulator, currentOrg) => {
@@ -227,9 +229,7 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) {
-    return <APILoadingIndicator />;
-  }
+  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) return <APILoadingIndicator />;
 
   const renderNoAcceptedAgreementsAlert = (
     <Alert status="warning">
@@ -252,13 +252,9 @@ function CreateShipmentView() {
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
-  if (noAcceptedAgreements) {
-    return renderNoAcceptedAgreementsAlert;
-  }
+  if (noAcceptedAgreements) return renderNoAcceptedAgreementsAlert;
 
-  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) {
-    return renderErrorAlert;
-  }
+  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) return renderErrorAlert;
 
   return (
     <>
