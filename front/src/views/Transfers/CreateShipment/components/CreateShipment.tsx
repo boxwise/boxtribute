@@ -212,7 +212,7 @@ function CreateShipment({
                 value="partners"
                 {...register("shipmentTarget")}
               />
-              <Box border="2px" mb={8} borderTop="none" p={2}>
+              <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
                 <SelectField
                   fieldId="receivingOrganisation"
                   fieldLabel="Organisation"
@@ -270,7 +270,7 @@ function CreateShipment({
                 type="hidden"
                 value="currentOrg"
               />
-              <Box border="2px" mb={8} borderTop="none" p={2}>
+              <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
                 <SelectField
                   fieldId="receivingBase"
                   fieldLabel="Base"
