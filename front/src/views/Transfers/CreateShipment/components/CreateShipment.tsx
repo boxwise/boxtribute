@@ -158,6 +158,14 @@ function CreateShipment({
     }
   }, [receivingOrganisation, resetField, setValue, organisationBaseData]);
 
+  useEffect(() => {
+    if (intraOrganisationOptions.length === 1)
+      setValueIntraOrg("receivingBase", {
+        label: intraOrganisationOptions[0].label,
+        value: intraOrganisationOptions[0].value,
+      });
+  }, [intraOrganisationOptions, setValueIntraOrg]);
+
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={8} as="h1">

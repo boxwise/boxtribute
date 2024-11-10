@@ -5,6 +5,11 @@ export const organisation1 = {
       id: "1",
       name: "Lesvos",
     },
+    {
+      __typename: "Base",
+      id: "2",
+      name: "Base Bar",
+    },
   ],
   __typename: "Organisation",
   id: "1",

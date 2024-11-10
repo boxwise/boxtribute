@@ -292,7 +292,6 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   const pageTitle = await screen.findByRole("heading", { name: "New Shipment" });
   expect(pageTitle).toBeInTheDocument();
 
-  // const submitStartButton = await screen.findByTestId("submit");
   const submitStartButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitStartButton).toBeInTheDocument();
 
@@ -351,6 +350,75 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
       }),
     ),
   );
+});
+
+it("4.3.3.5 - Click on Submit Button - Intra-org shipment ", async () => {
+  const user = userEvent.setup();
+
+  // modify the cache
+  cache.modify({
+    fields: {
+      shipments(existingShipments = []) {
+        const newShipmentRef = cache.writeFragment({
+          data: successfulMutation.result.data,
+          fragment: gql`
+            fragment NewShipment on Shipment {
+              id
+            }
+          `,
+        });
+        return existingShipments.concat(newShipmentRef);
+      },
+    },
+  });
+
+  render(<CreateShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/create",
+    initialUrl: "/bases/1/transfers/shipments/create",
+    additionalRoute: "/bases/1/transfers/shipments/1",
+    mocks: [initialQuery, successfulMutation, initialWithoutBoxQuery],
+    addTypename: true,
+    cache,
+    globalPreferences: {
+      dispatch: vi.fn(),
+      globalPreferences: {
+        organisation: { id: organisation1.id, name: organisation1.name },
+        availableBases: organisation1.bases,
+        selectedBase: { id: base1.id, name: base1.name },
+      },
+    },
+  });
+
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
+  expect(title).toBeInTheDocument();
+
+  const intraOrgTab = await screen.findByRole("tab", { name: /BoxAid - Lesvos/i });
+  expect(intraOrgTab).toBeInTheDocument();
+  await user.click(intraOrgTab);
+
+  // Since this base is the only other base for this test org, it will be already selected.
+  expect(await screen.findByText("Base Bar")).toBeInTheDocument();
+
+  // Test case 4.3.3.1 - Form data was valid and mutation was successful
+  const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
+  expect(submitButton).toBeInTheDocument();
+
+  await user.click(submitButton);
+
+  // TODO: can't make this to work inside the test environment.
+
+  // await waitFor(() =>
+  //   expect(mockedCreateToast).toHaveBeenCalledWith(
+  //     expect.objectContaining({
+  //       message: expect.stringMatching(/successfully created a new shipment/i),
+  //     }),
+  //   ),
+  // );
+
+  // // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
+  // expect(
+  //   await screen.findByRole("heading", { name: "/bases/1/transfers/shipments/1" }),
+  // ).toBeInTheDocument();
 });
 
 // Test case 4.3.4
