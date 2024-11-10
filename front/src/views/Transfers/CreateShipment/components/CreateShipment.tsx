@@ -1,16 +1,12 @@
 import {
   Box,
   Button,
-  ButtonGroup,
   Center,
-  Divider,
   Heading,
   HStack,
-  List,
-  ListItem,
-  Spacer,
   Stack,
   Tab,
+  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -119,7 +115,7 @@ function CreateShipment({
 
   // Prepare options for the organisation field, but for intra-org shipments
   const intraOrganisationOptions = currentOrganisationBases
-    .filter((base) => base.id !== baseId)
+    .filter((base) => base.id !== baseId) // Don't try to ship to same base as current.
     .map((base) => ({
       value: base.id,
       label: base.name,
@@ -158,181 +154,129 @@ function CreateShipment({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={8} as="h1">
-        Start New Shipment
+        New Shipment
       </Heading>
-
-      <Tabs>
-        <TabList>
-          <Tab>PARTNERS</Tab>
-          <Tab>{currentOrganisationLabel}</Tab>
-        </TabList>
+      <Tabs variant="unstyled">
+        <Box border="2px" mb={8}>
+          <HStack mb={4} borderBottom="2px" p={2}>
+            <SendingIcon />
+            <Text fontWeight="bold" fontSize="md">
+              SENDING
+            </Text>
+          </HStack>
+          <Center>
+            <Text fontWeight="medium" fontSize="md">
+              {currentOrganisationLabel}
+            </Text>
+          </Center>
+        </Box>
+        <Box border="2px">
+          <HStack mb={4} p={2}>
+            <ReceivingIcon />
+            <Text fontWeight="bold" fontSize="md">
+              RECEIVING
+            </Text>
+          </HStack>
+        </Box>
+        <Box border="2px" borderTop="none" borderBottom="none">
+          <TabList>
+            <Tab flex={1}>PARTNERS</Tab>
+            <Tab flex={1}>{currentOrganisationLabel}</Tab>
+          </TabList>
+          <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
+        </Box>
         <TabPanels>
-          <TabPanel>
+          <TabPanel padding={0}>
             <form onSubmit={handleSubmit(onSubmit)}>
-              <List spacing={2}>
-                <ListItem>
-                  <HStack mb={4}>
-                    <SendingIcon />
-                    <Text fontWeight="bold" fontSize="md">
-                      {" "}
-                      SENDING
-                    </Text>
-                  </HStack>
-                </ListItem>
-                <ListItem>
-                  <Center>
-                    <Text fontWeight="medium" fontSize="md">
-                      {currentOrganisationLabel}
-                    </Text>
-                  </Center>
-                </ListItem>
-              </List>
-              <Spacer mb={8} />
-              <Divider size="2" borderColor="black" />
-              <Spacer mb={8} />
-              <input
-                {...register("shipmentTarget")}
-                id="shipmentTarget"
-                type="hidden"
-                value="partners"
-              />
-              <List spacing={2}>
-                <ListItem>
-                  <HStack mb={4}>
-                    <ReceivingIcon />
-                    <Text fontWeight="bold" fontSize="md">
-                      {" "}
-                      RECEIVING
-                    </Text>
-                  </HStack>
-                </ListItem>
-                <ListItem>
-                  <SelectField
-                    fieldId="receivingOrganisation"
-                    fieldLabel="Organisation"
-                    placeholder="Please select an organisation"
-                    options={organisationOptions}
-                    errors={errors}
-                    control={control}
-                  />
-                </ListItem>
-                <ListItem>
-                  <SelectField
-                    fieldId="receivingBase"
-                    fieldLabel="Base"
-                    placeholder="Please select a base"
-                    errors={errors}
-                    control={control}
-                    options={basesOptions}
-                  />
-                </ListItem>
-              </List>
-              <Stack spacing={4}>
-                <ButtonGroup gap="4">
-                  <Button
-                    mt={10}
-                    size="md"
-                    type="button"
-                    borderRadius="0"
-                    w="full"
-                    variant="outline"
-                    onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    mt={10}
-                    isLoading={isSubmitting || isLoading}
-                    type="submit"
-                    borderRadius="0"
-                    w="full"
-                    variant="solid"
-                    backgroundColor="blue.500"
-                    color="white"
-                  >
-                    Start
-                  </Button>
-                </ButtonGroup>
+              <Box border="2px" mb={8} borderTop="none" p={2}>
+                <input
+                  id="shipmentTarget"
+                  type="hidden"
+                  value="partners"
+                  {...register("shipmentTarget")}
+                />
+                <SelectField
+                  fieldId="receivingOrganisation"
+                  fieldLabel="Organisation"
+                  placeholder="Please select an organisation"
+                  options={organisationOptions}
+                  errors={errors}
+                  control={control}
+                />
+                <SelectField
+                  fieldId="receivingBase"
+                  fieldLabel="Base"
+                  placeholder="Please select a base"
+                  errors={errors}
+                  control={control}
+                  options={basesOptions}
+                />
+              </Box>
+              <Stack spacing={4} mt={8}>
+                <Button
+                  isLoading={isSubmitting || isLoading}
+                  type="submit"
+                  borderRadius="0"
+                  w="full"
+                  variant="solid"
+                  backgroundColor="blue.500"
+                  color="white"
+                >
+                  Start New Shipment
+                </Button>
+                <Button
+                  size="md"
+                  type="button"
+                  borderRadius="0"
+                  w="full"
+                  variant="outline"
+                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+                >
+                  Nevermind
+                </Button>
               </Stack>
             </form>
           </TabPanel>
-
-          <TabPanel>
+          <TabPanel padding={0}>
             <form onSubmit={handleSubmitIntraOrg(onSubmit)}>
-              <List spacing={2}>
-                <ListItem>
-                  <HStack mb={4}>
-                    <SendingIcon />
-                    <Text fontWeight="bold" fontSize="md">
-                      {" "}
-                      SENDING
-                    </Text>
-                  </HStack>
-                </ListItem>
-                <ListItem>
-                  <Center>
-                    <Text fontWeight="medium" fontSize="md">
-                      {currentOrganisationLabel}
-                    </Text>
-                  </Center>
-                </ListItem>
-              </List>
-              <Spacer mb={8} />
-              <Divider size="2" borderColor="black" />
-              <Spacer mb={8} />
               <input
                 {...registerIntraOrg("shipmentTarget")}
                 id="shipmentTarget"
                 type="hidden"
                 value="currentOrg"
               />
-              <List spacing={2}>
-                <ListItem>
-                  <HStack mb={4}>
-                    <ReceivingIcon />
-                    <Text fontWeight="bold" fontSize="md">
-                      {" "}
-                      RECEIVING
-                    </Text>
-                  </HStack>
-                </ListItem>
-                <ListItem>
-                  <SelectField
-                    fieldId="receivingBase"
-                    fieldLabel="Base"
-                    placeholder="Please select a base"
-                    errors={errorsIntraOrg}
-                    control={controlIntraOrg}
-                    options={intraOrganisationOptions}
-                  />
-                </ListItem>
-              </List>
-              <Stack spacing={4}>
-                <ButtonGroup gap="4">
-                  <Button
-                    mt={10}
-                    size="md"
-                    type="button"
-                    borderRadius="0"
-                    w="full"
-                    variant="outline"
-                    onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    mt={10}
-                    isLoading={isSubmittingIntraOrg || isLoading}
-                    type="submit"
-                    borderRadius="0"
-                    w="full"
-                    variant="solid"
-                    backgroundColor="blue.500"
-                    color="white"
-                  >
-                    Start
-                  </Button>
-                </ButtonGroup>
+              <Box border="2px" mb={8} borderTop="none" p={2}>
+                <SelectField
+                  fieldId="receivingBase"
+                  fieldLabel="Base"
+                  placeholder="Please select a base"
+                  errors={errorsIntraOrg}
+                  control={controlIntraOrg}
+                  options={intraOrganisationOptions}
+                />
+              </Box>
+              <Stack spacing={4} mt={8}>
+                <Button
+                  isLoading={isSubmittingIntraOrg || isLoading}
+                  type="submit"
+                  borderRadius="0"
+                  w="full"
+                  variant="solid"
+                  backgroundColor="blue.500"
+                  color="white"
+                >
+                  Start New Shipment
+                </Button>
+                <Button
+                  size="md"
+                  type="button"
+                  borderRadius="0"
+                  w="full"
+                  variant="outline"
+                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+                >
+                  Nevermind
+                </Button>
               </Stack>
             </form>
           </TabPanel>

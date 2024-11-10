@@ -169,7 +169,7 @@ function CreateShipmentView() {
   const onSubmitCreateShipmentForm = useCallback(
     (createShipmentFormData: ICreateShipmentFormData) => {
       // Find the possible agreement Ids for the partner base
-      // Or ignore this and return an empty array if this is a intra-org shipment between bases of the same organization.
+      // Or ignore this and return an empty array if this is an intra-org shipment between bases of the same organization.
       const agreementIds: Array<string> =
         createShipmentFormData.shipmentTarget === "currentOrg"
           ? []
