@@ -353,7 +353,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
 });
 
 // TODO: can't make this to work inside the test environment.
-it.skip("4.3.3.5 - Click on Submit Button - Intra-org shipment ", async () => {
+it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
   const user = userEvent.setup();
 
   // modify the cache
@@ -375,6 +375,7 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org shipment ", async () => {
 
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
+    // Maybe there's a route and org, base mismatch?
     initialUrl: "/bases/2/transfers/shipments/create",
     additionalRoute: "/bases/2/transfers/shipments/1",
     mocks: [initialQuery, successfulMutation, initialWithoutBoxQuery],
@@ -398,7 +399,7 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org shipment ", async () => {
   await user.click(intraOrgTab);
 
   // Since this base is the only other base for this test org, it will be already selected.
-  expect(await screen.findByText("Base Bar")).toBeInTheDocument();
+  expect(await screen.findByText("Samos")).toBeInTheDocument();
 
   // Test case 4.3.3.1 - Form data was valid and mutation was successful
   const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
