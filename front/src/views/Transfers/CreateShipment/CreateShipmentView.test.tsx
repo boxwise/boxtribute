@@ -156,10 +156,10 @@ it("4.3.1 - Initial load of Page", async () => {
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
   expect(title).toBeInTheDocument();
   // Test case 4.3.1.1 - Content: Displays Source Base Label
-  expect(screen.getByText(/boxaid - lesvos/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/boxaid - lesvos/i)[0]).toBeInTheDocument();
   // Test case 4.3.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
   await selectOptionInSelectField(user, /organisation/i, "BoxCare");
@@ -190,7 +190,7 @@ it("4.3.2 - Input Validations", async () => {
     },
   });
 
-  const submitButton = await screen.findByRole("button", { name: /start/i });
+  const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitButton).toBeInTheDocument();
   user.click(submitButton);
   // Test case 4.3.2.1 - Partner Organisation SELECT field cannot be empty
@@ -198,7 +198,7 @@ it("4.3.2 - Input Validations", async () => {
   expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
-  expect(screen.getByText(/please select a base/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/please select a base/i)[0]).toBeInTheDocument();
 
   expect((await screen.findAllByText(/required/i)).length).toEqual(2);
 });
@@ -241,11 +241,11 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     },
   });
 
-  const title = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
   expect(title).toBeInTheDocument();
 
   // Test case 4.3.3.1 - Form data was valid and mutation was successful
-  const submitButton = await screen.findByRole("button", { name: /start/i });
+  const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitButton).toBeInTheDocument();
 
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
@@ -256,6 +256,7 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
   expect(await screen.findByText("Samos")).toBeInTheDocument();
 
   await user.click(submitButton);
+  // TODO: either submit is failing inside tests or this is not being displayed.
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -289,10 +290,11 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   });
 
   // Test case 4.3.3.3 - Form data was valid, but the mutation failed
-  const pageTitle = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const pageTitle = await screen.findByRole("heading", { name: "New Shipment" });
   expect(pageTitle).toBeInTheDocument();
 
-  const submitStartButton = await screen.findByRole("button", { name: /start/i });
+  // const submitStartButton = await screen.findByTestId("submit");
+  const submitStartButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitStartButton).toBeInTheDocument();
 
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], pageTitle);
@@ -301,6 +303,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitStartButton);
+  // TODO: either submit is failing inside tests or this is not being displayed.
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -329,10 +332,12 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
   });
 
   // Test case 4.3.3.4 - Form data was valid, but the mutation response has errors
-  const shipmentPageTitle = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const shipmentPageTitle = await screen.findByRole("heading", { name: "New Shipment" });
   expect(shipmentPageTitle).toBeInTheDocument();
 
-  const submitShipmentStartButton = await screen.findByRole("button", { name: /start/i });
+  const submitShipmentStartButton = await screen.findByRole("button", {
+    name: /Start New Shipment/i,
+  });
   expect(submitShipmentStartButton).toBeInTheDocument();
 
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], shipmentPageTitle);
@@ -341,6 +346,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
   await selectOptionInSelectField(user, /base/i, "Samos");
   expect(await screen.findByText("Samos")).toBeInTheDocument();
   await user.click(submitShipmentStartButton);
+  // TODO: either submit is failing inside tests or this is not being displayed.
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({

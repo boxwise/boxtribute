@@ -197,7 +197,7 @@ function CreateShipment({
               SENDING
             </Text>
           </HStack>
-          <Center>
+          <Center my={4}>
             <Text fontWeight="medium" fontSize="md">
               {currentOrganisationLabel}
             </Text>
