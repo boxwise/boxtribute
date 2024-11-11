@@ -19,7 +19,7 @@
     "react-icons": "^5.0.0",
     "react-table": "^7.8.0",
     "regenerator-runtime": "^0.14.1",
-    "victory": "^36.6.8"
+    "victory": "^37.3.1"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.4",
