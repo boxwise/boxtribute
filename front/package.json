@@ -25,7 +25,7 @@
     "@chakra-ui/storybook-addon": "^5.2.4",
     "@graphql-codegen/typescript": "^4.1.0",
     "@sentry/types": "^8.34.0",
-    "@storybook/addon-actions": "^8.3.5",
+    "@storybook/addon-actions": "^8.4.2",
     "@storybook/addon-essentials": "^8.3.5",
     "@storybook/addon-interactions": "^8.3.5",
     "@storybook/addon-links": "^8.3.5",
