@@ -21,6 +21,12 @@ function HeaderMenuContainer() {
         minBeta: 3,
         links: [
           {
+            link: `/bases/${baseId}/statviz`,
+            name: "Dashboard",
+            requiredAbp: [],
+            beta: true,
+          },
+          {
             link: `${oldAppUrlWithBase}&action=sales_list`,
             name: "Sales Reports",
             requiredAbp: ["list_sales"],
@@ -30,13 +36,8 @@ function HeaderMenuContainer() {
             link: `${oldAppUrlWithBase}&action=fancygraphs`,
             name: "Fancy Graphs",
             requiredAbp: ["view_beneficiary_graph"],
-            external: true,
-          },
-          {
-            link: `/bases/${baseId}/statviz`,
-            name: "Dashboard",
-            requiredAbp: [],
             beta: true,
+            external: true,
           },
         ],
       },
@@ -112,7 +113,7 @@ function HeaderMenuContainer() {
         requiredAbp: ["checkout_beneficiaries"],
         links: [
           {
-            link: `${oldAppUrlWithBase}&action=checkout`,
+            link: `${oldAppUrlWithBase}&action=check_out`,
             name: "Checkout",
             requiredAbp: ["checkout_beneficiaries"],
             external: true,
