@@ -21,6 +21,12 @@ function HeaderMenuContainer() {
         minBeta: 3,
         links: [
           {
+            link: `/bases/${baseId}/statviz`,
+            name: "Dashboard",
+            requiredAbp: [],
+            beta: true,
+          },
+          {
             link: `${oldAppUrlWithBase}&action=sales_list`,
             name: "Sales Reports",
             requiredAbp: ["list_sales"],
@@ -31,12 +37,6 @@ function HeaderMenuContainer() {
             name: "Fancy Graphs",
             requiredAbp: ["view_beneficiary_graph"],
             external: true,
-          },
-          {
-            link: `/bases/${baseId}/statviz`,
-            name: "Dashboard",
-            requiredAbp: [],
-            beta: true,
           },
         ],
       },
