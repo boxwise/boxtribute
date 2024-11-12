@@ -14,7 +14,7 @@
     "@sentry/react": "^8.34.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
-    "chakra-react-select": "^4.4.3",
+    "chakra-react-select": "^5.0.2",
     "react-big-calendar": "^1.15.0",
     "react-icons": "^5.0.0",
     "react-table": "^7.8.0",
