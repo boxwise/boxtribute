@@ -14,21 +14,21 @@
     "@sentry/react": "^8.34.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
-    "chakra-react-select": "^4.4.3",
+    "chakra-react-select": "^5.0.2",
     "react-big-calendar": "^1.15.0",
     "react-icons": "^5.0.0",
     "react-table": "^7.8.0",
     "regenerator-runtime": "^0.14.1",
-    "victory": "^36.6.8"
+    "victory": "^37.3.2"
   },
   "devDependencies": {
-    "@chakra-ui/storybook-addon": "^5.2.4",
-    "@graphql-codegen/typescript": "^4.1.0",
+    "@chakra-ui/storybook-addon": "^5.2.5",
+    "@graphql-codegen/typescript": "^4.1.1",
     "@sentry/types": "^8.34.0",
-    "@storybook/addon-actions": "^8.3.5",
+    "@storybook/addon-actions": "^8.4.2",
     "@storybook/addon-essentials": "^8.3.5",
     "@storybook/addon-interactions": "^8.3.5",
-    "@storybook/addon-links": "^8.3.5",
+    "@storybook/addon-links": "^8.4.2",
     "@storybook/node-logger": "^8.3.5",
     "@storybook/react": "^8.3.5",
     "@storybook/react-vite": "^8.3.5",
@@ -38,7 +38,7 @@
     "msw": "^2.6.2",
     "mutationobserver-shim": "^0.3.7",
     "prop-types": "^15.8.1",
-    "storybook": "^8.3.5"
+    "storybook": "^8.4.2"
   },
   "scripts": {
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
