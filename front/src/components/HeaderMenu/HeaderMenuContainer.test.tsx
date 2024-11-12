@@ -27,7 +27,12 @@ it("1.3.1 - Menus are available to the user depending on ABPs - Nothing", async 
 
 it("1.3.2 - Menus are available to the user depending on ABPs - Aid Inventory", async () => {
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
-  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", ["create_label"], "3");
+  mockAuthenticatedUser(
+    mockedUseAuth0,
+    "dev_volunteer@boxaid.org",
+    ["view_inventory", "view_shipments", "view_beneficiary_graph", "create_label"],
+    "3",
+  );
 
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
@@ -69,7 +74,12 @@ it("1.3.3 - Menus are available to the user depending on ABPs - Aid Inventory w/
 
 it("1.3.4 - Menus available to the user depending on ABPs - Coordinator Admin", async () => {
   mockImplementationOfQrReader(mockedQrReader, "NoBoxAssociatedWithQrCode");
-  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", ["manage_volunteers"], "3");
+  mockAuthenticatedUser(
+    mockedUseAuth0,
+    "dev_volunteer@boxaid.org",
+    ["view_inventory", "view_shipments", "view_beneficiary_graph", "manage_volunteers"],
+    "3",
+  );
 
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
@@ -86,7 +96,14 @@ it("1.3.5 - Menus available to the user depending on ABPs - Coordinator Admin w/
   mockAuthenticatedUser(
     mockedUseAuth0,
     "dev_volunteer@boxaid.org",
-    ["manage_volunteers", "manage_products", "manage_warehouses"],
+    [
+      "view_inventory",
+      "view_shipments",
+      "view_beneficiary_graph",
+      "manage_volunteers",
+      "manage_products",
+      "manage_warehouses",
+    ],
     "3",
   );
 
