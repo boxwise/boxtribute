@@ -112,7 +112,7 @@ function HeaderMenuContainer() {
         requiredAbp: ["checkout_beneficiaries"],
         links: [
           {
-            link: `${oldAppUrlWithBase}&action=checkout`,
+            link: `${oldAppUrlWithBase}&action=check_out`,
             name: "Checkout",
             requiredAbp: ["checkout_beneficiaries"],
             external: true,
