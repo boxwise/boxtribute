@@ -22,7 +22,7 @@
     "victory": "^36.6.8"
   },
   "devDependencies": {
-    "@chakra-ui/storybook-addon": "^5.2.4",
+    "@chakra-ui/storybook-addon": "^5.2.5",
     "@graphql-codegen/typescript": "^4.1.0",
     "@sentry/types": "^8.34.0",
     "@storybook/addon-actions": "^8.3.5",
