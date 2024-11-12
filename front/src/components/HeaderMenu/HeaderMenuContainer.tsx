@@ -17,7 +17,7 @@ function HeaderMenuContainer() {
     return [
       {
         text: "Statistics",
-        requiredAbps: [["view_inventory", "view_shipments", "view_beneficiary_graph"]],
+        requiredAbps: ["view_inventory", "view_shipments", "view_beneficiary_graph"],
         minBeta: 3,
         links: [
           {
@@ -29,13 +29,13 @@ function HeaderMenuContainer() {
           {
             link: `${oldAppUrlWithBase}&action=sales_list`,
             name: "Sales Reports",
-            requiredAbp: ["list_sales"],
+            requiredAbps: ["list_sales"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=fancygraphs`,
             name: "Fancy Graphs",
-            requiredAbp: ["view_beneficiary_graph"],
+            requiredAbps: ["view_beneficiary_graph"],
             beta: true,
             external: true,
           },
@@ -92,78 +92,78 @@ function HeaderMenuContainer() {
       },
       {
         text: "Beneficiaries",
-        requiredAbp: ["create_beneficiaries"],
+        requiredAbps: ["create_beneficiaries"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=people_add`,
             name: "Add Beneficiary",
-            requiredAbp: ["create_beneficiaries"],
+            requiredAbps: ["create_beneficiaries"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=people`,
             name: "Manage Beneficiaries",
-            requiredAbp: ["manage_beneficiaries"],
+            requiredAbps: ["manage_beneficiaries"],
             external: true,
           },
         ],
       },
       {
         text: "Free Shop",
-        requiredAbp: ["checkout_beneficiaries"],
+        requiredAbps: ["checkout_beneficiaries"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=check_out`,
             name: "Checkout",
-            requiredAbp: ["checkout_beneficiaries"],
+            requiredAbps: ["checkout_beneficiaries"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=container-stock`,
             name: "Stockroom",
-            requiredAbp: ["view_inventory"],
+            requiredAbps: ["view_inventory"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=market_schedule`,
             name: "Generate market schedule",
-            requiredAbp: ["generate_market_schedule"],
+            requiredAbps: ["generate_market_schedule"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=give2all`,
             name: "Give Tokens To All",
-            requiredAbp: ["manage_tokens"],
+            requiredAbps: ["manage_tokens"],
             external: true,
           },
         ],
       },
       {
         text: "Coordinator Admin",
-        requiredAbp: ["manage_volunteers"],
+        requiredAbps: ["manage_volunteers"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=tags`,
             name: "Manage Tags",
-            requiredAbp: ["manage_tags"],
+            requiredAbps: ["manage_tags"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=products`,
             name: "Manage Products",
-            requiredAbp: ["manage_products"],
+            requiredAbps: ["manage_products"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=locations`,
             name: "Edit Warehouses",
-            requiredAbp: ["manage_warehouses"],
+            requiredAbps: ["manage_warehouses"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=cms_users`,
             name: "Manage Users",
-            requiredAbp: ["manage_volunteers"],
+            requiredAbps: ["manage_volunteers"],
             external: true,
           },
         ],
