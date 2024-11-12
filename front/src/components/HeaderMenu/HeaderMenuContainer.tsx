@@ -36,6 +36,7 @@ function HeaderMenuContainer() {
             link: `${oldAppUrlWithBase}&action=fancygraphs`,
             name: "Fancy Graphs",
             requiredAbp: ["view_beneficiary_graph"],
+            beta: true,
             external: true,
           },
         ],
