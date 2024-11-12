@@ -17,7 +17,7 @@ function HeaderMenuContainer() {
     return [
       {
         text: "Statistics",
-        requiredAbps: ["view_inventory", "view_shipments", "view_beneficiary_graph"],
+        requiredAbps: [["view_inventory", "view_shipments", "view_beneficiary_graph"]],
         minBeta: 3,
         links: [
           {
@@ -110,7 +110,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Free Shop",
-        requiredAbps: ["checkout_beneficiaries"],
+        requiredAbps: [["view_inventory", "checkout_beneficiaries", "manage_tokens"]],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=check_out`,

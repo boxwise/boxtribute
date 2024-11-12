@@ -147,7 +147,7 @@ function App() {
                   component={<Dashboard />}
                   redirectPath={prevLocation}
                   minBeta={3}
-                  requiredAbps={["view_inventory", "view_shipments", "view_beneficiary_graph"]}
+                  requiredAbps={[["view_inventory", "view_shipments", "view_beneficiary_graph"]]}
                 />
               }
             />
