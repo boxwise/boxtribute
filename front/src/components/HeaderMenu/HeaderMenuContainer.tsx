@@ -3,7 +3,7 @@ import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
 import { useAuthorization } from "hooks/useAuthorization";
-import HeaderMenu, { IMenuItemsGroupData } from "./HeaderMenu";
+import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function HeaderMenuContainer() {
@@ -12,7 +12,7 @@ function HeaderMenuContainer() {
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   // TODO: do this at route definition
-  const menuItems: IMenuItemsGroupData[] = useMemo(() => {
+  const menuItems: MenuItemsGroupData[] = useMemo(() => {
     const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
     return [
       {
@@ -171,7 +171,7 @@ function HeaderMenuContainer() {
     ];
   }, [baseId]);
 
-  const authorizedMenuItems: IMenuItemsGroupData[] = useMemo(
+  const authorizedMenuItems: MenuItemsGroupData[] = useMemo(
     () =>
       menuItems.reduce((acc, menuItem) => {
         if (authorize({ requiredAbps: menuItem.requiredAbps, minBeta: menuItem.minBeta })) {
@@ -183,7 +183,7 @@ function HeaderMenuContainer() {
           });
         }
         return acc;
-      }, [] as IMenuItemsGroupData[]),
+      }, [] as MenuItemsGroupData[]),
     [menuItems, authorize],
   );
 
