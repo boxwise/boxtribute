@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -11,7 +11,6 @@ import {
   UpdateShipmentWhenReceivingMutation,
   UpdateShipmentWhenReceivingMutationVariables,
 } from "types/generated/graphql";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +21,7 @@ import {
   ILocationData,
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
@@ -31,11 +31,14 @@ export function BoxReconciliationOverlay({
   closeOnOverlayClick = true,
   closeOnEsc = true,
   redirectToShipmentView = false,
+}: {
+  closeOnOverlayClick?: boolean;
+  closeOnEsc?: boolean;
+  redirectToShipmentView?: boolean;
 }) {
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id;
+  const { baseId } = useBaseIdParam();
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
   const [boxUndeliveredAYSState, setBoxUndeliveredAYSState] = useState<string>("");
   const navigate = useNavigate();

@@ -17,9 +17,6 @@
 
     /* Building */
     "noEmit": true,
-    /* we are currently not using tsc to build
-    front is doing the build with react-scripts build which uses webpack
-    statviz is doing the build with vite */
 
     /* style ts output */
     "pretty": true,

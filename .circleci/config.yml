@@ -3,10 +3,10 @@ orbs:
   gcp-cli: circleci/gcp-cli@3.1.1
   slack: circleci/slack@3.4.2
   codecov: codecov/codecov@4.1.0
+  queue: eddiewebb/queue@3.2.1
 executors:
   node-executor:
     docker:
-      # The node version is 20.9.0 and the yarn version is 1.22.19
       - image: cimg/node:20.9.0
   python-executor:
     docker:
@@ -41,23 +41,31 @@ jobs:
       - attach_workspace:
           at: ~/
       - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            sudo corepack enable
+            pnpm config set store-dir .pnpm-store
       - run:
           name: Install node packages for all front-ends
-          command: yarn install --frozen-lockfile
+          command: pnpm install --frozen-lockfile
       - save_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - ./.cache
-            - ./node_modules
-            - ./front/node_modules
-            - ./statviz/node_modules
-      - persist_to_workspace:
-          root: ~/
-          paths:
+            - .pnpm-store
             - node_modules
             - front/node_modules
             - statviz/node_modules
+            - shared-components/node_modules
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - .pnpm-store
+            - node_modules
+            - front/node_modules
+            - statviz/node_modules
+            - shared-components/node_modules
 
   build-back:
     executor: python-executor
@@ -115,12 +123,13 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            yarn lint:fix:all
-            yarn format:write:all
+            pnpm lint:fix:all
+            pnpm format:write:all
+            pnpm generate-graphql-ts-types
       - run:
           name: Build front
           command: |
-            yarn build
+            pnpm build
       - slack/notify-on-failure:
           only_for_branches: master,production
       # Add build to workspace
@@ -139,15 +148,27 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 yarn test:coverage --test-timeout=40000
+            DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
+      - run:
+          name: Test shared-components and create reports
+          command: |
+            DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
       - store_test_results:
           path: coverage/junit.xml
+      - store_test_results:
+          path: ../shared-components/coverage/junit.xml
       - store_artifacts:
           path: coverage
-          destination: coverage
+          destination: front-coverage
+      - store_artifacts:
+          path: ../shared-components/coverage
+          destination: shared-components-coverage
       - codecov/upload:
           flags: frontend
           file: coverage/coverage-final.json
+      - codecov/upload:
+          flags: sharedComponents
+          file: ../shared-components/coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
       - run:
@@ -171,10 +192,14 @@ jobs:
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
             pip install -r requirements-dev.txt
       - run:
-          name: run style checks on Python files
+          name: run style checks on back-end files
           command: |
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
-            pre-commit run --files ./**/*.py
+            # https://pre-commit.com/#pre-commit-run
+            git ls-files . | xargs pre-commit run --files
+          environment:
+            # Skip hook that requires docker-compose
+            SKIP: generate-graphql-ts-types
       - save_cache:
           key: webapp-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-deploy.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "../.pre-commit-config.yaml" }}
           paths:
@@ -202,19 +227,32 @@ jobs:
           name: Run pytest
           command: |
             source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
-            # overwrite environment variable because it must not depend on the CircleCI context
-            pytest --cov-report xml:test-results/coverage.xml --cov=boxtribute_server --junit-xml=test-results/junit.xml
+            pytest --cov-report xml:artifacts/coverage.xml --cov=boxtribute_server --junit-xml=artifacts/tests/junit.xml --ignore=test/auth0_integration_tests
+          environment:
+            ENVIRONMENT: development
+            MYSQL_PORT: 3306
+      - queue/until_front_of_line:
+          this-branch-only: false
+          max-wait-time: "10"
+          # this will not stop concurrency during multiple simultaneous re-runs
+          # but works in normal scenarios
+          my-pipeline: <<pipeline.number>>
+      - run:
+          name: Run pytest (cli tests only - auth0 dependency)
+          command: |
+            source $(pyenv root)/versions/3.12.2/envs/env/bin/activate
+            pytest --cov-report xml:artifacts/coverage-cli.xml --cov=boxtribute_server --junit-xml=artifacts/tests/junit-cli.xml test/auth0_integration_tests
           environment:
             ENVIRONMENT: development
             MYSQL_PORT: 3306
       - store_test_results:
-          path: test-results/junit.xml
+          path: artifacts/tests
       - store_artifacts:
-          path: test-results
+          path: artifacts
       - slack/notify-on-failure:
           only_for_branches: master,production
       - codecov/upload:
-          file: test-results/coverage.xml
+          upload_args: -s artifacts
           flags: backend
 
   deploy:
@@ -291,7 +329,7 @@ jobs:
       - run:
           name: Deploy to GAE
           command: |
-            gcloud app deploy app-<< parameters.serviceName >>.yaml
+            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1}
       - slack/notify-on-failure:
           only_for_branches: master,production
 
@@ -383,7 +421,7 @@ jobs:
       - run:
           name: Deploy to GAE
           command: |
-            gcloud app deploy app-<< parameters.serviceName >>.yaml
+            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1}
       - slack/notify-on-failure:
           only_for_branches: master,production
 

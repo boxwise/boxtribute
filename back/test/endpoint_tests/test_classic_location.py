@@ -30,6 +30,8 @@ def test_location_query(
                     defaultBoxState
                     createdOn
                     createdBy {{ id }}
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
                 }}
             }}"""
     queried_location = assert_successful_request(read_only_client, query)
@@ -44,6 +46,8 @@ def test_location_query(
         "defaultBoxState": BoxState(default_location["box_state"]).name,
         "createdOn": None,
         "createdBy": {"id": str(default_location["created_by"])},
+        "lastModifiedOn": None,
+        "lastModifiedBy": None,
     }
 
     query = f"""query {{ location(id: "{distribution_spot['id']}") {{ id }} }}"""
@@ -61,7 +65,7 @@ def test_locations_query(read_only_client, base1_classic_locations):
 def test_crud(client, default_base):
     from flask import g
 
-    g.user = CurrentUser(id=8)
+    g.user = CurrentUser(id=8, organisation_id=1)
     name = "test location"
     base_id = default_base["id"]
     location = create_location(

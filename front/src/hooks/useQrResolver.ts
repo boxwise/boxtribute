@@ -8,25 +8,25 @@ import {
 } from "types/generated/graphql";
 import { useErrorHandling } from "./useErrorHandling";
 
-// eslint-disable-next-line no-shadow
 export enum IQrResolverResultKind {
   SUCCESS = "success",
   NOT_ASSIGNED_TO_BOX = "notAssignedToBox",
-  NOT_AUTHORIZED = "notAuthorized",
-  NOT_BOXTRIBUTE_QR = "noBoxtributeQr",
-  NOT_FOUND = "notFound",
+  NO_BOXTRIBUTE_QR = "noBoxtributeQr",
+  NOT_AUTHORIZED_FOR_QR = "notAuthorizedForQr",
+  NOT_AUTHORIZED_FOR_BASE = "notAuthorizedForBase",
+  NOT_AUTHORIZED_FOR_BOX = "notAuthorizedForBox",
   FAIL = "fail",
   // TODO: implement the following two edge cases
   DELETED_BOX = "deletedBox",
   LEGACY_BOX = "legacyBox",
 }
 
-export interface IQrResolvedValue {
+export type IQrResolvedValue = {
   kind: IQrResolverResultKind;
   qrHash?: string;
-  box?: any;
-  error?: any;
-}
+  box?: any; // TODO: infer box type from generated type.
+  error?: unknown;
+};
 
 export const extractQrCodeFromUrl = (url): string | undefined => {
   // TODO: improve the accuracy of this regex
@@ -42,6 +42,9 @@ export const useQrResolver = () => {
   const [loading, setLoading] = useState(false);
   const apolloClient = useApolloClient();
 
+  /**
+   * @todo refactor function to be less repetitive.
+   */
   const resolveQrHash = useCallback(
     async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
@@ -52,50 +55,78 @@ export const useQrResolver = () => {
           fetchPolicy,
         })
         .then(({ data, errors }) => {
-          if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions.code : undefined;
-            if (errorCode === "FORBIDDEN") {
-              triggerError({
-                message: "You don't have permission to access this box!",
-              });
-              return {
-                kind: IQrResolverResultKind.NOT_AUTHORIZED,
-                qrHash: hash,
-              } as IQrResolvedValue;
-            }
-            if (errorCode === "BAD_USER_INPUT") {
-              triggerError({
-                message: "No box found for this QR code!",
-              });
-              return {
-                kind: IQrResolverResultKind.NOT_FOUND,
-                qrHash: hash,
-              } as IQrResolvedValue;
-            }
+          if (errors?.length) {
+            // Likely an unexpected graphQL error.
             triggerError({
               message: "QR code lookup failed. Please wait a bit and try again.",
             });
+
             return {
               kind: IQrResolverResultKind.FAIL,
               qrHash: hash,
             } as IQrResolvedValue;
           }
-          if (!data?.qrCode?.box) {
+
+          if (data.qrCode.__typename === "ResourceDoesNotExistError") {
+            // Qr code does not exit in the DB
+            triggerError({
+              message: "This is not a Boxtribute QR code!",
+            });
             return {
-              kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
+              kind: IQrResolverResultKind.NO_BOXTRIBUTE_QR,
               qrHash: hash,
             } as IQrResolvedValue;
+          } else if (data.qrCode.__typename === "InsufficientPermissionError") {
+            // missing qr:read RBP
+            triggerError({
+              message: `You don't have permission to access this QR-code!`,
+            });
+            return {
+              kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_QR,
+              qrHash: hash,
+            } as IQrResolvedValue;
+          } else if (data.qrCode.__typename === "QrCode") {
+            // qr code exists in the DB
+            if (!data?.qrCode?.box) {
+              // no box associated to this qr code
+              return {
+                kind: IQrResolverResultKind.NOT_ASSIGNED_TO_BOX,
+                qrHash: hash,
+              } as IQrResolvedValue;
+            } else if (data.qrCode.box?.__typename === "InsufficientPermissionError") {
+              // missing stock:read RBP
+              triggerError({
+                message: `You don't have permission to access this box!`,
+              });
+              return {
+                kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_BOX,
+                qrHash: hash,
+                box: data?.qrCode?.box,
+              } as IQrResolvedValue;
+            } else if (data.qrCode.box?.__typename === "UnauthorizedForBaseError") {
+              // box is in another base
+              return {
+                kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE,
+                qrHash: hash,
+                box: data?.qrCode?.box,
+              } as IQrResolvedValue;
+            }
+            // a box is found for the QR code
+            return {
+              kind: IQrResolverResultKind.SUCCESS,
+              qrHash: hash,
+              box: data?.qrCode?.box,
+            } as IQrResolvedValue;
           }
-          return {
-            kind: IQrResolverResultKind.SUCCESS,
-            qrHash: hash,
-            box: data?.qrCode?.box,
-          } as IQrResolvedValue;
+
+          throw new Error("Invalid Query Result.");
         })
         .catch((err) => {
+          // Likely an unexpected network error.
           triggerError({
             message: "QR code lookup failed. Please wait a bit and try again.",
           });
+
           return {
             kind: IQrResolverResultKind.FAIL,
             qrHash: hash,
@@ -106,7 +137,7 @@ export const useQrResolver = () => {
       if (qrResolvedValue.kind === IQrResolverResultKind.SUCCESS) {
         const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box.labelIdentifier}"}`;
         // add a scannedOn parameter in the cache if Box was scanned
-        await apolloClient.writeFragment({
+        apolloClient.writeFragment({
           id: boxCacheRef,
           fragment: BOX_SCANNED_ON_FRAGMENT,
           data: {
@@ -124,17 +155,21 @@ export const useQrResolver = () => {
     async (qrCodeUrl: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
       const extractedQrHashFromUrl = extractQrCodeFromUrl(qrCodeUrl);
-      if (extractedQrHashFromUrl == null) {
+
+      if (!extractedQrHashFromUrl) {
         triggerError({
           message: "This is not a Boxtribute QR code!",
         });
+
         setLoading(false);
-        return { kind: IQrResolverResultKind.NOT_BOXTRIBUTE_QR } as IQrResolvedValue;
+        return { kind: IQrResolverResultKind.NO_BOXTRIBUTE_QR } as IQrResolvedValue;
       }
+
       const qrResolvedValue: IQrResolvedValue = await resolveQrHash(
         extractedQrHashFromUrl,
         fetchPolicy,
       );
+
       setLoading(false);
       return qrResolvedValue;
     },

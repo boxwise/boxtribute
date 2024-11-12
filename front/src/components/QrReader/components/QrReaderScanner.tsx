@@ -29,10 +29,10 @@ export type QrReaderScannerProps = {
   zoom?: number;
   onResult: OnResultFunction;
   scanPeriod?: number;
+  isCameraNotPermited: boolean;
 };
 
 const isMediaDevicesAPIAvailable = () => {
-  // eslint-disable-next-line no-shadow
   const isMediaDevicesAPIAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices;
 
   return isMediaDevicesAPIAvailable;
@@ -40,10 +40,11 @@ const isMediaDevicesAPIAvailable = () => {
 
 export function QrReaderScanner({
   multiScan,
-  zoom,
-  facingMode,
+  zoom = 1,
+  facingMode = "environment",
   onResult,
-  scanPeriod: delayBetweenScanAttempts,
+  scanPeriod: delayBetweenScanAttempts = 500,
+  isCameraNotPermited,
 }: QrReaderScannerProps) {
   // this ref is needed to pass/preview the video stream coming from BrowserQrCodeReader to the the user
   const previewVideoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
@@ -59,8 +60,7 @@ export function QrReaderScanner({
       zoom,
     };
 
-    if (previewVideoRef.current == null) {
-      // eslint-disable-next-line no-console
+    if (isCameraNotPermited || previewVideoRef.current == null) {
       console.error("QR Reader: Video Element not (yet) available");
       return;
     }
@@ -78,7 +78,6 @@ export function QrReaderScanner({
       // check if video is available
       if (!isMediaDevicesAPIAvailable()) {
         const message = "QRReader: This browser doesn't support MediaDevices API.\"";
-        // eslint-disable-next-line no-console
         console.error(message);
         onResult(multiScan, null, new Error(message), browserQRCodeReaderRef.current);
       }
@@ -107,9 +106,16 @@ export function QrReaderScanner({
           }
         });
     }
-  }, [delayBetweenScanAttempts, onResult, facingMode, zoom, previewVideoRef, multiScan]);
+  }, [
+    isCameraNotPermited,
+    delayBetweenScanAttempts,
+    onResult,
+    facingMode,
+    zoom,
+    previewVideoRef,
+    multiScan,
+  ]);
 
-  // eslint-disable-next-line arrow-body-style
   useEffect(() => {
     // This is the clean up function stopping the scanning.
     // It is triggered when the component unmounts or when multiScan changes.
@@ -142,8 +148,3 @@ export function QrReaderScanner({
 }
 
 QrReaderScanner.displayName = "QrReader";
-QrReaderScanner.defaultProps = {
-  facingMode: "environment",
-  zoom: 1,
-  scanPeriod: 500,
-};

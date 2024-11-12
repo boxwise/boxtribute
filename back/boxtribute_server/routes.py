@@ -7,7 +7,7 @@ from flask import jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
-from .authz import check_beta_feature_access
+from .authz import check_user_beta_level
 from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, CRON_PATH, api_bp, app_bp
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
@@ -99,7 +99,7 @@ def api_token():
 def graphql_server():
     log_request_to_gcloud(context=WEBAPP_CONTEXT)
 
-    if not check_beta_feature_access(request.get_json()["query"]):
+    if not check_user_beta_level(request.get_json()["query"]):
         return {"error": "No permission to access beta feature"}, 401
 
     return execute_async(schema=full_api_schema)

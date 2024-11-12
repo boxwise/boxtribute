@@ -1,3 +1,4 @@
+import time
 from datetime import date, datetime
 
 import pytest
@@ -81,6 +82,7 @@ def test_shipments_query(
     sent_shipment,
     receiving_shipment,
     completed_shipment,
+    intra_org_shipment,
 ):
     # Test case 3.1.1
     query = "query { shipments { id } }"
@@ -94,6 +96,7 @@ def test_shipments_query(
             sent_shipment,
             receiving_shipment,
             completed_shipment,
+            intra_org_shipment,
         ]
     ]
 
@@ -141,6 +144,7 @@ def test_shipment_mutations_on_source_side(
     another_marked_for_shipment_box,
     lost_box,
     marked_for_shipment_box,
+    measure_product_box,
     prepared_shipment_detail,
 ):
     # Test case 3.2.1a
@@ -188,6 +192,27 @@ def test_shipment_mutations_on_source_side(
         "details": [],
     }
 
+    box_label_identifier = measure_product_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    details {{
+                        sourceSize {{ id }}
+                        box {{ id measureValue }}
+                    }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {
+        "details": [
+            {
+                "sourceSize": None,
+                "box": {
+                    "id": str(measure_product_box["id"]),
+                    "measureValue": 500.0,
+                },
+            }
+        ]
+    }
     # Test case 3.2.20
     shipment_id = str(default_shipment["id"])
     update_input = f"""{{ id: {shipment_id},
@@ -289,6 +314,9 @@ def test_shipment_mutations_on_source_side(
                     "shipmentDetail": {"id": shipment_detail_id},
                     "history": [
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "created record"},
                     ],
                     "lastModifiedBy": {"id": source_base_user_id},
@@ -356,7 +384,7 @@ def test_shipment_mutations_on_source_side(
     assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert len(shipment["details"][0]["box"].pop("history")) == 3
-    assert len(shipment["details"][1]["box"].pop("history")) == 3
+    assert len(shipment["details"][1]["box"].pop("history")) == 6
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Preparing.name,
@@ -485,6 +513,9 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -499,6 +530,9 @@ def test_shipment_mutations_on_source_side(
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -595,6 +629,7 @@ def test_shipment_mutations_on_target_side(
     default_box,
     in_transit_box,
     another_in_transit_box,
+    tags,
 ):
     # Test cases 3.2.1b, 3.2.1c
     for agreement in [default_transfer_agreement, unidirectional_transfer_agreement]:
@@ -625,6 +660,7 @@ def test_shipment_mutations_on_target_side(
     detail_id = str(default_shipment_detail["id"])
     another_detail_id = str(another_shipment_detail["id"])
     removed_detail_id = str(removed_shipment_detail["id"])
+    tag_name = tags[2]["name"]
 
     def _create_mutation(
         *,
@@ -696,6 +732,7 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": f"assigned tag '{tag_name}' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -718,12 +755,18 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
         ],
     }
 
+    time.sleep(1)
     # Test case 3.2.34a
     shipment = assert_successful_request(
         client,
@@ -768,7 +811,9 @@ def test_shipment_mutations_on_target_side(
                             "changes": "changed product type from Indigestion tablets "
                             + f"to {another_product['name']}"
                         },
+                        {"changes": f"removed tag '{tag_name}' from box"},
                         {"changes": f"{change_prefix} InTransit to Receiving"},
+                        {"changes": f"assigned tag '{tag_name}' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -807,7 +852,12 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
                 "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
                 "targetProduct": None,
@@ -931,11 +981,17 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
         ],
     }
+    # The box associated with default_shipment_detail
     box_label_identifier = in_transit_box["label_identifier"]
     query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
                     state
@@ -1010,6 +1066,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to NotDelivered"},
+                        {"changes": "assigned tag 'tag-name' to box"},
                         {"changes": "created record"},
                     ],
                 },
@@ -1036,7 +1093,12 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     "lastModifiedOn": default_box["last_modified_on"].isoformat()
                     + "+00:00",
                     "lastModifiedBy": {"id": "1"},
-                    "history": [{"changes": "created record"}],
+                    "history": [
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "removed tag 'pallet1' from box"},
+                        {"changes": "assigned tag 'pallet1' to box"},
+                        {"changes": "created record"},
+                    ],
                 },
             },
         ],
@@ -1138,10 +1200,11 @@ def test_shipment_mutations_on_target_side_mark_all_boxes_as_lost(
     }
 
 
-def _generate_create_shipment_mutation(*, source_base, target_base, agreement):
+def _generate_create_shipment_mutation(*, source_base, target_base, agreement=None):
     creation_input = f"""sourceBaseId: {source_base["id"]},
-                         targetBaseId: {target_base["id"]},
-                         transferAgreementId: {agreement["id"]}"""
+                         targetBaseId: {target_base["id"]} """
+    if agreement is not None:
+        creation_input += f"""transferAgreementId: {agreement["id"]}"""
     return f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
                     id }} }}"""
 
@@ -1212,6 +1275,18 @@ def test_shipment_mutations_create_with_invalid_base(
         source_base=default_bases[0],
         target_base=default_bases[3],  # not part of agreement
         agreement=default_transfer_agreement,
+    )
+
+
+def test_shipment_mutations_intra_org_invalid_input(read_only_client, default_bases):
+    # Test case 3.2.3a
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client, source_base=default_bases[0], target_base=default_bases[0]
+    )
+
+    # Test case 3.2.3b
+    assert_bad_user_input_when_creating_shipment(
+        read_only_client, source_base=default_bases[0], target_base=default_bases[2]
     )
 
 
@@ -1587,3 +1662,91 @@ def test_move_not_delivered_box_as_member_of_neither_org(
     box_id = str(not_delivered_box["id"])
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
     assert_forbidden_request(read_only_client, mutation)
+
+
+def test_shipment_mutations_intra_org(
+    client,
+    default_bases,
+    default_organisation,
+    default_box,
+    mocker,
+):
+    # Test case 3.2.1a
+    source_base_id = default_bases[0]["id"]
+    target_base_id = default_bases[1]["id"]
+    creation_input = f"""sourceBaseId: {source_base_id}
+                         targetBaseId: {target_base_id}"""
+    mutation = f"""mutation {{ createShipment(creationInput: {{ {creation_input} }} ) {{
+                    id
+                    sourceBase {{ id }}
+                    targetBase {{ id }}
+                    state
+                    startedBy {{ id }}
+                    startedOn
+                    sentBy {{ id }}
+                    sentOn
+                    receivingStartedBy {{ id }}
+                    receivingStartedOn
+                    completedBy {{ id }}
+                    completedOn
+                    canceledBy {{ id }}
+                    canceledOn
+                    transferAgreement {{ id }}
+                    details {{ id }}
+                }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    shipment_id = str(shipment.pop("id"))
+    assert shipment.pop("startedOn").startswith(today)
+    assert shipment == {
+        "sourceBase": {"id": str(source_base_id)},
+        "targetBase": {"id": str(target_base_id)},
+        "state": ShipmentState.Preparing.name,
+        "startedBy": {"id": source_base_user_id},
+        "sentBy": None,
+        "sentOn": None,
+        "receivingStartedBy": None,
+        "receivingStartedOn": None,
+        "completedBy": None,
+        "completedOn": None,
+        "canceledBy": None,
+        "canceledOn": None,
+        "transferAgreement": None,
+        "details": [],
+    }
+
+    box_label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    id
+                    details {{
+                        id
+                        shipment {{ id }}
+                        box {{ id state }}
+                    }} }} }}"""
+
+    mutation = f"""mutation {{ sendShipment(id: {shipment_id}) {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Sent.name}
+
+    # Receiving-side mutations
+    mock_user_for_request(
+        mocker,
+        base_ids=[default_bases[1]["id"]],
+        organisation_id=default_organisation["id"],
+        user_id=target_base_user_id,
+    )
+    mutation = f"""mutation {{ startReceivingShipment(id: "{shipment_id}") {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Receiving.name}
+
+    # No products/locations for base 2 in test data; skipping until measure-product PR
+    # merged
+    mutation = f"""mutation {{ updateShipmentWhenReceiving(
+                updateInput: {{ id: {shipment_id} }}) {{
+                    state }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {"state": ShipmentState.Completed.name}

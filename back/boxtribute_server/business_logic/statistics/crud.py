@@ -12,9 +12,11 @@ from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
 from ...models.definitions.size import Size
+from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
+from ...models.definitions.unit import Unit
 from ...models.utils import compute_age, convert_ids
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
@@ -54,6 +56,13 @@ def _generate_dimensions(*names, target_type=None, facts):
         dimensions["product"] = (
             Product.select(Product.id, Product.name, Product.gender)
             .where(Product.id << product_ids)
+            .dicts()
+        )
+
+    if "dimension" in names:
+        dimensions["dimension"] = (
+            SizeRange.select(SizeRange.id, SizeRange.label.alias("name"))
+            .where(SizeRange.id << [28, 29])
             .dicts()
         )
 
@@ -127,14 +136,17 @@ def compute_beneficiary_demographics(base_id):
             on=(
                 (TagsRelation.object_id == Beneficiary.id)
                 & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .where(Beneficiary.base == base_id)
         .group_by(
             SQL("gender"),
             SQL("age"),
-            SQL("created_on"),
-            SQL("deleted_on"),
+            created_on,
+            # Don't use SQL("deleted_on") because it will be confused with
+            # TagsRelation.deleted_on, resulting in incorrect grouping
+            deleted_on,
         )
         .dicts()
     )
@@ -241,6 +253,7 @@ def compute_created_boxes(base_id):
             on=(
                 (TagsRelation.object_id == boxes.c.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .group_by(
@@ -402,6 +415,11 @@ def compute_stock_overview(base_id):
             Box.location.alias("location_id"),
             Box.state.alias("box_state"),
             Box.product.alias("product_id"),
+            # Round float to three significant digits
+            fn.ROUND(
+                Box.measure_value, 3 - fn.FLOOR(fn.LOG10(Box.measure_value) + 1)
+            ).alias("absolute_measure_value"),
+            Box.display_unit,
             Box.number_of_items.alias("number_of_items"),
             tag_ids.alias("tag_ids"),
         )
@@ -412,6 +430,7 @@ def compute_stock_overview(base_id):
             on=(
                 (TagsRelation.object_id == Box.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
+                & (TagsRelation.deleted_on.is_null())
             ),
         )
         .where((~Box.deleted_on) | (Box.deleted_on.is_null()))
@@ -424,6 +443,8 @@ def compute_stock_overview(base_id):
             boxes.c.box_state,
             Product.category.alias("category_id"),
             fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
+            boxes.c.absolute_measure_value,
+            Unit.dimension.alias("dimension_id"),
             Product.gender.alias("gender"),
             boxes.c.tag_ids,
             fn.COUNT(boxes.c.id).alias("boxes_count"),
@@ -439,19 +460,22 @@ def compute_stock_overview(base_id):
             ),
         )
         .join(Product, on=(boxes.c.product_id == Product.id))
+        .left_outer_join(Unit, on=(boxes.c.display_unit_id == Unit.id))
         .group_by(
             SQL("size_id"),
             SQL("location_id"),
             SQL("box_state"),
             SQL("category_id"),
             SQL("product_name"),
+            SQL("absolute_measure_value"),
+            SQL("dimension_id"),
             SQL("gender"),
         )
         .dicts()
     )
     for fact in facts:
-        fact["tag_ids"] = convert_ids(fact["tag_ids"])
+        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
     dimensions = _generate_dimensions(
-        "size", "location", "category", "tag", facts=facts
+        "size", "location", "category", "tag", "dimension", facts=facts
     )
     return {"facts": facts, "dimensions": dimensions}

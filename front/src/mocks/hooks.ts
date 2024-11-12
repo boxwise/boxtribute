@@ -11,14 +11,14 @@ import { vi } from "vitest";
  * @returns mocked `Auth0ContextInterface<TUser>` for an authenticated user. Check https://auth0.github.io/auth0-react/functions/useAuth0.html for the definition.
  */
 
-export function mockAuthenticatedUser(mockedUseAuth0: any, email: string) {
+export function mockAuthenticatedUser(mockedUseAuth0: any, email: string, actions = ["be_user"], betaUser = "0", roles = "administrator") {
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
     user: {
       email,
-      "https://www.boxtribute.com/actions": ["be_user"],
-      "https://www.boxtribute.com/beta_user": "0",
-      "https://www.boxtribute.com/roles": ["administrator"],
+      "https://www.boxtribute.com/actions": actions,
+      "https://www.boxtribute.com/beta_user": betaUser,
+      "https://www.boxtribute.com/roles": roles,
     },
     logout: vi.fn(),
     loginWithRedirect: vi.fn(),

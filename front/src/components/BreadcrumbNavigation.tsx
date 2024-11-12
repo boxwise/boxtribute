@@ -3,11 +3,13 @@ import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { BreadcrumbNavigationSkeleton } from "./Skeletons";
 
 interface IBreadcrumbItemData {
   label: string;
-  // eslint-disable-next-line react/require-default-props
   linkPath?: string;
+  relative?: "route" | "path";
 }
 
 interface IBreadcrumbNavigationProps {
@@ -36,6 +38,10 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const orgName = globalPreferences.organisation?.name;
   const baseName = globalPreferences.selectedBase?.name;
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
+
+  if (isGlobalStateLoading) return <BreadcrumbNavigationSkeleton />;
+
   return (
     <Breadcrumb separator={<ChevronRightIcon />} fontSize="md" mb={4}>
       <BreadcrumbItem>
@@ -50,7 +56,7 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
       </BreadcrumbItem>
       {items.map((item) => (
         <BreadcrumbItem key={`breadcrumb${item.label}`}>
-          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"}>
+          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"} relative={item.relative ?? "route"}>
             {item.label}
           </BreadcrumbLink>
         </BreadcrumbItem>

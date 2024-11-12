@@ -21,16 +21,19 @@ from ....models.utils import convert_ids, utcnow
 
 
 def _base_ids_of_organisation(organisation_id):
-    """Return IDs of that bases that belong to the organisation with given ID."""
+    """Return IDs of non-deleted bases that belong to the organisation with given ID."""
     return [
         b.id
-        for b in Base.select(Base.id).where(Base.organisation_id == organisation_id)
+        for b in Base.select(Base.id).where(
+            Base.organisation_id == organisation_id,
+            Base.deleted_on.is_null(),
+        )
     ]
 
 
 def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
     """Raise InvalidTransferAgreementBase exception if any of the given bases is not run
-    by the given organisation.
+    by the given organisation, or deleted.
     """
     organisation_base_ids = _base_ids_of_organisation(organisation_id)
     invalid_base_ids = [i for i in base_ids if i not in organisation_base_ids]
@@ -45,9 +48,9 @@ def _validate_unique_transfer_agreement(
     *, organisation_ids, base_ids, valid_from, valid_until
 ):
     """Validate that the agreement with given organisation IDs and base IDs is unique,
-    i.e. no other accepted agreement among the same organisations and with the same set
-    of involved bases (or a superset thereof), and with a fully overlapping validity
-    period must exist.
+    i.e. no other UnderReview or Accepted agreement among the same organisations and
+    with the same set of involved bases (or a superset thereof), and with a fully
+    overlapping validity period must exist.
     """
     convert_ids_to_set = lambda ids: set(convert_ids(ids))
     agreements = (
@@ -68,7 +71,8 @@ def _validate_unique_transfer_agreement(
         .where(
             TransferAgreement.source_organisation << organisation_ids,
             TransferAgreement.target_organisation << organisation_ids,
-            TransferAgreement.state == TransferAgreementState.Accepted,
+            TransferAgreement.state
+            << [TransferAgreementState.UnderReview, TransferAgreementState.Accepted],
             TransferAgreement.valid_from < valid_from,
         )
         .group_by(TransferAgreement.id)
@@ -137,9 +141,10 @@ def create_transfer_agreement(
 ):
     """Insert information for a new TransferAgreement in the database. Update
     TransferAgreementDetail model with given source/target base information. By default,
-    the agreement is established between all bases of both organisations (indicated by
-    NULL for the Detail.source/target_base field). As a result, any base that added to
-    an organisation in the future would be part of such an agreement.
+    the agreement is established with all non-deleted bases of the partner organisation.
+    As a result, any base added to the partner organisation afterwards will NOT be part
+    of the agreement. A new agreement needs to be created then to transfer goods with
+    the new base.
     Convert optional local dates into UTC datetimes using user timezone information.
     Raise an InvalidTransferAgreementOrganisation exception if the current user's
     organisation is identical to the target organisation.

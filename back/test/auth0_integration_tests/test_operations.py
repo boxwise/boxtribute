@@ -15,8 +15,8 @@ def test_queries(auth0_client, endpoint):
         return assert_successful_request(*args, **kwargs, endpoint=endpoint)
 
     query = """query BoxIdAndItems {
-                qrCode(qrCode: "093f65e080a295f8076b1c5722a46aa2") { box { id } }
-            }"""
+                qrCode(code: "093f65e080a295f8076b1c5722a46aa2") {
+                    ...on QrCode { box { ...on Box { id } } } } }"""
     queried_box = _assert_successful_request(auth0_client, query)["box"]
     assert queried_box == {"id": "100000000"}
 
@@ -50,13 +50,13 @@ def test_queries(auth0_client, endpoint):
             "shipments",
             "users",
         ],
-        [6, 4, 31, 18, 72, 5, 6, 43],
+        [6, 4, 31, 18, 72, 5, 10, 43],
     ):
         query = f"query {{ {resource} {{ id }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) == count
 
-    for resource, count in zip(["beneficiaries", "products"], [469, 312]):
+    for resource, count in zip(["beneficiaries", "products"], [469, 344]):
         query = f"query {{ {resource} {{ totalCount }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert response["totalCount"] == count
@@ -64,10 +64,13 @@ def test_queries(auth0_client, endpoint):
     query = """query { standardProducts {
                 ...on StandardProductPage { totalCount } } }"""
     response = _assert_successful_request(auth0_client, query)
-    assert response["totalCount"] == 162
+    assert response["totalCount"] == 155
 
 
-def test_mutations(auth0_client):
+def test_mutations(auth0_client, mocker):
+    # Pretend that the users have a sufficient beta-level to run the beneficiary
+    # migrations
+    mocker.patch("boxtribute_server.routes.check_user_beta_level").return_value = True
     auth0_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "coordinator@coordinator.co"
     )

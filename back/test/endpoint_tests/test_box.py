@@ -19,7 +19,12 @@ today = date.today().isoformat()
 
 
 def test_box_query_by_label_identifier(
-    read_only_client, default_box, tags, in_transit_box, default_shipment_detail
+    read_only_client,
+    default_box,
+    tags,
+    in_transit_box,
+    default_shipment_detail,
+    measure_product_box,
 ):
     # Test case 8.1.1
     label_identifier = default_box["label_identifier"]
@@ -31,9 +36,12 @@ def test_box_query_by_label_identifier(
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
+                    displayUnit {{ id }}
+                    measureValue
                     state
                     qrCode {{ id }}
                     createdBy {{ id }}
+                    lastModifiedBy {{ id }}
                     deletedOn
                     comment
                     tags {{
@@ -42,6 +50,7 @@ def test_box_query_by_label_identifier(
                         color
                     }}
                     shipmentDetail {{ id }}
+                    history {{ id changes }}
                 }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)
@@ -52,9 +61,12 @@ def test_box_query_by_label_identifier(
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
+        "displayUnit": None,
+        "measureValue": None,
         "state": BoxState.InStock.name,
         "qrCode": {"id": str(default_box["qr_code"])},
         "createdBy": {"id": str(default_box["created_by"])},
+        "lastModifiedBy": {"id": str(default_box["last_modified_by"])},
         "deletedOn": None,
         "comment": None,
         "tags": [
@@ -70,6 +82,12 @@ def test_box_query_by_label_identifier(
             },
         ],
         "shipmentDetail": None,
+        "history": [
+            {"id": "ta4", "changes": "assigned tag 'pallet1' to box"},
+            {"id": "tr3", "changes": "removed tag 'pallet1' from box"},
+            {"id": "ta3", "changes": "assigned tag 'pallet1' to box"},
+            {"id": "2", "changes": "created record"},
+        ],
     }
 
     label_identifier = in_transit_box["label_identifier"]
@@ -80,15 +98,28 @@ def test_box_query_by_label_identifier(
     queried_box = assert_successful_request(read_only_client, query)
     assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
 
+    label_identifier = measure_product_box["label_identifier"]
+    query = f"""query {{
+                box(labelIdentifier: "{label_identifier}") {{
+                    product {{ id }}
+                    size {{ id }}
+                    displayUnit {{ id }}
+                    measureValue
+                }} }}"""
+    box = assert_successful_request(read_only_client, query)
+    assert box == {
+        "product": {"id": str(measure_product_box["product"])},
+        "size": None,
+        "displayUnit": {"id": str(measure_product_box["display_unit"])},
+        "measureValue": 1000 * measure_product_box["measure_value"],
+    }
+
 
 def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
     # Test case 8.1.5
     query = f"""query {{
-                qrCode(qrCode: "{default_qr_code['code']}") {{
-                    box {{
-                        labelIdentifier
-                    }}
-                }}
+                qrCode(code: "{default_qr_code['code']}") {{
+                    ...on QrCode {{ box {{ ...on Box {{ labelIdentifier }} }} }} }}
             }}"""
     queried_box = assert_successful_request(read_only_client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
@@ -113,13 +144,16 @@ def test_boxes_query(read_only_client, default_location_boxes):
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2, 3]}})
                         {{ totalCount }} }}"""
     boxes = assert_successful_request(read_only_client, query)
-    assert boxes == {"totalCount": 2}
+    assert boxes == {"totalCount": 3}
 
 
 def test_box_mutations(
     client,
     another_box,
     qr_code_without_box,
+    box_without_qr_code,
+    in_transit_box,
+    not_delivered_box,
     default_size,
     another_size,
     products,
@@ -128,6 +162,8 @@ def test_box_mutations(
     null_box_state_location,
     deleted_location,
     tags,
+    gram_unit,
+    pound_unit,
     mocker,
 ):
     # Test case 8.2.1
@@ -194,6 +230,7 @@ def test_box_mutations(
                 qrCode {{ id }}
                 state
                 tags {{ id }}
+                history {{ changes }}
             }}
         }}"""
     another_created_box = assert_successful_request(client, mutation)
@@ -206,6 +243,39 @@ def test_box_mutations(
         "qrCode": {"id": str(qr_code_without_box["id"])},
         "state": BoxState.InStock.name,
         "tags": [{"id": tag_id}],
+        "history": [{"changes": "created record"}],
+    }
+
+    # Test case 8.2.2d
+    unit_id = str(gram_unit["id"])
+    measure_product_id = str(products[7]["id"])
+    measure_value = 1500.0
+    creation_input = f"""{{
+                    productId: {measure_product_id}
+                    locationId: {location_id}
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{
+                id
+                labelIdentifier
+                location {{ id }}
+                product {{ id }}
+                size {{ id }}
+                displayUnit {{ id }}
+                measureValue
+            }}
+        }}"""
+    third_created_box = assert_successful_request(client, mutation)
+    third_created_box_id = int(third_created_box.pop("id"))
+    third_created_box_label_identifier = third_created_box.pop("labelIdentifier")
+    assert third_created_box == {
+        "location": {"id": location_id},
+        "product": {"id": measure_product_id},
+        "size": None,
+        "displayUnit": {"id": unit_id},
+        "measureValue": measure_value,
     }
 
     # Wait for one second here such that the second-precision change_date of the
@@ -240,11 +310,6 @@ def test_box_mutations(
                 size {{ id }}
                 product {{ id }}
                 state
-                history {{
-                    id
-                    changes
-                    user {{ name }}
-                }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
@@ -255,49 +320,211 @@ def test_box_mutations(
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["state"] == state
+
+    # Test case 8.2.11d
+    # Switch size-product -> measure-product
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    labelIdentifier: "{created_box["labelIdentifier"]}"
+                    productId: {measure_product_id}
+                    measureValue: 250
+                    displayUnitId: {unit_id}
+                }} ) {{
+                id
+                history {{
+                    id
+                    changes
+                    user {{ name }}
+                }}
+                size {{ id }}
+                product {{ id }}
+                displayUnit {{ id }}
+                measureValue
+            }}
+        }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["size"] is None
+    assert updated_box["product"]["id"] == measure_product_id
+    assert updated_box["displayUnit"]["id"] == unit_id
+    assert updated_box["measureValue"] == 250
     assert updated_box["history"] == [
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "119",
+            "id": "124",
+            "changes": 'changed units of measure from "" to 250.00g',
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "123",
+            "changes": f"changed product type from {products[2]['name']} to "
+            + f"{products[7]['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "122",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "121",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "120",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
+            "id": "119",
             "changes": f"changed the number of items from {original_number_of_items} "
             + f"to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "115",
+            "id": "118",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "114",
+            "id": "117",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "112",
+            "id": "116",
             "changes": "created record",
             "user": {"name": "coord"},
         },
     ]
+
+    new_unit_id = str(pound_unit["id"])
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    displayUnitId: {new_unit_id}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    measure_value *= pound_unit["conversion_factor"] / gram_unit["conversion_factor"]
+    rounded_measure_value = round(measure_value, 2)
+    assert updated_third_box == {
+        "displayUnit": {"id": new_unit_id},
+        "measureValue": measure_value,
+    }
+
+    new_measure_value = 3.0  # in pound
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    measureValue: {new_measure_value}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": new_unit_id},
+        "measureValue": new_measure_value,
+    }
+
+    newest_measure_value = 1000.0  # in gram
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    displayUnitId: {unit_id}
+                    measureValue: {newest_measure_value}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": {"id": unit_id},
+        "measureValue": newest_measure_value,
+    }
+
+    # Test case 8.2.11e
+    # Switch measure-product -> size-product
+    mutation = f"""mutation {{
+            updateBox(
+                updateInput : {{
+                    productId: {product_id}
+                    sizeId: {size_id}
+                    labelIdentifier: "{third_created_box_label_identifier}"
+                }} ) {{
+                measureValue
+                displayUnit {{ id }}
+                size {{ id }}
+                history {{
+                    id
+                    changes
+                    user {{ name }}
+                }}
+            }}
+        }}"""
+    updated_third_box = assert_successful_request(client, mutation)
+    assert updated_third_box == {
+        "displayUnit": None,
+        "measureValue": None,
+        "size": {"id": size_id},
+        "history": [
+            {
+                "id": "132",
+                "changes": f"changed units of measure from {newest_measure_value}0g to "
+                + '""',
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "131",
+                "changes": f"changed product type from {products[7]['name']} to "
+                + f"{products[0]['name']}",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "130",
+                "changes": f"changed units of measure from {new_measure_value}0lb to "
+                + f"{newest_measure_value}0g",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "129",
+                "changes": f"changed unit from {pound_unit['symbol']} to "
+                + f"{gram_unit['symbol']}",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "128",
+                "changes": f"changed units of measure from {rounded_measure_value}lb to"
+                + f" {new_measure_value}0lb",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "127",
+                "changes": f"changed unit from {gram_unit['symbol']} to "
+                + f"{pound_unit['symbol']}",
+                "user": {"name": "coord"},
+            },
+            {
+                "id": "126",
+                "changes": "created record",
+                "user": {"name": "coord"},
+            },
+        ],
+    }
 
     raw_label_identifiers = sorted(
         [created_box["labelIdentifier"], another_created_box_label_identifier]
@@ -306,7 +533,7 @@ def test_box_mutations(
     # Test case 8.2.22a, 8.2.22c
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
-                ...on BoxResult {{ updatedBoxes {{
+                ...on BoxesResult {{ updatedBoxes {{
                     location {{ id }}
                     lastModifiedOn
                     history {{ changes }}
@@ -342,7 +569,7 @@ def test_box_mutations(
     # Test case 8.2.23a, 8.2.23c
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -354,7 +581,7 @@ def test_box_mutations(
 
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -367,7 +594,7 @@ def test_box_mutations(
     generic_tag_id = str(tags[2]["id"])
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -383,7 +610,7 @@ def test_box_mutations(
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}],
             tagId: {another_generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -406,7 +633,7 @@ def test_box_mutations(
     label_identifier = f'"{created_box["labelIdentifier"]}"'
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifier}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -415,6 +642,12 @@ def test_box_mutations(
         "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
         "invalidBoxLabelIdentifiers": [],
     }
+    query = f"""query {{ box(labelIdentifier: {label_identifier})
+                    {{ history {{ changes }} }} }}"""
+    response = assert_successful_request(client, query)
+    history = response["history"]
+    assert {"changes": f"""assigned tag '{tags[2]["name"]}' to box"""} in history
+    assert {"changes": f"""removed tag '{tags[2]["name"]}' from box"""} in history
 
     # Verify that tag is not removed from the other box
     query = f"""query {{ box(labelIdentifier: "{another_created_box_label_identifier}")
@@ -427,7 +660,7 @@ def test_box_mutations(
     # Test case 8.2.24c
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -448,7 +681,7 @@ def test_box_mutations(
     # Test case 8.2.24h
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -470,7 +703,7 @@ def test_box_mutations(
     # Test case 8.2.24i
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {deleted_tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -482,7 +715,7 @@ def test_box_mutations(
 
     # Test case 8.2.25
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
-            ...on BoxResult {{
+            ...on BoxesResult {{
                 updatedBoxes {{
                     deletedOn
                     history {{ changes }}
@@ -506,7 +739,7 @@ def test_box_mutations(
     label_identifiers = ",".join(f'"{i}"' for i in raw_label_identifiers)
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}], locationId: {location_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -519,7 +752,7 @@ def test_box_mutations(
     # Test case 8.2.23b, 8.2.23d, 8.2.23j
     mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -532,7 +765,7 @@ def test_box_mutations(
     # Test case 8.2.24b, 8.2.24d, 8.2.24j
     mutation = f"""mutation {{ unassignTagFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -542,9 +775,35 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
     }
 
+    # Test case 8.2.28a
+    non_warehouse_raw_label_identifiers = sorted(
+        [
+            b["label_identifier"]
+            for b in [
+                box_without_qr_code,  # MarkedForShipment
+                in_transit_box,  # InTransit
+                not_delivered_box,  # NotDelivered
+            ]
+        ]
+    )
+    non_warehouse_label_identifiers = ",".join(
+        f'"{i}"' for i in non_warehouse_raw_label_identifiers
+    )
+    mutation = f"""mutation {{ deleteBoxes(
+        labelIdentifiers: [{non_warehouse_label_identifiers}] ) {{
+            ...on BoxesResult {{
+                updatedBoxes {{ id }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": non_warehouse_raw_label_identifiers,
+    }
+
     # Test cases 8.2.26, 8.2.27, 8.2.28
     mutation = f"""mutation {{ deleteBoxes( labelIdentifiers: [{label_identifiers}] ) {{
-            ...on BoxResult {{
+            ...on BoxesResult {{
                 updatedBoxes {{ id }}
                 invalidBoxLabelIdentifiers
             }} }} }}"""
@@ -560,7 +819,7 @@ def test_box_mutations(
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             labelIdentifiers: [{label_identifiers}],
             locationId: {another_location_id} }} ) {{
-                ...on BoxResult {{
+                ...on BoxesResult {{
                     updatedBoxes {{ id location {{ id }} }}
                     invalidBoxLabelIdentifiers
                 }} }} }}"""
@@ -569,7 +828,10 @@ def test_box_mutations(
         "updatedBoxes": [
             {"id": str(another_box["id"]), "location": {"id": another_location_id}}
         ],
-        "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"], "99119911"],
+        # Identifiers will be alphabetically sorted in the response
+        "invalidBoxLabelIdentifiers": sorted(
+            [created_box["labelIdentifier"], "99119911"]
+        ),
     }
 
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
@@ -578,6 +840,8 @@ def test_box_mutations(
             DbChangeHistory.changes,
             DbChangeHistory.from_int,
             DbChangeHistory.to_int,
+            DbChangeHistory.from_float,
+            DbChangeHistory.to_float,
             DbChangeHistory.record_id,
             DbChangeHistory.table_name,
             DbChangeHistory.user,
@@ -587,7 +851,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[21:] == [
+    assert history[22:] == [
         {
             "changes": "Record created",
             "from_int": None,
@@ -596,6 +860,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record created",
@@ -605,6 +871,19 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "Record created",
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 2,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "product_id",
@@ -614,6 +893,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "size_id",
@@ -623,6 +904,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "items",
@@ -632,6 +915,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "location_id",
@@ -641,6 +926,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": f"""comments changed from "" to "{comment}";""",
@@ -650,6 +937,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "box_state_id",
@@ -659,6 +948,145 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "product_id",
+            "from_int": int(new_product_id),
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": int(measure_product_id),
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "size_id",
+            "from_int": int(new_size_id),
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": int(unit_id),
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": 'changed units of measure from "" to 250.00g',
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": None,
+            "to_float": 0.25,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(unit_id),
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": int(new_unit_id),
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": f"changed units of measure from {rounded_measure_value}lb to "
+            f"{new_measure_value}0lb",
+            "from_int": None,
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": 1.5,
+            "to_float": round(new_measure_value / pound_unit["conversion_factor"], 5),
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(new_unit_id),
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": int(unit_id),
+            "user": 8,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": f"changed units of measure from {new_measure_value}0lb to "
+            f"{newest_measure_value}0g",
+            "from_int": None,
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": round(new_measure_value / pound_unit["conversion_factor"], 5),
+            "to_float": newest_measure_value / gram_unit["conversion_factor"],
+        },
+        {
+            "changes": "product_id",
+            "from_int": int(measure_product_id),
+            "to_int": int(product_id),
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "size_id",
+            "from_int": None,
+            "to_int": int(size_id),
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "display_unit_id",
+            "from_int": int(unit_id),
+            "to_int": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": f"changed units of measure from {newest_measure_value}0g to "
+            + '""',
+            "from_int": None,
+            "ip": None,
+            "record_id": third_created_box_id,
+            "table_name": "stock",
+            "to_int": None,
+            "user": 8,
+            "from_float": round(
+                newest_measure_value / gram_unit["conversion_factor"], 5
+            ),
+            "to_float": None,
         },
         {
             "changes": "location_id",
@@ -668,6 +1096,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "box_state_id",
@@ -677,6 +1107,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record deleted",
@@ -686,6 +1118,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "Record deleted",
@@ -695,6 +1129,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
         {
             "changes": "location_id",
@@ -704,6 +1140,8 @@ def test_box_mutations(
             "table_name": "stock",
             "user": 8,
             "ip": None,
+            "from_float": None,
+            "to_float": None,
         },
     ]
 
@@ -712,49 +1150,82 @@ def test_update_box_tag_ids(client, default_box, tags):
     # Test case 8.2.11c
     label_identifier = default_box["label_identifier"]
     tag_id = str(tags[1]["id"])
+    tag_name = tags[1]["name"]
     another_tag_id = str(tags[2]["id"])
+    another_tag_name = tags[2]["name"]
 
-    # Default box has tag ID 2 assigned already. Remove it and add tag ID 3
+    # Default box has tags 2 and 3 assigned already. Remove 2 and keep 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIds: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIds: [{another_tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": another_tag_id}]}
+    assert updated_box["tags"] == [{"id": another_tag_id}]
+    assert updated_box["history"][0] == {
+        "changes": f"removed tag '{tag_name}' from box"
+    }
 
     # Now add tag ID 2 back while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIds: [{tag_id},{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIds: [{tag_id},{another_tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
 
+    time.sleep(1)
     # Remove all assigned tags when passing empty list
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIds: [] }} ) {{ tags {{ id }} }} }}"""
+                    tagIds: [] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": []}
+    assert updated_box["tags"] == []
+    assert updated_box["history"][0] == {
+        "changes": f"removed tag '{another_tag_name}' from box"
+    }
+    assert updated_box["history"][1] == {
+        "changes": f"removed tag '{tag_name}' from box"
+    }
 
     # Add tag ID 2
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIdsToBeAdded: [{tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}]
+    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
+    assert updated_box["history"][1] == {
+        "changes": f"removed tag '{another_tag_name}' from box"
+    }
 
+    time.sleep(1)
     # Add the same tag again without an error being thrown
-    mutation = f"""mutation {{ updateBox(updateInput : {{
-                    labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tag_id}] }} ) {{ tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}]
+    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
+    assert updated_box["history"][1] == {
+        "changes": f"removed tag '{another_tag_name}' from box"
+    }
 
+    time.sleep(1)
     # Add tag ID 3. Both tags are assigned to the box
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{ tags {{ id }} }} }}"""
+                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{
+                        history {{ changes }}
+                        tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
-    assert updated_box == {"tags": [{"id": tag_id}, {"id": another_tag_id}]}
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["history"][0] == {
+        "changes": f"assigned tag '{another_tag_name}' to box"
+    }
 
 
 def _format(parameter):
@@ -768,27 +1239,27 @@ def _format(parameter):
     "filters,number",
     [
         # Test case 8.1.7
-        [[{"states": "[InStock]"}], 1],
+        [[{"states": "[InStock]"}], 2],
         [[{"states": "[Lost]"}], 1],
         [[{"states": "[MarkedForShipment]"}], 3],
         [[{"states": "[InTransit]"}], 2],
         [[{"states": "[Receiving]"}], 0],
         [[{"states": "[NotDelivered]"}], 2],
-        [[{"states": "[InStock,Lost]"}], 2],
+        [[{"states": "[InStock,Lost]"}], 3],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
-        [[{"lastModifiedFrom": '"2020-01-01"'}], 13],
+        [[{"lastModifiedFrom": '"2020-01-01"'}], 14],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
-        [[{"lastModifiedUntil": '"2022-01-01"'}], 13],
-        [[{"lastModifiedUntil": '"2020-11-27"'}], 11],
+        [[{"lastModifiedUntil": '"2022-01-01"'}], 14],
+        [[{"lastModifiedUntil": '"2020-11-27"'}], 12],
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
-        [[{"productGender": "Women"}], 12],
+        [[{"productGender": "Women"}], 13],
         [[{"productGender": "Men"}], 0],
         [[{"productId": "1"}], 11],
         [[{"productId": "2"}], 0],
         [[{"sizeId": "1"}], 12],
         [[{"sizeId": "2"}], 1],
-        [[{"productCategoryId": "1"}], 12],
+        [[{"productCategoryId": "1"}], 13],
         [[{"productCategoryId": "2"}], 0],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
@@ -893,25 +1364,39 @@ def test_box_label_identifier_generation(
 
 
 @pytest.mark.parametrize(
-    "product_id,size_id,location_id,qr_code",
-    # Test cases 8.2.3, 8.2.4, 8.2.5,, 8.2.6, 8.2.12, 8.2.13, 8.2.14
-    [[0, 1, 1, "555"], [1, 0, 1, "555"], [1, 1, 0, "555"], [1, 1, 1, "000"]],
+    "product_id,size_id,location_id,qr_code,unit_id,measure_value",
+    [  # Test cases
+        [0, 1, 1, "555", "null", "null"],  # 8.2.3, 8.2.12
+        [1, 0, 1, "555", "null", "null"],  # 8.2.4, 8.2.13
+        [1, 1, 0, "555", "null", "null"],  # 8.2.5, 8.2.14
+        [1, 1, 1, "000", "null", "null"],  # 8.2.6
+        [1, "null", 1, "555", 0, 100],  # 8.2.4a
+    ],
 )
 def test_mutate_box_with_non_existing_resource(
-    read_only_client, default_box, product_id, size_id, location_id, qr_code
+    read_only_client,
+    default_box,
+    product_id,
+    size_id,
+    location_id,
+    qr_code,
+    unit_id,
+    measure_value,
 ):
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
                     qrCode: "{qr_code}"
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
 
     # Box QR code cannot be updated, hence no errors possible
-    if qr_code == "000":
+    if qr_code == "000" or measure_value == 100:
         return
 
     label_identifier = default_box["label_identifier"]
@@ -926,16 +1411,26 @@ def test_mutate_box_with_non_existing_resource(
     assert_bad_user_input(read_only_client, mutation)
 
 
-def test_mutate_box_with_negative_number_of_items(
-    read_only_client, default_box, default_product, default_location, default_size
+def test_mutate_box_with_invalid_input(
+    read_only_client,
+    default_box,
+    measure_product_box,
+    default_product,
+    default_location,
+    default_size,
+    gram_unit,
+    liter_unit,
+    products,
 ):
+    # Negative numberOfItems
     # Test case 8.2.10
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
     product_id = str(default_product["id"])
-    creation_input = f"""{{
-                    productId: {product_id},
-                    locationId: {location_id},
+    mandatory_input = f"""productId: {product_id} locationId: {location_id}"""
+    unit_id = str(gram_unit["id"])
+    measure_value = 200
+    creation_input = f"""{{ {mandatory_input}
                     sizeId: {size_id},
                     numberOfItems: -3
                 }}"""
@@ -943,11 +1438,242 @@ def test_mutate_box_with_negative_number_of_items(
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(read_only_client, mutation)
 
+    # Test case 8.2.10a
+    creation_input = f"""{{
+                    productId: {product_id}
+                    locationId: {location_id}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10b
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id}
+                    displayUnitId: {unit_id}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id}
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10c
+    creation_input = f"""{{ {mandatory_input}
+                    displayUnitId: {unit_id}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10d - mismatch of product size range and unit dimension
+    creation_input = f"""{{ {mandatory_input}
+                    displayUnitId: {unit_id}
+                    measureValue: {measure_value}
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10e
+    creation_input = f"""{{ {mandatory_input}
+                    displayUnitId: {unit_id}
+                    measureValue: -200
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
     # Test case 8.2.19
     label_identifier = default_box["label_identifier"]
-    update_input = f"""{{
-                labelIdentifier: "{label_identifier}"
+    mandatory_input = f'labelIdentifier: "{label_identifier}"'
+    update_input = f"""{{ {mandatory_input}
                 numberOfItems: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19a
+    update_input = f"""{{ {mandatory_input}
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19b
+    size_product_id = str(products[2]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Switch from size product to measure product
+    # Test case 8.2.19g
+    measure_product_id = str(products[7]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                sizeId: {size_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19h
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                measureValue: 1000
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19i
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                measureValue: -1000
+                displayUnitId: {unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19j
+    liter_unit_id = str(liter_unit["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {measure_product_id}
+                measureValue: 1000
+                displayUnitId: {liter_unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Operations on measure-product boxes
+    # Test case 8.2.19c
+    label_identifier = measure_product_box["label_identifier"]
+    mandatory_input = f'labelIdentifier: "{label_identifier}"'
+    update_input = f"""{{ {mandatory_input}
+                sizeId: 1
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19d
+    update_input = f"""{{ {mandatory_input}
+                measureValue: -50
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Mismatch of product size range (mass) and unit dimension (volume)
+    # Test case 8.2.19e
+    update_input = f"""{{ {mandatory_input}
+                displayUnitId: {liter_unit_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19c
+    another_measure_product_id = str(products[8]["id"])
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+                sizeId: 1
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19d
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+                measureValue: -50
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19f
+    update_input = f"""{{ {mandatory_input}
+                productId: {another_measure_product_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19k
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19m
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                sizeId: {size_id}
+                measureValue: 100
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                productId: {size_product_id}
+                sizeId: {size_id}
+                displayUnitId: {unit_id}
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
@@ -984,7 +1710,8 @@ def test_access_in_transit_or_not_delivered_box(
         return f"""query {{ box(labelIdentifier: "{label_identifier}") {{ id }} }}"""
 
     def _create_qr_query(qr_code):
-        return f"""query {{ qrCode(qrCode: "{qr_code['code']}") {{ box {{ id }} }} }}"""
+        return f"""query {{ qrCode(code: "{qr_code['code']}") {{
+            ...on QrCode {{ box {{ ...on Box {{ id }} }} }} }} }}"""
 
     queries = {
         str(in_transit_box["id"]): _create_query(in_transit_box["label_identifier"]),
@@ -1043,3 +1770,126 @@ def test_box_with_large_history(
                     }} )
                 {{ history {{ changeDate changes }} }} }}"""
         assert_successful_request(client, mutation)
+
+
+def test_mutate_box_with_invalid_location_or_product(
+    read_only_client,
+    mocker,
+    default_product,
+    default_box,
+    another_product,
+    default_location,
+    another_location,
+    default_size,
+    tags,
+):
+    mock_user_for_request(mocker, base_ids=[1, 3])
+
+    # Test case 8.2.10f
+    # Product is registered in base 1, and location is from base 3; and vice versa
+    creation_input = f"""{{
+                    productId: {default_product["id"]},
+                    locationId: {another_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{
+                    productId: {another_product["id"]},
+                    locationId: {default_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.10g
+    creation_input = f"""{{
+                    productId: {default_product["id"]},
+                    locationId: {default_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                    tagIds: [{tags[6]["id"]}]
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    creation_input = f"""{{
+                    productId: {default_product["id"]},
+                    locationId: {default_location["id"]},
+                    sizeId: {default_size["id"]},
+                    numberOfItems: 2,
+                    tagIds: [{tags[5]["id"]}, {tags[6]["id"]}]
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.11n, 8.2.11o
+    label_identifier = default_box["label_identifier"]
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {another_location["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         productId: {another_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {default_location["id"]}
+                         productId: {another_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {another_location["id"]}
+                         productId: {default_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                         locationId: {another_location["id"]}
+                         productId: {another_product["id"]} }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 8.2.19p
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                    tagIds: [{tags[6]["id"]}]
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                    tagIds: [{tags[5]["id"]}, {tags[6]["id"]}]
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tags[6]["id"]}]
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    update_input = f"""{{ labelIdentifier: "{label_identifier}"
+                    tagIdsToBeAdded: [{tags[5]["id"]}, {tags[6]["id"]}]
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    assert_bad_user_input(read_only_client, mutation)

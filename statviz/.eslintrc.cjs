@@ -1,5 +1,6 @@
 const path = require("path");
 
+/** @type {import("eslint").Linter.Config} */
 module.exports = {
   extends: ["../.eslintrc.cjs"],
   // TODO: move up to root

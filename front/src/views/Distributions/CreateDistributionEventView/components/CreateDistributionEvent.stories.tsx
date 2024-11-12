@@ -1,5 +1,5 @@
 import { action } from "@storybook/addon-actions";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 import CreateDistroEvent from "./CreateDistributionEvent";
 
 const mockedDistroSpot = {
@@ -7,15 +7,12 @@ const mockedDistroSpot = {
 };
 
 export default {
-  title:
-    "Mobile Distro Events/Distro Events/Create Distro Event Date/Component",
+  title: "Mobile Distro Events/Distro Events/Create Distro Event Date/Component",
   component: CreateDistroEvent,
   parameters: {},
-} as ComponentMeta<typeof CreateDistroEvent>;
+} as Meta<typeof CreateDistroEvent>;
 
-const Template: ComponentStory<typeof CreateDistroEvent> = (args) => (
-  <CreateDistroEvent {...args} />
-);
+const Template: StoryFn<typeof CreateDistroEvent> = (args) => <CreateDistroEvent {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

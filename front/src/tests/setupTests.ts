@@ -9,9 +9,16 @@ import "regenerator-runtime/runtime";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+
 // -------- Apollo cache
 // extracting a cacheObject to reset the cache correctly later
 const emptyCache = cache.extract();
+// Adds full apollo error messages in a dev environment
+// so we get meaningful error messages rather than encoded
+// url - https://www.apollographql.com/docs/react/errors/
+loadDevMessages();
+loadErrorMessages();
 
 // -------- Mocking Toasts
 // Toasts are persisting throughout the tests since they are rendered in the wrapper and not in the render-function.
@@ -32,23 +39,24 @@ mockedUseNotification.mockReturnValue({ createToast: mockedCreateToast });
 
 // This is needed to mock the `navigator.mediaDevices.getUserMedia` function,
 // used to ask users for camera permissions in order to scan QR codes.
-const mockGetUserMedia = vi.fn(async () => {
-  return new Promise<void>(resolve => {
-    resolve()
-  })
-})
+const mockGetUserMedia = vi.fn(
+  async () =>
+    new Promise<void>((resolve) => {
+      resolve();
+    }),
+);
 
-Object.defineProperty(navigator, 'mediaDevices', {
+Object.defineProperty(navigator, "mediaDevices", {
   value: {
     getUserMedia: mockGetUserMedia,
   },
-})
+});
 
 // TODO: Function for test what text is displayed deppending on userAgent?
 // Mock the `navigator.userAgent` property to check for iOS browsers.
 Object.defineProperty(navigator, "userAgent", {
-  get: function () {
-    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
+  get() {
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0";
   },
   // configurable: true
 });

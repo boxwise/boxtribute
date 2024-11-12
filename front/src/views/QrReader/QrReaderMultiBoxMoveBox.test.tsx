@@ -1,6 +1,5 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -20,6 +19,7 @@ import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { tags } from "mocks/tags";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
+import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
 const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
@@ -34,7 +34,7 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
         box: generateMockBox({ labelIdentifier, state }),
       },
@@ -62,9 +62,9 @@ const mockLocationsQuery = ({
               ],
               base: { locations, tags },
             },
-        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+        errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
 const generateMoveBoxesResponse = ({
@@ -113,9 +113,9 @@ const mockMoveBoxesMutation = ({
               newBoxState,
               failLabelIdentifier,
             }),
-        errors: graphQlError ? [new GraphQLError("Error!")] : undefined,
+        errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
-  error: networkError ? new Error() : undefined,
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
 vi.mock("@auth0/auth0-react");

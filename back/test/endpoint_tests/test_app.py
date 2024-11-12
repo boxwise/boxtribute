@@ -21,6 +21,9 @@ def test_base_specific_permissions(client, mocker):
             "base_2/qr:create",
             "stock:write",
             "base_3/beneficiary:create",
+            "base_3/tag:read",
+            "beneficiary_language:assign",
+            "tag_relation:assign",
         ],
     )
 
@@ -106,13 +109,6 @@ def test_query_non_existent_resource(read_only_client, resource):
 def test_query_non_existent_box(read_only_client):
     # Test case 8.1.2
     query = """query { box(labelIdentifier: "000") { id } }"""
-    response = assert_bad_user_input(read_only_client, query)
-    assert "SQL" not in response.json["errors"][0]["message"]
-
-
-def test_query_non_existent_qr_code(read_only_client):
-    # Test case 8.1.31
-    query = """query { qrCode(qrCode: "-1") { id } }"""
     response = assert_bad_user_input(read_only_client, query)
     assert "SQL" not in response.json["errors"][0]["message"]
 
@@ -226,8 +222,8 @@ def test_update_non_existent_resource(
             "createCustomProduct",
             """creationInput:
             { baseId: 0, name: "a", categoryId: 1, sizeRangeId: 1, gender: none}""",
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "0"},
+            "...on UnauthorizedForBaseError { id name organisationName }",
+            {"id": "0", "name": "", "organisationName": ""},
         ],
         # Test case 8.2.37
         [
@@ -277,8 +273,8 @@ def test_update_non_existent_resource(
         [
             "enableStandardProduct",
             """enableInput: { baseId: 0, standardProductId: 2 }""",
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "0"},
+            "...on UnauthorizedForBaseError { id name organisationName }",
+            {"id": "0", "name": "", "organisationName": ""},
         ],
         # Test case 8.2.63
         [
@@ -349,6 +345,13 @@ def test_mutate_resource_does_not_exist(
 @pytest.mark.parametrize(
     "operation,query_input,field,response",
     [
+        # Test case 8.1.31
+        [
+            "qrCode",
+            'code: "0"',
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "QrCode"},
+        ],
         # Test case 8.1.42
         [
             "standardProduct",

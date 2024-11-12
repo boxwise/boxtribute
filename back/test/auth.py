@@ -71,6 +71,7 @@ def _create_jwt_payload(
     user_id=8,
     is_god=False,
     permissions=None,
+    max_beta_level=99,
     timezone="Europe/London",
 ):
     """Create payload containing arbitrary authorization information of a user.
@@ -78,16 +79,25 @@ def _create_jwt_payload(
     Auth0 (taking the prefix for custom claims into account). Irrelevant fields (issues,
     audience, issue time, expiration time, client ID, grant type) are skipped.
 
+    The function performs the procedure of the dynamic-permissions Auth0 script in a
+    very simplified way: it does not take into account the user's role to derive
+    action-based and resource-based permissions.
+
     If no arguments are passed, the payload for the default user is returned. Any
     argument specified overrides the corresponding field of the default payload.
     If `base_ids` is specified, it is used to construct a prefix of form `base_X[-Y...]`
     for the default permissions. If `permissions` is specified too, it overwrites any
     previously set permissions.
+
+    The default user has the largest beta-level of 99 to facilitate the testing of all
+    mutations without having to patch the user in the resp. tests (the beta-level check
+    is verified in a dedicated unit test).
     """
     payload = {
         f"{JWT_CLAIM_PREFIX}/email": email,
         f"{JWT_CLAIM_PREFIX}/organisation_id": organisation_id,
         f"{JWT_CLAIM_PREFIX}/base_ids": list(base_ids),
+        f"{JWT_CLAIM_PREFIX}/beta_user": max_beta_level,
         f"{JWT_CLAIM_PREFIX}/timezone": timezone,
         f"{JWT_CLAIM_PREFIX}/roles": (
             [GOD_ROLE] if is_god else [f"base_{base_ids[0]}_coordinator"]
@@ -99,43 +109,45 @@ def _create_jwt_payload(
         base_prefix = f"base_{'-'.join(str(b) for b in base_ids)}"
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
             f"{base_prefix}/base:read",
+            f"{base_prefix}/beneficiary:create",
+            f"{base_prefix}/beneficiary:delete",
+            f"{base_prefix}/beneficiary:edit",
             f"{base_prefix}/beneficiary:read",
-            f"{base_prefix}/product_category:read",
-            f"{base_prefix}/distro_event:write",
+            f"{base_prefix}/beneficiary_language:assign",
             f"{base_prefix}/distro_event:read",
+            f"{base_prefix}/distro_event:write",
+            f"{base_prefix}/history:read",
             f"{base_prefix}/location:read",
-            f"{base_prefix}/outflow_log:write",
+            f"{base_prefix}/organisation:read",
             f"{base_prefix}/outflow_log:read",
-            f"{base_prefix}/packing_list_entry:write",
+            f"{base_prefix}/outflow_log:write",
             f"{base_prefix}/packing_list_entry:read",
+            f"{base_prefix}/packing_list_entry:write",
             f"{base_prefix}/product:read",
             f"{base_prefix}/product:write",
-            f"{base_prefix}/organisation:read",
-            f"{base_prefix}/qr:read",
-            f"{base_prefix}/stock:read",
-            f"{base_prefix}/transaction:read",
-            f"{base_prefix}/unboxed_items_collection:write",
-            f"{base_prefix}/unboxed_items_collection:read",
-            f"{base_prefix}/user:read",
-            f"{base_prefix}/beneficiary:create",
-            f"{base_prefix}/beneficiary:edit",
-            f"{base_prefix}/beneficiary:delete",
+            f"{base_prefix}/product_category:read",
             f"{base_prefix}/qr:create",
+            f"{base_prefix}/qr:read",
             f"{base_prefix}/size:read",
             f"{base_prefix}/size_range:read",
+            f"{base_prefix}/stock:read",
             f"{base_prefix}/stock:write",
             f"{base_prefix}/tag:write",
-            f"{base_prefix}/tag_relation:read",
             f"{base_prefix}/tag_relation:assign",
+            f"{base_prefix}/tag_relation:read",
+            f"{base_prefix}/transaction:read",
             f"{base_prefix}/transaction:write",
-            f"{base_prefix}/history:read",
+            f"{base_prefix}/unboxed_items_collection:read",
+            f"{base_prefix}/unboxed_items_collection:write",
+            f"{base_prefix}/user:read",
             "shipment:create",
             "shipment:edit",
             "shipment_detail:write",
+            "standard_product:read",
             "transfer_agreement:create",
             "transfer_agreement:edit",
             "transfer_agreement_detail:read",
-            "standard_product:read",
+            "unit:read",
         ]
     else:
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = permissions

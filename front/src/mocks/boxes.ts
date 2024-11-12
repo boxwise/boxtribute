@@ -46,5 +46,42 @@ export const generateMockBox = ({
   createdOn: "2023-11-09T17:24:29+00:00",
   lastModifiedOn: "2023-11-19T10:24:29+00:00",
   distributionEvent: null,
+  deletedOn: null,
   __typename: "Box",
 });
+
+const unauthorizedForBaseErrorBox = {
+  __typename: "UnauthorizedForBaseError",
+  name: "Base Foo",
+  organisationName: "BoxAid",
+};
+
+const insufficientPermissionErrorBox = {
+  __typename: "InsufficientPermissionError",
+  name: "Base Bar",
+};
+
+/**
+ * Generate box data based on ownership: Organization, Base and Permissions.
+ *
+ * Check `GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE` query for reference.
+ */
+export const handleBoxGeneration = ({
+  labelIdentifier = "123",
+  state = BoxState.InStock,
+  isBoxAssociated = true,
+  isBoxSameBase = true,
+  isBoxSameOrg = true
+}) => {
+  if (isBoxAssociated && isBoxSameOrg && isBoxSameBase)
+    return generateMockBox({ labelIdentifier, state });
+
+  if (isBoxAssociated && !isBoxSameOrg)
+    return unauthorizedForBaseErrorBox;
+
+  if (isBoxAssociated && !isBoxSameBase)
+    return insufficientPermissionErrorBox;
+
+  // Box not associated with the QR code or no permission and authorization will end up here.
+  return null;
+}

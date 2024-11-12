@@ -1,14 +1,21 @@
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import {
+  BrowserRouter,
+  createRoutesFromChildren,
+  matchRoutes,
+  useLocation,
+  useNavigationType,
+} from "react-router-dom";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import * as Sentry from "@sentry/react";
-import { CaptureConsole } from "@sentry/integrations";
 import App from "./App";
 import { theme } from "./utils/theme";
+import { captureConsoleIntegration } from "@sentry/react";
+import React from "react";
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
@@ -25,10 +32,16 @@ if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
     integrations: [
-      new CaptureConsole({
+      captureConsoleIntegration({
         levels: ["error"],
       }),
-      new Sentry.BrowserTracing(),
+      Sentry.reactRouterV6BrowserTracingIntegration({
+        useEffect: React.useEffect,
+        useLocation,
+        useNavigationType,
+        createRoutesFromChildren,
+        matchRoutes,
+      }),
     ],
     tracesSampleRate: parseFloat(import.meta.env.FRONT_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
     environment: import.meta.env.FRONT_SENTRY_ENVIRONMENT,

@@ -38,6 +38,7 @@ services:
         SERVICE_DIR: front
     environment:
       NODE_ENV: development
+      HUSKY: 0
       FRONT_ENVIRONMENT: ${ENVIRONMENT:-development}
       FRONT_SENTRY_ENVIRONMENT: ${ENVIRONMENT:-development}
       FRONT_SENTRY_FE_DSN: ${SENTRY_FE_DSN:-}

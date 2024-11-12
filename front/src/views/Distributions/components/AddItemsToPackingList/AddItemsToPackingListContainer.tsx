@@ -8,9 +8,7 @@ import {
 } from "types/generated/graphql";
 import { ALL_PRODUCTS_FOR_PACKING_LIST } from "views/Distributions/queries";
 import { IPackingListEntry, Product } from "views/Distributions/types";
-import AddItemsToPackingList, {
-  ProductDataForPackingList,
-} from "./AddItemsToPackingList";
+import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";
 
 interface AddItemsToPackingListContainerProps {
   // onAddEntiresToPackingListForProduct: (
@@ -20,10 +18,7 @@ interface AddItemsToPackingListContainerProps {
   currentPackingListEntries: IPackingListEntry[];
 }
 
-const graphqlToContainerTransformer = (
-  graphQLData: Product[],
-  currentPackingListEntries: IPackingListEntry[]
-): ProductDataForPackingList[] => {
+const graphqlToContainerTransformer = (graphQLData: Product[]): ProductDataForPackingList[] => {
   return graphQLData.map((product) => ({
     id: product.id,
     name: product.name,
@@ -53,10 +48,7 @@ const AddItemsToPackingListContainer = ({
   }
 
   const productAndSizesData = data?.base?.products
-    ? graphqlToContainerTransformer(
-        data?.base?.products,
-        currentPackingListEntries
-      )
+    ? graphqlToContainerTransformer(data?.base?.products)
     : [];
 
   // TODO: also handle error case here

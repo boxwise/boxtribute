@@ -3,7 +3,6 @@ import { useApolloClient } from "@apollo/client";
 import { BoxDetailsQuery, BoxDetailsQueryVariables } from "types/generated/graphql";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
 
-// eslint-disable-next-line no-shadow
 export enum ILabelIdentifierResolverResultKind {
   SUCCESS = "success",
   FAIL = "fail",
@@ -36,7 +35,7 @@ export const useLabelIdentifierResolver = () => {
         })
         .then(({ data, errors }) => {
           if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions.code : undefined;
+            const errorCode = errors ? errors[0].extensions?.code : undefined;
             if (errorCode === "FORBIDDEN") {
               return {
                 kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,

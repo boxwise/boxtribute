@@ -32,9 +32,9 @@ export const ValueFilterSchema = z.object({
 export default function ValueFilter({
   values,
   filterId,
-  placeholder,
+  placeholder = undefined,
   onFilterChange,
-  defaultFilterValue,
+  defaultFilterValue = undefined,
 }: IValueFilterProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -74,11 +74,7 @@ export default function ValueFilter({
       options={values}
       errors={errors}
       control={control}
+      data-testid="value-filter"
     />
   );
 }
-
-ValueFilter.defaultProps = {
-  defaultFilterValue: undefined,
-  placeholder: undefined,
-};

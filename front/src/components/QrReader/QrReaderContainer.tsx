@@ -1,6 +1,5 @@
-import { useCallback, useState, useContext, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
   ILabelIdentifierResolvedValue,
@@ -13,17 +12,27 @@ import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
 }
 
-const CAMERA_NOT_PERMITED_TEXT = "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
-const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS = "Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > \"Allow\".";
+const CAMERA_NOT_PERMITED_TEXT =
+  "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
+const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
+  'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow".';
+const IPHONE_WARNING_TEXT = (
+  <p>
+    <strong>Known Issue</strong>
+    <br />
+    We are experiencing problems with QR scanning on iPhone only. If you are also experiencing
+    issues, please contact us so we can add it to our investigation.
+  </p>
+);
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id;
+  const { baseId } = useBaseIdParam();
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
@@ -33,6 +42,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
+  const [boxNotOwned, setBoxNotOwned] = useState("");
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
       setTimeout(() => {
@@ -46,31 +56,45 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   const checkCameraPermission = () => {
     navigator.mediaDevices
-    .getUserMedia({
-      audio: false,
-      video: true,
-    })
-    .catch((error) => {
-      if (error.name === "NotAllowedError") {
-        setIsCameraNotPermited(true);
-      } else {
-        triggerError({
-          userMessage: "No camera is available on your device.",
-          message: `getUserMedia error: ${error.name}`
-        });
-      }
-    });
-  }
+      .getUserMedia({
+        audio: false,
+        video: true,
+      })
+      .then(() => {
+        // Permission is granted, update state
+        setIsCameraNotPermited(false);
+      })
+      .catch((error) => {
+        if (error.name === "NotAllowedError") {
+          setIsCameraNotPermited(true);
+        }
+
+        if (error.name === "NotFoundError") {
+          triggerError({
+            userMessage: "No camera is available on your device.",
+            message: `getUserMedia error: ${error.name}`,
+          });
+        }
+      });
+  };
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
+      setBoxNotOwned("");
       const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",
       );
       switch (qrResolvedValue.kind) {
+        case IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE: {
+          setBoxNotOwned(
+            `This box it at base ${qrResolvedValue.box.baseName}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
+          );
+          setIsProcessingQrCode(false);
+          break;
+        }
         case IQrResolverResultKind.SUCCESS: {
           const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
           if (!multiScan) {
@@ -81,7 +105,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           } else {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
-            await addBoxToScannedBoxes(qrResolvedValue.box);
+            addBoxToScannedBoxes(qrResolvedValue.box);
             setIsProcessingQrCode(false);
           }
           break;
@@ -100,7 +124,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
         default: {
           // the following cases should arrive here:
-          // NOT_AUTHORIZED, NOT_BOXTRIBUTE_QR,
+          // FAIL,NOT_AUTHORIZED_FOR_BOX, NOT_AUTHORIZED_FOR_QR,NO_BOXTRIBUTE_QR
           setIsProcessingQrCodeDelayed(false);
         }
       }
@@ -153,24 +177,41 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   useEffect(() => {
     checkCameraPermission();
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
-      {isCameraNotPermited && <>
-        <AlertWithoutAction alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT} />
-        <br />
-      </>}
+      {isIOS && (
+        <>
+          <AlertWithoutAction type="warning" alertText={IPHONE_WARNING_TEXT} />
+          <br />
+        </>
+      )}
+      {isCameraNotPermited && (
+        <>
+          <AlertWithoutAction
+            type="warning"
+            alertText={isIOS ? CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS : CAMERA_NOT_PERMITED_TEXT}
+          />
+          <br />
+        </>
+      )}
+      {boxNotOwned !== "" && (
+        <>
+          <AlertWithoutAction type="warning" alertText={boxNotOwned} />
+          <br />
+        </>
+      )}
       <QrReader
-      isMultiBox={isMultiBox}
-      onTabSwitch={(index) => setIsMultiBox(index === 1)}
-      onScan={onScan}
-      onFindBoxByLabel={onFindBoxByLabel}
-      findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
-      onSuccess={onSuccess}
+        isMultiBox={isMultiBox}
+        isCameraNotPermited={isCameraNotPermited}
+        onTabSwitch={(index) => setIsMultiBox(index === 1)}
+        onScan={onScan}
+        onFindBoxByLabel={onFindBoxByLabel}
+        findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
       />
     </>
-
   );
 }
 

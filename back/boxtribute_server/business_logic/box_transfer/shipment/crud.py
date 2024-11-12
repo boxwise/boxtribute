@@ -8,11 +8,14 @@ from ....enums import (
     TransferAgreementType,
 )
 from ....exceptions import (
+    IdenticalShipmentSourceAndTargetBase,
     InvalidShipmentDetailUpdateInput,
     InvalidShipmentState,
     InvalidTransferAgreementBase,
     InvalidTransferAgreementState,
+    ShipmentSourceAndTargetBaseOrganisationsMismatch,
 )
+from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.box_state import BoxState as BoxStateModel
 from ....models.definitions.history import DbChangeHistory
@@ -62,25 +65,50 @@ def _validate_bases_as_part_of_transfer_agreement(
             )
 
 
-def create_shipment(*, source_base_id, target_base_id, transfer_agreement_id, user):
+def create_shipment(
+    *, source_base_id, target_base_id, user, transfer_agreement_id=None
+):
     """Insert information for a new Shipment in the database.
-    Raise an InvalidTransferAgreementState exception if specified agreement has a state
-    different from 'Accepted'.
-    Raise an InvalidTransferAgreementBase exception if specified source or target base
-    are not included in given agreement.
-    """
-    agreement = TransferAgreement.get_by_id(transfer_agreement_id)
-    if agreement.state != TransferAgreementState.Accepted:
-        raise InvalidTransferAgreementState(
-            expected_states=[TransferAgreementState.Accepted],
-            actual_state=agreement.state,
-        )
+    If no transfer agreement is specified, an intra-org shipment will be created.
 
-    _validate_bases_as_part_of_transfer_agreement(
-        transfer_agreement=agreement,
-        source_base_id=source_base_id,
-        target_base_id=target_base_id,
-    )
+    Validations for intra-org shipment:
+    - Raise an IdenticalShipmentSourceAndTargetBase exception if source and target base
+      are identical
+    - Raise a ShipmentSourceAndTargetBaseOrganisationsMismatch exception if source and
+      target base belong to different organisations
+
+    Validations for inter-org shipment:
+    - Raise an InvalidTransferAgreementState exception if specified agreement has a
+      state different from 'Accepted'.
+    - Raise an InvalidTransferAgreementBase exception if specified source or target base
+      are not included in given agreement.
+    """
+    if transfer_agreement_id is None:
+        if source_base_id == target_base_id:
+            raise IdenticalShipmentSourceAndTargetBase()
+
+        source_base_organisation_id = (
+            Base.select(Base.organisation).where(Base.id == source_base_id).scalar()
+        )
+        target_base_organisation_id = (
+            Base.select(Base.organisation).where(Base.id == target_base_id).scalar()
+        )
+        if source_base_organisation_id != target_base_organisation_id:
+            raise ShipmentSourceAndTargetBaseOrganisationsMismatch()
+
+    else:
+        agreement = TransferAgreement.get_by_id(transfer_agreement_id)
+        if agreement.state != TransferAgreementState.Accepted:
+            raise InvalidTransferAgreementState(
+                expected_states=[TransferAgreementState.Accepted],
+                actual_state=agreement.state,
+            )
+
+        _validate_bases_as_part_of_transfer_agreement(
+            transfer_agreement=agreement,
+            source_base_id=source_base_id,
+            target_base_id=target_base_id,
+        )
 
     return Shipment.create(
         source_base=source_base_id,
@@ -264,22 +292,22 @@ def _update_shipment_with_prepared_boxes(
         )
     )
     details = [
-        {
-            "shipment": shipment.id,
-            "box": box.id,
-            "source_product": box.product_id,
-            "source_location": box.location_id,
-            "source_size": box.size_id,
-            "source_quantity": box.number_of_items,
-            "created_by": user_id,
-        }
+        ShipmentDetail(
+            shipment=shipment.id,
+            box=box.id,
+            source_product=box.product_id,
+            source_location=box.location_id,
+            source_size=box.size_id,
+            source_quantity=box.number_of_items,
+            created_by=user_id,
+        )
         for box in boxes
     ]
 
     _bulk_update_box_state(
         boxes=boxes, state=BoxState.MarkedForShipment, user_id=user_id, now=now
     )
-    ShipmentDetail.insert_many(details).execute()
+    ShipmentDetail.bulk_create(details, batch_size=BATCH_SIZE)
 
 
 def _remove_boxes_from_shipment(
@@ -421,9 +449,10 @@ def _update_shipment_with_received_boxes(
             ],
             batch_size=BATCH_SIZE,
         )
-        TagsRelation.delete().where(
-            (TagsRelation.object_type == TaggableObjectType.Box),
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+            TagsRelation.object_type == TaggableObjectType.Box,
             TagsRelation.object_id << [box.id for box in checked_in_boxes],
+            TagsRelation.deleted_on.is_null(),
         ).execute()
         DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
@@ -481,10 +510,13 @@ def update_shipment_when_preparing(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
         )
 
-    _validate_bases_as_part_of_transfer_agreement(
-        transfer_agreement=TransferAgreement.get_by_id(shipment.transfer_agreement_id),
-        target_base_id=target_base_id,
-    )
+    if shipment.transfer_agreement_id is not None:
+        _validate_bases_as_part_of_transfer_agreement(
+            transfer_agreement=TransferAgreement.get_by_id(
+                shipment.transfer_agreement_id
+            ),
+            target_base_id=target_base_id,
+        )
 
     now = utcnow()
     with db.database.atomic():

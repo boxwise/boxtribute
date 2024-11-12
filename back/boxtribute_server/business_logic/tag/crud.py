@@ -1,3 +1,5 @@
+from peewee import JOIN
+
 from ...db import db
 from ...enums import TaggableObjectType, TagType
 from ...exceptions import IncompatibleTagTypeAndResourceType
@@ -22,9 +24,9 @@ def create_tag(
     type,
     user_id,
     base_id,
+    now,
 ):
     """Insert information for a new Tag in the database."""
-    now = utcnow()
     return Tag.create(
         color=color,
         created=now,
@@ -55,6 +57,7 @@ def update_tag(
     color=None,
     type=None,
     user_id,
+    now,
 ):
     """Look up an existing Tag given an ID, and update all requested fields.
     If the tag type is changed from All/Beneficiary to Box, remove the tag from all
@@ -80,19 +83,23 @@ def update_tag(
 
     with db.database.atomic():
         if object_type_for_deletion is not None:
-            TagsRelation.delete().where(
-                (TagsRelation.object_type == object_type_for_deletion)
-                & (TagsRelation.tag == id)
+            TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+                TagsRelation.object_type == object_type_for_deletion,
+                TagsRelation.tag == id,
+                TagsRelation.deleted_on.is_null(),
             ).execute()
     return tag
 
 
 @safely_handle_deletion
-def delete_tag(*, user_id, tag):
-    """Soft-delete given tag. Unassign the tag from any resources by deleting respective
-    rows of the TagsRelation model.
+def delete_tag(*, user_id, tag, now):
+    """Soft-delete given tag. Unassign the tag from any resources by soft-deleting
+    respective rows of the TagsRelation model.
     """
-    TagsRelation.delete().where(TagsRelation.tag == tag.id).execute()
+    TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+        TagsRelation.tag == tag.id,
+        TagsRelation.deleted_on.is_null(),
+    ).execute()
     return tag
 
 
@@ -101,6 +108,8 @@ def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
     given resource (a box or a beneficiary). Insert timestamp for modification in
     resource model.
     Validate that tag type and resource type are compatible.
+    If the requested tag is already assigned to the resource, return the unmodified
+    resource immediately.
     Return the resource.
     """
     tag = Tag.get_by_id(id) if tag is None else tag
@@ -112,35 +121,58 @@ def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
         raise IncompatibleTagTypeAndResourceType(tag=tag, resource_type=resource_type)
 
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
-    resource = model.get_by_id(resource_id)
+    resource = (
+        model.select(model, TagsRelation.tag)
+        .join(
+            TagsRelation,
+            JOIN.LEFT_OUTER,
+            on=(
+                (TagsRelation.object_id == model.id)
+                & (TagsRelation.object_type == resource_type)
+                & (TagsRelation.tag == tag.id)
+                & TagsRelation.deleted_on.is_null()
+            ),
+        )
+        .where(model.id == resource_id)
+        .objects()  # make .tag a direct attribute of resource
+        .get()
+    )
+    if resource.tag is not None:
+        return resource
+
+    now = utcnow()
     resource.last_modified_by = user_id
-    resource.last_modified_on = utcnow()
+    resource.last_modified_on = now
 
     with db.database.atomic():
         TagsRelation.create(
             object_id=resource_id,
             object_type=resource_type,
             tag=id,
+            created_on=now,
+            created_by=user_id,
         )
         resource.save()
     return resource
 
 
 def unassign_tag(*, user_id, id, resource_id, resource_type):
-    """Delete TagsRelation entry defined by given tag ID, resource ID, and resource
+    """Soft-delete TagsRelation entry defined by given tag ID, resource ID, and resource
     type. Insert timestamp for modification in resource model.
     Return the resource that the tag was unassigned from.
     """
+    now = utcnow()
     model = Box if resource_type == TaggableObjectType.Box else Beneficiary
     resource = model.get_by_id(resource_id)
     resource.last_modified_by = user_id
-    resource.last_modified_on = utcnow()
+    resource.last_modified_on = now
 
     with db.database.atomic():
-        TagsRelation.delete().where(
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
             TagsRelation.tag == id,
             TagsRelation.object_id == resource_id,
             TagsRelation.object_type == resource_type,
+            TagsRelation.deleted_on.is_null(),
         ).execute()
         resource.save()
     return resource

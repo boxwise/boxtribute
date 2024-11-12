@@ -1,52 +1,80 @@
-"""
-Naming convention:
-- input argument: creationInput/updateInput
-- input type: <Resource>CreationInput/UpdateInput
-"""
+# Naming convention:
+# - input argument: creationInput/updateInput
+# - input type: <Resource>CreationInput/UpdateInput
 type Mutation {
   createQrCode(boxLabelIdentifier: String): QrCode
+  " Create a new box in a location, containing items of certain product and size. Optionally pass tags to assign to the box. "
   createBox(creationInput: BoxCreationInput): Box
+  " Update one or more properties of a box with specified label identifier. "
   updateBox(updateInput: BoxUpdateInput): Box
-  " Any boxes that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
-  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
-  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
 
+  " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
+  " Update one or more properties of a beneficiary with specified ID. "
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
+  " Deactivate beneficiary with specified ID. "
   deactivateBeneficiary(id: ID!): Beneficiary
 
+  " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): Tag
+  " Update one or more properties of a tag with specified ID. "
   updateTag(updateInput: TagUpdateInput): Tag
+  " Soft-delete tag with specified ID. "
   deleteTag(id: ID!): Tag
+  " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
   assignTag(assignmentInput: TagOperationInput): TaggableResource
+  " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
   unassignTag(unassignmentInput: TagOperationInput): TaggableResource
 
+  " Create new transfer agreement with with a partner organisation (the client's organisation is the initiating organisation). By default, the agreement is established with non-deleted bases of the partner organisation, and is infinitely valid. As a result, any base added to that organisation afterwards will NOT be part of the agreement; instead a new agreement needs to be established. If an accepted agreement with the same set of organisations and bases already exists, an error is returned. The client must be member of all bases of the initiating organisation.  "
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
+  " Change state of specified transfer agreement to `Accepted`. Only valid for agreements in `UnderReview` state. The client must be member of all agreement target bases. "
   acceptTransferAgreement(id: ID!): TransferAgreement
+  " Change state of specified transfer agreement to `Rejected`. Only valid for agreements in `UnderReview` state. The client must be member of all agreement target bases. "
   rejectTransferAgreement(id: ID!): TransferAgreement
+  " Change state of specified transfer agreement to `Canceled`. Only valid for agreements in `UnderReview` or `Accepted` state. The client must be member of either all agreement target bases or all agreement source bases. "
   cancelTransferAgreement(id: ID!): TransferAgreement
 
+  " Create a new shipment between two bases. The specified transfer agreement must be in `Accepted` state. The client must be member of the specified source base. "
   createShipment(creationInput: ShipmentCreationInput): Shipment
+  " Add boxes to or remove boxes from the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. "
   updateShipmentWhenPreparing(updateInput: ShipmentWhenPreparingUpdateInput): Shipment
+  " Reconcile boxes or mark them as lost during shipment receival on the target side. Only valid if shipment is in `Receiving` state. If all boxes are reconciled, the state automatically updates to `Completed`. The client must be member of the shipment target base. "
   updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
+  " Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment. "
   cancelShipment(id: ID!): Shipment
+  " Change state of specified shipment to `Sent`, and state of all contained `MarkedForShipment` boxes to `InTransit`. Only valid for shipments in `Preparing` state. The client must be member of the shipment source base. "
   sendShipment(id: ID!): Shipment
+  " Change state of specified shipment to `Receiving`, and state of all contained `InTransit` boxes to `Receiving`. Only valid for shipments in `Sent` state. The client must be member of the shipment target base. "
   startReceivingShipment(id: ID!): Shipment
+  " Change state of specified shipment to `Lost`, and state of all contained `InTransit` boxes to `NotDelivered`. Only valid for shipments in `Sent` state. The client must be member of either source or target base of the shipment. "
   markShipmentAsLost(id: ID!): Shipment
+  " Change state of boxes that were accidentally marked as `NotDelivered` back to `InStock`. "
   moveNotDeliveredBoxesInStock(boxIds: [String!]!): Shipment
 
+  " Create a new custom product in a base, specifying properties like name, gender, size range, and price. Return errors in case of invalid input. The client must be member of the specified base. "
   createCustomProduct(creationInput: CustomProductCreationInput): CreateCustomProductResult
+  " Edit properties of the custom product with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
   editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
+  " Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   deleteProduct(id: ID!): DeleteProductResult
+  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base. "
   enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
+  " Edit properties of the standard product instantiation with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
   editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
+  " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
+
+  # Undocumented mutations of the mobile-distribution feature
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
   createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
 
@@ -79,11 +107,6 @@ type Mutation {
     id: ID!
     numberOfItems: Int!
   ): UnboxedItemsCollection
-  # moveItemsFromUnboxedItemsCollectionToBox(
-  #   unboxedItemsCollectionId: ID!
-  #   boxLabelIdentifier: ID!
-  #   numberOfItems: Int!
-  # ): Box
 
   startDistributionEventsTrackingGroup(
     distributionEventIds: [ID!]!,

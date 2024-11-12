@@ -29,7 +29,11 @@ from ..business_logic.box_transfer.shipment.crud import (
     update_shipment_when_receiving,
 )
 from ..business_logic.tag.crud import create_tag, delete_tag, update_tag
-from ..business_logic.warehouse.box.crud import create_box, update_box
+from ..business_logic.warehouse.box.crud import (
+    create_box,
+    is_measure_product,
+    update_box,
+)
 from ..business_logic.warehouse.location.crud import create_location, delete_location
 from ..business_logic.warehouse.product.crud import (
     create_custom_product,
@@ -59,6 +63,7 @@ from ..models.definitions.size import Size
 from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.unit import Unit
 from ..models.utils import convert_ids
 
 NR_BASES = 4
@@ -188,6 +193,16 @@ class Generator:
         newest_resource_modified_on = _max_value(
             Box.created_on,
             Box.last_modified_on,
+            Tag.created,
+            Tag.last_modified_on,
+            Beneficiary.created_on,
+        )
+        with freeze_time(newest_resource_modified_on, auto_tick_seconds=about_one_hour):
+            self._delete_tags()
+
+        newest_resource_modified_on = _max_value(
+            Box.created_on,
+            Box.last_modified_on,
             TransferAgreement.requested_on,
             TransferAgreement.accepted_on,
         )
@@ -219,10 +234,8 @@ class Generator:
         cursor = db.database.execute_sql(
             """\
     SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) FROM cms_users u
-    INNER JOIN cms_usergroups cu
-    ON u.cms_usergroups_id = cu.id
     INNER JOIN cms_usergroups_camps cuc
-    ON cu.id = cuc.cms_usergroups_id
+    ON u.cms_usergroups_id = cuc.cms_usergroups_id
     AND cuc.camp_id in %s
     GROUP BY cuc.camp_id
     ;""",
@@ -286,7 +299,8 @@ class Generator:
                     user_id=self._user_id(b),
                 )
 
-            # Delete some tags
+    def _delete_tags(self):
+        for b in self.base_ids:
             for tag in self.fake.random_elements(
                 self.tags[b], length=NR_OF_DELETED_TAGS_PER_BASE, unique=True
             ):
@@ -463,6 +477,8 @@ class Generator:
             15: ["Inhalation device"],
         }
         baby_products = ["Shirts", "Jackets", "Trousers"]  # category 8
+        mass_measure_products = ["Rice", "Pasta", "Chickpeas", "Sugar", "Cereal"]
+        volume_measure_products = ["Sauce", "Milk", "Vegetable oil"]
         size_ranges = {
             "Underwear": 6,  # Mixed sizes
             "Tights": 6,
@@ -572,6 +588,20 @@ class Generator:
                 )
                 enabled_standard_products[b].append(product)
 
+            for names, size_range_id in zip(
+                [mass_measure_products, volume_measure_products], [28, 29]
+            ):
+                for name in names:
+                    product = create_custom_product(
+                        category_id=11,
+                        size_range_id=size_range_id,
+                        gender=ProductGender.none,
+                        base_id=b,
+                        name=name,
+                        price=self.fake.random_int(max=100),
+                        user_id=self._user_id(b),
+                    )
+                    self.products[b].append(product)
             # Delete a product
             to_be_deleted_product = create_custom_product(
                 category_id=12,
@@ -721,6 +751,18 @@ class Generator:
         )
         size_ids = {row.category: row.size_ids for row in result}
 
+        # Units for mass and volume dimension
+        unit_ids = {
+            row.dimension: row.unit_ids
+            for row in Unit.select(
+                Unit.dimension,
+                fn.GROUP_CONCAT(Unit.id).python_value(convert_ids).alias("unit_ids"),
+            )
+            .where(Unit.dimension << [28, 29])
+            .group_by(Unit.dimension)
+            .namedtuples()
+        }
+
         for b in self.base_ids:
             box_tag_ids = [
                 tag.id for tag in self.tags[b] if tag.type in [TagType.Box, TagType.All]
@@ -740,10 +782,24 @@ class Generator:
             nr_of_boxes = NR_OF_BOXES_PER_LARGE_BASE if b == 1 else NR_OF_BOXES_PER_BASE
             for _ in range(nr_of_boxes):
                 product = self.fake.random_element(self.products[b])
+
+                if is_measure_product(product):
+                    size_id = None
+                    display_unit_id = self.fake.random_element(
+                        unit_ids[product.size_range_id]
+                    )
+                    measure_value = 100 * self.fake.random_int(max=20)
+                else:
+                    size_id = self.fake.random_element(size_ids[product.category_id])
+                    display_unit_id = None
+                    measure_value = None
+
                 box = create_box(
                     product_id=product.id,
                     location_id=self.fake.random_element(in_stock_location_ids),
-                    size_id=self.fake.random_element(size_ids[product.category_id]),
+                    size_id=size_id,
+                    display_unit_id=display_unit_id,
+                    measure_value=measure_value,
                     number_of_items=self.fake.random_int(max=999),
                     comment=(
                         self.fake.sentence(nb_words=3) if self.fake.boolean(20) else ""
@@ -773,6 +829,10 @@ class Generator:
                 )
             for box in self.fake.random_elements(boxes, length=50):
                 product = self.fake.random_element(self.products[b])
+                if is_measure_product(product) or box.size_id is None:
+                    # New product is measure product; or box contains measure product,
+                    # hence changing size would be invalid
+                    continue
                 update_box(
                     label_identifier=box.label_identifier,
                     product_id=product.id,
@@ -786,9 +846,30 @@ class Generator:
                     user_id=self._user_id(b),
                 )
             for box in self.fake.random_elements(boxes, length=50):
+                if box.size_id is not None:
+                    # Box contains size product; changing measure value would be invalid
+                    continue
+                update_box(
+                    label_identifier=box.label_identifier,
+                    measure_value=100 * self.fake.random_int(max=20),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
                 update_box(
                     label_identifier=box.label_identifier,
                     comment=self.fake.sentence(nb_words=2),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=25):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    tag_ids=self.fake.random_sample(box_tag_ids, length=2),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=25):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    tag_ids_to_be_added=[self.fake.random_element(box_tag_ids)],
                     user_id=self._user_id(b),
                 )
 
@@ -802,12 +883,13 @@ class Generator:
             id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
         )
 
-        def _prepare_shipment(source_base_id, target_base_id):
+        def _prepare_shipment(source_base_id, target_base_id, *, intra_org=False):
+            agreement_id = None if intra_org else self.accepted_agreement.id
             user = org1_user if source_base_id == 1 else org2_user
             shipment = create_shipment(
                 source_base_id=source_base_id,
                 target_base_id=target_base_id,
-                transfer_agreement_id=self.accepted_agreement.id,
+                transfer_agreement_id=agreement_id,
                 user=user,
             )
             nr_prepared_boxes = 10
@@ -920,6 +1002,36 @@ class Generator:
         target_base_id = 1
         shipment, prepared_boxes = _prepare_shipment(source_base_id, target_base_id)
         send_shipment(shipment=shipment, user=org2_user)
+
+        # Intra-org shipment 2 -> 3. Preparing
+        source_base_id = 2
+        target_base_id = 3
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+
+        # Intra-org shipment 2 -> 3. Preparing, then canceled
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+        cancel_shipment(shipment=shipment, user=org2_user)
+
+        # Intra-org shipment 3 -> 4. Prepared and Sent
+        source_base_id = 3
+        target_base_id = 4
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+        send_shipment(shipment=shipment, user=org2_user)
+
+        # Intra-org shipment 4 -> 2. Prepared, sent, eventually started Receiving
+        source_base_id = 4
+        target_base_id = 2
+        shipment, prepared_boxes = _prepare_shipment(
+            source_base_id, target_base_id, intra_org=True
+        )
+        send_shipment(shipment=shipment, user=org2_user)
+        start_receiving_shipment(shipment=shipment, user=org2_user)
 
     def _generate_transactions(self):
         for b in self.base_ids:

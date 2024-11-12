@@ -16,7 +16,7 @@ import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOv
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
-import { IAuthorizeProps, useAuthorization } from "hooks/useAuthorization";
+import { AuthorizeProps, useAuthorization } from "hooks/useAuthorization";
 import ResolveHash from "views/QrReader/components/ResolveHash";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
@@ -24,21 +24,29 @@ import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 
-interface IProtectedRouteProps extends IAuthorizeProps {
+type ProtectedRouteProps = {
   component: ReactElement;
   redirectPath: string | undefined;
-}
+} & AuthorizeProps;
 
-function Protected({ component, redirectPath, requiredAbps, minBeta }: IProtectedRouteProps) {
+type DropappRedirectProps = {
+  path: "/boxes/:boxId" | "/boxes/create/:qrCodeHash" | "/qrreader" | "/qrreader/:qrCodeHash";
+};
+
+function Protected({
+  component,
+  redirectPath,
+  requiredAbps = [],
+  minBeta = 0,
+}: ProtectedRouteProps) {
   const { triggerError } = useErrorHandling();
   const { pathname: currentPath } = useLocation();
   const authorize = useAuthorization();
   const isAuthorized = authorize({ requiredAbps, minBeta });
 
   useEffect(() => {
-    if (!isAuthorized) {
+    if (!isAuthorized)
       triggerError({ message: "Access to this page is not permitted for your user group." });
-    }
   }, [isAuthorized, triggerError]);
 
   if (isAuthorized) {
@@ -53,9 +61,50 @@ function Protected({ component, redirectPath, requiredAbps, minBeta }: IProtecte
   );
 }
 
+/**
+ * Handle Dropapp (Boxtribute V1 app) redirects whose paths don't start with `/bases/:baseId`.
+ *
+ * Fetch first available base id from user JWT token from Auth0 to prepend `/bases/:baseId` with that id, if available.
+ */
+function DropappRedirect({ path }: DropappRedirectProps) {
+  const { user } = useAuth0();
+  /**
+   * Redirect to this `/error`, non-existent path by default, which will lead to `<NotFoundView />`.
+   *
+   * Otherwise, redirect to one of the valid paths in `DropappRedirectProps`.
+   */
+  let pathToRedirect = "/error";
+
+  if (!user || !user["https://www.boxtribute.com/base_ids"])
+    return <Navigate to={pathToRedirect} replace />;
+
+  const baseId = user["https://www.boxtribute.com/base_ids"][0];
+  const baseURL = `/bases/${baseId}`;
+  const urlParam = location.pathname.split("/").at(-1);
+
+  switch (path) {
+    case "/boxes/:boxId":
+      pathToRedirect = `${baseURL}/boxes/${urlParam}`;
+      break;
+    case "/boxes/create/:qrCodeHash":
+      pathToRedirect = `${baseURL}/boxes/create/${urlParam}`;
+      break;
+    case "/qrreader":
+      pathToRedirect = `${baseURL}/qrreader`;
+      break;
+    case "/qrreader/:qrCodeHash":
+      pathToRedirect = `${baseURL}/qrreader/${urlParam}`;
+      break;
+    default:
+      break;
+  }
+
+  return <Navigate to={pathToRedirect} replace />;
+}
+
 function App() {
   const { logout } = useAuth0();
-  const { isLoading, error } = useLoadAndSetGlobalPreferences();
+  const { error } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
 
@@ -63,13 +112,10 @@ function App() {
   useEffect(() => {
     const regex = /^\/bases\/\d+\//;
     // only store previous location if a base is selected
-    if (regex.test(location.pathname)) {
-      setPrevLocation(location.pathname);
-    }
+    if (regex.test(location.pathname)) setPrevLocation(location.pathname);
   }, [location]);
 
   if (error) {
-    // eslint-disable-next-line no-console
     console.error(error);
     return (
       <>
@@ -81,12 +127,10 @@ function App() {
       </>
     );
   }
-  if (isLoading) {
-    return <div />;
-  }
+
   return (
     <Routes>
-      <Route index />
+      <Route index element={<Navigate to="/qrreader" />} />
       <Route path="bases">
         <Route index />
         <Route path=":baseId" element={<Layout />}>
@@ -224,6 +268,14 @@ function App() {
             </Route>
           </Route>
         </Route>
+      </Route>
+      <Route path="boxes">
+        <Route path=":boxId" element={<DropappRedirect path="/boxes/:boxId" />} />
+        <Route path="create" element={<DropappRedirect path="/boxes/create/:qrCodeHash" />} />
+      </Route>
+      <Route path="qrreader">
+        <Route index element={<DropappRedirect path="/qrreader" />} />
+        <Route path=":qrCodeHash" element={<DropappRedirect path="/qrreader/:qrCodeHash" />} />
       </Route>
       <Route path="/*" element={<NotFoundView />} />
     </Routes>

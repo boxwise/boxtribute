@@ -22,6 +22,8 @@ import CreateShipment, {
   IOrganisationBaseData,
   ICreateShipmentFormData,
 } from "./components/CreateShipment";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
   ${BASE_ORG_FIELDS_FRAGMENT}
@@ -62,9 +64,10 @@ function CreateShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
   const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
@@ -220,7 +223,7 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (allAcceptedTransferAgreements.loading) {
+  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) {
     return <APILoadingIndicator />;
   }
 
@@ -255,7 +258,7 @@ function CreateShipmentView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath=".." />
       <Center>
         <CreateShipment
           isLoading={createShipmentMutationState.loading}

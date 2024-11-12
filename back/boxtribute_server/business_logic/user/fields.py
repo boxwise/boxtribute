@@ -8,7 +8,18 @@ user = ObjectType("User")
 
 
 @user.field("bases")
-def resolve_bases(*_):
+def resolve_bases(user_obj, _):
+    if user_obj.id != g.user.id:
+        # If the queried user is different from the current user, we don't have a way
+        # yet to fetch secure information about that user's bases; it would require
+        # accessing Auth0 to find out if the current user has sufficient permission.
+        # For now, null is returned
+        return
+
+    if g.user.is_god:
+        # God user have access to all bases
+        return Base.select()
+
     return Base.select().where(authorized_bases_filter())
 
 

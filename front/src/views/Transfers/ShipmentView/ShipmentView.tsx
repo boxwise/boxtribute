@@ -52,8 +52,8 @@ import ShipmentOverlay, { IShipmentOverlayData } from "./components/ShipmentOver
 import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
-// eslint-disable-next-line no-shadow
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
   ShipmentCanceled = "Shipment Canceled",
@@ -142,6 +142,7 @@ function ShipmentView() {
   const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
   const shipmentId = useParams<{ id: string }>().id!;
@@ -388,8 +389,9 @@ function ShipmentView() {
         ShipmentActionEvent.ShipmentStarted,
       ].includes(history.action)
     ) {
-      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${history
-        .createdBy?.name}`;
+      changes = `Shipment is ${history.action.toLowerCase().replace("shipment", "")} by ${
+        history.createdBy?.name
+      }`;
     } else {
       changes = `Box ${history.box}  is ${history.action
         .toLowerCase()
@@ -507,7 +509,7 @@ function ShipmentView() {
         Could not fetch Shipment data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading) {
+  } else if (loading || isGlobalStateLoading) {
     shipmentTitle = <Skeleton height="50px" width="200px" data-testid="loader" />;
     shipmentCard = <ShipmentCardSkeleton />;
     shipmentTab = <TabsSkeleton />;
@@ -609,7 +611,7 @@ function ShipmentView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath="/transfers/shipments" />
+      <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath=".." />
       {shipmentViewComponents}
       <ShipmentOverlay
         isOpen={isShipmentOverlayOpen}

@@ -1,5 +1,6 @@
-/* eslint-disable react/function-component-definition */
-/* eslint-disable no-console */
+/* eslint-disable import/export */
+// TODO: Investigate possible render function overload.
+
 import { vi } from "vitest";
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
@@ -23,7 +24,7 @@ import {
 } from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
-import { mockMatchMediaQuery } from "mocks/functions";
+import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -74,22 +75,35 @@ function render(
     mediaQueryReturnValue?: boolean;
   },
 ) {
-  // Log if there is an error in the mock
-  const mockLink = new MockLink(mocks);
-  const errorLoggingLink = onError(({ graphQLErrors, networkError }) => {
+  // set showWarnings to false, as we'll log them via the onError callback instead
+  const mockLink = new MockLink(mocks, undefined, { showWarnings: false });
+  const errorLoggingLink = onError((error: any) => {
+    const { graphQLErrors, networkError } = error;
     if (graphQLErrors) {
-      graphQLErrors.map(({ message, locations, path }) =>
-        console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-        ),
-      );
+      for (const error of graphQLErrors) {
+        // log errors, but only if they aren't ones we set up in a mock
+        // TODO: figure out how to fail the outer test once these are fixed
+        if (!(error instanceof FakeGraphQLError)) {
+          console.error(`[GraphQL error]: ${error}`);
+        }
+      }
+      return;
     }
     if (networkError) {
-      console.error(`[Network error]: ${networkError}`);
+      // log errors, but only if they aren't ones we set up in a mock
+      // TODO: figure out how to fail the outer test once these are fixed
+      if (!(networkError instanceof FakeGraphQLNetworkError)) {
+        console.error(`[GraphQL network error]: ${networkError}`);
+      }
+      return;
     }
+    console.error(`[Unknown Error]: ${error}`);
   });
-  const link = ApolloLink.from([errorLoggingLink, mockLink]);
+  mockLink.setOnError((error) => {
+    console.error(`[MockLink Error]: ${error}`);
+  });
 
+  const link = ApolloLink.from([errorLoggingLink, mockLink]);
   const globalPreferencesMock: IGlobalPreferencesContext = {
     dispatch: vi.fn(),
     globalPreferences: {
@@ -100,6 +114,14 @@ function render(
   };
 
   mockMatchMediaQuery(mediaQueryReturnValue);
+
+  // Mock BaseId URL Param.
+
+  Object.defineProperty(window, "location", {
+    value: {
+      pathname: `http://localhost:3000/bases/${globalPreferences ? globalPreferences.globalPreferences.selectedBase?.id : base1.id}/`,
+    },
+  });
 
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>

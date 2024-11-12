@@ -11,6 +11,9 @@ mutation = MutationType()
 @mutation.field("createBeneficiary")
 def resolve_create_beneficiary(*_, creation_input):
     authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
+    authorize(permission="tag:read", base_id=creation_input["base_id"])
+    authorize(permission="beneficiary_language:assign")
+    authorize(permission="tag_relation:assign")
     return create_beneficiary(**creation_input, user_id=g.user.id)
 
 
@@ -18,6 +21,9 @@ def resolve_create_beneficiary(*_, creation_input):
 def resolve_update_beneficiary(*_, update_input):
     beneficiary = Beneficiary.get_by_id(update_input["id"])
     authorize(permission="beneficiary:edit", base_id=beneficiary.base_id)
+    authorize(permission="tag:read", base_id=beneficiary.base_id)
+    authorize(permission="beneficiary_language:assign")
+    authorize(permission="tag_relation:assign")
     return update_beneficiary(
         **update_input, beneficiary=beneficiary, user_id=g.user.id
     )

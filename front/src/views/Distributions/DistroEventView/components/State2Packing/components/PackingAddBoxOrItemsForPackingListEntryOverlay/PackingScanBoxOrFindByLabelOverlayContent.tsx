@@ -56,7 +56,7 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
         if (box != null) {
           if (
             box.product?.id === packingListEntry.product.id &&
-            box.size.id === packingListEntry.size?.id
+            box.size?.id === packingListEntry.size?.id
           ) {
             return {
               isValid: true,
@@ -120,7 +120,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
 
   const onQrResult = useCallback(
     (result: string) => {
-      if (!!result) {
+      if (!result) {
         const qrCode = extractQrCodeFromUrl(result);
         if (qrCode == null) {
           console.error("Not a Boxtribute QR Code", qrCode);
@@ -138,6 +138,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
               variables: { qrCode },
             })
             .then(({ data }) => {
+              // @ts-ignore
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               if (boxLabelIdentifier == null) {
                 // onScanningDone([
@@ -169,6 +170,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           facingMode={"environment"}
           zoom={1}
           scanPeriod={1000}
+          isCameraNotPermited={false}
           onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
         />
       </ModalBody>

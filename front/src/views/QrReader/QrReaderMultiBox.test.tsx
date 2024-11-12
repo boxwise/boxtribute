@@ -1,7 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
-import { screen, render, waitFor, act } from "tests/test-utils";
+import { userEvent } from "@testing-library/user-event";
+import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 import { mockAuthenticatedUser } from "mocks/hooks";
@@ -16,6 +15,7 @@ import { cache } from "queries/cache";
 import { locations } from "mocks/locations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
+import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
 const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
@@ -31,7 +31,7 @@ const mockSuccessfulQrQuery = ({
   result: {
     data: {
       qrCode: {
-        _typename: "QrCode",
+        __typename: "QrCode",
         code: hash,
         box: isBoxAssociated ? generateMockBox({ labelIdentifier, state }) : null,
       },
@@ -108,9 +108,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    await act(async () => {
-      await user.click(multiBoxTab);
-    });
+    await user.click(multiBoxTab);
 
     // 3.4.3.1 - no QR-codes were successfully scanned yet.
     const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -122,9 +120,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
-    await act(async () => {
-      await user.click(scanButton);
-    });
+    await user.click(scanButton);
 
     // toast shown
     await waitFor(() =>
@@ -137,9 +133,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 
     // second scan?
     if (toasts.length === 2) {
-      await act(async () => {
-        await user.click(scanButton);
-      });
+      await user.click(scanButton);
       // toast shown
       await waitFor(() =>
         expect(toasts[1].isError ? mockedTriggerError : mockedCreateToast).toHaveBeenCalledWith(
@@ -162,9 +156,7 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
       expect(deleteScannedBoxesButton).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /undo last scan/i })).toBeInTheDocument();
       // 3.4.4.1 - Pressing the delete button
-      await act(async () => {
-        await user.click(deleteScannedBoxesButton);
-      });
+      await user.click(deleteScannedBoxesButton);
       expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
     }
   });
@@ -173,9 +165,10 @@ qrScanningInMultiBoxTabTests.forEach(({ name, hash, mocks, boxCount, toasts }) =
 const mockFailedQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "",
-  errorCode = "",
-  resultQrCode = null as string | null | undefined,
+  graphQlError = false,
   networkError = false,
+  returnedQrTypeName = "QrCode",
+  returnedBoxTypeName = "Box",
 }) => ({
   request: {
     query,
@@ -183,33 +176,57 @@ const mockFailedQrQuery = ({
   },
   result: networkError
     ? undefined
-    : {
-        data:
-          resultQrCode != null
-            ? {
-                qrCode: {
-                  _typename: "QrCode",
-                  code: hash,
-                  box: null,
-                },
-              }
-            : null,
-        errors: [new GraphQLError("Error!", { extensions: { code: errorCode } })],
-      },
-  error: networkError ? new Error() : undefined,
+    : graphQlError
+      ? { errors: graphQlError ? undefined : [new FakeGraphQLError("Error")] }
+      : {
+          data:
+            returnedQrTypeName === "InsufficientPermissionError"
+              ? {
+                  qrCode: {
+                    __typename: returnedQrTypeName,
+                    permissionName: "qr:read",
+                  },
+                }
+              : returnedQrTypeName === "ResourceDoesNotExistError"
+                ? {
+                    qrCode: {
+                      __typename: returnedQrTypeName,
+                      resourceName: "qr",
+                    },
+                  }
+                : {
+                    qrCode: {
+                      __typename: "QrCode",
+                      code: hash,
+                      box:
+                        returnedBoxTypeName === "InsufficientPermissionError"
+                          ? {
+                              __typename: returnedBoxTypeName,
+                              permissionName: "stock:read",
+                            }
+                          : returnedBoxTypeName === "UnauthorizedForBaseError"
+                            ? {
+                                __typename: returnedBoxTypeName,
+                                baseName: "base",
+                                organisationName: "org",
+                              }
+                            : null,
+                    },
+                  },
+        },
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
 const qrScanningInMultiBoxTabTestsFailing = [
   {
     name: "3.4.3.5 - user scans QR code with associated box, but has no access",
-    hash: "QrWithBoxFromOtherOrganisation",
+    hash: "noStockReadPermission",
     isBoxtributeQr: true,
     mocks: [
       mockEmptyLocationsTagsShipmentsQuery,
       mockFailedQrQuery({
-        hash: "QrWithBoxFromOtherOrganisation",
-        resultQrCode: "QrWithBoxFromOtherBase",
-        errorCode: "FORBIDDEN",
+        hash: "noStockReadPermission",
+        returnedBoxTypeName: "InsufficientPermissionError",
       }),
     ],
     toasts: [{ message: /have permission to access this box/i, isError: true }],
@@ -228,11 +245,10 @@ const qrScanningInMultiBoxTabTestsFailing = [
     mocks: [
       mockFailedQrQuery({
         hash: "QrHashNotInDb",
-        resultQrCode: null,
-        errorCode: "BAD_USER_INPUT",
+        returnedQrTypeName: "ResourceDoesNotExistError",
       }),
     ],
-    toasts: [{ message: /No box found for this QR code/i, isError: true }],
+    toasts: [{ message: /This is not a Boxtribute QR code/i, isError: true }],
   },
   {
     name: "3.4.3.9 - user scans QR code and server returns unexpected error",
@@ -241,8 +257,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
     mocks: [
       mockFailedQrQuery({
         hash: "InternalServerError",
-        resultQrCode: null,
-        errorCode: "INTERNAL_SERVER_ERROR",
+        graphQlError: true,
       }),
     ],
     toasts: [{ message: /QR code lookup failed/i, isError: true }],
@@ -275,9 +290,7 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    await act(async () => {
-      await user.click(multiBoxTab);
-    });
+    await user.click(multiBoxTab);
 
     // 3.4.3.1 - no QR-codes were successfully scanned yet.
     const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -289,9 +302,7 @@ qrScanningInMultiBoxTabTestsFailing.forEach(({ name, hash, isBoxtributeQr, mocks
 
     // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
     const scanButton = await screen.findByTestId("ReturnScannedQr");
-    await act(async () => {
-      await user.click(scanButton);
-    });
+    await user.click(scanButton);
 
     // toast shown
     await waitFor(() =>

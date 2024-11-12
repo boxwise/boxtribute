@@ -4,6 +4,19 @@ updates:
     directory: "/back/"
     schedule:
       interval: "weekly"
+    groups:
+      back-dev:
+        dependency-type: development
+      back-prod-minor-update:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - "minor"
+          - "patch"
+        exclude-patterns:
+          # Exclude because package versions are v0.x, hence minor updates might contain breaking changes
+          - "aiodataloader"
+          - "ariadne"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
@@ -13,11 +26,31 @@ updates:
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
-    directory: "/"
+    open-pull-requests-limit: 10
+    directories:
+      - "/"
+      - "/front"
+      - "/shared-components"
+      - "/statviz"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     assignees:
-      - "haguesto"
+      - "fhenrich33"
     # Always increase the minimum version requirement to match the new version.
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
+    # ignore:
+    #   - dependency-name: "*"
+    #     update-types:
+    #       - "version-update:semver-patch"
+    groups:
+      front-dev-minor-update:
+        dependency-type: development
+        update-types:
+          - "minor"
+          - "patch"
+      front-prod-minor-update:
+        dependency-type: production
+        update-types:
+          - "minor"
+          - "patch"

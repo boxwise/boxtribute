@@ -1,7 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { JWT_ROLE, JWT_ABP, JWT_BETA } from "utils/constants";
 
-export interface IAuthorizeProps {
+export type AuthorizeProps = {
   // requiredAbps: [abp1, abp2] => user must have abp1 AND abp2
   // requiredAbps: [[abp1, apb2], abp3] => user must have (abp1 OR abp2) AND abp3
   requiredAbps?: (string | string[])[];
@@ -11,7 +11,7 @@ export interface IAuthorizeProps {
 export function useAuthorization() {
   const { user } = useAuth0();
 
-  const authorize = ({ requiredAbps, minBeta }: IAuthorizeProps) =>
+  const authorize = ({ requiredAbps, minBeta }: AuthorizeProps) =>
     user &&
     (user[JWT_ROLE].includes("boxtribute_god") ||
       ((requiredAbps?.every((abp) =>

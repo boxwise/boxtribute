@@ -15,19 +15,25 @@ interface ITableRowProps {
 
 function TableRow({ row, children }: ITableRowProps) {
   const navigate = useNavigate();
+  const { key, ...props } = row.getRowProps();
   if (typeof row.original.href === "string" && row.original.href.length > 0) {
     return (
       <Tr
         onClick={() => navigate(row.original.href)}
         _hover={{ bg: "brandYellow.100" }}
         cursor="pointer"
-        {...row.getRowProps()}
+        key={key}
+        {...props}
       >
         {children}
       </Tr>
     );
   }
-  return <Tr {...row.getRowProps()}>{children}</Tr>;
+  return (
+    <Tr key={key} {...props}>
+      {children}
+    </Tr>
+  );
 }
 
 interface IInitialStateFilters {
@@ -45,7 +51,7 @@ interface IBasicTableProps {
   initialState?: IInitialState;
 }
 
-export function FilteringSortingTable({ columns, tableData, initialState }: IBasicTableProps) {
+export function FilteringSortingTable({ columns, tableData, initialState = {} }: IBasicTableProps) {
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
@@ -77,8 +83,10 @@ export function FilteringSortingTable({ columns, tableData, initialState }: IBas
             prepareRow(row);
             return (
               <TableRow key={row.index} row={row}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                {row.cells.map((cell, idx) => (
+                  <Td {...cell.getCellProps()} key={idx}>
+                    {cell.render("Cell")}
+                  </Td>
                 ))}
               </TableRow>
             );
@@ -88,7 +96,3 @@ export function FilteringSortingTable({ columns, tableData, initialState }: IBas
     </TableContainer>
   );
 }
-
-FilteringSortingTable.defaultProps = {
-  initialState: {},
-};

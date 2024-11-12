@@ -1,6 +1,5 @@
 import { it, expect } from "vitest";
-import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { box123 } from "mocks/boxes";
@@ -13,6 +12,7 @@ import BoxEditView, {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY,
   UPDATE_CONTENT_OF_BOX_MUTATION,
 } from "./BoxEditView";
+import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
 const initialQuery = {
   request: {
@@ -43,7 +43,7 @@ const initialQueryNetworkError = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new FakeGraphQLError()],
   },
 };
 
@@ -55,7 +55,7 @@ const initialQueryGraphQLError = {
       labelIdentifier: "123",
     },
   },
-  error: new Error(),
+  error: new FakeGraphQLNetworkError(),
 };
 
 const successfulMutation = {
@@ -107,7 +107,7 @@ const mutationNetworkError = {
       comment: "Test",
     },
   },
-  error: new Error(),
+  error: new FakeGraphQLNetworkError(),
 };
 
 const mutationGraphQLError = {
@@ -124,7 +124,7 @@ const mutationGraphQLError = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new FakeGraphQLError()],
   },
 };
 

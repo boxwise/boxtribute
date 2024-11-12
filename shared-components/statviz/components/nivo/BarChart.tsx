@@ -22,7 +22,7 @@ export interface IBarChart {
   legend?: boolean;
   labelAxisBottom?: string;
   labelAxisLeft?: string;
-  rendered?: () => void;
+  rendered?: (ref: HTMLDivElement) => void;
 }
 
 export default function BarChart(barChart: IBarChart) {
@@ -32,7 +32,7 @@ export default function BarChart(barChart: IBarChart) {
     if (ref.current === null) return;
     if (!barChart.rendered) return;
 
-    barChart.rendered();
+    barChart.rendered(ref.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 

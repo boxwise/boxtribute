@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import time
 from datetime import date
 from unittest.mock import patch
@@ -18,17 +19,41 @@ logger.setLevel(logging.INFO)
 # time to wait for Auth0 database to index updated data fields
 WAIT = 5
 
+# suffix auth0 role names so these tests can be safely run in parallel:
+# - using a date-time so roles can be tracked down to the test run that created them
+# - using a random, to ensure in the unlikely event the tests are run at precisely the
+#   same time, the test ids are unique
+test_role_name_static_suffix = "-TEST"
+today = date.today().isoformat()
+randint = random.randint(0, 1000000)
+test_role_name_suffix = f"{today}-{randint}{test_role_name_static_suffix}"
+
 
 @pytest.fixture
 def auth0_roles(auth0_management_api_client):
     # Set up test roles in Auth0
     interface = auth0_management_api_client._interface
     roles_data = [
-        {"name": "administrator-TEST", "description": "Org 1 Head of Operations"},
-        {"name": "base_8_coordinator-TEST", "description": "Base 8 coordinator"},
-        {"name": "base_8_volunteer-TEST", "description": "Base 8 volunteer"},
-        {"name": "base_9_volunteer-TEST", "description": "Base 9 volunteer"},
-        {"name": "base_80_volunteer-TEST", "description": "Base 80 volunteer"},
+        {
+            "name": "administrator" + test_role_name_suffix,
+            "description": "Org 1 Head of Operations",
+        },
+        {
+            "name": "base_8_coordinator" + test_role_name_suffix,
+            "description": "Base 8 coordinator",
+        },
+        {
+            "name": "base_8_volunteer" + test_role_name_suffix,
+            "description": "Base 8 volunteer",
+        },
+        {
+            "name": "base_9_volunteer" + test_role_name_suffix,
+            "description": "Base 9 volunteer",
+        },
+        {
+            "name": "base_80_volunteer" + test_role_name_suffix,
+            "description": "Base 80 volunteer",
+        },
     ]
     roles = {}
     for role_data in roles_data:
@@ -101,23 +126,23 @@ def auth0_users(auth0_management_api_client, auth0_roles):
                 raise e
             logger.info(f"User {user_data['user_id']} already exists")
     interface.roles.add_users(
-        auth0_roles["administrator-TEST"]["id"],
+        auth0_roles["administrator" + test_role_name_suffix]["id"],
         [user_id(0)],
     )
     interface.roles.add_users(
-        auth0_roles["base_8_coordinator-TEST"]["id"],
+        auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
         [user_id(0)],
     )
     interface.roles.add_users(
-        auth0_roles["base_8_coordinator-TEST"]["id"],
+        auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
         [user_id(1)],
     )
     interface.roles.add_users(
-        auth0_roles["base_8_volunteer-TEST"]["id"],
+        auth0_roles["base_8_volunteer" + test_role_name_suffix]["id"],
         [user_id(2), user_id(3)],
     )
     interface.roles.add_users(
-        auth0_roles["base_9_volunteer-TEST"]["id"],
+        auth0_roles["base_9_volunteer" + test_role_name_suffix]["id"],
         [user_id(4)],
     )
 
@@ -166,8 +191,8 @@ VALUES
     )
 
     data = [
-        auth0_roles["base_8_coordinator-TEST"]["id"],
-        "base_8_coordinator-TEST",
+        auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
+        "base_8_coordinator" + test_role_name_suffix,
     ]
     for role_name, role in auth0_roles.items():
         data.append(role["id"])
@@ -217,8 +242,9 @@ VALUES
     user_ids = [int(u["user_id"]) for u in auth0_users]
     db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
     db.database.execute_sql(
-        """\
-DELETE FROM cms_usergroups_roles WHERE auth0_role_name LIKE "%%-TEST";"""
+        f"""\
+DELETE FROM cms_usergroups_roles
+WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";"""
     )
     db.database.execute_sql(
         """\
@@ -235,7 +261,9 @@ DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
 
 # Patch interactive confirmation input; must be first argument for test function
 @patch("builtins.input", return_value="YES")
-def test_remove_base_access(patched_input, mysql_data, auth0_management_api_client):
+def test_remove_base_access(
+    patched_input, mysql_data, auth0_management_api_client, auth0_roles
+):
     base_id = "8"
     cli_main(
         [
@@ -265,10 +293,12 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
     time.sleep(WAIT)
 
     base = Base.get_by_id(int(base_id))
-    assert base.deleted.date() == date.today()
+    assert base.deleted_on.date() == date.today()
 
     # Verify that no users have base ID 8 in their app_metadata any more
     users = auth0_management_api_client.get_users_of_base(base_id)
+    # ensure ordering for comparison
+    users["single_base"].sort(key=lambda u: u["user_id"])
     assert users == {
         "single_base": [
             {
@@ -313,13 +343,19 @@ def test_remove_base_access(patched_input, mysql_data, auth0_management_api_clie
         ],
         "multi_base": [],
     }
+
+    # Verify the roles still exist for the other bases. Since test runs might happen in
+    # parallel in CI, `get_single_base_user_role_ids` might return multiple roles that
+    # match the prefix `base_X`. Check that the corresponding role of the current test
+    # run is one of these roles.
+    suffix = f"_volunteer{test_role_name_suffix}"
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
-    assert len(role_ids) == 1
+    assert auth0_roles[f"base_{base_id}{suffix}"]["id"] in role_ids
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(80)
-    assert len(role_ids) == 1
+    assert auth0_roles[f"base_80{suffix}"]["id"] in role_ids
 
     base = Base.get_by_id(int(base_id))
-    assert base.deleted is None
+    assert base.deleted_on is None
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     fields = {
@@ -423,9 +459,9 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
     assert data == (
-        ("administrator-TEST", 99999990),
-        ("base_9_volunteer-TEST", 99999993),
-        ("base_80_volunteer-TEST", 99999994),
+        ("administrator" + test_role_name_suffix, 99999990),
+        ("base_9_volunteer" + test_role_name_suffix, 99999993),
+        ("base_80_volunteer" + test_role_name_suffix, 99999994),
     )
 
     # Run another time
@@ -480,7 +516,7 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     assert len(role_ids) == 0
 
     base = Base.get_by_id(int(base_id))
-    assert base.deleted.date() == date.today()
+    assert base.deleted_on.date() == date.today()
 
     cursor = db.database.execute_sql(
         """\
@@ -507,4 +543,4 @@ SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     )
     data = cursor.fetchall()
-    assert data == (("base_80_volunteer-TEST", 99999994),)
+    assert data == (("base_80_volunteer" + test_role_name_suffix, 99999994),)

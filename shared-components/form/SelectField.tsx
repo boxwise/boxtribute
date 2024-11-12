@@ -33,15 +33,15 @@ function SelectField({
   fieldId,
   fieldLabel,
   placeholder,
-  showLabel,
-  showError,
+  showLabel = true,
+  showError = true,
   options,
   errors,
   control,
-  isMulti,
-  isRequired,
-  defaultValue,
-  onChangeProp,
+  isMulti = false,
+  isRequired = true,
+  defaultValue = undefined,
+  onChangeProp = undefined,
 }: ISelectFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
@@ -108,14 +108,5 @@ function SelectField({
     </FormControl>
   );
 }
-
-SelectField.defaultProps = {
-  isMulti: false,
-  isRequired: true,
-  showLabel: true,
-  showError: true,
-  onChangeProp: undefined,
-  defaultValue: undefined,
-};
 
 export default SelectField;

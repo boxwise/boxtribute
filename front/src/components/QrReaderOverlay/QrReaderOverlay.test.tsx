@@ -1,7 +1,6 @@
 import { vi, beforeEach, it, expect } from "vitest";
-import { GraphQLError } from "graphql";
-import userEvent from "@testing-library/user-event";
-import { screen, render, act, waitFor } from "tests/test-utils";
+import { userEvent } from "@testing-library/user-event";
+import { screen, render, waitFor } from "tests/test-utils";
 import HeaderMenuContainer from "components/HeaderMenu/HeaderMenuContainer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -13,6 +12,7 @@ import {
 } from "queries/queries";
 import { generateMockBox } from "mocks/boxes";
 import { mockedTriggerError } from "tests/setupTests";
+import { FakeGraphQLError } from "mocks/functions";
 
 vi.mock("@auth0/auth0-react");
 vi.mock("components/QrReader/components/QrReaderScanner");
@@ -34,7 +34,7 @@ const queryFindNoBoxAssociated = {
     data: {
       box: null,
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+    errors: [new FakeGraphQLError("BAD_USER_INPUT")],
   },
 };
 
@@ -47,22 +47,21 @@ it("3.4.1.2 - Mobile: Enter invalid box identifier and click on Find button", as
     initialUrl: "/bases/1",
     mocks: [queryFindNoBoxAssociated],
     additionalRoute: "/bases/1/boxes/123456",
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await act(async () => {
-    await user.click(qrButton);
-  });
+  await user.click(qrButton);
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
-  await act(async () => {
-    await user.type(screen.getByRole("textbox"), "123456");
-  });
-  await act(async () => {
-    await user.click(findBoxButton);
-  });
+  await user.type(screen.getByRole("textbox"), "123456");
+  await user.click(findBoxButton);
 
   // error message appears
   await waitFor(() =>
@@ -99,13 +98,16 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
     initialUrl: "/bases/1",
     mocks: [queryFindBox],
     additionalRoute: "/bases/1/boxes/123456",
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
-  await act(async () => {
-    await user.click(qrButton);
-  });
+  await user.click(qrButton);
 
   // Find Box
   const findBoxButton = await screen.findByRole("button", { name: /find/i });
@@ -127,7 +129,7 @@ const queryFindBoxFromOtherOrg = {
     data: {
       box: null,
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+    errors: [new FakeGraphQLError("FORBIDDEN")],
   },
 };
 
@@ -140,7 +142,12 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
     initialUrl: "/bases/1",
     mocks: [queryFindBoxFromOtherOrg],
     additionalRoute: "/bases/1/boxes/123456",
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
@@ -173,6 +180,7 @@ const queryNoBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "NoBoxAssociatedWithQrCode",
         box: null,
       },
@@ -189,7 +197,11 @@ it("3.4.2.1 - Mobile: User scans QR code of same org without previously associat
     initialUrl: "/bases/1",
     mocks: [queryNoBoxAssociatedWithQrCode],
     additionalRoute: "/bases/1/boxes/create/NoBoxAssociatedWithQrCode",
+    mediaQueryReturnValue: false,
   });
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
@@ -213,6 +225,7 @@ const queryBoxAssociatedWithQrCode = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "BoxAssociatedWithQrCode",
         box: generateMockBox({}),
       },
@@ -229,7 +242,12 @@ it("3.4.2.2 - Mobile: user scans QR code of same org with associated box", async
     initialUrl: "/bases/1",
     mocks: [queryBoxAssociatedWithQrCode],
     additionalRoute: "/bases/1/boxes/123",
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
@@ -250,11 +268,16 @@ const queryBoxFromOtherOrganisation = {
   result: {
     data: {
       qrCode: {
+        __typename: "QrCode",
         code: "BoxFromOtherOrganisation",
-        box: null,
+        box: {
+          __typename: "UnauthorizedForBaseError",
+          baseName: "Base Foo",
+          organisationName: "BoxAid",
+        },
       },
     },
-    errors: [new GraphQLError("Error!", { extensions: { code: "FORBIDDEN" } })],
+    errors: undefined,
   },
 };
 
@@ -266,7 +289,12 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryBoxFromOtherOrganisation],
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
@@ -276,13 +304,9 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
   await user.click(screen.getByTestId("ReturnScannedQr"));
 
   // error message appears
-  await waitFor(() =>
-    expect(mockedTriggerError).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringMatching(/You don't have permission to access this box/i),
-      }),
-    ),
-  );
+  expect(
+    await screen.findByText(/This box it at base Base Foo, which belongs to organization BoxAid./),
+  ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
 }, 10000);
@@ -295,7 +319,12 @@ it("3.4.2.5a - Mobile: User scans non Boxtribute QR code", async () => {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryBoxFromOtherOrganisation],
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
@@ -324,8 +353,12 @@ const queryHashNotInDb = {
     },
   },
   result: {
-    data: null,
-    errors: [new GraphQLError("Error!", { extensions: { code: "BAD_USER_INPUT" } })],
+    data: {
+      qrCode: {
+        __typename: "ResourceDoesNotExistError",
+        resourceName: "qr",
+      },
+    },
   },
 };
 
@@ -337,7 +370,12 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryHashNotInDb],
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");
@@ -350,7 +388,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/No box found for this QR code/i),
+        message: expect.stringMatching(/This is not a Boxtribute QR code/i),
       }),
     ),
   );
@@ -368,7 +406,7 @@ const queryInternalServerError = {
   },
   result: {
     data: null,
-    errors: [new GraphQLError("Error!", { extensions: { code: "INTERNAL_SERVER_ERROR" } })],
+    errors: [new FakeGraphQLError("INTERNAL_SERVER_ERROR")],
   },
 };
 
@@ -380,7 +418,12 @@ it("3.4.2.5c - Internal Server Error", async () => {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
     mocks: [queryInternalServerError],
+    mediaQueryReturnValue: false,
   });
+
+  // Open the menu
+  const menuButton = await screen.findByTestId("menu-button");
+  await user.click(menuButton);
 
   // 3.4.1.1 - Open QROverlay
   const qrButton = await screen.findByTestId("qr-code-button");

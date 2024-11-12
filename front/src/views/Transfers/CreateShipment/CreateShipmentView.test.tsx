@@ -2,9 +2,8 @@ import { vi, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
-import { GraphQLError } from "graphql";
 import { base1 } from "mocks/bases";
 import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
@@ -16,6 +15,7 @@ import CreateShipmentView, {
   CREATE_SHIPMENT_MUTATION,
 } from "./CreateShipmentView";
 import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
+import { FakeGraphQLError } from "mocks/functions";
 
 vi.setConfig({ testTimeout: 12_000 });
 
@@ -88,7 +88,7 @@ const initialQueryNetworkError = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new FakeGraphQLError()],
   },
 };
 
@@ -132,7 +132,7 @@ const mutationGraphQLError = {
     },
   },
   result: {
-    errors: [new GraphQLError("Error!")],
+    errors: [new FakeGraphQLError()],
   },
 };
 

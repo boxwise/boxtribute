@@ -21,6 +21,8 @@ mutation = MutationType()
 def resolve_create_custom_product(*_, creation_input):
     base_id = creation_input["base_id"]
     authorize(permission="product:write", base_id=base_id)
+    authorize(permission="size_range:read")
+    authorize(permission="product_category:read")
 
     return create_custom_product(user_id=g.user.id, **creation_input)
 
@@ -32,6 +34,8 @@ def resolve_edit_custom_product(*_, edit_input):
     if (product := Product.get_or_none(id)) is None:
         return ResourceDoesNotExist(name="Product", id=id)
     authorize(permission="product:write", base_id=product.base_id)
+    authorize(permission="size_range:read")
+    authorize(permission="product_category:read")
 
     return edit_custom_product(user_id=g.user.id, product=product, **edit_input)
 
@@ -51,6 +55,7 @@ def resolve_deleted_product(*_, id):
 def resolve_enable_standard_product(*_, enable_input):
     base_id = enable_input["base_id"]
     authorize(permission="product:write", base_id=base_id)
+    authorize(permission="size_range:read")
 
     return enable_standard_product(user_id=g.user.id, **enable_input)
 
@@ -62,6 +67,7 @@ def resolve_edit_standard_product_instantiation(*_, edit_input):
     if (product := Product.get_or_none(id)) is None:
         return ResourceDoesNotExist(name="Product", id=id)
     authorize(permission="product:write", base_id=product.base_id)
+    authorize(permission="size_range:read")
 
     return edit_standard_product_instantiation(
         user_id=g.user.id, product=product, **edit_input

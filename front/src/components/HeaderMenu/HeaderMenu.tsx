@@ -1,7 +1,7 @@
 import { useMediaQuery } from "@chakra-ui/react";
 import { IAuthorizeProps } from "hooks/useAuthorization";
-import HeaderMenuDesktop from "./HeaderMenuDesktop";
-import HeaderMenuMobile from "./HeaderMenuMobile";
+import MenuMobile from "./MenuMobile";
+import MenuDesktop from "./MenuDesktop";
 
 export interface IMenuItemData extends IAuthorizeProps {
   link: string;
@@ -21,10 +21,10 @@ export interface IHeaderMenuProps {
 }
 
 function HeaderMenu(props: IHeaderMenuProps) {
-  const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
-  if (isSmallScreen) {
-    return <HeaderMenuMobile {...props} />;
-  }
-  return <HeaderMenuDesktop {...props} />;
+  const [isDesktopScreen] = useMediaQuery("(min-width: 1024px)");
+
+  if (isDesktopScreen) return <MenuDesktop {...props} />;
+
+  return <MenuMobile {...props} />;
 }
 export default HeaderMenu;

@@ -24,7 +24,7 @@ export interface IQrReaderProps {
   onTabSwitch: (index: number) => void;
   onScan: (result: string, multiScan: boolean) => void;
   onFindBoxByLabel: (label: string) => void;
-  onSuccess: () => void;
+  isCameraNotPermited: boolean;
 }
 
 function QrReader({
@@ -33,7 +33,7 @@ function QrReader({
   onTabSwitch,
   onScan,
   onFindBoxByLabel,
-  onSuccess,
+  isCameraNotPermited,
 }: IQrReaderProps) {
   // Zoom
   const [zoomLevel] = useState(1);
@@ -73,6 +73,7 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
+        isCameraNotPermited={isCameraNotPermited}
         multiScan={isMultiBox}
         facingMode="environment"
         zoom={zoomLevel}
@@ -117,7 +118,7 @@ function QrReader({
             </FormControl>
           </TabPanel>
           <TabPanel px={0}>
-            <QrReaderMultiBoxContainer onSuccess={onSuccess} />
+            <QrReaderMultiBoxContainer />
           </TabPanel>
         </TabPanels>
       </Tabs>

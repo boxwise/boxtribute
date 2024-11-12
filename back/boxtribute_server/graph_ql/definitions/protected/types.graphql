@@ -1,11 +1,9 @@
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
-
-
 interface ItemsCollection {
   id: ID!
   product: Product
-  size: Size!
+  size: Size
   numberOfItems: Int
   location: Location
   distributionEvent: DistributionEvent
@@ -14,13 +12,12 @@ interface ItemsCollection {
 type UnboxedItemsCollection implements ItemsCollection {
   id: ID!
   product: Product
-  size: Size!
+  size: Size
   numberOfItems: Int
   label: String
   location: Location
   distributionEvent: DistributionEvent
 }
-
 
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
@@ -29,11 +26,18 @@ type Box implements ItemsCollection {
   id: ID!
   " Sequence of numbers for identifying the box, usually written on box label "
   labelIdentifier: String!
+  " If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   location: Location
   distributionEvent: DistributionEvent
   numberOfItems: Int
+  " If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   product: Product
-  size: Size!
+  " If the box holds a 'measure' product (i.e. classified by a package measure like 500gr), its size is null "
+  size: Size
+  " Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null "
+  displayUnit: Unit
+  " The value of the measure, expressed in ``unit``. If the box holds a product with size (e.g. clothing), its measure value is null "
+  measureValue: Float
   state: BoxState!
   qrCode: QrCode
   createdBy: User
@@ -43,6 +47,7 @@ type Box implements ItemsCollection {
   deletedOn: Datetime
   comment: String
   tags: [Tag!]
+  " Sorted by date, newest first "
   history: [HistoryEntry!]
   " Returns null if box is not part of an active shipment "
   shipmentDetail: ShipmentDetail
@@ -68,8 +73,8 @@ Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
 type QrCode {
   id: ID!
   code: String!
-  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated) "
-  box: Box
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated), or an error in case of insufficient permission or missing authorization for box's base "
+  box: BoxResult
   createdOn: Datetime
 }
 
@@ -124,7 +129,6 @@ type ProductCategory {
   name: String!
   " List of all products registered in bases the client is authorized to view. "
   products(paginationInput: PaginationInput): ProductPage
-  sizeRanges: [SizeRange]
   " Non-clothing categories don't have a product gender. "
   hasGender: Boolean!
 }
@@ -159,12 +163,13 @@ type Tag {
   description: String
   color: String
   type: TagType!
+  " List of boxes and/or beneficiaries that have this tag assigned "
   taggedResources: [TaggableResource!]
   base: Base!
 }
 
 """
-Representation of product size.
+Representation of product size (e.g. clothing size "XL", shoe size 39).
 """
 type Size {
   id: ID!
@@ -172,13 +177,24 @@ type Size {
 }
 
 """
-Representation of group of sizes.
+Representation of dimensional unit (e.g. kilogram or liter)
+"""
+type Unit {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+"""
+Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a dimension (mass or volume).
 """
 type SizeRange {
   id: ID!
   label: String!
+  " List of sizes belonging to the group "
   sizes: [Size!]!
-  productCategory: [ProductCategory!]
+  " List of units belonging to the dimension "
+  units: [Unit!]!
 }
 
 """
@@ -189,10 +205,11 @@ type ClassicLocation implements Location {
   id: ID!
   base: Base
   name: String
+  " Used for ordering purposes "
   seq: Int
   isShop: Boolean!
   isStockroom: Boolean!
-  " List of all the [`Boxes`]({{Types.Box}}) in this classic location "
+  " List of all [`Boxes`]({{Types.Box}}) (incl. deleted) in this classic location "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   " Default state for boxes in this classic location"
   defaultBoxState: BoxState
@@ -214,7 +231,7 @@ type BoxPage {
 """
 Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing).
 """
-type BoxResult {
+type BoxesResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
 }
@@ -227,28 +244,36 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
-  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base "
+  deletedOn: Datetime
+  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   currencyName: String
-  " List of all undeleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  " List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
-  " List of all undeleted [`Products`]({{Types.Product}}) registered in this base "
+  " List of all non-deleted [`Products`]({{Types.Product}}) registered in this base "
   products(filterInput: FilterProductInput): [Product!]!
-  " List of all [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
+  " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
-  # TODO: rethink this query once the prototype testing is over
+  # TODO: rethink these queries once the prototype testing is over
   # probably better to have filter parameters and only one query operation
   distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
-
-  # TODO: rethink this query once the prototype testing is over (same as above)
-  # probably better to have filter parameters and only one query operation
   distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
 
   distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
   distributionEventsStatistics: [DistributionEventsStatistics!]!
+}
+
+"""
+Representation of an organisation.
+"""
+type Organisation {
+  id: ID!
+  name: String!
+  " List of all non-deleted [`Bases`]({{Types.Base}}) managed by this organisation. Accessible for any authenticated user "
+  bases(filterInput: FilterBaseInput): [Base!]
 }
 
 type DistributionEventsStatistics {
@@ -267,19 +292,6 @@ type DistributionEventsStatistics {
   sizeId: String!
 }
 
-"""
-Representation of an organisation.
-"""
-type Organisation {
-  id: ID!
-  name: String!
-  " List of all [`Bases`]({{Types.Base}}) managed by this organisation "
-  bases: [Base!]
-}
-
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEvent {
   id: ID!
   distributionSpot: DistributionSpot
@@ -298,9 +310,6 @@ type DistributionEvent {
   distributionEventsTrackingGroup: DistributionEventsTrackingGroup
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEventsTrackingEntry {
   id: ID!
   product: Product!
@@ -311,9 +320,6 @@ type DistributionEventsTrackingEntry {
   flowDirection: DistributionEventTrackingFlowDirection!
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionEventsTrackingGroup {
   id: ID!
   state: DistributionEventsTrackingGroupState!
@@ -322,9 +328,6 @@ type DistributionEventsTrackingGroup {
   createdOn: Datetime!
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type PackingListEntry {
   id: ID!
   product: Product
@@ -334,13 +337,11 @@ type PackingListEntry {
   state: PackingListEntryState!
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
 type DistributionSpot implements Location {
   id: ID!
   name: String
   base: Base
+  " Not implemented, only for compatibility with Location interface "
   boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
   comment: String!
   latitude: Float
@@ -349,17 +350,19 @@ type DistributionSpot implements Location {
 }
 
 """
-Representation of a user signed up for the web application.
-The user is a member of a specific [`Organisation`]({{Types.Organisation}}).
+Representation of a boxtribute user.
 """
 type User {
   id: ID!
+  " The [`Organisation`]({{Types.Organisation}}) the user is a member of. Meaningful only if the currently authenticated user queries themselves "
   organisation: Organisation
+  " First and last name. Accessible to any authenticated user "
   name: String
+  " Available only if the currently authenticated user queries themselves "
   email: String
   validFirstDay: Date
   validLastDay: Date
-  " List of all [`Bases`]({{Types.Base}}) this user can access "
+  " List of all [`Bases`]({{Types.Base}}) this user can access. Meaningful only if the currently authenticated user queries themselves "
   bases: [Base]
   lastLogin: Datetime
   lastAction: Datetime
@@ -484,7 +487,11 @@ input FilterBoxInput {
 
 input FilterProductInput {
   includeDeleted: Boolean = false
-  type: ProductTypeFilter = Custom
+  type: ProductTypeFilter = All
+}
+
+input FilterBaseInput {
+  includeDeleted: Boolean = false
 }
 
 """
@@ -506,6 +513,9 @@ input PaginationInput {
   last: Int
 }
 
+"""
+Representation of an agreement between two organisations prior to start mutual shipments.
+"""
 type TransferAgreement {
   id: ID!
   sourceOrganisation: Organisation!
@@ -521,15 +531,19 @@ type TransferAgreement {
   validFrom: Datetime!
   validUntil: Datetime
   comment: String
-  " List of all bases of the source organisation included in the agreement "
-  sourceBases: [Base!]
-  " List of all bases of the target organisation included in the agreement "
-  targetBases: [Base!]
+  " List of all non-deleted bases of the source organisation included in the agreement "
+  sourceBases(filterInput: FilterBaseInput): [Base!]
+  " List of all non-deleted bases of the target organisation included in the agreement "
+  targetBases(filterInput: FilterBaseInput): [Base!]
   shipments: [Shipment!]!
 }
 
+"""
+Representation of a shipment of boxes between two bases of two distinct organisations. The content is tracked via [`ShipmentDetails`]({{Types.ShipmentDetail}})
+"""
 type Shipment {
   id: ID!
+  " Unique identifier of the shipment, constructed from ID, start date, source and target base names. E.g. `S042-230815-THxLE` "
   labelIdentifier: String!
   sourceBase: Base!
   targetBase: Base!
@@ -544,10 +558,14 @@ type Shipment {
   completedOn: Datetime
   canceledBy: User
   canceledOn: Datetime
-  transferAgreement: TransferAgreement!
+  " If no agreement associated with the shipment, it's an intra-org one "
+  transferAgreement: TransferAgreement
   details: [ShipmentDetail!]!
 }
 
+"""
+Representation of a box in a shipment. Boxes might be added or removed on the source side, and received or marked as lost on the target side. All properties (product, location, size, quantity) at source and target side are tracked here
+"""
 type ShipmentDetail {
   id: ID!
   sourceProduct: Product
@@ -581,7 +599,10 @@ type ResourceDoesNotExistError {
 type UnauthorizedForBaseError {
   " e.g. 'product:write' present but not for requested base "
   id: ID!
+  " Empty string if base does not exist "
   name: String!
+  " Empty string if base does not exist "
+  organisationName: String!
 }
 type InvalidPriceError {
   value: Int!
@@ -609,18 +630,21 @@ type DeletedTagError {
   name: String!
 }
 
-union MoveBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union AssignTagToBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
-union UnassignTagFromBoxesResult = BoxResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
-union DeleteBoxesResult = BoxResult | InsufficientPermissionError
+union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
+union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
+union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
+union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
+union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
 
 type Metrics {
   """

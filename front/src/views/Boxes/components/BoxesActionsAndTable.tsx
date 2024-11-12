@@ -1,10 +1,10 @@
 import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
-import { FaWarehouse } from "react-icons/fa";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { FaWarehouse } from "react-icons/fa"; // Add Trash Icon for delete action
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
 import {
@@ -20,6 +20,8 @@ import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
+import RemoveBoxesButton from "./RemoveBoxesButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -39,8 +41,7 @@ function BoxesActionsAndTable({
   availableColumns,
 }: IBoxesActionsAndTableProps) {
   const navigate = useNavigate();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseId = globalPreferences.selectedBase?.id!;
+  const { baseId } = useBaseIdParam();
 
   const { createToast } = useNotification();
 
@@ -200,13 +201,26 @@ function BoxesActionsAndTable({
     }
   }, [createToast, flushResult, unassignBoxesFromShipmentsResult]);
 
+  // Delete Boxes
+  const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
+  const onDeleteBoxes = useCallback(() => {
+    deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
+  }, [deleteBoxes, selectedBoxes]);
+
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
-    isUnassignBoxesFromShipmentsLoading;
+    isUnassignBoxesFromShipmentsLoading ||
+    isDeleteBoxesLoading;
 
   const actionButtons = useMemo(
     () => [
+      <RemoveBoxesButton
+        onDeleteBoxes={onDeleteBoxes}
+        actionsAreLoading={actionsAreLoading}
+        selectedBoxes={selectedBoxes}
+        key="remove-boxes"
+      />,
       <SelectButton
         label="Move to ..."
         options={locationOptions}
@@ -237,10 +251,13 @@ function BoxesActionsAndTable({
       actionsAreLoading,
       shipmentOptions,
       onAssignBoxesToShipment,
+      onDeleteBoxes,
+      selectedBoxes,
       thereIsABoxMarkedForShipmentSelected,
       onUnassignBoxesToShipment,
     ],
   );
+
   return (
     <BoxesTable
       tableConfig={tableConfig}

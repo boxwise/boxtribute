@@ -15,10 +15,12 @@ def resolve_tag_tagged_resources(tag_obj, _):
     beneficiary_relations = TagsRelation.select(TagsRelation.object_id).where(
         (TagsRelation.tag == tag_obj.id)
         & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+        & (TagsRelation.deleted_on.is_null())
     )
     box_relations = TagsRelation.select(TagsRelation.object_id).where(
         (TagsRelation.tag == tag_obj.id)
         & (TagsRelation.object_type == TaggableObjectType.Box)
+        & (TagsRelation.deleted_on.is_null())
     )
     return list(
         Beneficiary.select().where(

@@ -58,10 +58,8 @@ def operation_name(operation):
     [
         # Test case 8.1.3
         """box( labelIdentifier: "12345678") { id }""",
-        # Test case 8.1.32
-        """qrCode( qrCode: "1337beef" ) { id }""",
         # Test case 8.1.35
-        """qrExists( qrCode: "1337beef" )""",
+        """qrExists( code: "1337beef" )""",
     ],
     ids=operation_name,
 )
@@ -266,6 +264,17 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
         }""",
         # Test case 9.2.22
         """deactivateBeneficiary( id: 4 ) { id }""",
+        # Test case 3.2.4c
+        """createShipment(
+            creationInput : {
+                sourceBaseId: 3,
+                targetBaseId: 4
+            }) { id }""",
+        """createShipment(
+            creationInput : {
+                sourceBaseId: 3,
+                targetBaseId: 1
+            }) { id }""",
     ],
     ids=operation_name,
 )
@@ -300,14 +309,23 @@ def test_invalid_permission_for_location_boxes(read_only_client, mocker):
 
 
 def test_invalid_permission_for_qr_code_box(
-    read_only_client, mocker, default_qr_code, another_qr_code_with_box
+    read_only_client,
+    mocker,
+    default_qr_code,
+    another_qr_code_with_box,
+    another_base,
+    another_organisation,
 ):
     # Test case 8.1.10
     # Verify missing stock:read permission
     mock_user_for_request(mocker, permissions=["qr:read"])
     code = default_qr_code["code"]
-    query = f"""query {{ qrCode(qrCode: "{code}") {{ box {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, query, value={"box": None})
+    query = f"""query {{ qrCode(code: "{code}") {{
+        ...on QrCode {{
+            box {{ ...on InsufficientPermissionError {{ name }} }}
+        }} }} }}"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == {"box": {"name": "stock:read"}}
 
     # Test case 8.1.11
     # Verify missing base-specific stock:read permission (the QR code belongs to a box
@@ -325,9 +343,21 @@ def test_invalid_permission_for_qr_code_box(
         base_ids=[1],
     )
     code = another_qr_code_with_box["code"]  # the associated box is in base ID 3
-    query = f"""query {{ qrCode(qrCode: "{code}") {{
-        box {{ tags {{ taggedResources {{ ...on Beneficiary {{ id }} }} }} }} }} }}"""
-    assert_forbidden_request(read_only_client, query, value={"box": None})
+    query = f"""query {{ qrCode(code: "{code}") {{
+        ...on QrCode {{
+            box {{
+                ...on UnauthorizedForBaseError {{ id name organisationName }}
+                ...on Box {{
+                    tags {{ taggedResources {{ ...on Beneficiary {{ id }} }} }}
+            }} }} }} }} }}"""
+    response = assert_successful_request(read_only_client, query)
+    assert response == {
+        "box": {
+            "id": "3",
+            "name": another_base["name"],
+            "organisationName": another_organisation["name"],
+        }
+    }
 
 
 def test_invalid_permission_for_organisation_bases(
@@ -386,7 +416,7 @@ def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
     assert_forbidden_request(read_only_client, query)
 
 
-@pytest.mark.parametrize("field", ["qrCode", "tags"])
+@pytest.mark.parametrize("field", ["qrCode", "tags", "size"])
 def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
     # Test case 8.1.9
     # verify missing field:read permission
@@ -648,6 +678,13 @@ def test_mutate_unauthorized_for_base(
 @pytest.mark.parametrize(
     "operation,query_input,field,response",
     [
+        # Test case 8.1.32
+        [
+            "qrCode",
+            'code: "1337beef"',
+            "...on InsufficientPermissionError { name }",
+            {"name": "qr:read"},
+        ],
         # Test case 8.1.43
         [
             "standardProduct",

@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CreateDistributionEventMutation,
@@ -54,12 +54,9 @@ const CreateDirectDistributionEventView = () => {
     (createDistroEventFormData: CreateDistroEventFormData) => {
       const plannedStartDateTime = getISODateTimeFromDateAndTime(
         createDistroEventFormData.eventDate,
-        createDistroEventFormData.eventTime
+        createDistroEventFormData.eventTime,
       );
-      const plannedEndDateTime = addHours(
-        plannedStartDateTime,
-        createDistroEventFormData.duration
-      );
+      const plannedEndDateTime = addHours(plannedStartDateTime, createDistroEventFormData.duration);
 
       createDistributionEventMutation({
         variables: {
@@ -77,17 +74,14 @@ const CreateDirectDistributionEventView = () => {
             throw new Error(JSON.stringify(mutationResult.errors));
           }
           navigate(
-            `/bases/${currentBaseId}/distributions/spots/${createDistroEventFormData.distroSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`
+            `/bases/${currentBaseId}/distributions/spots/${createDistroEventFormData.distroSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`,
           );
         })
         .catch((error) => {
-          console.error(
-            "Error while trying to create Distribution Event",
-            error
-          );
+          console.error("Error while trying to create Distribution Event", error);
         });
     },
-    [createDistributionEventMutation, currentBaseId, navigate]
+    [createDistributionEventMutation, currentBaseId, navigate],
   );
 
   const { loading, error, data } = useQuery<
@@ -107,15 +101,8 @@ const CreateDirectDistributionEventView = () => {
     return <div>Error!</div>;
   }
   if (data?.base?.distributionSpots == null) {
-    console.error(
-      "Error - Incomplete data in the database for this Distriubtion Spot",
-      data
-    );
-    return (
-      <div>
-        Error - Incomplete data in the database for this Distriubtion Spot
-      </div>
-    );
+    console.error("Error - Incomplete data in the database for this Distriubtion Spot", data);
+    return <div>Error - Incomplete data in the database for this Distriubtion Spot</div>;
   }
   const allDistroSpots = data?.base?.distributionSpots.map((spot) => ({
     ...spot,
