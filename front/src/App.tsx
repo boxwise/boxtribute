@@ -16,7 +16,7 @@ import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOv
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
-import { useAuthorization } from "hooks/useAuthorization";
+import { AuthorizeProps, useAuthorization } from "hooks/useAuthorization";
 import ResolveHash from "views/QrReader/components/ResolveHash";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
@@ -27,9 +27,7 @@ import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard
 type ProtectedRouteProps = {
   component: ReactElement;
   redirectPath: string | undefined;
-  requiredAbp?: string[];
-  minBeta?: number;
-};
+} & AuthorizeProps;
 
 type DropappRedirectProps = {
   path: "/boxes/:boxId" | "/boxes/create/:qrCodeHash" | "/qrreader" | "/qrreader/:qrCodeHash";
@@ -38,13 +36,13 @@ type DropappRedirectProps = {
 function Protected({
   component,
   redirectPath,
-  requiredAbp = [],
+  requiredAbps = [],
   minBeta = 0,
 }: ProtectedRouteProps) {
   const { triggerError } = useErrorHandling();
   const { pathname: currentPath } = useLocation();
   const authorize = useAuthorization();
-  const isAuthorized = authorize({ requiredAbp, minBeta });
+  const isAuthorized = authorize({ requiredAbps, minBeta });
 
   useEffect(() => {
     if (!isAuthorized)
@@ -145,7 +143,12 @@ function App() {
             <Route
               index
               element={
-                <Protected component={<Dashboard />} redirectPath={prevLocation} minBeta={3} />
+                <Protected
+                  component={<Dashboard />}
+                  redirectPath={prevLocation}
+                  minBeta={3}
+                  requiredAbps={[["view_inventory", "view_shipments", "view_beneficiary_graph"]]}
+                />
               }
             />
           </Route>
@@ -166,7 +169,7 @@ function App() {
                     </ErrorBoundary>
                   }
                   redirectPath={prevLocation}
-                  requiredAbp={["manage_inventory"]}
+                  requiredAbps={["manage_inventory"]}
                 />
               }
             />
@@ -177,7 +180,7 @@ function App() {
                   <Protected
                     component={<BoxCreateView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["manage_inventory"]}
+                    requiredAbps={["manage_inventory"]}
                   />
                 }
               />
@@ -189,7 +192,7 @@ function App() {
                   <Protected
                     component={<BTBox />}
                     redirectPath={prevLocation}
-                    requiredAbp={["view_inventory"]}
+                    requiredAbps={["view_inventory"]}
                   />
                 }
               />
@@ -199,7 +202,7 @@ function App() {
                   <Protected
                     component={<BoxEditView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["manage_inventory"]}
+                    requiredAbps={["manage_inventory"]}
                   />
                 }
               />
@@ -216,7 +219,7 @@ function App() {
                   <Protected
                     component={<TransferAgreementOverviewView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["view_transfer_agreements"]}
+                    requiredAbps={["view_transfer_agreements"]}
                   />
                 }
               />
@@ -226,7 +229,7 @@ function App() {
                   <Protected
                     component={<CreateTransferAgreementView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["create_transfer_agreement"]}
+                    requiredAbps={["create_transfer_agreement"]}
                   />
                 }
               />
@@ -238,7 +241,7 @@ function App() {
                   <Protected
                     component={<ShipmentsOverviewView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["view_shipments"]}
+                    requiredAbps={["view_shipments"]}
                   />
                 }
               />
@@ -248,7 +251,7 @@ function App() {
                   <Protected
                     component={<CreateShipmentView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["create_shipment"]}
+                    requiredAbps={["create_shipment"]}
                   />
                 }
               />
@@ -258,7 +261,7 @@ function App() {
                   <Protected
                     component={<ShipmentView />}
                     redirectPath={prevLocation}
-                    requiredAbp={["view_shipments"]}
+                    requiredAbps={["view_shipments"]}
                   />
                 }
               />

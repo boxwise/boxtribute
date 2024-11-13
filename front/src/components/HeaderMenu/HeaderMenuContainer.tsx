@@ -3,7 +3,7 @@ import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
 import { useAuthorization } from "hooks/useAuthorization";
-import HeaderMenu, { IMenuItemsGroupData } from "./HeaderMenu";
+import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function HeaderMenuContainer() {
@@ -12,30 +12,30 @@ function HeaderMenuContainer() {
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   // TODO: do this at route definition
-  const menuItems: IMenuItemsGroupData[] = useMemo(() => {
+  const menuItems: MenuItemsGroupData[] = useMemo(() => {
     const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
     return [
       {
         text: "Statistics",
-        requiredAbp: [],
+        requiredAbps: [["view_inventory", "view_shipments", "view_beneficiary_graph"]],
         minBeta: 3,
         links: [
           {
             link: `/bases/${baseId}/statviz`,
             name: "Dashboard",
-            requiredAbp: [],
+            requiredAbps: [],
             beta: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=sales_list`,
             name: "Sales Reports",
-            requiredAbp: ["list_sales"],
+            requiredAbps: ["list_sales"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=fancygraphs`,
             name: "Fancy Graphs",
-            requiredAbp: ["view_beneficiary_graph"],
+            requiredAbps: ["view_beneficiary_graph"],
             beta: true,
             external: true,
           },
@@ -43,30 +43,30 @@ function HeaderMenuContainer() {
       },
       {
         text: "Aid Inventory",
-        requiredAbp: ["create_label"],
+        requiredAbps: ["create_label"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=qr`,
             name: "Print Box Labels",
-            requiredAbp: ["create_label"],
+            requiredAbps: ["create_label"],
             external: true,
           },
           {
             link: `/bases/${baseId}/boxes`,
             name: "Manage Boxes",
             beta: true,
-            requiredAbp: ["manage_inventory"],
+            requiredAbps: ["manage_inventory"],
           },
           {
             link: `${oldAppUrlWithBase}&action=stock`,
             name: "Classic Manage Boxes",
-            requiredAbp: ["manage_inventory"],
+            requiredAbps: ["manage_inventory"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=stock_overview`,
             name: "Stock Planning",
-            requiredAbp: ["view_inventory"],
+            requiredAbps: ["view_inventory"],
             external: true,
           },
         ],
@@ -74,96 +74,96 @@ function HeaderMenuContainer() {
       {
         text: "Aid Transfers",
         minBeta: 2,
-        requiredAbp: ["view_shipments"],
+        requiredAbps: ["view_shipments"],
         links: [
           {
             link: `/bases/${baseId}/transfers/shipments`,
             name: "Manage Shipments",
             beta: true,
-            requiredAbp: ["view_shipments"],
+            requiredAbps: ["view_shipments"],
           },
           {
             link: `/bases/${baseId}/transfers/agreements`,
             name: "Manage Agreements",
             beta: true,
-            requiredAbp: ["view_transfer_agreements"],
+            requiredAbps: ["view_transfer_agreements"],
           },
         ],
       },
       {
         text: "Beneficiaries",
-        requiredAbp: ["create_beneficiaries"],
+        requiredAbps: ["create_beneficiaries"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=people_add`,
             name: "Add Beneficiary",
-            requiredAbp: ["create_beneficiaries"],
+            requiredAbps: ["create_beneficiaries"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=people`,
             name: "Manage Beneficiaries",
-            requiredAbp: ["manage_beneficiaries"],
+            requiredAbps: ["manage_beneficiaries"],
             external: true,
           },
         ],
       },
       {
         text: "Free Shop",
-        requiredAbp: ["checkout_beneficiaries"],
+        requiredAbps: [["view_inventory", "checkout_beneficiaries", "manage_tokens"]],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=check_out`,
             name: "Checkout",
-            requiredAbp: ["checkout_beneficiaries"],
+            requiredAbps: ["checkout_beneficiaries"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=container-stock`,
             name: "Stockroom",
-            requiredAbp: ["view_inventory"],
+            requiredAbps: ["view_inventory"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=market_schedule`,
             name: "Generate market schedule",
-            requiredAbp: ["generate_market_schedule"],
+            requiredAbps: ["generate_market_schedule"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=give2all`,
             name: "Give Tokens To All",
-            requiredAbp: ["manage_tokens"],
+            requiredAbps: ["manage_tokens"],
             external: true,
           },
         ],
       },
       {
         text: "Coordinator Admin",
-        requiredAbp: ["manage_volunteers"],
+        requiredAbps: ["manage_volunteers"],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=tags`,
             name: "Manage Tags",
-            requiredAbp: ["manage_tags"],
+            requiredAbps: ["manage_tags"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=products`,
             name: "Manage Products",
-            requiredAbp: ["manage_products"],
+            requiredAbps: ["manage_products"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=locations`,
             name: "Edit Warehouses",
-            requiredAbp: ["manage_warehouses"],
+            requiredAbps: ["manage_warehouses"],
             external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=cms_users`,
             name: "Manage Users",
-            requiredAbp: ["manage_volunteers"],
+            requiredAbps: ["manage_volunteers"],
             external: true,
           },
         ],
@@ -171,19 +171,19 @@ function HeaderMenuContainer() {
     ];
   }, [baseId]);
 
-  const authorizedMenuItems: IMenuItemsGroupData[] = useMemo(
+  const authorizedMenuItems: MenuItemsGroupData[] = useMemo(
     () =>
       menuItems.reduce((acc, menuItem) => {
-        if (authorize({ requiredAbp: menuItem.requiredAbp, minBeta: menuItem.minBeta })) {
+        if (authorize({ requiredAbps: menuItem.requiredAbps, minBeta: menuItem.minBeta })) {
           acc.push({
             ...menuItem,
             links: menuItem.links.filter((subMenu) =>
-              authorize({ requiredAbp: subMenu.requiredAbp, minBeta: subMenu.minBeta }),
+              authorize({ requiredAbps: subMenu.requiredAbps, minBeta: subMenu.minBeta }),
             ),
           });
         }
         return acc;
-      }, [] as IMenuItemsGroupData[]),
+      }, [] as MenuItemsGroupData[]),
     [menuItems, authorize],
   );
 
