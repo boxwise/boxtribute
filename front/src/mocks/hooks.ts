@@ -17,9 +17,9 @@ export function mockAuthenticatedUser(mockedUseAuth0: any, email: string, action
     isAuthenticated: true,
     user: {
       email,
-      JWT_ABP: actions,
-      JWT_BETA: betaUser,
-      JWT_ROLE: roles,
+      [JWT_ABP]: actions,
+      [JWT_BETA]: betaUser,
+      [JWT_ROLE]: roles,
     },
     logout: vi.fn(),
     loginWithRedirect: vi.fn(),
