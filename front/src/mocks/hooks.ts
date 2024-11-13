@@ -1,3 +1,4 @@
+import { JWT_ROLE, JWT_ABP, JWT_BETA } from "utils/constants";
 import { vi } from "vitest";
 /**
  * Mocking the return value of the useAuth0 hook. This is needed to mock the authentication of a test user
@@ -16,9 +17,9 @@ export function mockAuthenticatedUser(mockedUseAuth0: any, email: string, action
     isAuthenticated: true,
     user: {
       email,
-      "https://www.boxtribute.com/actions": actions,
-      "https://www.boxtribute.com/beta_user": betaUser,
-      "https://www.boxtribute.com/roles": roles,
+      JWT_ABP: actions,
+      JWT_BETA: betaUser,
+      JWT_ROLE: roles,
     },
     logout: vi.fn(),
     loginWithRedirect: vi.fn(),
