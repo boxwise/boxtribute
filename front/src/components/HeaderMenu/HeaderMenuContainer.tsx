@@ -43,7 +43,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Aid Inventory",
-        requiredAbps: ["create_label"],
+        requiredAbps: [["view_inventory", "create_label"]],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=qr`,
