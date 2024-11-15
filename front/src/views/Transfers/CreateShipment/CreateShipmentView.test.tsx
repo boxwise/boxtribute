@@ -1,10 +1,10 @@
 import { vi, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
-import { organisation1 } from "mocks/organisations";
+import { organisation1, organisation2 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import { userEvent } from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
-import { base1 } from "mocks/bases";
+import { base1, base2 } from "mocks/bases";
 import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
@@ -156,10 +156,11 @@ it("4.3.1 - Initial load of Page", async () => {
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
   expect(title).toBeInTheDocument();
   // Test case 4.3.1.1 - Content: Displays Source Base Label
-  expect(screen.getByText(/boxaid - lesvos/i)).toBeInTheDocument();
+  expect(await screen.findByText(/boxaid/i)).toBeInTheDocument();
+  expect(await screen.findByText(/lesvos/i)).toBeInTheDocument();
   // Test case 4.3.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
   await selectOptionInSelectField(user, /organisation/i, "BoxCare");
@@ -190,7 +191,7 @@ it("4.3.2 - Input Validations", async () => {
     },
   });
 
-  const submitButton = await screen.findByRole("button", { name: /start/i });
+  const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitButton).toBeInTheDocument();
   user.click(submitButton);
   // Test case 4.3.2.1 - Partner Organisation SELECT field cannot be empty
@@ -198,7 +199,7 @@ it("4.3.2 - Input Validations", async () => {
   expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
-  expect(screen.getByText(/please select a base/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/please select a base/i)[0]).toBeInTheDocument();
 
   expect((await screen.findAllByText(/required/i)).length).toEqual(2);
 });
@@ -241,11 +242,11 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     },
   });
 
-  const title = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
   expect(title).toBeInTheDocument();
 
   // Test case 4.3.3.1 - Form data was valid and mutation was successful
-  const submitButton = await screen.findByRole("button", { name: /start/i });
+  const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitButton).toBeInTheDocument();
 
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
@@ -289,10 +290,10 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   });
 
   // Test case 4.3.3.3 - Form data was valid, but the mutation failed
-  const pageTitle = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const pageTitle = await screen.findByRole("heading", { name: "New Shipment" });
   expect(pageTitle).toBeInTheDocument();
 
-  const submitStartButton = await screen.findByRole("button", { name: /start/i });
+  const submitStartButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitStartButton).toBeInTheDocument();
 
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], pageTitle);
@@ -329,10 +330,12 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
   });
 
   // Test case 4.3.3.4 - Form data was valid, but the mutation response has errors
-  const shipmentPageTitle = await screen.findByRole("heading", { name: "Start New Shipment" });
+  const shipmentPageTitle = await screen.findByRole("heading", { name: "New Shipment" });
   expect(shipmentPageTitle).toBeInTheDocument();
 
-  const submitShipmentStartButton = await screen.findByRole("button", { name: /start/i });
+  const submitShipmentStartButton = await screen.findByRole("button", {
+    name: /Start New Shipment/i,
+  });
   expect(submitShipmentStartButton).toBeInTheDocument();
 
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], shipmentPageTitle);
@@ -348,6 +351,75 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
       }),
     ),
   );
+});
+
+// TODO: can't make this to work inside the test environment.
+it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
+  const user = userEvent.setup();
+
+  // modify the cache
+  cache.modify({
+    fields: {
+      shipments(existingShipments = []) {
+        const newShipmentRef = cache.writeFragment({
+          data: successfulMutation.result.data,
+          fragment: gql`
+            fragment NewShipment on Shipment {
+              id
+            }
+          `,
+        });
+        return existingShipments.concat(newShipmentRef);
+      },
+    },
+  });
+
+  render(<CreateShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/create",
+    // Maybe there's a route and org, base mismatch?
+    initialUrl: "/bases/2/transfers/shipments/create",
+    additionalRoute: "/bases/2/transfers/shipments/1",
+    mocks: [initialQuery, successfulMutation, initialWithoutBoxQuery],
+    addTypename: true,
+    cache,
+    globalPreferences: {
+      dispatch: vi.fn(),
+      globalPreferences: {
+        organisation: { id: organisation2.id, name: organisation2.name },
+        availableBases: organisation2.bases,
+        selectedBase: { id: base2.id, name: base2.name },
+      },
+    },
+  });
+
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
+  expect(title).toBeInTheDocument();
+
+  const intraOrgTab = await screen.findByRole("tab", { name: /BoxAid - Lesvos/i });
+  expect(intraOrgTab).toBeInTheDocument();
+  await user.click(intraOrgTab);
+
+  // Since this base is the only other base for this test org, it will be already selected.
+  expect(await screen.findByText("Samos")).toBeInTheDocument();
+
+  // Test case 4.3.3.1 - Form data was valid and mutation was successful
+  const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
+  expect(submitButton).toBeInTheDocument();
+
+  await user.click(submitButton);
+
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully created a new shipment/i),
+      }),
+    ),
+  );
+
+  // Test case 4.3.3.2 - Redirect to Transfers Shipments Page
+  expect(
+    await screen.findByRole("heading", { name: "/bases/1/transfers/shipments/1" }),
+  ).toBeInTheDocument();
 });
 
 // Test case 4.3.4

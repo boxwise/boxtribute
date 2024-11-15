@@ -41,7 +41,7 @@ export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
 
 export const CREATE_SHIPMENT_MUTATION = gql`
   ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int!) {
+  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int) {
     createShipment(
       creationInput: {
         sourceBaseId: $sourceBaseId
@@ -107,8 +107,10 @@ function CreateShipmentView() {
 
   // Prep data for Form
   const currentBase = allAcceptedTransferAgreements?.data?.base;
-  const currentOrganisationLabel = `${currentBase?.organisation?.name} - ${currentBase?.name}`;
+  const currentOrganisationName = currentBase?.organisation?.name;
+  const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
+  const currentOrganisationBases = globalPreferences.availableBases;
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
       ?.filter(
@@ -129,6 +131,7 @@ function CreateShipmentView() {
             name: agreement.sourceOrganisation.name,
             bases: agreement.sourceBases,
             agreementId: agreement.id,
+            agreementComment: agreement.comment,
           } as IAcceptedTransferAgreementsPartnerData;
         }
         return {
@@ -136,6 +139,7 @@ function CreateShipmentView() {
           name: agreement.targetOrganisation.name,
           bases: agreement.targetBases,
           agreementId: agreement.id,
+          agreementComment: agreement.comment,
         } as IAcceptedTransferAgreementsPartnerData;
       });
 
@@ -147,6 +151,7 @@ function CreateShipmentView() {
           id: agreement.id,
           name: agreement.name,
           bases: agreement.bases,
+          agreement: agreement.comment,
         }) as IOrganisationBaseData,
     )
     .reduce((accumulator, currentOrg) => {
@@ -168,14 +173,17 @@ function CreateShipmentView() {
   const onSubmitCreateShipmentForm = useCallback(
     (createShipmentFormData: ICreateShipmentFormData) => {
       // Find the possible agreement Ids for the partner base
+      // Or ignore this and return an empty array if this is an intra-org shipment between bases of the same organization.
       const agreementIds: Array<string> =
-        acceptedTransferAgreementsPartnerData
-          ?.filter((org) =>
-            org.bases.some((base) => base.id === createShipmentFormData.receivingBase.value),
-          )
-          .map((org) => org.agreementId) || [];
+        createShipmentFormData.shipmentTarget === "currentOrg"
+          ? []
+          : acceptedTransferAgreementsPartnerData
+              ?.filter((org) =>
+                org.bases.some((base) => base.id === createShipmentFormData.receivingBase.value),
+              )
+              .map((org) => org.agreementId) || [];
 
-      if (agreementIds.length === 0) {
+      if (agreementIds.length === 0 && createShipmentFormData.shipmentTarget === "partners") {
         triggerError({
           message: "Error while trying to create a new shipment",
         });
@@ -223,9 +231,7 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) {
-    return <APILoadingIndicator />;
-  }
+  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) return <APILoadingIndicator />;
 
   const renderNoAcceptedAgreementsAlert = (
     <Alert status="warning">
@@ -248,13 +254,9 @@ function CreateShipmentView() {
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
-  if (noAcceptedAgreements) {
-    return renderNoAcceptedAgreementsAlert;
-  }
+  if (noAcceptedAgreements) return renderNoAcceptedAgreementsAlert;
 
-  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) {
-    return renderErrorAlert;
-  }
+  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) return renderErrorAlert;
 
   return (
     <>
@@ -262,7 +264,10 @@ function CreateShipmentView() {
       <Center>
         <CreateShipment
           isLoading={createShipmentMutationState.loading}
-          currentOrganisationLabel={currentOrganisationLabel}
+          currentOrganisationId={currentOrganisationId || ""}
+          currentOrganisationName={currentOrganisationName || ""}
+          currentOrganisationBase={currentOrganisationBase || ""}
+          currentOrganisationBases={currentOrganisationBases || []}
           organisationBaseData={partnerOrganisationBaseData}
           onSubmit={onSubmitCreateShipmentForm}
         />
