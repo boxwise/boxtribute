@@ -49,7 +49,7 @@ jobs:
             pnpm config set store-dir .pnpm-store
       - run:
           name: Install node packages for all front-ends
-          command: pnpm install --frozen-lockfile
+          command: corepack use pnpm@`pnpm -v` && pnpm i
       - save_cache:
           key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
           paths:
