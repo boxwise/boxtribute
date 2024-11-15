@@ -64,7 +64,8 @@ export type ICreateShipmentFormData = z.infer<typeof ShipmentFormSchema>;
 export interface ICreateShipmentProps {
   isLoading: boolean;
   currentOrganisationId: string;
-  currentOrganisationLabel: string;
+  currentOrganisationName: string;
+  currentOrganisationBase: string;
   /**
    * Same/Intra-org base data.
    */
@@ -81,7 +82,8 @@ export type ShipmentTarget = z.infer<typeof shipmentTargetSchema>;
 function CreateShipment({
   isLoading,
   currentOrganisationId,
-  currentOrganisationLabel,
+  currentOrganisationName,
+  currentOrganisationBase,
   currentOrganisationBases,
   organisationBaseData,
   onSubmit,
@@ -113,7 +115,7 @@ function CreateShipment({
   });
 
   setValueIntraOrg("receivingOrganisation", {
-    label: currentOrganisationLabel,
+    label: currentOrganisationName,
     value: currentOrganisationId,
   });
 
@@ -131,6 +133,8 @@ function CreateShipment({
       value: base.id,
       label: base.name,
     }));
+
+  const haveIntraOrganisationOptions = intraOrganisationOptions.length > 0;
 
   // selected Option for organisation field
   const receivingOrganisation = watch("receivingOrganisation");
@@ -188,7 +192,7 @@ function CreateShipment({
           </HStack>
           <Center my={4}>
             <Text fontWeight="medium" fontSize="md">
-              {currentOrganisationLabel}
+              <strong>{currentOrganisationName}</strong> {currentOrganisationBase}
             </Text>
           </Center>
         </Box>
@@ -200,9 +204,14 @@ function CreateShipment({
         </HStack>
         <TabList border="2px" borderTop="none" borderBottom="none">
           <Tab flex={1}>PARTNERS</Tab>
-          <Tab flex={1}>{currentOrganisationLabel}</Tab>
+          {haveIntraOrganisationOptions && <Tab flex={1}>{currentOrganisationName}</Tab>}
         </TabList>
-        <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
+        <TabIndicator
+          mt="-1.5px"
+          height="2px"
+          bg={haveIntraOrganisationOptions ? "blue.500" : "black"}
+          borderRadius="1px"
+        />
         <TabPanels>
           <TabPanel padding={0}>
             <form onSubmit={handleSubmit(onSubmit)}>

@@ -107,7 +107,8 @@ function CreateShipmentView() {
 
   // Prep data for Form
   const currentBase = allAcceptedTransferAgreements?.data?.base;
-  const currentOrganisationLabel = `${currentBase?.organisation?.name} - ${currentBase?.name}`;
+  const currentOrganisationName = currentBase?.organisation?.name;
+  const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
   const currentOrganisationBases = globalPreferences.availableBases;
   const acceptedTransferAgreementsPartnerData =
@@ -130,6 +131,7 @@ function CreateShipmentView() {
             name: agreement.sourceOrganisation.name,
             bases: agreement.sourceBases,
             agreementId: agreement.id,
+            agreementComment: agreement.comment,
           } as IAcceptedTransferAgreementsPartnerData;
         }
         return {
@@ -263,7 +265,8 @@ function CreateShipmentView() {
         <CreateShipment
           isLoading={createShipmentMutationState.loading}
           currentOrganisationId={currentOrganisationId || ""}
-          currentOrganisationLabel={currentOrganisationLabel}
+          currentOrganisationName={currentOrganisationName || ""}
+          currentOrganisationBase={currentOrganisationBase || ""}
           currentOrganisationBases={currentOrganisationBases || []}
           organisationBaseData={partnerOrganisationBaseData}
           onSubmit={onSubmitCreateShipmentForm}
