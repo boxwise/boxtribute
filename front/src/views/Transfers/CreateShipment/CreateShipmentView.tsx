@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   AllAcceptedTransferAgreementsQuery,
+  AllAvailableBasesQuery,
   CreateShipmentMutation,
   CreateShipmentMutationVariables,
   TransferAgreementType,
@@ -35,6 +36,19 @@ export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
 
     transferAgreements(states: Accepted) {
       ...TransferAgreementFields
+    }
+  }
+`;
+
+export const ALL_AVAILABLE_BASES_QUERY = gql`
+  query AllAvailableBases($orgId: ID!) {
+    organisation(id: $orgId) {
+      id
+      name
+      bases {
+        id
+        name
+      }
     }
   }
 `;
@@ -110,7 +124,15 @@ function CreateShipmentView() {
   const currentOrganisationName = currentBase?.organisation?.name;
   const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
-  const currentOrganisationBases = globalPreferences.availableBases;
+
+  const allAvailableBases = useQuery<AllAvailableBasesQuery>(ALL_AVAILABLE_BASES_QUERY, {
+    variables: {
+      orgId: currentOrganisationId,
+    },
+  });
+
+  const currentOrganisationBases = allAvailableBases?.data?.organisation?.bases;
+
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
       ?.filter(
