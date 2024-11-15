@@ -159,7 +159,8 @@ it("4.3.1 - Initial load of Page", async () => {
   const title = await screen.findByRole("heading", { name: "New Shipment" });
   expect(title).toBeInTheDocument();
   // Test case 4.3.1.1 - Content: Displays Source Base Label
-  expect(screen.getAllByText(/boxaid - lesvos/i)[0]).toBeInTheDocument();
+  expect(await screen.findByText(/boxaid/i)).toBeInTheDocument();
+  expect(await screen.findByText(/lesvos/i)).toBeInTheDocument();
   // Test case 4.3.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
   await selectOptionInSelectField(user, /organisation/i, "BoxCare");
