@@ -87,7 +87,7 @@ it("1.3.4 - Menus available to the user depending on ABPs - Coordinator Admin", 
   });
 
   expect(screen.getByRole("button", { name: /Statistics/i })).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /Aid Inventory/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Aid Inventory/i })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /Coordinator Admin/i })).toBeInTheDocument();
 }, 10000);
 
@@ -113,7 +113,7 @@ it("1.3.5 - Menus available to the user depending on ABPs - Coordinator Admin w/
   });
 
   expect(screen.getByRole("button", { name: /Statistics/i })).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /Aid Inventory/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Aid Inventory/i })).toBeInTheDocument();
 
   expect(screen.getByRole("button", { name: /Coordinator Admin/i })).toBeInTheDocument();
   expect(screen.getByText(/Manage Products/i)).toBeInTheDocument();
