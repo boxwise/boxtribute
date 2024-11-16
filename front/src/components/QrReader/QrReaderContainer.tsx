@@ -22,14 +22,6 @@ const CAMERA_NOT_PERMITED_TEXT =
   "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
 const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
   'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow". Then, reload the page.';
-const IPHONE_WARNING_TEXT = (
-  <p>
-    <strong>Known Issue</strong>
-    <br />
-    We are experiencing problems with QR scanning on iPhone only. If you are also experiencing
-    issues, please contact us so we can add it to our investigation.
-  </p>
-);
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { baseId } = useBaseIdParam();
@@ -59,10 +51,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       .getUserMedia({
         audio: false,
         video: true,
-      })
-      .then(() => {
-        // Permission is granted, update state
-        setIsCameraNotPermited(false);
       })
       .catch((error) => {
         if (error.name === "NotAllowedError") {
@@ -182,12 +170,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   return (
     <>
-      {isIOS && (
-        <>
-          <AlertWithoutAction type="warning" alertText={IPHONE_WARNING_TEXT} />
-          <br />
-        </>
-      )}
       {isCameraNotPermited && (
         <>
           <AlertWithoutAction
@@ -205,7 +187,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       )}
       <QrReader
         isMultiBox={isMultiBox}
-        isCameraNotPermited={isCameraNotPermited}
         onTabSwitch={(index) => setIsMultiBox(index === 1)}
         onScan={onScan}
         onFindBoxByLabel={onFindBoxByLabel}
