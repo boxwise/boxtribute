@@ -155,9 +155,6 @@ function BoxCreateView() {
     setNoInstockLocation(false);
     setNoProducts(false);
 
-    console.log(allLocations);
-    console.log(allProducts);
-
     // Disable form submission if instock warehouse location or products associated with base
     if ((allLocations?.length || 0) < 1) setNoInstockLocation(true);
     if ((allProducts?.length || 0) < 1) setNoProducts(true);
