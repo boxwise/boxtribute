@@ -13,6 +13,7 @@ import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { QrReaderSkeleton } from "components/Skeletons";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
@@ -34,6 +35,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
+  // Force re-render of this component. Specific to iOS. See https://trello.com/c/HjvYpFRC/1528-bug-no-iphone-camera-access-in-qr-scanner-even-after-giving-permissions
   const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
   const [boxNotOwned, setBoxNotOwned] = useState("");
   const setIsProcessingQrCodeDelayed = useCallback(
@@ -187,14 +189,17 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           <br />
         </>
       )}
-      <QrReader
-        isMultiBox={isMultiBox}
-        onTabSwitch={(index) => setIsMultiBox(index === 1)}
-        onScan={onScan}
-        onFindBoxByLabel={onFindBoxByLabel}
-        findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
-        cameraPermissionChecked={cameraPermissionChecked}
-      />
+      {cameraPermissionChecked ? (
+        <QrReader
+          isMultiBox={isMultiBox}
+          onTabSwitch={(index) => setIsMultiBox(index === 1)}
+          onScan={onScan}
+          onFindBoxByLabel={onFindBoxByLabel}
+          findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+        />
+      ) : (
+        <QrReaderSkeleton />
+      )}
     </>
   );
 }
