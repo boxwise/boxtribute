@@ -214,6 +214,9 @@ function BoxesActionsAndTable({
         selectedBoxes={selectedBoxes}
         key="remove-boxes"
       />,
+      <Button onClick={() => {}} key="export" data-testid="export-button">
+        Export
+      </Button>,
       <SelectButton
         label="Move to ..."
         options={locationOptions}
