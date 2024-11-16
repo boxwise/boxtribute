@@ -150,13 +150,18 @@ function BoxCreateView() {
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
-  // Reset on query
-  setNoInstockLocation(false);
-  setNoProducts(false);
+  useEffect(() => {
+    // Reset on query
+    setNoInstockLocation(false);
+    setNoProducts(false);
 
-  // Disable form submission if instock warehouse location or products associated with base
-  if ((allLocations?.length || 0) < 1) setNoInstockLocation(true);
-  if ((allProducts?.length || 0) < 1) setNoProducts(true);
+    console.log(allLocations);
+    console.log(allProducts);
+
+    // Disable form submission if instock warehouse location or products associated with base
+    if ((allLocations?.length || 0) < 1) setNoInstockLocation(true);
+    if ((allProducts?.length || 0) < 1) setNoProducts(true);
+  }, [allLocations, allProducts]);
 
   // check data for form
   useEffect(() => {
@@ -251,22 +256,16 @@ function BoxCreateView() {
     return <div />;
 
   return (
-    <Center>
+    <Center flexDirection="column" gap={4}>
       {noInstockLocation && (
-        <>
-          <AlertWithoutAction
-            alertText={`${baseName} needs a coordinator to create an <InStock> warehouse location before boxes can be created!`}
-          />
-          <br />
-        </>
+        <AlertWithoutAction
+          alertText={`${baseName} needs a coordinator to create an <InStock> warehouse location before boxes can be created!`}
+        />
       )}
       {noProducts && (
-        <>
-          <AlertWithoutAction
-            alertText={`${baseName} needs a coordinator to activate products types before boxes can be created!`}
-          />
-          <br />
-        </>
+        <AlertWithoutAction
+          alertText={`${baseName} needs a coordinator to activate products types before boxes can be created!`}
+        />
       )}
       <BoxCreate
         allLocations={allLocations}
