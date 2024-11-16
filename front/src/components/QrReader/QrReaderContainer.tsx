@@ -21,7 +21,7 @@ interface IQrReaderContainerProps {
 const CAMERA_NOT_PERMITED_TEXT =
   "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
 const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
-  'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow". Then, reload the page';
+  'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow". Then, reload the page.';
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { baseId } = useBaseIdParam();
