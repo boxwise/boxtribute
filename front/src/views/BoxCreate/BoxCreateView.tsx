@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -18,6 +18,8 @@ import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { AlertWithoutAction } from "components/Alerts";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
@@ -86,6 +88,12 @@ function BoxCreateView() {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
+
+  // no instock warehouse location or products associated with base
+  const [noInstockLocation, setNoInstockLocation] = useState(false);
+  const [noProducts, setNoProducts] = useState(false);
 
   // variables in URL
   const { baseId } = useBaseIdParam();
@@ -141,6 +149,14 @@ function BoxCreateView() {
       name: location.name ?? "",
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+
+  // Reset on query
+  setNoInstockLocation(false);
+  setNoProducts(false);
+
+  // Disable form submission if instock warehouse location or products associated with base
+  if ((allLocations?.length || 0) < 1) setNoInstockLocation(true);
+  if ((allProducts?.length || 0) < 1) setNoProducts(true);
 
   // check data for form
   useEffect(() => {
@@ -222,9 +238,8 @@ function BoxCreateView() {
   };
 
   // Handle Loading State
-  if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading) {
+  if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading)
     return <APILoadingIndicator />;
-  }
 
   // TODO: handle errors not with empty div, but forward or roll data back in the view
   if (
@@ -232,17 +247,33 @@ function BoxCreateView() {
     qrCodeExists.error ||
     allLocations === undefined ||
     allProducts === undefined
-  ) {
+  )
     return <div />;
-  }
 
   return (
     <Center>
+      {noInstockLocation && (
+        <>
+          <AlertWithoutAction
+            alertText={`${baseName} needs a coordinator to create an <InStock> warehouse location before boxes can be created!`}
+          />
+          <br />
+        </>
+      )}
+      {noProducts && (
+        <>
+          <AlertWithoutAction
+            alertText={`${baseName} needs a coordinator to activate products types before boxes can be created!`}
+          />
+          <br />
+        </>
+      )}
       <BoxCreate
         allLocations={allLocations}
         productAndSizesData={allProducts}
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         allTags={allTags}
+        disableSubmission={noInstockLocation || noProducts}
       />
     </Center>
   );
