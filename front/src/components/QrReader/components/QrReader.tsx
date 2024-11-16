@@ -24,6 +24,7 @@ export interface IQrReaderProps {
   onTabSwitch: (index: number) => void;
   onScan: (result: string, multiScan: boolean) => void;
   onFindBoxByLabel: (label: string) => void;
+  cameraPermissionChecked: boolean;
 }
 
 function QrReader({

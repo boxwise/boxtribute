@@ -188,7 +188,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         </>
       )}
       <QrReader
-        key={cameraPermissionChecked.toString()}
+        cameraPermissionChecked={cameraPermissionChecked}
         isMultiBox={isMultiBox}
         onTabSwitch={(index) => setIsMultiBox(index === 1)}
         onScan={onScan}
