@@ -248,7 +248,7 @@ function BoxCreate({
               type="submit"
               borderRadius="0"
               w="full"
-              disabled={disableSubmission}
+              isDisabled={disableSubmission}
             >
               Create Box
             </Button>
