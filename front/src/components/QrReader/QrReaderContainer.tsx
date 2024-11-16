@@ -188,12 +188,12 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         </>
       )}
       <QrReader
-        cameraPermissionChecked={cameraPermissionChecked}
         isMultiBox={isMultiBox}
         onTabSwitch={(index) => setIsMultiBox(index === 1)}
         onScan={onScan}
         onFindBoxByLabel={onFindBoxByLabel}
         findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+        cameraPermissionChecked={cameraPermissionChecked}
       />
     </>
   );

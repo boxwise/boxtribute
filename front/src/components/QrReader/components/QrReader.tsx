@@ -24,6 +24,9 @@ export interface IQrReaderProps {
   onTabSwitch: (index: number) => void;
   onScan: (result: string, multiScan: boolean) => void;
   onFindBoxByLabel: (label: string) => void;
+  /**
+   * Force re-render of this component. Specific to iOS. See https://trello.com/c/HjvYpFRC/1528-bug-no-iphone-camera-access-in-qr-scanner-even-after-giving-permissions
+   */
   cameraPermissionChecked: boolean;
 }
 
