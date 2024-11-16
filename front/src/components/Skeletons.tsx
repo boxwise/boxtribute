@@ -170,6 +170,14 @@ export function ButtonSkeleton() {
   );
 }
 
+export function QrReaderSkeleton() {
+  return (
+    <Stack data-testid="QrReaderSkeleton">
+      <Skeleton width="100%" height="562px" />
+    </Stack>
+  );
+}
+
 export function QrReaderMultiBoxSkeleton() {
   return (
     <Stack direction="column" spacing={4} data-testid="QrReaderMultiBoxSkeleton">

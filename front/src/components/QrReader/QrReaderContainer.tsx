@@ -13,6 +13,7 @@ import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { QrReaderSkeleton } from "components/Skeletons";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
@@ -187,14 +188,17 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           <br />
         </>
       )}
-      <QrReader
-        isMultiBox={isMultiBox}
-        onTabSwitch={(index) => setIsMultiBox(index === 1)}
-        onScan={onScan}
-        onFindBoxByLabel={onFindBoxByLabel}
-        findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
-        cameraPermissionChecked={cameraPermissionChecked}
-      />
+      {cameraPermissionChecked ? (
+        <QrReader
+          isMultiBox={isMultiBox}
+          onTabSwitch={(index) => setIsMultiBox(index === 1)}
+          onScan={onScan}
+          onFindBoxByLabel={onFindBoxByLabel}
+          findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+        />
+      ) : (
+        <QrReaderSkeleton />
+      )}
     </>
   );
 }
