@@ -25,6 +25,6 @@
   },
   "devDependencies": {
     "@graphql-codegen/client-preset": "^4.5.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.2"
   }
 }
