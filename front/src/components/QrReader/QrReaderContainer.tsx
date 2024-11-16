@@ -34,6 +34,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
+  const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
   const [boxNotOwned, setBoxNotOwned] = useState("");
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
@@ -63,7 +64,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             message: `getUserMedia error: ${error.name}`,
           });
         }
-      });
+      })
+      .finally(() => setCameraPermissionChecked(true));
   };
 
   // handle a scan depending on if the solo box or multi box tab is active
@@ -191,6 +193,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         onScan={onScan}
         onFindBoxByLabel={onFindBoxByLabel}
         findBoxByLabelIsLoading={findByBoxLabelIsLoading || isProcessingQrCode}
+        cameraPermissionChecked={cameraPermissionChecked}
       />
     </>
   );
