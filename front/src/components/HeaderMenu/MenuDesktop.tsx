@@ -5,19 +5,22 @@ import {
   AccordionPanel,
   Flex,
   Box,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
 import { ACCOUNT_SETTINGS_URL } from "./consts";
 import { useHandleLogout } from "hooks/hooks";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BoxtributeLogo from "./BoxtributeLogo";
 import { IHeaderMenuProps } from "./HeaderMenu";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
 import { useContext } from "react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import BaseSwitcher from "./BaseSwitcher";
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
@@ -25,6 +28,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
 
   return (
     <>
+      <BaseSwitcher isOpen={isOpen} onClose={onClose} />
       <Box h={20} w={256} />
       <Flex
         id="desktop-nav"
@@ -69,7 +73,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         <Accordion marginTop={"auto"}>
           <strong>Settings</strong>
           <AccordionItem>
-            <AccordionButton gap={3} onClick={() => {}}>
+            <AccordionButton gap={3} onClick={onOpen}>
               <MenuIcon icon="Base" /> You are in: {baseName}
             </AccordionButton>
           </AccordionItem>
