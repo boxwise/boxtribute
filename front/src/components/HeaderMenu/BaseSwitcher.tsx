@@ -23,9 +23,9 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const [value, setValue] = useState("1");
 
   const switchBase = () => {
-    const currentPath = window.location.pathname.split("/bases")[1].split("/")[2];
+    const currentPath = window.location.pathname.split("/bases/")[1].substring(1);
 
-    navigate(`/bases/${value}/${currentPath}`);
+    navigate(`/bases/${value}${currentPath}`);
     onClose();
   };
 
