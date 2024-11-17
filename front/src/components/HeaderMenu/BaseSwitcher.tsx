@@ -38,7 +38,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
           <ModalCloseButton />
           <ModalBody>
             <RadioGroup onChange={setValue} value={value}>
-              <Stack>
+              <Stack ml={"30%"}>
                 {currentOrganisationBases?.map((base) => (
                   <Radio key={base.id} value={base.id}>
                     {base.name}
