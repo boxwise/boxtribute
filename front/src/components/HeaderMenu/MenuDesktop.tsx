@@ -5,12 +5,6 @@ import {
   AccordionPanel,
   Flex,
   Box,
-  IconButton,
-  Menu,
-  MenuButton,
-  Img,
-  MenuItem,
-  MenuList,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
@@ -20,39 +14,20 @@ import BoxtributeLogo from "./BoxtributeLogo";
 import { IHeaderMenuProps } from "./HeaderMenu";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
+import { useContext } from "react";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
-function UserMenu() {
-  const { user, handleLogout } = useHandleLogout();
+function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
+  const { handleLogout } = useHandleLogout();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
+  const allowMultipleAccordionsOpen = window.screen.availHeight > 1080;
 
-  return (
-    <Box position={"fixed"} top={6} right={4} zIndex={3}>
-      <Menu>
-        <MenuButton
-          as={IconButton}
-          bg="transparent"
-          _hover={{ bg: "transparent" }}
-          _expanded={{ bg: "transparent" }}
-          icon={<Img src={user?.picture} width={10} height={10} borderRadius={50} />}
-        />
-        <MenuList my={0} border="2px" borderRadius="0px" py={0}>
-          <MenuItem as={NavLink} to={ACCOUNT_SETTINGS_URL} py={2} bg="gray.100">
-            Account
-          </MenuItem>
-          <MenuItem py={2} onClick={handleLogout} bg="gray.100">
-            Logout
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    </Box>
-  );
-}
-
-function MenuTablet({ menuItemsGroups }: IHeaderMenuProps) {
   return (
     <>
       <Box h={20} w={256} />
-      <UserMenu />
       <Flex
+        id="desktop-nav"
         as="nav"
         flexDirection="column"
         h={"100%"}
@@ -67,7 +42,7 @@ function MenuTablet({ menuItemsGroups }: IHeaderMenuProps) {
         bg={"white"}
       >
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-        <Accordion allowMultiple defaultIndex={expandedMenuIndex()}>
+        <Accordion allowMultiple={allowMultipleAccordionsOpen} defaultIndex={expandedMenuIndex()}>
           {menuItemsGroups.map((menu) => (
             <AccordionItem key={menu.text}>
               <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
@@ -91,9 +66,27 @@ function MenuTablet({ menuItemsGroups }: IHeaderMenuProps) {
             </AccordionItem>
           ))}
         </Accordion>
+        <Accordion marginTop={"auto"}>
+          <strong>Settings</strong>
+          <AccordionItem>
+            <AccordionButton gap={3} onClick={() => {}}>
+              <MenuIcon icon="Base" /> You are in: {baseName}
+            </AccordionButton>
+          </AccordionItem>
+          <AccordionItem>
+            <AccordionButton gap={3} as={NavLink} to={ACCOUNT_SETTINGS_URL}>
+              <MenuIcon icon="Account" /> Account
+            </AccordionButton>
+          </AccordionItem>
+          <AccordionItem>
+            <AccordionButton gap={3} onClick={handleLogout}>
+              <MenuIcon icon="Logout" /> Logout
+            </AccordionButton>
+          </AccordionItem>
+        </Accordion>
       </Flex>
     </>
   );
 }
 
-export default MenuTablet;
+export default MenuDesktop;

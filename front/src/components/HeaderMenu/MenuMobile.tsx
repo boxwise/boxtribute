@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import {
   Accordion,
   AccordionButton,
@@ -23,6 +23,7 @@ import { IHeaderMenuProps } from "./HeaderMenu";
 import BoxtributeLogo from "./BoxtributeLogo";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -43,6 +44,8 @@ function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; p
 
 function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const { handleLogout } = useHandleLogout();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
 
   return (
     <Flex as="nav" py={4} zIndex="2">
@@ -105,6 +108,11 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
               ))}
             </Accordion>
             <MenuDivider />
+            <MenuItem px={2} bg="transparent" _hover={{ bg: "transparent" }} onClick={() => {}}>
+              <SubItemBox>
+                <MenuIcon icon="Base" /> You are in: {baseName}
+              </SubItemBox>
+            </MenuItem>
             <MenuItem
               px={2}
               bg="transparent"
@@ -119,9 +127,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
             </MenuItem>
             <MenuItem px={2} bg="transparent" _hover={{ bg: "transparent" }} onClick={handleLogout}>
               <SubItemBox>
-                <Box style={{ rotate: "90deg" }}>
-                  <MenuIcon icon="Logout" />
-                </Box>
+                <MenuIcon icon="Logout" />
                 Logout
               </SubItemBox>
             </MenuItem>
