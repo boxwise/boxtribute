@@ -19,7 +19,7 @@
   "dependencies": {
     "@apollo/client": "^3.11.10",
     "@chakra-ui/icons": "^2.2.4",
-    "@chakra-ui/react": "2.8.2",
+    "@chakra-ui/react": "3.1.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.9.1",
