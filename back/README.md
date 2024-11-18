@@ -3,16 +3,18 @@
 ## Table of Contents
 
 1. [Contribution Guidelines](../CONTRIBUTING.md)
-1. [Minimal development set-up](#development-set-up)
+1. [Minimal development set-up](#minimal-development-set-up)
    1. [Install python](#install-python)
    2. [Set-up pre-commit](#set-up-pre-commit)
-1. [Back-end development set-up](#be-development-set-up)
+1. [Back-end development set-up](#back-end-development-set-up)
+   1. [Test environment set-up](#test-environment-set-up)
    1. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
 1. [Testing](#testing)
 1. [Architecture](#architecture)
 1. [GraphQL API](#graphql-api)
+1. [Project structure](#project-structure)
 1. [Production environment](#production-environment)
 1. [Performance evaluation](#performance-evaluation)
 1. [Authentication and Authorization on the back-end](#authentication-and-authorization)
@@ -348,6 +350,7 @@ For the production schema, documentation can be found online at `api.boxtribute.
 
 You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
+1. Set up the `.env` file and acquire the test client secret as described [here](#test-environment-set-up).
 1. Start the required services by `docker compose up webapp`
 1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
 1. Simulate being a valid, logged-in user by fetching an authorization token: `docker compose exec webapp ./back/fetch_token --test`
@@ -416,6 +419,7 @@ For other environments, replace the URL with the resp. Auth0 domain.
 
 <details>
   <summary>Apply this patch to enable connecting the webapp service to the GCloud SQL proxy. </summary>
+
 ```diff
 diff --git a/docker-compose.yml b/docker-compose.yml
 index c3180709..518d7689 100755
