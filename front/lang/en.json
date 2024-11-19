@@ -1,0 +1,11 @@
+{
+  "logout": {
+    "defaultMessage": "Logout"
+  },
+  "account": {
+    "defaultMessage": "Account of {name}"
+  },
+  "find_box": {
+    "defaultMessage": "Find Box"
+  }
+}

@@ -46,6 +46,7 @@ function UserMenu() {
           <MenuItem py={2} onClick={handleLogout} bg="gray.100">
             <FormattedMessage
               id="logout"
+              defaultMessage="Logout"
             />
           </MenuItem>
         </MenuList>

@@ -43,6 +43,8 @@
     "storybook": "^8.4.4"
   },
   "scripts": {
+    "extract": "formatjs extract",
+    "compile": "formatjs compile",
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
     "build": "pnpm generate-graphql-ts-types && tsc && vite build",
     "dev": "pnpm generate-graphql-ts-types --watch && vite ",
