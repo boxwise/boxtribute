@@ -14,6 +14,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { QrReaderSkeleton } from "components/Skeletons";
+import { Alert } from "@chakra-ui/react";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
@@ -23,6 +24,12 @@ const CAMERA_NOT_PERMITED_TEXT =
   "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
 const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
   'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow". Then, reload the page.';
+const IOS_PSA_TEXT = (
+  <p>
+    Issues with Multi-Box scanning were caused by an Apple update which we have fixed. If you
+    continue to experience problems, please contact us.
+  </p>
+);
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { baseId } = useBaseIdParam();
@@ -173,6 +180,12 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   return (
     <>
+      {isIOS && (
+        <>
+          <Alert status="success">{IOS_PSA_TEXT}</Alert>
+          <br />
+        </>
+      )}
       {isCameraNotPermited && (
         <>
           <AlertWithoutAction
