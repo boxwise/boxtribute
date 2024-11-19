@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertDescription, AlertIcon, Center } from "@chakra-ui/react";
+import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -40,8 +40,8 @@ export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
   }
 `;
 
-export const ALL_AVAILABLE_BASES_QUERY = gql`
-  query AllAvailableBases($orgId: ID!) {
+export const ALL_BASES_OF_CURRENT_ORG_QUERY = gql`
+  query AllBasesOfCurrentOrg($orgId: ID!) {
     organisation(id: $orgId) {
       id
       name
@@ -125,13 +125,13 @@ function CreateShipmentView() {
   const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
 
-  const allAvailableBases = useQuery<AllAvailableBasesQuery>(ALL_AVAILABLE_BASES_QUERY, {
+  const AllBasesOfCurrentOrg = useQuery<AllAvailableBasesQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
     variables: {
       orgId: currentOrganisationId,
     },
   });
 
-  const currentOrganisationBases = allAvailableBases?.data?.organisation?.bases;
+  const currentOrganisationBases = AllBasesOfCurrentOrg?.data?.organisation?.bases;
 
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
@@ -253,32 +253,20 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) return <APILoadingIndicator />;
-
-  const renderNoAcceptedAgreementsAlert = (
-    <Alert status="warning">
-      <AlertIcon />
-      <AlertDescription>
-        You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
-        shipment.
-      </AlertDescription>
-    </Alert>
-  );
-
-  const renderErrorAlert = (
-    <Alert status="error">
-      <AlertIcon />
-      Could not fetch Organisation and Base data! Please try reloading the page.
-    </Alert>
-  );
+  if (AllBasesOfCurrentOrg.loading || allAcceptedTransferAgreements.loading || isGlobalStateLoading)
+    return <APILoadingIndicator />;
 
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
-  if (noAcceptedAgreements) return renderNoAcceptedAgreementsAlert;
-
-  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) return renderErrorAlert;
+  if (AllBasesOfCurrentOrg.error || allAcceptedTransferAgreements.error)
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Could not fetch Organisation and Base data! Please try reloading the page.
+      </Alert>
+    );
 
   return (
     <>
@@ -290,8 +278,9 @@ function CreateShipmentView() {
           currentOrganisationName={currentOrganisationName || ""}
           currentOrganisationBase={currentOrganisationBase || ""}
           currentOrganisationBases={currentOrganisationBases || []}
-          organisationBaseData={partnerOrganisationBaseData}
+          organisationBaseData={partnerOrganisationBaseData || []}
           onSubmit={onSubmitCreateShipmentForm}
+          noAcceptedAgreements={noAcceptedAgreements || noPartnerOrgBaseData}
         />
       </Center>
     </>
