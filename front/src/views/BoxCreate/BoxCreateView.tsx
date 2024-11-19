@@ -91,8 +91,8 @@ function BoxCreateView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
 
-  // no instock warehouse location or products associated with base
-  const [noInstockLocation, setNoInstockLocation] = useState(false);
+  // no warehouse location or products associated with base
+  const [noLocation, setNoLocation] = useState(false);
   const [noProducts, setNoProducts] = useState(false);
 
   // variables in URL
@@ -140,10 +140,7 @@ function BoxCreateView() {
   const allProducts = allFormOptions.data?.base?.products;
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allFormOptions.data?.base?.locations
-    .filter(
-      (location) =>
-        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
-    )
+    .filter((location) => location?.defaultBoxState !== BoxState.Lost)
     .map((location) => ({
       ...location,
       name: location.name ?? "",
@@ -151,12 +148,8 @@ function BoxCreateView() {
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   useEffect(() => {
-    // Reset on query
-    setNoInstockLocation(false);
-    setNoProducts(false);
-
-    // Disable form submission if instock warehouse location or products associated with base
-    if ((allLocations?.length || 0) < 1) setNoInstockLocation(true);
+    // Disable form submission if no warehouse location or products associated with base
+    if ((allLocations?.length || 0) < 1) setNoLocation(true);
     if ((allProducts?.length || 0) < 1) setNoProducts(true);
   }, [allLocations, allProducts]);
 
@@ -243,18 +236,21 @@ function BoxCreateView() {
   if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading)
     return <APILoadingIndicator />;
 
-  // TODO: handle errors not with empty div, but forward or roll data back in the view
   if (
     !qrCodeExists.data?.qrExists ||
     qrCodeExists.error ||
     allLocations === undefined ||
-    allProducts === undefined
+    allProducts === undefined ||
+    allFormOptions.error ||
+    !allFormOptions.data?.base
   )
-    return <div />;
+    return (
+      <AlertWithoutAction alertText="Could not fetch QR, Location and Product data! Please try reloading the page." />
+    );
 
   return (
     <Center flexDirection="column" gap={4}>
-      {noInstockLocation && (
+      {noLocation && (
         <AlertWithoutAction
           alertText={`${baseName} needs a coordinator to create an <InStock> warehouse location before boxes can be created!`}
         />
@@ -265,11 +261,11 @@ function BoxCreateView() {
         />
       )}
       <BoxCreate
-        allLocations={allLocations}
-        productAndSizesData={allProducts}
+        allLocations={allLocations || []}
+        productAndSizesData={allProducts || []}
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         allTags={allTags}
-        disableSubmission={noInstockLocation || noProducts}
+        disableSubmission={noLocation || noProducts}
       />
     </Center>
   );
