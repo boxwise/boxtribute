@@ -270,6 +270,7 @@ function CreateShipment({
               <Stack spacing={4} mt={8}>
                 <Button
                   isLoading={isSubmitting || isLoading}
+                  isDisabled={noAcceptedAgreements}
                   type="submit"
                   borderRadius="0"
                   w="full"

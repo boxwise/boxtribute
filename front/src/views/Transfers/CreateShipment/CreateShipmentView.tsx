@@ -257,6 +257,7 @@ function CreateShipmentView() {
     return <APILoadingIndicator />;
 
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
+  // TODO: should we display the no agreements alert for this?
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
