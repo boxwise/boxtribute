@@ -13,6 +13,7 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
+import {FormattedMessage} from 'react-intl';
 
 import { ACCOUNT_SETTINGS_URL } from "./consts";
 import { useHandleLogout } from "hooks/hooks";
@@ -36,10 +37,16 @@ function UserMenu() {
         />
         <MenuList my={0} border="2px" borderRadius="0px" py={0}>
           <MenuItem as={NavLink} to={ACCOUNT_SETTINGS_URL} py={2} bg="gray.100">
-            Account
+            <FormattedMessage
+              id="account"
+              defaultMessage="Account of {name}"
+              values={{name: user.name}}
+            />
           </MenuItem>
           <MenuItem py={2} onClick={handleLogout} bg="gray.100">
-            Logout
+            <FormattedMessage
+              id="logout"
+            />
           </MenuItem>
         </MenuList>
       </Menu>

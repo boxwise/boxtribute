@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import {FormattedMessage} from 'react-intl';
 import { Result } from "@zxing/library";
 import {
   FormControl,
@@ -85,7 +86,12 @@ function QrReader({
         <TabPanels>
           <TabPanel>
             <FormControl isInvalid={!!boxLabelInputError}>
-              <FormLabel>Find Box</FormLabel>
+              <FormLabel>
+                <FormattedMessage
+                  id="find_box"
+                  defaultMessage="Find Box"
+                />
+              </FormLabel>
               <InputGroup borderRadius={0}>
                 <Input
                   type="string"

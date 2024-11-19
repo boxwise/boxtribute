@@ -16,11 +16,27 @@ import App from "./App";
 import { theme } from "./utils/theme";
 import { captureConsoleIntegration } from "@sentry/react";
 import React from "react";
+import {IntlProvider} from 'react-intl';
 
+const locale = "fr";
+const messages = {
+  "fr": {
+    find_box: "Trouve box",
+    account: "Compte de {name}",
+    logout: "Déconnecte-toi",
+  },
+  "en": {
+    find_box: "Find box",
+    account: "Account of {name}",
+    logout: "Logout",
+  }
+};
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
     <GlobalPreferencesProvider>
-      <App />
+      <IntlProvider messages={messages[locale]} locale={locale} defaultLocale="en">
+        <App />
+      </IntlProvider>
     </GlobalPreferencesProvider>
   </ApolloAuth0Provider>
 ));
