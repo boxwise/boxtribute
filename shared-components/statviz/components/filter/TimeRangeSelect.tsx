@@ -43,15 +43,16 @@ export default function TimeRangeSelect() {
 
   useEffect(() => {
     const currentQuery = searchParams.toString();
+    const newSearchParams = searchParams;
 
     if (!searchParams.get("from")) {
-      searchParams.append("from", date2String(subMonths(new Date(), 3)));
+      newSearchParams.append("from", date2String(subMonths(new Date(), 3)));
     }
     if (!searchParams.get("to")) {
-      searchParams.append("to", date2String(new Date()));
+      newSearchParams.append("to", date2String(new Date()));
     }
-    const from = searchParams.get("from")!;
-    const to = searchParams.get("to")!;
+    const from = newSearchParams.get("from")!;
+    const to = newSearchParams.get("to")!;
 
     if (toFormValue === undefined) {
       setValue("to", to);
@@ -62,16 +63,16 @@ export default function TimeRangeSelect() {
     }
 
     if (toFormValue && date2String(new Date(toFormValue)) !== to) {
-      searchParams.delete("to");
       const newToDate = date2String(new Date(toFormValue));
-      searchParams.append("to", newToDate);
+      newSearchParams.delete("to");
+      newSearchParams.append("to", newToDate);
       trackFilter({ filterId: "timeRange", newToDate, from });
     }
 
     if (fromFormValue && date2String(new Date(fromFormValue)) !== from) {
       const newFromDate = date2String(new Date(fromFormValue));
-      searchParams.delete("from");
-      searchParams.append("from", newFromDate);
+      newSearchParams.delete("from");
+      newSearchParams.append("from", newFromDate);
       trackFilter({
         filterId: "timeRange",
         from: newFromDate,
@@ -79,8 +80,8 @@ export default function TimeRangeSelect() {
       });
     }
 
-    if (searchParams.toString() !== currentQuery) {
-      setSearchParams(searchParams);
+    if (newSearchParams.toString() !== currentQuery) {
+      setSearchParams(newSearchParams);
     }
   }, [searchParams, setValue, setSearchParams, fromFormValue, toFormValue]);
 
