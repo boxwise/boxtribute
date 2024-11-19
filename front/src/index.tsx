@@ -16,11 +16,25 @@ import App from "./App";
 import { theme } from "./utils/theme";
 import { captureConsoleIntegration } from "@sentry/react";
 import React from "react";
+import {IntlProvider} from 'react-intl';
+
+const locale = 'fr';
+function loadLocaleData(locale: string) {
+  switch (locale) {
+    case 'fr':
+      return import('../compiled-lang/fr.json')
+    default:
+      return import('../compiled-lang/en.json')
+  }
+}
+const messages = await loadLocaleData(locale);
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
     <GlobalPreferencesProvider>
-      <App />
+      <IntlProvider messages={messages} locale={locale} defaultLocale="en">
+        <App />
+      </IntlProvider>
     </GlobalPreferencesProvider>
   </ApolloAuth0Provider>
 ));

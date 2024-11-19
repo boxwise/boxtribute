@@ -1,0 +1,11 @@
+{
+  "account": {
+    "defaultMessage": "Compte de {name}"
+  },
+  "find_box": {
+    "defaultMessage": "Trouve box"
+  },
+  "logout": {
+    "defaultMessage": "Déconnecte-toi"
+  }
+}

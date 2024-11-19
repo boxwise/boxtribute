@@ -1,0 +1,24 @@
+{
+  "account": [
+    {
+      "type": 0,
+      "value": "Compte de "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    }
+  ],
+  "find_box": [
+    {
+      "type": 0,
+      "value": "Trouve box"
+    }
+  ],
+  "logout": [
+    {
+      "type": 0,
+      "value": "Déconnecte-toi"
+    }
+  ]
+}
