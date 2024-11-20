@@ -1,5 +1,5 @@
-import { useCallback, useContext } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useCallback, useContext, useEffect } from "react";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -125,13 +125,24 @@ function CreateShipmentView() {
   const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
 
-  const AllBasesOfCurrentOrg = useQuery<AllBasesOfCurrentOrgQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
+  const [
+    runAllBasesOfCurrentOrg,
+    {
+      loading: allBasesOfCurrentOrgLoading,
+      error: allBasesOfCurrentOrgError,
+      data: AllBasesOfCurrentOrg,
+    },
+  ] = useLazyQuery<AllBasesOfCurrentOrgQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
     variables: {
       orgId: currentOrganisationId,
     },
   });
 
-  const currentOrganisationBases = AllBasesOfCurrentOrg?.data?.organisation?.bases;
+  useEffect(() => {
+    if (currentOrganisationId) runAllBasesOfCurrentOrg();
+  }, [runAllBasesOfCurrentOrg, currentOrganisationId]);
+
+  const currentOrganisationBases = AllBasesOfCurrentOrg?.organisation?.bases;
 
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
@@ -253,15 +264,14 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (AllBasesOfCurrentOrg.loading || allAcceptedTransferAgreements.loading || isGlobalStateLoading)
+  if (allBasesOfCurrentOrgLoading || allAcceptedTransferAgreements.loading || isGlobalStateLoading)
     return <APILoadingIndicator />;
 
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
-  // TODO: should we display the no agreements alert for this?
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
-  if (AllBasesOfCurrentOrg.error || allAcceptedTransferAgreements.error)
+  if (allBasesOfCurrentOrgError || allAcceptedTransferAgreements.error)
     return (
       <Alert status="error">
         <AlertIcon />
