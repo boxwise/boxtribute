@@ -14,7 +14,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { QrReaderSkeleton } from "components/Skeletons";
-import { Alert } from "@chakra-ui/react";
+import { Alert, CloseButton, useDisclosure } from "@chakra-ui/react";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
@@ -39,6 +39,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
+  const { isOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
@@ -54,6 +55,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   );
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const showIOSAlert = isIOS && isOpen;
 
   const checkCameraPermission = () => {
     navigator.mediaDevices
@@ -180,9 +182,18 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   return (
     <>
-      {isIOS && (
+      {showIOSAlert && (
         <>
-          <Alert status="success">{IOS_PSA_TEXT}</Alert>
+          <Alert status="success">
+            {IOS_PSA_TEXT}
+            <CloseButton
+              alignSelf="flex-start"
+              position="relative"
+              right={-1}
+              top={-1}
+              onClick={onClose}
+            />
+          </Alert>
           <br />
         </>
       )}
