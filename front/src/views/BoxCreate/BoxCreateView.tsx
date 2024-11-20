@@ -241,8 +241,6 @@ function BoxCreateView() {
   if (
     !qrCodeExists.data?.qrExists ||
     qrCodeExists.error ||
-    allLocations === undefined ||
-    allProducts === undefined ||
     allFormOptions.error ||
     !allFormOptions.data?.base
   )
