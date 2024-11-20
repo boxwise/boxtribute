@@ -150,7 +150,9 @@ function BoxCreateView() {
   useEffect(() => {
     // Disable form submission if no warehouse location or products associated with base
     if ((allLocations?.length || 0) < 1) setNoLocation(true);
+    else setNoLocation(false);
     if ((allProducts?.length || 0) < 1) setNoProducts(true);
+    else setNoProducts(false);
   }, [allLocations, allProducts]);
 
   // check data for form
