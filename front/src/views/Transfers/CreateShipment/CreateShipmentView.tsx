@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   AllAcceptedTransferAgreementsQuery,
-  AllAvailableBasesQuery,
+  AllBasesOfCurrentOrgQuery,
   CreateShipmentMutation,
   CreateShipmentMutationVariables,
   TransferAgreementType,
@@ -125,7 +125,7 @@ function CreateShipmentView() {
   const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
 
-  const AllBasesOfCurrentOrg = useQuery<AllAvailableBasesQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
+  const AllBasesOfCurrentOrg = useQuery<AllBasesOfCurrentOrgQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
     variables: {
       orgId: currentOrganisationId,
     },
