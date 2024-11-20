@@ -148,12 +148,12 @@ function BoxCreateView() {
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
   useEffect(() => {
-    // Disable form submission if no warehouse location or products associated with base
-    if ((allLocations?.length || 0) < 1) setNoLocation(true);
-    else setNoLocation(false);
-    if ((allProducts?.length || 0) < 1) setNoProducts(true);
-    else setNoProducts(false);
-  }, [allLocations, allProducts]);
+    // Disable form submission if no warehouse location or products associated with base, but only if the query response is available
+    if (allLocations !== undefined && allLocations.length < 1) setNoLocation(true);
+    else if (noLocation) setNoLocation(false);
+    if (allProducts !== undefined && allProducts.length < 1) setNoProducts(true);
+    else if (noProducts) setNoProducts(false);
+  }, [allLocations, allProducts, noLocation, noProducts]);
 
   // check data for form
   useEffect(() => {
