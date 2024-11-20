@@ -12,12 +12,25 @@ import { gql } from "@apollo/client";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateShipmentView, {
   ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+  ALL_BASES_OF_CURRENT_ORG_QUERY,
   CREATE_SHIPMENT_MUTATION,
 } from "./CreateShipmentView";
 import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
 import { FakeGraphQLError } from "mocks/functions";
 
 vi.setConfig({ testTimeout: 12_000 });
+
+const initialQueryAllBasesOfCurrentOrg = {
+  request: {
+    query: ALL_BASES_OF_CURRENT_ORG_QUERY,
+    variables: {
+      orgId: "1",
+    },
+  },
+  result: {
+    data: organisation1.bases,
+  },
+};
 
 const initialQuery = {
   request: {
@@ -66,6 +79,7 @@ const initialQueryWithoutAgreement = {
     },
   },
 };
+
 const initialWithoutBoxQuery = {
   request: {
     query: SHIPMENT_BY_ID_QUERY,
@@ -142,7 +156,7 @@ it("4.3.1 - Initial load of Page", async () => {
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
-    mocks: [initialQuery],
+    mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
     addTypename: true,
     globalPreferences: {
       dispatch: vi.fn(),
@@ -179,7 +193,7 @@ it("4.3.2 - Input Validations", async () => {
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
-    mocks: [initialQuery],
+    mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
     addTypename: true,
     globalPreferences: {
       dispatch: vi.fn(),
@@ -229,7 +243,12 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     additionalRoute: "/bases/1/transfers/shipments/1",
-    mocks: [initialQuery, successfulMutation, initialWithoutBoxQuery],
+    mocks: [
+      initialQueryAllBasesOfCurrentOrg,
+      initialQuery,
+      successfulMutation,
+      initialWithoutBoxQuery,
+    ],
     addTypename: true,
     cache,
     globalPreferences: {
@@ -277,7 +296,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
-    mocks: [initialQuery, mutationNetworkError],
+    mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery, mutationNetworkError],
     addTypename: true,
     globalPreferences: {
       dispatch: vi.fn(),
@@ -317,7 +336,7 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
-    mocks: [initialQuery, mutationGraphQLError],
+    mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery, mutationGraphQLError],
     addTypename: true,
     globalPreferences: {
       dispatch: vi.fn(),
@@ -379,7 +398,12 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
     // Maybe there's a route and org, base mismatch?
     initialUrl: "/bases/2/transfers/shipments/create",
     additionalRoute: "/bases/2/transfers/shipments/1",
-    mocks: [initialQuery, successfulMutation, initialWithoutBoxQuery],
+    mocks: [
+      initialQueryAllBasesOfCurrentOrg,
+      initialQuery,
+      successfulMutation,
+      initialWithoutBoxQuery,
+    ],
     addTypename: true,
     cache,
     globalPreferences: {
@@ -428,7 +452,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
     render(<CreateShipmentView />, {
       routePath: "/bases/:baseId/transfers/shipment/create",
       initialUrl: "/bases/1/transfers/shipment/create",
-      mocks: [initialQueryNetworkError],
+      mocks: [initialQueryAllBasesOfCurrentOrg, initialQueryNetworkError],
       addTypename: true,
       globalPreferences: {
         dispatch: vi.fn(),
@@ -453,7 +477,7 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
     render(<CreateShipmentView />, {
       routePath: "/bases/:baseId/transfers/shipment/create",
       initialUrl: "/bases/1/transfers/shipment/create",
-      mocks: [initialQueryWithoutAgreement],
+      mocks: [initialQueryAllBasesOfCurrentOrg, initialQueryWithoutAgreement],
       addTypename: true,
       globalPreferences: {
         dispatch: vi.fn(),

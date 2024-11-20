@@ -1,6 +1,6 @@
-import { useCallback, useContext } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertDescription, AlertIcon, Center } from "@chakra-ui/react";
+import { useCallback, useContext, useEffect } from "react";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   AllAcceptedTransferAgreementsQuery,
+  AllBasesOfCurrentOrgQuery,
   CreateShipmentMutation,
   CreateShipmentMutationVariables,
   TransferAgreementType,
@@ -35,6 +36,19 @@ export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
 
     transferAgreements(states: Accepted) {
       ...TransferAgreementFields
+    }
+  }
+`;
+
+export const ALL_BASES_OF_CURRENT_ORG_QUERY = gql`
+  query AllBasesOfCurrentOrg($orgId: ID!) {
+    organisation(id: $orgId) {
+      id
+      name
+      bases {
+        id
+        name
+      }
     }
   }
 `;
@@ -110,7 +124,26 @@ function CreateShipmentView() {
   const currentOrganisationName = currentBase?.organisation?.name;
   const currentOrganisationBase = currentBase?.name;
   const currentOrganisationId = globalPreferences.organisation?.id;
-  const currentOrganisationBases = globalPreferences.availableBases;
+
+  const [
+    runAllBasesOfCurrentOrg,
+    {
+      loading: allBasesOfCurrentOrgLoading,
+      error: allBasesOfCurrentOrgError,
+      data: AllBasesOfCurrentOrg,
+    },
+  ] = useLazyQuery<AllBasesOfCurrentOrgQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
+    variables: {
+      orgId: currentOrganisationId,
+    },
+  });
+
+  useEffect(() => {
+    if (currentOrganisationId) runAllBasesOfCurrentOrg();
+  }, [runAllBasesOfCurrentOrg, currentOrganisationId]);
+
+  const currentOrganisationBases = AllBasesOfCurrentOrg?.organisation?.bases;
+
   const acceptedTransferAgreementsPartnerData =
     allAcceptedTransferAgreements.data?.transferAgreements
       ?.filter(
@@ -231,32 +264,20 @@ function CreateShipmentView() {
   );
 
   // Handle Loading State
-  if (allAcceptedTransferAgreements.loading || isGlobalStateLoading) return <APILoadingIndicator />;
-
-  const renderNoAcceptedAgreementsAlert = (
-    <Alert status="warning">
-      <AlertIcon />
-      <AlertDescription>
-        You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
-        shipment.
-      </AlertDescription>
-    </Alert>
-  );
-
-  const renderErrorAlert = (
-    <Alert status="error">
-      <AlertIcon />
-      Could not fetch Organisation and Base data! Please try reloading the page.
-    </Alert>
-  );
+  if (allBasesOfCurrentOrgLoading || allAcceptedTransferAgreements.loading || isGlobalStateLoading)
+    return <APILoadingIndicator />;
 
   const noAcceptedAgreements = allAcceptedTransferAgreements.data?.transferAgreements.length === 0;
   const noPartnerOrgBaseData =
     !partnerOrganisationBaseData || partnerOrganisationBaseData.length === 0;
 
-  if (noAcceptedAgreements) return renderNoAcceptedAgreementsAlert;
-
-  if (noPartnerOrgBaseData || allAcceptedTransferAgreements.error) return renderErrorAlert;
+  if (allBasesOfCurrentOrgError || allAcceptedTransferAgreements.error)
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Could not fetch Organisation and Base data! Please try reloading the page.
+      </Alert>
+    );
 
   return (
     <>
@@ -268,8 +289,9 @@ function CreateShipmentView() {
           currentOrganisationName={currentOrganisationName || ""}
           currentOrganisationBase={currentOrganisationBase || ""}
           currentOrganisationBases={currentOrganisationBases || []}
-          organisationBaseData={partnerOrganisationBaseData}
+          organisationBaseData={partnerOrganisationBaseData || []}
           onSubmit={onSubmitCreateShipmentForm}
+          noAcceptedAgreements={noAcceptedAgreements || noPartnerOrgBaseData}
         />
       </Center>
     </>
