@@ -56,6 +56,14 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
           createdOn
           lastModifiedOn
           deletedOn
+          createdBy {
+            id
+            name
+          }
+          lastModifiedBy {
+            id
+            name
+          }
         }
       }
     }
@@ -105,7 +113,17 @@ function Boxes() {
     defaultTableConfig: {
       columnFilters: [{ id: "state", value: ["InStock"] }],
       sortBy: [{ id: "lastModified", desc: true }],
-      hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
+      hiddenColumns: [
+        "gender",
+        "size",
+        "tags",
+        "shipment",
+        "comment",
+        "age",
+        "lastModified",
+        "lastModifiedBy",
+        "createdBy",
+      ],
     },
   });
 
@@ -208,6 +226,20 @@ function Boxes() {
         Cell: DateCell,
         disableFilters: true,
         sortType: "datetime",
+      },
+      {
+        Header: "Last Modified By",
+        accessor: "lastModifiedBy",
+        id: "lastModifiedBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMulipleStrings",
+      },
+      {
+        Header: "Created By",
+        accessor: "createdBy",
+        id: "createdBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMulipleStrings",
       },
     ],
     [],
