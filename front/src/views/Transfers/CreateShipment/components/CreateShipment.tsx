@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
   Button,
   Center,
@@ -75,6 +78,7 @@ export interface ICreateShipmentProps {
    */
   organisationBaseData: IOrganisationBaseData[];
   onSubmit: SubmitHandler<ICreateShipmentFormData>;
+  noAcceptedAgreements: boolean;
 }
 
 export type ShipmentTarget = z.infer<typeof shipmentTargetSchema>;
@@ -87,6 +91,7 @@ function CreateShipment({
   currentOrganisationBases,
   organisationBaseData,
   onSubmit,
+  noAcceptedAgreements,
 }: ICreateShipmentProps) {
   const navigate = useNavigate();
   const { baseId } = useBaseIdParam();
@@ -177,6 +182,16 @@ function CreateShipment({
       });
   }, [intraOrganisationOptions, setValueIntraOrg]);
 
+  const NoAcceptedAgreementsAlert = () => (
+    <Alert status="warning">
+      <AlertIcon />
+      <AlertDescription>
+        You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
+        shipment.
+      </AlertDescription>
+    </Alert>
+  );
+
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={8} as="h1">
@@ -222,33 +237,40 @@ function CreateShipment({
                 {...register("shipmentTarget")}
               />
               <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
-                <SelectField
-                  fieldId="receivingOrganisation"
-                  fieldLabel="Organisation"
-                  placeholder="Please select an organisation"
-                  options={organisationOptions}
-                  errors={errors}
-                  control={control}
-                  onChangeProp={(e) => setAgreementNote(e.comment)}
-                />
-                <SelectField
-                  fieldId="receivingBase"
-                  fieldLabel="Base"
-                  placeholder="Please select a base"
-                  errors={errors}
-                  control={control}
-                  options={basesOptions}
-                />
-                {agreementNote && (
-                  <FormControl>
-                    <FormLabel>Note</FormLabel>
-                    <Textarea readOnly value={agreementNote} />
-                  </FormControl>
+                {noAcceptedAgreements ? (
+                  <NoAcceptedAgreementsAlert />
+                ) : (
+                  <>
+                    <SelectField
+                      fieldId="receivingOrganisation"
+                      fieldLabel="Organisation"
+                      placeholder="Please select an organisation"
+                      options={organisationOptions}
+                      errors={errors}
+                      control={control}
+                      onChangeProp={(e) => setAgreementNote(e.comment)}
+                    />
+                    <SelectField
+                      fieldId="receivingBase"
+                      fieldLabel="Base"
+                      placeholder="Please select a base"
+                      errors={errors}
+                      control={control}
+                      options={basesOptions}
+                    />
+                    {agreementNote && (
+                      <FormControl>
+                        <FormLabel>Note</FormLabel>
+                        <Textarea readOnly value={agreementNote} />
+                      </FormControl>
+                    )}
+                  </>
                 )}
               </Box>
               <Stack spacing={4} mt={8}>
                 <Button
                   isLoading={isSubmitting || isLoading}
+                  isDisabled={noAcceptedAgreements}
                   type="submit"
                   borderRadius="0"
                   w="full"

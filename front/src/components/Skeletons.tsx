@@ -173,7 +173,9 @@ export function ButtonSkeleton() {
 export function QrReaderSkeleton() {
   return (
     <Stack data-testid="QrReaderSkeleton">
-      <Skeleton width="100%" height="562px" />
+      <Skeleton width="clamp(200px, 100%, 416px)" height="416px" />
+      <br />
+      <Skeleton width="clamp(200px, 100%, 416px)" height="104px" />
     </Stack>
   );
 }

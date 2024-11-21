@@ -79,13 +79,11 @@ function HeaderMenuContainer() {
           {
             link: `/bases/${baseId}/transfers/shipments`,
             name: "Manage Shipments",
-            beta: true,
             requiredAbps: ["view_shipments"],
           },
           {
             link: `/bases/${baseId}/transfers/agreements`,
             name: "Manage Agreements",
-            beta: true,
             requiredAbps: ["view_transfer_agreements"],
           },
         ],

@@ -44,6 +44,7 @@ export default function TimeRangeSelect() {
   useEffect(() => {
     const currentQuery = searchParams.toString();
     const newSearchParams = searchParams;
+
     const from = searchParams.get("from")!;
     const to = searchParams.get("to")!;
 
