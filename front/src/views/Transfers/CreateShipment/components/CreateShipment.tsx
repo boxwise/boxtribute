@@ -219,7 +219,7 @@ function CreateShipment({
         </HStack>
         <TabList border="2px" borderTop="none" borderBottom="none">
           <Tab flex={1}>PARTNERS</Tab>
-          <Tab flex={1}>{currentOrganisationName.toUpperCase()}</Tab>
+          {haveIntraOrganisationOptions && <Tab flex={1}>{currentOrganisationName.toUpperCase()}</Tab>}
         </TabList>
         <TabIndicator
           mt="-1.5px"
