@@ -2,7 +2,6 @@ import { Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
-import { subMonths } from "date-fns";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateField } from "../../..";
@@ -45,14 +44,8 @@ export default function TimeRangeSelect() {
     const currentQuery = searchParams.toString();
     const newSearchParams = searchParams;
 
-    if (!searchParams.get("from")) {
-      newSearchParams.append("from", date2String(subMonths(new Date(), 3)));
-    }
-    if (!searchParams.get("to")) {
-      newSearchParams.append("to", date2String(new Date()));
-    }
-    const from = newSearchParams.get("from")!;
-    const to = newSearchParams.get("to")!;
+    const from = searchParams.get("from")!;
+    const to = searchParams.get("to")!;
 
     if (toFormValue === undefined) {
       setValue("to", to);
