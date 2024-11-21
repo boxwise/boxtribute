@@ -36,11 +36,11 @@ export default function ValueFilter({
   onFilterChange,
   defaultFilterValue = undefined,
 }: IValueFilterProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const {
-    setValue,
     control,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(ValueFilterSchema),
@@ -53,16 +53,8 @@ export default function ValueFilter({
     if (filterOption) {
       // @ts-expect-error
       setValue(filterId, filterOption);
-    } else {
-      if (filterValue !== null) {
-        searchParams.delete(filterId);
-      }
-      if (defaultFilterValue) {
-        searchParams.append(filterId, defaultFilterValue.urlId);
-      }
-      setSearchParams(searchParams);
     }
-  }, [defaultFilterValue, filterId, searchParams, setSearchParams, setValue, values]);
+  }, [filterId, searchParams, setValue, values]);
 
   return (
     <SelectField

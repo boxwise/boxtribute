@@ -44,15 +44,8 @@ export default function TimeRangeSelect() {
   useEffect(() => {
     const currentQuery = searchParams.toString();
     const newSearchParams = searchParams;
-
-    if (!searchParams.get("from")) {
-      newSearchParams.append("from", date2String(subMonths(new Date(), 3)));
-    }
-    if (!searchParams.get("to")) {
-      newSearchParams.append("to", date2String(new Date()));
-    }
-    const from = newSearchParams.get("from")!;
-    const to = newSearchParams.get("to")!;
+    const from = searchParams.get("from")!;
+    const to = searchParams.get("to")!;
 
     if (toFormValue === undefined) {
       setValue("to", to);
