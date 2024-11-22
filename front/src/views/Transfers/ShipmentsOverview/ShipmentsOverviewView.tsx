@@ -30,7 +30,7 @@ function ShipmentsOverviewView() {
   // transform shipments data for UI
   const graphqlToTableTransformer = (shipmentQueryResult: ShipmentsQuery | undefined) =>
     shipmentQueryResult?.shipments
-      .filter((shipment) => shipment.sourceBase.id === baseId && shipment.targetBase.id === baseId)
+      .filter((shipment) => shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId)
       .map((element) => {
         if (globalPreferences?.availableBases) {
           const availableBaseIds = globalPreferences.availableBases.map((base) =>
