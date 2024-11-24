@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { gql, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { graphql } from "../../../../graphql";
 import { BoxesForBoxesViewQuery, ActionOptionsForBoxesViewQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
@@ -22,79 +23,80 @@ import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformer
 import { SelectBoxStateFilter } from "./components/Filter";
 
 // TODO: Implement Pagination and Filtering
-export const BOXES_FOR_BOXESVIEW_QUERY = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput) {
-    boxes(baseId: $baseId, filterInput: $filterInput, paginationInput: { first: 100000 }) {
-      totalCount
-      pageInfo {
-        hasNextPage
-      }
-      elements {
-        labelIdentifier
-        product {
-          ...ProductBasicFields
+export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
+  `
+    query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput) {
+      boxes(baseId: $baseId, filterInput: $filterInput, paginationInput: { first: 100000 }) {
+        totalCount
+        pageInfo {
+          hasNextPage
         }
-        numberOfItems
-        size {
-          ...SizeBasicFields
-        }
-        state
-        location {
-          id
-          name
-        }
-        tags {
-          ...TagBasicFields
-        }
-        shipmentDetail {
-          id
-          shipment {
+        elements {
+          labelIdentifier
+          product {
+            ...ProductBasicFields
+          }
+          numberOfItems
+          size {
+            ...SizeBasicFields
+          }
+          state
+          location {
             id
+            name
+          }
+          tags {
+            ...TagBasicFields
+          }
+          shipmentDetail {
+            id
+            shipment {
+              id
+            }
+          }
+          comment
+          createdOn
+          lastModifiedOn
+          deletedOn
+        }
+      }
+    }
+  `,
+  [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+);
+
+export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
+  `
+    query ActionOptionsForBoxesView($baseId: ID!) {
+      base(id: $baseId) {
+        id
+        locations {
+          id
+          seq
+          name
+          ... on ClassicLocation {
+            defaultBoxState
           }
         }
-        comment
-        createdOn
-        lastModifiedOn
-        deletedOn
-      }
-    }
-  }
-`;
-
-export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  query ActionOptionsForBoxesView($baseId: ID!) {
-    base(id: $baseId) {
-      id
-      locations {
-        id
-        seq
-        name
-        ... on ClassicLocation {
-          defaultBoxState
+        tags(resourceType: Box) {
+          ...TagBasicFields
         }
       }
-      tags(resourceType: Box) {
-        ...TagBasicFields
+      shipments {
+        id
+        labelIdentifier
+        state
+        sourceBase {
+          ...BaseOrgFields
+        }
+        targetBase {
+          ...BaseOrgFields
+        }
       }
     }
-    shipments {
-      id
-      labelIdentifier
-      state
-      sourceBase {
-        ...BaseOrgFields
-      }
-      targetBase {
-        ...BaseOrgFields
-      }
-    }
-  }
-`;
+  `,
+  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+);
 
 function Boxes() {
   const { baseId } = useBaseIdParam();

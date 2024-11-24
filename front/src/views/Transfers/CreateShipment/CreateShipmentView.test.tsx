@@ -8,7 +8,7 @@ import { base1, base2 } from "mocks/bases";
 import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
-import { gql } from "@apollo/client";
+import { graphql } from "gql.tada";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateShipmentView, {
   ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
@@ -228,11 +228,11 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
       shipments(existingShipments = []) {
         const newShipmentRef = cache.writeFragment({
           data: successfulMutation.result.data,
-          fragment: gql`
+          fragment: graphql(`
             fragment NewShipment on Shipment {
               id
             }
-          `,
+          `),
         });
         return existingShipments.concat(newShipmentRef);
       },
@@ -382,11 +382,11 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
       shipments(existingShipments = []) {
         const newShipmentRef = cache.writeFragment({
           data: successfulMutation.result.data,
-          fragment: gql`
+          fragment: graphql(`
             fragment NewShipment on Shipment {
               id
             }
-          `,
+          `),
         });
         return existingShipments.concat(newShipmentRef);
       },

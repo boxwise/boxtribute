@@ -10,7 +10,7 @@ import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
-import { gql } from "@apollo/client";
+import { graphql } from "../../../../graphql";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
@@ -108,7 +108,7 @@ beforeEach(() => {
   tableConfigsVar(new Map());
 });
 
-const moveBoxesGQLRequest = gql`
+const moveBoxesGQLRequest = graphql(`
   mutation MoveBoxes($newLocationId: Int!, $labelIdentifier0: String!) {
     moveBox123: updateBox(
       updateInput: { labelIdentifier: $labelIdentifier0, locationId: $newLocationId }
@@ -121,9 +121,9 @@ const moveBoxesGQLRequest = gql`
       lastModifiedOn
     }
   }
-`;
+`);
 
-const unassignFromShipmentGQLRequest = gql`
+const unassignFromShipmentGQLRequest = graphql(`
   mutation UnassignBoxesFromShipments($shipment0: ID!, $labelIdentifiers0: [String!]!) {
     unassignBoxesFromShipment1: updateShipmentWhenPreparing(
       updateInput: {
@@ -155,7 +155,7 @@ const unassignFromShipmentGQLRequest = gql`
       __typename
     }
   }
-`;
+`);
 
 const deleteBoxesMutation = ({
   labelIdentifiers = ["123"],

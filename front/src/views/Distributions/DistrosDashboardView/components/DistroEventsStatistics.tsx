@@ -1,4 +1,5 @@
-import { gql, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
+import { graphql } from "gql.tada";
 import {
   Stat,
   StatLabel,
@@ -21,7 +22,7 @@ import {
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { VictoryPie } from "victory";
 
-export const DOWNLOAD_STATIC_DATA = gql`
+export const DOWNLOAD_STATIC_DATA = graphql(`
   query DownloadDistributionEventsStatistics($baseId: ID!) {
     base(id: $baseId) {
       id
@@ -42,7 +43,7 @@ export const DOWNLOAD_STATIC_DATA = gql`
       }
     }
   }
-`;
+`);
 
 const Card = ({ children }: { children: ReactNode[] | ReactNode }) => (
   <Box

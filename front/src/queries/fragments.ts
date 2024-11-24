@@ -1,72 +1,72 @@
-import { gql } from "@apollo/client";
+import { graphql } from "../../../graphql"
 
 // Basic Fields without reference to other fragments first
-export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
-  fragment OrganisationBasicFields on Organisation {
+export const ORGANISATION_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment OrganisationBasicFields on Organisation @_unmask {
     id
     name
   }
-`;
+`);
 
-export const BASE_BASIC_FIELDS_FRAGMENT = gql`
-  fragment BaseBasicFields on Base {
+export const BASE_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment BaseBasicFields on Base @_unmask {
     id
     name
   }
-`;
+`);
 
-export const USER_BASIC_FIELDS_FRAGMENT = gql`
-  fragment UserBasicFields on User {
+export const USER_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment UserBasicFields on User @_unmask {
     id
     name
   }
-`;
+`);
 
-export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
-  fragment ProductBasicFields on Product {
+export const PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment ProductBasicFields on Product @_unmask {
     id
     name
     gender
     deletedOn
   }
-`;
+`);
 
-export const SIZE_BASIC_FIELDS_FRAGMENT = gql`
-  fragment SizeBasicFields on Size {
+export const SIZE_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment SizeBasicFields on Size @_unmask {
     id
     label
   }
-`;
+`);
 
-export const LOCATION_BASIC_FIELDS_FRAGMENT = gql`
-  fragment LocationBasicFields on ClassicLocation {
+export const LOCATION_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment LocationBasicFields on ClassicLocation @_unmask {
     defaultBoxState
     id
     seq
     name
   }
-`;
+`);
 
-export const TAG_BASIC_FIELDS_FRAGMENT = gql`
-  fragment TagBasicFields on Tag {
+export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment TagBasicFields on Tag @_unmask {
     id
     name
     color
     description
     type
   }
-`;
+`);
 
-export const TAG_OPTIONS_FRAGMENT = gql`
-  fragment TagOptions on Tag {
+export const TAG_OPTIONS_FRAGMENT = graphql(`
+  fragment TagOptions on Tag @_unmask {
     value: id
     label: name
     color
   }
-`;
+`);
 
-export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
-  fragment DistroEventFields on DistributionEvent {
+export const DISTRO_EVENT_FIELDS_FRAGMENT = graphql(`
+  fragment DistroEventFields on DistributionEvent @_unmask {
     id
     state
     name
@@ -76,23 +76,20 @@ export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
     plannedStartDateTime
     plannedEndDateTime
   }
-`;
+`);
 
 // fragments with references to Basic Fields
-export const BASE_ORG_FIELDS_FRAGMENT = gql`
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  fragment BaseOrgFields on Base {
+export const BASE_ORG_FIELDS_FRAGMENT = graphql(`
+  fragment BaseOrgFields on Base @_unmask {
     ...BaseBasicFields
     organisation {
       ...OrganisationBasicFields
     }
   }
-`;
+`, [ORGANISATION_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT]);
 
-export const HISTORY_FIELDS_FRAGMENT = gql`
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  fragment HistoryFields on HistoryEntry {
+export const HISTORY_FIELDS_FRAGMENT = graphql(`
+  fragment HistoryFields on HistoryEntry @_unmask {
     id
     changes
     changeDate
@@ -100,21 +97,20 @@ export const HISTORY_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [USER_BASIC_FIELDS_FRAGMENT]);
 
-export const SIZE_RANGE_FIELDS_FRAGMENT = gql`
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  fragment SizeRangeFields on SizeRange {
+export const SIZE_RANGE_FIELDS_FRAGMENT = graphql(`
+  fragment SizeRangeFields on SizeRange @_unmask {
     id
     label
     sizes {
       ...SizeBasicFields
     }
   }
-`;
+`, [SIZE_BASIC_FIELDS_FRAGMENT]);
 
-export const BOX_BASIC_FIELDS_FRAGMENT = gql`
-  fragment BoxBasicFields on Box {
+export const BOX_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment BoxBasicFields on Box @_unmask {
     labelIdentifier
     state
     comment
@@ -132,16 +128,10 @@ export const BOX_BASIC_FIELDS_FRAGMENT = gql`
     }
     lastModifiedOn
   }
-`;
+`);
 
-export const BOX_FIELDS_FRAGMENT = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${HISTORY_FIELDS_FRAGMENT}
-  ${LOCATION_BASIC_FIELDS_FRAGMENT}
-  fragment BoxFields on Box {
+export const BOX_FIELDS_FRAGMENT = graphql(`
+  fragment BoxFields on Box @_unmask {
     labelIdentifier
     state
     product {
@@ -210,14 +200,10 @@ export const BOX_FIELDS_FRAGMENT = gql`
     createdOn
     lastModifiedOn
   }
-`;
+`, [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT, HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT]);
 
-export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  ${DISTRO_EVENT_FIELDS_FRAGMENT}
-  fragment BoxWithSizeTagProductFields on Box {
+export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = graphql(`
+  fragment BoxWithSizeTagProductFields on Box @_unmask {
     labelIdentifier
     state
     size {
@@ -263,13 +249,10 @@ export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
     }
     lastModifiedOn
   }
-`;
+`, [SIZE_BASIC_FIELDS_FRAGMENT, PRODUCT_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT]);
 
-export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  fragment TransferAgreementFields on TransferAgreement {
+export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = graphql(`
+  fragment TransferAgreementFields on TransferAgreement @_unmask {
     id
     type
     state
@@ -311,13 +294,11 @@ export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [ORGANISATION_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT]);
 
 // complexer fragments
-export const PRODUCT_FIELDS_FRAGMENT = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_RANGE_FIELDS_FRAGMENT}
-  fragment ProductFields on Product {
+export const PRODUCT_FIELDS_FRAGMENT = graphql(`
+  fragment ProductFields on Product @_unmask {
     ...ProductBasicFields
     category {
       name
@@ -326,14 +307,10 @@ export const PRODUCT_FIELDS_FRAGMENT = gql`
       ...SizeRangeFields
     }
   }
-`;
+`, [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT]);
 
-export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
-  ${BOX_BASIC_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  fragment ShipmentDetailFields on ShipmentDetail {
+export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(`
+  fragment ShipmentDetailFields on ShipmentDetail @_unmask {
     id
     box {
       ...BoxBasicFields
@@ -376,13 +353,10 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [BOX_BASIC_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT]);
 
-export const SHIPMENT_FIELDS_FRAGMENT = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  ${SHIPMENT_DETAIL_FIELDS_FRAGMENT}
-  fragment ShipmentFields on Shipment {
+export const SHIPMENT_FIELDS_FRAGMENT = graphql(`
+  fragment ShipmentFields on Shipment @_unmask {
     id
     labelIdentifier
     state
@@ -421,4 +395,4 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [BASE_ORG_FIELDS_FRAGMENT, SHIPMENT_DETAIL_FIELDS_FRAGMENT]);

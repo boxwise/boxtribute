@@ -1,4 +1,5 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../../graphql";
 import { formatDateKey } from "utils/helpers";
 import {
   Box,
@@ -67,65 +68,74 @@ enum ShipmentActionEvent {
 }
 
 // graphql query and mutations
-export const SHIPMENT_BY_ID_QUERY = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  query ShipmentById($id: ID!) {
-    shipment(id: $id) {
-      ...ShipmentFields
-    }
-  }
-`;
-
-export const REMOVE_BOX_FROM_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation RemoveBoxFromShipment($id: ID!, $removedBoxLabelIdentifiers: [String!]) {
-    updateShipmentWhenPreparing(
-      updateInput: {
-        id: $id
-        preparedBoxLabelIdentifiers: []
-        removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
+export const SHIPMENT_BY_ID_QUERY = graphql(
+  `
+    query ShipmentById($id: ID!) {
+      shipment(id: $id) {
+        ...ShipmentFields
       }
-    ) {
-      ...ShipmentFields
     }
-  }
-`;
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
-export const SEND_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
+export const REMOVE_BOX_FROM_SHIPMENT = graphql(
+  `
+    mutation RemoveBoxFromShipment($id: ID!, $removedBoxLabelIdentifiers: [String!]) {
+      updateShipmentWhenPreparing(
+        updateInput: {
+          id: $id
+          preparedBoxLabelIdentifiers: []
+          removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
+        }
+      ) {
+        ...ShipmentFields
+      }
+    }
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
+
+export const SEND_SHIPMENT = graphql(`
   mutation SendShipment($id: ID!) {
     sendShipment(id: $id) {
       ...ShipmentFields
     }
   }
-`;
+`);
 
-export const CANCEL_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation CancelShipment($id: ID!) {
-    cancelShipment(id: $id) {
-      ...ShipmentFields
+export const CANCEL_SHIPMENT = graphql(
+  `
+    mutation CancelShipment($id: ID!) {
+      cancelShipment(id: $id) {
+        ...ShipmentFields
+      }
     }
-  }
-`;
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
-export const LOST_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation LostShipment($id: ID!) {
-    markShipmentAsLost(id: $id) {
-      ...ShipmentFields
+export const LOST_SHIPMENT = graphql(
+  `
+    mutation LostShipment($id: ID!) {
+      markShipmentAsLost(id: $id) {
+        ...ShipmentFields
+      }
     }
-  }
-`;
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
-export const START_RECEIVING_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation StartReceivingShipment($id: ID!) {
-    startReceivingShipment(id: $id) {
-      ...ShipmentFields
+export const START_RECEIVING_SHIPMENT = graphql(
+  `
+    mutation StartReceivingShipment($id: ID!) {
+      startReceivingShipment(id: $id) {
+        ...ShipmentFields
+      }
     }
-  }
-`;
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
 function ShipmentView() {
   const { triggerError } = useErrorHandling();

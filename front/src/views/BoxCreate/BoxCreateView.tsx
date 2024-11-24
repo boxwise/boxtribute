@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -22,33 +23,34 @@ import { AlertWithoutAction } from "components/Alerts";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
-export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
-  ${TAG_OPTIONS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  query AllProductsAndLocationsForBase($baseId: ID!) {
-    base(id: $baseId) {
-      tags(resourceType: Box) {
-        ...TagOptions
-      }
-
-      # TODO create location Fragment
-      locations {
-        ... on ClassicLocation {
-          defaultBoxState
+export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
+  `
+    query AllProductsAndLocationsForBase($baseId: ID!) {
+      base(id: $baseId) {
+        tags(resourceType: Box) {
+          ...TagOptions
         }
-        id
-        seq
-        name
-      }
 
-      products {
-        ...ProductFields
+        # TODO create location Fragment
+        locations {
+          ... on ClassicLocation {
+            defaultBoxState
+          }
+          id
+          seq
+          name
+        }
+
+        products {
+          ...ProductFields
+        }
       }
     }
-  }
-`;
+  `,
+  [TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT],
+);
 
-export const CREATE_BOX_MUTATION = gql`
+export const CREATE_BOX_MUTATION = graphql(`
   mutation CreateBox(
     $locationId: Int!
     $productId: Int!
@@ -81,7 +83,7 @@ export const CREATE_BOX_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 function BoxCreateView() {
   // Basics

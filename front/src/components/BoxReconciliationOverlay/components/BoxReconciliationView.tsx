@@ -11,9 +11,9 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 import { BiTrash } from "react-icons/bi";
-import { ProductGender, ShipmentDetail } from "types/generated/graphql";
 
 import { BoxReconcilationAccordion } from "./BoxReconciliationAccordion";
+import { introspection_types } from "../../../../../generated/graphql-env";
 
 export interface ICategoryData {
   name: string;
@@ -32,7 +32,7 @@ export interface ISizeRangeData {
 export interface IProductWithSizeRangeData {
   id: string;
   name: string;
-  gender?: ProductGender | undefined | null;
+  gender?: introspection_types["ProductGender"]["enumValues"] | undefined | null;
   category: ICategoryData;
   sizeRange: ISizeRangeData;
 }
@@ -44,7 +44,7 @@ export interface ILocationData {
 }
 
 interface IBoxReconciliationViewProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: introspection_types["ShipmentDetail"]["fields"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   isOpen: boolean;

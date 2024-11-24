@@ -1,4 +1,3 @@
-import { PackingListEntriesForDistributionEventQuery } from "types/generated/graphql";
 import { IPackingListEntryForPackingState } from "./types";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (

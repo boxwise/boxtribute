@@ -1,5 +1,3 @@
-import { BoxState } from "./generated/graphql";
-
 export interface IBoxBasicFields {
   __typename?: "Box";
   labelIdentifier: string;

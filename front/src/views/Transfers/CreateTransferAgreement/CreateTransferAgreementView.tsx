@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -23,7 +24,7 @@ import { IAcceptedTransferAgreement } from "../TransferAgreementOverview/Transfe
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
-export const ALL_ORGS_AND_BASES_QUERY = gql`
+export const ALL_ORGS_AND_BASES_QUERY = graphql(`
   query AllOrganisationsAndBases {
     organisations {
       id
@@ -34,36 +35,38 @@ export const ALL_ORGS_AND_BASES_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-export const CREATE_AGREEMENT_MUTATION = gql`
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  mutation CreateTransferAgreement(
-    $initiatingOrganisationId: Int!
-    $partnerOrganisationId: Int!
-    $type: TransferAgreementType!
-    $validFrom: Date
-    $validUntil: Date
-    $initiatingOrganisationBaseIds: [Int!]!
-    $partnerOrganisationBaseIds: [Int!]
-    $comment: String
-  ) {
-    createTransferAgreement(
-      creationInput: {
-        initiatingOrganisationId: $initiatingOrganisationId
-        partnerOrganisationId: $partnerOrganisationId
-        type: $type
-        validFrom: $validFrom
-        validUntil: $validUntil
-        initiatingOrganisationBaseIds: $initiatingOrganisationBaseIds
-        partnerOrganisationBaseIds: $partnerOrganisationBaseIds
-        comment: $comment
-      }
+export const CREATE_AGREEMENT_MUTATION = graphql(
+  `
+    mutation CreateTransferAgreement(
+      $initiatingOrganisationId: Int!
+      $partnerOrganisationId: Int!
+      $type: TransferAgreementType!
+      $validFrom: Date
+      $validUntil: Date
+      $initiatingOrganisationBaseIds: [Int!]!
+      $partnerOrganisationBaseIds: [Int!]
+      $comment: String
     ) {
-      ...TransferAgreementFields
+      createTransferAgreement(
+        creationInput: {
+          initiatingOrganisationId: $initiatingOrganisationId
+          partnerOrganisationId: $partnerOrganisationId
+          type: $type
+          validFrom: $validFrom
+          validUntil: $validUntil
+          initiatingOrganisationBaseIds: $initiatingOrganisationBaseIds
+          partnerOrganisationBaseIds: $partnerOrganisationBaseIds
+          comment: $comment
+        }
+      ) {
+        ...TransferAgreementFields
+      }
     }
-  }
-`;
+  `,
+  [TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
 
 function CreateTransferAgreementView() {
   // Basics
@@ -91,13 +94,13 @@ function CreateTransferAgreementView() {
             transferAgreements(existingTransferAgreements = []) {
               const newTransferAgreementRef = cache.writeFragment({
                 data: returnedTransferAgreement.createTransferAgreement,
-                fragment: gql`
+                fragment: graphql(`
                   fragment NewTransferAgreement on TransferAgreement {
                     id
                     type
                     state
                   }
-                `,
+                `),
               });
               return existingTransferAgreements.concat(newTransferAgreementRef);
             },

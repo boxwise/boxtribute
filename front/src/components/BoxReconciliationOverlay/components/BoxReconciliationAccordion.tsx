@@ -2,13 +2,13 @@ import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box } from "
 import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
-import { ShipmentDetail } from "types/generated/graphql";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
+import { introspection_types } from "../../../../../generated/graphql-env";
 
 interface IBoxReconcilationAccordionProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: introspection_types["ShipmentDetail"]["fields"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   loading: boolean;

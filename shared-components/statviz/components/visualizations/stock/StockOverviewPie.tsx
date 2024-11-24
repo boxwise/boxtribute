@@ -17,7 +17,6 @@ import {
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
-import { Maybe, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import PieChart from "../../nivo/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";

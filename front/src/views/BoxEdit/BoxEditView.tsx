@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -21,44 +22,44 @@ import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries
 import BoxEdit, { IBoxEditFormDataOutput } from "./components/BoxEdit";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
-  ${TAG_OPTIONS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  ${BOX_FIELDS_FRAGMENT}
-  query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      ...BoxFields
-      tags {
-        ...TagOptions
-      }
-      product {
-        ...ProductFields
-      }
-    }
-
-    base(id: $baseId) {
-      tags(resourceType: Box) {
-        ...TagOptions
-      }
-
-      # TODO create location Fragment
-      locations {
-        ... on ClassicLocation {
-          defaultBoxState
+export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphql(
+  `
+    query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
+      box(labelIdentifier: $labelIdentifier) {
+        ...BoxFields
+        tags {
+          ...TagOptions
         }
-        id
-        seq
-        name
+        product {
+          ...ProductFields
+        }
       }
 
-      products {
-        ...ProductFields
+      base(id: $baseId) {
+        tags(resourceType: Box) {
+          ...TagOptions
+        }
+
+        # TODO create location Fragment
+        locations {
+          ... on ClassicLocation {
+            defaultBoxState
+          }
+          id
+          seq
+          name
+        }
+
+        products {
+          ...ProductFields
+        }
       }
     }
-  }
-`;
+  `,
+  [TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, BOX_FIELDS_FRAGMENT],
+);
 
-export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
+export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
   mutation UpdateContentOfBox(
     $boxLabelIdentifier: String!
     $productId: Int!
@@ -82,7 +83,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
       labelIdentifier
     }
   }
-`;
+`);
 
 function BoxEditView() {
   // Basics

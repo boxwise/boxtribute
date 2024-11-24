@@ -1,4 +1,4 @@
-// This file is excluded from the graphql-codegen config for defining types of queries.
+// This file is excluded from using gql.tada inferred types.
 // If you are using a fragment a local-only field with another query you have to
 // manually write the type for the fragment.
 

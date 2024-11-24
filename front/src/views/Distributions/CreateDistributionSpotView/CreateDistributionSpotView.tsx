@@ -1,16 +1,13 @@
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { graphql } from "../../../../../graphql";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  CreateDistributionSpotMutation,
-  CreateDistributionSpotMutationVariables
-} from "../../../types/generated/graphql";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
 import CreateDistributionSpot, {
-  CreateDistributionSpotFormData
+  CreateDistributionSpotFormData,
 } from "./components/CreateDistributionSpot";
 
-export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
+export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = graphql(`
   mutation CreateDistributionSpot(
     $baseId: Int!
     $name: String!
@@ -30,13 +27,12 @@ export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
       id
     }
   }
-`;
+`);
 
 const CreateDistributionSpotView = () => {
-  const [createDistributionSpot, createDistributionSpotState] = useMutation<
-    CreateDistributionSpotMutation,
-    CreateDistributionSpotMutationVariables
-  >(CREATE_NEW_DISTRIBUTION_SPOT_MUTATION);
+  const [createDistributionSpot, createDistributionSpotState] = useMutation(
+    CREATE_NEW_DISTRIBUTION_SPOT_MUTATION,
+  );
 
   const baseId = useParams<{ baseId: string }>().baseId!;
   const navigate = useNavigate();
@@ -71,12 +67,8 @@ const CreateDistributionSpotView = () => {
       ],
     })
       .then((mutationResult) => {
-        const distributionSpotId =
-          mutationResult.data?.createDistributionSpot?.id;
-        if (
-          distributionSpotId === null ||
-          (mutationResult.errors?.length || 0) > 0
-        ) {
+        const distributionSpotId = mutationResult.data?.createDistributionSpot?.id;
+        if (distributionSpotId === null || (mutationResult.errors?.length || 0) > 0) {
           showErrorToast();
         }
         navigate(`/bases/${baseId}/distributions/spots`);

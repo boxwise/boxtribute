@@ -1,4 +1,5 @@
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { graphql } from "../../../graphql"
 import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
@@ -20,7 +21,7 @@ export interface IDeleteBoxResult {
   error?: any;
 }
 
-export const DELETE_BOXES = gql`
+export const DELETE_BOXES = graphql(`
   mutation DeleteBoxes($labelIdentifiers: [String!]!) {
     deleteBoxes(labelIdentifiers: $labelIdentifiers) {
       __typename
@@ -36,7 +37,7 @@ export const DELETE_BOXES = gql`
       }
     }
   }
-`;
+`);
 
 export const useDeleteBoxes = () => {
   const { triggerError } = useErrorHandling();

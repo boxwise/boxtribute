@@ -4,7 +4,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { generateMockShipment } from "mocks/shipments";
-import { ShipmentState } from "types/generated/graphql";
 import { organisation1 } from "mocks/organisations";
 import { cache, boxReconciliationOverlayVar, IBoxReconciliationOverlayVar } from "queries/cache";
 import { generateMockLocationWithBase } from "mocks/locations";
@@ -43,7 +42,7 @@ const queryShipmentDetailForBoxReconciliation = {
         products,
         tags: [tag1, tag2],
       },
-      shipment: generateMockShipment({ state: ShipmentState.Receiving }),
+      shipment: generateMockShipment({ state: "Receiving" }),
     },
   },
 };
@@ -113,7 +112,7 @@ const mockUpdateShipmentWhenReceivingMutation = ({
         data: graphQlError
           ? null
           : {
-              updateShipmentWhenReceiving: generateMockShipment({ state: ShipmentState.Receiving }),
+              updateShipmentWhenReceiving: generateMockShipment({ state: "Receiving" }),
             },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },

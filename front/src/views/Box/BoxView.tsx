@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { gql, useMutation, useQuery, NetworkStatus } from "@apollo/client";
+import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
+import { graphql } from "gql.tada";
 import {
   Alert,
   AlertDescription,
@@ -72,74 +73,82 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
   },
 });
 
-export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
-  mutation UpdateNumberOfItems($boxLabelIdentifier: String!, $numberOfItems: Int!) {
-    updateBox(
-      updateInput: { labelIdentifier: $boxLabelIdentifier, numberOfItems: $numberOfItems }
-    ) {
-      ...BoxFields
+export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = graphql(
+  `
+    mutation UpdateNumberOfItems($boxLabelIdentifier: String!, $numberOfItems: Int!) {
+      updateBox(
+        updateInput: { labelIdentifier: $boxLabelIdentifier, numberOfItems: $numberOfItems }
+      ) {
+        ...BoxFields
+      }
     }
-  }
-`;
+  `,
+  [BOX_FIELDS_FRAGMENT],
+);
 
-export const UPDATE_STATE_IN_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
-  mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
-    updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
-      ...BoxFields
+export const UPDATE_STATE_IN_BOX_MUTATION = graphql(
+  `
+    mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
+      updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
+        ...BoxFields
+      }
     }
-  }
-`;
+  `,
+  [BOX_FIELDS_FRAGMENT],
+);
 
-export const UPDATE_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  ${DISTRO_EVENT_FIELDS_FRAGMENT}
-  mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
-    updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
-      ...BoxFields
-      product {
-        ...ProductFields
-      }
-      tags {
-        ...TagBasicFields
-      }
-      distributionEvent {
-        ...DistroEventFields
-      }
-      location {
-        __typename
-        id
-        name
-        ... on ClassicLocation {
-          defaultBoxState
+export const UPDATE_BOX_MUTATION = graphql(
+  `
+    mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
+      updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
+        ...BoxFields
+        product {
+          ...ProductFields
         }
-        base {
-          locations {
-            id
-            seq
-            name
-            ... on ClassicLocation {
-              defaultBoxState
-            }
+        tags {
+          ...TagBasicFields
+        }
+        distributionEvent {
+          ...DistroEventFields
+        }
+        location {
+          __typename
+          id
+          name
+          ... on ClassicLocation {
+            defaultBoxState
           }
-          distributionEventsBeforeReturnedFromDistributionState {
-            id
-            state
-            distributionSpot {
+          base {
+            locations {
+              id
+              seq
               name
+              ... on ClassicLocation {
+                defaultBoxState
+              }
             }
-            name
-            plannedStartDateTime
-            plannedEndDateTime
+            distributionEventsBeforeReturnedFromDistributionState {
+              id
+              state
+              distributionSpot {
+                name
+              }
+              name
+              plannedStartDateTime
+              plannedEndDateTime
+            }
           }
         }
       }
     }
-  }
-`;
+  `,
+  [
+    BOX_FIELDS_FRAGMENT,
+    PRODUCT_FIELDS_FRAGMENT,
+    TAG_BASIC_FIELDS_FRAGMENT,
+    DISTRO_EVENT_FIELDS_FRAGMENT,
+  ],
+);
 
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;

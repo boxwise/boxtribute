@@ -1,4 +1,5 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../../graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +21,7 @@ import { useGlobalSiteState } from "hooks/hooks";
 const CreateDirectDistributionEventView = () => {
   const { currentBaseId } = useGlobalSiteState();
 
-  const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
+  const CREATE_DISTRIBUTION_EVENT_MUTATION = graphql(`
     mutation CreateDistributionEvent(
       $distributionSpotId: Int!
       $name: String!
@@ -41,7 +42,7 @@ const CreateDirectDistributionEventView = () => {
         plannedEndDateTime
       }
     }
-  `;
+  `);
 
   const navigate = useNavigate();
 

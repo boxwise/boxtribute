@@ -1,18 +1,12 @@
 import { useCallback, useContext, useEffect } from "react";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import {
-  AllAcceptedTransferAgreementsQuery,
-  AllBasesOfCurrentOrgQuery,
-  CreateShipmentMutation,
-  CreateShipmentMutationVariables,
-  TransferAgreementType,
-} from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
@@ -26,21 +20,22 @@ import CreateShipment, {
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
-export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  query AllAcceptedTransferAgreements($baseId: ID!) {
-    base(id: $baseId) {
-      ...BaseOrgFields
-    }
+export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = graphql(
+  `
+    query AllAcceptedTransferAgreements($baseId: ID!) {
+      base(id: $baseId) {
+        ...BaseOrgFields
+      }
 
-    transferAgreements(states: Accepted) {
-      ...TransferAgreementFields
+      transferAgreements(states: Accepted) {
+        ...TransferAgreementFields
+      }
     }
-  }
-`;
+  `,
+  [BASE_ORG_FIELDS_FRAGMENT, TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
 
-export const ALL_BASES_OF_CURRENT_ORG_QUERY = gql`
+export const ALL_BASES_OF_CURRENT_ORG_QUERY = graphql(`
   query AllBasesOfCurrentOrg($orgId: ID!) {
     organisation(id: $orgId) {
       id
@@ -51,22 +46,24 @@ export const ALL_BASES_OF_CURRENT_ORG_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-export const CREATE_SHIPMENT_MUTATION = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int) {
-    createShipment(
-      creationInput: {
-        sourceBaseId: $sourceBaseId
-        targetBaseId: $targetBaseId
-        transferAgreementId: $transferAgreementId
+export const CREATE_SHIPMENT_MUTATION = graphql(
+  `
+    mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int) {
+      createShipment(
+        creationInput: {
+          sourceBaseId: $sourceBaseId
+          targetBaseId: $targetBaseId
+          transferAgreementId: $transferAgreementId
+        }
+      ) {
+        ...ShipmentFields
       }
-    ) {
-      ...ShipmentFields
     }
-  }
-`;
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
 interface IAcceptedTransferAgreementsPartnerData extends IOrganisationBaseData {
   agreementId: string;
@@ -105,11 +102,11 @@ function CreateShipmentView() {
             shipments(existingShipments = []) {
               const newShipmentRef = cache.writeFragment({
                 data: returnedShipment.createShipment,
-                fragment: gql`
+                fragment: graphql(`
                   fragment NewShipment on Shipment {
                     id
                   }
-                `,
+                `),
               });
               return existingShipments.concat(newShipmentRef);
             },
