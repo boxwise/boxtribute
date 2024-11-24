@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
-    "@graphql-codegen/typescript": "^4.1.1",
     "@sentry/types": "^8.39.0",
     "@storybook/addon-actions": "^8.4.5",
     "@storybook/addon-essentials": "^8.4.5",
@@ -41,10 +40,9 @@
     "storybook": "^8.4.5"
   },
   "scripts": {
-    "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
-    "build": "pnpm generate-graphql-ts-types && tsc && vite build",
-    "dev": "pnpm generate-graphql-ts-types --watch && vite ",
-    "preview": "pnpm generate-graphql-ts-types && vite preview",
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
     "test": "TZ=UTC vitest",
     "test:coverage": "TZ=UTC vitest run --coverage",
     "upload:test-report": "./node_modules/.bin/codecov",

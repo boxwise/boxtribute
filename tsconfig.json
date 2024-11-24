@@ -41,6 +41,19 @@
     /* The following linting settings we might want to get rid of in the future */
     "allowSyntheticDefaultImports": true,
     "strictFunctionTypes": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "plugins": [
+      {
+        "name": "gql.tada/ts-plugin",
+        "schema": {
+          "url": "http://localhost:5005/graphql",
+          "headers": {
+            "Accept": "application/graphql-response+json",
+            "authorization": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkJYZFQzNFlvTlVBdTRlbG9Xd1B2ZSJ9.eyJodHRwczovL3d3dy5ib3h0cmlidXRlLmNvbS9wZXJtaXNzaW9ucyI6WyIqIl0sImh0dHBzOi8vd3d3LmJveHRyaWJ1dGUuY29tL3JvbGVzIjpbImJveHRyaWJ1dGVfZ29kIl0sImh0dHBzOi8vd3d3LmJveHRyaWJ1dGUuY29tL29yZ2FuaXNhdGlvbl9pZCI6bnVsbCwiaHR0cHM6Ly93d3cuYm94dHJpYnV0ZS5jb20vYmFzZV9pZHMiOlsxXSwiaHR0cHM6Ly93d3cuYm94dHJpYnV0ZS5jb20vZW1haWwiOiJzb21lLmFkbWluQGJveHRyaWJ1dGUub3JnIiwiaHR0cHM6Ly93d3cuYm94dHJpYnV0ZS5jb20vY291bnRyeSI6IkJyYXppbCIsImh0dHBzOi8vd3d3LmJveHRyaWJ1dGUuY29tL3RpbWV6b25lIjoiQW1lcmljYS9TYW9fUGF1bG8iLCJodHRwczovL3d3dy5ib3h0cmlidXRlLmNvbS9iZXRhX3VzZXIiOjk5LCJpc3MiOiJodHRwczovL2JveHRyaWJ1dGUtZGV2LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHwxIiwiYXVkIjpbImJveHRyaWJ1dGUtZGV2LWFwaSIsImh0dHBzOi8vYm94dHJpYnV0ZS1kZXYuZXUuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTczMjQwMTM4NywiZXhwIjoxNzMyNDg3Nzg3LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiYXpwIjoibmk5WmRjb0l2M0hVMTBreWM0dDFxeE9NeGpWeXhjYlMifQ.xLNtczCNdNpRzcEF4flOq-VMifWgd9RQ374oZVCLT7sRW62YN8jIISECy_WQTRTd3M6_h9OuX1G33dBGddYN-iuWAWeRrhZpVdvcUX8KuoIrPa4A558tSLB3XqrVX6WC3fLtWo0gRp55qdVmU_6wvHUdMsvqAoE9pi7WATzVYfhaxbw4JIoEEGp7koiAdmKMLZZRnCpr0GACE4hPUgV49YNxtSUufb8-_0me6ORzxvKZM4hzSvU6wXHwoICrEegHVs2vbgmvWo8nr1923tJP2sSbsqXth-sG31yjT1tMJ-YoqfXuJvI06zvP8GncvFrTSfpSsdtoMRXo21bNdRA6LA"
+          }
+        },
+        "tadaOutputLocation": "./generated/graphql-env.d.ts"
+      }
+    ]
   }
 }

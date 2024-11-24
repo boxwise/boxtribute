@@ -13,7 +13,6 @@
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
     "test": "TZ=UTC vitest",
     "test:coverage": "TZ=UTC vitest run --coverage",
-    "graphql-gen": "pnpm -C front generate-graphql-ts-types && pnpm -C statviz generate-graphql-ts-types",
     "prepare": "husky || true"
   },
   "dependencies": {
@@ -41,6 +40,7 @@
     "chakra-react-select": "4.9.2",
     "date-fns": "^4.1.0",
     "dom-to-image-more": "^3.5.0",
+    "gql.tada": "^1.8.10",
     "graphql": "^16.8.1",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
@@ -50,7 +50,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
@@ -80,11 +79,9 @@
     "vitest": "^2.1.5"
   },
   "resolutions": {
-    "@graphql-codegen/cli": "^5.0.0",
     "graphql": "^16.8.1"
   },
   "lint-staged": {
-    "*.{gql,graphql}": "pnpm graphql-gen",
     "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
     "*.{js,json,ts,tsx}": "prettier --write"
   }

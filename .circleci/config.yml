@@ -125,7 +125,6 @@ jobs:
           command: |
             pnpm lint:fix:all
             pnpm format:write:all
-            pnpm generate-graphql-ts-types
       - run:
           name: Build front
           command: |

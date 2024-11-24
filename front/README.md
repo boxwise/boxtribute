@@ -197,7 +197,6 @@ The folder structure is as follows:
 ├── serviceWorker.js
 ├── setupTests.js
 ├── craco.config.js
-├── codegen.yml
 ├── Dockerfile
 ├── README.md
 ├── package.json
