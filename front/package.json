@@ -33,7 +33,7 @@
     "@storybook/react": "^8.4.5",
     "@storybook/react-vite": "^8.4.5",
     "@storybook/test": "^8.4.5",
-    "@types/react-big-calendar": "^1.15.0",
+    "@types/react-big-calendar": "^1.16.0",
     "@types/react-table": "^7.7.20",
     "msw": "^2.6.5",
     "mutationobserver-shim": "^0.3.7",
