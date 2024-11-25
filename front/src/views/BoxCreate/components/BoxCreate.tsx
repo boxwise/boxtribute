@@ -18,6 +18,7 @@ import { z } from "zod";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
+import { ProductGender } from "types/query-types";
 
 export interface ICategoryData {
   name: string;

@@ -160,7 +160,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
             />
           </Text>
           <DistributionStateProgressBar
-            activeState={distributionEventDetails.state}
+            activeState={distributionEventDetails.state as DistributionEventState}
             onMoveToStage={onMoveToStage}
           />
         </Box>

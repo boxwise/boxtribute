@@ -26,12 +26,12 @@ import ValueFilter from "../../filter/ValueFilter";
 
 interface ISizeDim {
   sizeId: number;
-  sizeName: Maybe<string> | undefined;
+  sizeName: string | undefined;
 }
 
 interface ICategoryDim {
   categoryId: number;
-  categoryName: Maybe<string> | undefined;
+  categoryName: string | undefined;
 }
 
 type PreparedStock = StockOverviewResult & ICategoryDim & ISizeDim;
