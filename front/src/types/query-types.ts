@@ -4,6 +4,7 @@ import { ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "que
 import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import { introspection_types } from "../../../generated/graphql-env";
 import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { PRODUCT_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
 
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
 
@@ -24,6 +25,8 @@ export type Tag = ResultOf<typeof TAG_BASIC_FIELDS_FRAGMENT>;
 export type Locations = ResultOf<typeof LOCATIONS_QUERY>["locations"];
 
 export type HistoryEntry = ResultOf<typeof HISTORY_FIELDS_FRAGMENT>;
+
+export type Product = ResultOf<typeof PRODUCT_FRAGMENT>;
 
 export type BoxState = introspection_types["BoxState"]["enumValues"];
 

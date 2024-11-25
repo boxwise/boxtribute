@@ -17,7 +17,7 @@ export const BASE_DATA = graphql(`
 function BaseDashboardView() {
   const { baseId } = useBaseIdParam();
 
-  const { loading, error, data } = useQuery<BaseDataQuery, BaseDataQueryVariables>(BASE_DATA, {
+  const { loading, error, data } = useQuery(BASE_DATA, {
     variables: {
       baseId,
     },

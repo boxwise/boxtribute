@@ -4,55 +4,56 @@ import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { IProductFilterValue, productFilterValuesVar } from "../../state/filter";
+import { Product } from "../../../../front/src/types/query-types";
 
 export const genders: IFilterValue[] = [
   {
-    value: ProductGender.Boy.valueOf(),
+    value: "Boy",
     label: "Boy",
     urlId: "boy",
   },
   {
-    value: ProductGender.Girl.valueOf(),
+    value: "Girl",
     label: "Girl",
     urlId: "girl",
   },
   {
-    value: ProductGender.Men.valueOf(),
+    value: "Men",
     label: "Men",
     urlId: "men",
   },
   {
-    value: ProductGender.None.valueOf(),
+    value: "None",
     label: "None",
     urlId: "none",
   },
   {
-    value: ProductGender.TeenBoy.valueOf(),
+    value: "Teen Boy",
     label: "Teen Boy",
     urlId: "tb",
   },
   {
-    value: ProductGender.TeenGirl.valueOf(),
+    value: "Teen Girl",
     label: "Teen Girl",
     urlId: "tg",
   },
   {
-    value: ProductGender.UnisexAdult.valueOf(),
+    value: "UnisexAdult",
     label: "UnisexAdult",
     urlId: "ua",
   },
   {
-    value: ProductGender.UnisexBaby.valueOf(),
+    value: "Unisex Baby",
     label: "Unisex Baby",
     urlId: "ub",
   },
   {
-    value: ProductGender.UnisexKid.valueOf(),
+    value: "Unisex Kid",
     label: "Unisex Kid",
     urlId: "uk",
   },
   {
-    value: ProductGender.Women.valueOf(),
+    value: "Women",
     label: "Women",
     urlId: "women",
   },
@@ -61,7 +62,7 @@ export const genders: IFilterValue[] = [
 export const genderFilterId = "gf";
 export const productFilterId = "pf";
 
-export const productToFilterValue = (product: ProductDimensionInfo): IProductFilterValue => ({
+export const productToFilterValue = (product: Product): IProductFilterValue => ({
   id: product.id!,
   value: product.id!.toString(),
   name: product.name!,
