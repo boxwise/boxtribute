@@ -31,7 +31,6 @@ import {
   includesOneOfMulipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
-import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";

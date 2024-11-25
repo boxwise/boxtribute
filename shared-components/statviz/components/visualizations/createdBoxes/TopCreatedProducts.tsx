@@ -2,11 +2,6 @@ import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { arrange, desc, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import BarChart from "../../nivo/BarChart";
-import {
-  CreatedBoxesData,
-  CreatedBoxesResult,
-  ProductDimensionInfo,
-} from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";

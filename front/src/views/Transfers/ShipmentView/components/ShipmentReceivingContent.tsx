@@ -1,6 +1,5 @@
 import _ from "lodash";
 import { useMemo } from "react";
-import { BoxState, ShipmentDetail } from "types/generated/graphql";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
 
 interface IShipmentReceivingContentProps {

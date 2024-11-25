@@ -3,7 +3,6 @@ import { BidirectionalIcon } from "components/Icon/Transfer/BidirectionalIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { CellProps } from "react-table";
-import { ShipmentState } from "types/generated/graphql";
 
 export function DirectionCell({ value }: CellProps<any>) {
   if (value === "To") {

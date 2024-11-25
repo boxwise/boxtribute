@@ -24,15 +24,6 @@ import APILoadingIndicator from "components/APILoadingIndicator";
 import _ from "lodash";
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  CompleteDistributionEventsTrackingGroupMutation,
-  CompleteDistributionEventsTrackingGroupMutationVariables,
-  DistributionEventsTrackingGroupQuery,
-  DistributionEventsTrackingGroupQueryVariables,
-  DistributionEventTrackingFlowDirection,
-  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
-  SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables,
-} from "types/generated/graphql";
 import DistributionEventTimeRangeDisplay from "../../components/DistributionEventTimeRangeDisplay";
 import {
   COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,

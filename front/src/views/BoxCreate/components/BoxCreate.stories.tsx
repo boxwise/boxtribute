@@ -1,5 +1,4 @@
 import { Meta, StoryFn } from "@storybook/react";
-import { ProductGender } from "types/generated/graphql";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { action } from "@storybook/addon-actions";
 import BoxCreate, { IBoxCreateProps, IProductWithSizeRangeData, ISizeRangeData } from "./BoxCreate";

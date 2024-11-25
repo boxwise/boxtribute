@@ -3,11 +3,6 @@ import { range } from "lodash";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
 import { useMemo } from "react";
 import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
-import {
-  BeneficiaryDemographicsData,
-  BeneficiaryDemographicsResult,
-  HumanGender,
-} from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";

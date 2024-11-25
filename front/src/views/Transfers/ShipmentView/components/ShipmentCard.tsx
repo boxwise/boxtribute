@@ -21,8 +21,8 @@ import { qrReaderOverlayVar } from "queries/cache";
 import { BiMinusCircle, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
-import { Shipment, ShipmentState } from "types/generated/graphql";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
+import { Shipment } from "types/query-types";
 
 export interface IShipmentProps {
   canCancelShipment: Boolean;
@@ -96,7 +96,7 @@ function ShipmentCard({
               onClick={onLost}
               style={{
                 background: "white",
-                color: ShipmentState.Lost === shipment.state ? "red" : "black",
+                color: shipment.state === "Lost" ? "red" : "black",
               }}
               aria-label="cannot locate shipment"
             />
@@ -217,7 +217,7 @@ function ShipmentCard({
                   />
                 </VStack>
               )}
-              {shipment.state === ShipmentState.Completed && totalLostBoxes > 0 && (
+              {shipment.state === "Completed" && totalLostBoxes > 0 && (
                 <VStack align="stretch" mr={1}>
                   <Tooltip label="the number of boxes that didn't arrive">
                     <Wrap spacing={0} align="center" style={{ color: "#909090" }}>

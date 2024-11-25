@@ -1,5 +1,4 @@
 import { Box, Wrap, WrapItem } from "@chakra-ui/react";
-import { ShipmentState } from "types/generated/graphql";
 
 export interface IShipmentColoredStatusProps {
   state: ShipmentState | undefined | null;

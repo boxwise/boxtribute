@@ -1,5 +1,4 @@
 import { Wrap, WrapItem, Box } from "@chakra-ui/react";
-import { CreatedBoxesData } from "../../../../types/generated/graphql";
 import CreatedBoxes from "./CreatedBoxes";
 import TopCreatedProducts from "./TopCreatedProducts";
 import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";

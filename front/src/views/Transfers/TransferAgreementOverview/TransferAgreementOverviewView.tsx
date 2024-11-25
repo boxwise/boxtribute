@@ -24,11 +24,12 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { introspection_types } from "../../../../../generated/graphql-env";
+import { TransferAgreements } from "types/query-types";
 
 export interface IAcceptedTransferAgreement {
-  transferAgreements: introspection_types["TransferAgreement"][];
+  transferAgreements: TransferAgreements;
 }
+
 export const ALL_TRANSFER_AGREEMENTS_QUERY = graphql(
   `
     query TransferAgreements {

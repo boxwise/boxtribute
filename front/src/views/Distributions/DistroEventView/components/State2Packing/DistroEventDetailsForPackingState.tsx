@@ -21,12 +21,6 @@ import {
 import _ from "lodash";
 import { useCallback } from "react";
 import {
-  AssignBoxToDistributionEventMutation,
-  AssignBoxToDistributionEventMutationVariables,
-  MoveItemsToDistributionEventMutation,
-  MoveItemsToDistributionEventMutationVariables,
-} from "types/generated/graphql";
-import {
   // MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY,
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
   MOVE_ITEMS_TO_DISTRIBUTION_EVENT,
@@ -57,15 +51,9 @@ const PackingListEntry = ({
 
   const toast = useToast();
 
-  const [assignBoxToDistributionEventMutation] = useMutation<
-    AssignBoxToDistributionEventMutation,
-    AssignBoxToDistributionEventMutationVariables
-  >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
+  const [assignBoxToDistributionEventMutation] = useMutation(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
-  const [moveItemsToDistributionEventMutation] = useMutation<
-    MoveItemsToDistributionEventMutation,
-    MoveItemsToDistributionEventMutationVariables
-  >(MOVE_ITEMS_TO_DISTRIBUTION_EVENT);
+  const [moveItemsToDistributionEventMutation] = useMutation(MOVE_ITEMS_TO_DISTRIBUTION_EVENT);
 
   const onAddUnboxedItemsToDistributionEvent = useCallback(
     (boxLabelIdentifier: string, numberOfItemsToMove: number) => {

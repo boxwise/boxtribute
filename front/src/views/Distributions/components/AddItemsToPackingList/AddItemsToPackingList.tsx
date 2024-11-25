@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useContext, useState } from "react";
-import { ProductGender } from "types/generated/graphql";
 import { DistroEventDetailsForPlanningStateContext } from "views/Distributions/DistroEventView/components/State1Planning/DistroEventDetailsForPlanningStateContainer";
 import { IPackingListEntry } from "views/Distributions/types";
 

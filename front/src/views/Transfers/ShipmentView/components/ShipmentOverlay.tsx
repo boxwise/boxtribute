@@ -1,7 +1,6 @@
 import { VStack, Text, chakra, HStack, Wrap } from "@chakra-ui/react";
 import { AreYouSureDialog } from "components/AreYouSure";
 import { AiFillWarning } from "react-icons/ai";
-import { BoxState, ShipmentState } from "types/generated/graphql";
 
 export interface IShipmentOverlayData {
   id: string;

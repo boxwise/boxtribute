@@ -1,5 +1,4 @@
 import { StoryFn, Meta } from "@storybook/react";
-import { ProductGender } from "types/generated/graphql";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { BoxData, IPackingListEntryForPackingState } from "views/Distributions/types";

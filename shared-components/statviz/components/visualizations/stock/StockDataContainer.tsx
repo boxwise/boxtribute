@@ -3,42 +3,46 @@ import { Box, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import StockDataFilter from "./StockDataFilter";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
-import { gql } from "../../../../types/generated";
+import { graphql } from "../../../../../graphql";
+import { TAG_FRAGMENT } from "../../../queries/fragments";
 
-export const STOCK_QUERY = gql(`
-  query stockOverview($baseId: Int!) {
-    stockOverview(baseId: $baseId) {
-      facts {
-        productName
-        categoryId
-        gender
-        boxesCount
-        itemsCount
-        sizeId
-        tagIds
-        boxState
-        locationId
-      }
-      dimensions {
-        category {
-          id
-          name
+export const STOCK_QUERY = graphql(
+  `
+    query stockOverview($baseId: Int!) {
+      stockOverview(baseId: $baseId) {
+        facts {
+          productName
+          categoryId
+          gender
+          boxesCount
+          itemsCount
+          sizeId
+          tagIds
+          boxState
+          locationId
         }
-        size {
-          id
-          name
-        }
-        tag {
-          ...TagFragment
-        }
-        location {
-          id
-          name
+        dimensions {
+          category {
+            id
+            name
+          }
+          size {
+            id
+            name
+          }
+          tag {
+            ...TagFragment
+          }
+          location {
+            id
+            name
+          }
         }
       }
     }
-  }
-`);
+  `,
+  [TAG_FRAGMENT],
+);
 
 export default function StockDataContainer() {
   const { baseId } = useParams();

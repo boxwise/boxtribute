@@ -1,12 +1,11 @@
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
-import { gql } from "../../../../types/generated";
-import { MovedBoxesData, QueryMovedBoxesArgs } from "../../../../types/generated/graphql";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
+import { graphql } from "../../../../../graphql";
 
-export const MOVED_BOXES_QUERY = gql(`
+export const MOVED_BOXES_QUERY = graphql(`
   query movedBoxes($baseId: Int!) {
     movedBoxes(baseId: $baseId) {
       facts {

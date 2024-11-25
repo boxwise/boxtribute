@@ -13,12 +13,6 @@ import {
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 
 import { useCallback, useState } from "react";
-import {
-  BoxDetailsQuery,
-  BoxDetailsQueryVariables,
-  GetBoxLabelIdentifierForQrCodeQuery,
-  GetBoxLabelIdentifierForQrCodeQueryVariables,
-} from "types/generated/graphql";
 import { extractQrCodeFromUrl } from "hooks/useQrResolver";
 import {
   BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,

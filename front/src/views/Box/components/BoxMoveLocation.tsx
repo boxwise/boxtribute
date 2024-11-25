@@ -1,8 +1,8 @@
 import { List, Text, Flex, WrapItem, Button, SkeletonText } from "@chakra-ui/react";
-import { BoxState, ClassicLocation } from "types/generated/graphql";
+import { Box } from "types/query-types";
 
 export interface IBoxMoveLocationProps {
-  boxData: any;
+  boxData: Box;
   boxInTransit: boolean;
   isLoading: boolean;
   onMoveToLocationClick: (locationId: string) => void;
@@ -26,19 +26,18 @@ function BoxMoveLocation({
           noOfLines={1}
         />
       )}
-      {!isLoading && boxData.state !== BoxState.MarkedForShipment && (
+      {!isLoading && boxData?.state !== "MarkedForShipment" && (
         <Text data-testid="box-location-label" textAlign="center" fontSize="xl" mb={4}>
-          Move this box from <strong>{boxData.location?.name}</strong> to:
+          Move this box from <strong>{boxData?.location?.name}</strong> to:
         </Text>
       )}
       <List>
         <Flex wrap="wrap" justifyContent="center">
-          {boxData.location?.base?.locations
-            ?.filter((location) => location.id !== boxData.location?.id)
+          {boxData?.location?.base?.locations
+            ?.filter((location) => location.id !== boxData?.location?.id)
             .filter(
               (location) =>
-                location?.defaultBoxState !== BoxState.Lost &&
-                location?.defaultBoxState !== BoxState.Scrap,
+                location?.defaultBoxState !== "Lost" && location?.defaultBoxState !== "Scrap",
             )
             .sort((a, b) => Number(a?.seq) - Number(b?.seq))
             .map((location) => (
@@ -49,18 +48,20 @@ function BoxMoveLocation({
                   isLoading={isLoading}
                   onClick={() => onMoveToLocationClick(location.id)}
                   isDisabled={
-                    (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Lost &&
-                    (boxData.location as ClassicLocation).defaultBoxState !== BoxState.Scrap
-                      ? BoxState.Lost === boxData.state ||
-                        BoxState.Scrap === boxData.state ||
-                        BoxState.NotDelivered === boxData.state ||
+                    boxData.location?.__typename === "ClassicLocation" &&
+                    boxData.location?.defaultBoxState !== "Lost" &&
+                    boxData.location?.__typename === "ClassicLocation" &&
+                    boxData.location?.defaultBoxState !== "Scrap"
+                      ? "Lost" === boxData.state ||
+                        "Scrap" === boxData.state ||
+                        "NotDelivered" === boxData.state ||
                         boxInTransit
                       : false
                   }
                   border="2px"
                 >
                   {location.name}
-                  {location.defaultBoxState !== BoxState.InStock && (
+                  {location.defaultBoxState !== "InStock" && (
                     <>
                       {" "}
                       - Boxes are&nbsp;<i> {location.defaultBoxState}</i>

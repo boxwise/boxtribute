@@ -2,10 +2,6 @@ import { useCallback, useState } from "react";
 import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
-import {
-  GetBoxLabelIdentifierForQrCodeQuery,
-  GetBoxLabelIdentifierForQrCodeQueryVariables,
-} from "types/generated/graphql";
 import { useErrorHandling } from "./useErrorHandling";
 
 export enum IQrResolverResultKind {
@@ -49,7 +45,7 @@ export const useQrResolver = () => {
     async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
       const qrResolvedValue: IQrResolvedValue = await apolloClient
-        .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
+        .query({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: hash },
           fetchPolicy,

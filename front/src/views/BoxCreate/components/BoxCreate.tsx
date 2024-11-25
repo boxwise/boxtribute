@@ -12,7 +12,6 @@ import {
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { ProductGender } from "types/generated/graphql";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";

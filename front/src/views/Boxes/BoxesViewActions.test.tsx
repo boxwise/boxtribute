@@ -2,7 +2,6 @@ import { vi, beforeEach, it, expect } from "vitest";
 import { basicShipment, generateMockShipment } from "mocks/shipments";
 import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
-import { BoxState } from "types/generated/graphql";
 import { shipmentDetail1 } from "mocks/shipmentDetail";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";

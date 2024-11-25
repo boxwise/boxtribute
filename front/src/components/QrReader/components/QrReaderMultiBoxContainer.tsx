@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
-import {
-  BoxState,
-  ShipmentState,
-  MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery,
-  TagType,
-} from "types/generated/graphql";
 import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
 import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
@@ -46,7 +40,7 @@ function QrReaderMultiBoxContainer() {
   const scannedBoxesQueryResult = useQuery<IGetScannedBoxesQuery>(GET_SCANNED_BOXES);
 
   // fetch location and shipments data
-  const optionsQueryResult = useQuery<MultiBoxActionOptionsForLocationsTagsAndShipmentsQuery>(
+  const optionsQueryResult = useQuery(
     MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
     {
       variables: { baseId },
@@ -113,7 +107,7 @@ function QrReaderMultiBoxContainer() {
   const tagOptions: IDropdownOption[] = useMemo(
     () =>
       optionsQueryResult.data?.base?.tags
-        ?.filter((tag) => tag?.type === TagType.All || tag?.type === TagType.Box)
+        ?.filter((tag) => tag?.type === "All" || tag?.type === "Box")
         ?.sort((a, b) => {
           const nameA = a.name.toLowerCase();
           const nameB = b.name.toLowerCase();
@@ -133,10 +127,7 @@ function QrReaderMultiBoxContainer() {
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
       optionsQueryResult.data?.shipments
-        ?.filter(
-          (shipment) =>
-            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === baseId,
-        )
+        ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           value: shipment.id,
@@ -153,9 +144,7 @@ function QrReaderMultiBoxContainer() {
   }, [shipmentOptions]);
 
   const notInStockBoxes = useMemo(
-    () =>
-      scannedBoxesQueryResult.data?.scannedBoxes.filter((box) => box.state !== BoxState.InStock) ??
-      [],
+    () => scannedBoxesQueryResult.data?.scannedBoxes.filter((box) => box.state !== "InStock") ?? [],
     [scannedBoxesQueryResult.data?.scannedBoxes],
   );
 

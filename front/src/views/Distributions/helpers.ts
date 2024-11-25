@@ -1,4 +1,4 @@
-import { DistributionEventState } from "types/generated/graphql";
+
 
 export const getNextState = (state: DistributionEventState) => {
   switch (state) {

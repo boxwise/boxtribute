@@ -19,10 +19,6 @@ import {
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import {
-  DistributionEventsForBaseQuery,
-  DistributionEventsForBaseQueryVariables,
-} from "types/generated/graphql";
 import { z } from "zod";
 import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";

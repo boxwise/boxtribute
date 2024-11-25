@@ -3,7 +3,6 @@ import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { BiTrash } from "react-icons/bi";
 import { TbMapOff } from "react-icons/tb";
-import { ShipmentDetail, ShipmentState } from "types/generated/graphql";
 
 export interface IShipmentActionButtonsProps {
   isLoadingFromMutation: boolean | undefined;

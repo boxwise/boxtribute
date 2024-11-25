@@ -3,12 +3,6 @@ import { graphql } from "../../../../../graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  CreateDistributionEventMutation,
-  CreateDistributionEventMutationVariables,
-  DistroSpotsForBaseIdQuery,
-  DistroSpotsForBaseIdQueryVariables,
-} from "types/generated/graphql";
 import CreateDirectDistroEvent, {
   CreateDistroEventFormData,
 } from "./components/CreateDirectDistributionEvent";
@@ -46,10 +40,7 @@ const CreateDirectDistributionEventView = () => {
 
   const navigate = useNavigate();
 
-  const [createDistributionEventMutation] = useMutation<
-    CreateDistributionEventMutation,
-    CreateDistributionEventMutationVariables
-  >(CREATE_DISTRIBUTION_EVENT_MUTATION);
+  const [createDistributionEventMutation] = useMutation(CREATE_DISTRIBUTION_EVENT_MUTATION);
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
@@ -85,10 +76,7 @@ const CreateDirectDistributionEventView = () => {
     [createDistributionEventMutation, currentBaseId, navigate],
   );
 
-  const { loading, error, data } = useQuery<
-    DistroSpotsForBaseIdQuery,
-    DistroSpotsForBaseIdQueryVariables
-  >(DISTRO_SPOTS_FOR_BASE_ID, {
+  const { loading, error, data } = useQuery(DISTRO_SPOTS_FOR_BASE_ID, {
     variables: {
       baseId: currentBaseId,
     },

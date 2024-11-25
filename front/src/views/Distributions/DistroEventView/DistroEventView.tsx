@@ -1,19 +1,14 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
-import {
-  DistributionEventQuery,
-  DistributionEventQueryVariables
-} from "types/generated/graphql";
 import { DISTRIBUTION_EVENT_QUERY } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventContainer from "./components/DistroEventContainer";
 
 const graphqlToContainerTransformer = (
-  distributionEventData: DistributionEventQuery | undefined
+  distributionEventData: DistributionEventQuery | undefined,
 ): DistributionEventDetails => {
-
-  if(distributionEventData?.distributionEvent?.distributionSpot == null) {
+  if (distributionEventData?.distributionEvent?.distributionSpot == null) {
     throw new Error("distributionEventData.distributionEvent.distributionSpot is null");
   }
   return DistributionEventDetailsSchema.parse(distributionEventData?.distributionEvent);
@@ -43,7 +38,7 @@ const DistroEventView = () => {
 
   const transformedData = graphqlToContainerTransformer(data);
 
-    return <DistroEventContainer distributionEventDetails={transformedData} />;
+  return <DistroEventContainer distributionEventDetails={transformedData} />;
 };
 
 export default DistroEventView;

@@ -3,7 +3,6 @@ import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
-import { BoxState, ShipmentState } from "types/generated/graphql";
 import { userEvent } from "@testing-library/user-event";
 import { FakeGraphQLError, mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";

@@ -1,16 +1,16 @@
 import { useCallback } from "react";
 import { useApolloClient } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
-import { BoxFieldsFragment, BoxState } from "types/generated/graphql";
-import { IBoxBasicFields, IScannedBoxesData } from "types/graphql-local-only";
+import { IScannedBoxesData } from "types/graphql-local-only";
 import { useNotification } from "./useNotification";
+import { Box } from "types/query-types";
 
 export const useScannedBoxesActions = () => {
   const apolloClient = useApolloClient();
   const { createToast } = useNotification();
 
   const addBox = useCallback(
-    (box: BoxFieldsFragment) =>
+    (box: Box) =>
       apolloClient.cache.updateQuery(
         {
           query: GET_SCANNED_BOXES,
@@ -19,12 +19,12 @@ export const useScannedBoxesActions = () => {
           const existingBoxRefs = data.scannedBoxes;
 
           const alreadyExists = existingBoxRefs.some(
-            (ref) => ref.labelIdentifier === box.labelIdentifier,
+            (ref) => ref.labelIdentifier === box?.labelIdentifier,
           );
 
           if (alreadyExists) {
             createToast({
-              message: `Box ${box.labelIdentifier} is already on the list.`,
+              message: `Box ${box?.labelIdentifier} is already on the list.`,
               type: "info",
             });
 
@@ -32,12 +32,12 @@ export const useScannedBoxesActions = () => {
           }
           // execute rest only if Box is not in the scannedBoxes already
           createToast({
-            message: `Box ${box.labelIdentifier} was added to the list.`,
+            message: `Box ${box?.labelIdentifier} was added to the list.`,
             type: "success",
           });
 
           return {
-            scannedBoxes: [...existingBoxRefs, box as IBoxBasicFields],
+            scannedBoxes: [...existingBoxRefs, box],
           } as IScannedBoxesData;
         },
       ),
@@ -75,7 +75,7 @@ export const useScannedBoxesActions = () => {
       },
       (data: IScannedBoxesData) =>
         ({
-          scannedBoxes: data.scannedBoxes.filter((box) => box.state === BoxState.InStock),
+          scannedBoxes: data.scannedBoxes.filter((box) => box.state === "InStock"),
         }) as IScannedBoxesData,
     );
   }, [apolloClient]);

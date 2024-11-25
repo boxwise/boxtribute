@@ -7,12 +7,6 @@ import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
-import {
-  AllOrganisationsAndBasesQuery,
-  CreateTransferAgreementMutation,
-  CreateTransferAgreementMutationVariables,
-  TransferAgreementType,
-} from "types/generated/graphql";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateTransferAgreement, {

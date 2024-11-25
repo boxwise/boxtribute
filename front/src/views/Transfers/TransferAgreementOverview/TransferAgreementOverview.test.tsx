@@ -3,7 +3,6 @@ import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
-import { TransferAgreementState, TransferAgreementType } from "types/generated/graphql";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import TransferAgreementOverviewView, {
   ACCEPT_TRANSFER_AGREEMENT,

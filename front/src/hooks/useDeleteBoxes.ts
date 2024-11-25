@@ -115,7 +115,7 @@ export const useDeleteBoxes = () => {
               requestedBoxes: boxes,
               deletedBoxes,
               invalidIdentifiers,
-            } as IDeleteBoxResult;
+            } /* TODO: should we fix this type cast? as IDeleteBoxResult */;
           }
 
           return {

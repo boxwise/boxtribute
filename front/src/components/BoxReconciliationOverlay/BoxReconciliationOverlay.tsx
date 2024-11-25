@@ -14,10 +14,10 @@ import {
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { introspection_types } from "../../../../generated/graphql-env";
+import { ShipmentDetail } from "types/query-types";
 
 export interface IBoxReconciliationOverlayData {
-  shipmentDetail: introspection_types["ShipmentDetail"];
+  shipmentDetail: ShipmentDetail;
 }
 
 export function BoxReconciliationOverlay({
@@ -209,7 +209,7 @@ export function BoxReconciliationOverlay({
         onClose={onOverlayClose}
         onBoxUndelivered={setBoxUndeliveredAYSState}
         onBoxDelivered={onBoxDelivered}
-        shipmentDetail={shipmentDetail}
+        shipmentDetail={shipmentDetail as ShipmentDetail}
         allLocations={allLocations as ILocationData[]}
         productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
         closeOnOverlayClick={closeOnOverlayClick}

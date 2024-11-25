@@ -11,7 +11,6 @@ import {
   Text,
   Button,
 } from "@chakra-ui/react";
-import { DistributionEventState } from "types/generated/graphql";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionSpotEnrichedData, DistroEventForSpot } from "views/Distributions/types";

@@ -1,4 +1,6 @@
-import { DistributionEventState, ProductGender } from "types/generated/graphql";
+
+import { DistributionEventState } from "types/generated/graphql";
+import { ProductGender } from "types/query-types";
 import { z } from "zod";
 
 // export const DistributionEventStateSchema = z.enum(["Planning", "Packing", "OnDistro", "Returned", "Completed"]);

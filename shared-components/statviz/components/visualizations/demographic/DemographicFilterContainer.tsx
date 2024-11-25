@@ -1,10 +1,6 @@
 import { useReactiveVar } from "@apollo/client";
 import { useEffect, useMemo } from "react";
 import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
-import {
-  BeneficiaryDemographicsData,
-  BeneficiaryDemographicsResult,
-} from "../../../../types/generated/graphql";
 import DemographicCharts from "./DemographicCharts";
 import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";

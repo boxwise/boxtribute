@@ -3,9 +3,9 @@ import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
-import { gql } from "../../../../types/generated";
+import { graphql } from "../../../../../graphql";
 
-const CREATED_BOXES_QUERY = gql(`
+const CREATED_BOXES_QUERY = graphql(`
   query createdBoxes($baseId: Int!) {
     createdBoxes(baseId: $baseId) {
       facts {

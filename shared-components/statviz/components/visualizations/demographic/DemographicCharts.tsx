@@ -1,4 +1,3 @@
-import { BeneficiaryDemographicsData } from "../../../../types/generated/graphql";
 import DemographicPyramid from "./DemographicPyramid";
 
 interface IDemographicChartProps {

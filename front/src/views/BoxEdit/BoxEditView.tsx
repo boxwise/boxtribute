@@ -4,13 +4,6 @@ import { graphql } from "../../../../graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
-  BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables,
-  BoxState,
-  UpdateContentOfBoxMutation,
-  UpdateContentOfBoxMutationVariables,
-} from "types/generated/graphql";
-import {
   TAG_OPTIONS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,

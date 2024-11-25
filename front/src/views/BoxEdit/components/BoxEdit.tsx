@@ -11,10 +11,6 @@ import {
 } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
-  ProductGender,
-} from "types/generated/graphql";
 import { useEffect, useRef, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";

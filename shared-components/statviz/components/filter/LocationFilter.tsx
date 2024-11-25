@@ -2,7 +2,6 @@ import { useReactiveVar } from "@apollo/client";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { ITargetFilterValue, targetFilterValuesVar } from "../../state/filter";
 import MultiSelectFilter from "./MultiSelectFilter";
-import { TargetDimensionInfo } from "../../../types/generated/graphql";
 
 export const targetFilterId = "loc";
 

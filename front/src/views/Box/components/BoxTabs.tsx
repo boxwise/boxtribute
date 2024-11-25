@@ -18,7 +18,6 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiNetworkChart } from "react-icons/bi";
 import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
-import { BoxByLabelIdentifierQuery, BoxState } from "types/generated/graphql";
 import AssignBoxToShipment from "./AssignBoxToShipment";
 
 import BoxMoveLocation from "./BoxMoveLocation";

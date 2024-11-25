@@ -6,15 +6,6 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  AllProductsAndLocationsForBaseQuery,
-  AllProductsAndLocationsForBaseQueryVariables,
-  BoxState,
-  CreateBoxMutation,
-  CreateBoxMutationVariables,
-  CheckIfQrExistsInDbQuery,
-  CheckIfQrExistsInDbQueryVariables,
-} from "types/generated/graphql";
 import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";

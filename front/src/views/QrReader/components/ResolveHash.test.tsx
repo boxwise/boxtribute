@@ -6,7 +6,6 @@ import { mockImplementationOfQrReader } from "mocks/components";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache } from "queries/cache";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
-import { BoxState } from "types/generated/graphql";
 import { render, screen, waitFor } from "tests/test-utils";
 import { mockedTriggerError } from "tests/setupTests";
 import ResolveHash from "./ResolveHash";

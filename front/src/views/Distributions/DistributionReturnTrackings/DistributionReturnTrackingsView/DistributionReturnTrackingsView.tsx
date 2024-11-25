@@ -1,10 +1,6 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
-import {
-  DataForReturnTrackingOverviewForBaseQuery,
-  DataForReturnTrackingOverviewForBaseQueryVariables,
-} from "types/generated/graphql";
 import { z } from "zod";
 import { DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY } from "../../queries";
 import {

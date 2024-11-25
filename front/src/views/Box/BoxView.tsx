@@ -13,25 +13,6 @@ import {
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  AssignBoxToDistributionEventMutation,
-  AssignBoxToDistributionEventMutationVariables,
-  BoxByLabelIdentifierQuery,
-  BoxByLabelIdentifierQueryVariables,
-  BoxState,
-  UnassignBoxFromDistributionEventMutation,
-  UnassignBoxFromDistributionEventMutationVariables,
-  UpdateLocationOfBoxMutation,
-  UpdateLocationOfBoxMutationVariables,
-  UpdateNumberOfItemsMutation,
-  UpdateNumberOfItemsMutationVariables,
-  UpdateStateMutationVariables,
-  UpdateStateMutation,
-  ClassicLocation,
-  ShipmentState,
-  User,
-  HistoryEntry,
-} from "types/generated/graphql";
-import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
@@ -64,6 +45,7 @@ import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { BoxState } from "types/query-types";
 
 // Queries and Mutations
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
@@ -169,32 +151,28 @@ function BTBox() {
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
 
-  const allData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
-    BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    {
-      variables: {
-        labelIdentifier,
-      },
-      notifyOnNetworkStatusChange: true,
+  const allData = useQuery(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, {
+    variables: {
+      labelIdentifier,
     },
-  );
+    notifyOnNetworkStatusChange: true,
+  });
 
   const shipmentsQueryResult = allData.data?.shipments;
 
   const boxInTransit = currentBoxState
-    ? [BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(currentBoxState)
+    ? ["Receiving", "MarkedForShipment", "InTransit"].includes(currentBoxState)
     : false;
 
   // map over each box HistoryEntry to compile its timeline records
-  const boxLogs: ITimelineEntry[] = (allData.data?.box?.history as HistoryEntry[])?.flatMap(
-    (histories) =>
-      _.compact([
-        histories?.user && {
-          action: prepareBoxHistoryEntryText(`${histories.user.name} ${histories.changes}`),
-          createdBy: histories.user as User,
-          createdOn: new Date(histories.changeDate),
-        },
-      ]),
+  const boxLogs: ITimelineEntry[] = allData.data?.box?.history?.flatMap((histories) =>
+    _.compact([
+      histories?.user && {
+        action: prepareBoxHistoryEntryText(`${histories.user.name} ${histories.changes}`),
+        createdBy: histories.user,
+        createdOn: new Date(histories.changeDate || ""),
+      },
+    ]),
   ) as ITimelineEntry[];
 
   const allLogs = _.orderBy(
@@ -217,32 +195,21 @@ function BTBox() {
     .orderBy((entry) => new Date(entry.date), "desc")
     .value();
 
-  const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
-    UpdateNumberOfItemsMutation,
-    UpdateNumberOfItemsMutationVariables
-  >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION);
+  const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation(
+    UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
+  );
 
   const [assignBoxToDistributionEventMutation, assignBoxToDistributionEventMutationStatus] =
-    useMutation<
-      AssignBoxToDistributionEventMutation,
-      AssignBoxToDistributionEventMutationVariables
-    >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
+    useMutation(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
   const [unassignBoxFromDistributionEventMutation, unassignBoxFromDistributionEventMutationStatus] =
-    useMutation<
-      UnassignBoxFromDistributionEventMutation,
-      UnassignBoxFromDistributionEventMutationVariables
-    >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+    useMutation(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
 
-  const [updateStateMutation, updateStateMutationStatus] = useMutation<
-    UpdateStateMutation,
-    UpdateStateMutationVariables
-  >(UPDATE_STATE_IN_BOX_MUTATION);
+  const [updateStateMutation, updateStateMutationStatus] = useMutation(
+    UPDATE_STATE_IN_BOX_MUTATION,
+  );
 
-  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
-    UpdateLocationOfBoxMutation,
-    UpdateLocationOfBoxMutationVariables
-  >(UPDATE_BOX_MUTATION);
+  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation(UPDATE_BOX_MUTATION);
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
@@ -253,13 +220,13 @@ function BTBox() {
     setCurrentState(boxData?.state);
     const shipmentId = boxData?.shipmentDetail?.shipment.id;
     // open reconciliation overlay if the box state is receiving
-    if (shipmentId && boxData?.state === BoxState.Receiving) {
+    if (shipmentId && boxData?.state === "Receiving") {
       boxReconciliationOverlayVar({
         labelIdentifier: boxData.labelIdentifier,
         isOpen: true,
         shipmentId,
       });
-    } else if (shipmentId && boxData?.state === BoxState.InTransit) {
+    } else if (shipmentId && boxData?.state === "InTransit") {
       navigate(`/bases/${currentBaseId}/transfers/shipments/${shipmentId}`);
     }
   }, [boxData, globalPreferences, navigate, currentBaseId]);
@@ -589,8 +556,7 @@ function BTBox() {
     () =>
       shipmentsQueryResult
         ?.filter(
-          (shipment) =>
-            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === currentBaseId,
+          (shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === currentBaseId,
         )
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
@@ -615,25 +581,22 @@ function BTBox() {
     warehouse location. Boxtribute no longer supports LOST and SCRAP locations.`;
 
   const alertMessageForBoxWithLostScrapState = `To edit or move this box, remove the ${
-    boxData?.state === BoxState.Lost ? "Lost" : "Scrap"
+    boxData?.state === "Lost" ? "Lost" : "Scrap"
   } status.`;
 
   const location =
-    boxData?.state === BoxState.Receiving
+    boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.shipment.details.filter(
           (b) => b.box.labelIdentifier === boxData.labelIdentifier,
         )[0]?.sourceLocation
       : boxData?.location;
 
   const boxInLegacyLocation =
-    (location as ClassicLocation)?.defaultBoxState === BoxState.Lost ||
-    (location as ClassicLocation)?.defaultBoxState === BoxState.Scrap;
+    location?.defaultBoxState === "Lost" || location?.defaultBoxState === "Scrap";
 
   return (
     <VStack spacing={4} align="stretch">
-      {(boxInLegacyLocation ||
-        boxData?.state === BoxState.Lost ||
-        boxData?.state === BoxState.Scrap) && (
+      {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") && (
         <Alert
           status="info"
           variant="top-accent"

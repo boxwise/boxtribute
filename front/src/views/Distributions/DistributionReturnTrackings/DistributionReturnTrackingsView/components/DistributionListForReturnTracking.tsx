@@ -16,11 +16,6 @@ import { getDay, parseISO, isPast } from "date-fns";
 import _ from "lodash";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  DistributionEventState,
-  StartDistributionEventsTrackingGroupMutation,
-  StartDistributionEventsTrackingGroupMutationVariables,
-} from "types/generated/graphql";
 import { getDateNormalizedDateTime, weekDayNumberToWeekDayName } from "utils/helpers";
 import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
 import { DistributionEventDetails, DistributionTrackingGroup } from "views/Distributions/types";

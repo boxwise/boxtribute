@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql";
-import { BoxesForBoxesViewQuery, ActionOptionsForBoxesViewQuery } from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,

@@ -1,7 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import { useReactiveVar } from "@apollo/client";
 import MultiSelectFilter from "./MultiSelectFilter";
-import { TagDimensionInfo } from "../../../types/generated/graphql";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { ITagFilterValue, tagFilterValuesVar } from "../../state/filter";
 

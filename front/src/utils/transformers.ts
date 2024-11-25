@@ -1,14 +1,8 @@
 import { IDropdownOption } from "components/Form/SelectField";
-import { ActionOptionsForBoxesViewQuery, BoxState, ShipmentState } from "types/generated/graphql";
+import { Locations } from "types/query-types";
 
 export function locationToDropdownOptionTransformer(
-  locations: {
-    __typename?: "ClassicLocation" | undefined;
-    defaultBoxState?: BoxState | null | undefined;
-    id: string;
-    seq?: number | null | undefined;
-    name?: string | null | undefined;
-  }[],
+  locations: Locations,
 ): IDropdownOption[] {
   return (
     locations
@@ -19,11 +13,10 @@ export function locationToDropdownOptionTransformer(
       )
       ?.sort((a, b) => Number(a?.seq) - Number(b?.seq))
       ?.map((location) => ({
-        label: `${location.name}${
-          location.defaultBoxState !== BoxState.InStock
-            ? ` - Boxes are ${location.defaultBoxState}`
-            : ""
-        }`,
+        label: `${location.name}${location.defaultBoxState !== BoxState.InStock
+          ? ` - Boxes are ${location.defaultBoxState}`
+          : ""
+          }`,
         value: location.id,
       })) ?? []
   );

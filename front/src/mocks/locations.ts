@@ -1,4 +1,3 @@
-import { BoxState } from "types/generated/graphql";
 import { organisation1 } from "./organisations";
 
 export const location1 = {
@@ -23,7 +22,7 @@ const location2 = {
 };
 
 export const generateMockLocationWithBase = ({
-  defaultBoxState = BoxState.InStock,
+  defaultBoxState = "InStock",
   defaultLocationName = "WH Men",
   defaultLocationId = 7,
 }) => ({

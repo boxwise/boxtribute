@@ -1,4 +1,4 @@
-import { ProductGender } from "types/generated/graphql";
+import { ProductGender } from "./query-types";
 
 export interface IBoxDetailsData {
   labelIdentifier: string;

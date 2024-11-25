@@ -1,10 +1,5 @@
 import { Box, Stack } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxByLabelIdentifierQuery,
-  BoxState,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
 import BoxCard from "./BoxCard";
 import BoxDistributionEvent from "./BoxDistributionEvent";
 import BoxTabs from "./BoxTabs";

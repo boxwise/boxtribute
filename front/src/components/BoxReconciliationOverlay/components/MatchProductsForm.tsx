@@ -9,7 +9,7 @@ import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { z } from "zod";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
-import { introspection_types } from "../../../../../generated/graphql-env";
+import { ShipmentDetail } from "types/query-types";
 
 export interface ICategoryData {
   name: string;
@@ -58,7 +58,7 @@ export const MatchProductsFormDataSchema = z.object({
 export type IMatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
-  shipmentDetail: introspection_types["ShipmentDetail"]["fields"];
+  shipmentDetail: ShipmentDetail;
   productAndSizesData: IProductWithSizeRangeData[];
   loading: boolean;
   onSubmitMatchProductsForm: (matchedProductsFormData: IMatchProductsFormData) => void;

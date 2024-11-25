@@ -2,11 +2,6 @@ import { useMemo, useState } from "react";
 import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxByLabelIdentifierQuery,
-  BoxState,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
 import { ShipmentOption } from "components/Form/ShipmentOption";
 
 export interface IAssignBoxToShipmentProps {

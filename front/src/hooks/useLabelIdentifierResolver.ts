@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useApolloClient } from "@apollo/client";
-import { BoxDetailsQuery, BoxDetailsQueryVariables } from "types/generated/graphql";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
 
 export enum ILabelIdentifierResolverResultKind {
@@ -28,7 +27,7 @@ export const useLabelIdentifierResolver = () => {
     async (labelIdentifier: string): Promise<ILabelIdentifierResolvedValue> => {
       setLoading(true);
       const labelIdentifierResolvedValue: ILabelIdentifierResolvedValue = await apolloClient
-        .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+        .query({
           query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
           variables: { labelIdentifier },
           fetchPolicy: "network-only",

@@ -1,7 +1,6 @@
 import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
 import ShipmentHistory, { IGroupedRecordEntry } from "components/Timeline/Timeline";
 import _ from "lodash";
-import { Box, ShipmentDetail, ShipmentState, User } from "types/generated/graphql";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
 
 export enum ShipmentActionEvent {

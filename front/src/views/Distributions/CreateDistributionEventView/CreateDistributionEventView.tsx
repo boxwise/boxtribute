@@ -3,11 +3,6 @@ import { graphql } from "../../../../../graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  CreateDistributionEventMutation,
-  CreateDistributionEventMutationVariables,
-  DistributionSpotQuery,
-} from "types/generated/graphql";
 import CreateDistroEvent, { CreateDistroEventFormData } from "./components/CreateDistributionEvent";
 import { addHours } from "date-fns";
 import { getISODateTimeFromDateAndTimeString } from "utils/helpers";
@@ -52,10 +47,7 @@ const CreateDistributionEventView = () => {
   }>();
   const navigate = useNavigate();
 
-  const [createDistributionEventMutation] = useMutation<
-    CreateDistributionEventMutation,
-    CreateDistributionEventMutationVariables
-  >(CREATE_DISTRIBUTION_EVENT_MUTATION);
+  const [createDistributionEventMutation] = useMutation(CREATE_DISTRIBUTION_EVENT_MUTATION);
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
@@ -91,8 +83,8 @@ const CreateDistributionEventView = () => {
     [baseId, createDistributionEventMutation, distributionSpotId, navigate],
   );
 
-  const { data, loading, error } = useQuery<DistributionSpotQuery>(DISTRIBUTION_SPOT_QUERY, {
-    variables: { id: distributionSpotId },
+  const { data, loading, error } = useQuery(DISTRIBUTION_SPOT_QUERY, {
+    variables: { id: distributionSpotId || "0" },
   });
 
   if (loading) {

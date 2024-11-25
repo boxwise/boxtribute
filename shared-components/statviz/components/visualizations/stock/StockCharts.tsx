@@ -1,5 +1,4 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
-import { StockOverviewData } from "../../../../types/generated/graphql";
 import StockOverviewPie from "./StockOverviewPie";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 

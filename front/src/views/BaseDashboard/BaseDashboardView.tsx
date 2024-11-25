@@ -2,7 +2,6 @@ import { useQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql";
 import { Center, Heading, Text } from "@chakra-ui/react";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { BaseDataQuery, BaseDataQueryVariables } from "types/generated/graphql";
 
 export const BASE_DATA = graphql(`
   query BaseData($baseId: ID!) {

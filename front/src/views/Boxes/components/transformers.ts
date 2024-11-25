@@ -1,5 +1,4 @@
 import { differenceInDays } from "date-fns";
-import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
 

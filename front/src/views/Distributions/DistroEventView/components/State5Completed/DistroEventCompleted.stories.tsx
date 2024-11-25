@@ -1,6 +1,5 @@
 import { StoryFn, Meta } from "@storybook/react";
 import DistroEventCompleted, { DistroEventData } from "./DistroEventCompleted";
-import { DistributionEventState, ProductGender } from "types/generated/graphql";
 
 const mockedDistroEvent: DistroEventData = {
   eventDate: new Date("2022/08/22"),

@@ -181,3 +181,106 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
     }
   }
 `, [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_ORG_FIELDS_FRAGMENT]);
+
+export const LOCATIONS_QUERY = graphql(`
+  query Locations {
+    locations {
+      id
+      name
+      defaultBoxState
+      seq
+    }
+  }
+  `)
+
+export const BOX_QUERY = graphql(`
+  query Box($labelIdentifier: String!) {
+    box(labelIdentifier: $labelIdentifier) {
+      id
+      labelIdentifier
+      state
+      comment
+      numberOfItems
+      product {
+        id
+      }
+      history {
+        id
+        changes
+        changeDate
+      }
+      size {
+        id
+        label
+      }
+      tags {
+        id
+        name
+        color
+      }
+      shipmentDetail {
+        id
+        createdBy {
+          id
+        }
+        createdOn
+        removedBy {
+          id
+        }
+        removedOn
+        lostBy {
+          id
+        }
+        shipment {
+          id
+          details {
+            id
+            box {
+              id
+              labelIdentifier
+            }
+          }
+        }
+      }
+      location {
+        id
+        name
+        ... on ClassicLocation {
+          defaultBoxState
+        }
+        base {
+          locations {
+            id
+            name
+            seq
+            defaultBoxState
+          }
+        }
+      }
+    }
+  }
+  `)
+
+export const USER_QUERY = graphql(`
+  query User {
+    users {
+      id
+      name
+      email
+      lastLogin
+      lastAction
+      validFirstDay
+      validLastDay
+      organisation {
+        id
+        name
+        bases {
+          id
+        }
+      }
+      bases {
+        id
+      }
+    }
+  }
+  `)

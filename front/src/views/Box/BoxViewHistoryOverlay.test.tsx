@@ -6,7 +6,6 @@ import { cache } from "queries/cache";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { organisation1 } from "mocks/organisations";
 
-import { BoxState } from "types/generated/graphql";
 import { history1, history2 } from "mocks/histories";
 import { generateMockBox } from "mocks/boxes";
 import { mockMatchMediaQuery } from "mocks/functions";

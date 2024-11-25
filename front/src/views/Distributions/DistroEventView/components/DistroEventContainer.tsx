@@ -17,11 +17,6 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import {
-  ChangeDistributionEventStateMutation,
-  ChangeDistributionEventStateMutationVariables,
-  DistributionEventState,
-} from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";

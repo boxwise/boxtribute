@@ -4,7 +4,6 @@ import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { Link as RouterLink } from "react-router-dom";
 import { CellProps } from "react-table";
-import { TransferAgreementState } from "types/generated/graphql";
 
 export enum CanAcceptTransferAgreementState {
   CanAccept = "CanAccept",

@@ -5,7 +5,6 @@ import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import { userEvent } from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { base1, base2 } from "mocks/bases";
-import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
 import { graphql } from "gql.tada";

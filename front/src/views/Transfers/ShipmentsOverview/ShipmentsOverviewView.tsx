@@ -4,7 +4,6 @@ import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
-import { ShipmentsQuery } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";

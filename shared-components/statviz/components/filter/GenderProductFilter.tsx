@@ -2,7 +2,6 @@ import { useReactiveVar } from "@apollo/client";
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";
-import { ProductDimensionInfo, ProductGender } from "../../../types/generated/graphql";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { IProductFilterValue, productFilterValuesVar } from "../../state/filter";
 

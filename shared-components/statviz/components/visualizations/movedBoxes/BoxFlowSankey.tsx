@@ -4,11 +4,6 @@ import { sample } from "lodash";
 import VisHeader from "../../VisHeader";
 import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
-import {
-  MovedBoxesData,
-  MovedBoxesResult,
-  TargetDimensionInfo,
-} from "../../../../types/generated/graphql";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
 import Targetfilter from "../../filter/LocationFilter";

@@ -1,5 +1,4 @@
 import { StoryFn, Meta } from "@storybook/react";
-import { ProductGender } from "types/generated/graphql";
 import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";
 
 const clothingCategory = {

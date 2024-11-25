@@ -5,10 +5,10 @@ import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
-import { introspection_types } from "../../../../../generated/graphql-env";
+import { ShipmentDetail } from "types/query-types";
 
 interface IBoxReconcilationAccordionProps {
-  shipmentDetail: introspection_types["ShipmentDetail"]["fields"];
+  shipmentDetail: ShipmentDetail;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   loading: boolean;

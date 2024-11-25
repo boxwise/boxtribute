@@ -12,7 +12,6 @@ import {
 import { isFuture, isPast, isToday } from "date-fns";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
-import { DistributionEventState } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionEventDetails } from "views/Distributions/types";

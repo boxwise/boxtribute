@@ -16,7 +16,6 @@ import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
-import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesGrouping, {
   createdBoxesGroupingOptions,
   createdBoxesUrlId,

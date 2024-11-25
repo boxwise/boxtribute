@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useCallback, useMemo } from "react";
-import { Product, Box as BoxType, BoxState, ShipmentState } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";

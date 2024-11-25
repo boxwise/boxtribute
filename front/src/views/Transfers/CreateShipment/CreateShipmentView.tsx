@@ -81,40 +81,37 @@ function CreateShipmentView() {
   const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
-  const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
-    ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+  const allAcceptedTransferAgreements = useQuery(ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
+
+  // Mutation after form submission
+  const [createShipmentMutation, createShipmentMutationState] = useMutation(
+    CREATE_SHIPMENT_MUTATION,
     {
-      variables: {
-        baseId,
+      update(cache, { data: returnedShipment }) {
+        if (returnedShipment?.createShipment) {
+          cache.modify({
+            fields: {
+              shipments(existingShipments = []) {
+                const newShipmentRef = cache.writeFragment({
+                  data: returnedShipment.createShipment,
+                  fragment: graphql(`
+                    fragment NewShipment on Shipment {
+                      id
+                    }
+                  `),
+                });
+                return existingShipments.concat(newShipmentRef);
+              },
+            },
+          });
+        }
       },
     },
   );
-
-  // Mutation after form submission
-  const [createShipmentMutation, createShipmentMutationState] = useMutation<
-    CreateShipmentMutation,
-    CreateShipmentMutationVariables
-  >(CREATE_SHIPMENT_MUTATION, {
-    update(cache, { data: returnedShipment }) {
-      if (returnedShipment?.createShipment) {
-        cache.modify({
-          fields: {
-            shipments(existingShipments = []) {
-              const newShipmentRef = cache.writeFragment({
-                data: returnedShipment.createShipment,
-                fragment: graphql(`
-                  fragment NewShipment on Shipment {
-                    id
-                  }
-                `),
-              });
-              return existingShipments.concat(newShipmentRef);
-            },
-          },
-        });
-      }
-    },
-  });
 
   // Prep data for Form
   const currentBase = allAcceptedTransferAgreements?.data?.base;
@@ -129,9 +126,9 @@ function CreateShipmentView() {
       error: allBasesOfCurrentOrgError,
       data: AllBasesOfCurrentOrg,
     },
-  ] = useLazyQuery<AllBasesOfCurrentOrgQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
+  ] = useLazyQuery(ALL_BASES_OF_CURRENT_ORG_QUERY, {
     variables: {
-      orgId: currentOrganisationId,
+      orgId: currentOrganisationId || "0",
     },
   });
 
@@ -148,13 +145,13 @@ function CreateShipmentView() {
         (agreement) =>
           agreement.sourceOrganisation.id === currentOrganisationId ||
           (agreement.targetOrganisation.id === currentOrganisationId &&
-            agreement.type === TransferAgreementType.Bidirectional),
+            agreement.type === "Bidirectional"),
       )
       .map((agreement) => {
         // transform the agreement data to organisation base data
         if (
           agreement.targetOrganisation.id === currentOrganisationId &&
-          agreement.type === TransferAgreementType.Bidirectional
+          agreement.type === "Bidirectional"
         ) {
           return {
             id: agreement.sourceOrganisation.id,

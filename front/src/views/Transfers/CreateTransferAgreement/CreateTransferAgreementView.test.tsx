@@ -3,7 +3,6 @@ import { screen, render, cleanup, fireEvent, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { organisation1, organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
-import { TransferAgreementType } from "types/generated/graphql";
 import { addDays } from "date-fns";
 import { base1 } from "mocks/bases";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";

@@ -1,11 +1,6 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
-import {
-  AllProductsForPackingListQuery,
-  AllProductsForPackingListQueryVariables,
-  ProductGender,
-} from "types/generated/graphql";
 import { ALL_PRODUCTS_FOR_PACKING_LIST } from "views/Distributions/queries";
 import { IPackingListEntry, Product } from "views/Distributions/types";
 import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";

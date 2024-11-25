@@ -10,7 +10,6 @@ import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
 } from "queries/queries";
-import { BoxState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { locations } from "mocks/locations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";

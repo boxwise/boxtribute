@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { useReactiveVar } from "@apollo/client";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import useTimerange from "../../../hooks/useTimerange";
-import { MovedBoxesData, MovedBoxesResult } from "../../../../types/generated/graphql";
 import { filterListByInterval } from "../../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
 import useValueFilter from "../../../hooks/useValueFilter";

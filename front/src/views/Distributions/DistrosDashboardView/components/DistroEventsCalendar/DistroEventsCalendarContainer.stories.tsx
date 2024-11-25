@@ -1,6 +1,5 @@
 import { Meta, StoryFn } from "@storybook/react";
 import { addDays, addHours } from "date-fns";
-import { DistributionEventState } from "types/generated/graphql";
 import DistroEventsCalendarContainer from "./DistroEventsCalendarContainer";
 
 export default {
