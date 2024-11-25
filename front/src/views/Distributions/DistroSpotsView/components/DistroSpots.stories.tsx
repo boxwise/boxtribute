@@ -18,13 +18,13 @@ const mockedDistroSpots: DistributionSpotEnrichedData[] = [
       {
         plannedStartDateTime: new Date("2022/08/22"),
         plannedEndDateTime: new Date("2022/08/22"),
-        state: DistributionEventState.Packing,
+        state: "Packing",
         id: "1",
       },
       {
         plannedStartDateTime: new Date("2022/02/13"),
         plannedEndDateTime: new Date("2022/08/22"),
-        state: DistributionEventState.Completed,
+        state: "Completed",
         id: "2",
       },
     ],
@@ -40,7 +40,7 @@ const mockedDistroSpots: DistributionSpotEnrichedData[] = [
       {
         plannedStartDateTime: new Date("2022/09/15"),
         plannedEndDateTime: new Date("2022/09/22"),
-        state: DistributionEventState.Planning,
+        state: "Planning",
         id: "3",
       },
     ],

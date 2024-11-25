@@ -2,9 +2,9 @@ import { ResultOf } from "gql.tada"
 
 import { ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
 import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
-import { introspection_types } from "../../../generated/graphql-env";
 import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { PRODUCT_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
+import { introspection_types } from "../../../generated/graphql-env";
 
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
 
@@ -31,6 +31,8 @@ export type Product = ResultOf<typeof PRODUCT_FRAGMENT>;
 export type BoxState = introspection_types["BoxState"]["enumValues"];
 
 export type ShipmentState = introspection_types["ShipmentState"]["enumValues"];
+
+export type TransferAgreementState = introspection_types["TransferAgreementState"]["enumValues"];
 
 export type ProductGender = introspection_types["ProductGender"]["enumValues"];
 

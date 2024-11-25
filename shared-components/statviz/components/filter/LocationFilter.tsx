@@ -2,10 +2,11 @@ import { useReactiveVar } from "@apollo/client";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { ITargetFilterValue, targetFilterValuesVar } from "../../state/filter";
 import MultiSelectFilter from "./MultiSelectFilter";
+import { Tag } from "../../../../front/src/types/query-types";
 
 export const targetFilterId = "loc";
 
-export const targetToFilterValue = (target: TargetDimensionInfo): ITargetFilterValue => ({
+export const targetToFilterValue = (target: Tag): ITargetFilterValue => ({
   id: target.id!,
   value: target.name!,
   label: target.name!,

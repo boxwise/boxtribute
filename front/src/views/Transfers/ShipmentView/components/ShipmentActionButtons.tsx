@@ -3,6 +3,7 @@ import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { BiTrash } from "react-icons/bi";
 import { TbMapOff } from "react-icons/tb";
+import { ShipmentDetail, ShipmentState } from "types/query-types";
 
 export interface IShipmentActionButtonsProps {
   isLoadingFromMutation: boolean | undefined;
@@ -78,19 +79,19 @@ function ShipmentActionButtons({
     marginTop: 2,
   };
 
-  if (ShipmentState.Preparing === shipmentState && isSender) {
+  if ("Preparing" === shipmentState && isSender) {
     return <Button {...sendButtonProps}>Finalize & Send</Button>;
   }
-  if (ShipmentState.Sent === shipmentState && isSender) {
+  if ("Sent" === shipmentState && isSender) {
     return <Button {...lostButtonProps}>Cannot Locate Shipment</Button>;
   }
-  if (ShipmentState.Preparing === shipmentState && !isSender) {
+  if ("Preparing" === shipmentState && !isSender) {
     return <Button {...cancelButtonProps}>Reject</Button>;
   }
-  if (ShipmentState.Receiving === shipmentState && !isSender) {
+  if ("Receiving" === shipmentState && !isSender) {
     return <Button {...remainingBoxesUndeliveredButtonProps}>Remaining Boxes Not Delivered</Button>;
   }
-  if (ShipmentState.Sent === shipmentState && !isSender) {
+  if ("Sent" === shipmentState && !isSender) {
     return (
       <VStack align="stretch" spacing={1}>
         <Button {...receiveButtonProps}>Receive Shipment</Button>

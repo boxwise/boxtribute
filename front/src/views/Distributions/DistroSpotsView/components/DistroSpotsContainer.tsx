@@ -18,10 +18,7 @@ const DistroSpotsContainer = ({
 }: DistroSpotsContainerProps) => {
   const { currentBaseId } = useGlobalSiteState();
 
-  const { loading, error, data } = useQuery<
-    DistroSpotsForBaseIdQuery,
-    DistroSpotsForBaseIdQueryVariables
-  >(DISTRO_SPOTS_FOR_BASE_ID, {
+  const { loading, error, data } = useQuery(DISTRO_SPOTS_FOR_BASE_ID, {
     variables: {
       baseId: currentBaseId,
     },

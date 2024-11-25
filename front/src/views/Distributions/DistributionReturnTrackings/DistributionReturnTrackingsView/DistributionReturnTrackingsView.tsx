@@ -13,11 +13,8 @@ import DistributionListForReturnTracking from "./components/DistributionListForR
 const DistributionReturnTrackingsView = () => {
   const baseId = useParams<{ baseId: string }>().baseId;
 
-  const { data, error, loading } = useQuery<
-    DataForReturnTrackingOverviewForBaseQuery,
-    DataForReturnTrackingOverviewForBaseQueryVariables
-    // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
-  >(DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, {
+  // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
+  const { data, error, loading } = useQuery(DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY, {
     variables: {
       baseId: baseId!,
     },

@@ -118,11 +118,9 @@ const DistroEventsAccordionForDistroSpotContainer = ({
   distroEvents: DistroEventForSpot[];
   onDistroEventClick: (distroEventId: string) => void;
 }) => {
-  const completedEvents = distroEvents.filter(
-    (distroEvent) => distroEvent.state === DistributionEventState.Completed,
-  );
+  const completedEvents = distroEvents.filter((distroEvent) => distroEvent.state === "Completed");
   const nonCompletedEvents = distroEvents.filter(
-    (distroEvent) => distroEvent.state !== DistributionEventState.Completed,
+    (distroEvent) => distroEvent.state !== "Completed",
   );
 
   return (

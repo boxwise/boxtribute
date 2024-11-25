@@ -1,4 +1,5 @@
 import { Flex, Box, Text, SimpleGrid } from "@chakra-ui/react";
+import { DistributionEventState, ProductGender } from "types/query-types";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 
 export interface BTBox {

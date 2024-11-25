@@ -11,6 +11,7 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { ResultOf } from "gql.tada";
 
 function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
@@ -19,13 +20,15 @@ function ShipmentsOverviewView() {
   const location = useLocation();
 
   // fetch shipments data
-  const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY, {
+  const { loading, error, data } = useQuery(ALL_SHIPMENTS_QUERY, {
     // returns cache first, but syncs with server in background
     fetchPolicy: "cache-and-network",
   });
 
   // transform shipments data for UI
-  const graphqlToTableTransformer = (shipmentQueryResult: ShipmentsQuery | undefined) =>
+  const graphqlToTableTransformer = (
+    shipmentQueryResult: ResultOf<typeof ALL_SHIPMENTS_QUERY> | undefined,
+  ) =>
     shipmentQueryResult?.shipments.map((element) => {
       if (globalPreferences?.availableBases) {
         const availableBaseIds = globalPreferences.availableBases.map((base) =>
@@ -93,7 +96,7 @@ function ShipmentsOverviewView() {
 
         // get max date for last updates
         shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
-          new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date).getTime()))),
+          new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date!).getTime()))),
         );
 
         return shipmentRow;

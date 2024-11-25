@@ -7,7 +7,7 @@ import ShipmentsOverviewView from "./ShipmentsOverviewView";
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,
-  state = ShipmentState.Preparing,
+  state = "Preparing",
   iAmSource = true,
 }) => ({
   request: {

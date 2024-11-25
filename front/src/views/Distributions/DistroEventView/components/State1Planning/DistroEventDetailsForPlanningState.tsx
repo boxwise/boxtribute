@@ -197,7 +197,7 @@ const DistroEventDetailsForPlanningState = ({
       return {
         productId: k,
         productName: product?.name,
-        gender: (product.gender != null && ProductGender[product.gender]) || "",
+        gender: (product.gender != null && product.gender) || "",
         packingListEntries: packingListEntriesGroupedByProductId[k],
       };
     });

@@ -4,9 +4,10 @@ import { useParams } from "react-router-dom";
 import { DISTRIBUTION_EVENT_QUERY } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventContainer from "./components/DistroEventContainer";
+import { ResultOf } from "gql.tada";
 
 const graphqlToContainerTransformer = (
-  distributionEventData: DistributionEventQuery | undefined,
+  distributionEventData: ResultOf<typeof DISTRIBUTION_EVENT_QUERY> | undefined,
 ): DistributionEventDetails => {
   if (distributionEventData?.distributionEvent?.distributionSpot == null) {
     throw new Error("distributionEventData.distributionEvent.distributionSpot is null");
@@ -17,10 +18,7 @@ const graphqlToContainerTransformer = (
 const DistroEventView = () => {
   const eventId = useParams<{ eventId: string }>().eventId;
 
-  const { data, error, loading } = useQuery<
-    DistributionEventQuery,
-    DistributionEventQueryVariables
-  >(DISTRIBUTION_EVENT_QUERY, {
+  const { data, error, loading } = useQuery(DISTRIBUTION_EVENT_QUERY, {
     variables: {
       eventId: eventId!,
     },

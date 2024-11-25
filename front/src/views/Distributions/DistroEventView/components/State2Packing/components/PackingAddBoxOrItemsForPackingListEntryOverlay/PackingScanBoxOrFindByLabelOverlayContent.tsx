@@ -39,7 +39,7 @@ const useValidateBoxByLabelMatchingPackingListEntry = (
   const apolloClient = useApolloClient();
   return (boxLabel: string) => {
     return apolloClient
-      .query<BoxDetailsQuery, BoxDetailsQueryVariables>({
+      .query({
         query: BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
         variables: {
           labelIdentifier: boxLabel,
@@ -123,10 +123,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           // onScanningDone([{ kind: "noBoxtributeQr" }]);
         } else {
           apolloClient
-            .query<
-              GetBoxLabelIdentifierForQrCodeQuery,
-              GetBoxLabelIdentifierForQrCodeQueryVariables
-            >({
+            .query({
               query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
               fetchPolicy: "no-cache",
               variables: { qrCode },

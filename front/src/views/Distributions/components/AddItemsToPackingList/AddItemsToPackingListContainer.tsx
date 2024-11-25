@@ -18,7 +18,7 @@ const graphqlToContainerTransformer = (graphQLData: Product[]): ProductDataForPa
     id: product.id,
     name: product.name,
     category: product.category,
-    gender: product.gender ?? ProductGender.None,
+    gender: product.gender ?? "None",
   }));
 };
 
@@ -29,10 +29,7 @@ const AddItemsToPackingListContainer = ({
 }: AddItemsToPackingListContainerProps) => {
   const baseId = useParams<{ baseId: string }>().baseId!;
 
-  const { loading, data } = useQuery<
-    AllProductsForPackingListQuery,
-    AllProductsForPackingListQueryVariables
-  >(ALL_PRODUCTS_FOR_PACKING_LIST, {
+  const { loading, data } = useQuery(ALL_PRODUCTS_FOR_PACKING_LIST, {
     variables: {
       baseId,
     },
