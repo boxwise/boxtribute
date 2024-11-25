@@ -11,6 +11,7 @@
     "lint:fix": "pnpm lint --fix",
     "lint:all": "pnpm lint shared-components front statviz",
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
+    "graphql-gen": "find back/boxtribute_server/graph_ql/definitions -type f -exec cat {} > generated/schema.graphql \\; && pnpm gql-tada generate output",
     "test": "TZ=UTC vitest",
     "test:coverage": "TZ=UTC vitest run --coverage",
     "prepare": "husky || true"
@@ -82,6 +83,7 @@
     "graphql": "^16.8.1"
   },
   "lint-staged": {
+    "*.{gql,graphql}": "pnpm graphql-gen",
     "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
     "*.{js,json,ts,tsx}": "prettier --write"
   }

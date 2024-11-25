@@ -36,11 +36,11 @@ repos:
         language: system
         require_serial: true
         args: ["--filter-files"]
-      # - id: generate-graphql-ts-types
-      #   name: Generate GraphQL Typescript definitions
-      #   entry: docker-compose
-      #   types: [graphql]
-      #   language: system
-      #   require_serial: true
-      #   pass_filenames: false
-      #   args: ["run", "--rm", "front", "pnpm", "generate-graphql-ts-types"]
+      - id: generate-graphql-ts-types
+        name: Generate GraphQL Typescript definitions
+        entry: docker-compose
+        types: [graphql]
+        language: system
+        require_serial: true
+        pass_filenames: false
+        args: ["run", "--rm", "pnpm", "graphql-gen"]

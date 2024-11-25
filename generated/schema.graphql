@@ -1,0 +1,1413 @@
+"""
+Classificators for [`Product`]({{Types.Product}}) gender.
+"""
+enum ProductGender {
+  Men
+  Women
+  UnisexAdult
+  UnisexKid
+  UnisexBaby
+  TeenGirl
+  TeenBoy
+  Girl
+  Boy
+  none
+}
+
+"""
+Classificators for [`Product`]({{Types.Product}}) type.
+"""
+enum ProductType {
+  Custom
+  StandardInstantiation
+}
+
+"""
+Classificators for [`Box`]({{Types.Box}}) state.
+"""
+enum BoxState {
+  InStock
+  Lost
+  MarkedForShipment
+  Receiving
+  Donated
+  Scrap
+  InTransit
+  NotDelivered
+}
+
+enum ProductTypeFilter {
+  Custom
+  StandardInstantiation
+  All
+}
+
+"""
+Classificators for [`Tag`]({{Types.Tag}}) type.
+"""
+enum TagType {
+  Box
+  Beneficiary
+  All
+}
+
+"""
+Classificator for resources that a [`Tag`]({{Types.Tag}}) can be applied to (according to [`TaggableResource`]({{Types.TaggableResource}})).
+"""
+enum TaggableResourceType {
+  Box
+  Beneficiary
+}
+
+enum HumanGender {
+  Male
+  Female
+  Diverse
+}
+
+"""
+Language codes.
+"""
+enum Language {
+  nl
+  en
+  fr
+  de
+  ar
+  ckb
+}
+
+enum TransferAgreementState {
+  UnderReview
+  Accepted
+  Rejected
+  Canceled
+  Expired
+}
+
+enum TransferAgreementType {
+  SendingTo
+  ReceivingFrom
+  Bidirectional
+}
+
+enum ShipmentState {
+  Preparing
+  Sent
+  Receiving
+  Completed
+  Canceled
+  Lost
+}
+
+enum TargetType {
+  Shipment
+  OutgoingLocation
+  BoxState
+}
+
+"""
+TODO: Add description here once specs are final/confirmed
+"""
+enum DistributionEventState {
+  Planning
+  Packing
+  OnDistro
+  ReturnedFromDistribution
+  ReturnTrackingInProgress
+  Completed
+}
+
+enum DistributionEventTrackingFlowDirection {
+  In
+  Out
+  # Internal
+  BackToBox
+}
+
+enum DistributionEventsTrackingGroupState {
+  InProgress
+  Completed
+}
+
+enum PackingListEntryState {
+  NotStarted
+  PackingInProgress
+  Packed
+}
+scalar Datetime
+scalar Date
+# GraphQL input types for mutations **only**.
+input BoxCreationInput {
+  productId: Int!
+  sizeId: Int
+  displayUnitId: Int
+  measureValue: Float
+  numberOfItems: Int
+  locationId: Int!
+  comment: String
+  qrCode: String
+  tagIds: [Int!]
+}
+
+input BoxUpdateInput {
+  labelIdentifier: String!
+  productId: Int
+  sizeId: Int
+  displayUnitId: Int
+  measureValue: Float
+  numberOfItems: Int
+  locationId: Int
+  comment: String
+  state: BoxState
+  " List of all tags that shall be assigned to the box. Any requested tags already assigned to the box will not be assigned again "
+  tagIds: [Int!]
+  " List of tags that shall be assigned in addition to already assigned tags. Any requested tags already assigned to the box will not be assigned again "
+  tagIdsToBeAdded: [Int!]
+}
+
+input BoxMoveInput {
+  labelIdentifiers: [String!]!
+  locationId: Int!
+}
+
+input BoxAssignTagInput {
+  labelIdentifiers: [String!]!
+  tagId: Int!
+}
+
+input CustomProductCreationInput {
+  name: String!
+  categoryId: Int!
+  sizeRangeId: Int!
+  gender: ProductGender!
+  baseId: Int!
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
+input CustomProductEditInput {
+  id: ID!
+  name: String
+  categoryId: Int
+  sizeRangeId: Int
+  gender: ProductGender
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
+input StandardProductEnableInput {
+  standardProductId: Int!
+  sizeRangeId: Int
+  baseId: Int!
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
+input StandardProductInstantiationEditInput {
+  id: ID!
+  sizeRangeId: Int
+  price: Int
+  comment: String
+  inShop: Boolean
+}
+
+input BeneficiaryCreationInput {
+  firstName: String!
+  lastName: String!
+  baseId: Int!
+  groupIdentifier: String!
+  dateOfBirth: Date!
+  comment: String
+  gender: HumanGender!
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean!
+  registered: Boolean!
+  signature: String
+  dateOfSignature: Date
+  tagIds: [Int!]
+}
+
+input BeneficiaryUpdateInput {
+  id: ID!
+  firstName: String
+  lastName: String
+  groupIdentifier: String
+  dateOfBirth: Date
+  comment: String
+  gender: HumanGender
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean
+  registered: Boolean
+  signature: String
+  dateOfSignature: Date
+}
+
+input TransferAgreementCreationInput {
+  initiatingOrganisationId: Int!
+  partnerOrganisationId: Int!
+  type: TransferAgreementType!
+  " Validity dates must be in local time "
+  validFrom: Date
+  validUntil: Date
+  initiatingOrganisationBaseIds: [Int!]!
+  partnerOrganisationBaseIds: [Int!]
+  comment: String
+}
+
+input ShipmentCreationInput {
+  sourceBaseId: Int!
+  targetBaseId: Int!
+  " Passing null will create an intra-org shipment "
+  transferAgreementId: Int
+}
+
+input DistributionSpotCreationInput {
+  baseId: Int!
+  name: String
+  comment: String!
+  latitude: Float
+  longitude: Float
+}
+
+input DistributionEventCreationInput {
+  distributionSpotId: Int!
+  name: String
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime
+}
+
+input ShipmentWhenPreparingUpdateInput {
+  id: ID!
+  targetBaseId: Int
+  # label identifiers of boxes prepared for shipment
+  preparedBoxLabelIdentifiers: [String!]
+  # label identifiers of prepared boxes to be moved back to stock
+  removedBoxLabelIdentifiers: [String!]
+}
+
+input ShipmentWhenReceivingUpdateInput {
+  id: ID!
+  # label identifiers of received boxes to be moved into target stock
+  receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
+  # label identifiers of boxes that went lost during shipment
+  lostBoxLabelIdentifiers: [String!]
+}
+
+input ShipmentDetailUpdateInput {
+  id: ID!
+  targetProductId: Int!
+  targetLocationId: Int!
+  targetSizeId: Int!
+  targetQuantity: Int!
+}
+
+input PackingListEntryInput {
+  distributionEventId: ID!
+  productId: Int!
+  sizeId: Int!
+  numberOfItems: Int!
+}
+
+input TagCreationInput {
+  name: String!
+  description: String
+  color: String!
+  type: TagType!
+  baseId: Int!
+}
+
+input TagUpdateInput {
+  id: ID!
+  name: String
+  description: String
+  color: String
+  type: TagType
+}
+
+input TagOperationInput {
+  id: ID!
+  resourceId: ID!
+  resourceType: TaggableResourceType!
+}
+# GraphQL basic types as returned by queries and mutations, and input types for queries.
+
+interface ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size
+  numberOfItems: Int
+  location: Location
+  distributionEvent: DistributionEvent
+}
+
+type UnboxedItemsCollection implements ItemsCollection {
+  id: ID!
+  product: Product
+  size: Size
+  numberOfItems: Int
+  label: String
+  location: Location
+  distributionEvent: DistributionEvent
+}
+
+"""
+Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
+"""
+type Box implements ItemsCollection {
+  id: ID!
+  " Sequence of numbers for identifying the box, usually written on box label "
+  labelIdentifier: String!
+  " If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
+  location: Location
+  distributionEvent: DistributionEvent
+  numberOfItems: Int
+  " If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
+  product: Product
+  " If the box holds a 'measure' product (i.e. classified by a package measure like 500gr), its size is null "
+  size: Size
+  " Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null "
+  displayUnit: Unit
+  " The value of the measure, expressed in ``unit``. If the box holds a product with size (e.g. clothing), its measure value is null "
+  measureValue: Float
+  state: BoxState!
+  qrCode: QrCode
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
+  deletedOn: Datetime
+  comment: String
+  tags: [Tag!]
+  " Sorted by date, newest first "
+  history: [HistoryEntry!]
+  " Returns null if box is not part of an active shipment "
+  shipmentDetail: ShipmentDetail
+}
+
+type HistoryEntry {
+  id: ID!
+  changes: String!
+  changeDate: Datetime
+  user: User
+}
+
+interface Location {
+  id: ID!
+  base: Base
+  name: String
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+}
+
+"""
+Representation of a QR code, possibly associated with a [`Box`]({{Types.Box}}).
+"""
+type QrCode {
+  id: ID!
+  code: String!
+  " [`Box`]({{Types.Box}}) associated with the QR code (`null` if none associated), or an error in case of insufficient permission or missing authorization for box's base "
+  box: BoxResult
+  createdOn: Datetime
+}
+
+"""
+Representation of a product, containing information about [`ProductCategory`]({{Types.ProductCategory}}), size, and [`ProductGender`]({{Types.ProductGender}}).
+The product is registered in a specific [`Base`]({{Types.Base}}).
+"""
+type Product {
+  id: ID!
+  name: String!
+  type: ProductType!
+  category: ProductCategory!
+  sizeRange: SizeRange!
+  base: Base
+  price: Float
+  gender: ProductGender
+  comment: String
+  inShop: Boolean!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
+  deletedOn: Datetime
+}
+
+"""
+Representation of a standard product, containing information about [`ProductCategory`]({{Types.ProductCategory}}), size, and [`ProductGender`]({{Types.ProductGender}}).
+Users can enable this standard product for their bases which creates a standard product instantiation.
+"""
+type StandardProduct {
+  id: ID!
+  name: String!
+  category: ProductCategory!
+  sizeRange: SizeRange!
+  gender: ProductGender!
+  version: Int!
+  " All bases that this standard product is enabled for. "
+  enabledForBases: [Base!]
+  addedBy: User
+  addedOn: Datetime
+  deprecatedBy: User
+  deprecatedOn: Datetime
+  precededByProduct: StandardProduct
+  supercededByProduct: StandardProduct
+}
+
+"""
+Representation of a product category.
+"""
+type ProductCategory {
+  id: ID!
+  name: String!
+  " List of all products registered in bases the client is authorized to view. "
+  products(paginationInput: PaginationInput): ProductPage
+  " Non-clothing categories don't have a product gender. "
+  hasGender: Boolean!
+}
+
+"""
+Utility type holding a page of [`Products`]({{Types.Product}}).
+"""
+type ProductPage {
+  elements: [Product!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"""
+Utility type holding a page of [`StandardProducts`]({{Types.StandardProduct}}).
+"""
+type StandardProductPage {
+  elements: [StandardProduct!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+" Union for resources that tags can be applied to. "
+union TaggableResource = Box | Beneficiary
+
+"""
+Representation of a tag.
+"""
+type Tag {
+  id: ID!
+  name: String!
+  description: String
+  color: String
+  type: TagType!
+  " List of boxes and/or beneficiaries that have this tag assigned "
+  taggedResources: [TaggableResource!]
+  base: Base!
+}
+
+"""
+Representation of product size (e.g. clothing size "XL", shoe size 39).
+"""
+type Size {
+  id: ID!
+  label: String!
+}
+
+"""
+Representation of dimensional unit (e.g. kilogram or liter)
+"""
+type Unit {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+"""
+Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a dimension (mass or volume).
+"""
+type SizeRange {
+  id: ID!
+  label: String!
+  " List of sizes belonging to the group "
+  sizes: [Size!]!
+  " List of units belonging to the dimension "
+  units: [Unit!]!
+}
+
+"""
+Representation of a classic physical location used to store [`Boxes`]({{Types.Box}}) (e.g. a warehouse).
+The location is part of a specific [`Base`]({{Types.Base}}).
+"""
+type ClassicLocation implements Location {
+  id: ID!
+  base: Base
+  name: String
+  " Used for ordering purposes "
+  seq: Int
+  isShop: Boolean!
+  isStockroom: Boolean!
+  " List of all [`Boxes`]({{Types.Box}}) (incl. deleted) in this classic location "
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  " Default state for boxes in this classic location"
+  defaultBoxState: BoxState
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
+}
+
+"""
+Utility type holding a page of [`Boxes`]({{Types.Box}}).
+"""
+type BoxPage {
+  elements: [Box!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"""
+Utility response type for box bulk-update mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing).
+"""
+type BoxesResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+}
+
+"""
+Representation of a base.
+The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
+"""
+type Base {
+  id: ID!
+  name: String!
+  organisation: Organisation!
+  deletedOn: Datetime
+  " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
+  currencyName: String
+  " List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
+  locations: [ClassicLocation!]!
+  " List of all non-deleted [`Products`]({{Types.Product}}) registered in this base "
+  products(filterInput: FilterProductInput): [Product!]!
+  " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
+  tags(resourceType: TaggableResourceType): [Tag!]
+  distributionSpots: [DistributionSpot!]!
+  distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
+
+  # TODO: rethink these queries once the prototype testing is over
+  # probably better to have filter parameters and only one query operation
+  distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
+  distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
+
+  distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
+  distributionEventsStatistics: [DistributionEventsStatistics!]!
+}
+
+"""
+Representation of an organisation.
+"""
+type Organisation {
+  id: ID!
+  name: String!
+  " List of all non-deleted [`Bases`]({{Types.Base}}) managed by this organisation. Accessible for any authenticated user "
+  bases(filterInput: FilterBaseInput): [Base!]
+}
+
+type DistributionEventsStatistics {
+  productName: String!
+  genderLabel: String!
+  categoryLabel: String!
+  sizeLabel: String!
+  inflow: Int!
+  outflow: Int!
+  earliestPossibleDistroDate: String!
+  latestPossibleDistroDate: String!
+  potentiallyInvolvedDistributionSpots: String!
+  involvedDistributionEventIds: String!
+  distroEventTrackingGroupId: String!
+  productId: String!
+  sizeId: String!
+}
+
+type DistributionEvent {
+  id: ID!
+  distributionSpot: DistributionSpot
+  name: String
+  state: DistributionEventState!
+
+  plannedStartDateTime: Datetime!
+  plannedEndDateTime: Datetime!
+  packingListEntries: [PackingListEntry!]!
+
+  # TODO: Consider to also add field "itemsCollections" to this type
+  # It would return both boxes as well as unboxed items collections
+  boxes: [Box!]!
+  unboxedItemsCollections: [UnboxedItemsCollection!]!
+
+  distributionEventsTrackingGroup: DistributionEventsTrackingGroup
+}
+
+type DistributionEventsTrackingEntry {
+  id: ID!
+  product: Product!
+  size: Size!
+  numberOfItems: Int!
+  distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
+  dateTimeOfTracking: Datetime!
+  flowDirection: DistributionEventTrackingFlowDirection!
+}
+
+type DistributionEventsTrackingGroup {
+  id: ID!
+  state: DistributionEventsTrackingGroupState!
+  distributionEvents: [DistributionEvent!]!
+  distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
+  createdOn: Datetime!
+}
+
+type PackingListEntry {
+  id: ID!
+  product: Product
+  size: Size
+  numberOfItems: Int!
+  matchingPackedItemsCollections: [ItemsCollection!]!
+  state: PackingListEntryState!
+}
+
+type DistributionSpot implements Location {
+  id: ID!
+  name: String
+  base: Base
+  " Not implemented, only for compatibility with Location interface "
+  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
+  comment: String!
+  latitude: Float
+  longitude: Float
+  distributionEvents: [DistributionEvent!]!
+}
+
+"""
+Representation of a boxtribute user.
+"""
+type User {
+  id: ID!
+  " The [`Organisation`]({{Types.Organisation}}) the user is a member of. Meaningful only if the currently authenticated user queries themselves "
+  organisation: Organisation
+  " First and last name. Accessible to any authenticated user "
+  name: String
+  " Available only if the currently authenticated user queries themselves "
+  email: String
+  validFirstDay: Date
+  validLastDay: Date
+  " List of all [`Bases`]({{Types.Base}}) this user can access. Meaningful only if the currently authenticated user queries themselves "
+  bases: [Base]
+  lastLogin: Datetime
+  lastAction: Datetime
+}
+
+"""
+Utility type holding a page of [`Beneficiaries`]({{Types.Beneficiary}}).
+"""
+type BeneficiaryPage {
+  elements: [Beneficiary!]
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"""
+Representation of a beneficiary.
+The beneficiary is registered in a specific [`Base`]({{Types.Base}}).
+"""
+type Beneficiary {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date
+  " If dateOfBirth is not set, age will be null. "
+  age: Int
+  comment: String
+  base: Base
+  " All members of a family have the same group identifier "
+  groupIdentifier: String!
+  gender: HumanGender
+  languages: [Language!]
+  " Null if this beneficiary is the family head "
+  familyHead: Beneficiary
+  active: Boolean!
+  isVolunteer: Boolean!
+  signed: Boolean!
+  registered: Boolean!
+  signature: String
+  dateOfSignature: Date
+  " Number of tokens the beneficiary holds (sum of all transaction values) "
+  tokens: Int
+  " List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed "
+  transactions: [Transaction!]
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
+  tags: [Tag!]
+}
+
+"""
+Representation of a transaction executed by a beneficiary (spending or receiving tokens).
+"""
+type Transaction {
+  id: ID!
+  beneficiary: Beneficiary!
+  product: Product
+  " Number of transferred products "
+  count: Int
+  " Value of the transaction "
+  tokens: Int
+  description: String
+  createdBy: User
+  createdOn: Datetime!
+}
+
+"""
+Additional information passed along in `*Page` types.
+The client shall use the `has*Page` fields to determine whether to fetch more data.
+"""
+type PageInfo {
+  " If true, a previous page is available. "
+  hasPreviousPage: Boolean!
+  " If true, a next page is available. "
+  hasNextPage: Boolean!
+  """
+  An identifier for the first element on the page. The client shall use it for the [`PaginationInput.before`]({{Types.PaginationInput}}) field
+  """
+  startCursor: String!
+  """
+  An identifier for the last element on the page. The client shall use it for the [`PaginationInput.after`]({{Types.PaginationInput}}) field
+  """
+  endCursor: String!
+}
+
+"""
+Optional filter values when retrieving [`Beneficiaries`]({{Types.Beneficiary}}).
+If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
+"""
+input FilterBeneficiaryInput {
+  " Filter for all beneficiaries who were created on this date (incl.), or later. "
+  createdFrom: Date
+  " Filter for all beneficiaries who were created on this date (incl.), or earlier. "
+  createdUntil: Date
+  active: Boolean
+  isVolunteer: Boolean
+  registered: Boolean
+  """
+  Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, or comment, or where pattern matches the group identifier
+  """
+  pattern: String
+}
+
+"""
+Optional filter values when retrieving [`Boxes`]({{Types.Box}}).
+If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
+"""
+input FilterBoxInput {
+  " Filter for all boxes that have *one* of the specified states. "
+  states: [BoxState!]
+  " Filter for all boxes that who were last modified on this date (incl.), or later. "
+  lastModifiedFrom: Date
+  " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
+  lastModifiedUntil: Date
+  productGender: ProductGender
+  productCategoryId: Int
+  productId: Int
+  sizeId: Int
+  " Filter for all boxes that have *at least one* of the specified tags. "
+  tagIds: [Int!]
+}
+
+input FilterProductInput {
+  includeDeleted: Boolean = false
+  type: ProductTypeFilter = All
+}
+
+input FilterBaseInput {
+  includeDeleted: Boolean = false
+}
+
+"""
+Optional input for queries/fields that return a page of elements.
+The specified fields must be either none OR `first` OR `after, first` OR `before, last`. Other combinations result in unexpected behavior and/or errors.
+The default page size (`first` and `last`, resp.) is 50.
+This format is inspired by https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+"""
+input PaginationInput {
+  """
+  Indicate requesting paginating of the first X elements after this cursor. By default, the first relevant element of the database. See also [`PageInfo.endCursor`]({{Types.PageInfo}})
+  """
+  after: String
+  first: Int
+  """
+  Indicate requesting paginating of the last X elements before this cursor. See also [`PageInfo.startCursor`]({{Types.PageInfo}})
+  """
+  before: String
+  last: Int
+}
+
+"""
+Representation of an agreement between two organisations prior to start mutual shipments.
+"""
+type TransferAgreement {
+  id: ID!
+  sourceOrganisation: Organisation!
+  targetOrganisation: Organisation!
+  state: TransferAgreementState
+  type: TransferAgreementType!
+  requestedBy: User!
+  requestedOn: Datetime!
+  acceptedBy: User
+  acceptedOn: Datetime
+  terminatedBy: User
+  terminatedOn: Datetime
+  validFrom: Datetime!
+  validUntil: Datetime
+  comment: String
+  " List of all non-deleted bases of the source organisation included in the agreement "
+  sourceBases(filterInput: FilterBaseInput): [Base!]
+  " List of all non-deleted bases of the target organisation included in the agreement "
+  targetBases(filterInput: FilterBaseInput): [Base!]
+  shipments: [Shipment!]!
+}
+
+"""
+Representation of a shipment of boxes between two bases of two distinct organisations. The content is tracked via [`ShipmentDetails`]({{Types.ShipmentDetail}})
+"""
+type Shipment {
+  id: ID!
+  " Unique identifier of the shipment, constructed from ID, start date, source and target base names. E.g. `S042-230815-THxLE` "
+  labelIdentifier: String!
+  sourceBase: Base!
+  targetBase: Base!
+  state: ShipmentState
+  startedBy: User!
+  startedOn: Datetime!
+  sentBy: User
+  sentOn: Datetime
+  receivingStartedBy: User
+  receivingStartedOn: Datetime
+  completedBy: User
+  completedOn: Datetime
+  canceledBy: User
+  canceledOn: Datetime
+  " If no agreement associated with the shipment, it's an intra-org one "
+  transferAgreement: TransferAgreement
+  details: [ShipmentDetail!]!
+}
+
+"""
+Representation of a box in a shipment. Boxes might be added or removed on the source side, and received or marked as lost on the target side. All properties (product, location, size, quantity) at source and target side are tracked here
+"""
+type ShipmentDetail {
+  id: ID!
+  sourceProduct: Product
+  targetProduct: Product
+  sourceLocation: ClassicLocation
+  targetLocation: ClassicLocation
+  sourceSize: Size
+  targetSize: Size
+  sourceQuantity: Int
+  targetQuantity: Int
+  box: Box!
+  shipment: Shipment!
+  createdBy: User!
+  createdOn: Datetime!
+  removedBy: User
+  removedOn: Datetime
+  lostBy: User
+  lostOn: Datetime
+  receivedBy: User
+  receivedOn: Datetime
+}
+
+type InsufficientPermissionError {
+  " e.g. 'product:write' missing "
+  name: String!
+}
+type ResourceDoesNotExistError {
+  id: ID
+  name: String!
+}
+type UnauthorizedForBaseError {
+  " e.g. 'product:write' present but not for requested base "
+  id: ID!
+  " Empty string if base does not exist "
+  name: String!
+  " Empty string if base does not exist "
+  organisationName: String!
+}
+type InvalidPriceError {
+  value: Int!
+}
+type EmptyNameError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
+}
+type BoxesStillAssignedToProductError {
+  labelIdentifiers: [String!]!
+}
+type StandardProductAlreadyEnabledForBaseError {
+  existingStandardProductInstantiationId: ID!
+}
+type ProductTypeMismatchError {
+  expectedType: ProductType!
+}
+type TagTypeMismatchError {
+  expectedType: TagType!
+}
+type DeletedLocationError {
+  name: String!
+}
+type DeletedTagError {
+  name: String!
+}
+
+union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
+union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
+union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
+union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
+union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
+union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+
+union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
+union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
+union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
+union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
+
+type Metrics {
+  """
+  Return number of families served by client's organisation in optional date range.
+  If `after` *and* `before` are specified, construct date range for filtering.
+  If one of `after` or `before` is specified, construct half-open date range.
+  If none is specified, the result is an all-time number.
+  """
+  numberOfFamiliesServed(after: Date, before: Date): Int
+  " Like `numberOfFamiliesServed` but add up all members of served families "
+  numberOfBeneficiariesServed(after: Date, before: Date): Int
+  """
+  Return number of sales performed by client's organisation in optional date range.
+  See `numberOfFamiliesServed` about using the `after` and `before` parameters.
+  """
+  numberOfSales(after: Date, before: Date): Int
+  """
+  Return number of boxes, and number of contained items, managed by client's organisation.
+  """
+  stockOverview: StockOverview
+}
+
+type StockOverview {
+  productCategoryName: String
+  numberOfBoxes: Int
+  numberOfItems: Int
+}
+type Query {
+  " Return all non-deleted [`Bases`]({{Types.Base}}) that the client is authorized to view. "
+  bases(filterInput: FilterBaseInput): [Base!]!
+  " Return [`Base`]({{Types.Base}})  with specified ID. Accessible for clients who are members of this base. "
+  base(id: ID!): Base
+  " Return [`Organisation`]({{Types.Organisation}}) with specified ID. "
+  organisation(id: ID!): Organisation
+  " Return all [`Organisations`]({{Types.Organisation}}). "
+  organisations: [Organisation!]!
+  " Return [`User`]({{Types.User}}) with specified ID. Some fields might be restricted. "
+  user(id: ID): User
+  " Return all [`Users`]({{Types.User}}). Accessible for god users only "
+  users: [User!]!
+  " Return [`Box`]({{Types.Box}}) with specified label identifier. For a box in InTransit, Receiving, or NotDelivered state, clients of both source and target base of the underlying shipment are allowed to view it. Otherwise the client must be permitted to access the base of the box location "
+  box(labelIdentifier: String!): Box
+  " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
+  boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
+  " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
+  qrCode(code: String!): QrCodeResult!
+  qrExists(code: String): Boolean
+  " Return [`ClassicLocation`]({{Types.ClassicLocation}}) with specified ID. Accessible for clients who are members of the location's base "
+  location(id: ID!): ClassicLocation
+  " Return all [`ClassicLocations`]({{Types.ClassicLocation}}) that the client is authorized to view. "
+  locations: [ClassicLocation!]!
+  " Return [`Product`]({{Types.Product}}) with specified ID. Accessible for clients who are members of the product's base "
+  product(id: ID!): Product
+  " Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view. "
+  products(paginationInput: PaginationInput): ProductPage!
+  " Return [`StandardProduct`]({{Types.StandardProduct}}) with specified ID, or an error in case of insufficient permission or missing resource. "
+  standardProduct(id: ID!): StandardProductResult
+  " Return standard products of latest version. Optionally include all standard products enabled for specified base. "
+  standardProducts(baseId: ID): StandardProductsResult
+  " Return [`ProductCategory`]({{Types.ProductCategory}}) with specified ID. "
+  productCategory(id: ID!): ProductCategory
+  " Return all [`ProductCategories`]({{Types.ProductCategory}}). "
+  productCategories: [ProductCategory!]!
+  " Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base "
+  beneficiary(id: ID!): Beneficiary
+  " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
+  beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
+  tags(tagType: TagType): [Tag!]!
+  " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "
+  tag(id: ID!): Tag
+  " Return [`TransferAgreement`]({{Types.TransferAgreement}}) with specified ID. Clients are authorized to view an agreement if they're member of at least one of the agreement's source or target bases "
+  transferAgreement(id: ID!): TransferAgreement
+  """
+  Return all [`TransferAgreements`]({{Types.TransferAgreement}}) that the client is authorized to view.
+  Without any arguments, return transfer agreements that involve client's organisation,
+  regardless of agreement state. Optionally filter for agreements of certain state(s).
+  """
+  transferAgreements(states: [TransferAgreementState!]): [TransferAgreement!]!
+  " Return [`Shipment`]({{Types.Shipment}}) with specified ID. Clients are authorized to view a shipment if they're member of either the source or the target base "
+  shipment(id: ID!): Shipment
+  " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. "
+  shipments: [Shipment!]!
+  " Return various metrics about stock and beneficiaries for client's organisation. "
+  metrics(organisationId: ID): Metrics
+
+  # Redundant definition of statviz-related queries (see ../public/queries.graphql).
+  # ariadne's GraphQL parser does not allow to define multiple 'type Query's
+  # and import them into one schema
+  beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
+  createdBoxes(baseId: Int!): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
+  movedBoxes(baseId: Int!): MovedBoxesData
+  stockOverview(baseId: Int!): StockOverviewData
+
+  # Undocumented queries of the mobile-distribution feature
+  distributionSpots: [DistributionSpot!]!
+  distributionSpot(id: ID!): DistributionSpot
+  distributionEvent(id: ID!): DistributionEvent
+  packingListEntry(id: ID!): PackingListEntry
+  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
+}
+# Naming convention:
+# - input argument: creationInput/updateInput
+# - input type: <Resource>CreationInput/UpdateInput
+type Mutation {
+  createQrCode(boxLabelIdentifier: String): QrCode
+  " Create a new box in a location, containing items of certain product and size. Optionally pass tags to assign to the box. "
+  createBox(creationInput: BoxCreationInput): Box
+  " Update one or more properties of a box with specified label identifier. "
+  updateBox(updateInput: BoxUpdateInput): Box
+  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
+  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
+  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
+  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
+
+  " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
+  createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
+  " Update one or more properties of a beneficiary with specified ID. "
+  updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
+  " Deactivate beneficiary with specified ID. "
+  deactivateBeneficiary(id: ID!): Beneficiary
+
+  " Create a new tag for a base, described by name, color and type. "
+  createTag(creationInput: TagCreationInput): Tag
+  " Update one or more properties of a tag with specified ID. "
+  updateTag(updateInput: TagUpdateInput): Tag
+  " Soft-delete tag with specified ID. "
+  deleteTag(id: ID!): Tag
+  " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
+  assignTag(assignmentInput: TagOperationInput): TaggableResource
+  " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
+  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+
+  " Create new transfer agreement with with a partner organisation (the client's organisation is the initiating organisation). By default, the agreement is established with non-deleted bases of the partner organisation, and is infinitely valid. As a result, any base added to that organisation afterwards will NOT be part of the agreement; instead a new agreement needs to be established. If an accepted agreement with the same set of organisations and bases already exists, an error is returned. The client must be member of all bases of the initiating organisation.  "
+  createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
+  " Change state of specified transfer agreement to `Accepted`. Only valid for agreements in `UnderReview` state. The client must be member of all agreement target bases. "
+  acceptTransferAgreement(id: ID!): TransferAgreement
+  " Change state of specified transfer agreement to `Rejected`. Only valid for agreements in `UnderReview` state. The client must be member of all agreement target bases. "
+  rejectTransferAgreement(id: ID!): TransferAgreement
+  " Change state of specified transfer agreement to `Canceled`. Only valid for agreements in `UnderReview` or `Accepted` state. The client must be member of either all agreement target bases or all agreement source bases. "
+  cancelTransferAgreement(id: ID!): TransferAgreement
+
+  " Create a new shipment between two bases. The specified transfer agreement must be in `Accepted` state. The client must be member of the specified source base. "
+  createShipment(creationInput: ShipmentCreationInput): Shipment
+  " Add boxes to or remove boxes from the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. "
+  updateShipmentWhenPreparing(updateInput: ShipmentWhenPreparingUpdateInput): Shipment
+  " Reconcile boxes or mark them as lost during shipment receival on the target side. Only valid if shipment is in `Receiving` state. If all boxes are reconciled, the state automatically updates to `Completed`. The client must be member of the shipment target base. "
+  updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
+  " Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment. "
+  cancelShipment(id: ID!): Shipment
+  " Change state of specified shipment to `Sent`, and state of all contained `MarkedForShipment` boxes to `InTransit`. Only valid for shipments in `Preparing` state. The client must be member of the shipment source base. "
+  sendShipment(id: ID!): Shipment
+  " Change state of specified shipment to `Receiving`, and state of all contained `InTransit` boxes to `Receiving`. Only valid for shipments in `Sent` state. The client must be member of the shipment target base. "
+  startReceivingShipment(id: ID!): Shipment
+  " Change state of specified shipment to `Lost`, and state of all contained `InTransit` boxes to `NotDelivered`. Only valid for shipments in `Sent` state. The client must be member of either source or target base of the shipment. "
+  markShipmentAsLost(id: ID!): Shipment
+  " Change state of boxes that were accidentally marked as `NotDelivered` back to `InStock`. "
+  moveNotDeliveredBoxesInStock(boxIds: [String!]!): Shipment
+
+  " Create a new custom product in a base, specifying properties like name, gender, size range, and price. Return errors in case of invalid input. The client must be member of the specified base. "
+  createCustomProduct(creationInput: CustomProductCreationInput): CreateCustomProductResult
+  " Edit properties of the custom product with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
+  editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
+  " Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
+  deleteProduct(id: ID!): DeleteProductResult
+  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base. "
+  enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
+  " Edit properties of the standard product instantiation with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
+  editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
+  " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
+  disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
+
+
+  # Undocumented mutations of the mobile-distribution feature
+  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
+  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
+
+  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
+  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
+  removeAllPackingListEntriesFromDistributionEventForProduct(
+    distributionEventId: ID!
+    productId: ID!
+  ): Boolean
+  updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int!): PackingListEntry
+  updateSelectedProductsForDistributionEventPackingList(
+    distributionEventId: ID!
+    productIdsToAdd: [ID!]!
+    productIdsToRemove: [ID!]!
+  ): DistributionEvent
+
+  changeDistributionEventState(
+    distributionEventId: ID!
+    newState: DistributionEventState!
+  ): DistributionEvent
+
+  assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  unassignBoxFromDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
+  moveItemsFromBoxToDistributionEvent(
+    boxLabelIdentifier: ID!
+    distributionEventId: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
+  removeItemsFromUnboxedItemsCollection(
+    id: ID!
+    numberOfItems: Int!
+  ): UnboxedItemsCollection
+
+  startDistributionEventsTrackingGroup(
+    distributionEventIds: [ID!]!,
+    baseId: ID!,
+    # returnedToLocationId: ID
+  ): DistributionEventsTrackingGroup
+
+  setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: Int!
+  ): DistributionEventsTrackingEntry
+
+  moveItemsFromReturnTrackingGroupToBox(
+    distributionEventsTrackingGroupId: ID!
+    productId: ID!
+    sizeId: ID!
+    numberOfItems: Int!
+    targetBoxLabelIdentifier: ID!
+  ): DistributionEventsTrackingEntry
+
+  completeDistributionEventsTrackingGroup(
+    id: ID!
+  ): DistributionEventsTrackingGroup
+}
+interface DataCube {
+  facts: [Result]
+  dimensions: Dimensions
+}
+
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
+
+type BeneficiaryDemographicsData implements DataCube {
+  facts: [BeneficiaryDemographicsResult]
+  dimensions: BeneficiaryDemographicsDimensions
+}
+
+type BeneficiaryDemographicsDimensions {
+  tag: [TagDimensionInfo]
+}
+
+type BeneficiaryDemographicsResult {
+  age: Int
+  gender: HumanGender
+  createdOn: Date
+  deletedOn: Date
+  tagIds: [Int!]
+  count: Int
+}
+
+type CreatedBoxesData implements DataCube {
+  facts: [CreatedBoxesResult]
+  dimensions: CreatedBoxDataDimensions
+}
+
+type CreatedBoxesResult {
+  createdOn: Date
+  categoryId: Int
+  productId: Int
+  gender: ProductGender
+  tagIds: [Int!]
+  boxesCount: Int
+  itemsCount: Int
+}
+
+type CreatedBoxDataDimensions {
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
+  tag: [TagDimensionInfo]
+}
+
+type TopProductsCheckedOutData implements DataCube {
+  facts: [TopProductsCheckedOutResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsCheckedOutResult {
+  checkedOutOn: Date
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDonatedData implements DataCube {
+  facts: [TopProductsDonatedResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsDonatedResult {
+  createdOn: Date
+  donatedOn: Date
+  sizeId: Int
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDimensions {
+  " Always null for topProductsCheckedOut query "
+  size: [DimensionInfo]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
+}
+
+type MovedBoxesData implements DataCube {
+  facts: [MovedBoxesResult]
+  dimensions: MovedBoxDataDimensions
+}
+
+"""
+A box can be moved in various ways:
+- within a base (location ID with InStock/Donated)
+- because it's lost (Lost)
+- because it becomes scrap (Scrap)
+- because it's about to be shipped (target base ID with MarkedForShipment)
+- because it's being shipped (target base ID with InTransit/Receiving)
+"""
+type MovedBoxesResult {
+  movedOn: Date!
+  targetId: ID!
+  categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  " Null for boxes with measure-product "
+  sizeId: Int
+  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
+  dimensionId: Int
+  " Null for boxes with size-product "
+  absoluteMeasureValue: Float
+  " Shipment target organisation name; null for BoxState/OutgoingLocation target types "
+  organisationName: String
+  tagIds: [Int!]
+  itemsCount: Int!
+  boxesCount: Int!
+}
+
+type MovedBoxDataDimensions {
+  category: [DimensionInfo]
+  size: [DimensionInfo]
+  tag: [TagDimensionInfo!]!
+  target: [TargetDimensionInfo]
+  " 'Dimension' in the sense of Mass or Volume "
+  dimension: [DimensionInfo!]!
+}
+
+type StockOverviewData implements DataCube {
+  facts: [StockOverviewResult!]!
+  dimensions: StockOverviewDataDimensions!
+}
+
+type StockOverviewResult {
+  categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  " Null for boxes with measure-product "
+  sizeId: Int
+  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
+  dimensionId: Int
+  " Null for boxes with size-product "
+  absoluteMeasureValue: Float
+  tagIds: [Int!]
+  locationId: Int!
+  boxState: BoxState!
+  itemsCount: Int!
+  boxesCount: Int!
+}
+
+type StockOverviewDataDimensions {
+  category: [DimensionInfo!]!
+  size: [DimensionInfo!]!
+  tag: [TagDimensionInfo!]!
+  location: [DimensionInfo!]!
+  " 'Dimension' in the sense of Mass or Volume "
+  dimension: [DimensionInfo!]!
+}
+
+interface BasicDimensionInfo {
+  id: Int
+  name: String
+}
+
+type DimensionInfo implements BasicDimensionInfo {
+  id: Int
+  name: String
+}
+
+type TagDimensionInfo implements BasicDimensionInfo {
+  id: Int
+  name: String
+  " Hex color code "
+  color: String
+}
+
+type ProductDimensionInfo implements BasicDimensionInfo {
+  id: Int
+  name: String
+  gender: ProductGender
+}
+
+type TargetDimensionInfo {
+  id: ID
+  name: String
+  type: TargetType
+}
+# When updating the definitions, remember to also update ../protected/queries.graphql
+type Query {
+  beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
+  createdBoxes(baseId: Int!): CreatedBoxesData
+  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
+  topProductsDonated(baseId: Int!): TopProductsDonatedData
+  movedBoxes(baseId: Int!): MovedBoxesData
+  stockOverview(baseId: Int!): StockOverviewData
+}
