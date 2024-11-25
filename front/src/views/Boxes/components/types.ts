@@ -1,4 +1,4 @@
-
+import { Shipment, Tag } from "types/query-types";
 
 export type BoxRow = {
   labelIdentifier: string;

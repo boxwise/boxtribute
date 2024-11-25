@@ -40,7 +40,7 @@ const successfulMutation = {
     variables: {
       initiatingOrganisationId: 1,
       partnerOrganisationId: 2,
-      type: TransferAgreementType.Bidirectional,
+      type: "Bidirectional",
       validFrom: new Date().toISOString().substring(0, 10),
       validUntil: undefined,
       initiatingOrganisationBaseIds: [1],
@@ -63,7 +63,7 @@ const mutationNetworkError = {
     variables: {
       initiatingOrganisationId: 1,
       partnerOrganisationId: 2,
-      type: TransferAgreementType.Bidirectional,
+      type: "Bidirectional",
       validFrom: new Date().toISOString().substring(0, 10),
       validUntil: undefined,
       initiatingOrganisationBaseIds: [1],
@@ -80,7 +80,7 @@ const mutationIdenticalAgreementError = {
     variables: {
       initiatingOrganisationId: 1,
       partnerOrganisationId: 2,
-      type: TransferAgreementType.Bidirectional,
+      type: "Bidirectional",
       validFrom: new Date().toISOString().substring(0, 10),
       validUntil: undefined,
       initiatingOrganisationBaseIds: [1],

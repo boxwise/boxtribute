@@ -65,7 +65,7 @@ const mockedProducts: IProductWithSizeRangeData[] = [
   {
     id: "2",
     name: "T-shirt",
-    gender: ProductGender.Women,
+    gender: "Women",
     category: {
       name: "T-Shirts",
     },

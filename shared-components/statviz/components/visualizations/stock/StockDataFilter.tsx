@@ -39,7 +39,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
       );
     }
 
-    filters.push(filter((fact: StockOverviewResult) => fact.boxState === BoxState.InStock));
+    filters.push(filter((fact: StockOverviewResult) => fact.boxState === "InStock"));
 
     if (filter.length > 0) {
       return {

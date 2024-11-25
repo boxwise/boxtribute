@@ -24,7 +24,7 @@ const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "abc",
   labelIdentifier = "678",
-  state = BoxState.InStock,
+  state = "InStock",
 }) => ({
   request: {
     query,
@@ -43,7 +43,7 @@ const mockSuccessfulQrQuery = ({
 
 const mockShipmentsQuery = ({
   query = MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
-  state = ShipmentState.Preparing,
+  state = "Preparing",
   iAmSource = true,
   networkError = false,
   graphQlError = false,
@@ -113,7 +113,7 @@ const failingShipmentsQueryTests = [
   {
     name: "3.4.5.4 - Query for shipments returns no shipments in preparing state",
     hash: "QrWithBoxFromSameBase",
-    mocks: [mockShipmentsQuery({ state: ShipmentState.Receiving })],
+    mocks: [mockShipmentsQuery({ state: "Receiving" })],
     alert: undefined,
   },
 ];
@@ -151,10 +151,7 @@ it("3.4.5.1 - There are boxes in the list, but the state of some is not InStock"
   render(<QrReaderView />, {
     routePath: "/bases/:baseId/qrreader",
     initialUrl: "/bases/1/qrreader",
-    mocks: [
-      mockSuccessfulQrQuery({ hash: "LostBox", state: BoxState.Lost }),
-      mockShipmentsQuery({}),
-    ],
+    mocks: [mockSuccessfulQrQuery({ hash: "LostBox", state: "Lost" }), mockShipmentsQuery({})],
     cache,
   });
 

@@ -591,8 +591,16 @@ function BTBox() {
         )[0]?.sourceLocation
       : boxData?.location;
 
+  // TODO: should we ignore all this type checking?
   const boxInLegacyLocation =
-    location?.defaultBoxState === "Lost" || location?.defaultBoxState === "Scrap";
+    (location &&
+      "__typename" in location &&
+      location.__typename === "ClassicLocation" &&
+      location?.defaultBoxState === "Lost") ||
+    (location &&
+      "__typename" in location &&
+      location.__typename === "ClassicLocation" &&
+      location?.defaultBoxState === "Scrap");
 
   return (
     <VStack spacing={4} align="stretch">

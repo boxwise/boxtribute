@@ -10,12 +10,13 @@ import TransferAgreementOverviewView, {
   CANCEL_TRANSFER_AGREEMENT,
   REJECT_TRANSFER_AGREEMENT,
 } from "./TransferAgreementOverviewView";
+import { TadaDocumentNode } from "gql.tada";
 
 const mockSuccessfulTransferAgreementsQuery = ({
   query = ALL_TRANSFER_AGREEMENTS_QUERY,
   variables = {},
-  state = TransferAgreementState.UnderReview,
-  type = TransferAgreementType.Bidirectional,
+  state = "UnderReview",
+  type = "Bidirectional",
   isInitiator = true,
 }) => ({
   request: {
@@ -110,7 +111,7 @@ const failedMutationTests = [
     name: "4.2.4.1a - Reject Transfer Agreement fails due to GraphQLError",
     mocks: [
       mockSuccessfulTransferAgreementsQuery({
-        type: TransferAgreementType.SendingTo,
+        type: "SendingTo",
         isInitiator: false,
       }),
       mockGraphQLError(REJECT_TRANSFER_AGREEMENT, { id: "1" }),
@@ -123,7 +124,7 @@ const failedMutationTests = [
     name: "4.2.4.1b - Reject Transfer Agreement fails due to NetworkError",
     mocks: [
       mockSuccessfulTransferAgreementsQuery({
-        type: TransferAgreementType.ReceivingFrom,
+        type: "ReceivingFrom",
         isInitiator: false,
       }),
       mockNetworkError(REJECT_TRANSFER_AGREEMENT, { id: "1" }),
@@ -135,7 +136,7 @@ const failedMutationTests = [
   {
     name: "4.2.5.1a - Cancel Transfer Agreement fails due to GraphQLError",
     mocks: [
-      mockSuccessfulTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
+      mockSuccessfulTransferAgreementsQuery({ state: "Accepted" }),
       mockGraphQLError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /accepted/i,
@@ -145,7 +146,7 @@ const failedMutationTests = [
   {
     name: "4.2.5.1b - Cancel Transfer Agreement fails due to NetworkError",
     mocks: [
-      mockSuccessfulTransferAgreementsQuery({ state: TransferAgreementState.Accepted }),
+      mockSuccessfulTransferAgreementsQuery({ state: "Accepted" }),
       mockNetworkError(CANCEL_TRANSFER_AGREEMENT, { id: "1" }),
     ],
     stateButtonText: /accepted/i,
@@ -187,10 +188,10 @@ failedMutationTests.forEach(({ name, mocks, stateButtonText, modalButtonText, to
 });
 
 const mockSuccessfulMutation = ({
-  mutation = ACCEPT_TRANSFER_AGREEMENT,
+  mutation = ACCEPT_TRANSFER_AGREEMENT as TadaDocumentNode,
   mutationKey = "acceptTransferAgreement",
-  state = TransferAgreementState.UnderReview,
-  type = TransferAgreementType.Bidirectional,
+  state = "UnderReview",
+  type = "Bidirectional",
   isInitiator = true,
 }) => {
   const mockObject = {
@@ -211,7 +212,7 @@ const successfulMutationTests = [
     name: "4.2.3 - Accept Transfer Agreement",
     mocks: [
       mockSuccessfulTransferAgreementsQuery({ isInitiator: false }),
-      mockSuccessfulMutation({ state: TransferAgreementState.Accepted, isInitiator: false }),
+      mockSuccessfulMutation({ state: "Accepted", isInitiator: false }),
     ],
     stateButtonTextBefore: /request open/i,
     stateButtonTextAfter: "Accepted",
@@ -222,14 +223,14 @@ const successfulMutationTests = [
     name: "4.2.4 - Reject Transfer Agreement",
     mocks: [
       mockSuccessfulTransferAgreementsQuery({
-        type: TransferAgreementType.ReceivingFrom,
+        type: "ReceivingFrom",
         isInitiator: false,
       }),
       mockSuccessfulMutation({
         mutation: REJECT_TRANSFER_AGREEMENT,
         mutationKey: "rejectTransferAgreement",
-        state: TransferAgreementState.Rejected,
-        type: TransferAgreementType.ReceivingFrom,
+        state: "Rejected",
+        type: "ReceivingFrom",
         isInitiator: false,
       }),
     ],
@@ -242,13 +243,13 @@ const successfulMutationTests = [
     name: "4.2.5 - Cancel Transfer Agreement",
     mocks: [
       mockSuccessfulTransferAgreementsQuery({
-        state: TransferAgreementState.Accepted,
+        state: "Accepted",
         isInitiator: false,
       }),
       mockSuccessfulMutation({
         mutation: CANCEL_TRANSFER_AGREEMENT,
         mutationKey: "cancelTransferAgreement",
-        state: TransferAgreementState.Canceled,
+        state: "Canceled",
         isInitiator: false,
       }),
     ],

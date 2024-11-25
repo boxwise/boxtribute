@@ -21,7 +21,7 @@ const mockSuccessfulQrQuery = ({
   hash = "abc",
   isBoxAssociated = true,
   labelIdentifier = "123",
-  state = BoxState.InStock,
+  state = "InStock",
 }) => ({
   request: {
     query,

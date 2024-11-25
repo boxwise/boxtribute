@@ -1,18 +1,19 @@
+import { DistributionEventState } from "types/query-types";
 
 
 export const getNextState = (state: DistributionEventState) => {
   switch (state) {
-    case DistributionEventState.Planning:
-      return DistributionEventState.Packing;
-    case DistributionEventState.Packing:
-      return DistributionEventState.OnDistro;
-    case DistributionEventState.OnDistro:
-      return DistributionEventState.ReturnedFromDistribution;
-    case DistributionEventState.ReturnedFromDistribution:
-      return DistributionEventState.ReturnTrackingInProgress;
-    case DistributionEventState.ReturnTrackingInProgress:
-      return DistributionEventState.Completed;
-    case DistributionEventState.Completed:
+    case "Planning":
+      return "Packing";
+    case "Packing":
+      return "OnDistro";
+    case "OnDistro":
+      return "ReturnedFromDistribution";
+    case "ReturnedFromDistribution":
+      return "ReturnTrackingInProgress";
+    case "ReturnTrackingInProgress":
+      return "Completed";
+    case "Completed":
       return null;
     default:
       return null;

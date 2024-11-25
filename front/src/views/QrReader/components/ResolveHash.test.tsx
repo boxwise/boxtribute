@@ -27,7 +27,7 @@ const mockSuccessfulQrQuery = ({
   isBoxSameBase = true,
   isBoxSameOrg = true,
   labelIdentifier = "123",
-  state = BoxState.InStock,
+  state = "InStock",
 }) => ({
   delay: 100,
   request: {

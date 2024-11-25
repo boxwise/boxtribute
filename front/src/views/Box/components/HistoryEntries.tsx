@@ -1,6 +1,7 @@
 import { ListItem, ListIcon, List, Stack, Flex, Text, Box } from "@chakra-ui/react";
 import { IconType } from "react-icons";
 import { MdCheckCircle, MdSettings, MdHistory } from "react-icons/md";
+import { HistoryEntry } from "types/query-types";
 import { prepareBoxHistoryEntryText } from "utils/helpers";
 
 interface IHistoryEntriesProps {
@@ -18,7 +19,7 @@ function getHistoryIcon(changes: string): IconType {
   return MdHistory;
 }
 
-function formatDate(date: Date): string {
+function formatDate(date: Date | string): string {
   return new Date(date).toLocaleString("en-GB", {
     weekday: "short",
     day: "2-digit",
@@ -56,7 +57,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
                 <Text>
                   <b>{historyEntry?.user?.name}</b>
                   {" on "}
-                  <b>{formatDate(historyEntry?.changeDate)}</b>{" "}
+                  <b>{formatDate(historyEntry?.changeDate || "")}</b>{" "}
                   {prepareBoxHistoryEntryText(historyEntry?.changes)}
                 </Text>
               </Box>

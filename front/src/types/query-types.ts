@@ -3,6 +3,7 @@ import { ResultOf } from "gql.tada"
 import { ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
 import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import { introspection_types } from "../../../generated/graphql-env";
+import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
 
@@ -18,7 +19,11 @@ export type ShipmentDetail = Shipments[0]["details"][0]
 
 export type TransferAgreements = ResultOf<typeof ALL_TRANSFER_AGREEMENTS_QUERY>["transferAgreements"]
 
+export type Tag = ResultOf<typeof TAG_BASIC_FIELDS_FRAGMENT>;
+
 export type Locations = ResultOf<typeof LOCATIONS_QUERY>["locations"];
+
+export type HistoryEntry = ResultOf<typeof HISTORY_FIELDS_FRAGMENT>;
 
 export type BoxState = introspection_types["BoxState"]["enumValues"];
 

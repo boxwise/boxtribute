@@ -23,7 +23,7 @@ const initialQueryForBoxWithHistory = {
     data: {
       box: generateMockBox({
         labelIdentifier: "123",
-        state: BoxState.InStock,
+        state: "InStock",
         histories: [history1, history2],
       }),
     },

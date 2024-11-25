@@ -74,60 +74,59 @@ function CreateTransferAgreementView() {
   const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
-  const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
+  const allFormOptions = useQuery(ALL_ORGS_AND_BASES_QUERY, {});
 
   // Mutation after form submission
-  const [createTransferAgreementMutation, createTransferAgreementMutationState] = useMutation<
-    CreateTransferAgreementMutation,
-    CreateTransferAgreementMutationVariables
-  >(CREATE_AGREEMENT_MUTATION, {
-    update(cache, { data: returnedTransferAgreement }) {
-      if (returnedTransferAgreement?.createTransferAgreement) {
-        cache.modify({
-          fields: {
-            transferAgreements(existingTransferAgreements = []) {
-              const newTransferAgreementRef = cache.writeFragment({
-                data: returnedTransferAgreement.createTransferAgreement,
-                fragment: graphql(`
-                  fragment NewTransferAgreement on TransferAgreement {
-                    id
-                    type
-                    state
-                  }
-                `),
-              });
-              return existingTransferAgreements.concat(newTransferAgreementRef);
-            },
-          },
-        });
-
-        const createdTransferAgreementId = returnedTransferAgreement?.createTransferAgreement.id;
-
-        const existingAcceptedTransferAgreementsData = cache.readQuery<IAcceptedTransferAgreement>({
-          query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-          variables: { baseId },
-        });
-
-        const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
-          (a) => a.id === createdTransferAgreementId,
-        );
-
-        if (index !== undefined && index > -1) {
-          existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
-
-          cache.writeQuery({
-            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-            variables: {
-              variables: { baseId },
-            },
-            data: {
-              transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
+  const [createTransferAgreementMutation, createTransferAgreementMutationState] = useMutation(
+    CREATE_AGREEMENT_MUTATION,
+    {
+      update(cache, { data: returnedTransferAgreement }) {
+        if (returnedTransferAgreement?.createTransferAgreement) {
+          cache.modify({
+            fields: {
+              transferAgreements(existingTransferAgreements = []) {
+                const newTransferAgreementRef = cache.writeFragment({
+                  data: returnedTransferAgreement.createTransferAgreement,
+                  fragment: graphql(`
+                    fragment NewTransferAgreement on TransferAgreement {
+                      id
+                      type
+                      state
+                    }
+                  `),
+                });
+                return existingTransferAgreements.concat(newTransferAgreementRef);
+              },
             },
           });
+
+          const createdTransferAgreementId = returnedTransferAgreement?.createTransferAgreement.id;
+
+          const existingAcceptedTransferAgreementsData =
+            cache.readQuery<IAcceptedTransferAgreement>({
+              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+              variables: { baseId },
+            });
+
+          const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
+            (a) => a.id === createdTransferAgreementId,
+          );
+
+          if (index !== undefined && index > -1) {
+            existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
+
+            cache.writeQuery({
+              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+              variables: { baseId },
+              data: {
+                transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements!,
+              },
+            });
+          }
         }
-      }
+      },
     },
-  });
+  );
 
   // Prep data for Form
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
@@ -163,7 +162,7 @@ function CreateTransferAgreementView() {
       variables: {
         initiatingOrganisationId: parseInt(userCurrentOrganisationId, 10),
         partnerOrganisationId: parseInt(createTransferAgreementData.partnerOrganisation.value, 10),
-        type: TransferAgreementType.Bidirectional,
+        type: "Bidirectional",
         validFrom: createTransferAgreementData?.validFrom,
         validUntil: createTransferAgreementData?.validUntil,
         initiatingOrganisationBaseIds: currentOrgBaseIds,

@@ -93,28 +93,19 @@ function BoxCreateView() {
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
-  const qrCodeExists = useQuery<CheckIfQrExistsInDbQuery, CheckIfQrExistsInDbQueryVariables>(
-    CHECK_IF_QR_EXISTS_IN_DB,
-    {
-      variables: { qrCode },
-    },
-  );
+  const qrCodeExists = useQuery(CHECK_IF_QR_EXISTS_IN_DB, {
+    variables: { qrCode },
+  });
 
   // Query Data for the Form
-  const allFormOptions = useQuery<
-    AllProductsAndLocationsForBaseQuery,
-    AllProductsAndLocationsForBaseQueryVariables
-  >(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
+  const allFormOptions = useQuery(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
     variables: {
       baseId,
     },
   });
 
   // Mutation after form submission
-  const [createBoxMutation, createBoxMutationState] = useMutation<
-    CreateBoxMutation,
-    CreateBoxMutationVariables
-  >(CREATE_BOX_MUTATION);
+  const [createBoxMutation, createBoxMutationState] = useMutation(CREATE_BOX_MUTATION);
 
   // Check the QR Code
   useEffect(() => {
@@ -133,7 +124,7 @@ function BoxCreateView() {
   const allProducts = allFormOptions.data?.base?.products;
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allFormOptions.data?.base?.locations
-    .filter((location) => location?.defaultBoxState !== BoxState.Lost)
+    .filter((location) => location?.defaultBoxState !== "Lost")
     .map((location) => ({
       ...location,
       name: location.name ?? "",

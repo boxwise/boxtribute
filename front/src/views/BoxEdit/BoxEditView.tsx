@@ -89,10 +89,7 @@ function BoxEditView() {
   const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
-  const allBoxAndFormData = useQuery<
-    BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
-    BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
+  const allBoxAndFormData = useQuery(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
     variables: {
       baseId,
       labelIdentifier,
@@ -107,12 +104,12 @@ function BoxEditView() {
   });
 
   // Mutation after form submission
-  const [updateContentOfBoxMutation, updateContentOfBoxMutationState] = useMutation<
-    UpdateContentOfBoxMutation,
-    UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION, {
-    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
-  });
+  const [updateContentOfBoxMutation, updateContentOfBoxMutationState] = useMutation(
+    UPDATE_CONTENT_OF_BOX_MUTATION,
+    {
+      refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
+    },
+  );
 
   // Handle Submission
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormDataOutput) => {
@@ -173,13 +170,12 @@ function BoxEditView() {
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allBoxAndFormData.data?.base?.locations
     .filter(
-      (location) =>
-        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+      (location) => location?.defaultBoxState !== "Lost" && location?.defaultBoxState !== "Scrap",
     )
     .map((location) => ({
       ...location,
       name:
-        (location.defaultBoxState !== BoxState.InStock
+        (location.defaultBoxState !== "InStock"
           ? `${location.name} - Boxes are ${location.defaultBoxState}`
           : location.name) ?? "",
     }))

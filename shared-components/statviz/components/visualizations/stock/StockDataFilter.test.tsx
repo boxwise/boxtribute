@@ -83,7 +83,7 @@ it("x.x.x.x - User clicks on 'Gender' filter in drilldown chart", async () => {
   expect(await screen.findByText(/Drilldown Chart of Instock Boxes/)).toBeInTheDocument();
 });
 
-it("should filter out only items with boxState === BoxState.InStock", () => {
+it("should filter out only items with boxState === 'InStock'", () => {
   // TODO: Make the data be returned in the mocks
   const data: StockOverviewResult[] = [
     {

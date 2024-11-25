@@ -111,22 +111,16 @@ function Boxes() {
   });
 
   // fetch Boxes data in the background
-  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery<BoxesForBoxesViewQuery>(
-    BOXES_FOR_BOXESVIEW_QUERY,
-    {
-      variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
-    },
-  );
+  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
+    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+  });
 
   // fetch options for actions on boxes
-  const { data: actionOptionsData } = useSuspenseQuery<ActionOptionsForBoxesViewQuery>(
-    ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
-    {
-      variables: {
-        baseId,
-      },
+  const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
+    variables: {
+      baseId,
     },
-  );
+  });
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [

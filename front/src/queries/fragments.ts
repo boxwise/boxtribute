@@ -132,6 +132,7 @@ export const BOX_BASIC_FIELDS_FRAGMENT = graphql(`
 
 export const BOX_FIELDS_FRAGMENT = graphql(`
   fragment BoxFields on Box @_unmask {
+    id
     labelIdentifier
     state
     product {

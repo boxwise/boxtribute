@@ -10,7 +10,7 @@ import { Button } from "@chakra-ui/react";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
-import { QueryReference } from "@apollo/client";
+import { QueryRef } from "@apollo/client";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
@@ -21,7 +21,7 @@ import RemoveBoxesButton from "./RemoveBoxesButton";
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
   onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
-  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
+  boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];

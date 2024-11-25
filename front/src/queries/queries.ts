@@ -203,6 +203,9 @@ export const BOX_QUERY = graphql(`
       numberOfItems
       product {
         id
+        name
+        gender
+        deletedOn
       }
       history {
         id
@@ -235,6 +238,20 @@ export const BOX_QUERY = graphql(`
           id
           details {
             id
+            sourceProduct {
+              id
+              name
+              gender
+            }
+            sourceLocation{
+              id
+              name
+            }
+            sourceSize {
+              id
+              label
+            }
+            sourceQuantity
             box {
               id
               labelIdentifier

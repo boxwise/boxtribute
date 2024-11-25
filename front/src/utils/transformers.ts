@@ -1,5 +1,5 @@
 import { IDropdownOption } from "components/Form/SelectField";
-import { Locations } from "types/query-types";
+import { Locations, Shipments } from "types/query-types";
 
 export function locationToDropdownOptionTransformer(
   locations: Locations,
@@ -8,12 +8,12 @@ export function locationToDropdownOptionTransformer(
     locations
       ?.filter(
         (location) =>
-          location?.defaultBoxState !== BoxState.Lost &&
-          location?.defaultBoxState !== BoxState.Scrap,
+          location?.defaultBoxState !== "Lost" &&
+          location?.defaultBoxState !== "Scrap",
       )
       ?.sort((a, b) => Number(a?.seq) - Number(b?.seq))
       ?.map((location) => ({
-        label: `${location.name}${location.defaultBoxState !== BoxState.InStock
+        label: `${location.name}${location.defaultBoxState !== "InStock"
           ? ` - Boxes are ${location.defaultBoxState}`
           : ""
           }`,
@@ -23,14 +23,14 @@ export function locationToDropdownOptionTransformer(
 }
 
 export function shipmentToDropdownOptionTransformer(
-  shipments: ActionOptionsForBoxesViewQuery["shipments"],
+  shipments: Shipments,
   baseId: string,
 ): IDropdownOption[] {
   return (
     shipments
       ?.filter(
         (shipment) =>
-          shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === baseId,
+          shipment.state === "Preparing" && shipment.sourceBase.id === baseId,
       )
       ?.map((shipment) => ({
         __typename: "Shipment", // Add this line to ensure __typename is set to "Shipment"

@@ -19,6 +19,7 @@ import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { Box as BoxType, ProductGender } from "types/query-types";
 
 export interface ICategoryData {
   name: string;
@@ -88,7 +89,7 @@ export type IBoxEditFormDataInput = z.input<typeof BoxEditFormDataSchema>;
 export type IBoxEditFormDataOutput = z.output<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
-  boxData: Exclude<BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"], null | undefined>;
+  boxData: BoxType;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
@@ -226,7 +227,7 @@ function BoxEdit({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={4} as="h2">
-        Box {boxData.labelIdentifier}
+        Box {boxData?.labelIdentifier}
       </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>

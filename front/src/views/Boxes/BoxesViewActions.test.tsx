@@ -18,10 +18,11 @@ import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
+import { TadaDocumentNode } from "gql.tada";
 
 const boxesQuery = ({
-  state = BoxState.InStock,
-  stateFilter = [BoxState.InStock],
+  state = "InStock",
+  stateFilter = ["InStock"],
   shipmentDetail = null as any,
   labelIdentifier = "123",
 }) => ({
@@ -78,7 +79,7 @@ const actionsQuery = () => ({
 });
 
 const mutation = ({
-  gQLRequest = ASSIGN_BOXES_TO_SHIPMENT,
+  gQLRequest = ASSIGN_BOXES_TO_SHIPMENT as TadaDocumentNode,
   variables = { id: "1", labelIdentifiers: ["123"] } as any,
   resultData = {
     updateShipmentWhenPreparing: { ...basicShipment, details: [shipmentDetail1()] },
@@ -206,7 +207,7 @@ const boxesViewActionsTests = [
         resultData: {
           moveBox123: {
             labelIdentifier: "123",
-            state: BoxState.InStock,
+            state: "InStock",
             location: {
               id: "1",
             },
@@ -248,7 +249,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
-    mocks: [boxesQuery({ state: BoxState.MarkedForShipment, stateFilter: [] }), actionsQuery()],
+    mocks: [boxesQuery({ state: "MarkedForShipment", stateFilter: [] }), actionsQuery()],
     clicks: [/move to/i, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
     searchParams: "?columnFilters=%5B%5D",
@@ -300,7 +301,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
-    mocks: [boxesQuery({ state: BoxState.Donated, stateFilter: [] }), actionsQuery()],
+    mocks: [boxesQuery({ state: "Donated", stateFilter: [] }), actionsQuery()],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
     searchParams: "?columnFilters=%5B%5D",
@@ -309,7 +310,7 @@ const boxesViewActionsTests = [
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
     mocks: [
       boxesQuery({
-        state: BoxState.MarkedForShipment,
+        state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
         stateFilter: [],
       }),
@@ -330,7 +331,7 @@ const boxesViewActionsTests = [
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({
-        state: BoxState.MarkedForShipment,
+        state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
         stateFilter: [],
       }),
@@ -349,7 +350,7 @@ const boxesViewActionsTests = [
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
     mocks: [
       boxesQuery({
-        state: BoxState.MarkedForShipment,
+        state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
         stateFilter: [],
       }),
