@@ -46,7 +46,8 @@
       {
         "name": "gql.tada/ts-plugin",
         "schema": "./generated/schema.graphql",
-        "tadaOutputLocation": "./generated/graphql-env.d.ts"
+        "tadaOutputLocation": "./generated/graphql-env.d.ts",
+        "trackFieldUsage": false
       }
     ]
   }
