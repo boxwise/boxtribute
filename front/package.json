@@ -35,7 +35,7 @@
     "@storybook/test": "^8.4.5",
     "@types/react-big-calendar": "^1.15.0",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.6.5",
+    "msw": "^2.6.6",
     "mutationobserver-shim": "^0.3.7",
     "prop-types": "^15.8.1",
     "storybook": "^8.4.5"
