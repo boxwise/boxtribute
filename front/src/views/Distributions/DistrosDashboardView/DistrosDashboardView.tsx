@@ -50,11 +50,8 @@ const DistrosDashboardView = () => {
     }
   }, [currentTabIndex, tabIndexSearchParamAsNumber]);
 
-  const { data, error, loading } = useQuery<
-    DistributionEventsForBaseQuery,
-    DistributionEventsForBaseQueryVariables
-    // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
-  >(DISTRIBUTION_EVENTS_FOR_BASE_ID, {
+  // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
+  const { data, error, loading } = useQuery(DISTRIBUTION_EVENTS_FOR_BASE_ID, {
     variables: {
       baseId: baseId!,
     },

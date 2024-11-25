@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { useMemo } from "react";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
+import { ShipmentDetail } from "types/query-types";
 
 interface IShipmentReceivingContentProps {
   items: ShipmentDetail[];
@@ -9,7 +10,7 @@ interface IShipmentReceivingContentProps {
 
 function ShipmentReceivingContent({ items, onReconciliationBox }: IShipmentReceivingContentProps) {
   const boxes = _.map(
-    items.filter((b) => b.box.state === BoxState.Receiving),
+    items.filter((b) => b.box.state === "Receiving"),
     (shipmentDetail) => ({
       id: shipmentDetail?.sourceProduct?.id,
       labelIdentifier: shipmentDetail?.box?.labelIdentifier,

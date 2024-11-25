@@ -41,12 +41,12 @@ export function BaseOrgCell({ value }: CellProps<any>) {
 export function StateCell({ value }: CellProps<any>) {
   let color = "inherit";
 
-  // TODO: Receiving State is missing in type ShipmentState
-  if (value === ShipmentState.Preparing || value === ShipmentState.Receiving) {
+  // TODO: infer types
+  if (value === "Preparing" || value === "Receiving") {
     color = "blue.700";
-  } else if (value === ShipmentState.Sent) {
+  } else if (value === "Sent") {
     color = "green.700";
-  } else if (value === ShipmentState.Lost || value === ShipmentState.Canceled) {
+  } else if (value === "Lost" || value === "Canceled") {
     color = "red.700";
   }
 

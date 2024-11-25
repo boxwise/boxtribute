@@ -15,10 +15,7 @@ const DistroEventDetailsForReturnTrackingInProgressStateContainer = ({
 }: DistroEventDetailsForPackingStateProps) => {
   const { getBaseRootUrlForCurrentBase } = useGetUrlForResourceHelpers();
 
-  const { data, loading, error } = useQuery<
-    ReturnTrackingGroupIdForDistributionEventQuery,
-    ReturnTrackingGroupIdForDistributionEventQueryVariables
-  >(RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY, {
+  const { data, loading, error } = useQuery(RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
     // pollInterval: 5000,
   });

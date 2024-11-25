@@ -61,7 +61,7 @@ function TransferAgreementsOverlay({
       leftIcon: <CheckIcon />,
     };
     onRightButtonClick = () => onAccept(data.id);
-  } else if (data.state === TransferAgreementState.Accepted) {
+  } else if (data.state === "Accepted") {
     title = "Terminate Transfer Agreement";
     body = (
       <VStack align="start" spacing={8}>
@@ -82,7 +82,7 @@ function TransferAgreementsOverlay({
       leftIcon: <SmallCloseIcon />,
     };
     onRightButtonClick = () => onCancel(data.id);
-  } else if (data.state === TransferAgreementState.Rejected) {
+  } else if (data.state === "Rejected") {
     title = "Retry Transfer Agreement Request";
     body = (
       <VStack align="start" spacing={8}>
@@ -100,10 +100,7 @@ function TransferAgreementsOverlay({
       leftIcon: <RepeatIcon />,
     };
     onRightButtonClick = () => navigate("create");
-  } else if (
-    data.state === TransferAgreementState.Expired ||
-    data.state === TransferAgreementState.Canceled
-  ) {
+  } else if (data.state === "Expired" || data.state === "Canceled") {
     title = "Renew Transfer Agreement";
     body = (
       <VStack align="start" spacing={8}>

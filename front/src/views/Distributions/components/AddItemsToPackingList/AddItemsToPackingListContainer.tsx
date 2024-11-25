@@ -18,7 +18,7 @@ const graphqlToContainerTransformer = (graphQLData: Product[]): ProductDataForPa
     id: product.id,
     name: product.name,
     category: product.category,
-    gender: product.gender ?? "None",
+    gender: product.gender ?? "none",
   }));
 };
 

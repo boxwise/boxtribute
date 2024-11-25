@@ -88,7 +88,7 @@ const initialWithoutBoxQuery = {
   },
   result: {
     data: {
-      shipment: generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
+      shipment: generateMockShipment({ state: "Preparing", hasBoxes: false }),
     },
   },
 };
@@ -117,7 +117,7 @@ const successfulMutation = {
   result: {
     data: {
       createShipment: {
-        ...generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
+        ...generateMockShipment({ state: "Preparing", hasBoxes: false }),
       },
     },
   },

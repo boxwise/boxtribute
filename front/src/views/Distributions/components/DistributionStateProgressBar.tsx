@@ -1,5 +1,6 @@
 import { Box, HStack, Link, Text } from "@chakra-ui/react";
 import React from "react";
+import { DistributionEventState } from "types/query-types";
 
 enum SimplifiedDistributionEventState {
   Planning = "Planning",
@@ -18,15 +19,15 @@ export const simplifiedDistroEventStateOrder = [
 ];
 const mapRealStatesToSimplifiedStates = (state: DistributionEventState) => {
   switch (state) {
-    case DistributionEventState.Planning:
+    case "Planning":
       return SimplifiedDistributionEventState.Planning;
-    case DistributionEventState.Packing:
+    case "Packing":
       return SimplifiedDistributionEventState.Packing;
-    case DistributionEventState.OnDistro:
+    case "OnDistro":
       return SimplifiedDistributionEventState.OnDistro;
-    case DistributionEventState.ReturnedFromDistribution:
-    case DistributionEventState.ReturnTrackingInProgress:
-    case DistributionEventState.Completed:
+    case "ReturnedFromDistribution":
+    case "ReturnTrackingInProgress":
+    case "Completed":
       return SimplifiedDistributionEventState.Returned;
   }
 };
@@ -41,22 +42,22 @@ export const resolveSimplifiedDistroEventStateHumanReadableLabelsAndDistroEventS
     case SimplifiedDistributionEventState.Planning:
       return {
         label: "Planning",
-        distributionEventState: DistributionEventState.Planning,
+        distributionEventState: "Planning",
       };
     case SimplifiedDistributionEventState.Packing:
       return {
         label: "Packing",
-        distributionEventState: DistributionEventState.Packing,
+        distributionEventState: "Packing",
       };
     case SimplifiedDistributionEventState.OnDistro:
       return {
         label: "On Distribution",
-        distributionEventState: DistributionEventState.OnDistro,
+        distributionEventState: "OnDistro",
       };
     case SimplifiedDistributionEventState.Returned:
       return {
         label: "Returned",
-        distributionEventState: DistributionEventState.ReturnedFromDistribution,
+        distributionEventState: "ReturnedFromDistribution",
       };
   }
 };

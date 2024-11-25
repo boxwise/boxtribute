@@ -31,6 +31,7 @@ import {
   SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
 } from "../../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../../types";
+import { ResultOf } from "gql.tada";
 
 interface ITrackingEntryForSize {
   sizeId: string;
@@ -55,7 +56,7 @@ interface IDistributionReturnTrackingSummary {
 }
 
 const graphqlToDistributionEventStockSummary = (
-  queryResult: DistributionEventsTrackingGroupQuery,
+  queryResult: ResultOf<typeof DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY>,
 ): IDistributionReturnTrackingSummary => {
   const distributionEvents = queryResult?.distributionEventsTrackingGroup?.distributionEvents || [];
 
@@ -81,11 +82,11 @@ const graphqlToDistributionEventStockSummary = (
             sizeId,
             sizeLabel: sizeGroup[0]?.size.label,
             numberOfItemsWentOut: _(sizeGroup)
-              .filter((el) => el.flowDirection === DistributionEventTrackingFlowDirection.Out)
+              .filter((el) => el.flowDirection === "Out")
               .map((el) => el.numberOfItems)
               .sum(),
             numberOfItemsReturned: _(sizeGroup)
-              .filter((el) => el.flowDirection === DistributionEventTrackingFlowDirection.In)
+              .filter((el) => el.flowDirection === "In")
               .map((el) => el.numberOfItems)
               .sum(),
             // _(sizeGroup)
@@ -228,19 +229,19 @@ const SummaryOfItemsInDistributionEvents = ({
 
   // type TrackReturnsFormData = z.infer<typeof TrackReturnsFormDataSchema>;
 
-  const [updateReturnedNumberOfItemsTrackingEntryMutation] = useMutation<
-    SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutation,
-    SetReturnedNumberOfItemsForDistributionEventsTrackingGroupMutationVariables
-  >(SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION, {
-    refetchQueries: [
-      {
-        query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
-        variables: {
-          trackingGroupId,
+  const [updateReturnedNumberOfItemsTrackingEntryMutation] = useMutation(
+    SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
+    {
+      refetchQueries: [
+        {
+          query: DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY,
+          variables: {
+            trackingGroupId,
+          },
         },
-      },
-    ],
-  });
+      ],
+    },
+  );
   const onChangeHandlerForTrackingEntry = (
     productId: string,
     sizeId: string,
@@ -317,10 +318,9 @@ const DistrosReturnTrackingGroupView = () => {
 
   const navigate = useNavigate();
 
-  const [completeDistributionEventsTrackingGroupMutation] = useMutation<
-    CompleteDistributionEventsTrackingGroupMutation,
-    CompleteDistributionEventsTrackingGroupMutationVariables
-  >(COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION);
+  const [completeDistributionEventsTrackingGroupMutation] = useMutation(
+    COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
+  );
 
   const onDoneWithCountingClick = () => {
     completeDistributionEventsTrackingGroupMutation({
@@ -334,10 +334,7 @@ const DistrosReturnTrackingGroupView = () => {
     });
   };
 
-  const { data, error, loading } = useQuery<
-    DistributionEventsTrackingGroupQuery,
-    DistributionEventsTrackingGroupQueryVariables
-  >(DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, {
+  const { data, error, loading } = useQuery(DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY, {
     variables: {
       trackingGroupId: trackingGroupId!,
     },
