@@ -102,6 +102,7 @@ def graphql_server():
     if not check_user_beta_level(request.get_json()["query"]):
         return {"error": "No permission to access beta feature"}, 401
 
+    # Schema introspection is enabled for local development via current_app.debug
     return execute_async(schema=full_api_schema)
 
 
