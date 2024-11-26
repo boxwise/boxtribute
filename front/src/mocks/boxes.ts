@@ -21,6 +21,7 @@ export const box123 = {
 };
 
 export const generateMockBox = ({
+  id = "1",
   labelIdentifier = "123",
   state = "InStock",
   numberOfItems = 31,
@@ -32,6 +33,7 @@ export const generateMockBox = ({
   tags = [tag2],
   histories = [history1, history2],
 }) => ({
+  id,
   labelIdentifier,
   state,
   product,
