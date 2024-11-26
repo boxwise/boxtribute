@@ -49,7 +49,7 @@ function BoxesActionsAndTable({
   const thereIsABoxMarkedForShipmentSelected = useMemo(
     () =>
       selectedBoxes.some(
-        (box) => box.values.shipment !== null && box.values.state === BoxState.MarkedForShipment,
+        (box) => box.values.shipment !== null && box.values.state === "MarkedForShipment",
       ),
     [selectedBoxes],
   );
@@ -61,10 +61,7 @@ function BoxesActionsAndTable({
     (locationId: string) => {
       const movableLabelIdentifiers = selectedBoxes
         .filter(
-          (box) =>
-            ![BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(
-              box.values.state,
-            ),
+          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state),
         )
         .map((box) => box.values.labelIdentifier);
 

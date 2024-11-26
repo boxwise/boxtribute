@@ -127,6 +127,7 @@ function TransferAgreementOverviewView() {
               variables: { baseId },
               data: {
                 transferAgreements: updatedTransferAgreements,
+                base: null,
               },
             });
           } else {
@@ -135,6 +136,7 @@ function TransferAgreementOverviewView() {
               variables: { baseId },
               data: {
                 transferAgreements: [acceptedTransferAgreement],
+                base: null,
               },
             });
           }
@@ -154,11 +156,10 @@ function TransferAgreementOverviewView() {
           const cancelledTransferAgreementId =
             returnedTransferAgreement?.cancelTransferAgreement.id;
 
-          const existingAcceptedTransferAgreementsData =
-            cache.readQuery<IAcceptedTransferAgreement>({
-              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-              variables: { baseId },
-            });
+          const existingAcceptedTransferAgreementsData = cache.readQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: { baseId },
+          });
 
           const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
             (a) => a.id === cancelledTransferAgreementId,
@@ -174,6 +175,7 @@ function TransferAgreementOverviewView() {
               },
               data: {
                 transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
+                base: existingAcceptedTransferAgreementsData?.base,
               },
             });
           }
@@ -223,7 +225,7 @@ function TransferAgreementOverviewView() {
 
   // transform agreements data for UI
   const graphqlToTableTransformer = (
-    transferAgreementQueryResult: ResultOf<typeof ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY>,
+    transferAgreementQueryResult?: ResultOf<typeof ALL_TRANSFER_AGREEMENTS_QUERY>,
   ) =>
     transferAgreementQueryResult?.transferAgreements.map((element) => {
       if (globalPreferences.organisation !== undefined) {

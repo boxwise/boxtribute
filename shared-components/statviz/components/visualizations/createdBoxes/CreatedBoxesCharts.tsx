@@ -2,9 +2,10 @@ import { Wrap, WrapItem, Box } from "@chakra-ui/react";
 import CreatedBoxes from "./CreatedBoxes";
 import TopCreatedProducts from "./TopCreatedProducts";
 import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import { CreatedBoxes as CreatedBoxesType } from "../../../../../front/src/types/query-types";
 
 export default function CreatedBoxesCharts(props: {
-  data: CreatedBoxesData;
+  data: CreatedBoxesType;
   boxesOrItems: BoxesOrItems;
 }) {
   return (

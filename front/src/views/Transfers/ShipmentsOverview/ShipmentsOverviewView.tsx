@@ -91,7 +91,7 @@ function ShipmentsOverviewView() {
             // append all DateTimes in the ShipmentDetails
             element.details
               .reduce(
-                (accumulator, detail) =>
+                (accumulator: string[] | null[], detail) =>
                   accumulator.concat(detail.createdOn).concat(detail.removedOn),
                 [],
               )
@@ -100,7 +100,7 @@ function ShipmentsOverviewView() {
 
           // get max date for last updates
           shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
-            new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date).getTime()))),
+            new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date!).getTime()))),
           );
 
           return shipmentRow;

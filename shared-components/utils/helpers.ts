@@ -109,12 +109,13 @@ export const formatTime = (date: Date | string): string => {
   return "";
 };
 
-export const filterListByInterval = <T extends object[]>(
-  list: T,
+// TODO: infer type
+export const filterListByInterval = (
+  list: any[],
   column: string,
   interval: Interval,
-): T =>
+): any[] =>
   tidy(
     list,
     filter((e) => isWithinInterval(new Date(e[column]), interval)),
-  ) as T;
+  );

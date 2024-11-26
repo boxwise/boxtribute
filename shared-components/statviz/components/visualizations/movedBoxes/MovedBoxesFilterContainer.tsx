@@ -19,9 +19,10 @@ import {
   tagFilterValuesVar,
 } from "../../../state/filter";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
+import { MovedBoxes } from "../../../../../front/src/types/query-types";
 
 interface IMovedBoxesFilterContainerProps {
-  movedBoxes: MovedBoxesData;
+  movedBoxes: MovedBoxes;
 }
 
 export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFilterContainerProps) {
@@ -48,37 +49,32 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   // fill target filter with data
   useEffect(() => {
-    const targets = movedBoxes.dimensions!.target!.map((t) => targetToFilterValue(t!));
+    const targets = movedBoxes?.dimensions!.target!.map((t) => targetToFilterValue(t!));
     targetFilterValuesVar(targets);
-  }, [movedBoxes.dimensions]);
+  }, [movedBoxes?.dimensions]);
 
   const movedBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(
-        movedBoxes.facts as MovedBoxesResult[],
-        "movedOn",
-        interval,
-      ) as MovedBoxesResult[];
+      return filterListByInterval(movedBoxes?.facts!, "movedOn", interval);
     } catch (error) {
       // TODO show toast with error message?
     }
     return [];
-  }, [interval, movedBoxes.facts]);
+  }, [interval, movedBoxes?.facts]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
     if (genderFilter.length > 0) {
       filters.push(
         filter(
-          (fact: MovedBoxesResult) =>
-            genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()!) !== undefined,
+          (fact) => genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()!) !== undefined,
         ),
       );
     }
     if (productsFilter.length > 0) {
       filters.push(
         filter(
-          (fact: MovedBoxesResult) =>
+          (fact) =>
             productsFilter.find(
               (fBP) => fBP?.name.toLowerCase() === fact.productName! && fBP.gender === fact.gender,
             ) !== undefined,
@@ -88,7 +84,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     if (excludedTargets.length > 0) {
       filters.push(
         filter(
-          (fact: MovedBoxesResult) =>
+          (fact) =>
             excludedTargets.find((filteredTarget) => filteredTarget.id! === fact.targetId!) ===
             undefined,
         ),
@@ -96,9 +92,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     }
 
     if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: MovedBoxesResult) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))),
-      );
+      filters.push(filter((fact) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))));
     }
 
     if (filters.length > 0) {
@@ -109,8 +103,8 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   }, [excludedTargets, filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
 
   const filteredMovedBoxesCube = {
-    facts: filteredFacts as MovedBoxesResult[],
-    dimensions: movedBoxes.dimensions,
+    facts: filteredFacts,
+    dimensions: movedBoxes?.dimensions,
   };
   return <MovedBoxesCharts movedBoxes={filteredMovedBoxesCube} boxesOrItems={filterValue.value} />;
 }

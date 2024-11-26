@@ -20,9 +20,10 @@ import {
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
+import { CreatedBoxes } from "../../../../../front/src/types/query-types";
 
 interface ICreatedBoxesFilterContainerProps {
-  createdBoxes: CreatedBoxesData;
+  createdBoxes: CreatedBoxes;
 }
 
 export default function CreatedBoxesFilterContainer({
@@ -50,8 +51,8 @@ export default function CreatedBoxesFilterContainer({
   // Beneficiary and All Tags are merged inside the DemographicFilterContainer
   // and filter the product filter by filtered product genders
   useEffect(() => {
-    const p = createdBoxes.dimensions!.product!.map((e) => productToFilterValue(e!));
-    if (filterProductGenders.length > 0) {
+    const p = createdBoxes?.dimensions!.product!.map((e) => productToFilterValue(e!));
+    if (filterProductGenders.length > 0 && p?.length) {
       productFilterValuesVar([
         ...filterProducts,
         ...p.filter(
@@ -62,8 +63,8 @@ export default function CreatedBoxesFilterContainer({
       productFilterValuesVar(p);
     }
 
-    const boxTags = createdBoxes.dimensions!.tag!.map((e) => tagToFilterValue(e!));
-    if (boxTags.length > 0) {
+    const boxTags = createdBoxes?.dimensions!.tag!.map((e) => tagToFilterValue(e!));
+    if (boxTags?.length) {
       const distinctTagFilterValues = tidy([...tagFilterValues, ...boxTags], distinct(["id"]));
 
       tagFilterValuesVar(distinctTagFilterValues);
@@ -71,15 +72,11 @@ export default function CreatedBoxesFilterContainer({
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createdBoxes.dimensions, filterProductGenders]);
+  }, [createdBoxes?.dimensions, filterProductGenders]);
 
   const createdBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(
-        (createdBoxes.facts as CreatedBoxesResult[]) ?? [],
-        "createdOn",
-        interval,
-      ) as CreatedBoxesResult[];
+      return filterListByInterval(createdBoxes?.facts ?? [], "createdOn", interval);
     } catch (error) {
       // TODO useError
     }
@@ -91,25 +88,17 @@ export default function CreatedBoxesFilterContainer({
     if (filterProductGenders.length > 0) {
       filters.push(
         filter(
-          (fact: CreatedBoxesResult) =>
-            filterProductGenders.find((fPG) => fPG.value === fact.gender!) !== undefined,
+          (fact) => filterProductGenders.find((fPG) => fPG.value === fact.gender!) !== undefined,
         ),
       );
     }
     if (filterProducts.length > 0) {
       filters.push(
-        filter(
-          (fact: CreatedBoxesResult) =>
-            filterProducts.find((fBP) => fBP?.id === fact.productId!) !== undefined,
-        ),
+        filter((fact) => filterProducts.find((fBP) => fBP?.id === fact.productId!) !== undefined),
       );
     }
     if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: CreatedBoxesResult) =>
-          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
-        ),
-      );
+      filters.push(filter((fact) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))));
     }
 
     if (filters.length > 0) {
@@ -121,7 +110,7 @@ export default function CreatedBoxesFilterContainer({
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,
-    dimensions: createdBoxes.dimensions,
+    dimensions: createdBoxes?.dimensions,
   };
 
   return <CreatedBoxesCharts data={filteredCreatedBoxesCube} boxesOrItems={filterValue.value} />;

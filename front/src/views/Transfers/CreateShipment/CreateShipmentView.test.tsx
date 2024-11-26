@@ -226,6 +226,7 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     fields: {
       shipments(existingShipments = []) {
         const newShipmentRef = cache.writeFragment({
+          // @ts-expect-error TODO: Why this is expecting an id?
           data: successfulMutation.result.data,
           fragment: graphql(`
             fragment NewShipment on Shipment {
@@ -380,6 +381,7 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
     fields: {
       shipments(existingShipments = []) {
         const newShipmentRef = cache.writeFragment({
+          // @ts-expect-error TODO: Why this is expecting an id?
           data: successfulMutation.result.data,
           fragment: graphql(`
             fragment NewShipment on Shipment {

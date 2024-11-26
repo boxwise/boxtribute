@@ -14,7 +14,6 @@ import CreateTransferAgreement, {
   ITransferAgreementFormData,
 } from "./components/CreateTransferAgreement";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
-import { IAcceptedTransferAgreement } from "../TransferAgreementOverview/TransferAgreementOverviewView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
@@ -102,11 +101,10 @@ function CreateTransferAgreementView() {
 
           const createdTransferAgreementId = returnedTransferAgreement?.createTransferAgreement.id;
 
-          const existingAcceptedTransferAgreementsData =
-            cache.readQuery<IAcceptedTransferAgreement>({
-              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-              variables: { baseId },
-            });
+          const existingAcceptedTransferAgreementsData = cache.readQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: { baseId },
+          });
 
           const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
             (a) => a.id === createdTransferAgreementId,
@@ -120,6 +118,7 @@ function CreateTransferAgreementView() {
               variables: { baseId },
               data: {
                 transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements!,
+                base: null,
               },
             });
           }

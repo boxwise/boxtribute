@@ -5,19 +5,20 @@ import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
+import { CreatedBoxes } from "../../../../../front/src/types/query-types";
 
 export default function TopCreatedProducts(props: {
   width: string;
   height: string;
   boxesOrItems: string;
-  data: CreatedBoxesData;
+  data: CreatedBoxes;
 }) {
   const onExport = getOnExport(BarChart);
   const { boxesOrItems, data } = { ...props };
 
   const getChartData = () =>
     tidy(
-      data.facts as CreatedBoxesResult[],
+      data?.facts as any[], // TODO: infer types
       map((row) => ({ ...row, productId: row.productId })),
       groupBy(
         ["productId", "gender"],
@@ -28,7 +29,8 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      innerJoin(data.dimensions?.product as ProductDimensionInfo[], { by: { id: "productId" } }),
+      // TODO: infer types
+      innerJoin(data?.dimensions?.product as any[], { by: { id: "productId" } }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],

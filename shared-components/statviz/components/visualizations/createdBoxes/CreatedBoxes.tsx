@@ -22,17 +22,18 @@ import CreatedBoxesGrouping, {
   defaultCreatedBoxesGrouping,
 } from "../../filter/CreatedBoxesGrouping";
 import useValueFilter from "../../../hooks/useValueFilter";
+import { CreatedBoxes as CreatedBoxesType } from "../../../../../front/src/types/query-types";
 
 interface ICreatedBoxesProps {
   width: string;
   height: string;
-  data: CreatedBoxesData;
+  data: CreatedBoxesType;
   boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICreatedBoxesProps) {
   const onExport = getOnExport(BarChart);
-  const facts = data.facts as CreatedBoxesResult[];
+  const facts = data?.facts;
 
   const { filterValue: createdBoxesGrouping } = useValueFilter(
     createdBoxesGroupingOptions,
@@ -42,7 +43,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
 
   const getChartData = () => {
     const createdBoxes = tidy(
-      facts,
+      facts as any[], // TODO: infer types
       filter((row) => row.createdOn !== null),
       groupBy("createdOn", [
         summarize({
@@ -132,7 +133,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
 
   const heading = boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
 
-  if (createdBoxesPerDay.length === 0) {
+  if (createdBoxesPerDay?.length === 0) {
     return <NoDataCard header={heading} />;
   }
 

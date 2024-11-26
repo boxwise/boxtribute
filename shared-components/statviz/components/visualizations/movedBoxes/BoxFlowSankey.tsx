@@ -7,6 +7,7 @@ import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
 import Targetfilter from "../../filter/LocationFilter";
+import { MovedBoxes } from "../../../../../front/src/types/query-types";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
@@ -28,7 +29,7 @@ const outgoingNode = {
 interface IBoxFlowSankeyProps {
   width: string;
   height: string;
-  data: MovedBoxesData;
+  data: MovedBoxes;
   boxesOrItems: BoxesOrItemsCount;
 }
 
@@ -37,10 +38,10 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
   const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
-  const movedBoxesFacts = data.facts as MovedBoxesResult[];
+  const movedBoxesFacts = data?.facts;
 
   const movedBoxes = tidy(
-    movedBoxesFacts,
+    movedBoxesFacts as any[], // TODO: infer types
     groupBy(["targetId", "organisationName"], [summarize({ count: sum(boxesOrItems) })]),
     map((item) => {
       if (item.count < 0) {
@@ -55,13 +56,14 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         isNegative: false,
       };
     }),
-    innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
+    // TODO: infer types
+    innerJoin(data?.dimensions?.target as any[], {
       by: { id: "targetId" },
     }),
   );
 
   const movedBoxesByTargetType = tidy(
-    movedBoxes,
+    movedBoxes as any[], // TODO: infer types
     groupBy("type", [summarize({ count: sum("count") })]),
     map((movedBox) => {
       if (movedBox.count < 0) {

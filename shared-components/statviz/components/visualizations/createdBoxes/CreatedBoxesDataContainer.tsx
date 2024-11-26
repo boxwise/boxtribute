@@ -5,7 +5,7 @@ import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
 import { graphql } from "../../../../../graphql";
 
-const CREATED_BOXES_QUERY = graphql(`
+export const CREATED_BOXES_QUERY = graphql(`
   query createdBoxes($baseId: Int!) {
     createdBoxes(baseId: $baseId) {
       facts {
