@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from auth import (
     TEST_AUTH0_AUDIENCE,
@@ -243,11 +241,9 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
     assert response.json["error"] == "No permission to access beta feature"
 
 
-def test_check_public_api_access(dropapp_dev_client, mocker):
-    env_variables = os.environ.copy()
-    env_variables["CI"] = "false"
-    env_variables["ENVIRONMENT"] = "production"
-    mocker.patch("os.environ", env_variables)
+def test_check_public_api_access(dropapp_dev_client, monkeypatch):
+    monkeypatch.setenv("CI", "false")
+    monkeypatch.setenv("ENVIRONMENT", "production")
 
     query = "query { beneficiaryDemographics(baseId: 1) { count } }"
     response = assert_unauthorized(dropapp_dev_client, query, endpoint="public")
