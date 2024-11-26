@@ -1,13 +1,14 @@
 import { ResultOf } from "gql.tada"
 
-import { ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
-import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
-import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
-import { MOVED_BOXES_FRAGMENT, PRODUCT_FRAGMENT, STOCK_OVERVIEW_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
 import { introspection_types } from "../../../generated/graphql-env";
+import { ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
+import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { BENEFICIARY_DEMOGRAPHICS_FRAGMENT, MOVED_BOXES_FRAGMENT, PRODUCT_FRAGMENT, STOCK_OVERVIEW_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
+import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import { CREATED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
 import { STOCK_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockDataContainer";
+import { DEMOGRAPHIC_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
 
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
 
@@ -40,6 +41,10 @@ export type StockOverviewResult = ResultOf<typeof STOCK_OVERVIEW_FRAGMENT>;
 export type MovedBoxes = ResultOf<typeof MOVED_BOXES_QUERY>["movedBoxes"];
 
 export type MovedBoxesResult = ResultOf<typeof MOVED_BOXES_FRAGMENT>;
+
+export type BeneficiaryDemographics = ResultOf<typeof DEMOGRAPHIC_QUERY>["beneficiaryDemographics"];
+
+export type BeneficiaryDemographicsResult = ResultOf<typeof BENEFICIARY_DEMOGRAPHICS_FRAGMENT>;
 
 export type BoxState = introspection_types["BoxState"]["enumValues"];
 

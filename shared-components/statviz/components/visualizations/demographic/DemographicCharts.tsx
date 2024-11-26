@@ -1,7 +1,8 @@
+import { BeneficiaryDemographics } from "../../../../../front/src/types/query-types";
 import DemographicPyramid from "./DemographicPyramid";
 
 interface IDemographicChartProps {
-  demographics: BeneficiaryDemographicsData;
+  demographics: BeneficiaryDemographics;
 }
 
 export default function DemographicCharts({ demographics }: IDemographicChartProps) {

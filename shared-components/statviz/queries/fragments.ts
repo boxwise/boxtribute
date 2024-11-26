@@ -45,3 +45,13 @@ export const MOVED_BOXES_FRAGMENT = graphql(`
     organisationName
   }
 `);
+
+export const BENEFICIARY_DEMOGRAPHICS_FRAGMENT = graphql(`
+  fragment MoveBoxesFragment on BeneficiaryDemographicsResult @_unmask {
+    count
+    createdOn
+    age
+    gender
+    tagIds
+  }
+`);

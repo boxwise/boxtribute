@@ -1,11 +1,12 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import DemographicFilterContainer from "./DemographicFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import NoDataCard from "../../NoDataCard";
+import { graphql } from "../../../../../graphql";
 
-const DEMOGRAPHIC_QUERY = gql(`
+export const DEMOGRAPHIC_QUERY = graphql(`
   query BeneficiaryDemographics($baseId: Int!) {
     beneficiaryDemographics(baseId: $baseId) {
       facts {
@@ -41,7 +42,7 @@ export default function DemographicDataContainer() {
   if (data === undefined) {
     return <ErrorCard error={predefinedErrors.noData} />;
   }
-  if (data.beneficiaryDemographics.facts.length === 0) {
+  if (data.beneficiaryDemographics?.facts?.length === 0) {
     return (
       <NoDataCard
         header="Demographics"

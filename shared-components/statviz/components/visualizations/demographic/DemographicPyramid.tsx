@@ -6,6 +6,10 @@ import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
+import {
+  BeneficiaryDemographics,
+  BeneficiaryDemographicsResult,
+} from "../../../../../front/src/types/query-types";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -27,7 +31,7 @@ export interface IDemographicCube {
 }
 
 interface IDemographicChartProps {
-  demographics: BeneficiaryDemographicsData;
+  demographics: BeneficiaryDemographics;
   width: number;
   height: number;
 }
@@ -43,14 +47,14 @@ export default function DemographicPyramid({
 
   const prepareFacts = () => {
     const dataXr = tidy(
-      demographics.facts as BeneficiaryDemographicsResult[],
+      demographics?.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === "Male"),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
 
     const dataXl = tidy(
-      demographics.facts as BeneficiaryDemographicsResult[],
+      demographics?.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === "Female"),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
@@ -59,14 +63,14 @@ export default function DemographicPyramid({
     return [dataXr, dataXl];
   };
 
-  const [dataXr, dataXl] = useMemo(prepareFacts, [demographics.facts]);
+  const [dataXr, dataXl] = useMemo(prepareFacts, [demographics?.facts]);
 
   if (dataXr.length === 0 && dataXl.length === 0) {
     return <NoDataCard header={heading} />;
   }
 
   const maxAge: number =
-    demographics.facts!.reduce((acc: number, current: BeneficiaryDemographicsResult) => {
+    demographics?.facts!.reduce((acc: number, current: BeneficiaryDemographicsResult) => {
       if (!current!.age) return acc;
       if (current!.age > acc) return current!.age;
       return acc;
