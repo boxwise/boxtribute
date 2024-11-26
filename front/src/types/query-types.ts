@@ -10,6 +10,7 @@ import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/compone
 import { STOCK_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockDataContainer";
 import { DEMOGRAPHIC_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
 import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
+import { UPDATE_BOX_MUTATION } from "views/Box/BoxView";
 
 export type BoxState = introspection_types["BoxState"]["enumValues"];
 export type ShipmentState = introspection_types["ShipmentState"]["enumValues"];
@@ -21,6 +22,8 @@ export type TargetType = introspection_types["TargetType"]["enumValues"];
 export type ShipmentDetail = Shipments[0]["details"][0];
 
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
+
+export type UpdateBoxMutation = ResultOf<typeof UPDATE_BOX_MUTATION>["updateBox"];
 
 export type User = ResultOf<typeof USER_QUERY>["users"][0];
 

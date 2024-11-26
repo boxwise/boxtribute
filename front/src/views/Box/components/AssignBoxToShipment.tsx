@@ -5,11 +5,12 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentOption } from "components/Form/ShipmentOption";
 import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { UpdateBoxMutation } from "types/query-types";
 
 export interface IAssignBoxToShipmentProps {
   boxData:
     | ResultOf<typeof BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY>["box"]
-    | UpdateLocationOfBoxMutation["updateBox"];
+    | UpdateBoxMutation;
   shipmentOptions: IDropdownOption[];
   isAssignBoxesToShipmentLoading: boolean;
   onAssignBoxesToShipment: (shipmentId: string) => void;
