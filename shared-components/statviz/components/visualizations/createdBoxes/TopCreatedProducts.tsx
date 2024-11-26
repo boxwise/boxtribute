@@ -18,7 +18,7 @@ export default function TopCreatedProducts(props: {
 
   const getChartData = () =>
     tidy(
-      data?.facts as any[], // TODO: infer types
+      data?.facts,
       map((row) => ({ ...row, productId: row.productId })),
       groupBy(
         ["productId", "gender"],
@@ -29,8 +29,7 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      // TODO: infer types
-      innerJoin(data?.dimensions?.product as any[], { by: { id: "productId" } }),
+      innerJoin(data?.dimensions?.product, { by: { id: "productId" } }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],

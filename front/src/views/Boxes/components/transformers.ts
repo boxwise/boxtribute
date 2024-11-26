@@ -1,6 +1,7 @@
 import { differenceInDays } from "date-fns";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "types/query-types";
 
 export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBoxesViewQuery) =>
   boxesQueryResult.boxes.elements
@@ -21,7 +22,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
           lastModified: element.lastModifiedOn
             ? new Date(element.lastModifiedOn)
-            : new Date(element.createdOn),
+            : new Date(element.createdOn || new Date()),
         }) as BoxRow,
     );
 
@@ -37,8 +38,8 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
 export const prepareBoxesForBoxesViewQueryVariables = (
   baseId: string,
   columnFilters: Filters<any>,
-): BoxesForBoxesViewQueryVariables => {
-  const variables: BoxesForBoxesViewQueryVariables = { baseId, filterInput: {} };
+): BoxesForBoxesViewVariables => {
+  const variables: BoxesForBoxesViewVariables = { baseId, filterInput: {} };
   const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
   if (refetchFilters.length > 0) {
     const filterInput = refetchFilters.reduce(

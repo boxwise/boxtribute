@@ -17,10 +17,11 @@ import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import RemoveBoxesButton from "./RemoveBoxesButton";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "types/query-types";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
+  onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];

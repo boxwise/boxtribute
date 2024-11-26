@@ -41,10 +41,11 @@ import {
 } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "types/query-types";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
+  onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
