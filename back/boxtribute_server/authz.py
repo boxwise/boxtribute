@@ -17,7 +17,7 @@ from .models.definitions.shipment import Shipment
 from .models.definitions.shipment_detail import ShipmentDetail
 from .models.definitions.transfer_agreement import TransferAgreement
 from .models.definitions.transfer_agreement_detail import TransferAgreementDetail
-from .utils import convert_pascal_to_snake_case
+from .utils import convert_pascal_to_snake_case, in_development_environment
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
@@ -400,6 +400,10 @@ def check_user_beta_level(
         return current_user.max_beta_level >= 3
 
     if "mutation" not in payload:
+        return True
+
+    if "__schema" in payload and in_development_environment():
+        # Enable fetching full schema in GraphQL explorer during development
         return True
 
     try:

@@ -5,6 +5,7 @@ from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
     assert_successful_request,
+    assert_unauthorized,
 )
 
 
@@ -411,3 +412,19 @@ def test_cors_preflight_request(read_only_client, origin):
         assert response.headers.get("Access-Control-Allow-Origin") == origin
         assert response.headers.get("Access-Control-Allow-Headers") == request_headers
         assert response.headers.get("Access-Control-Allow-Methods") == request_methods
+
+
+def test_introspect_schema(read_only_client, monkeypatch):
+    query = """\
+query IntrospectionQuery {
+  __schema {
+    queryType { name }
+    mutationType { name }
+    subscriptionType { name }
+  }
+}
+"""
+    assert_successful_request(read_only_client, query)
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    assert_unauthorized(read_only_client, query)

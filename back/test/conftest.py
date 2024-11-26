@@ -90,6 +90,7 @@ def _create_app(database_interface, *blueprints):
     scopes (cf. https://github.com/pytest-dev/pytest/issues/3425#issuecomment-383835876)
     """
     app = create_app()
+    app.debug = True
     configure_app(app, *blueprints, database_interface=database_interface)
 
     with db.database.bind_ctx(MODELS):
@@ -130,6 +131,7 @@ def client(mysql_testing_database):
 @pytest.fixture
 def cron_client(mysql_cron_database):
     with _create_app(mysql_cron_database, app_bp) as app:
+        app.debug = False  # for having the app handle errors as if in production
         yield app.test_client()
 
 
