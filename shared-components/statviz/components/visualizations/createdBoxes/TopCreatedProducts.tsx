@@ -5,7 +5,11 @@ import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
-import { CreatedBoxes, CreatedBoxesResult } from "../../../../../front/src/types/query-types";
+import {
+  CreatedBoxes,
+  CreatedBoxesResult,
+  Product,
+} from "../../../../../front/src/types/query-types";
 
 export default function TopCreatedProducts(props: {
   width: string;
@@ -29,7 +33,7 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      innerJoin(data?.dimensions?.product, { by: { id: "productId" } }),
+      innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],
