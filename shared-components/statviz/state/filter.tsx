@@ -1,11 +1,12 @@
 import { makeVar } from "@apollo/client";
 import { IFilterValue } from "../components/filter/ValueFilter";
 import { introspection_types } from "../../../generated/graphql-env";
+import { ProductGender } from "../../../front/src/types/query-types";
 
 export interface IProductFilterValue extends IFilterValue {
   id: number;
   name: string;
-  gender: introspection_types["ProductGender"]["enumValues"];
+  gender: ProductGender;
 }
 export const productFilterValuesVar = makeVar<IProductFilterValue[]>([]);
 

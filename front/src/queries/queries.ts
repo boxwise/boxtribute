@@ -211,6 +211,10 @@ export const BOX_QUERY = graphql(`
         id
         changes
         changeDate
+        user {
+          id 
+          name
+        }
       }
       size {
         id
