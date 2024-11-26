@@ -5,7 +5,7 @@ import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
-import { CreatedBoxes } from "../../../../../front/src/types/query-types";
+import { CreatedBoxes, CreatedBoxesResult } from "../../../../../front/src/types/query-types";
 
 export default function TopCreatedProducts(props: {
   width: string;
@@ -18,7 +18,7 @@ export default function TopCreatedProducts(props: {
 
   const getChartData = () =>
     tidy(
-      data?.facts,
+      data?.facts as CreatedBoxesResult[],
       map((row) => ({ ...row, productId: row.productId })),
       groupBy(
         ["productId", "gender"],
