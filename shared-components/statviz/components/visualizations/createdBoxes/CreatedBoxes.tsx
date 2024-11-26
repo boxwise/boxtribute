@@ -27,7 +27,7 @@ import { CreatedBoxes as CreatedBoxesType } from "../../../../../front/src/types
 interface ICreatedBoxesProps {
   width: string;
   height: string;
-  data: CreatedBoxesType;
+  data: Partial<CreatedBoxesType>;
   boxesOrItems: BoxesOrItemsCount;
 }
 

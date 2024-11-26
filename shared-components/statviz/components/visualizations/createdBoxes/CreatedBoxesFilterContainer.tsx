@@ -115,9 +115,9 @@ export default function CreatedBoxesFilterContainer({
 
     if (filters.length > 0) {
       // @ts-expect-error
-      return tidy(createdBoxesFacts, ...filters);
+      return tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
-    return createdBoxesFacts;
+    return createdBoxesFacts satisfies CreatedBoxesResult[];
   }, [createdBoxesFacts, filterProductGenders, filterProducts, filteredTags]);
 
   const filteredCreatedBoxesCube = {

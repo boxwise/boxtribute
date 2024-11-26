@@ -5,7 +5,7 @@ import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import { CreatedBoxes as CreatedBoxesType } from "../../../../../front/src/types/query-types";
 
 export default function CreatedBoxesCharts(props: {
-  data: CreatedBoxesType;
+  data: Partial<CreatedBoxesType>;
   boxesOrItems: BoxesOrItems;
 }) {
   return (

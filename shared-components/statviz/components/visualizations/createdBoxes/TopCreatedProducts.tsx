@@ -15,7 +15,7 @@ export default function TopCreatedProducts(props: {
   width: string;
   height: string;
   boxesOrItems: string;
-  data: CreatedBoxes;
+  data: Partial<CreatedBoxes>;
 }) {
   const onExport = getOnExport(BarChart);
   const { boxesOrItems, data } = { ...props };

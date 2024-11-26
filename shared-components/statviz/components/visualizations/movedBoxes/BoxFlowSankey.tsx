@@ -31,7 +31,7 @@ const outgoingNode = {
 interface IBoxFlowSankeyProps {
   width: string;
   height: string;
-  data: MovedBoxes;
+  data: Partial<MovedBoxes>;
   boxesOrItems: BoxesOrItemsCount;
 }
 

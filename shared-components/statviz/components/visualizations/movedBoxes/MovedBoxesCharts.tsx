@@ -4,7 +4,7 @@ import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import { MovedBoxes } from "../../../../../front/src/types/query-types";
 
 interface IMovedBoxesChartsProps {
-  movedBoxes: MovedBoxes;
+  movedBoxes: Partial<MovedBoxes>;
   boxesOrItems: BoxesOrItems;
 }
 

@@ -100,9 +100,9 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
     if (filters.length > 0) {
       // @ts-expect-error
-      return tidy(movedBoxesFacts, ...filters);
+      return tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
-    return movedBoxesFacts;
+    return movedBoxesFacts satisfies MovedBoxesResult[];
   }, [excludedTargets, filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
 
   const filteredMovedBoxesCube = {
