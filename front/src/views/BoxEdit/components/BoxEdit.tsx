@@ -111,8 +111,6 @@ function BoxEdit({
   }>();
   const navigate = useNavigate();
 
-  console.log("boxData?", boxData);
-
   // Form Default Values
   const defaultValues: IBoxEditFormDataInput = {
     productId: boxData?.product?.id
