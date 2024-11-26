@@ -55,3 +55,11 @@ export const BENEFICIARY_DEMOGRAPHICS_FRAGMENT = graphql(`
     tagIds
   }
 `);
+
+export const TARGET_DIMENSION_INFO_FRAGMENT = graphql(`
+  fragment TargetDimensionInfo on TargetDimensionInfo @_unmask {
+    id
+    name
+    type
+  }
+`);

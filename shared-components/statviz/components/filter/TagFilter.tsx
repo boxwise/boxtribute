@@ -3,11 +3,10 @@ import { useReactiveVar } from "@apollo/client";
 import MultiSelectFilter from "./MultiSelectFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { ITagFilterValue, tagFilterValuesVar } from "../../state/filter";
-import { Tag } from "../../../../front/src/types/query-types";
 
 export const tagFilterId = "tags";
 
-export const tagToFilterValue = (tag: Tag): ITagFilterValue => ({
+export const tagToFilterValue = (tag): ITagFilterValue => ({
   value: tag.id!.toString(),
   label: tag.name!,
   color: tag.color!,
