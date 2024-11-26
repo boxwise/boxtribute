@@ -1,8 +1,8 @@
 import { useReactiveVar } from "@apollo/client";
+import { ResultOf } from "gql.tada";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { ITargetFilterValue, targetFilterValuesVar } from "../../state/filter";
 import MultiSelectFilter from "./MultiSelectFilter";
-import { ResultOf } from "gql.tada";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
 
 export const targetFilterId = "loc";

@@ -99,9 +99,8 @@ def api_token():
 def graphql_server():
     log_request_to_gcloud(context=WEBAPP_CONTEXT)
 
-    # TODO: revisit this after gql.tada refactor
-    # if not check_user_beta_level(request.get_json()["query"]):
-    #     return {"error": "No permission to access beta feature"}, 401
+    if not check_user_beta_level(request.get_json()["query"]):
+        return {"error": "No permission to access beta feature"}, 401
 
     return execute_async(schema=full_api_schema)
 
