@@ -19,7 +19,9 @@ import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { Box as BoxType, ProductGender } from "types/query-types";
+import { ProductGender } from "types/query-types";
+import { ResultOf } from "gql.tada";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
 
 export interface ICategoryData {
   name: string;
@@ -89,7 +91,7 @@ export type IBoxEditFormDataInput = z.input<typeof BoxEditFormDataSchema>;
 export type IBoxEditFormDataOutput = z.output<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
-  boxData: BoxType;
+  boxData: ResultOf<typeof BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY>["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
@@ -108,6 +110,8 @@ function BoxEdit({
     labelIdentifier: string;
   }>();
   const navigate = useNavigate();
+
+  console.log("boxData?", boxData);
 
   // Form Default Values
   const defaultValues: IBoxEditFormDataInput = {
