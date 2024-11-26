@@ -1,7 +1,7 @@
 import { ResultOf, VariablesOf } from "gql.tada"
 
 import { introspection_types } from "../../../generated/graphql-env";
-import { ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
+import { ALL_SHIPMENTS_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
 import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BENEFICIARY_DEMOGRAPHICS_FRAGMENT, MOVED_BOXES_FRAGMENT, PRODUCT_FRAGMENT, STOCK_OVERVIEW_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
 import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
@@ -22,6 +22,8 @@ export type TargetType = introspection_types["TargetType"]["enumValues"];
 export type ShipmentDetail = Shipments[0]["details"][0];
 
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
+
+export type BoxByLabelIdentifier = ResultOf<typeof BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY>["box"]
 
 export type UpdateBoxMutation = ResultOf<typeof UPDATE_BOX_MUTATION>["updateBox"];
 

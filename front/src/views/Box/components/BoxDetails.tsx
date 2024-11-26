@@ -3,10 +3,11 @@ import { IDropdownOption } from "components/Form/SelectField";
 import BoxCard from "./BoxCard";
 import BoxDistributionEvent from "./BoxDistributionEvent";
 import BoxTabs from "./BoxTabs";
-import { BoxState } from "types/query-types";
+import { BoxByLabelIdentifier, BoxState, UpdateBoxMutation } from "types/query-types";
 
 interface IBoxDetailsProps {
-  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  /** @todo Should this be optional peer the test spec? */
+  boxData?: BoxByLabelIdentifier | UpdateBoxMutation;
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onHistoryOpen: () => void;
@@ -51,7 +52,7 @@ function BoxDetails({
       data-testid="box-sections"
     >
       <BoxCard
-        boxData={boxData}
+        boxData={boxData!}
         boxInTransit={boxInTransit}
         onHistoryOpen={onHistoryOpen}
         onMinusOpen={onMinusOpen}

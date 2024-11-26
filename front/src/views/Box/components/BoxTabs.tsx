@@ -21,10 +21,10 @@ import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
 import AssignBoxToShipment from "./AssignBoxToShipment";
 
 import BoxMoveLocation from "./BoxMoveLocation";
-import { Box as BoxType } from "types/query-types";
+import { BoxByLabelIdentifier, UpdateBoxMutation } from "types/query-types";
 
 export interface IBoxTabsProps {
-  boxData: BoxType;
+  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
@@ -123,7 +123,7 @@ function BoxTabs({
                     </Alert>
                   )}
                   <BoxMoveLocation
-                    boxData={boxData}
+                    boxData={boxData!}
                     boxInTransit={boxInTransit}
                     onMoveToLocationClick={onMoveToLocationClick}
                     isLoading={isLoading}

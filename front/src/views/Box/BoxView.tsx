@@ -623,7 +623,7 @@ function BTBox() {
         </Alert>
       )}
       <BoxDetails
-        boxData={boxData}
+        boxData={boxData!}
         boxInTransit={boxInTransit}
         onPlusOpen={onPlusOpen}
         onHistoryOpen={onHistoryOpen}
