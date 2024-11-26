@@ -19,7 +19,7 @@ import {
   tagFilterValuesVar,
 } from "../../../state/filter";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
-import { MovedBoxes } from "../../../../../front/src/types/query-types";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../front/src/types/query-types";
 
 interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;
@@ -55,7 +55,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   const movedBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(movedBoxes?.facts!, "movedOn", interval);
+      return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
     } catch (error) {
       // TODO show toast with error message?
     }
@@ -67,14 +67,15 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     if (genderFilter.length > 0) {
       filters.push(
         filter(
-          (fact) => genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()!) !== undefined,
+          (fact: MovedBoxesResult) =>
+            genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()!) !== undefined,
         ),
       );
     }
     if (productsFilter.length > 0) {
       filters.push(
         filter(
-          (fact) =>
+          (fact: MovedBoxesResult) =>
             productsFilter.find(
               (fBP) => fBP?.name.toLowerCase() === fact.productName! && fBP.gender === fact.gender,
             ) !== undefined,
@@ -84,7 +85,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     if (excludedTargets.length > 0) {
       filters.push(
         filter(
-          (fact) =>
+          (fact: MovedBoxesResult) =>
             excludedTargets.find((filteredTarget) => filteredTarget.id! === fact.targetId!) ===
             undefined,
         ),
@@ -92,7 +93,9 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     }
 
     if (filteredTags.length > 0) {
-      filters.push(filter((fact) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))));
+      filters.push(
+        filter((fact: MovedBoxesResult) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))),
+      );
     }
 
     if (filters.length > 0) {

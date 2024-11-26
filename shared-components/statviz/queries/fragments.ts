@@ -46,6 +46,18 @@ export const MOVED_BOXES_FRAGMENT = graphql(`
   }
 `);
 
+export const CREATED_BOXES_FRAGMENT = graphql(`
+  fragment CreatedBoxesFragment on CreatedBoxesResult @_unmask {
+    boxesCount
+    productId
+    categoryId
+    createdOn
+    tagIds
+    gender
+    itemsCount
+  }
+`);
+
 export const BENEFICIARY_DEMOGRAPHICS_FRAGMENT = graphql(`
   fragment MoveBoxesFragment on BeneficiaryDemographicsResult @_unmask {
     count
@@ -61,5 +73,13 @@ export const TARGET_DIMENSION_INFO_FRAGMENT = graphql(`
     id
     name
     type
+  }
+`);
+
+export const TAG_DIMENSION_INFO_FRAGMENT = graphql(`
+  fragment TagDimensionInfo on TagDimensionInfo @_unmask {
+    id
+    name
+    color
   }
 `);

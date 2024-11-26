@@ -3,7 +3,7 @@ import { ResultOf, VariablesOf } from "gql.tada"
 import { introspection_types } from "../../../generated/graphql-env";
 import { ALL_SHIPMENTS_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, BOX_QUERY, LOCATIONS_QUERY, USER_QUERY } from "queries/queries";
 import { HISTORY_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
-import { BENEFICIARY_DEMOGRAPHICS_FRAGMENT, MOVED_BOXES_FRAGMENT, PRODUCT_FRAGMENT, STOCK_OVERVIEW_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
+import { BENEFICIARY_DEMOGRAPHICS_FRAGMENT, CREATED_BOXES_FRAGMENT, MOVED_BOXES_FRAGMENT, PRODUCT_FRAGMENT, STOCK_OVERVIEW_FRAGMENT } from "@boxtribute/shared-components/statviz/queries/fragments";
 import { ALL_TRANSFER_AGREEMENTS_QUERY } from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
 import { CREATED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
@@ -52,6 +52,8 @@ export type BoxesForBoxesViewQuery = ResultOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
 export type BoxesForBoxesViewVariables = VariablesOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
 
 export type CreatedBoxes = ResultOf<typeof CREATED_BOXES_QUERY>["createdBoxes"];
+
+export type CreatedBoxesResult = ResultOf<typeof CREATED_BOXES_FRAGMENT>;
 
 export type StockOverview = ResultOf<typeof STOCK_QUERY>["stockOverview"];
 

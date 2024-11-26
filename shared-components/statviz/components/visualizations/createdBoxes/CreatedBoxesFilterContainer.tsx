@@ -20,7 +20,7 @@ import {
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
-import { CreatedBoxes } from "../../../../../front/src/types/query-types";
+import { CreatedBoxes, CreatedBoxesResult } from "../../../../../front/src/types/query-types";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxes;
@@ -76,7 +76,11 @@ export default function CreatedBoxesFilterContainer({
 
   const createdBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(createdBoxes?.facts ?? [], "createdOn", interval);
+      return filterListByInterval(
+        (createdBoxes?.facts as CreatedBoxesResult[]) ?? [],
+        "createdOn",
+        interval,
+      );
     } catch (error) {
       // TODO useError
     }
@@ -88,17 +92,25 @@ export default function CreatedBoxesFilterContainer({
     if (filterProductGenders.length > 0) {
       filters.push(
         filter(
-          (fact) => filterProductGenders.find((fPG) => fPG.value === fact.gender!) !== undefined,
+          (fact: CreatedBoxesResult) =>
+            filterProductGenders.find((fPG) => fPG.value === fact.gender!) !== undefined,
         ),
       );
     }
     if (filterProducts.length > 0) {
       filters.push(
-        filter((fact) => filterProducts.find((fBP) => fBP?.id === fact.productId!) !== undefined),
+        filter(
+          (fact: CreatedBoxesResult) =>
+            filterProducts.find((fBP) => fBP?.id === fact.productId!) !== undefined,
+        ),
       );
     }
     if (filteredTags.length > 0) {
-      filters.push(filter((fact) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))));
+      filters.push(
+        filter((fact: CreatedBoxesResult) =>
+          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
+        ),
+      );
     }
 
     if (filters.length > 0) {
