@@ -170,7 +170,7 @@ function BTBox() {
       histories?.user && {
         action: prepareBoxHistoryEntryText(`${histories.user.name} ${histories.changes}`),
         createdBy: histories.user,
-        createdOn: new Date(histories.changeDate || ""),
+        createdOn: new Date(histories.changeDate || new Date()),
       },
     ]),
   ) as ITimelineEntry[];

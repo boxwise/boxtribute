@@ -11,9 +11,10 @@ import useValueFilter from "../../../hooks/useValueFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId } from "../../filter/TagFilter";
 import { tagFilterValuesVar } from "../../../state/filter";
+import { StockOverview, StockOverviewResult } from "../../../../../front/src/types/query-types";
 
 interface IStockDataFilterProps {
-  stockOverview: StockOverviewData;
+  stockOverview: StockOverview;
 }
 
 export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
@@ -46,7 +47,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
         ...stockOverview,
         // @ts-expect-error ts(2556)
         facts: tidy(stockOverview.facts, ...filters),
-      } as StockOverviewData;
+      } as StockOverview;
     }
     return stockOverview;
   }, [filteredTags, stockOverview]);

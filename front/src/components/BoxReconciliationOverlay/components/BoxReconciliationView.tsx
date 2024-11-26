@@ -13,8 +13,7 @@ import {
 import { BiTrash } from "react-icons/bi";
 
 import { BoxReconcilationAccordion } from "./BoxReconciliationAccordion";
-import { introspection_types } from "../../../../../generated/graphql-env";
-import { ShipmentDetail } from "types/query-types";
+import { ProductGender, ShipmentDetail } from "types/query-types";
 
 export interface ICategoryData {
   name: string;
@@ -33,7 +32,7 @@ export interface ISizeRangeData {
 export interface IProductWithSizeRangeData {
   id: string;
   name: string;
-  gender?: introspection_types["ProductGender"]["enumValues"] | undefined | null;
+  gender?: ProductGender | undefined | null;
   category: ICategoryData;
   sizeRange: ISizeRangeData;
 }

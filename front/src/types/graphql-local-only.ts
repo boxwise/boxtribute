@@ -1,9 +1,9 @@
-import { introspection_types } from "../../../generated/graphql-env";
+import { BoxState } from "./query-types";
 
 export interface IBoxBasicFields {
   __typename?: "Box";
   labelIdentifier: string;
-  state: introspection_types["BoxState"]["enumValues"];
+  state: BoxState;
   shipmentDetail: { id: string; shipment: { id: string } } | null;
 }
 
