@@ -31,7 +31,7 @@ export interface IDemographicCube {
 }
 
 interface IDemographicChartProps {
-  demographics: BeneficiaryDemographics;
+  demographics: Partial<BeneficiaryDemographics>;
   width: number;
   height: number;
 }
