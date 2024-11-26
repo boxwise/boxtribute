@@ -1,9 +1,10 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import BoxFlowSankey from "./BoxFlowSankey";
 import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import { MovedBoxes } from "../../../../../front/src/types/query-types";
 
 interface IMovedBoxesChartsProps {
-  movedBoxes: MovedBoxesData;
+  movedBoxes: MovedBoxes;
   boxesOrItems: BoxesOrItems;
 }
 
