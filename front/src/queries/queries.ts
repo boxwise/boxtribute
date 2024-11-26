@@ -224,6 +224,8 @@ export const BOX_QUERY = graphql(`
         id
         name
         color
+        description
+        type
       }
       shipmentDetail {
         id
