@@ -1,5 +1,7 @@
 import { IDropdownOption } from "components/Form/SelectField";
-import { Locations, Shipments } from "types/query-types";
+import { ResultOf } from "gql.tada";
+import { Locations } from "types/query-types";
+import { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 
 export function locationToDropdownOptionTransformer(
   locations: Locations,
@@ -23,7 +25,7 @@ export function locationToDropdownOptionTransformer(
 }
 
 export function shipmentToDropdownOptionTransformer(
-  shipments: Shipments,
+  shipments: ResultOf<typeof ACTION_OPTIONS_FOR_BOXESVIEW_QUERY>["shipments"],
   baseId: string,
 ): IDropdownOption[] {
   return (

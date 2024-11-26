@@ -240,6 +240,15 @@ export const BOX_QUERY = graphql(`
         }
         shipment {
           id
+          targetBase {
+            id
+            name
+            currencyName
+            organisation {
+              id
+              name
+            }
+          }
           details {
             id
             sourceProduct {

@@ -41,7 +41,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   const movedBoxesFacts = data?.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
-    movedBoxesFacts, // TODO: infer types
+    movedBoxesFacts as MovedBoxesResult[],
     groupBy(["targetId", "organisationName"], [summarize({ count: sum(boxesOrItems) })]),
     map((item) => {
       if (item.count < 0) {
