@@ -11,6 +11,15 @@ import { STOCK_QUERY } from "@boxtribute/shared-components/statviz/components/vi
 import { DEMOGRAPHIC_QUERY } from "@boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
 import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 
+export type BoxState = introspection_types["BoxState"]["enumValues"];
+export type ShipmentState = introspection_types["ShipmentState"]["enumValues"];
+export type TransferAgreementState = introspection_types["TransferAgreementState"]["enumValues"];
+export type ProductGender = introspection_types["ProductGender"]["enumValues"];
+export type DistributionEventState = introspection_types["DistributionEventState"]["enumValues"];
+export type TargetType = introspection_types["TargetType"]["enumValues"];
+
+export type ShipmentDetail = Shipments[0]["details"][0];
+
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
 
 export type User = ResultOf<typeof USER_QUERY>["users"][0];
@@ -20,8 +29,6 @@ export type Users = ResultOf<typeof USER_QUERY>["users"];
 export type Shipment = ResultOf<typeof ALL_SHIPMENTS_QUERY>["shipments"][0];
 
 export type Shipments = ResultOf<typeof ALL_SHIPMENTS_QUERY>["shipments"];
-
-export type ShipmentDetail = Shipments[0]["details"][0]
 
 export type TransferAgreements = ResultOf<typeof ALL_TRANSFER_AGREEMENTS_QUERY>["transferAgreements"]
 
@@ -52,9 +59,3 @@ export type MovedBoxesResult = ResultOf<typeof MOVED_BOXES_FRAGMENT>;
 export type BeneficiaryDemographics = ResultOf<typeof DEMOGRAPHIC_QUERY>["beneficiaryDemographics"];
 
 export type BeneficiaryDemographicsResult = ResultOf<typeof BENEFICIARY_DEMOGRAPHICS_FRAGMENT>;
-
-export type BoxState = introspection_types["BoxState"]["enumValues"];
-export type ShipmentState = introspection_types["ShipmentState"]["enumValues"];
-export type TransferAgreementState = introspection_types["TransferAgreementState"]["enumValues"];
-export type ProductGender = introspection_types["ProductGender"]["enumValues"];
-export type DistributionEventState = introspection_types["DistributionEventState"]["enumValues"];

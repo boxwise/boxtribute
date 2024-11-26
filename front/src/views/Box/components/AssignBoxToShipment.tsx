@@ -3,9 +3,13 @@ import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chak
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentOption } from "components/Form/ShipmentOption";
+import { ResultOf } from "gql.tada";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 
 export interface IAssignBoxToShipmentProps {
-  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  boxData:
+    | ResultOf<typeof BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY>["box"]
+    | UpdateLocationOfBoxMutation["updateBox"];
   shipmentOptions: IDropdownOption[];
   isAssignBoxesToShipmentLoading: boolean;
   onAssignBoxesToShipment: (shipmentId: string) => void;
