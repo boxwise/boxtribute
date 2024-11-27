@@ -3,7 +3,7 @@ import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import { useErrorHandling } from "./useErrorHandling";
-import { BoxByLabelIdentifier } from "types/query-types";
+import { Box } from "types/query-types";
 
 export enum IQrResolverResultKind {
   SUCCESS = "success",
@@ -21,7 +21,10 @@ export enum IQrResolverResultKind {
 export type IQrResolvedValue = {
   kind: IQrResolverResultKind;
   qrHash?: string;
-  box?: Partial<BoxByLabelIdentifier>;
+  box?: Partial<Box & {
+    baseName: string;
+    organisationName: string;
+  }>;
   error?: unknown;
 };
 
@@ -45,7 +48,7 @@ export const useQrResolver = () => {
   const resolveQrHash = useCallback(
     async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
-      const qrResolvedValue: IQrResolvedValue = await apolloClient
+      const qrResolvedValue = await apolloClient
         .query({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: hash },

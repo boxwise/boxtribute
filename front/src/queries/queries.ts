@@ -281,6 +281,7 @@ export const BOX_QUERY = graphql(`
           defaultBoxState
         }
         base {
+          id
           locations {
             id
             name

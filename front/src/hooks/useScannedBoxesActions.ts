@@ -10,7 +10,7 @@ export const useScannedBoxesActions = () => {
   const { createToast } = useNotification();
 
   const addBox = useCallback(
-    (box: Box) =>
+    (box: Partial<Box>) =>
       apolloClient.cache.updateQuery(
         {
           query: GET_SCANNED_BOXES,
