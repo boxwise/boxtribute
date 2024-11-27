@@ -10,8 +10,5 @@
     "test:coverage": "vitest run --coverage",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit"
-  },
-  "dependencies": {
-    "@graphql-typed-document-node/core": "3.2.0"
   }
 }

@@ -21,8 +21,5 @@
   },
   "dependencies": {
     "@boxtribute/shared-components": "workspace:*"
-  },
-  "devDependencies": {
-    "ts-node": "^10.9.2"
   }
 }
