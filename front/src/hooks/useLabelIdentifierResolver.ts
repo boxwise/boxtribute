@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
+import { Box } from "types/query-types";
 
 export enum ILabelIdentifierResolverResultKind {
   SUCCESS = "success",
@@ -15,7 +16,7 @@ export enum ILabelIdentifierResolverResultKind {
 export interface ILabelIdentifierResolvedValue {
   kind: ILabelIdentifierResolverResultKind;
   labelIdentifier?: string;
-  box?: any;
+  box?: Partial<Box>;
   error?: any;
 }
 

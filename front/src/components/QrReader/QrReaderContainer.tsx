@@ -139,8 +139,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         await checkLabelIdentifier(labelIdentifier);
       switch (labelIdentifierResolvedValue.kind) {
         case ILabelIdentifierResolverResultKind.SUCCESS: {
-          const boxLabelIdentifier = labelIdentifierResolvedValue?.box.labelIdentifier;
-          const boxBaseId = labelIdentifierResolvedValue?.box.location.base.id;
+          const boxLabelIdentifier = labelIdentifierResolvedValue?.box?.labelIdentifier;
+          const boxBaseId = labelIdentifierResolvedValue?.box?.location?.base?.id;
           onSuccess();
           navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
           break;
