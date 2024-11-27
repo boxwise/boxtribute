@@ -138,16 +138,12 @@ function BoxEditView() {
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
-              (
-                allBoxAndFormData.data?.base?.products.find(
-                  (p) => p.id === boxEditFormData.productId.value,
-                ) as any
+              allBoxAndFormData.data?.base?.products.find(
+                (p) => p.id === boxEditFormData.productId.value,
               )?.name || boxEditFormData.productId.label
             } (${boxEditFormData?.numberOfItems}x) in ${
-              (
-                allBoxAndFormData.data?.base?.locations.find(
-                  (l) => l.id === boxEditFormData.locationId.value,
-                ) as any
+              allBoxAndFormData.data?.base?.locations.find(
+                (l) => l.id === boxEditFormData.locationId.value,
               )?.name || boxEditFormData.locationId.label
             }.`,
           });

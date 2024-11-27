@@ -22,7 +22,10 @@ import CreatedBoxesGrouping, {
   defaultCreatedBoxesGrouping,
 } from "../../filter/CreatedBoxesGrouping";
 import useValueFilter from "../../../hooks/useValueFilter";
-import { CreatedBoxes as CreatedBoxesType } from "../../../../../front/src/types/query-types";
+import {
+  CreatedBoxesResult,
+  CreatedBoxes as CreatedBoxesType,
+} from "../../../../../front/src/types/query-types";
 
 interface ICreatedBoxesProps {
   width: string;
@@ -43,7 +46,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
 
   const getChartData = () => {
     const createdBoxes = tidy(
-      facts as any[], // TODO: infer types
+      facts as CreatedBoxesResult[],
       filter((row) => row.createdOn !== null),
       groupBy("createdOn", [
         summarize({

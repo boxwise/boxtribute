@@ -194,17 +194,13 @@ function BoxCreateView() {
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
             type: "success",
             message: `Successfully created with ${
-              (
-                allFormOptions.data?.base?.products.find(
-                  (p) => p.id === createBoxData.productId.value,
-                ) as any
-              ).name
+              allFormOptions.data?.base?.products.find(
+                (p) => p.id === createBoxData.productId.value,
+              )?.name
             } (${createBoxData?.numberOfItems}x) in ${
-              (
-                allFormOptions.data?.base?.locations.find(
-                  (l) => l.id === createBoxData.locationId.value,
-                ) as any
-              ).name
+              allFormOptions.data?.base?.locations.find(
+                (l) => l.id === createBoxData.locationId.value,
+              )?.name
             }.`,
           });
           navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
