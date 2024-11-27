@@ -58,9 +58,9 @@
     "@types/react-dom": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
-    "@vitejs/plugin-react-swc": "^3.7.1",
-    "@vitest/coverage-v8": "^2.1.5",
-    "@vitest/ui": "^2.1.5",
+    "@vitejs/plugin-react-swc": "^3.7.2",
+    "@vitest/coverage-v8": "^2.1.6",
+    "@vitest/ui": "^2.1.6",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.5.2",
@@ -72,12 +72,12 @@
     "eslint-plugin-testing-library": "^7.0.0",
     "jsdom": "25.0.1",
     "lint-staged": "^15.2.8",
-    "prettier": "^3.4.0",
+    "prettier": "^3.4.1",
     "tsc-files": "^1.1.4",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vite-tsconfig-paths": "^5.1.3",
-    "vitest": "^2.1.5"
+    "vitest": "^2.1.6"
   },
   "resolutions": {
     "@graphql-codegen/cli": "^5.0.0",
