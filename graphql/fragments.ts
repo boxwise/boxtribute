@@ -398,6 +398,28 @@ export const SHIPMENT_FIELDS_FRAGMENT = graphql(`
   }
 `, [BASE_ORG_FIELDS_FRAGMENT, SHIPMENT_DETAIL_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT]);
 
+export const USER_FRAGMENT = graphql(`
+  fragment UserFragment on User @_unmask {
+      id
+      name
+      email
+      lastLogin
+      lastAction
+      validFirstDay
+      validLastDay
+      organisation {
+        id
+        name
+        bases {
+          id
+        }
+      }
+      bases {
+        id
+      }
+  }
+  `)
+
 export const TAG_FRAGMENT = graphql(`
   fragment TagFragment on TagDimensionInfo @_unmask {
     id

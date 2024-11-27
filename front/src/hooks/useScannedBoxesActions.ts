@@ -3,7 +3,7 @@ import { useApolloClient } from "@apollo/client";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { IScannedBoxesData } from "types/graphql-local-only";
 import { useNotification } from "./useNotification";
-import { Box } from "../../../graphql/types";
+import { Box } from "queries/types";
 
 export const useScannedBoxesActions = () => {
   const apolloClient = useApolloClient();

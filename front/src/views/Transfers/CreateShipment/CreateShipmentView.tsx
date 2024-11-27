@@ -7,11 +7,7 @@ import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import {
-  BASE_ORG_FIELDS_FRAGMENT,
-  SHIPMENT_FIELDS_FRAGMENT,
-  TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
-} from "queries/fragments";
+import { BASE_ORG_FIELDS_FRAGMENT, TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateShipment, {
   IOrganisationBaseData,
@@ -19,6 +15,7 @@ import CreateShipment, {
 } from "./components/CreateShipment";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { SHIPMENT_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = graphql(
   `

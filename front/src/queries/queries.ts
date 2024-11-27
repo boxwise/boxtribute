@@ -1,12 +1,11 @@
+import { SHIPMENT_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "../../../graphql/fragments";
 import { graphql } from "../../../graphql/graphql"
 import {
   BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
-  SHIPMENT_FIELDS_FRAGMENT,
   BOX_BASIC_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
-  TAG_BASIC_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
   BASE_ORG_FIELDS_FRAGMENT,
   LOCATION_BASIC_FIELDS_FRAGMENT,
@@ -182,17 +181,6 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
   }
 `, [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_ORG_FIELDS_FRAGMENT]);
 
-export const LOCATIONS_QUERY = graphql(`
-  query Locations {
-    locations {
-      id
-      name
-      defaultBoxState
-      seq
-    }
-  }
-  `)
-
 export const BOX_QUERY = graphql(`
   query Box($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {
@@ -289,30 +277,6 @@ export const BOX_QUERY = graphql(`
             defaultBoxState
           }
         }
-      }
-    }
-  }
-  `)
-
-export const USER_QUERY = graphql(`
-  query User {
-    users {
-      id
-      name
-      email
-      lastLogin
-      lastAction
-      validFirstDay
-      validLastDay
-      organisation {
-        id
-        name
-        bases {
-          id
-        }
-      }
-      bases {
-        id
       }
     }
   }

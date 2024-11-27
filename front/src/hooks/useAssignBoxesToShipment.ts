@@ -1,10 +1,10 @@
 import { useMutation } from "@apollo/client";
 import { graphql } from "../../../graphql/graphql"
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { SHIPMENT_FIELDS_FRAGMENT } from "../../../graphql/fragments";
 
 export enum IAssignBoxToShipmentResultKind {
   BAD_USER_INPUT = "badUserInput", // no Boxes InStock were passed to the function

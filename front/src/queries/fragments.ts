@@ -1,3 +1,4 @@
+import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../graphql/fragments";
 import { graphql } from "../../../graphql/graphql"
 
 // Basic Fields without reference to other fragments first
@@ -44,16 +45,6 @@ export const LOCATION_BASIC_FIELDS_FRAGMENT = graphql(`
     id
     seq
     name
-  }
-`);
-
-export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
-  fragment TagBasicFields on Tag @_unmask {
-    id
-    name
-    color
-    description
-    type
   }
 `);
 
@@ -309,91 +300,3 @@ export const PRODUCT_FIELDS_FRAGMENT = graphql(`
     }
   }
 `, [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT]);
-
-export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(`
-  fragment ShipmentDetailFields on ShipmentDetail @_unmask {
-    id
-    box {
-      ...BoxBasicFields
-    }
-    sourceProduct {
-      ...ProductFields
-    }
-    targetProduct {
-      ...ProductFields
-    }
-    sourceSize {
-      ...SizeBasicFields
-    }
-    targetSize {
-      ...SizeBasicFields
-    }
-    sourceLocation {
-      id
-      name
-      ... on ClassicLocation {
-        defaultBoxState
-      }
-    }
-    sourceQuantity
-    targetQuantity
-    createdOn
-    createdBy {
-      ...UserBasicFields
-    }
-    removedOn
-    removedBy {
-      ...UserBasicFields
-    }
-    lostOn
-    lostBy {
-      ...UserBasicFields
-    }
-    receivedOn
-    receivedBy {
-      ...UserBasicFields
-    }
-  }
-`, [BOX_BASIC_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT]);
-
-export const SHIPMENT_FIELDS_FRAGMENT = graphql(`
-  fragment ShipmentFields on Shipment @_unmask {
-    id
-    labelIdentifier
-    state
-    details {
-      ...ShipmentDetailFields
-    }
-    sourceBase {
-      ...BaseOrgFields
-    }
-    targetBase {
-      ...BaseOrgFields
-    }
-    transferAgreement {
-      id
-      comment
-      type
-    }
-    startedOn
-    startedBy {
-      ...UserBasicFields
-    }
-    sentOn
-    sentBy {
-      ...UserBasicFields
-    }
-    receivingStartedOn
-    receivingStartedBy {
-      ...UserBasicFields
-    }
-    completedOn
-    completedBy {
-      ...UserBasicFields
-    }
-    canceledOn
-    canceledBy {
-      ...UserBasicFields
-    }
-  }
-`, [BASE_ORG_FIELDS_FRAGMENT, SHIPMENT_DETAIL_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT]);

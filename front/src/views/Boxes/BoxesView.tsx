@@ -2,20 +2,20 @@ import { useMemo } from "react";
 import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
-  BASE_ORG_FIELDS_FRAGMENT,
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
-  SIZE_BASIC_FIELDS_FRAGMENT,
-  TAG_BASIC_FIELDS_FRAGMENT,
-} from "queries/fragments";
-import {
   locationToDropdownOptionTransformer,
   shipmentToDropdownOptionTransformer,
 } from "utils/transformers";
-import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
 import { useTableConfig } from "hooks/hooks";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../../graphql/fragments";
+import {
+  BASE_ORG_FIELDS_FRAGMENT,
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  SIZE_BASIC_FIELDS_FRAGMENT,
+} from "queries/fragments";
 import { BoxRow } from "./components/types";
+import { SelectColumnFilter } from "components/Table/Filter";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";

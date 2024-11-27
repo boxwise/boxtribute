@@ -19,7 +19,6 @@ import {
 } from "views/Distributions/queries";
 import {
   DISTRO_EVENT_FIELDS_FRAGMENT,
-  TAG_BASIC_FIELDS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
 } from "queries/fragments";
@@ -46,6 +45,7 @@ import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { BoxState } from "../../../../graphql/types";
+import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../../graphql/fragments";
 
 // Queries and Mutations
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({

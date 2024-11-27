@@ -1,11 +1,11 @@
-import { ResultOf } from "gql.tada";
+import { FragmentOf, ResultOf } from "gql.tada";
 
-import { LOCATIONS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
+import { LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 
 export function locationToDropdownOptionTransformer(
-  locations: ResultOf<typeof LOCATIONS_QUERY>["locations"],
+  locations: FragmentOf<typeof LOCATION_BASIC_FIELDS_FRAGMENT>[],
 ): IDropdownOption[] {
   return (
     locations

@@ -16,7 +16,8 @@ import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
-import { Product, ShipmentState, Box as BoxType } from "../../../../../../graphql/types";
+import { Product, ShipmentState } from "../../../../../../graphql/types";
+import { Box as BoxType } from "queries/types";
 
 export interface IShipmentContent {
   product: Product;

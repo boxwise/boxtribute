@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useApolloClient } from "@apollo/client";
+import { Box } from "queries/types";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
-import { Box } from "../../../graphql/types";
 
 export enum ILabelIdentifierResolverResultKind {
   SUCCESS = "success",
