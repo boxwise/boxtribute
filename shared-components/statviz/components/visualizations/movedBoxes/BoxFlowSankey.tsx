@@ -8,7 +8,7 @@ import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
 import Targetfilter from "../../filter/LocationFilter";
-import { MovedBoxes, MovedBoxesResult } from "../../../../../front/src/types/query-types";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
 
 // random ids, should not collide with the name of existing shipments and locations

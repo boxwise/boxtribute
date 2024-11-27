@@ -1,5 +1,6 @@
 import { List, Text, Flex, WrapItem, Button, SkeletonText } from "@chakra-ui/react";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "types/query-types";
+import { BoxByLabelIdentifier } from "../../../../../graphql/types";
+import { UpdateBoxMutation } from "queries/types";
 
 export interface IBoxMoveLocationProps {
   boxData: BoxByLabelIdentifier | UpdateBoxMutation;

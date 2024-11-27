@@ -1,4 +1,4 @@
-import { graphql } from "../../../graphql"
+import { graphql } from "../../../graphql/graphql"
 import {
   BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,

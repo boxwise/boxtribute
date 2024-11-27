@@ -1,4 +1,4 @@
-import { BeneficiaryDemographics } from "../../../../../front/src/types/query-types";
+import { BeneficiaryDemographics } from "../../../../../graphql/types";
 import DemographicPyramid from "./DemographicPyramid";
 
 interface IDemographicChartProps {

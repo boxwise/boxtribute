@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { graphql } from "../../../graphql"
+import { graphql } from "../../../graphql/graphql"
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";

@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import TimelineEntry from "./components/TimelineEntry";
-import { User } from "types/query-types";
+import { User } from "../../../../graphql/types";
 
 export interface ITimelineEntry {
   action: string;

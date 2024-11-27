@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql } from "../../../../graphql";
+import { graphql } from "../../../../graphql/graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {

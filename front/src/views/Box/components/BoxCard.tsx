@@ -28,7 +28,8 @@ import { NavLink } from "react-router-dom";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "types/query-types";
+import { BoxByLabelIdentifier } from "../../../../../graphql/types";
+import { UpdateBoxMutation } from "queries/types";
 
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifier | UpdateBoxMutation;

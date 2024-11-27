@@ -1,4 +1,4 @@
-import { graphql } from "../../../../graphql"
+import { graphql } from "../../../../graphql/graphql"
 
 export const ALL_PRODUCTS_FOR_PACKING_LIST = graphql(`
   query AllProductsForPackingList($baseId: ID!) {

@@ -5,6 +5,7 @@ import { userEvent } from "@testing-library/user-event";
 import { render, screen } from "../../../../tests/testUtils";
 
 import StockDataFilter from "./StockDataFilter";
+import { StockOverviewResult } from "../../../../../graphql/types";
 
 it("x.x.x.x - User clicks on 'Gender' filter in drilldown chart", async () => {
   render(
@@ -85,7 +86,7 @@ it("x.x.x.x - User clicks on 'Gender' filter in drilldown chart", async () => {
 
 it("should filter out only items with boxState === 'InStock'", () => {
   // TODO: Make the data be returned in the mocks
-  const data: StockOverviewResult[] = [
+  const data: Partial<StockOverviewResult>[] = [
     {
       __typename: "StockOverviewResult",
       boxState: "InStock",

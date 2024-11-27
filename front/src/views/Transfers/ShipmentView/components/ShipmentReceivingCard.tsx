@@ -1,6 +1,6 @@
 import { Flex, Box, Spacer, Heading, Wrap, WrapItem, VStack, Center } from "@chakra-ui/react";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
-import { Shipment } from "types/query-types";
+import { Shipment } from "../../../../../../graphql/types";
 
 export interface IShipmentReceivingCardProps {
   shipment: Shipment;

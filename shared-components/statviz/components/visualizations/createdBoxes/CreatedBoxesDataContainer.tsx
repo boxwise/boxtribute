@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
-import { graphql } from "../../../../../graphql";
+import { graphql } from "../../../../../graphql/graphql";
 
 export const CREATED_BOXES_QUERY = graphql(`
   query createdBoxes($baseId: Int!) {

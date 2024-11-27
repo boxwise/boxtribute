@@ -1,4 +1,4 @@
-import { BoxState } from "./query-types";
+import { BoxState } from "../../../graphql/types";
 
 export interface IBoxBasicFields {
   __typename?: "Box";

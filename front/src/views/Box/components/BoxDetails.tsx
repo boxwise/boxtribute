@@ -3,7 +3,8 @@ import { IDropdownOption } from "components/Form/SelectField";
 import BoxCard from "./BoxCard";
 import BoxDistributionEvent from "./BoxDistributionEvent";
 import BoxTabs from "./BoxTabs";
-import { BoxByLabelIdentifier, BoxState, UpdateBoxMutation } from "types/query-types";
+import { BoxByLabelIdentifier, BoxState } from "../../../../../graphql/types";
+import { UpdateBoxMutation } from "queries/types";
 
 interface IBoxDetailsProps {
   /** @todo Should this be optional peer the test spec? */

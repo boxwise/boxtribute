@@ -41,7 +41,7 @@ import {
 } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "types/query-types";
+import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;

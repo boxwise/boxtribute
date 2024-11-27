@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql } from "../../../../../graphql";
+import { graphql } from "../../../../../graphql/graphql";
 import { formatDateKey } from "utils/helpers";
 import {
   Box,
@@ -33,7 +33,7 @@ import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { ShipmentDetail, ShipmentState, User } from "types/query-types";
+import { ShipmentState, ShipmentDetail, User } from "../../../../../graphql/types";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",

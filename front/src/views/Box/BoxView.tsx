@@ -45,7 +45,7 @@ import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { BoxState } from "types/query-types";
+import { BoxState } from "../../../../graphql/types";
 
 // Queries and Mutations
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({

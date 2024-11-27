@@ -1,6 +1,6 @@
 import { Box, HStack, Link, Text } from "@chakra-ui/react";
 import React from "react";
-import { DistributionEventState } from "types/query-types";
+import { DistributionEventState } from "../../../../../graphql/types";
 
 enum SimplifiedDistributionEventState {
   Planning = "Planning",

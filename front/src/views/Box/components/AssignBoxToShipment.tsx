@@ -3,7 +3,8 @@ import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chak
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentOption } from "components/Form/ShipmentOption";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "types/query-types";
+import { BoxByLabelIdentifier } from "../../../../../graphql/types";
+import { UpdateBoxMutation } from "queries/types";
 
 export interface IAssignBoxToShipmentProps {
   boxData: BoxByLabelIdentifier | UpdateBoxMutation;

@@ -20,7 +20,7 @@ import {
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
-import { CreatedBoxes, CreatedBoxesResult } from "../../../../../front/src/types/query-types";
+import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxes;

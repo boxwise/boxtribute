@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql } from "../../../../../../../graphql";
+import { graphql } from "../../../../../../../graphql/graphql";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";

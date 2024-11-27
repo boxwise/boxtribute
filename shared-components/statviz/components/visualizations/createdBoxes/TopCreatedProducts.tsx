@@ -5,11 +5,7 @@ import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
-import {
-  CreatedBoxes,
-  CreatedBoxesResult,
-  Product,
-} from "../../../../../front/src/types/query-types";
+import { CreatedBoxes, CreatedBoxesResult, Product } from "../../../../../graphql/types";
 
 export default function TopCreatedProducts(props: {
   width: string;

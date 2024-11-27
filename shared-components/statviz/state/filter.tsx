@@ -1,6 +1,6 @@
 import { makeVar } from "@apollo/client";
 import { IFilterValue } from "../components/filter/ValueFilter";
-import { ProductGender, TargetType } from "../../../front/src/types/query-types";
+import { ProductGender, TargetType } from "../../../graphql/types";
 
 export interface IProductFilterValue extends IFilterValue {
   id: number;

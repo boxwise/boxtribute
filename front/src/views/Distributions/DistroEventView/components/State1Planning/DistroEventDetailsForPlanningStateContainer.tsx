@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql } from "../../../../../../../graphql";
+import { graphql } from "../../../../../../../graphql/graphql";
 import {
   Modal,
   ModalBody,

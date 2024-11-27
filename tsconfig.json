@@ -45,10 +45,11 @@
     "plugins": [
       {
         "name": "gql.tada/ts-plugin",
-        "schema": "./generated/schema.graphql",
-        "tadaOutputLocation": "./generated/graphql-env.d.ts",
+        "schema": "./graphql/generated/schema.graphql",
+        "tadaOutputLocation": "./graphql/generated/graphql-env.d.ts",
         "trackFieldUsage": false
       }
     ]
-  }
+  },
+  "include": ["./graphql/*.ts"]
 }

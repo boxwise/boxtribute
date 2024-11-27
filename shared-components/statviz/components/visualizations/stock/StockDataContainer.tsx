@@ -3,7 +3,7 @@ import { Box, Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import StockDataFilter from "./StockDataFilter";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
-import { graphql } from "../../../../../graphql";
+import { graphql } from "../../../../../graphql/graphql";
 import { TAG_FRAGMENT } from "../../../queries/fragments";
 
 export const STOCK_QUERY = graphql(

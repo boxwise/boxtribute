@@ -5,7 +5,7 @@ import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
-import { ShipmentDetail } from "types/query-types";
+import { ShipmentDetail } from "../../../../../graphql/types";
 
 interface IBoxReconcilationAccordionProps {
   shipmentDetail: ShipmentDetail;

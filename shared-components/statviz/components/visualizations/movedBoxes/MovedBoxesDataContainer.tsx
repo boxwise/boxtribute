@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
-import { graphql } from "../../../../../graphql";
+import { graphql } from "../../../../../graphql/graphql";
 
 export const MOVED_BOXES_QUERY = graphql(`
   query movedBoxes($baseId: Int!) {

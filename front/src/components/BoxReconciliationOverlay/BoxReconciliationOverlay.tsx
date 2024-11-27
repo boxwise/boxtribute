@@ -14,7 +14,7 @@ import {
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { ShipmentDetail } from "types/query-types";
+import { ShipmentDetail } from "../../../../graphql/types";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;

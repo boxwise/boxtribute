@@ -9,7 +9,7 @@ import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { z } from "zod";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
-import { ShipmentDetail } from "types/query-types";
+import { ShipmentDetail } from "../../../../../graphql/types";
 
 export interface ICategoryData {
   name: string;

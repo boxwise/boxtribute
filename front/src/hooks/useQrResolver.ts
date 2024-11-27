@@ -3,7 +3,7 @@ import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import { useErrorHandling } from "./useErrorHandling";
-import { Box } from "types/query-types";
+import { Box } from "../../../graphql/types";
 
 export enum IQrResolverResultKind {
   SUCCESS = "success",

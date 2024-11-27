@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { useMemo } from "react";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
-import { ShipmentDetail } from "types/query-types";
+import { ShipmentDetail } from "../../../../../../graphql/types";
 
 interface IShipmentReceivingContentProps {
   items: ShipmentDetail[];

@@ -9,7 +9,7 @@ import NoDataCard from "../../NoDataCard";
 import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
-} from "../../../../../front/src/types/query-types";
+} from "../../../../../graphql/types";
 
 export interface IDemographicFact {
   createdOn: Date;

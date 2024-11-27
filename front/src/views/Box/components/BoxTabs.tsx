@@ -21,7 +21,8 @@ import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
 import AssignBoxToShipment from "./AssignBoxToShipment";
 
 import BoxMoveLocation from "./BoxMoveLocation";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "types/query-types";
+import { BoxByLabelIdentifier } from "../../../../../graphql/types";
+import { UpdateBoxMutation } from "queries/types";
 
 export interface IBoxTabsProps {
   boxData: BoxByLabelIdentifier | UpdateBoxMutation;

@@ -1,7 +1,7 @@
 import { differenceInDays } from "date-fns";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
-import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "types/query-types";
+import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "queries/types";
 
 export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBoxesViewQuery) =>
   boxesQueryResult.boxes.elements

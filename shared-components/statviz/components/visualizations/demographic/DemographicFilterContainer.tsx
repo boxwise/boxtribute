@@ -10,7 +10,7 @@ import { tagFilterValuesVar } from "../../../state/filter";
 import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
-} from "../../../../../front/src/types/query-types";
+} from "../../../../../graphql/types";
 
 interface IDemographicFilterContainerProps {
   demographics: BeneficiaryDemographics;

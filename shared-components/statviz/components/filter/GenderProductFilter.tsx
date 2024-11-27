@@ -4,7 +4,7 @@ import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { IProductFilterValue, productFilterValuesVar } from "../../state/filter";
-import { Product } from "../../../../front/src/types/query-types";
+import { Product } from "../../../../graphql/types";
 
 export const genders: IFilterValue[] = [
   {

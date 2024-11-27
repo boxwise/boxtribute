@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { graphql } from "../../../../graphql";
+import { graphql } from "../../../../graphql/graphql";
 import { Center, Heading, Text } from "@chakra-ui/react";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 

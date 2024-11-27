@@ -1,4 +1,4 @@
-import { Shipment, Tag } from "types/query-types";
+import { Tag, Shipment } from "../../../../../graphql/types";
 
 export type BoxRow = {
   labelIdentifier: string;

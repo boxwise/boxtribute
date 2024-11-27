@@ -11,7 +11,7 @@ import useValueFilter from "../../../hooks/useValueFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId } from "../../filter/TagFilter";
 import { tagFilterValuesVar } from "../../../state/filter";
-import { StockOverview, StockOverviewResult } from "../../../../../front/src/types/query-types";
+import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 
 interface IStockDataFilterProps {
   stockOverview: StockOverview;

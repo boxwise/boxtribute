@@ -1,5 +1,4 @@
-import { DistributionEventState } from "types/query-types";
-
+import { DistributionEventState } from "../../../../graphql/types";
 
 export const getNextState = (state: DistributionEventState) => {
   switch (state) {

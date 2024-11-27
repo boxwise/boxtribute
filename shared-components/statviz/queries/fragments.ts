@@ -1,4 +1,4 @@
-import { graphql } from "../../../graphql";
+import { graphql } from "../../../graphql/graphql";
 
 export const TAG_FRAGMENT = graphql(`
   fragment TagFragment on TagDimensionInfo @_unmask {

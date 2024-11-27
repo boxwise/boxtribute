@@ -22,7 +22,7 @@ import { BiMinusCircle, BiPlusCircle, BiTrash } from "react-icons/bi";
 import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
-import { Shipment } from "types/query-types";
+import { Shipment } from "../../../../../../graphql/types";
 
 export interface IShipmentProps {
   canCancelShipment: Boolean;

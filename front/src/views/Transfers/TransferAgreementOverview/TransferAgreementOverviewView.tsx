@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql, ResultOf } from "../../../../../graphql";
+import { graphql, ResultOf } from "../../../../../graphql/graphql";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
@@ -24,7 +24,7 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { TransferAgreements } from "types/query-types";
+import { TransferAgreements } from "../../../../../graphql/types";
 
 export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreements;

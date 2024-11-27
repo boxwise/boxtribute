@@ -19,9 +19,9 @@ import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { ProductGender } from "types/query-types";
 import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
+import { ProductGender } from "../../../../../graphql/types";
 
 export interface ICategoryData {
   name: string;

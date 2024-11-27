@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { graphql } from "../../../../../graphql";
+import { graphql } from "../../../../../graphql/graphql";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";

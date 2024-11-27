@@ -9,7 +9,7 @@ import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
-import { graphql } from "../../../../graphql";
+import { graphql } from "../../../../graphql/graphql";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";

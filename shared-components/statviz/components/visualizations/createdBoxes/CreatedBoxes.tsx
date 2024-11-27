@@ -22,10 +22,7 @@ import CreatedBoxesGrouping, {
   defaultCreatedBoxesGrouping,
 } from "../../filter/CreatedBoxesGrouping";
 import useValueFilter from "../../../hooks/useValueFilter";
-import {
-  CreatedBoxesResult,
-  CreatedBoxes as CreatedBoxesType,
-} from "../../../../../front/src/types/query-types";
+import { CreatedBoxesResult, CreatedBoxes as CreatedBoxesType } from "../../../../../graphql/types";
 
 interface ICreatedBoxesProps {
   width: string;

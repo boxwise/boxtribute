@@ -1,11 +1,13 @@
 import { ListItem, ListIcon, List, Stack, Flex, Text, Box } from "@chakra-ui/react";
+import { ResultOf } from "gql.tada";
 import { IconType } from "react-icons";
 import { MdCheckCircle, MdSettings, MdHistory } from "react-icons/md";
-import { HistoryEntry } from "types/query-types";
+
+import { HISTORY_FIELDS_FRAGMENT } from "queries/fragments";
 import { prepareBoxHistoryEntryText } from "utils/helpers";
 
 interface IHistoryEntriesProps {
-  data: HistoryEntry[];
+  data: ResultOf<typeof HISTORY_FIELDS_FRAGMENT>[];
   total: number | undefined;
 }
 

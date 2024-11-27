@@ -1,4 +1,4 @@
-import { graphql } from "../../../graphql"
+import { graphql } from "../../../graphql/graphql"
 import { SHIPMENT_FIELDS_FRAGMENT } from "./fragments";
 
 export const UPDATE_SHIPMENT_WHEN_RECEIVING = graphql(`

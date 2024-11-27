@@ -19,7 +19,7 @@ import {
   tagFilterValuesVar,
 } from "../../../state/filter";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
-import { MovedBoxes, MovedBoxesResult } from "../../../../../front/src/types/query-types";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 
 interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;

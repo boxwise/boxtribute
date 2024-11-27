@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql } from "../../../../graphql";
+import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";

@@ -1,10 +1,11 @@
-import { IDropdownOption } from "components/Form/SelectField";
 import { ResultOf } from "gql.tada";
-import { Locations } from "types/query-types";
+
+import { LOCATIONS_QUERY } from "queries/queries";
+import { IDropdownOption } from "components/Form/SelectField";
 import { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 
 export function locationToDropdownOptionTransformer(
-  locations: Locations,
+  locations: ResultOf<typeof LOCATIONS_QUERY>["locations"],
 ): IDropdownOption[] {
   return (
     locations

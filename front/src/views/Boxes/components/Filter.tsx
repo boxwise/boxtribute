@@ -1,7 +1,7 @@
 import { SelectColumnFilterUI } from "components/Table/Filter";
 import { ColumnInstance } from "react-table";
 import { BoxRow } from "./types";
-import { BoxState } from "../../../types/query-types";
+import { BoxState } from "../../../../../graphql/types";
 
 interface ISelectBoxStateFilterProps {
   column: ColumnInstance<BoxRow>;

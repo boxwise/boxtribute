@@ -23,7 +23,7 @@ import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import useValueFilter from "../../../hooks/useValueFilter";
 import ValueFilter from "../../filter/ValueFilter";
-import { StockOverview, StockOverviewResult } from "../../../../../front/src/types/query-types";
+import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 
 interface ISizeDim {
   sizeId: number;
