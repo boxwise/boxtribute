@@ -123,11 +123,17 @@ Using a TMS might not be worth the additional cost and maintenance effort, given
 
 ### Initial steps
 
-- Find all text components in FE code, and wrap them such that they can be extracted and replaced
+**Infrastructure** (20h)
 - Install i18n package
-- Extract messages and actually translate them (into the desired languages)
 - Set up workflow such that newly added text is auto-extracted (warn about missing translation)
 - Ensure that translation files are shipped with the deployed FE bundle
+- OPTIONAL (extra 20h): integrate TMS (cloud-repo and/or cloud-CI integration)
+
+**Prepare codebase** (50h)
+- Find all text components in FE code, and wrap them such that they can be extracted and replaced
+
+**Translation** (20-50h per language; depends on abilities of translator, and potential copying effort)
+- Extract messages and actually translate them (into the desired languages)
 
 ### Development cycle
 
