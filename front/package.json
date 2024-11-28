@@ -11,7 +11,7 @@
     "@fortawesome/fontawesome-svg-core": "6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@sentry/react": "^8.40.0",
+    "@sentry/react": "^8.41.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "chakra-react-select": "4.9.2",
