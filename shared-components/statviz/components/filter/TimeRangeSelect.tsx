@@ -2,7 +2,6 @@ import { Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
-import { subMonths } from "date-fns";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateField } from "../../..";
@@ -43,13 +42,8 @@ export default function TimeRangeSelect() {
 
   useEffect(() => {
     const currentQuery = searchParams.toString();
+    const newSearchParams = searchParams;
 
-    if (!searchParams.get("from")) {
-      searchParams.append("from", date2String(subMonths(new Date(), 3)));
-    }
-    if (!searchParams.get("to")) {
-      searchParams.append("to", date2String(new Date()));
-    }
     const from = searchParams.get("from")!;
     const to = searchParams.get("to")!;
 
@@ -62,16 +56,16 @@ export default function TimeRangeSelect() {
     }
 
     if (toFormValue && date2String(new Date(toFormValue)) !== to) {
-      searchParams.delete("to");
       const newToDate = date2String(new Date(toFormValue));
-      searchParams.append("to", newToDate);
+      newSearchParams.delete("to");
+      newSearchParams.append("to", newToDate);
       trackFilter({ filterId: "timeRange", newToDate, from });
     }
 
     if (fromFormValue && date2String(new Date(fromFormValue)) !== from) {
       const newFromDate = date2String(new Date(fromFormValue));
-      searchParams.delete("from");
-      searchParams.append("from", newFromDate);
+      newSearchParams.delete("from");
+      newSearchParams.append("from", newFromDate);
       trackFilter({
         filterId: "timeRange",
         from: newFromDate,
@@ -79,8 +73,8 @@ export default function TimeRangeSelect() {
       });
     }
 
-    if (searchParams.toString() !== currentQuery) {
-      setSearchParams(searchParams);
+    if (newSearchParams.toString() !== currentQuery) {
+      setSearchParams(newSearchParams);
     }
   }, [searchParams, setValue, setSearchParams, fromFormValue, toFormValue]);
 

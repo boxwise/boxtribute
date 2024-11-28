@@ -88,6 +88,7 @@ export interface IBoxCreateProps {
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
+  disableSubmission?: boolean;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
 }
 
@@ -96,6 +97,7 @@ function BoxCreate({
   allLocations,
   allTags,
   onSubmitBoxCreateForm,
+  disableSubmission,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
@@ -240,7 +242,14 @@ function BoxCreate({
 
         <Stack spacing={4}>
           <ButtonGroup gap="4">
-            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
+            <Button
+              mt={4}
+              isLoading={isSubmitting}
+              type="submit"
+              borderRadius="0"
+              w="full"
+              isDisabled={disableSubmission}
+            >
               Create Box
             </Button>
           </ButtonGroup>

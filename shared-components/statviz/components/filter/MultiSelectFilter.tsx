@@ -1,10 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useEffect } from "react";
 import SelectField from "../../../form/SelectField";
-import { urlFilterValuesEncode } from "../../hooks/useMultiSelectFilter";
 
 export interface IFilterValue {
   value: string;
@@ -39,10 +37,7 @@ export default function MultiSelectFilter({
   filterValue,
   fieldLabel = "display by",
   onFilterChange,
-  defaultFilterValues = undefined,
 }: IValueFilterProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const {
     setValue,
     control,
@@ -51,6 +46,7 @@ export default function MultiSelectFilter({
     resolver: zodResolver(ValueFilterSchema),
     defaultValues: values,
   });
+
   useEffect(() => {
     if (filterValue) {
       // @ts-expect-error ts(2345)
@@ -58,12 +54,6 @@ export default function MultiSelectFilter({
     }
   }, [filterId, filterValue, setValue]);
 
-  useEffect(() => {
-    if (defaultFilterValues && searchParams.get(filterId) === null) {
-      searchParams.append(filterId, urlFilterValuesEncode(defaultFilterValues));
-      setSearchParams(searchParams);
-    }
-  });
   return (
     <SelectField
       fieldId={filterId}

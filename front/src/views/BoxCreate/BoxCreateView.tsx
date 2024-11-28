@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -18,6 +18,8 @@ import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { AlertWithoutAction } from "components/Alerts";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
@@ -86,6 +88,12 @@ function BoxCreateView() {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
+
+  // no warehouse location or products associated with base
+  const [noLocation, setNoLocation] = useState(false);
+  const [noProducts, setNoProducts] = useState(false);
 
   // variables in URL
   const { baseId } = useBaseIdParam();
@@ -132,15 +140,20 @@ function BoxCreateView() {
   const allProducts = allFormOptions.data?.base?.products;
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allFormOptions.data?.base?.locations
-    .filter(
-      (location) =>
-        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
-    )
+    .filter((location) => location?.defaultBoxState !== BoxState.Lost)
     .map((location) => ({
       ...location,
       name: location.name ?? "",
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+
+  useEffect(() => {
+    // Disable form submission if no warehouse location or products associated with base, but only if the query response is available
+    if (allLocations !== undefined && allLocations.length < 1) setNoLocation(true);
+    else if (noLocation) setNoLocation(false);
+    if (allProducts !== undefined && allProducts.length < 1) setNoProducts(true);
+    else if (noProducts) setNoProducts(false);
+  }, [allLocations, allProducts, noLocation, noProducts]);
 
   // check data for form
   useEffect(() => {
@@ -222,27 +235,37 @@ function BoxCreateView() {
   };
 
   // Handle Loading State
-  if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading) {
+  if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading)
     return <APILoadingIndicator />;
-  }
 
-  // TODO: handle errors not with empty div, but forward or roll data back in the view
   if (
     !qrCodeExists.data?.qrExists ||
     qrCodeExists.error ||
-    allLocations === undefined ||
-    allProducts === undefined
-  ) {
-    return <div />;
-  }
+    allFormOptions.error ||
+    !allFormOptions.data?.base
+  )
+    return (
+      <AlertWithoutAction alertText="Could not fetch QR, Location and Product data! Please try reloading the page." />
+    );
 
   return (
-    <Center>
+    <Center flexDirection="column" gap={4}>
+      {noLocation && (
+        <AlertWithoutAction
+          alertText={`${baseName} needs a coordinator to create an <InStock> warehouse location before boxes can be created!`}
+        />
+      )}
+      {noProducts && (
+        <AlertWithoutAction
+          alertText={`${baseName} needs a coordinator to activate products types before boxes can be created!`}
+        />
+      )}
       <BoxCreate
-        allLocations={allLocations}
-        productAndSizesData={allProducts}
+        allLocations={allLocations || []}
+        productAndSizesData={allProducts || []}
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         allTags={allTags}
+        disableSubmission={noLocation || noProducts}
       />
     </Center>
   );
