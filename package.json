@@ -12,7 +12,7 @@
     "lint:fix": "pnpm lint --fix",
     "lint:all": "pnpm lint shared-components front statviz",
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
-    "graphql-gen": "pnpm gql-tada generate schema 'http://localhost:5005/graphql' --header \"Authorization: bearer `docker compose exec webapp ./back/fetch_token --test`\" --output ./graphql/generated/schema.graphql && pnpm gql-tada generate output",
+    "graphql-gen": "cat ./back/boxtribute_server/graph_ql/definitions/basic/*.graphql ./back/boxtribute_server/graph_ql/definitions/protected/*.graphql ./back/boxtribute_server/graph_ql/definitions/public/types.graphql > ./graphql/generated/schema.graphql && pnpm gql-tada generate output",
     "test": "TZ=UTC vitest",
     "test:coverage": "TZ=UTC vitest run --coverage",
     "prepare": "husky || true"

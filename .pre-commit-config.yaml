@@ -36,12 +36,12 @@ repos:
         language: system
         require_serial: true
         args: ["--filter-files"]
-      # TODO how do I change this to run at the project root folder in Docker? We need to run pnpm graphql-gen when the schemas in the backend changes.
-      # - id: generate-graphql-ts-types
-      #   name: Generate GraphQL Typescript definitions
-      #   entry: docker-compose
-      #   types: [graphql]
-      #   language: system
-      #   require_serial: true
-      #   pass_filenames: false
-      #   args: ["run", "--rm", "front", "pnpm", "graphql-gen"]
+      - id: generate-graphql-ts-types
+        name: Generate GraphQL Typescript definitions
+        entry: docker-compose
+        types: [graphql]
+        files: back/boxtribute_server/graph_ql/definitions
+        language: system
+        require_serial: true
+        pass_filenames: false
+        args: ["run", "--rm", "front", "pnpm", "-C", "..", "graphql-gen"]
