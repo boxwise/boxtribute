@@ -30,7 +30,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   // Need to set this as soon as we have this value available to set the default radio selection.
   useEffect(() => {
     setValue(firstAvailableBaseId);
-  }, [firstAvailableBaseId]);
+  }, [firstAvailableBaseId, currentBaseId]);
 
   const switchBase = () => {
     const currentPath = window.location.pathname.split("/bases/")[1].substring(1);
