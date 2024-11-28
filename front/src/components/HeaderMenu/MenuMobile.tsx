@@ -26,6 +26,7 @@ import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BaseSwitcher from "./BaseSwitcher";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -47,8 +48,11 @@ function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; p
 function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
+  const { baseId: currentBaseId } = useBaseIdParam();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
+  const currentOrganisationHasMoreThanOneBaseAvailable =
+    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) > 1;
 
   return (
     <Flex as="nav" py={4} zIndex="2">
@@ -112,7 +116,15 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
               ))}
             </Accordion>
             <MenuDivider />
-            <MenuItem px={2} bg="transparent" _hover={{ bg: "transparent" }} onClick={onOpen}>
+            <MenuItem
+              px={2}
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
+              style={{
+                cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
+              }}
+            >
               <SubItemBox>
                 <MenuIcon icon="Base" /> You are in: {baseName}
               </SubItemBox>

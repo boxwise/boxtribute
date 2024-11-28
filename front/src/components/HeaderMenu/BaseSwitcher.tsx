@@ -15,12 +15,17 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const navigate = useNavigate();
+  const { baseId: currentBaseId } = useBaseIdParam();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const currentOrganisationBases = globalPreferences.availableBases;
-  const [value, setValue] = useState("1");
+  const currentOrganisationBases = globalPreferences.availableBases?.filter(
+    (base) => base.id !== currentBaseId,
+  );
+  const firstAvailableBaseId = currentOrganisationBases?.find((base) => base)?.id;
+  const [value, setValue] = useState(firstAvailableBaseId);
 
   const switchBase = () => {
     const currentPath = window.location.pathname.split("/bases/")[1].substring(1);
@@ -34,10 +39,10 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Switch Bases to</ModalHeader>
+          <ModalHeader>Switch Base to</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <RadioGroup onChange={setValue} value={value}>
+            <RadioGroup onChange={setValue} value={value} defaultValue={firstAvailableBaseId}>
               <Stack ml={"30%"}>
                 {currentOrganisationBases?.map((base) => (
                   <Radio key={base.id} value={base.id}>
@@ -51,7 +56,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             <Button onClick={onClose} width="100%">
               Nevermind
             </Button>
-            <Button colorScheme="blue" width="100%" onClick={switchBase}>
+            <Button colorScheme="blue" width="100%" onClick={switchBase} isDisabled={!value}>
               Switch
             </Button>
           </ModalFooter>

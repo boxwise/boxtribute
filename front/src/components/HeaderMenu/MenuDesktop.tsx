@@ -18,12 +18,16 @@ import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
 import { useContext } from "react";
 import BaseSwitcher from "./BaseSwitcher";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
+  const { baseId: currentBaseId } = useBaseIdParam();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
+  const currentOrganisationHasMoreThanOneBaseAvailable =
+    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) > 1;
   const allowMultipleAccordionsOpen = window.screen.availHeight > 1080;
 
   return (
@@ -73,7 +77,13 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         <Accordion marginTop={"auto"}>
           <strong style={{ marginLeft: "1rem" }}>Settings</strong>
           <AccordionItem>
-            <AccordionButton gap={3} onClick={onOpen}>
+            <AccordionButton
+              gap={3}
+              onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
+              style={{
+                cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
+              }}
+            >
               <MenuIcon icon="Base" /> You are in: {baseName}
             </AccordionButton>
           </AccordionItem>
