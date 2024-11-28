@@ -6,6 +6,7 @@ import {
   Flex,
   Box,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
@@ -29,7 +30,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
     1;
-  const allowMultipleAccordionsOpen = window.screen.availHeight > 1080;
+  const [allowMultipleAccordionsOpen] = useMediaQuery("(min-width: 1080px)");
 
   return (
     <>
