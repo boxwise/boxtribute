@@ -7,8 +7,9 @@ import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visua
 import { STOCK_QUERY } from "../shared-components/statviz/components/visualizations/stock/StockDataContainer";
 import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
 
-export type ProductGender = Product["gender"];
+/** @todo Make a fragment to infer this type. */
 export type TargetType = introspection_types["TargetType"]["enumValues"];
+export type ProductGender = Product["gender"];
 
 export type User = FragmentOf<typeof USER_FRAGMENT>;
 export type Product = FragmentOf<typeof PRODUCT_FRAGMENT>;

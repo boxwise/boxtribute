@@ -8,6 +8,7 @@ export type DistributionEventState = FragmentOf<typeof DISTRO_EVENT_FIELDS_FRAGM
 export type BoxState = FragmentOf<typeof BOX_FIELDS_FRAGMENT>["state"];
 export type ShipmentState = Shipment["state"];
 
+/** @todo Move types hints from this to a local query/fragment. */
 export type Box = ResultOf<typeof BOX_QUERY>["box"];
 export type BoxByLabelIdentifier = ResultOf<typeof BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY>["box"]
 export type Shipment = FragmentOf<typeof SHIPMENT_FIELDS_FRAGMENT>;

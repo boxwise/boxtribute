@@ -81,7 +81,6 @@
     "vitest": "^2.1.6"
   },
   "lint-staged": {
-    "*.{gql,graphql}": "pnpm graphql-gen",
     "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
     "*.{js,json,ts,tsx}": "prettier --write"
   }
