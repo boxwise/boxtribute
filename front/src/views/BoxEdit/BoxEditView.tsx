@@ -5,8 +5,8 @@ import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   TAG_OPTIONS_FRAGMENT,
-  BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
 } from "queries/fragments";
 // TODO: move to global queries file
 import { useErrorHandling } from "hooks/useErrorHandling";

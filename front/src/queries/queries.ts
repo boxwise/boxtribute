@@ -1,14 +1,13 @@
-import { SHIPMENT_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "../../../graphql/fragments";
 import { graphql } from "../../../graphql/graphql"
+import { PRODUCT_BASIC_FIELDS_FRAGMENT, SHIPMENT_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "../../../graphql/fragments";
 import {
-  BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
   BOX_BASIC_FIELDS_FRAGMENT,
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
   BASE_ORG_FIELDS_FRAGMENT,
   LOCATION_BASIC_FIELDS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
 } from "./fragments";
 
 // very first query that is always executed

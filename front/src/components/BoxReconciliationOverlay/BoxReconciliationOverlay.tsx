@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { boxReconciliationOverlayVar } from "queries/cache";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { useNavigate } from "react-router-dom";
-import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
 import { chakra } from "@chakra-ui/react";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
+import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
+import { ShipmentDetail } from "queries/types";
 import {
   BoxReconciliationView,
   ILocationData,
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { ShipmentDetail } from "../../../../graphql/types";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;

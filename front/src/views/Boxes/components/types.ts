@@ -1,4 +1,6 @@
-import { Tag, Shipment } from "../../../../../graphql/types";
+import { FragmentOf } from "gql.tada";
+import { Shipment } from "queries/types";
+import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 
 export type BoxRow = {
   labelIdentifier: string;
@@ -8,7 +10,7 @@ export type BoxRow = {
   size: string;
   location: string;
   state: string;
-  tags: Tag[];
+  tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[];
   shipment: Shipment | null;
   comment: string | null;
   age: number;

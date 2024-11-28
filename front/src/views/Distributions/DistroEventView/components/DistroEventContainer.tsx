@@ -28,7 +28,7 @@ import { DistributionEventDetails, DistributionEventStateSchema } from "views/Di
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
 import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State4ReturnTrackingInProgress/DistroEventDetailsForReturnTrackingInProgressStateContainer";
-import { DistributionEventState } from "../../../../../../graphql/types";
+import { DistributionEventState } from "queries/types";
 
 export interface DistroEventContainerProps {
   distributionEventDetails: DistributionEventDetails;

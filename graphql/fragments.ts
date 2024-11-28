@@ -38,15 +38,6 @@ export const SIZE_BASIC_FIELDS_FRAGMENT = graphql(`
   }
 `);
 
-export const LOCATION_BASIC_FIELDS_FRAGMENT = graphql(`
-  fragment LocationBasicFields on ClassicLocation @_unmask {
-    defaultBoxState
-    id
-    seq
-    name
-  }
-`);
-
 export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
   fragment TagBasicFields on Tag @_unmask {
     id
@@ -129,128 +120,6 @@ export const BOX_BASIC_FIELDS_FRAGMENT = graphql(`
     lastModifiedOn
   }
 `);
-
-export const BOX_FIELDS_FRAGMENT = graphql(`
-  fragment BoxFields on Box @_unmask {
-    id
-    labelIdentifier
-    state
-    product {
-      ...ProductBasicFields
-    }
-    size {
-      ...SizeBasicFields
-    }
-    shipmentDetail {
-      id
-      shipment {
-        id
-        labelIdentifier
-        state
-        details {
-          id
-          box {
-            location {
-              ...LocationBasicFields
-              base {
-                ...BaseBasicFields
-              }
-            }
-            labelIdentifier
-          }
-          sourceQuantity
-          sourceProduct {
-            ...ProductBasicFields
-          }
-          sourceSize {
-            ...SizeBasicFields
-          }
-          sourceLocation {
-            ...LocationBasicFields
-          }
-        }
-        targetBase {
-          id
-          name
-          organisation {
-            id
-            name
-          }
-        }
-      }
-    }
-
-    location {
-      id
-      name
-      ... on ClassicLocation {
-        defaultBoxState
-      }
-      base {
-        ...BaseBasicFields
-      }
-    }
-    numberOfItems
-    tags {
-      ...TagBasicFields
-    }
-    comment
-    history {
-      ...HistoryFields
-    }
-    createdOn
-    lastModifiedOn
-  }
-`, [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT, HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT]);
-
-export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = graphql(`
-  fragment BoxWithSizeTagProductFields on Box @_unmask {
-    labelIdentifier
-    state
-    size {
-      ...SizeBasicFields
-    }
-    numberOfItems
-    comment
-    product {
-      ...ProductBasicFields
-    }
-    tags {
-      ...TagBasicFields
-    }
-    distributionEvent {
-      ...DistroEventFields
-    }
-    location {
-      id
-      name
-      ... on ClassicLocation {
-        defaultBoxState
-      }
-      base {
-        locations {
-          id
-          seq
-          name
-          ... on ClassicLocation {
-            defaultBoxState
-          }
-        }
-        distributionEventsBeforeReturnedFromDistributionState {
-          id
-          state
-          distributionSpot {
-            name
-          }
-          name
-          plannedStartDateTime
-          plannedEndDateTime
-        }
-      }
-    }
-    lastModifiedOn
-  }
-`, [SIZE_BASIC_FIELDS_FRAGMENT, PRODUCT_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT]);
 
 export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = graphql(`
   fragment TransferAgreementFields on TransferAgreement @_unmask {
@@ -420,14 +289,6 @@ export const USER_FRAGMENT = graphql(`
   }
   `)
 
-export const TAG_FRAGMENT = graphql(`
-  fragment TagFragment on TagDimensionInfo @_unmask {
-    id
-    name
-    color
-  }
-`);
-
 export const PRODUCT_FRAGMENT = graphql(`
   fragment ProductFragment on ProductDimensionInfo @_unmask {
     id
@@ -486,21 +347,5 @@ export const BENEFICIARY_DEMOGRAPHICS_FRAGMENT = graphql(`
     age
     gender
     tagIds
-  }
-`);
-
-export const TARGET_DIMENSION_INFO_FRAGMENT = graphql(`
-  fragment TargetDimensionInfo on TargetDimensionInfo @_unmask {
-    id
-    name
-    type
-  }
-`);
-
-export const TAG_DIMENSION_INFO_FRAGMENT = graphql(`
-  fragment TagDimensionInfo on TagDimensionInfo @_unmask {
-    id
-    name
-    color
   }
 `);

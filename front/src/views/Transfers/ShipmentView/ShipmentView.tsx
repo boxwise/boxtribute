@@ -32,8 +32,9 @@ import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { ShipmentState, ShipmentDetail, User } from "../../../../../graphql/types";
+import { User } from "../../../../../graphql/types";
 import { SHIPMENT_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
+import { ShipmentDetail, ShipmentState } from "queries/types";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
@@ -129,7 +130,7 @@ function ShipmentView() {
   } = useDisclosure();
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
-  const [shipmentState, setShipmentState] = useState<ShipmentState | undefined>();
+  const [shipmentState, setShipmentState] = useState<ShipmentState>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();

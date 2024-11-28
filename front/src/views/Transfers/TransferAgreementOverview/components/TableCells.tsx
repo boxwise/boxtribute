@@ -1,17 +1,17 @@
 import { Button, chakra, Link, Stack, Tooltip, VStack } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
+import { CellProps } from "react-table";
 import { BidirectionalIcon } from "components/Icon/Transfer/BidirectionalIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
-import { Link as RouterLink } from "react-router-dom";
-import { CellProps } from "react-table";
-import { TransferAgreementState } from "../../../../../../graphql/types";
+import { TransferAgreements } from "queries/types";
 
 export enum CanAcceptTransferAgreementState {
   CanAccept = "CanAccept",
 }
 
 export type IExtendedTransferAgreementState =
-  | TransferAgreementState
+  | TransferAgreements["state"]
   | CanAcceptTransferAgreementState;
 
 export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {

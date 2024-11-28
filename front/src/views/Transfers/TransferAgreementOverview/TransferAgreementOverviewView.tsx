@@ -4,7 +4,6 @@ import { graphql, ResultOf } from "../../../../../graphql/graphql";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
@@ -24,7 +23,8 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { TransferAgreements } from "../../../../../graphql/types";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
+import { TransferAgreements } from "queries/types";
 
 export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreements;

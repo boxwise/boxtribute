@@ -13,7 +13,8 @@ import {
 import { BiTrash } from "react-icons/bi";
 
 import { BoxReconcilationAccordion } from "./BoxReconciliationAccordion";
-import { ProductGender, ShipmentDetail } from "../../../../../graphql/types";
+import { ProductGender } from "../../../../../graphql/types";
+import { ShipmentDetail } from "queries/types";
 
 export interface ICategoryData {
   name: string;

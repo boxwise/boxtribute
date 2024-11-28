@@ -8,12 +8,12 @@ import {
 import { Column } from "react-table";
 import { useTableConfig } from "hooks/hooks";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../../graphql/fragments";
 import {
-  BASE_ORG_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
-} from "queries/fragments";
+  TAG_BASIC_FIELDS_FRAGMENT,
+} from "../../../../graphql/fragments";
+import { BASE_ORG_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";

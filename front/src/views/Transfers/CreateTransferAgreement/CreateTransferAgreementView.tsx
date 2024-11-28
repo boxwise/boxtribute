@@ -6,7 +6,6 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
-import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateTransferAgreement, {
@@ -16,6 +15,7 @@ import CreateTransferAgreement, {
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 
 export const ALL_ORGS_AND_BASES_QUERY = graphql(`
   query AllOrganisationsAndBases {
