@@ -11,7 +11,7 @@ import {
   RadioGroup,
   Stack,
 } from "@chakra-ui/react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
@@ -26,6 +26,11 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   );
   const firstAvailableBaseId = currentOrganisationBases?.find((base) => base)?.id;
   const [value, setValue] = useState(firstAvailableBaseId);
+
+  // Need to set this as soon as we have this value available to set the default radio selection.
+  useEffect(() => {
+    setValue(firstAvailableBaseId);
+  }, [firstAvailableBaseId]);
 
   const switchBase = () => {
     const currentPath = window.location.pathname.split("/bases/")[1].substring(1);
@@ -42,7 +47,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
           <ModalHeader>Switch Base to</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <RadioGroup onChange={setValue} value={value} defaultValue={firstAvailableBaseId}>
+            <RadioGroup onChange={setValue} value={value}>
               <Stack ml={"30%"}>
                 {currentOrganisationBases?.map((base) => (
                   <Radio key={base.id} value={base.id}>
