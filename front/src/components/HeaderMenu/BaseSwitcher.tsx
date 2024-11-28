@@ -12,13 +12,15 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  console.log(useLocation());
   const { baseId: currentBaseId } = useBaseIdParam();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const currentOrganisationBases = globalPreferences.availableBases?.filter(
@@ -33,7 +35,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   }, [firstAvailableBaseId, currentBaseId]);
 
   const switchBase = () => {
-    const currentPath = window.location.pathname.split("/bases/")[1].substring(1);
+    const currentPath = pathname.split("/bases/")[1].substring(1);
 
     navigate(`/bases/${value}${currentPath}`);
     onClose();
