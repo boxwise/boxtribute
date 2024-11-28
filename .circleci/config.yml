@@ -49,7 +49,7 @@ jobs:
             pnpm config set store-dir .pnpm-store
       - run:
           name: Install node packages for all front-ends
-          command: pnpm install --no-frozen-lockfile # remove flag once overrides and package version conflicts are fixed
+          command: pnpm install
       - save_cache:
           key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
           paths:
