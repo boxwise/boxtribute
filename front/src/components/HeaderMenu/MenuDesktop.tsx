@@ -27,7 +27,8 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
-    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) > 1;
+    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
+    1;
   const allowMultipleAccordionsOpen = window.screen.availHeight > 1080;
 
   return (

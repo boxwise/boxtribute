@@ -52,7 +52,8 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
-    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) > 1;
+    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
+    1;
 
   return (
     <Flex as="nav" py={4} zIndex="2">
