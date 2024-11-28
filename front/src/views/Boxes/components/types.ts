@@ -1,6 +1,6 @@
 import { FragmentOf } from "gql.tada";
+import { TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { Shipment } from "queries/types";
-import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 
 export type BoxRow = {
   labelIdentifier: string;

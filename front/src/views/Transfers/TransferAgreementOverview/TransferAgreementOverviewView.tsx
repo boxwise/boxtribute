@@ -23,8 +23,8 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 import { TransferAgreements } from "queries/types";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 
 export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreements;

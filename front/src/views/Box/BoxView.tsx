@@ -21,6 +21,7 @@ import {
   BOX_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
+  TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -44,7 +45,6 @@ import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { TAG_BASIC_FIELDS_FRAGMENT } from "../../../../graphql/fragments";
 import { BoxState } from "queries/types";
 
 // Queries and Mutations

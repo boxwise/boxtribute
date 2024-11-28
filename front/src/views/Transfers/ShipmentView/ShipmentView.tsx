@@ -33,8 +33,8 @@ import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { User } from "../../../../../graphql/types";
-import { SHIPMENT_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 import { ShipmentDetail, ShipmentState } from "queries/types";
+import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
