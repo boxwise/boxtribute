@@ -30,7 +30,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
     1;
-  const [allowMultipleAccordionsOpen] = useMediaQuery("(min-width: 1080px)");
+  const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
 
   return (
     <>
