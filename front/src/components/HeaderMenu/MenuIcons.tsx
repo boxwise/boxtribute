@@ -7,6 +7,7 @@ import {
   RiKeyFill,
   RiQrCodeLine,
   RiLockStarFill,
+  RiBaseStationFill,
 } from "react-icons/ri";
 
 export type Icon =
@@ -17,6 +18,7 @@ export type Icon =
   | "Beneficiaries"
   | "Free Shop"
   | "Coordinator Admin"
+  | "Base"
   | "Account"
   | "Logout";
 
@@ -36,10 +38,12 @@ function MenuIcons({ icon }: { icon: Icon }) {
       return <BiSolidStore />;
     case "Coordinator Admin":
       return <RiLockStarFill />;
+    case "Base":
+      return <RiBaseStationFill />;
     case "Account":
       return <RiAccountCircleFill />;
     case "Logout":
-      return <RiKeyFill />;
+      return <RiKeyFill style={{ rotate: "90deg" }} />;
     default:
       return <></>;
   }
