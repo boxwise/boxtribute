@@ -17,7 +17,9 @@ import {
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import { FaWarehouse, FaTags } from "react-icons/fa";
+import { FaTags } from "react-icons/fa";
+import { FaCartFlatbed } from "react-icons/fa6";
+
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { colorIsBright } from "utils/helpers";
@@ -134,7 +136,7 @@ function QrReaderMultiBox({
           <Stack direction="column">
             <Radio value="moveBox" data-testid="MoveBox">
               <Stack direction="row" alignItems="center" spacing={2}>
-                <Icon as={FaWarehouse} boxSize={6} />
+                <Icon as={FaCartFlatbed} boxSize={6} />
                 <Text>Move to Location</Text>
               </Stack>
             </Radio>
