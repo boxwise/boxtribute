@@ -20,7 +20,6 @@ import { useBaseIdParam } from "hooks/useBaseIdParam";
 function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  console.log(useLocation());
   const { baseId: currentBaseId } = useBaseIdParam();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const currentOrganisationBases = globalPreferences.availableBases?.filter(
