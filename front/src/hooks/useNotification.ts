@@ -1,15 +1,9 @@
-import { ToastPosition, useMediaQuery, useToast } from "@chakra-ui/react";
-import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@chakra-ui/react";
+import { useCallback } from "react";
 import { INotificationProps } from "./hooks";
 
 export const useNotification = (toastName?: string) => {
   const toast = useToast();
-  const [isSmallScreen] = useMediaQuery("(max-width: 1070px)");
-  const [position, setPosition] = useState<ToastPosition>("bottom");
-
-  useEffect(() => {
-    setPosition(isSmallScreen ? "bottom" : "top");
-  }, [isSmallScreen]);
 
   const createToast = useCallback(
     ({ message, type, ...props }: INotificationProps) =>
@@ -17,13 +11,13 @@ export const useNotification = (toastName?: string) => {
         id: toastName,
         duration: 5000,
         isClosable: true,
-        position,
+        position: "top-right",
         variant: "subtle",
         status: type,
         description: message,
         ...props,
       }),
-    [toast, position, toastName],
+    [toast, toastName],
   );
 
   return !toastName

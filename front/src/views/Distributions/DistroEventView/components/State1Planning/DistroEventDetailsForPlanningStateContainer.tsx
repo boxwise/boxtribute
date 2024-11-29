@@ -26,19 +26,13 @@ import {
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
-import {
-  DistributionEventDetails,
-  IPackingListEntry,
-} from "views/Distributions/types";
+import { DistributionEventDetails, IPackingListEntry } from "views/Distributions/types";
 import DistroEventDetailsForPlanningState from "./DistroEventDetailsForPlanningState";
 
 interface IDistroEventDetailsForPlanningStateContext {
   distributionEvent: DistributionEventDetails;
   onRemoveAllPackingListEntriesForProduct: (productId: string) => void;
-  onUpdateProductsInPackingList: (
-    productIdsToAdd: string[],
-    productIdsToRemove: string[]
-  ) => void;
+  onUpdateProductsInPackingList: (productIdsToAdd: string[], productIdsToRemove: string[]) => void;
 }
 
 export const DistroEventDetailsForPlanningStateContext =
@@ -50,9 +44,7 @@ interface DistroEventDetailsForPlanningStateContainerProps {
 
 export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
   mutation RemoveEntryFromPackingList($packingListEntryId: ID!) {
-    removePackingListEntryFromDistributionEvent(
-      packingListEntryId: $packingListEntryId
-    ) {
+    removePackingListEntryFromDistributionEvent(packingListEntryId: $packingListEntryId) {
       id
     }
   }
@@ -87,14 +79,8 @@ export const UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION = g
 `;
 
 export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
-  mutation updatePackingListEntry(
-    $packingListEntryId: ID!
-    $numberOfItems: Int!
-  ) {
-    updatePackingListEntry(
-      packingListEntryId: $packingListEntryId
-      numberOfItems: $numberOfItems
-    ) {
+  mutation updatePackingListEntry($packingListEntryId: ID!, $numberOfItems: Int!) {
+    updatePackingListEntry(packingListEntryId: $packingListEntryId, numberOfItems: $numberOfItems) {
       id
       numberOfItems
       product {
@@ -182,25 +168,21 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
-  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] =
-    useMutation<
-      RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
-      RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
-    >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
-      refetchQueries: [
-        {
-          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-          variables: {
-            distributionEventId: distributionEventDetails.id,
-          },
+  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation<
+    RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
+    RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
+  >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
+    refetchQueries: [
+      {
+        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+        variables: {
+          distributionEventId: distributionEventDetails.id,
         },
-      ],
-    });
+      },
+    ],
+  });
 
-  const onUpdatePackingListEntry = (
-    packingListEntryId: string,
-    numberOfItems: number
-  ) => {
+  const onUpdatePackingListEntry = (packingListEntryId: string, numberOfItems: number) => {
     updatePackingListEntryMutation({
       variables: {
         packingListEntryId: packingListEntryId,
@@ -209,7 +191,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
     }).then((result) => {
       if (result.errors && result.errors.length !== 0) {
         console.error(
-          `GraphQL error while trying to update Packing List Entry (id: ${packingListEntryId})`
+          `GraphQL error while trying to update Packing List Entry (id: ${packingListEntryId})`,
           // TODO: consider to track the respective error details
         );
         toast({
@@ -218,6 +200,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           status: "error",
           duration: 2000,
           isClosable: true,
+          position: "top-right",
         });
       } else {
         toast({
@@ -225,6 +208,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           status: "success",
           isClosable: true,
           duration: 2000,
+          position: "top-right",
         });
       }
     });
@@ -241,15 +225,15 @@ const DistroEventDetailsForPlanningStateContainer = ({
           if (res.errors && res.errors.length !== 0) {
             console.error(
               `GraphQL error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
-              res.errors
+              res.errors,
             );
             toast({
               title: "Error",
-              description:
-                "Packing list entry couldn't be removed from the distribution event.",
+              description: "Packing list entry couldn't be removed from the distribution event.",
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -257,25 +241,26 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
         .catch((error) => {
           console.error(
             `Error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
-            error
+            error,
           );
           toast({
             title: "Error",
-            description:
-              "Packing list entry couldn't be removed from the distribution event.",
+            description: "Packing list entry couldn't be removed from the distribution event.",
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
-    [distributionEventDetails.id, removeEntryFromPackingListMutation, toast]
+    [distributionEventDetails.id, removeEntryFromPackingListMutation, toast],
   );
 
   const distributionEventId = distributionEventDetails.id;
@@ -292,15 +277,15 @@ const DistroEventDetailsForPlanningStateContainer = ({
           if (res.errors && res.errors.length !== 0) {
             console.error(
               `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
-              res.errors
+              res.errors,
             );
             toast({
               title: "Error",
-              description:
-                "Packing list entries couldn't be removed from the distribution event.",
+              description: "Packing list entries couldn't be removed from the distribution event.",
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -308,21 +293,22 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
         .catch((error) => {
           console.error(
             `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
-            error
+            error,
           );
           toast({
             title: "Error",
-            description:
-              "Packing list entries couldn't be removed from the distribution event.",
+            description: "Packing list entries couldn't be removed from the distribution event.",
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
@@ -330,7 +316,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
       distributionEventId,
       removeAllPackingListEntriesFromDistributionEventForProductMutation,
       toast,
-    ]
+    ],
   );
 
   const [updateProductsInPackingListMutation] = useMutation<
@@ -362,7 +348,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           if (res.errors && res.errors.length !== 0) {
             console.error(
               `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
-              res.errors
+              res.errors,
             );
             toast({
               title: "Error",
@@ -370,6 +356,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -377,13 +364,14 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
         .catch((error) => {
           console.error(
             `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
-            error
+            error,
           );
           toast({
             title: "Error",
@@ -391,10 +379,11 @@ const DistroEventDetailsForPlanningStateContainer = ({
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
-    [distroEventId, toast, updateProductsInPackingListMutation]
+    [distroEventId, toast, updateProductsInPackingListMutation],
   );
 
   if (loading) {
@@ -435,9 +424,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
-            {distributionEventDetails.distributionSpot.name}
-          </ModalHeader>
+          <ModalHeader>{distributionEventDetails.distributionSpot.name}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <AddItemsToPackingListContainer

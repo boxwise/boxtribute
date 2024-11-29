@@ -3,11 +3,11 @@ import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   CreateDistributionSpotMutation,
-  CreateDistributionSpotMutationVariables
+  CreateDistributionSpotMutationVariables,
 } from "../../../types/generated/graphql";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
 import CreateDistributionSpot, {
-  CreateDistributionSpotFormData
+  CreateDistributionSpotFormData,
 } from "./components/CreateDistributionSpot";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = gql`
@@ -49,6 +49,7 @@ const CreateDistributionSpotView = () => {
       status: "error",
       duration: 2000,
       isClosable: true,
+      position: "top-right",
     });
 
   const onSubmitNewDitroSpot = (distroSpot: CreateDistributionSpotFormData) => {
@@ -71,12 +72,8 @@ const CreateDistributionSpotView = () => {
       ],
     })
       .then((mutationResult) => {
-        const distributionSpotId =
-          mutationResult.data?.createDistributionSpot?.id;
-        if (
-          distributionSpotId === null ||
-          (mutationResult.errors?.length || 0) > 0
-        ) {
+        const distributionSpotId = mutationResult.data?.createDistributionSpot?.id;
+        if (distributionSpotId === null || (mutationResult.errors?.length || 0) > 0) {
           showErrorToast();
         }
         navigate(`/bases/${baseId}/distributions/spots`);
