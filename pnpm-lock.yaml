@@ -212,8 +212,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2(@fortawesome/fontawesome-svg-core@6.7.1)(react@18.3.1)
       '@sentry/react':
-        specifier: ^8.40.0
-        version: 8.40.0(react@18.3.1)
+        specifier: ^8.41.0
+        version: 8.41.0(react@18.3.1)
       '@zxing/browser':
         specifier: ^0.1.5
         version: 0.1.5(@zxing/library@0.21.3)
@@ -224,7 +224,7 @@ importers:
         specifier: 4.9.2
         version: 4.9.2(lua3slmabkggl3r4jhqlwdsd2u)
       react-big-calendar:
-        specifier: ^1.16.2
+        specifier: ^1.16.3
         version: 1.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-icons:
         specifier: ^5.3.0
@@ -246,8 +246,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.2(graphql@16.9.0)
       '@sentry/types':
-        specifier: ^8.40.0
-        version: 8.40.0
+        specifier: ^8.41.0
+        version: 8.41.0
       '@storybook/addon-actions':
         specifier: ^8.4.5
         version: 8.4.5(storybook@8.4.5(prettier@3.4.1))
@@ -2143,38 +2143,38 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
-  '@sentry-internal/browser-utils@8.40.0':
-    resolution: {integrity: sha512-tx7gb/PWMbTEyil/XPETVeRUeS3nKHIvQY2omyebw30TbhyLnibPZsUmXJiaIysL5PcY3k9maub3W/o0Y37T7Q==}
+  '@sentry-internal/browser-utils@8.41.0':
+    resolution: {integrity: sha512-nU7Bn3jEUmf1QXRUT3j2ewUBlFJpe9vnAnjqpeVPDWTsVI52BwVNcJHuE37PrGs66OZ1ZkGMfKnQk43oCAa+oQ==}
     engines: {node: '>=14.18'}
 
-  '@sentry-internal/feedback@8.40.0':
-    resolution: {integrity: sha512-1O9F3z80HNE0VfepKS+v+dixdatNqWlrlwgvvWl4BGzzoA+XhqvZo+HWxiOt7yx7+k1TuZNrB6Gy3u/QvpozXA==}
+  '@sentry-internal/feedback@8.41.0':
+    resolution: {integrity: sha512-bw+BrSNw8abOnu/IpD8YSbYubXkkT8jyNS7TM4e4UPZMuXcbtia7/r5d7kAiUfKv/sV5PNMlZLOk+EYJeLTANg==}
     engines: {node: '>=14.18'}
 
-  '@sentry-internal/replay-canvas@8.40.0':
-    resolution: {integrity: sha512-Zr+m/le0SH4RowZB7rBCM0aRnvH3wZTaOFhwUk03/oGf2BRcgKuDCUMjnXKC9MyOpmey7UYXkzb8ro+81R6Q8w==}
+  '@sentry-internal/replay-canvas@8.41.0':
+    resolution: {integrity: sha512-lpgOBHWr1ZNxidD72A2pfoUMjIpwonOPYoQZWAHr86Oa3eIVQOyfklZlHW+gKPFl2/IEl9Lbtcke0JiDp3dkIQ==}
     engines: {node: '>=14.18'}
 
-  '@sentry-internal/replay@8.40.0':
-    resolution: {integrity: sha512-0SaDsBCSWxNVgNmPKu23frrHEXzN/MKl0hIkfuO55vL5TgjLTwpgkf0Ne4rNvaZQ5omIKk9Qd63HuQP3PHAMaw==}
+  '@sentry-internal/replay@8.41.0':
+    resolution: {integrity: sha512-ByXEY7JI95y4Qr9fS3d28l9uuVU5Qa0HgL+xDmYElNx7CXz3Q9hFN6ibgUeC3h8BO5pDULxWNgAppl7FRY8N5w==}
     engines: {node: '>=14.18'}
 
-  '@sentry/browser@8.40.0':
-    resolution: {integrity: sha512-m/Yor6IDBeDHtQochu8n6z4HXrXkrPhu6+o5Ouve0Zi3ptthSoK1FOGvJxVBat3nRq0ydQyuuPuTB6WfdWbwHQ==}
+  '@sentry/browser@8.41.0':
+    resolution: {integrity: sha512-FfAU55eYwW2lG4M3dEw2472RvHrD5YWSfHCZvuRf/4skX38kFvKghZQ+epL+CVHTzvIRHOrbj8qQK6YLTGl9ew==}
     engines: {node: '>=14.18'}
 
-  '@sentry/core@8.40.0':
-    resolution: {integrity: sha512-u/U2CJpG/+SmTR2bPM4ZZoPYTJAOUuxzj/0IURnvI0v9+rNu939J/fzrO9huA5IJVxS5TiYykhQm7o6I3Zuo3Q==}
+  '@sentry/core@8.41.0':
+    resolution: {integrity: sha512-3v7u3t4LozCA5SpZY4yqUN2U3jSrkXNoLgz6L2SUUiydyCuSwXZIFEwpLJfgQyidpNDifeQbBI5E1O910XkPsA==}
     engines: {node: '>=14.18'}
 
-  '@sentry/react@8.40.0':
-    resolution: {integrity: sha512-Ohq/po83r9sh/DCO6VAxx4xU+1ztvFzmXTl3fUnAEc+2bFJK1MsRt6BWfG37XxjQN//mfmyS9KEBgsOpOyd4LQ==}
+  '@sentry/react@8.41.0':
+    resolution: {integrity: sha512-/7LEWDNdICYO5s4ie8ztgpmD/GRJ1+1nHlSKvcwjf83COzT1eGvVeuYTiXFAPmXA29sY+lV1RajziwgySadjIQ==}
     engines: {node: '>=14.18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
 
-  '@sentry/types@8.40.0':
-    resolution: {integrity: sha512-nuCf3U3deolPM9BjNnwCc33UtFl9ec15/r74ngAkNccn+A2JXdIAsDkGJMO/9mgSFykLe1QyeJ0pQFRisCGOiA==}
+  '@sentry/types@8.41.0':
+    resolution: {integrity: sha512-eqdnGr9k9H++b9CjVUoTNUVahPVWeNnMy0YGkqS5+cjWWC+x43p56202oidGFmWo6702ub/xwUNH6M5PC4kq6A==}
     engines: {node: '>=14.18'}
 
   '@storybook/addon-actions@8.4.5':
@@ -8506,50 +8506,50 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@sentry-internal/browser-utils@8.40.0':
+  '@sentry-internal/browser-utils@8.41.0':
     dependencies:
-      '@sentry/core': 8.40.0
-      '@sentry/types': 8.40.0
+      '@sentry/core': 8.41.0
+      '@sentry/types': 8.41.0
 
-  '@sentry-internal/feedback@8.40.0':
+  '@sentry-internal/feedback@8.41.0':
     dependencies:
-      '@sentry/core': 8.40.0
-      '@sentry/types': 8.40.0
+      '@sentry/core': 8.41.0
+      '@sentry/types': 8.41.0
 
-  '@sentry-internal/replay-canvas@8.40.0':
+  '@sentry-internal/replay-canvas@8.41.0':
     dependencies:
-      '@sentry-internal/replay': 8.40.0
-      '@sentry/core': 8.40.0
-      '@sentry/types': 8.40.0
+      '@sentry-internal/replay': 8.41.0
+      '@sentry/core': 8.41.0
+      '@sentry/types': 8.41.0
 
-  '@sentry-internal/replay@8.40.0':
+  '@sentry-internal/replay@8.41.0':
     dependencies:
-      '@sentry-internal/browser-utils': 8.40.0
-      '@sentry/core': 8.40.0
-      '@sentry/types': 8.40.0
+      '@sentry-internal/browser-utils': 8.41.0
+      '@sentry/core': 8.41.0
+      '@sentry/types': 8.41.0
 
-  '@sentry/browser@8.40.0':
+  '@sentry/browser@8.41.0':
     dependencies:
-      '@sentry-internal/browser-utils': 8.40.0
-      '@sentry-internal/feedback': 8.40.0
-      '@sentry-internal/replay': 8.40.0
-      '@sentry-internal/replay-canvas': 8.40.0
-      '@sentry/core': 8.40.0
-      '@sentry/types': 8.40.0
+      '@sentry-internal/browser-utils': 8.41.0
+      '@sentry-internal/feedback': 8.41.0
+      '@sentry-internal/replay': 8.41.0
+      '@sentry-internal/replay-canvas': 8.41.0
+      '@sentry/core': 8.41.0
+      '@sentry/types': 8.41.0
 
-  '@sentry/core@8.40.0':
+  '@sentry/core@8.41.0':
     dependencies:
-      '@sentry/types': 8.40.0
+      '@sentry/types': 8.41.0
 
-  '@sentry/react@8.40.0(react@18.3.1)':
+  '@sentry/react@8.41.0(react@18.3.1)':
     dependencies:
-      '@sentry/browser': 8.40.0
-      '@sentry/core': 8.40.0
-      '@sentry/types': 8.40.0
+      '@sentry/browser': 8.41.0
+      '@sentry/core': 8.41.0
+      '@sentry/types': 8.41.0
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
 
-  '@sentry/types@8.40.0': {}
+  '@sentry/types@8.41.0': {}
 
   '@storybook/addon-actions@8.4.5(storybook@8.4.5(prettier@3.4.1))':
     dependencies:
