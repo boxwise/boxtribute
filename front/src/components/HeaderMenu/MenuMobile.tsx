@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import {
   Accordion,
   AccordionButton,
@@ -13,6 +13,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useHandleLogout } from "hooks/hooks";
@@ -23,6 +24,9 @@ import { IHeaderMenuProps } from "./HeaderMenu";
 import BoxtributeLogo from "./BoxtributeLogo";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import BaseSwitcher from "./BaseSwitcher";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -42,10 +46,18 @@ function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; p
 }
 
 function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
+  const { baseId: currentBaseId } = useBaseIdParam();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
+  const currentOrganisationHasMoreThanOneBaseAvailable =
+    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
+    1;
 
   return (
     <Flex as="nav" py={4} zIndex="2">
+      <BaseSwitcher isOpen={isOpen} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
         <Menu isLazy>
@@ -109,6 +121,19 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
               px={2}
               bg="transparent"
               _hover={{ bg: "transparent" }}
+              onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
+              style={{
+                cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
+              }}
+            >
+              <SubItemBox>
+                <MenuIcon icon="Base" /> You are in: {baseName}
+              </SubItemBox>
+            </MenuItem>
+            <MenuItem
+              px={2}
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
               as={NavLink}
               to={ACCOUNT_SETTINGS_URL}
             >
@@ -119,9 +144,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
             </MenuItem>
             <MenuItem px={2} bg="transparent" _hover={{ bg: "transparent" }} onClick={handleLogout}>
               <SubItemBox>
-                <Box style={{ rotate: "90deg" }}>
-                  <MenuIcon icon="Logout" />
-                </Box>
+                <MenuIcon icon="Logout" />
                 Logout
               </SubItemBox>
             </MenuItem>
