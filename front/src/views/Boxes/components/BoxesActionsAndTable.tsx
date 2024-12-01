@@ -1,6 +1,7 @@
 import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
+
 import { FaWarehouse } from "react-icons/fa"; // Add Trash Icon for delete action
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
@@ -18,6 +19,7 @@ import BoxesTable from "./BoxesTable";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import RemoveBoxesButton from "./RemoveBoxesButton";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import ExportToCsvButton from "./ExportToCsvButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -214,9 +216,7 @@ function BoxesActionsAndTable({
         selectedBoxes={selectedBoxes}
         key="remove-boxes"
       />,
-      <Button onClick={() => {}} key="export" data-testid="export-button">
-        Export
-      </Button>,
+      <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />,
       <SelectButton
         label="Move to ..."
         options={locationOptions}
