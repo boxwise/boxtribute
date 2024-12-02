@@ -38,7 +38,7 @@
     "msw": "^2.6.6",
     "mutationobserver-shim": "^0.3.7",
     "prop-types": "^15.8.1",
-    "storybook": "^8.4.5"
+    "storybook": "^8.4.6"
   },
   "scripts": {
     "generate-graphql-ts-types": "graphql-codegen --config codegen.yml",
