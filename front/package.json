@@ -32,7 +32,7 @@
     "@storybook/node-logger": "^8.4.5",
     "@storybook/react": "^8.4.6",
     "@storybook/react-vite": "^8.4.5",
-    "@storybook/test": "^8.4.5",
+    "@storybook/test": "^8.4.6",
     "@types/react-big-calendar": "^1.16.0",
     "@types/react-table": "^7.7.20",
     "msw": "^2.6.6",
