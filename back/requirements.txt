@@ -6,9 +6,9 @@ PyMySQL==1.1.1
 peewee==3.17.8
 peewee-moves==2.1.0
 python-dotenv==1.0.1
-PyJWT[crypto]==2.10.1
+PyJWT[crypto]==2.10.0
 aiodataloader==0.4.0
 gunicorn
 auth0-python==4.7.2
-Faker==33.1.0
+Faker==33.0.0
 freezegun==1.5.1
