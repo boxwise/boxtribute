@@ -21,9 +21,11 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
               ...box.values,
               tags: box.values.tags.map((tag: { name: string }) => tag.name),
               shipment: box.values.shipment?.id,
+              lastModified: new Date(box.values.lastModified.toString())
+                .toISOString()
+                .replace("Z", "+00:00"),
             };
           })}
-          //
           filename={filename}
           headers={[
             { label: "Box Number", key: "labelIdentifier" },
