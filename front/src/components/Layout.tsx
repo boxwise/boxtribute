@@ -15,13 +15,23 @@ import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "./HeaderMenu/consts";
 function Layout() {
   const [isLargeScreen] = useMediaQuery(DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY);
 
+  if (isLargeScreen)
+    return (
+      <Container m="inherit" p="inherit" maxWidth="inherit">
+        <Flex direction="row" height="100vh" overflowY="scroll">
+          <HeaderMenuContainer />
+          <Box flex={1} mt={8} mx={4}>
+            <Outlet />
+          </Box>
+        </Flex>
+      </Container>
+    );
+
   return (
     <Container maxWidth="container.xl">
-      <Flex direction={isLargeScreen ? "row" : "column"} height="100vh">
-        <Box flex="none">
-          <HeaderMenuContainer />
-        </Box>
-        <Box flex={1} minHeight="0" mt={isLargeScreen ? 8 : "inherit"}>
+      <Flex direction="column" height="100vh">
+        <HeaderMenuContainer />
+        <Box flex={1} minHeight="0">
           <Outlet />
         </Box>
       </Flex>

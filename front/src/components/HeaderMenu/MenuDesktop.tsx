@@ -4,7 +4,6 @@ import {
   AccordionButton,
   AccordionPanel,
   Flex,
-  Box,
   useDisclosure,
   useMediaQuery,
 } from "@chakra-ui/react";
@@ -35,21 +34,17 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   return (
     <>
       <BaseSwitcher isOpen={isOpen} onClose={onClose} />
-      <Box h={20} w={256} />
       <Flex
         id="desktop-nav"
         as="nav"
         flexDirection="column"
-        h={"100%"}
-        w={256}
+        minW={256}
         gap={16}
         pt={6}
-        position={"fixed"}
-        left={0}
-        top={0}
-        zIndex={3}
         boxShadow="base"
-        bg={"white"}
+        bg="white"
+        pos="sticky"
+        top="0"
       >
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
         <Accordion allowMultiple={allowMultipleAccordionsOpen} defaultIndex={expandedMenuIndex()}>
@@ -86,7 +81,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
                 cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
               }}
             >
-              <MenuIcon icon="Base" /> You are in: {baseName}
+              <MenuIcon icon={"Base" as Icon} /> You are in: {baseName}
             </AccordionButton>
           </AccordionItem>
           <AccordionItem>

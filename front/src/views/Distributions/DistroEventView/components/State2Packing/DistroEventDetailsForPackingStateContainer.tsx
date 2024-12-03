@@ -73,6 +73,7 @@ const DistroEventDetailsForPackingStateContainer = ({
         status: "error",
         duration: 2000,
         isClosable: true,
+        position: "top-right",
       });
     };
 
@@ -105,6 +106,7 @@ const DistroEventDetailsForPackingStateContainer = ({
             status: "success",
             isClosable: true,
             duration: 2000,
+            position: "top-right",
           });
         }
       })
@@ -126,6 +128,7 @@ const DistroEventDetailsForPackingStateContainer = ({
           status: "error",
           duration: 2000,
           isClosable: true,
+          position: "top-right",
         });
       };
 
@@ -171,6 +174,7 @@ const DistroEventDetailsForPackingStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
