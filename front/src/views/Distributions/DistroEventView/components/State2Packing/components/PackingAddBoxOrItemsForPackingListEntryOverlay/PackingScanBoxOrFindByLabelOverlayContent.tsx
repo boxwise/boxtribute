@@ -100,6 +100,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
               status: "error",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         },

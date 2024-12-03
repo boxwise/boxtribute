@@ -180,6 +180,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           status: "error",
           duration: 2000,
           isClosable: true,
+          position: "top-right",
         });
       } else {
         toast({
@@ -187,6 +188,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
           status: "success",
           isClosable: true,
           duration: 2000,
+          position: "top-right",
         });
       }
     });
@@ -211,6 +213,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -218,6 +221,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
@@ -232,6 +236,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
@@ -260,6 +265,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -267,6 +273,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
@@ -281,6 +288,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
@@ -328,6 +336,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -335,6 +344,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
               status: "success",
               isClosable: true,
               duration: 2000,
+              position: "top-right",
             });
           }
         })
@@ -349,6 +359,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },

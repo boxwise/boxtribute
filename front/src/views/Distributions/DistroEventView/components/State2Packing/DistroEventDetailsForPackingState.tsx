@@ -85,6 +85,7 @@ const PackingListEntry = ({
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -93,6 +94,7 @@ const PackingListEntry = ({
               status: "success",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           }
         })
@@ -104,6 +106,7 @@ const PackingListEntry = ({
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
@@ -144,6 +147,7 @@ const PackingListEntry = ({
               status: "error",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           } else {
             toast({
@@ -152,6 +156,7 @@ const PackingListEntry = ({
               status: "success",
               duration: 2000,
               isClosable: true,
+              position: "top-right",
             });
           }
         })
@@ -163,6 +168,7 @@ const PackingListEntry = ({
             status: "error",
             duration: 2000,
             isClosable: true,
+            position: "top-right",
           });
         });
     },
