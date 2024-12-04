@@ -18,10 +18,6 @@ import {
   ApolloProvider,
   DefaultOptions,
 } from "@apollo/client";
-import {
-  GlobalPreferencesContext,
-  IGlobalPreferencesContext,
-} from "providers/GlobalPreferencesProvider";
 import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
@@ -71,7 +67,7 @@ function render(
     initialUrl: string;
     additionalRoute?: string;
     addTypename?: boolean;
-    globalPreferences?: IGlobalPreferencesContext;
+    globalPreferences?: any;
     mediaQueryReturnValue?: boolean;
   },
 ) {
@@ -104,7 +100,7 @@ function render(
   });
 
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
-  const globalPreferencesMock: IGlobalPreferencesContext = {
+  const globalPreferencesMock: any = {
     dispatch: vi.fn(),
     globalPreferences: {
       selectedBase: { id: base1.id, name: base1.name },
@@ -125,24 +121,22 @@ function render(
 
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
-      <GlobalPreferencesContext.Provider value={globalPreferences ?? globalPreferencesMock}>
-        <MockedProvider
-          mocks={mocks}
-          addTypename={addTypename}
-          link={link}
-          defaultOptions={defaultOptions}
-          cache={cache}
-        >
-          <MemoryRouter initialEntries={[initialUrl]}>
-            <Routes>
-              {additionalRoute !== undefined && (
-                <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
-              )}
-              <Route path={routePath} element={children} />
-            </Routes>
-          </MemoryRouter>
-        </MockedProvider>
-      </GlobalPreferencesContext.Provider>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={addTypename}
+        link={link}
+        defaultOptions={defaultOptions}
+        cache={cache}
+      >
+        <MemoryRouter initialEntries={[initialUrl]}>
+          <Routes>
+            {additionalRoute !== undefined && (
+              <Route path={additionalRoute} element={<h1>{additionalRoute}</h1>} />
+            )}
+            <Route path={routePath} element={children} />
+          </Routes>
+        </MemoryRouter>
+      </MockedProvider>
     </ChakraProvider>
   );
   return rtlRender(ui, {
