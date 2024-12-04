@@ -34,7 +34,6 @@
     "@storybook/test": "^8.4.6",
     "@types/react-big-calendar": "^1.16.0",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.6.6",
     "mutationobserver-shim": "^0.3.7",
     "storybook": "^8.4.6"
   },
@@ -57,8 +56,5 @@
     "format:write": "prettier --write --ignore-path ../.eslintignore",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
-  },
-  "msw": {
-    "workerDirectory": "public"
   }
 }

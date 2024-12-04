@@ -12,7 +12,7 @@
     "lint:fix": "pnpm lint --fix",
     "lint:all": "pnpm lint shared-components front statviz",
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
-    "graphql-gen": "cat ./back/boxtribute_server/graph_ql/definitions/basic/*.graphql ./back/boxtribute_server/graph_ql/definitions/protected/*.graphql ./back/boxtribute_server/graph_ql/definitions/public/types.graphql > ./graphql/generated/schema.graphql && pnpm gql-tada generate output",
+    "graphql-gen": "sh graphql-gen.sh",
     "test": "TZ=UTC vitest",
     "test:coverage": "TZ=UTC vitest run --coverage",
     "prepare": "husky || true"
@@ -52,6 +52,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/typescript-msw": "^3.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
@@ -71,8 +73,10 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "eslint-plugin-testing-library": "^7.0.0",
+    "graphql-codegen-typescript-mock-data": "^4.1.0",
     "jsdom": "25.0.1",
     "lint-staged": "^15.2.8",
+    "msw": "^2.6.6",
     "prettier": "^3.4.1",
     "tsc-files": "^1.1.4",
     "typescript": "^5.7.2",
@@ -83,5 +87,10 @@
   "lint-staged": {
     "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
     "*.{js,json,ts,tsx}": "prettier --write"
+  },
+  "msw": {
+    "workerDirectory": [
+      "./front/public"
+    ]
   }
 }

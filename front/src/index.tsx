@@ -16,6 +16,7 @@ import App from "./App";
 import { theme } from "./utils/theme";
 import { captureConsoleIntegration } from "@sentry/react";
 import React from "react";
+import { worker } from "../browser";
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
@@ -47,6 +48,8 @@ if (sentryDsn) {
     environment: import.meta.env.FRONT_SENTRY_ENVIRONMENT,
   });
 }
+
+worker.start();
 
 const root = createRoot(document.getElementById("root")!);
 root.render(

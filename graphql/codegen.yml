@@ -1,0 +1,24 @@
+overwrite: true
+schema:
+  - "./graphql/generated/schema.graphql"
+documents:
+  - "./**/*.{ts,tsx}"
+  - "!./front/src/queries/local-only.ts"
+
+generates:
+  ./graphql/generated/types.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-msw"
+    config:
+      fetcher: fetch
+  ./graphql/generated/mocks.ts:
+    plugins:
+      - typescript-mock-data:
+          typesFile: "./types.ts"
+          addTypename: true
+          terminateCircularRelationships: true
+          scalars:
+            Datetime: date.past
+            Date: date.past

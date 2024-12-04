@@ -10,5 +10,5 @@
     "noImplicitAny": false
   },
   /* "types": ["vite/client"], not sure if needed */
-  "include": ["src"]
+  "include": ["src", "../graphql/mswHandlers.ts", "browser.ts"]
 }
