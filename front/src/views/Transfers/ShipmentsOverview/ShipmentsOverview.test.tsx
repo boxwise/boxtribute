@@ -63,8 +63,7 @@ it("4.4.1.4 - Initial Load of Page", async () => {
   //   expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
   // Data of Mock Transfer is shown correctly
-  expect(await screen.findByRole("cell", { name: /to/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
+  expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /preparing/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2\/1\/2023/i })).toBeInTheDocument();

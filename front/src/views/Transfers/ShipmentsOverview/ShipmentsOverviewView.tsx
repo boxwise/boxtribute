@@ -1,18 +1,31 @@
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Heading,
+  Stack,
+  Tab,
+  TabIndicator,
+  TabList,
+  Tabs,
+} from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { ShipmentsQuery } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
+import { compareDesc } from "date-fns";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
+import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
+import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 
 function ShipmentsOverviewView() {
   const { globalPreferences } = useContext(GlobalPreferencesContext);
@@ -20,6 +33,7 @@ function ShipmentsOverviewView() {
   const { baseId } = useBaseIdParam();
   // If forwarded from AgreementsOverview
   const location = useLocation();
+  const [direction, setDirection] = useState<"To" | "From">("To");
 
   // fetch shipments data
   const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY, {
@@ -28,7 +42,10 @@ function ShipmentsOverviewView() {
   });
 
   // transform shipments data for UI
-  const graphqlToTableTransformer = (shipmentQueryResult: ShipmentsQuery | undefined) =>
+  const graphqlToTableTransformer = (
+    shipmentQueryResult: ShipmentsQuery | undefined,
+    directionFilter: "To" | "From",
+  ) =>
     shipmentQueryResult?.shipments
       .filter((shipment) => shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId)
       .map((element) => {
@@ -104,7 +121,10 @@ function ShipmentsOverviewView() {
           return shipmentRow;
         }
         return undefined;
-      }) || [];
+      })
+      .filter((element) => element?.direction === directionFilter)
+      // Default to list by last updated.
+      .sort((a, b) => compareDesc(a?.lastUpdated || "", b?.lastUpdated || "")) || [];
 
   // Set default filter if user was forwarded from AgreementsOverview
   const initialState = useMemo(
@@ -120,13 +140,6 @@ function ShipmentsOverviewView() {
   // Define columns
   const columns = useMemo(
     () => [
-      {
-        Header: "",
-        accessor: "direction",
-        Cell: DirectionCell,
-        Filter: SelectColumnFilter,
-        filter: "includesSome",
-      },
       {
         Header: "Shipment ID",
         accessor: "labelIdentifier",
@@ -147,14 +160,14 @@ function ShipmentsOverviewView() {
         filter: "includesSome",
       },
       {
-        Header: "Contains",
-        accessor: "boxes",
-        Cell: BoxesCell,
+        Header: "Last Updated",
+        accessor: "lastUpdated",
         disableFilters: true,
       },
       {
-        Header: "Last Updated",
-        accessor: "lastUpdated",
+        Header: "Contains",
+        accessor: "boxes",
+        Cell: BoxesCell,
         disableFilters: true,
       },
     ],
@@ -176,7 +189,7 @@ function ShipmentsOverviewView() {
     shipmentsTable = (
       <FilteringSortingTable
         columns={columns}
-        tableData={graphqlToTableTransformer(data)}
+        tableData={graphqlToTableTransformer(data, direction)}
         initialState={initialState}
       />
     );
@@ -200,6 +213,29 @@ function ShipmentsOverviewView() {
           </Button>
         </Link>
       </Stack>
+      <Tabs
+        variant="unstyled"
+        onChange={() => setDirection((prev) => (prev === "To" ? "From" : "To"))}
+      >
+        <TabList borderTop="none" borderBottom="none">
+          <Tab
+            flex={1}
+            color={direction === "To" ? "blue.500" : "inherit"}
+            fontWeight={direction === "To" ? "bold" : "inherit"}
+          >
+            <ReceivingIcon mr={2} /> Receiving ({graphqlToTableTransformer(data, "To").length})
+          </Tab>
+          <Tab
+            flex={1}
+            color={direction === "From" ? "blue.500" : "inherit"}
+            fontWeight={direction === "From" ? "bold" : "inherit"}
+          >
+            <SendingIcon mr={2} /> Sending ({graphqlToTableTransformer(data, "From").length})
+          </Tab>
+        </TabList>
+        <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
+      </Tabs>
+      <br />
       {shipmentsTable}
     </>
   );
