@@ -221,9 +221,7 @@ function BoxCreateView() {
               ).name
             }.`,
           });
-          navigate(
-            `/bases/${selectedBase?.id}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`,
-          );
+          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
         }
       })
       .catch((err) => {

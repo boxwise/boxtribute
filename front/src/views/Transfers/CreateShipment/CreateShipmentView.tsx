@@ -24,7 +24,7 @@ import CreateShipment, {
   ICreateShipmentFormData,
 } from "./components/CreateShipment";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { organisationAtom, selectedBaseAtom } from "stores/globalPreferenceStore";
+import { organisationAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
   ${BASE_ORG_FIELDS_FRAGMENT}
@@ -78,17 +78,13 @@ function CreateShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
-  const selectedBase = useAtomValue(selectedBaseAtom);
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const organisation = useAtomValue(organisationAtom);
 
   // Query Data for the Form
   const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
     ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-    {
-      variables: {
-        baseId: selectedBase?.id!,
-      },
-    },
+    { variables: { baseId } },
   );
 
   // Mutation after form submission
@@ -223,7 +219,7 @@ function CreateShipmentView() {
           variables: {
             // This is just a hack since it is possible that multiple agreements exist for the same base
             transferAgreementId: parseInt(agreementIds[0], 10),
-            sourceBaseId: parseInt(selectedBase?.id!, 10),
+            sourceBaseId: parseInt(baseId, 10),
             targetBaseId: parseInt(createShipmentFormData.receivingBase.value, 10),
           },
         })
@@ -240,7 +236,7 @@ function CreateShipmentView() {
                 message: "Successfully created a new shipment",
               });
 
-              navigate(`/bases/${selectedBase?.id}/transfers/shipments/${shipmentId}`);
+              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
             }
           })
           .catch((err) => {
@@ -253,10 +249,10 @@ function CreateShipmentView() {
     },
     [
       acceptedTransferAgreementsPartnerData,
-      selectedBase?.id,
-      createShipmentMutation,
-      createToast,
       triggerError,
+      createShipmentMutation,
+      baseId,
+      createToast,
       navigate,
     ],
   );
