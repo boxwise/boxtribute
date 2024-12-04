@@ -113,13 +113,25 @@ def _connect_to_auth0(**connection_parameters):
     return Auth0Service.connect(domain=domain, client_id=client_id, secret=secret)
 
 
-def _confirm_removal(base_id):
+def _confirm_removal(*, force, base_id):
     from ..models.definitions.base import Base
+    from ..models.definitions.organisation import Organisation
 
     # Validate that base exists
-    base = Base.select(Base.name).where(Base.id == base_id).get_or_none()
+    base = (
+        Base.select(Base.name, Organisation.name)
+        .join(Organisation)
+        .where(Base.id == base_id)
+        .get_or_none()
+    )
     if base is None:
         raise ValueError(f"Base {base_id} does not exist.")
+
+    LOGGER.info(
+        f"Selected base: '{base.name}' from organisation '{base.organisation.name}'"
+    )
+    if not force:
+        return  # skip confirmation
 
     reply = input(
         f"Type YES to confirm removing access to base '{base.name}' (ID: {base_id}) "
@@ -160,7 +172,7 @@ def main(args=None):
         elif command == "clone-products":
             clone_products(**options)
         elif command == "remove-base-access":
-            _confirm_removal(options["base_id"])
+            _confirm_removal(base_id=options["base_id"], force=options["force"])
             service = _connect_to_auth0(
                 **{n: options.pop(n) for n in ["domain", "client_id", "secret"]}
             )
