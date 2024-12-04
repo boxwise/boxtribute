@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
+import { useAtomValue } from "jotai";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -21,7 +22,7 @@ import {
   ILocationData,
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetail;
@@ -38,7 +39,7 @@ export function BoxReconciliationOverlay({
 }) {
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const boxReconciliationOverlayState = useReactiveVar(boxReconciliationOverlayVar);
   const [boxUndeliveredAYSState, setBoxUndeliveredAYSState] = useState<string>("");
   const navigate = useNavigate();

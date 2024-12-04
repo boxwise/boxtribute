@@ -16,13 +16,13 @@ import {
   ProductGender,
 } from "types/generated/graphql";
 import { useEffect, useRef, useState } from "react";
-
+import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
-import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface ICategoryData {
   name: string;
@@ -106,7 +106,7 @@ function BoxEdit({
   allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const { labelIdentifier } = useParams<{
     labelIdentifier: string;
   }>();

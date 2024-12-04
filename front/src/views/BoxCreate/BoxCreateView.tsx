@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import {
   AllProductsAndLocationsForBaseQuery,
   AllProductsAndLocationsForBaseQueryVariables,
@@ -17,9 +18,8 @@ import {
 import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { AlertWithoutAction } from "components/Alerts";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = gql`
@@ -88,15 +88,15 @@ function BoxCreateView() {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseName = globalPreferences.selectedBase?.name;
+  const selectedBase = useAtomValue(selectedBaseAtom);
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const baseName = selectedBase?.name;
 
   // no warehouse location or products associated with base
   const [noLocation, setNoLocation] = useState(false);
   const [noProducts, setNoProducts] = useState(false);
 
   // variables in URL
-  const { baseId } = useBaseIdParam();
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
@@ -112,9 +112,7 @@ function BoxCreateView() {
     AllProductsAndLocationsForBaseQuery,
     AllProductsAndLocationsForBaseQueryVariables
   >(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
-    variables: {
-      baseId,
-    },
+    variables: { baseId },
   });
 
   // Mutation after form submission
@@ -223,7 +221,9 @@ function BoxCreateView() {
               ).name
             }.`,
           });
-          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
+          navigate(
+            `/bases/${selectedBase?.id}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`,
+          );
         }
       })
       .catch((err) => {

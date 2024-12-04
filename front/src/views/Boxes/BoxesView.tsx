@@ -14,12 +14,12 @@ import {
 import { SelectColumnFilter } from "components/Table/Filter";
 import { Column } from "react-table";
 import { useTableConfig } from "hooks/hooks";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { BoxRow } from "./components/types";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = gql`
@@ -97,7 +97,8 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = gql`
 `;
 
 function Boxes() {
-  const { baseId } = useBaseIdParam();
+  // using base ID from URL to have it available immediately for the queries
+  const { urlBaseId: baseId } = useLoadAndSetGlobalPreferences();
 
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({

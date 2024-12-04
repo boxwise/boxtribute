@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
+import APILoadingIndicator from "components/APILoadingIndicator";
 import {
   BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
   BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables,
@@ -19,7 +20,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import BoxEdit, { IBoxEditFormDataOutput } from "./components/BoxEdit";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
   ${TAG_OPTIONS_FRAGMENT}
@@ -92,7 +93,7 @@ function BoxEditView() {
 
   // variables in URL
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   // Query Data for the Form
   const allBoxAndFormData = useQuery<

@@ -1,6 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { Center, Heading, Text } from "@chakra-ui/react";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BaseDataQuery, BaseDataQueryVariables } from "types/generated/graphql";
 
 export const BASE_DATA = gql`
@@ -15,7 +16,7 @@ export const BASE_DATA = gql`
 `;
 
 function BaseDashboardView() {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   const { loading, error, data } = useQuery<BaseDataQuery, BaseDataQueryVariables>(BASE_DATA, {
     variables: {

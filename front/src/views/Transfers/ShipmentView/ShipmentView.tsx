@@ -13,8 +13,9 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import {
   CancelShipmentMutation,
   CancelShipmentMutationVariables,
@@ -39,7 +40,6 @@ import {
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
@@ -53,6 +53,7 @@ import ShipmentActionButtons from "./components/ShipmentActionButtons";
 import ShipmentReceivingContent from "./components/ShipmentReceivingContent";
 import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { availableBasesAtom } from "stores/globalPreferenceStore";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
@@ -129,8 +130,8 @@ export const START_RECEIVING_SHIPMENT = gql`
 
 function ShipmentView() {
   const { triggerError } = useErrorHandling();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { createToast } = useNotification();
+  const availableBases = useAtomValue(availableBasesAtom);
 
   const {
     isOpen: isShipmentOverlayOpen,
@@ -516,9 +517,7 @@ function ShipmentView() {
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
     isSender =
-      typeof globalPreferences.availableBases?.find(
-        (b) => b.id === data?.shipment?.sourceBase?.id,
-      ) !== "undefined";
+      typeof availableBases?.find((b) => b.id === data?.shipment?.sourceBase?.id) !== "undefined";
 
     if (ShipmentState.Preparing === shipmentState && isSender) {
       canUpdateShipment = true;

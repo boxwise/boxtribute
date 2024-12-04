@@ -1,8 +1,8 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Button, Heading, Stack } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { ShipmentsQuery } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
@@ -12,12 +12,12 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, DirectionCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { availableBasesAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 function ShipmentsOverviewView() {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const availableBases = useAtomValue(availableBasesAtom);
   // If forwarded from AgreementsOverview
   const location = useLocation();
 
@@ -32,10 +32,8 @@ function ShipmentsOverviewView() {
     shipmentQueryResult?.shipments
       .filter((shipment) => shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId)
       .map((element) => {
-        if (globalPreferences?.availableBases) {
-          const availableBaseIds = globalPreferences.availableBases.map((base) =>
-            parseInt(base.id, 10),
-          );
+        if (availableBases.length) {
+          const availableBaseIds = availableBases.map((base) => parseInt(base.id, 10));
           const sourceBaseId = parseInt(element.sourceBase.id, 10);
           const targetBaseId = parseInt(element.targetBase.id, 10);
 

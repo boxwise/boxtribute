@@ -1,10 +1,10 @@
-import { useContext } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
+import { useAtomValue } from "jotai/react";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import {
   AllOrganisationsAndBasesQuery,
@@ -12,7 +12,6 @@ import {
   CreateTransferAgreementMutationVariables,
   TransferAgreementType,
 } from "types/generated/graphql";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import CreateTransferAgreement, {
   IBasesForOrganisationData,
@@ -20,8 +19,12 @@ import CreateTransferAgreement, {
 } from "./components/CreateTransferAgreement";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { IAcceptedTransferAgreement } from "../TransferAgreementOverview/TransferAgreementOverviewView";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import {
+  availableBasesAtom,
+  organisationAtom,
+  selectedBaseIdAtom,
+} from "stores/globalPreferenceStore";
 
 export const ALL_ORGS_AND_BASES_QUERY = gql`
   query AllOrganisationsAndBases {
@@ -70,11 +73,10 @@ function CreateTransferAgreementView() {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
-
-  // variables in URL
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const organisation = useAtomValue(organisationAtom);
+  const availableBases = useAtomValue(availableBasesAtom);
 
   // Query Data for the Form
   const allFormOptions = useQuery<AllOrganisationsAndBasesQuery>(ALL_ORGS_AND_BASES_QUERY, {});
@@ -136,7 +138,7 @@ function CreateTransferAgreementView() {
   const allOrgsAndTheirBases = allFormOptions.data?.organisations;
 
   // When boxtribute god logs in without predefined organisation id, use organisation id 1
-  const userCurrentOrganisationId = globalPreferences.organisation?.id ?? "1";
+  const userCurrentOrganisationId = organisation?.id ?? "1";
 
   const currentOrganisation = allOrgsAndTheirBases?.find(
     (organisation) => organisation.id === userCurrentOrganisationId,
@@ -145,11 +147,11 @@ function CreateTransferAgreementView() {
   // Filter bases where the user is not authorized
   const currentOrganisationAuthorizedBases = {
     ...currentOrganisation,
-    bases: globalPreferences?.availableBases,
+    bases: availableBases,
   } as IBasesForOrganisationData;
 
   const partnerOrganisationsWithTheirBasesData = allOrgsAndTheirBases?.filter(
-    (organisation) => organisation.id !== globalPreferences.organisation?.id,
+    (org) => org.id !== organisation?.id,
   );
 
   // Handle Submission
