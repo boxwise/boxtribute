@@ -153,7 +153,7 @@ export const CREATED_BOXES_FRAGMENT = graphql(`
 `);
 
 export const BENEFICIARY_DEMOGRAPHICS_FRAGMENT = graphql(`
-  fragment MoveBoxesFragment on BeneficiaryDemographicsResult @_unmask {
+  fragment BeneficiaryDemographicsFragment on BeneficiaryDemographicsResult @_unmask {
     count
     createdOn
     age
