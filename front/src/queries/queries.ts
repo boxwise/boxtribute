@@ -79,10 +79,31 @@ export const CHECK_IF_QR_EXISTS_IN_DB = gql`
 `;
 
 export const ALL_SHIPMENTS_QUERY = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
+  ${BASE_ORG_FIELDS_FRAGMENT}
   query Shipments {
     shipments {
-      ...ShipmentFields
+      id
+      labelIdentifier
+      state
+      details {
+        id
+        box {
+          labelIdentifier
+        }
+        createdOn
+        removedOn
+      }
+      sourceBase {
+        ...BaseOrgFields
+      }
+      targetBase {
+        ...BaseOrgFields
+      }
+      startedOn
+      sentOn
+      receivingStartedOn
+      completedOn
+      canceledOn
     }
   }
 `;
