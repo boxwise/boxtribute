@@ -15,8 +15,9 @@ export const useScannedBoxesActions = () => {
         {
           query: GET_SCANNED_BOXES,
         },
+        // @ts-expect-error TODO: this is a client only query, fix type hint/inference.
         (data: IScannedBoxesData) => {
-          const existingBoxRefs = data.scannedBoxes;
+          const existingBoxRefs = data?.scannedBoxes;
 
           const alreadyExists = existingBoxRefs.some(
             (ref) => ref.labelIdentifier === box?.labelIdentifier,
