@@ -174,8 +174,8 @@ function TransferAgreementOverviewView() {
                 baseId,
               },
               data: {
-                transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
-                base: existingAcceptedTransferAgreementsData?.base,
+                transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements!,
+                base: existingAcceptedTransferAgreementsData?.base!,
               },
             });
           }
