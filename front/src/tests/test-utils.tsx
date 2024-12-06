@@ -1,7 +1,6 @@
 /* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
-import { vi } from "vitest";
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
@@ -18,7 +17,6 @@ import {
   ApolloProvider,
   DefaultOptions,
 } from "@apollo/client";
-import { organisation1 } from "mocks/organisations";
 import { base1 } from "mocks/bases";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 
@@ -100,14 +98,14 @@ function render(
   });
 
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
-  const globalPreferencesMock: any = {
-    dispatch: vi.fn(),
-    globalPreferences: {
-      selectedBase: { id: base1.id, name: base1.name },
-      organisation: { id: organisation1.id, name: organisation1.name },
-      availableBases: organisation1.bases,
-    },
-  };
+  // const _globalPreferencesMock: any = {
+  //   dispatch: vi.fn(),
+  //   globalPreferences: {
+  //     selectedBase: { id: base1.id, name: base1.name },
+  //     organisation: { id: organisation1.id, name: organisation1.name },
+  //     availableBases: organisation1.bases,
+  //   },
+  // };
 
   mockMatchMediaQuery(mediaQueryReturnValue);
 
