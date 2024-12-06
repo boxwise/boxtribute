@@ -100,3 +100,108 @@ From [Slack Canvas](https://boxwise.slack.com/docs/T99PBKNTU/F06QQS70XQT):
     4. need to generate many endpoints for large data sets
     5. OR: more open /organisation/<id> endpoint but needs server-side permissioning
 6. consider rate-limiting or DDoS protection
+
+
+# Draft for prototypical implementation
+
+The following serves as a concept for a first implementation of the "link-sharing" functionality.
+
+## Idea
+
+1. Authenticated user of base X creates link for statviz page
+1. Authenticated user shares link with external person
+1. External person opens link
+1. External person sees statviz page for base X without any navigation options
+1. After one week, the link expires. When the link is opened, a short message is displayed.
+
+## Architecture
+
+### Fundamental assumptions
+
+- the shared data will be live (as opposed to "freezing" the data to the time of link creation)
+- link format is `.../<code> (can't use `.../bases/X/statviz`: insecure because it's easy to navigate to other bases and view their data; also not unique (can't expire))
+- the expiration time of the link is one week. Later we can make is customizable, and/or add an action to invalidate a created link
+- we expose the public app in the `api` GAE service. Hence it won't interfer with the main `app` service
+
+### Effects on full-stack
+
+- there has to be a new action-based permission to allow link-creation for certain usergroups
+- there has to be a public FE and a public GraphQL endpoint to fetch data
+- the public FE is hosted under `api.boxtribute.org/shared` and deployed with the `deploy-api` CircleCI job (depends a new `build-statviz` job)
+- the public GraphQL endpoint is exposed for the `api` GAE service
+- new DB view and user to avoid access to sensitive data
+
+### Front-end
+
+- the `statviz` folder already contains a public FE (showing the Dashboard at the route `/bases/X`)
+- when a shared-link URL is requested, FE first issues a BE query to ask for link validitity. If positive, route to the corresponding page (under `.../shared/<code>/`, and query required data for display
+
+#### UI considerations
+
+- public FE: there won't be any authentication (login) in the FE when the external person opens the link
+- public FE: no menues or navigation options are available
+- v2: action button for creating link on statviz page (only viewable for users with resp. permission)
+- v2: copy created link directly to clipboard, or display it for copying?
+
+### Back-end
+
+- a public GraphQL endpoint is already available at `/public` (development only)
+- when statistics data is requested, the link code must be part of the request. It is validated that the link exists and has not expired, and that the link page type matches the requested data
+
+#### GraphQL API
+
+For v2:
+
+```graphql
+type Mutation {
+  createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
+}
+
+input LinkCreationInput {
+  baseId: Int!
+  # everything after /
+  urlTail: String
+  page: ShareablePage!
+}
+
+enum ShareablePage {
+  StatvizDashboard
+}
+
+union ShareableLinkCreationResult = ShareableLink | InsufficientPermissionError
+
+type ShareableLink {
+  id: ID!
+  code: String!
+  # to be inserted after /shared/<code>/
+  urlTail: String!
+  validUntil: Datetime
+  createdOn: Datetime!
+  createdBy: User
+}
+```
+
+For the public GraphQL schema:
+
+```graphql
+type Query {
+  resolveShareableLink(code: String!): ShareableLinkResult
+
+  " All statistics queries must have a `code` parameter for validation in the public BE "
+  createdBoxes(baseId: Int!, code: String): CreatedBoxesData
+}
+
+union ShareableLinkResult = ShareableLink | ExpiredLinkError | UnknownLinkError
+
+```
+
+#### Database
+
+- new `link_sharing` table to store meta-data (base ID, URL query parameters, expiration date, creation date, creator)
+- corresponding peewee model
+
+### Open questions
+
+- how do avoid misuse of the link, or the exposed public GraphQL endpoint (DDoS mitigation)?
+- can FE resolve a URL like `.../<code>` into a route like `.../<code>/bases/X/statviz` on the FE **and** process the returned data as if it was a GraphQL response?
+- how do deal with routing changes (target of link becomes outdated)?
