@@ -7,7 +7,7 @@ import {
   ILabelIdentifierResolverResultKind,
   useLabelIdentifierResolver,
 } from "hooks/useLabelIdentifierResolver";
-import { IQrResolvedValue, IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
+import { IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
@@ -84,29 +84,30 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
       setBoxNotOwned("");
-      const qrResolvedValue: IQrResolvedValue = await resolveQrCode(
+      const qrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",
       );
       switch (qrResolvedValue.kind) {
         case IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE: {
           setBoxNotOwned(
-            `This box it at base ${qrResolvedValue.box.baseName}, which belongs to organization ${qrResolvedValue.box.organisationName}.`,
+            `This box it at base ${qrResolvedValue.box?.baseName}, which belongs to organization ${qrResolvedValue.box?.organisationName}.`,
           );
           setIsProcessingQrCode(false);
           break;
         }
         case IQrResolverResultKind.SUCCESS: {
-          const boxLabelIdentifier = qrResolvedValue.box.labelIdentifier;
+          const boxLabelIdentifier = qrResolvedValue?.box?.labelIdentifier;
           if (!multiScan) {
-            const boxBaseId = qrResolvedValue.box.location.base.id;
+            const boxBaseId = qrResolvedValue.box?.location?.base?.id;
             setIsProcessingQrCode(false);
             onSuccess();
             navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
           } else {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
-            addBoxToScannedBoxes(qrResolvedValue.box);
+
+            if (qrResolvedValue?.box!) addBoxToScannedBoxes(qrResolvedValue?.box!);
             setIsProcessingQrCode(false);
           }
           break;
@@ -139,8 +140,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         await checkLabelIdentifier(labelIdentifier);
       switch (labelIdentifierResolvedValue.kind) {
         case ILabelIdentifierResolverResultKind.SUCCESS: {
-          const boxLabelIdentifier = labelIdentifierResolvedValue?.box.labelIdentifier;
-          const boxBaseId = labelIdentifierResolvedValue?.box.location.base.id;
+          const boxLabelIdentifier = labelIdentifierResolvedValue?.box?.labelIdentifier;
+          const boxBaseId = labelIdentifierResolvedValue?.box?.location?.base?.id;
           onSuccess();
           navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
           break;

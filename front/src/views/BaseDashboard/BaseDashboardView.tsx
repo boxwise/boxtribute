@@ -1,10 +1,10 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { graphql } from "../../../../graphql/graphql";
 import { Center, Heading, Text } from "@chakra-ui/react";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { BaseDataQuery, BaseDataQueryVariables } from "types/generated/graphql";
 
-export const BASE_DATA = gql`
+export const BASE_DATA = graphql(`
   query BaseData($baseId: ID!) {
     base(id: $baseId) {
       name
@@ -13,12 +13,12 @@ export const BASE_DATA = gql`
       }
     }
   }
-`;
+`);
 
 function BaseDashboardView() {
   const baseId = useAtomValue(selectedBaseIdAtom);
 
-  const { loading, error, data } = useQuery<BaseDataQuery, BaseDataQueryVariables>(BASE_DATA, {
+  const { loading, error, data } = useQuery(BASE_DATA, {
     variables: {
       baseId,
     },

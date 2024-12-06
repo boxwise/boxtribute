@@ -1,18 +1,12 @@
 import { useCallback, useEffect } from "react";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
 import { useAtomValue } from "jotai";
-import {
-  AllAcceptedTransferAgreementsQuery,
-  AllBasesOfCurrentOrgQuery,
-  CreateShipmentMutation,
-  CreateShipmentMutationVariables,
-  TransferAgreementType,
-} from "types/generated/graphql";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
@@ -26,21 +20,22 @@ import CreateShipment, {
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { organisationAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
-export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  query AllAcceptedTransferAgreements($baseId: ID!) {
-    base(id: $baseId) {
-      ...BaseOrgFields
-    }
+export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = graphql(
+  `
+    query AllAcceptedTransferAgreements($baseId: ID!) {
+      base(id: $baseId) {
+        ...BaseOrgFields
+      }
 
-    transferAgreements(states: Accepted) {
-      ...TransferAgreementFields
+      transferAgreements(states: Accepted) {
+        ...TransferAgreementFields
+      }
     }
-  }
-`;
+  `,
+  [BASE_ORG_FIELDS_FRAGMENT, TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
 
-export const ALL_BASES_OF_CURRENT_ORG_QUERY = gql`
+export const ALL_BASES_OF_CURRENT_ORG_QUERY = graphql(`
   query AllBasesOfCurrentOrg($orgId: ID!) {
     organisation(id: $orgId) {
       id
@@ -51,22 +46,24 @@ export const ALL_BASES_OF_CURRENT_ORG_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-export const CREATE_SHIPMENT_MUTATION = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
-  mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int) {
-    createShipment(
-      creationInput: {
-        sourceBaseId: $sourceBaseId
-        targetBaseId: $targetBaseId
-        transferAgreementId: $transferAgreementId
+export const CREATE_SHIPMENT_MUTATION = graphql(
+  `
+    mutation CreateShipment($sourceBaseId: Int!, $targetBaseId: Int!, $transferAgreementId: Int) {
+      createShipment(
+        creationInput: {
+          sourceBaseId: $sourceBaseId
+          targetBaseId: $targetBaseId
+          transferAgreementId: $transferAgreementId
+        }
+      ) {
+        ...ShipmentFields
       }
-    ) {
-      ...ShipmentFields
     }
-  }
-`;
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
 interface IAcceptedTransferAgreementsPartnerData extends IOrganisationBaseData {
   agreementId: string;
@@ -82,36 +79,37 @@ function CreateShipmentView() {
   const organisation = useAtomValue(organisationAtom);
 
   // Query Data for the Form
-  const allAcceptedTransferAgreements = useQuery<AllAcceptedTransferAgreementsQuery>(
-    ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-    { variables: { baseId } },
-  );
-
-  // Mutation after form submission
-  const [createShipmentMutation, createShipmentMutationState] = useMutation<
-    CreateShipmentMutation,
-    CreateShipmentMutationVariables
-  >(CREATE_SHIPMENT_MUTATION, {
-    update(cache, { data: returnedShipment }) {
-      if (returnedShipment?.createShipment) {
-        cache.modify({
-          fields: {
-            shipments(existingShipments = []) {
-              const newShipmentRef = cache.writeFragment({
-                data: returnedShipment.createShipment,
-                fragment: gql`
-                  fragment NewShipment on Shipment {
-                    id
-                  }
-                `,
-              });
-              return existingShipments.concat(newShipmentRef);
-            },
-          },
-        });
-      }
+  const allAcceptedTransferAgreements = useQuery(ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, {
+    variables: {
+      baseId,
     },
   });
+
+  // Mutation after form submission
+  const [createShipmentMutation, createShipmentMutationState] = useMutation(
+    CREATE_SHIPMENT_MUTATION,
+    {
+      update(cache, { data: returnedShipment }) {
+        if (returnedShipment?.createShipment) {
+          cache.modify({
+            fields: {
+              shipments(existingShipments = []) {
+                const newShipmentRef = cache.writeFragment({
+                  data: returnedShipment.createShipment!,
+                  fragment: graphql(`
+                    fragment NewShipment on Shipment {
+                      id
+                    }
+                  `),
+                });
+                return existingShipments.concat(newShipmentRef);
+              },
+            },
+          });
+        }
+      },
+    },
+  );
 
   // Prep data for Form
   const currentBase = allAcceptedTransferAgreements?.data?.base;
@@ -126,9 +124,9 @@ function CreateShipmentView() {
       error: allBasesOfCurrentOrgError,
       data: AllBasesOfCurrentOrg,
     },
-  ] = useLazyQuery<AllBasesOfCurrentOrgQuery>(ALL_BASES_OF_CURRENT_ORG_QUERY, {
+  ] = useLazyQuery(ALL_BASES_OF_CURRENT_ORG_QUERY, {
     variables: {
-      orgId: currentOrganisationId,
+      orgId: currentOrganisationId || "0",
     },
   });
 
@@ -145,13 +143,13 @@ function CreateShipmentView() {
         (agreement) =>
           agreement.sourceOrganisation.id === currentOrganisationId ||
           (agreement.targetOrganisation.id === currentOrganisationId &&
-            agreement.type === TransferAgreementType.Bidirectional),
+            agreement.type === "Bidirectional"),
       )
       .map((agreement) => {
         // transform the agreement data to organisation base data
         if (
           agreement.targetOrganisation.id === currentOrganisationId &&
-          agreement.type === TransferAgreementType.Bidirectional
+          agreement.type === "Bidirectional"
         ) {
           return {
             id: agreement.sourceOrganisation.id,

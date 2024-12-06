@@ -17,11 +17,6 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import {
-  ChangeDistributionEventStateMutation,
-  ChangeDistributionEventStateMutationVariables,
-  DistributionEventState,
-} from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import DistributionStateProgressBar from "views/Distributions/components/DistributionStateProgressBar";
@@ -33,15 +28,13 @@ import { DistributionEventDetails, DistributionEventStateSchema } from "views/Di
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
 import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State4ReturnTrackingInProgress/DistroEventDetailsForReturnTrackingInProgressStateContainer";
+import { DistributionEventState } from "queries/types";
 
 export interface DistroEventContainerProps {
   distributionEventDetails: DistributionEventDetails;
 }
 const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainerProps) => {
-  const [moveEventToStageMutation] = useMutation<
-    ChangeDistributionEventStateMutation,
-    ChangeDistributionEventStateMutationVariables
-  >(CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION, {
+  const [moveEventToStageMutation] = useMutation(CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION, {
     refetchQueries: [
       {
         query: DISTRIBUTION_EVENT_QUERY,
@@ -90,7 +83,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
     moveEventToStageMutation({
       variables: {
         distributionEventId: distributionEventDetails.id,
-        newState: DistributionEventState.ReturnedFromDistribution,
+        newState: "ReturnedFromDistribution",
       },
     });
     nextStageTransitionAlertState.onClose();
@@ -101,20 +94,18 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
   const eventStateToComponentMapping: {
     [key in DistributionEventState]: React.FC;
   } = {
-    [DistributionEventState.Planning]: () => (
+    Planning: () => (
       <DistroEventDetailsForPlanningStateContainer
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.Packing]: () => (
+    Packing: () => (
       <DistroEventDetailsForPackingStateContainer
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.OnDistro]: () => (
-      <Box>This Distro Event is currently on Distribution!</Box>
-    ),
-    [DistributionEventState.ReturnedFromDistribution]: () => (
+    OnDistro: () => <Box>This Distro Event is currently on Distribution!</Box>,
+    ReturnedFromDistribution: () => (
       <Flex w={[300, 400, 600]} direction="column" mb={4}>
         <Text textAlign={"center"}>
           <Heading as="h3" size="md">
@@ -133,12 +124,12 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
         </Text>
       </Flex>
     ),
-    [DistributionEventState.ReturnTrackingInProgress]: () => (
+    ReturnTrackingInProgress: () => (
       <DistroEventDetailsForReturnTrackingInProgressStateContainer
         distributionEventDetails={distributionEventDetails}
       />
     ),
-    [DistributionEventState.Completed]: () => <Box>Completed</Box>,
+    Completed: () => <Box>Completed</Box>,
   };
 
   const StateSpecificComponent = eventStateToComponentMapping[distributionEventDetails.state];
@@ -169,7 +160,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
             />
           </Text>
           <DistributionStateProgressBar
-            activeState={distributionEventDetails.state}
+            activeState={distributionEventDetails.state as DistributionEventState}
             onMoveToStage={onMoveToStage}
           />
         </Box>

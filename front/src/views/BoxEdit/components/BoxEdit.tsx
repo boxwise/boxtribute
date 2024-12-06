@@ -11,10 +11,6 @@ import {
 } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
-  ProductGender,
-} from "types/generated/graphql";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -23,6 +19,9 @@ import { z } from "zod";
 import _ from "lodash";
 import { useForm } from "react-hook-form";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { ResultOf } from "gql.tada";
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
+import { ProductGender } from "../../../../../graphql/types";
 
 export interface ICategoryData {
   name: string;
@@ -92,7 +91,7 @@ export type IBoxEditFormDataInput = z.input<typeof BoxEditFormDataSchema>;
 export type IBoxEditFormDataOutput = z.output<typeof BoxEditFormDataSchema>;
 
 interface IBoxEditProps {
-  boxData: Exclude<BoxByLabelIdentifierAndAllProductsWithBaseIdQuery["box"], null | undefined>;
+  boxData: ResultOf<typeof BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY>["box"];
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
@@ -230,7 +229,7 @@ function BoxEdit({
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
       <Heading fontWeight="bold" mb={4} as="h2">
-        Box {boxData.labelIdentifier}
+        Box {boxData?.labelIdentifier}
       </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>

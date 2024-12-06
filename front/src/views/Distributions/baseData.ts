@@ -1,25 +1,25 @@
-import { DistributionEventState } from "../../types/generated/graphql";
+
 
 export const distroEventStateHumanReadableLabels = new Map<string, string>([
-  [DistributionEventState.Planning, "Planning"],
+  ["Planning", "Planning"],
   // [DistributionEventState.PlanningDone, "Planning Done"],
-  [DistributionEventState.Packing, "Packing"],
+  ["Packing", "Packing"],
   // [DistributionEventState.PackingDone, "Packing Done"],
-  [DistributionEventState.OnDistro, "On Distribution"],
-  [DistributionEventState.ReturnedFromDistribution, "Returned From Distribution"],
-  [DistributionEventState.ReturnTrackingInProgress, "Return Tracking In Progress"],
+  ["OnDistro", "On Distribution"],
+  ["ReturnedFromDistribution", "Returned From Distribution"],
+  ["ReturnTrackingInProgress", "Return Tracking In Progress"],
   // [DistributionEventState.ReturnsTracked, "Returned Items Tracked"],
-  [DistributionEventState.Completed, "Completed"],
+  ["Completed", "Completed"],
 ]);
 
 export const distroEventStateOrder = [
-  DistributionEventState.Planning,
+  "Planning",
   // DistributionEventState.PlanningDone,
-  DistributionEventState.Packing,
+  "Packing",
   // DistributionEventState.PackingDone,
-  DistributionEventState.OnDistro,
-  DistributionEventState.ReturnedFromDistribution,
-  DistributionEventState.ReturnTrackingInProgress,
+  "OnDistro",
+  "ReturnedFromDistribution",
+  "ReturnTrackingInProgress",
   // DistributionEventState.ReturnsTracked,
-  DistributionEventState.Completed,
+  "Completed",
 ];

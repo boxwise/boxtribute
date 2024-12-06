@@ -1,4 +1,5 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../../../../graphql/graphql";
 import {
   Modal,
   ModalBody,
@@ -11,18 +12,6 @@ import {
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { createContext, useCallback } from "react";
-import {
-  PackingListEntriesForDistributionEventQuery,
-  PackingListEntriesForDistributionEventQueryVariables,
-  RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
-  RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables,
-  RemoveEntryFromPackingListMutation,
-  RemoveEntryFromPackingListMutationVariables,
-  UpdatePackingListEntryMutation,
-  UpdatePackingListEntryMutationVariables,
-  UpdateSelectedProductsForDistributionEventPackingListMutation,
-  UpdateSelectedProductsForDistributionEventPackingListMutationVariables,
-} from "types/generated/graphql";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "views/Distributions/queries";
@@ -42,15 +31,15 @@ interface DistroEventDetailsForPlanningStateContainerProps {
   distributionEventDetails: DistributionEventDetails;
 }
 
-export const REMOVE_ENTRY_FROM_PACKING_LIST = gql`
+export const REMOVE_ENTRY_FROM_PACKING_LIST = graphql(`
   mutation RemoveEntryFromPackingList($packingListEntryId: ID!) {
     removePackingListEntryFromDistributionEvent(packingListEntryId: $packingListEntryId) {
       id
     }
   }
-`;
+`);
 
-export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT = gql`
+export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT = graphql(`
   mutation RemoveAllPackingListEntriesFromDistributionEventForProduct(
     $distributionEventId: ID!
     $productId: ID!
@@ -60,9 +49,9 @@ export const REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT
       productId: $productId
     )
   }
-`;
+`);
 
-export const UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION = gql`
+export const UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION = graphql(`
   mutation UpdateSelectedProductsForDistributionEventPackingList(
     $distributionEventId: ID!
     $productIdsToAdd: [ID!]!
@@ -76,9 +65,9 @@ export const UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION = g
       id
     }
   }
-`;
+`);
 
-export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
+export const UPDATE_PACKING_LIST_ENTRY_MUTATION = graphql(`
   mutation updatePackingListEntry($packingListEntryId: ID!, $numberOfItems: Int!) {
     updatePackingListEntry(packingListEntryId: $packingListEntryId, numberOfItems: $numberOfItems) {
       id
@@ -94,9 +83,9 @@ export const UPDATE_PACKING_LIST_ENTRY_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
-export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
+export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = graphql(`
   mutation addToPackingList(
     $distributionEventId: ID!
     $productId: Int!
@@ -124,26 +113,20 @@ export const ADD_ENTRY_TO_PACKING_LIST_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 const DistroEventDetailsForPlanningStateContainer = ({
   distributionEventDetails,
 }: DistroEventDetailsForPlanningStateContainerProps) => {
   const addItemsToDistroEventsOverlayState = useDisclosure();
 
-  const { data, loading, error } = useQuery<
-    PackingListEntriesForDistributionEventQuery,
-    PackingListEntriesForDistributionEventQueryVariables
-  >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
+  const { data, loading, error } = useQuery(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
   });
 
   const toast = useToast();
 
-  const [updatePackingListEntryMutation] = useMutation<
-    UpdatePackingListEntryMutation,
-    UpdatePackingListEntryMutationVariables
-  >(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
+  const [updatePackingListEntryMutation] = useMutation(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
     refetchQueries: [
       {
         query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
@@ -154,10 +137,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
-  const [removeEntryFromPackingListMutation] = useMutation<
-    RemoveEntryFromPackingListMutation,
-    RemoveEntryFromPackingListMutationVariables
-  >(REMOVE_ENTRY_FROM_PACKING_LIST, {
+  const [removeEntryFromPackingListMutation] = useMutation(REMOVE_ENTRY_FROM_PACKING_LIST, {
     refetchQueries: [
       {
         query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
@@ -168,19 +148,19 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   });
 
-  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation<
-    RemoveAllPackingListEntriesFromDistributionEventForProductMutation,
-    RemoveAllPackingListEntriesFromDistributionEventForProductMutationVariables
-  >(REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT, {
-    refetchQueries: [
-      {
-        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-        variables: {
-          distributionEventId: distributionEventDetails.id,
+  const [removeAllPackingListEntriesFromDistributionEventForProductMutation] = useMutation(
+    REMOVE_ALL_PACKING_LIST_ENTRIES_FROM_DISTRIBUTION_EVENT_FOR_PRODUCT,
+    {
+      refetchQueries: [
+        {
+          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+          variables: {
+            distributionEventId: distributionEventDetails.id,
+          },
         },
-      },
-    ],
-  });
+      ],
+    },
+  );
 
   const onUpdatePackingListEntry = (packingListEntryId: string, numberOfItems: number) => {
     updatePackingListEntryMutation({
@@ -319,19 +299,19 @@ const DistroEventDetailsForPlanningStateContainer = ({
     ],
   );
 
-  const [updateProductsInPackingListMutation] = useMutation<
-    UpdateSelectedProductsForDistributionEventPackingListMutation,
-    UpdateSelectedProductsForDistributionEventPackingListMutationVariables
-  >(UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION, {
-    refetchQueries: [
-      {
-        query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-        variables: {
-          distributionEventId: distributionEventDetails.id,
+  const [updateProductsInPackingListMutation] = useMutation(
+    UPDATE_SELECTED_PRODUCTS_FOR_DISTRO_EVENT_PACKING_LIST_MUTATION,
+    {
+      refetchQueries: [
+        {
+          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+          variables: {
+            distributionEventId: distributionEventDetails.id,
+          },
         },
-      },
-    ],
-  });
+      ],
+    },
+  );
 
   const distroEventId = distributionEventDetails.id;
 

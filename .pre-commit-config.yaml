@@ -40,7 +40,8 @@ repos:
         name: Generate GraphQL Typescript definitions
         entry: docker-compose
         types: [graphql]
+        files: back/boxtribute_server/graph_ql/definitions
         language: system
         require_serial: true
         pass_filenames: false
-        args: ["run", "--rm", "front", "pnpm", "generate-graphql-ts-types"]
+        args: ["run", "--rm", "front", "pnpm", "-C", "..", "graphql-gen"]

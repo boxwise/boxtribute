@@ -1,72 +1,35 @@
-import { gql } from "@apollo/client";
+import { BASE_BASIC_FIELDS_FRAGMENT, BOX_BASIC_FIELDS_FRAGMENT, ORGANISATION_BASIC_FIELDS_FRAGMENT, PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT } from "../../../graphql/fragments";
+import { graphql } from "../../../graphql/graphql"
 
-// Basic Fields without reference to other fragments first
-export const ORGANISATION_BASIC_FIELDS_FRAGMENT = gql`
-  fragment OrganisationBasicFields on Organisation {
-    id
-    name
-  }
-`;
-
-export const BASE_BASIC_FIELDS_FRAGMENT = gql`
-  fragment BaseBasicFields on Base {
-    id
-    name
-  }
-`;
-
-export const USER_BASIC_FIELDS_FRAGMENT = gql`
-  fragment UserBasicFields on User {
-    id
-    name
-  }
-`;
-
-export const PRODUCT_BASIC_FIELDS_FRAGMENT = gql`
-  fragment ProductBasicFields on Product {
-    id
-    name
-    gender
-    deletedOn
-  }
-`;
-
-export const SIZE_BASIC_FIELDS_FRAGMENT = gql`
-  fragment SizeBasicFields on Size {
-    id
-    label
-  }
-`;
-
-export const LOCATION_BASIC_FIELDS_FRAGMENT = gql`
-  fragment LocationBasicFields on ClassicLocation {
+export const LOCATION_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment LocationBasicFields on ClassicLocation @_unmask {
     defaultBoxState
     id
     seq
     name
   }
-`;
+`);
 
-export const TAG_BASIC_FIELDS_FRAGMENT = gql`
-  fragment TagBasicFields on Tag {
+export const TAG_OPTIONS_FRAGMENT = graphql(`
+  fragment TagOptions on Tag @_unmask {
+    value: id
+    label: name
+    color
+  }
+`);
+
+export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment TagBasicFields on Tag @_unmask {
     id
     name
     color
     description
     type
   }
-`;
+`);
 
-export const TAG_OPTIONS_FRAGMENT = gql`
-  fragment TagOptions on Tag {
-    value: id
-    label: name
-    color
-  }
-`;
-
-export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
-  fragment DistroEventFields on DistributionEvent {
+export const DISTRO_EVENT_FIELDS_FRAGMENT = graphql(`
+  fragment DistroEventFields on DistributionEvent @_unmask {
     id
     state
     name
@@ -76,23 +39,33 @@ export const DISTRO_EVENT_FIELDS_FRAGMENT = gql`
     plannedStartDateTime
     plannedEndDateTime
   }
-`;
+`);
 
 // fragments with references to Basic Fields
-export const BASE_ORG_FIELDS_FRAGMENT = gql`
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  fragment BaseOrgFields on Base {
+export const BASE_ORG_FIELDS_FRAGMENT = graphql(`
+  fragment BaseOrgFields on Base @_unmask {
     ...BaseBasicFields
     organisation {
       ...OrganisationBasicFields
     }
   }
-`;
+`, [ORGANISATION_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT]);
 
-export const HISTORY_FIELDS_FRAGMENT = gql`
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  fragment HistoryFields on HistoryEntry {
+// complexer fragments
+export const PRODUCT_FIELDS_FRAGMENT = graphql(`
+  fragment ProductFields on Product @_unmask {
+    ...ProductBasicFields
+    category {
+      name
+    }
+    sizeRange {
+      ...SizeRangeFields
+    }
+  }
+`, [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT]);
+
+export const HISTORY_FIELDS_FRAGMENT = graphql(`
+  fragment HistoryFields on HistoryEntry @_unmask {
     id
     changes
     changeDate
@@ -100,48 +73,13 @@ export const HISTORY_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [USER_BASIC_FIELDS_FRAGMENT]);
 
-export const SIZE_RANGE_FIELDS_FRAGMENT = gql`
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  fragment SizeRangeFields on SizeRange {
+
+
+export const BOX_FIELDS_FRAGMENT = graphql(`
+  fragment BoxFields on Box @_unmask {
     id
-    label
-    sizes {
-      ...SizeBasicFields
-    }
-  }
-`;
-
-export const BOX_BASIC_FIELDS_FRAGMENT = gql`
-  fragment BoxBasicFields on Box {
-    labelIdentifier
-    state
-    comment
-    location {
-      id
-      base {
-        id
-      }
-    }
-    shipmentDetail {
-      id
-      shipment {
-        id
-      }
-    }
-    lastModifiedOn
-  }
-`;
-
-export const BOX_FIELDS_FRAGMENT = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${HISTORY_FIELDS_FRAGMENT}
-  ${LOCATION_BASIC_FIELDS_FRAGMENT}
-  fragment BoxFields on Box {
     labelIdentifier
     state
     product {
@@ -210,130 +148,10 @@ export const BOX_FIELDS_FRAGMENT = gql`
     createdOn
     lastModifiedOn
   }
-`;
+`, [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT, HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT]);
 
-export const BOX_WITH_SIZE_TAG_PRODUCT_FIELDS_FRAGMENT = gql`
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  ${DISTRO_EVENT_FIELDS_FRAGMENT}
-  fragment BoxWithSizeTagProductFields on Box {
-    labelIdentifier
-    state
-    size {
-      ...SizeBasicFields
-    }
-    numberOfItems
-    comment
-    product {
-      ...ProductBasicFields
-    }
-    tags {
-      ...TagBasicFields
-    }
-    distributionEvent {
-      ...DistroEventFields
-    }
-    location {
-      id
-      name
-      ... on ClassicLocation {
-        defaultBoxState
-      }
-      base {
-        locations {
-          id
-          seq
-          name
-          ... on ClassicLocation {
-            defaultBoxState
-          }
-        }
-        distributionEventsBeforeReturnedFromDistributionState {
-          id
-          state
-          distributionSpot {
-            name
-          }
-          name
-          plannedStartDateTime
-          plannedEndDateTime
-        }
-      }
-    }
-    lastModifiedOn
-  }
-`;
-
-export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = gql`
-  ${ORGANISATION_BASIC_FIELDS_FRAGMENT}
-  ${BASE_BASIC_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  fragment TransferAgreementFields on TransferAgreement {
-    id
-    type
-    state
-    comment
-    validFrom
-    validUntil
-    sourceOrganisation {
-      ...OrganisationBasicFields
-    }
-    sourceBases {
-      ...BaseBasicFields
-    }
-    targetOrganisation {
-      ...OrganisationBasicFields
-    }
-    targetBases {
-      ...BaseBasicFields
-    }
-    shipments {
-      id
-      state
-      sourceBase {
-        ...BaseBasicFields
-      }
-      targetBase {
-        ...BaseBasicFields
-      }
-    }
-    requestedOn
-    requestedBy {
-      ...UserBasicFields
-    }
-    acceptedOn
-    acceptedBy {
-      ...UserBasicFields
-    }
-    terminatedOn
-    terminatedBy {
-      ...UserBasicFields
-    }
-  }
-`;
-
-// complexer fragments
-export const PRODUCT_FIELDS_FRAGMENT = gql`
-  ${PRODUCT_BASIC_FIELDS_FRAGMENT}
-  ${SIZE_RANGE_FIELDS_FRAGMENT}
-  fragment ProductFields on Product {
-    ...ProductBasicFields
-    category {
-      name
-    }
-    sizeRange {
-      ...SizeRangeFields
-    }
-  }
-`;
-
-export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
-  ${BOX_BASIC_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  ${SIZE_BASIC_FIELDS_FRAGMENT}
-  fragment ShipmentDetailFields on ShipmentDetail {
+export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(`
+  fragment ShipmentDetailFields on ShipmentDetail @_unmask {
     id
     box {
       ...BoxBasicFields
@@ -376,13 +194,10 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [BOX_BASIC_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT]);
 
-export const SHIPMENT_FIELDS_FRAGMENT = gql`
-  ${BASE_ORG_FIELDS_FRAGMENT}
-  ${USER_BASIC_FIELDS_FRAGMENT}
-  ${SHIPMENT_DETAIL_FIELDS_FRAGMENT}
-  fragment ShipmentFields on Shipment {
+export const SHIPMENT_FIELDS_FRAGMENT = graphql(`
+  fragment ShipmentFields on Shipment @_unmask {
     id
     labelIdentifier
     state
@@ -421,4 +236,49 @@ export const SHIPMENT_FIELDS_FRAGMENT = gql`
       ...UserBasicFields
     }
   }
-`;
+`, [BASE_ORG_FIELDS_FRAGMENT, SHIPMENT_DETAIL_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT]);
+
+export const TRANSFER_AGREEMENT_FIELDS_FRAGMENT = graphql(`
+  fragment TransferAgreementFields on TransferAgreement @_unmask {
+    id
+    type
+    state
+    comment
+    validFrom
+    validUntil
+    sourceOrganisation {
+      ...OrganisationBasicFields
+    }
+    sourceBases {
+      ...BaseBasicFields
+    }
+    targetOrganisation {
+      ...OrganisationBasicFields
+    }
+    targetBases {
+      ...BaseBasicFields
+    }
+    shipments {
+      id
+      state
+      sourceBase {
+        ...BaseBasicFields
+      }
+      targetBase {
+        ...BaseBasicFields
+      }
+    }
+    requestedOn
+    requestedBy {
+      ...UserBasicFields
+    }
+    acceptedOn
+    acceptedBy {
+      ...UserBasicFields
+    }
+    terminatedOn
+    terminatedBy {
+      ...UserBasicFields
+    }
+  }
+`, [ORGANISATION_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT, USER_BASIC_FIELDS_FRAGMENT]);

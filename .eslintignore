@@ -11,5 +11,4 @@ react-table-config.d.ts
 # Disable linting for generated files from the GraphQL codegen
 generated
 graphql.ts
-codegen.ts
 vite.config.ts

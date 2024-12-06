@@ -1,7 +1,6 @@
 import { VStack, Tag, TagLabel, Wrap, WrapItem, chakra } from "@chakra-ui/react";
 import { isDate } from "date-fns";
 import { CellProps } from "react-table";
-import { BoxState } from "types/generated/graphql";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 
@@ -9,19 +8,15 @@ export function StateCell({ value }: CellProps<any>) {
   let color = "inherit";
 
   if (
-    value === BoxState.MarkedForShipment ||
-    value === BoxState.InTransit ||
-    value === BoxState.Receiving ||
-    value === BoxState.Donated
+    value === "MarkedForShipment" ||
+    value === "InTransit" ||
+    value === "Receiving" ||
+    value === "Donated"
   ) {
     color = "blue.700";
-  } else if (value === BoxState.InStock) {
+  } else if (value === "InStock") {
     color = "green.700";
-  } else if (
-    value === BoxState.Scrap ||
-    value === BoxState.Lost ||
-    value === BoxState.NotDelivered
-  ) {
+  } else if (value === "Scrap" || value === "Lost" || value === "NotDelivered") {
     color = "red.700";
   }
 

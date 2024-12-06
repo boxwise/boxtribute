@@ -1,8 +1,8 @@
-import { BeneficiaryDemographicsData } from "../../../../types/generated/graphql";
+import { BeneficiaryDemographics } from "../../../../../graphql/types";
 import DemographicPyramid from "./DemographicPyramid";
 
 interface IDemographicChartProps {
-  demographics: BeneficiaryDemographicsData;
+  demographics: Partial<BeneficiaryDemographics>;
 }
 
 export default function DemographicCharts({ demographics }: IDemographicChartProps) {

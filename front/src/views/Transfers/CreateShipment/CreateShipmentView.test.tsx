@@ -5,10 +5,9 @@ import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import { userEvent } from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { base1, base2 } from "mocks/bases";
-import { ShipmentState } from "types/generated/graphql";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
-import { gql } from "@apollo/client";
+import { graphql } from "gql.tada";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateShipmentView, {
   ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
@@ -89,7 +88,7 @@ const initialWithoutBoxQuery = {
   },
   result: {
     data: {
-      shipment: generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
+      shipment: generateMockShipment({ state: "Preparing", hasBoxes: false }),
     },
   },
 };
@@ -118,7 +117,7 @@ const successfulMutation = {
   result: {
     data: {
       createShipment: {
-        ...generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
+        ...generateMockShipment({ state: "Preparing", hasBoxes: false }),
       },
     },
   },
@@ -227,12 +226,13 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     fields: {
       shipments(existingShipments = []) {
         const newShipmentRef = cache.writeFragment({
+          // @ts-expect-error TODO: Why this is expecting an id?
           data: successfulMutation.result.data,
-          fragment: gql`
+          fragment: graphql(`
             fragment NewShipment on Shipment {
               id
             }
-          `,
+          `),
         });
         return existingShipments.concat(newShipmentRef);
       },
@@ -381,12 +381,13 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
     fields: {
       shipments(existingShipments = []) {
         const newShipmentRef = cache.writeFragment({
+          // @ts-expect-error TODO: Why this is expecting an id?
           data: successfulMutation.result.data,
-          fragment: gql`
+          fragment: graphql(`
             fragment NewShipment on Shipment {
               id
             }
-          `,
+          `),
         });
         return existingShipments.concat(newShipmentRef);
       },

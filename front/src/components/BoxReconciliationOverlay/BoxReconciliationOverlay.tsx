@@ -2,21 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { useAtomValue } from "jotai";
 import { boxReconciliationOverlayVar } from "queries/cache";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
-import {
-  BoxState,
-  ShipmentByIdWithProductsAndLocationsQuery,
-  ShipmentByIdWithProductsAndLocationsQueryVariables,
-  ShipmentDetail,
-  UpdateShipmentWhenReceivingMutation,
-  UpdateShipmentWhenReceivingMutationVariables,
-} from "types/generated/graphql";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { useNavigate } from "react-router-dom";
-import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
 import { chakra } from "@chakra-ui/react";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
+import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
+import { ShipmentDetail } from "queries/types";
 import {
   BoxReconciliationView,
   ILocationData,
@@ -52,10 +45,7 @@ export function BoxReconciliationOverlay({
     });
   }, []);
 
-  const { loading, error, data } = useQuery<
-    ShipmentByIdWithProductsAndLocationsQuery,
-    ShipmentByIdWithProductsAndLocationsQueryVariables
-  >(SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY, {
+  const { loading, error, data } = useQuery(SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY, {
     variables: {
       shipmentId: boxReconciliationOverlayState.shipmentId || "",
       baseId: baseId || "",
@@ -63,10 +53,9 @@ export function BoxReconciliationOverlay({
     skip: !boxReconciliationOverlayState.shipmentId || !baseId,
   });
 
-  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation<
-    UpdateShipmentWhenReceivingMutation,
-    UpdateShipmentWhenReceivingMutationVariables
-  >(UPDATE_SHIPMENT_WHEN_RECEIVING);
+  const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation(
+    UPDATE_SHIPMENT_WHEN_RECEIVING,
+  );
 
   const mutationLoading = updateShipmentWhenReceivingStatus.loading;
 
@@ -102,7 +91,7 @@ export function BoxReconciliationOverlay({
   const allLocations = useMemo(
     () =>
       data?.base?.locations
-        .filter((location) => location?.defaultBoxState === BoxState.InStock)
+        .filter((location) => location?.defaultBoxState === "InStock")
         .sort((a, b) => Number(a?.seq) - Number(b?.seq)),
     [data],
   );

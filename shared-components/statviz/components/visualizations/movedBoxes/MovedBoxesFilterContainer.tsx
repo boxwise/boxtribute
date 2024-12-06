@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { useReactiveVar } from "@apollo/client";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import useTimerange from "../../../hooks/useTimerange";
-import { MovedBoxesData, MovedBoxesResult } from "../../../../types/generated/graphql";
 import { filterListByInterval } from "../../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
 import useValueFilter from "../../../hooks/useValueFilter";
@@ -20,9 +19,10 @@ import {
   tagFilterValuesVar,
 } from "../../../state/filter";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 
 interface IMovedBoxesFilterContainerProps {
-  movedBoxes: MovedBoxesData;
+  movedBoxes: MovedBoxes;
 }
 
 export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFilterContainerProps) {
@@ -49,22 +49,18 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   // fill target filter with data
   useEffect(() => {
-    const targets = movedBoxes.dimensions!.target!.map((t) => targetToFilterValue(t!));
+    const targets = movedBoxes?.dimensions!.target!.map((t) => targetToFilterValue(t!));
     targetFilterValuesVar(targets);
-  }, [movedBoxes.dimensions]);
+  }, [movedBoxes?.dimensions]);
 
   const movedBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(
-        movedBoxes.facts as MovedBoxesResult[],
-        "movedOn",
-        interval,
-      ) as MovedBoxesResult[];
+      return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
     } catch (error) {
       // TODO show toast with error message?
     }
     return [];
-  }, [interval, movedBoxes.facts]);
+  }, [interval, movedBoxes?.facts]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
@@ -104,14 +100,14 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
     if (filters.length > 0) {
       // @ts-expect-error
-      return tidy(movedBoxesFacts, ...filters);
+      return tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
-    return movedBoxesFacts;
+    return movedBoxesFacts satisfies MovedBoxesResult[];
   }, [excludedTargets, filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
 
   const filteredMovedBoxesCube = {
-    facts: filteredFacts as MovedBoxesResult[],
-    dimensions: movedBoxes.dimensions,
+    facts: filteredFacts,
+    dimensions: movedBoxes?.dimensions,
   };
   return <MovedBoxesCharts movedBoxes={filteredMovedBoxesCube} boxesOrItems={filterValue.value} />;
 }

@@ -19,8 +19,8 @@ function ResolveHash() {
       .then((value) => {
         switch (value.kind) {
           case IQrResolverResultKind.SUCCESS: {
-            const boxLabelIdentifier = value.box.labelIdentifier;
-            const boxBaseId = value.box.location.base.id;
+            const boxLabelIdentifier = value.box?.labelIdentifier;
+            const boxBaseId = value.box?.location?.base?.id;
             navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
             break;
           }

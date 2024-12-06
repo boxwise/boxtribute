@@ -1,7 +1,6 @@
 import { useReactiveVar } from "@apollo/client";
 import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
-import { BoxState, StockOverviewData, StockOverviewResult } from "../../../../types/generated/graphql";
 import StockCharts from "./StockCharts";
 import {
   boxesOrItemsFilterValues,
@@ -12,9 +11,10 @@ import useValueFilter from "../../../hooks/useValueFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId } from "../../filter/TagFilter";
 import { tagFilterValuesVar } from "../../../state/filter";
+import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 
 interface IStockDataFilterProps {
-  stockOverview: StockOverviewData;
+  stockOverview: StockOverview;
 }
 
 export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
@@ -40,16 +40,14 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
       );
     }
 
-    filters.push(
-      filter((fact: StockOverviewResult) => fact.boxState === BoxState.InStock)
-    );
+    filters.push(filter((fact: StockOverviewResult) => fact.boxState === "InStock"));
 
     if (filter.length > 0) {
       return {
         ...stockOverview,
         // @ts-expect-error ts(2556)
         facts: tidy(stockOverview.facts, ...filters),
-      } as StockOverviewData;
+      } as StockOverview;
     }
     return stockOverview;
   }, [filteredTags, stockOverview]);

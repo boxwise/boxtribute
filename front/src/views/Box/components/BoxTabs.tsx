@@ -18,13 +18,13 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { BiNetworkChart } from "react-icons/bi";
 import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
-import { BoxByLabelIdentifierQuery, BoxState } from "types/generated/graphql";
 import AssignBoxToShipment from "./AssignBoxToShipment";
 
 import BoxMoveLocation from "./BoxMoveLocation";
+import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
 
 export interface IBoxTabsProps {
-  boxData: BoxByLabelIdentifierQuery["box"];
+  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
@@ -43,7 +43,7 @@ function BoxTabs({
   isLoading,
 }: IBoxTabsProps) {
   const location =
-    boxData?.state === BoxState.Receiving
+    boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.shipment.details.filter(
           (b) => b.box.labelIdentifier === boxData.labelIdentifier,
         )[0]?.sourceLocation
@@ -116,14 +116,14 @@ function BoxTabs({
             <TabPanel>
               {boxData?.location !== null && (
                 <>
-                  {boxData?.state === BoxState.MarkedForShipment && (
+                  {boxData?.state === "MarkedForShipment" && (
                     <Alert status="warning" my={4}>
                       <AlertIcon />
                       MarkedForShipment Boxes are not movable.
                     </Alert>
                   )}
                   <BoxMoveLocation
-                    boxData={boxData}
+                    boxData={boxData!}
                     boxInTransit={boxInTransit}
                     onMoveToLocationClick={onMoveToLocationClick}
                     isLoading={isLoading}

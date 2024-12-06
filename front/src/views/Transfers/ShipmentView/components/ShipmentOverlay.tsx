@@ -1,7 +1,7 @@
 import { VStack, Text, chakra, HStack, Wrap } from "@chakra-ui/react";
 import { AreYouSureDialog } from "components/AreYouSure";
+import { ShipmentState } from "queries/types";
 import { AiFillWarning } from "react-icons/ai";
-import { BoxState, ShipmentState } from "types/generated/graphql";
 
 export interface IShipmentOverlayData {
   id: string;
@@ -38,7 +38,7 @@ function ShipmentOverlay({
   let rightButtonProps = {};
   let onRightButtonClick = () => onClose();
 
-  if (data?.state === ShipmentState.Preparing) {
+  if (data?.state === "Preparing") {
     title = "Cancel Whole Shipment?";
     body = (
       <VStack align="start" spacing={8}>
@@ -59,7 +59,7 @@ function ShipmentOverlay({
       colorScheme: "red",
     };
     onRightButtonClick = () => onCancel(data.id);
-  } else if (data?.state === ShipmentState.Receiving) {
+  } else if (data?.state === "Receiving") {
     title = "Remaining Boxes Not Delivered?";
     body = (
       <VStack align="start" spacing={8}>
@@ -95,7 +95,7 @@ function ShipmentOverlay({
       colorScheme: "red",
     };
     onRightButtonClick = () => onRemainingBoxesUndelivered();
-  } else if (data?.state === ShipmentState.Sent) {
+  } else if (data?.state === "Sent") {
     title = "Cannot Locate Shipment?";
     body = (
       <VStack align="start" spacing={8}>
@@ -103,11 +103,11 @@ function ShipmentOverlay({
           <Text>
             Confirming this will mark the shipment as{" "}
             <chakra.span color="red.500" fontWeight="semibold">
-              {ShipmentState.Lost}
+              Lost
             </chakra.span>{" "}
             and all boxes as{" "}
             <chakra.span color="red.500" fontWeight="semibold">
-              {BoxState.NotDelivered}
+              NotDelivered
             </chakra.span>
             , effectively cancelling the shipment.
           </Text>

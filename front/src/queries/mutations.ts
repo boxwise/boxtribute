@@ -1,8 +1,7 @@
-import { gql } from "@apollo/client";
+import { graphql } from "../../../graphql/graphql"
 import { SHIPMENT_FIELDS_FRAGMENT } from "./fragments";
 
-export const UPDATE_SHIPMENT_WHEN_RECEIVING = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
+export const UPDATE_SHIPMENT_WHEN_RECEIVING = graphql(`
   mutation UpdateShipmentWhenReceiving(
     $id: ID!
     $receivedShipmentDetailUpdateInputs: [ShipmentDetailUpdateInput!]
@@ -18,4 +17,4 @@ export const UPDATE_SHIPMENT_WHEN_RECEIVING = gql`
       ...ShipmentFields
     }
   }
-`;
+`, [SHIPMENT_FIELDS_FRAGMENT]);

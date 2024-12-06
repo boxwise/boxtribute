@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { gql, useMutation, useQuery, NetworkStatus } from "@apollo/client";
+import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
+import { graphql } from "gql.tada";
 import {
   Alert,
   AlertDescription,
@@ -11,34 +12,15 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  AssignBoxToDistributionEventMutation,
-  AssignBoxToDistributionEventMutationVariables,
-  BoxByLabelIdentifierQuery,
-  BoxByLabelIdentifierQueryVariables,
-  BoxState,
-  UnassignBoxFromDistributionEventMutation,
-  UnassignBoxFromDistributionEventMutationVariables,
-  UpdateLocationOfBoxMutation,
-  UpdateLocationOfBoxMutationVariables,
-  UpdateNumberOfItemsMutation,
-  UpdateNumberOfItemsMutationVariables,
-  UpdateStateMutationVariables,
-  UpdateStateMutation,
-  ClassicLocation,
-  ShipmentState,
-  User,
-  HistoryEntry,
-} from "types/generated/graphql";
-import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 import {
-  DISTRO_EVENT_FIELDS_FRAGMENT,
-  TAG_BASIC_FIELDS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
+  DISTRO_EVENT_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
+  TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -63,6 +45,7 @@ import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { BoxState } from "queries/types";
 
 // Queries and Mutations
 const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
@@ -72,74 +55,82 @@ const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
   },
 });
 
-export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
-  mutation UpdateNumberOfItems($boxLabelIdentifier: String!, $numberOfItems: Int!) {
-    updateBox(
-      updateInput: { labelIdentifier: $boxLabelIdentifier, numberOfItems: $numberOfItems }
-    ) {
-      ...BoxFields
+export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = graphql(
+  `
+    mutation UpdateNumberOfItems($boxLabelIdentifier: String!, $numberOfItems: Int!) {
+      updateBox(
+        updateInput: { labelIdentifier: $boxLabelIdentifier, numberOfItems: $numberOfItems }
+      ) {
+        ...BoxFields
+      }
     }
-  }
-`;
+  `,
+  [BOX_FIELDS_FRAGMENT],
+);
 
-export const UPDATE_STATE_IN_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
-  mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
-    updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
-      ...BoxFields
+export const UPDATE_STATE_IN_BOX_MUTATION = graphql(
+  `
+    mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
+      updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
+        ...BoxFields
+      }
     }
-  }
-`;
+  `,
+  [BOX_FIELDS_FRAGMENT],
+);
 
-export const UPDATE_BOX_MUTATION = gql`
-  ${BOX_FIELDS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  ${TAG_BASIC_FIELDS_FRAGMENT}
-  ${DISTRO_EVENT_FIELDS_FRAGMENT}
-  mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
-    updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
-      ...BoxFields
-      product {
-        ...ProductFields
-      }
-      tags {
-        ...TagBasicFields
-      }
-      distributionEvent {
-        ...DistroEventFields
-      }
-      location {
-        __typename
-        id
-        name
-        ... on ClassicLocation {
-          defaultBoxState
+export const UPDATE_BOX_MUTATION = graphql(
+  `
+    mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
+      updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
+        ...BoxFields
+        product {
+          ...ProductFields
         }
-        base {
-          locations {
-            id
-            seq
-            name
-            ... on ClassicLocation {
-              defaultBoxState
-            }
+        tags {
+          ...TagBasicFields
+        }
+        distributionEvent {
+          ...DistroEventFields
+        }
+        location {
+          __typename
+          id
+          name
+          ... on ClassicLocation {
+            defaultBoxState
           }
-          distributionEventsBeforeReturnedFromDistributionState {
-            id
-            state
-            distributionSpot {
+          base {
+            locations {
+              id
+              seq
               name
+              ... on ClassicLocation {
+                defaultBoxState
+              }
             }
-            name
-            plannedStartDateTime
-            plannedEndDateTime
+            distributionEventsBeforeReturnedFromDistributionState {
+              id
+              state
+              distributionSpot {
+                name
+              }
+              name
+              plannedStartDateTime
+              plannedEndDateTime
+            }
           }
         }
       }
     }
-  }
-`;
+  `,
+  [
+    BOX_FIELDS_FRAGMENT,
+    PRODUCT_FIELDS_FRAGMENT,
+    TAG_BASIC_FIELDS_FRAGMENT,
+    DISTRO_EVENT_FIELDS_FRAGMENT,
+  ],
+);
 
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;
@@ -159,32 +150,28 @@ function BTBox() {
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
 
-  const allData = useQuery<BoxByLabelIdentifierQuery, BoxByLabelIdentifierQueryVariables>(
-    BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-    {
-      variables: {
-        labelIdentifier,
-      },
-      notifyOnNetworkStatusChange: true,
+  const allData = useQuery(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, {
+    variables: {
+      labelIdentifier,
     },
-  );
+    notifyOnNetworkStatusChange: true,
+  });
 
   const shipmentsQueryResult = allData.data?.shipments;
 
   const boxInTransit = currentBoxState
-    ? [BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(currentBoxState)
+    ? ["Receiving", "MarkedForShipment", "InTransit"].includes(currentBoxState)
     : false;
 
   // map over each box HistoryEntry to compile its timeline records
-  const boxLogs: ITimelineEntry[] = (allData.data?.box?.history as HistoryEntry[])?.flatMap(
-    (histories) =>
-      _.compact([
-        histories?.user && {
-          action: prepareBoxHistoryEntryText(`${histories.user.name} ${histories.changes}`),
-          createdBy: histories.user as User,
-          createdOn: new Date(histories.changeDate),
-        },
-      ]),
+  const boxLogs: ITimelineEntry[] = allData.data?.box?.history?.flatMap((histories) =>
+    _.compact([
+      histories?.user && {
+        action: prepareBoxHistoryEntryText(`${histories.user.name} ${histories.changes}`),
+        createdBy: histories.user,
+        createdOn: new Date(histories.changeDate || new Date()),
+      },
+    ]),
   ) as ITimelineEntry[];
 
   const allLogs = _.orderBy(
@@ -207,32 +194,21 @@ function BTBox() {
     .orderBy((entry) => new Date(entry.date), "desc")
     .value();
 
-  const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation<
-    UpdateNumberOfItemsMutation,
-    UpdateNumberOfItemsMutationVariables
-  >(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION);
+  const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation(
+    UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
+  );
 
   const [assignBoxToDistributionEventMutation, assignBoxToDistributionEventMutationStatus] =
-    useMutation<
-      AssignBoxToDistributionEventMutation,
-      AssignBoxToDistributionEventMutationVariables
-    >(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
+    useMutation(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
   const [unassignBoxFromDistributionEventMutation, unassignBoxFromDistributionEventMutationStatus] =
-    useMutation<
-      UnassignBoxFromDistributionEventMutation,
-      UnassignBoxFromDistributionEventMutationVariables
-    >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+    useMutation(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
 
-  const [updateStateMutation, updateStateMutationStatus] = useMutation<
-    UpdateStateMutation,
-    UpdateStateMutationVariables
-  >(UPDATE_STATE_IN_BOX_MUTATION);
+  const [updateStateMutation, updateStateMutationStatus] = useMutation(
+    UPDATE_STATE_IN_BOX_MUTATION,
+  );
 
-  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation<
-    UpdateLocationOfBoxMutation,
-    UpdateLocationOfBoxMutationVariables
-  >(UPDATE_BOX_MUTATION);
+  const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation(UPDATE_BOX_MUTATION);
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
@@ -243,13 +219,13 @@ function BTBox() {
     setCurrentState(boxData?.state);
     const shipmentId = boxData?.shipmentDetail?.shipment.id;
     // open reconciliation overlay if the box state is receiving
-    if (shipmentId && boxData?.state === BoxState.Receiving) {
+    if (shipmentId && boxData?.state === "Receiving") {
       boxReconciliationOverlayVar({
         labelIdentifier: boxData.labelIdentifier,
         isOpen: true,
         shipmentId,
       });
-    } else if (shipmentId && boxData?.state === BoxState.InTransit) {
+    } else if (shipmentId && boxData?.state === "InTransit") {
       navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
     }
   }, [boxData, navigate, baseId]);
@@ -578,10 +554,7 @@ function BTBox() {
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
       shipmentsQueryResult
-        ?.filter(
-          (shipment) =>
-            shipment.state === ShipmentState.Preparing && shipment.sourceBase.id === baseId,
-        )
+        ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           subTitle: shipment.labelIdentifier,
@@ -605,25 +578,30 @@ function BTBox() {
     warehouse location. Boxtribute no longer supports LOST and SCRAP locations.`;
 
   const alertMessageForBoxWithLostScrapState = `To edit or move this box, remove the ${
-    boxData?.state === BoxState.Lost ? "Lost" : "Scrap"
+    boxData?.state === "Lost" ? "Lost" : "Scrap"
   } status.`;
 
   const location =
-    boxData?.state === BoxState.Receiving
+    boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.shipment.details.filter(
           (b) => b.box.labelIdentifier === boxData.labelIdentifier,
         )[0]?.sourceLocation
       : boxData?.location;
 
+  // TODO: should we ignore all this type checking?
   const boxInLegacyLocation =
-    (location as ClassicLocation)?.defaultBoxState === BoxState.Lost ||
-    (location as ClassicLocation)?.defaultBoxState === BoxState.Scrap;
+    (location &&
+      "__typename" in location &&
+      location.__typename === "ClassicLocation" &&
+      location?.defaultBoxState === "Lost") ||
+    (location &&
+      "__typename" in location &&
+      location.__typename === "ClassicLocation" &&
+      location?.defaultBoxState === "Scrap");
 
   return (
     <VStack spacing={4} align="stretch">
-      {(boxInLegacyLocation ||
-        boxData?.state === BoxState.Lost ||
-        boxData?.state === BoxState.Scrap) && (
+      {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") && (
         <Alert
           status="info"
           variant="top-accent"
@@ -642,7 +620,7 @@ function BTBox() {
         </Alert>
       )}
       <BoxDetails
-        boxData={boxData}
+        boxData={boxData!}
         boxInTransit={boxInTransit}
         onPlusOpen={onPlusOpen}
         onHistoryOpen={onHistoryOpen}

@@ -3,7 +3,6 @@ import { screen, render, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
 import { generateMockBox } from "mocks/boxes";
-import { BoxState } from "types/generated/graphql";
 import { generateMockLocationWithBase, locations } from "mocks/locations";
 import { product1, product3, products } from "mocks/products";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "views/BoxEdit/BoxEditView";
@@ -62,11 +61,11 @@ const initialQueryForBoxInLegacyLostLocation = {
       box: generateMockBox({
         labelIdentifier: "1234",
         location: generateMockLocationWithBase({
-          defaultBoxState: BoxState.Lost,
+          defaultBoxState: "Lost",
           defaultLocationName: "LOST",
           defaultLocationId: 1,
         }),
-        state: BoxState.Lost,
+        state: "Lost",
       }),
       shipments: null,
     },
@@ -84,7 +83,7 @@ const initialQueryForBoxLostState = {
     data: {
       box: generateMockBox({
         labelIdentifier: "1234",
-        state: BoxState.Lost,
+        state: "Lost",
       }),
       shipments: null,
     },
@@ -102,7 +101,7 @@ const initialQueryForBoxScrapState = {
     data: {
       box: generateMockBox({
         labelIdentifier: "1234",
-        state: BoxState.Scrap,
+        state: "Scrap",
       }),
       shipments: null,
     },
@@ -120,7 +119,7 @@ const initialQueryForBoxMarkedForShipmentState = {
     data: {
       box: generateMockBox({
         labelIdentifier: "1234",
-        state: BoxState.MarkedForShipment,
+        state: "MarkedForShipment",
       }),
       shipments: null,
     },
@@ -206,7 +205,7 @@ const initialQueryMoveLocationOfBox = {
     data: {
       box: generateMockBox({
         labelIdentifier: "125",
-        state: BoxState.InStock,
+        state: "InStock",
       }),
       shipments: null,
     },
@@ -226,7 +225,7 @@ const moveLocationOfBoxMutation = {
       updateBox: generateMockBox({
         product: product1,
         labelIdentifier: "125",
-        state: BoxState.InStock,
+        state: "InStock",
         location: generateMockLocationWithBase({
           defaultLocationId: 6,
           defaultLocationName: "WH Women",
@@ -242,14 +241,14 @@ const updateBoxStateToScrapMutation = {
     query: UPDATE_STATE_IN_BOX_MUTATION,
     variables: {
       boxLabelIdentifier: "123",
-      newState: BoxState.Scrap,
+      newState: "Scrap",
     },
   },
   result: {
     data: {
       updateBox: generateMockBox({
         labelIdentifier: "123",
-        state: BoxState.Scrap,
+        state: "Scrap",
       }),
     },
   },
@@ -265,7 +264,7 @@ const updateBoxStateToLostMutation = {
   },
   result: {
     data: {
-      updateBox: generateMockBox({ state: BoxState.Lost }),
+      updateBox: generateMockBox({ state: "Lost" }),
       shipments: null,
     },
   },

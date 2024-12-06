@@ -10,7 +10,6 @@ import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import { generateMockShipment } from "mocks/shipments";
-import { ShipmentState } from "types/generated/graphql";
 import { mockMatchMediaQuery } from "mocks/functions";
 import BTBox from "./BoxView";
 
@@ -88,7 +87,7 @@ const initialQueryForBoxInReceivingState = {
         state: "Receiving",
         tags: [],
       },
-      shipments: [generateMockShipment({ state: ShipmentState.Receiving })],
+      shipments: [generateMockShipment({ state: "Receiving" })],
     },
   },
 };
@@ -108,7 +107,7 @@ const queryShipmentDetailForBoxReconciliation = {
         products,
         tags: [tag1, tag2],
       },
-      shipment: generateMockShipment({ state: ShipmentState.Receiving }),
+      shipment: generateMockShipment({ state: "Receiving" }),
     },
   },
 };

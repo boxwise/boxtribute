@@ -10,7 +10,6 @@ import {
   GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
 } from "queries/queries";
-import { BoxState, ShipmentState } from "types/generated/graphql";
 import { cache } from "queries/cache";
 import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
@@ -25,7 +24,7 @@ const mockSuccessfulQrQuery = ({
   query = GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
   hash = "abc",
   labelIdentifier = "678",
-  state = BoxState.InStock,
+  state = "InStock",
 }) => ({
   request: {
     query,
@@ -57,9 +56,7 @@ const mockLocationsQuery = ({
         data: graphQlError
           ? null
           : {
-              shipments: [
-                generateMockShipmentMinimal({ state: ShipmentState.Preparing, iAmSource: true }),
-              ],
+              shipments: [generateMockShipmentMinimal({ state: "Preparing", iAmSource: true })],
               base: { locations, tags },
             },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
@@ -95,7 +92,7 @@ const mockMoveBoxesMutation = ({
   graphQlError = false,
   labelIdentifiers = ["123"],
   newLocationId = 2,
-  newBoxState = BoxState.Donated,
+  newBoxState = "Donated",
   failLabelIdentifier = "678",
 }) => ({
   request: {

@@ -1,8 +1,9 @@
-import { PackingListEntriesForDistributionEventQuery } from "types/generated/graphql";
+import { ResultOf } from "gql.tada";
 import { IPackingListEntryForPackingState } from "./types";
+import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "./queries";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (
-  queryResult: PackingListEntriesForDistributionEventQuery | undefined
+  queryResult: ResultOf<typeof PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY> | undefined
 ): IPackingListEntryForPackingState[] | undefined => {
   // TODO: Do better (e.g. zod based) validation of the query result
   return queryResult?.distributionEvent?.packingListEntries.map((entry) => {

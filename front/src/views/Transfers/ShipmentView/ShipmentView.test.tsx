@@ -3,7 +3,6 @@ import { screen, render, waitFor } from "tests/test-utils";
 import { organisation1 } from "mocks/organisations";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
-import { BoxState, ShipmentState } from "types/generated/graphql";
 import { userEvent } from "@testing-library/user-event";
 import { FakeGraphQLError, mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
@@ -18,7 +17,7 @@ const initialQuery = {
   },
   result: {
     data: {
-      shipment: generateMockShipment({ state: ShipmentState.Preparing }),
+      shipment: generateMockShipment({ state: "Preparing" }),
     },
   },
 };
@@ -33,7 +32,7 @@ const initialWithGroupedItemQuery = {
   result: {
     data: {
       shipment: generateMockShipmentWithCustomDetails({
-        state: ShipmentState.Preparing,
+        state: "Preparing",
         details: [
           generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
           generateMockShipmentDetail({
@@ -56,7 +55,7 @@ const initialWithoutBoxQuery = {
   },
   result: {
     data: {
-      shipment: generateMockShipment({ state: ShipmentState.Preparing, hasBoxes: false }),
+      shipment: generateMockShipment({ state: "Preparing", hasBoxes: false }),
     },
   },
 };
@@ -71,7 +70,7 @@ const initialCompletedShipemntQuery = {
   result: {
     data: {
       shipment: generateMockShipmentWithCustomDetails({
-        state: ShipmentState.Completed,
+        state: "Completed",
         details: [
           generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
           generateMockShipmentDetail({
@@ -84,7 +83,7 @@ const initialCompletedShipemntQuery = {
             box: generateMockBox({
               labelIdentifier: "125",
               numberOfItems: 20,
-              state: BoxState.Lost,
+              state: "Lost",
             }),
             sourceQuantity: 20,
           }),
@@ -116,7 +115,7 @@ const initialRecevingUIAsSourceOrgQuery = {
   result: {
     data: {
       shipment: generateMockShipment({
-        state: ShipmentState.Receiving,
+        state: "Receiving",
         iAmSource: true,
         hasBoxes: true,
       }),
@@ -134,7 +133,7 @@ const initialRecevingUIAsTargetOrgQuery = {
   result: {
     data: {
       shipment: generateMockShipment({
-        state: ShipmentState.Receiving,
+        state: "Receiving",
         iAmSource: false,
         hasBoxes: true,
       }),

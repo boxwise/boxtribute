@@ -1,20 +1,15 @@
-import {
-  ShipmentState,
-  TransferAgreementState,
-  TransferAgreementType,
-} from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { organisation1, organisation2 } from "./organisations";
 
 export const generateMockTransferAgreement = ({
-  type = TransferAgreementType.Bidirectional,
-  state = TransferAgreementState.UnderReview,
+  type = "Bidirectional",
+  state = "UnderReview",
   comment = "Good Comment",
   isInitiator = true,
 }) => {
   const iAmSource =
-    (isInitiator && type !== TransferAgreementType.ReceivingFrom) ||
-    (!isInitiator && type === TransferAgreementType.ReceivingFrom);
+    (isInitiator && type !== "ReceivingFrom") ||
+    (!isInitiator && type === "ReceivingFrom");
 
   return {
     id: "1",
@@ -30,7 +25,7 @@ export const generateMockTransferAgreement = ({
     shipments: [
       {
         id: "1",
-        state: ShipmentState.Preparing,
+        state: "Preparing",
         sourceBase: iAmSource ? base1 : base2,
         targetBase: iAmSource ? base2 : base1,
         __typename: "Shipment",

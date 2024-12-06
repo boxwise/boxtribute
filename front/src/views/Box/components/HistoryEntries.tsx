@@ -1,11 +1,13 @@
 import { ListItem, ListIcon, List, Stack, Flex, Text, Box } from "@chakra-ui/react";
+import { ResultOf } from "gql.tada";
 import { IconType } from "react-icons";
 import { MdCheckCircle, MdSettings, MdHistory } from "react-icons/md";
-import { HistoryEntry } from "types/generated/graphql";
+
+import { HISTORY_FIELDS_FRAGMENT } from "queries/fragments";
 import { prepareBoxHistoryEntryText } from "utils/helpers";
 
 interface IHistoryEntriesProps {
-  data: HistoryEntry[];
+  data: ResultOf<typeof HISTORY_FIELDS_FRAGMENT>[];
   total: number | undefined;
 }
 
@@ -19,7 +21,7 @@ function getHistoryIcon(changes: string): IconType {
   return MdHistory;
 }
 
-function formatDate(date: Date): string {
+function formatDate(date: Date | string): string {
   return new Date(date).toLocaleString("en-GB", {
     weekday: "short",
     day: "2-digit",
@@ -57,7 +59,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
                 <Text>
                   <b>{historyEntry?.user?.name}</b>
                   {" on "}
-                  <b>{formatDate(historyEntry?.changeDate)}</b>{" "}
+                  <b>{formatDate(historyEntry?.changeDate || "")}</b>{" "}
                   {prepareBoxHistoryEntryText(historyEntry?.changes)}
                 </Text>
               </Box>

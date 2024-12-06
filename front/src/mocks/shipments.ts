@@ -1,4 +1,3 @@
-import { BoxState, ShipmentState, TransferAgreementType } from "types/generated/graphql";
 import { base1, base2 } from "./bases";
 import { generateMockBox } from "./boxes";
 import { location1 } from "./locations";
@@ -11,7 +10,7 @@ export const basicShipment = {
   __typename: "Shipment",
   id: "1",
   labelIdentifier: "S001-231111-LExTH",
-  state: ShipmentState.Preparing,
+  state: "Preparing",
   sourceBase: {
     __typename: "Base",
     id: "1",
@@ -57,7 +56,7 @@ export const shipment1 = {
   sentBy: null,
   transferAgreement: {
     id: "1",
-    type: TransferAgreementType.Bidirectional,
+    type: "Bidirectional",
     comment: "",
   },
 };
@@ -68,7 +67,7 @@ export const shipment2 = {
   sentBy: null,
   transferAgreement: {
     id: "1",
-    type: TransferAgreementType.Bidirectional,
+    type: "Bidirectional",
     comment: "",
   },
 };
@@ -76,7 +75,7 @@ export const shipment2 = {
 export const shipments = [shipment1];
 
 export const generateMockShipment = ({
-  state = ShipmentState.Preparing,
+  state = "Preparing",
   iAmSource = true,
   hasBoxes = true,
 }) => ({
@@ -85,129 +84,129 @@ export const generateMockShipment = ({
   state,
   details: hasBoxes
     ? [
-        {
-          id: "1",
-          box: {
-            __typename: "Box",
-            labelIdentifier: "123",
-            state: BoxState.MarkedForShipment,
-            comment: null,
-            location: {
-              ...location1,
-              base: {
-                ...base1,
-              },
+      {
+        id: "1",
+        box: {
+          __typename: "Box",
+          labelIdentifier: "123",
+          state: "MarkedForShipment",
+          comment: null,
+          location: {
+            ...location1,
+            base: {
+              ...base1,
             },
-            shipmentDetail: {
-              __typename: "ShipmentDetail",
-              id: "2",
-              shipment: {
-                id: "1",
-              },
-            },
-            lastModifiedOn: new Date().toISOString(),
           },
-          sourceProduct: product1,
-          targetProduct: null,
-          sourceSize: size1,
-          sourceLocation: location1,
-          targetSize: null,
-          sourceQuantity: 10,
-          targetQuantity: null,
-          createdOn: "2023-01-09T17:24:29+00:00",
-          createdBy: user1,
-          removedOn: "2023-01-10T17:24:29+00:00",
-          removedBy: user1,
-          lostOn: null,
-          lostBy: null,
-          receivedOn: null,
-          receivedBy: null,
-          __typename: "ShipmentDetail",
-        },
-        {
-          id: "2",
-          box: {
-            __typename: "Box",
-            labelIdentifier: "123",
-            state: BoxState.MarkedForShipment,
-            comment: null,
-            location: {
-              ...location1,
-              base: {
-                ...base1,
-              },
+          shipmentDetail: {
+            __typename: "ShipmentDetail",
+            id: "2",
+            shipment: {
+              id: "1",
             },
-            shipmentDetail: {
-              __typename: "ShipmentDetail",
-              id: "2",
-              shipment: {
-                id: "1",
-              },
-            },
-            lastModifiedOn: new Date().toISOString(),
           },
-          sourceProduct: product1,
-          targetProduct: null,
-          sourceSize: size1,
-          targetSize: null,
-          sourceLocation: location1,
-          sourceQuantity: 10,
-          targetQuantity: null,
-          createdOn: "2023-01-11T17:24:29+00:00",
-          createdBy: user1,
-          receivedOn: state === ShipmentState.Completed ? "2023-01-14T17:24:29+00:00" : null,
-          receivedBy: state === ShipmentState.Completed ? user1 : null,
-          removedOn: null,
-          removedBy: null,
-          lostOn: null,
-          lostBy: null,
-          __typename: "ShipmentDetail",
+          lastModifiedOn: new Date().toISOString(),
         },
-        {
-          id: "3",
-          box: generateMockBox({
-            labelIdentifier: "124",
-            numberOfItems: 12,
-            product: product3,
-            state:
-              state === ShipmentState.Receiving
-                ? BoxState.Receiving
-                : state === ShipmentState.Sent
-                  ? BoxState.InTransit
-                  : BoxState.MarkedForShipment,
-            shipmentDetail: {
-              __typename: "ShipmentDetail",
-              id: "3",
-              shipment: {
-                id: "1",
-              },
+        sourceProduct: product1,
+        targetProduct: null,
+        sourceSize: size1,
+        sourceLocation: location1,
+        targetSize: null,
+        sourceQuantity: 10,
+        targetQuantity: null,
+        createdOn: "2023-01-09T17:24:29+00:00",
+        createdBy: user1,
+        removedOn: "2023-01-10T17:24:29+00:00",
+        removedBy: user1,
+        lostOn: null,
+        lostBy: null,
+        receivedOn: null,
+        receivedBy: null,
+        __typename: "ShipmentDetail",
+      },
+      {
+        id: "2",
+        box: {
+          __typename: "Box",
+          labelIdentifier: "123",
+          state: "MarkedForShipment",
+          comment: null,
+          location: {
+            ...location1,
+            base: {
+              ...base1,
             },
-          }),
-          sourceProduct: product3,
-          targetProduct: null,
-          sourceSize: size2,
-          targetSize: null,
-          sourceLocation: location1,
-          sourceQuantity: 12,
-          targetQuantity: null,
-          createdOn: "2023-02-01T17:24:29+00:00",
-          createdBy: user1,
-          receivedOn: state === ShipmentState.Completed ? "2023-01-14T17:24:29+00:00" : null,
-          receivedBy: state === ShipmentState.Completed ? user1 : null,
-          lostOn: null,
-          lostBy: null,
-          removedOn: null,
-          removedBy: null,
-          __typename: "ShipmentDetail",
+          },
+          shipmentDetail: {
+            __typename: "ShipmentDetail",
+            id: "2",
+            shipment: {
+              id: "1",
+            },
+          },
+          lastModifiedOn: new Date().toISOString(),
         },
-      ]
+        sourceProduct: product1,
+        targetProduct: null,
+        sourceSize: size1,
+        targetSize: null,
+        sourceLocation: location1,
+        sourceQuantity: 10,
+        targetQuantity: null,
+        createdOn: "2023-01-11T17:24:29+00:00",
+        createdBy: user1,
+        receivedOn: state === "Completed" ? "2023-01-14T17:24:29+00:00" : null,
+        receivedBy: state === "Completed" ? user1 : null,
+        removedOn: null,
+        removedBy: null,
+        lostOn: null,
+        lostBy: null,
+        __typename: "ShipmentDetail",
+      },
+      {
+        id: "3",
+        box: generateMockBox({
+          labelIdentifier: "124",
+          numberOfItems: 12,
+          product: product3,
+          state:
+            state === "Receiving"
+              ? "Receiving"
+              : state === "Sent"
+                ? "InTransit"
+                : "MarkedForShipment",
+          shipmentDetail: {
+            __typename: "ShipmentDetail",
+            id: "3",
+            shipment: {
+              id: "1",
+            },
+          },
+        }),
+        sourceProduct: product3,
+        targetProduct: null,
+        sourceSize: size2,
+        targetSize: null,
+        sourceLocation: location1,
+        sourceQuantity: 12,
+        targetQuantity: null,
+        createdOn: "2023-02-01T17:24:29+00:00",
+        createdBy: user1,
+        receivedOn: state === "Completed" ? "2023-01-14T17:24:29+00:00" : null,
+        receivedBy: state === "Completed" ? user1 : null,
+        lostOn: null,
+        lostBy: null,
+        removedOn: null,
+        removedBy: null,
+        __typename: "ShipmentDetail",
+      },
+    ]
     : [],
   sourceBase: iAmSource ? base1 : base2,
   targetBase: iAmSource ? base2 : base1,
   transferAgreement: {
     id: "1",
     comment: "",
-    type: TransferAgreementType.Bidirectional,
+    type: "Bidirectional",
     __typename: "TransferAgreement",
   },
   startedOn: "2023-01-08T17:24:29+00:00",
@@ -224,7 +223,7 @@ export const generateMockShipment = ({
 });
 
 export const generateMockShipmentMinimal = ({
-  state = ShipmentState.Preparing,
+  state = "Preparing",
   iAmSource = true,
 }) => {
   const shipment = {
@@ -232,11 +231,11 @@ export const generateMockShipmentMinimal = ({
     state,
     labelIdentifier: iAmSource
       ? `001-123123-${base1.name.substring(0, 2).toUpperCase()}x${base2.name
-          .substring(0, 2)
-          .toUpperCase()}`
+        .substring(0, 2)
+        .toUpperCase()}`
       : `001-123123-${base2.name.substring(0, 2).toUpperCase()}x${base1.name
-          .substring(0, 2)
-          .toUpperCase()}`,
+        .substring(0, 2)
+        .toUpperCase()}`,
     sourceBase: iAmSource ? base1 : base2,
     targetBase: iAmSource ? base2 : base1,
   };
@@ -245,18 +244,18 @@ export const generateMockShipmentMinimal = ({
 };
 
 export const generateMockShipmentWithCustomDetails = ({
-  state = ShipmentState.Preparing,
+  state = "Preparing",
   iAmSource = true,
   details = [generateMockShipmentDetail({})],
 }) => ({
   id: "1",
   labelIdentifier: iAmSource
     ? `001-123123-${base1.name.substring(0, 2).toUpperCase()}x${base2.name
-        .substring(0, 2)
-        .toUpperCase()}`
+      .substring(0, 2)
+      .toUpperCase()}`
     : `001-123123-${base2.name.substring(0, 2).toUpperCase()}x${base1.name
-        .substring(0, 2)
-        .toUpperCase()}`,
+      .substring(0, 2)
+      .toUpperCase()}`,
   state,
   details,
   sourceBase: iAmSource ? base1 : base2,
@@ -264,7 +263,7 @@ export const generateMockShipmentWithCustomDetails = ({
   transferAgreement: {
     id: "1",
     comment: "",
-    type: TransferAgreementType.Bidirectional,
+    type: "Bidirectional",
     __typename: "TransferAgreement",
   },
   startedOn: "2023-01-08T17:24:29+00:00",

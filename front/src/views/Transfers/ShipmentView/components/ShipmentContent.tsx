@@ -12,11 +12,12 @@ import {
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useCallback, useMemo } from "react";
-import { Product, Box as BoxType, BoxState, ShipmentState } from "types/generated/graphql";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell } from "./ShipmentTableCells";
+import { Product } from "../../../../../../graphql/types";
+import { Box as BoxType, ShipmentState } from "queries/types";
 
 export interface IShipmentContent {
   product: Product;
@@ -49,7 +50,7 @@ function ShipmentContent({
         id: box?.product?.id,
         labelIdentifier: box.labelIdentifier,
         shipmentState,
-        isLost: box.state === BoxState.NotDelivered,
+        isLost: box.state === "NotDelivered",
         product: `${box?.size?.label} ${
           (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
         } ${box?.product?.name || "Unassigned"}`,
@@ -62,7 +63,7 @@ function ShipmentContent({
     const value = cell?.value;
     const isStrikethrough = cell.row.original.isLost;
     const style =
-      isStrikethrough && cell.row.original.shipmentState === ShipmentState.Completed
+      isStrikethrough && cell.row.original.shipmentState === "Completed"
         ? { textDecoration: "line-through", textDecorationColor: "red", color: "red" }
         : {};
     return <div style={style}>{value}</div>;
@@ -124,7 +125,7 @@ function ShipmentContent({
                       }}
                       onClick={
                         !isExpanded && !isLoadingMutation
-                          ? () => onBulkRemoveBox(item.boxes.map((b) => b.labelIdentifier))
+                          ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier!))
                           : undefined
                       }
                     />
@@ -149,7 +150,7 @@ function ShipmentContent({
                   <Text>{item.totalBoxes}</Text>
                   <Spacer />
                   <Box pl={1}>box{item.totalBoxes > 1 && "es"}</Box>
-                  {item.totalLosts > 0 && shipmentState === ShipmentState.Completed && (
+                  {item.totalLosts > 0 && shipmentState === "Completed" && (
                     <Box pl={1} color="red.500">
                       (-{item.totalLosts})
                     </Box>

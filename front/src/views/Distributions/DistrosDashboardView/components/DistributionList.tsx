@@ -12,7 +12,6 @@ import {
 import { isFuture, isPast, isToday } from "date-fns";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
-import { DistributionEventState } from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionEventDetails } from "views/Distributions/types";
@@ -75,12 +74,8 @@ const DistributionList = ({
   const pastDistroEvents = sortedDistroEvents.filter(
     (el) => isPast(el.plannedStartDateTime) && !isToday(el.plannedStartDateTime),
   );
-  const pastNonCompletedDistroEvents = pastDistroEvents.filter(
-    (el) => el.state !== DistributionEventState.Completed,
-  );
-  const pastCompletedDistroEvents = sortedDistroEvents.filter(
-    (el) => el.state === DistributionEventState.Completed,
-  );
+  const pastNonCompletedDistroEvents = pastDistroEvents.filter((el) => el.state !== "Completed");
+  const pastCompletedDistroEvents = sortedDistroEvents.filter((el) => el.state === "Completed");
 
   const hasDistroEventsToday = distroEventsToday.length > 0;
   const hasUpcomingDistroEventsAfterToday = upcomingDistroEventsAfterToday.length > 0;

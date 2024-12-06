@@ -1,10 +1,9 @@
 import { StoryFn, Meta } from "@storybook/react";
 import DistroEventCompleted, { DistroEventData } from "./DistroEventCompleted";
-import { DistributionEventState, ProductGender } from "types/generated/graphql";
 
 const mockedDistroEvent: DistroEventData = {
   eventDate: new Date("2022/08/22"),
-  status: DistributionEventState.Completed,
+  status: "Completed",
   id: "2",
   outflows: [
     {
@@ -13,7 +12,7 @@ const mockedDistroEvent: DistroEventData = {
       numberOfItems: 32,
       size: "M",
       name: "T-shirt",
-      gender: ProductGender.Men,
+      gender: "Men",
     },
     {
       id: "4",
@@ -21,7 +20,7 @@ const mockedDistroEvent: DistroEventData = {
       numberOfItems: 10,
       size: "S",
       name: "T-shirt",
-      gender: ProductGender.Men,
+      gender: "Men",
     },
   ],
   returns: [
@@ -31,7 +30,7 @@ const mockedDistroEvent: DistroEventData = {
       numberOfItems: 32,
       size: "M",
       name: "T-shirt",
-      gender: ProductGender.Men,
+      gender: "Men",
     },
     {
       id: "4",
@@ -39,7 +38,7 @@ const mockedDistroEvent: DistroEventData = {
       numberOfItems: 10,
       size: "S",
       name: "T-shirt",
-      gender: ProductGender.Men,
+      gender: "Men",
     },
   ],
 };

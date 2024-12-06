@@ -2,15 +2,11 @@ import { useMemo, useState } from "react";
 import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxByLabelIdentifierQuery,
-  BoxState,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
 import { ShipmentOption } from "components/Form/ShipmentOption";
+import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
 
 export interface IAssignBoxToShipmentProps {
-  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
   shipmentOptions: IDropdownOption[];
   isAssignBoxesToShipmentLoading: boolean;
   onAssignBoxesToShipment: (shipmentId: string) => void;
@@ -36,7 +32,7 @@ function AssignBoxToShipment({
     if (
       selectedShipmentOption &&
       selectedShipmentOption.value !== "" &&
-      boxData?.state === BoxState.InStock
+      boxData?.state === "InStock"
     ) {
       return false;
     }
@@ -113,9 +109,7 @@ function AssignBoxToShipment({
               colorScheme="blue"
               size="md"
               mt={45}
-              isDisabled={
-                boxData.state === BoxState.InTransit || boxData.state === BoxState.Receiving
-              }
+              isDisabled={boxData.state === "InTransit" || boxData.state === "Receiving"}
               aria-label="remove to shipment"
               onClick={() => {
                 onUnassignBoxesToShipment(currentShipmentId);

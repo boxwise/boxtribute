@@ -1,12 +1,10 @@
-import { TagType } from "types/generated/graphql";
-
 export const tag1 = {
   color: "#20963f",
   label: "tag1",
   value: "1",
   id: "1",
   name: "tag1",
-  type: TagType.All,
+  type: "All",
   description: "tag1",
   __typename: "Tag",
 };
@@ -17,7 +15,7 @@ export const tag2 = {
   name: "test tag",
   label: "tag1",
   value: "1",
-  type: TagType.All,
+  type: "All",
   description: "tag17",
   __typename: "Tag",
 };
@@ -37,7 +35,7 @@ export const tagsArray = [
     color: "#20963f",
     name: "tag1",
     id: "1",
-    type: TagType.All,
+    type: "All",
     description: "tag1",
     __typename: "Tag",
   },
@@ -45,7 +43,7 @@ export const tagsArray = [
     color: "#20969f",
     name: "tag2",
     id: "2",
-    type: TagType.Box,
+    type: "Box",
     description: "tag2",
     __typename: "Tag",
   },

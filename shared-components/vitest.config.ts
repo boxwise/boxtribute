@@ -5,6 +5,7 @@ export default defineProject({
     globals: true,
     environment: "jsdom",
     setupFiles: "./tests/setupTests.ts",
+    // @ts-expect-error TODO: check why this errors out
     reporters: ["default", "junit"],
     outputFile: {
       junit: "./coverage/junit.xml",

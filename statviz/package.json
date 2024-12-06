@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Intended for public Boxtribute visualization sharing",
   "scripts": {
-    "dev": "pnpm generate-graphql-ts-types --watch && vite",
-    "build": "pnpm generate-graphql-ts-types && tsc && vite build",
+    "dev": "vite",
+    "build": "tsc && vite build",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
     "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
@@ -17,14 +17,9 @@
     "format:check": "prettier --check --ignore-path ../.eslintignore",
     "format:write:all": "pnpm format:write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "format:write": "prettier --write --ignore-path ../.eslintignore",
-    "preview": "vite preview",
-    "generate-graphql-ts-types": "graphql-codegen --config codegen.ts"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@boxtribute/shared-components": "workspace:*"
-  },
-  "devDependencies": {
-    "@graphql-codegen/client-preset": "^4.5.0",
-    "ts-node": "^10.9.2"
   }
 }
