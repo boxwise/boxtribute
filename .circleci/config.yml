@@ -125,7 +125,7 @@ jobs:
           command: |
             pnpm lint:fix:all
             pnpm format:write:all
-            pnpm graphql-gen
+            pnpm -C .. graphql-gen
       - run:
           name: Build front
           command: |
