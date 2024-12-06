@@ -97,7 +97,7 @@ function CreateShipmentView() {
             fields: {
               shipments(existingShipments = []) {
                 const newShipmentRef = cache.writeFragment({
-                  data: returnedShipment.createShipment,
+                  data: returnedShipment.createShipment!,
                   fragment: graphql(`
                     fragment NewShipment on Shipment {
                       id

@@ -85,7 +85,7 @@ function CreateTransferAgreementView() {
             fields: {
               transferAgreements(existingTransferAgreements = []) {
                 const newTransferAgreementRef = cache.writeFragment({
-                  data: returnedTransferAgreement.createTransferAgreement,
+                  data: returnedTransferAgreement.createTransferAgreement!,
                   fragment: graphql(`
                     fragment NewTransferAgreement on TransferAgreement {
                       id
