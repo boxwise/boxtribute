@@ -1,10 +1,17 @@
 import { setupWorker } from 'msw/browser'
-import { mockActionOptionsForBoxesViewHandler, mockBoxesForBoxesViewHandler, mockOrganisationsAndBasesQueryHandler } from '../graphql/mswHandlers'
+import { mockActionOptionsForBoxesViewHandler, mockBeneficiaryDemographicsHandler, mockBoxByLabelIdentifierHandler, mockBoxesForBoxesViewHandler, mockCreatedBoxesHandler, mockMovedBoxesHandler, mockOrganisationsAndBasesQueryHandler, mockStockOverviewHandler, mockUpdateLocationOfBoxHandler, mockUpdateStateHandler } from '../tests/mswHandlers'
 
 const handler = [
-    mockOrganisationsAndBasesQueryHandler,
-    mockBoxesForBoxesViewHandler,
-    mockActionOptionsForBoxesViewHandler
-]
+	mockOrganisationsAndBasesQueryHandler,
+	mockCreatedBoxesHandler,
+	mockMovedBoxesHandler,
+	mockBeneficiaryDemographicsHandler,
+	mockStockOverviewHandler,
+	mockBoxesForBoxesViewHandler,
+	mockActionOptionsForBoxesViewHandler,
+	mockBoxByLabelIdentifierHandler,
+	mockUpdateLocationOfBoxHandler,
+	mockUpdateStateHandler
+];
 
-export const worker = setupWorker(...handler)
+export const worker = setupWorker(...handler);

@@ -49,7 +49,7 @@ if (sentryDsn) {
   });
 }
 
-worker.start();
+if (import.meta.env.FRONT_USE_MSW === "true") worker.start();
 
 const root = createRoot(document.getElementById("root")!);
 root.render(

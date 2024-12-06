@@ -10,5 +10,12 @@
     "noImplicitAny": false
   },
   /* "types": ["vite/client"], not sure if needed */
-  "include": ["src", "../graphql/mswHandlers.ts", "browser.ts"]
+  "include": [
+    "src",
+    "../graphql/*.ts",
+    "../tests/*.ts",
+    "../playwright.config.ts",
+    "../global-setup.ts",
+    "browser.ts"
+  ]
 }

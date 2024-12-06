@@ -52,11 +52,11 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.3",
-    "@graphql-codegen/typescript-msw": "^3.0.0",
+    "@playwright/test": "^1.49.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
@@ -73,7 +73,6 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "eslint-plugin-testing-library": "^7.0.0",
-    "graphql-codegen-typescript-mock-data": "^4.1.0",
     "jsdom": "25.0.1",
     "lint-staged": "^15.2.8",
     "msw": "^2.6.6",
