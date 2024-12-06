@@ -5,6 +5,7 @@ import { generateMockShipment } from "mocks/shipments";
 import { ShipmentState } from "types/generated/graphql";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import ShipmentsOverviewView from "./ShipmentsOverviewView";
+import userEvent from "@testing-library/user-event";
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,
@@ -62,9 +63,10 @@ it("4.4.1.4 - Initial Load of Page", async () => {
   // 4.4.1.1 - Is the Loading State Shown First?
   //   expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
+  const user = userEvent.setup();
+  user.click(screen.getByText(/Sending \(/i));
   // Data of Mock Transfer is shown correctly
-  expect(await screen.findByRole("cell", { name: /to/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
+  expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /preparing/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2\/1\/2023/i })).toBeInTheDocument();
