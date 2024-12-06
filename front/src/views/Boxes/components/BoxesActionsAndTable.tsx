@@ -7,26 +7,22 @@ import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
-import {
-  BoxState,
-  BoxesForBoxesViewQuery,
-  BoxesForBoxesViewQueryVariables,
-} from "types/generated/graphql";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
-import { QueryReference } from "@apollo/client";
+import { QueryRef } from "@apollo/client";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import RemoveBoxesButton from "./RemoveBoxesButton";
+import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
-  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
+  onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
+  boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
@@ -54,7 +50,7 @@ function BoxesActionsAndTable({
   const thereIsABoxMarkedForShipmentSelected = useMemo(
     () =>
       selectedBoxes.some(
-        (box) => box.values.shipment !== null && box.values.state === BoxState.MarkedForShipment,
+        (box) => box.values.shipment !== null && box.values.state === "MarkedForShipment",
       ),
     [selectedBoxes],
   );
@@ -66,10 +62,7 @@ function BoxesActionsAndTable({
     (locationId: string) => {
       const movableLabelIdentifiers = selectedBoxes
         .filter(
-          (box) =>
-            ![BoxState.Receiving, BoxState.MarkedForShipment, BoxState.InTransit].includes(
-              box.values.state,
-            ),
+          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state),
         )
         .map((box) => box.values.labelIdentifier);
 

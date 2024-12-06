@@ -2,10 +2,10 @@ import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box } from "
 import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
-import { ShipmentDetail } from "types/generated/graphql";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
+import { ShipmentDetail } from "queries/types";
 
 interface IBoxReconcilationAccordionProps {
   shipmentDetail: ShipmentDetail;

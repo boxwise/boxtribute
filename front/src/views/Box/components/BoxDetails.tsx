@@ -1,16 +1,13 @@
 import { Box, Stack } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
-import {
-  BoxByLabelIdentifierQuery,
-  BoxState,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
 import BoxCard from "./BoxCard";
 import BoxDistributionEvent from "./BoxDistributionEvent";
 import BoxTabs from "./BoxTabs";
+import { BoxByLabelIdentifier, BoxState, UpdateBoxMutation } from "queries/types";
 
 interface IBoxDetailsProps {
-  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  /** @todo Should this be optional peer the test spec? */
+  boxData?: BoxByLabelIdentifier | UpdateBoxMutation;
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onHistoryOpen: () => void;
@@ -55,7 +52,7 @@ function BoxDetails({
       data-testid="box-sections"
     >
       <BoxCard
-        boxData={boxData}
+        boxData={boxData!}
         boxInTransit={boxInTransit}
         onHistoryOpen={onHistoryOpen}
         onMinusOpen={onMinusOpen}

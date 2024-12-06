@@ -1,4 +1,5 @@
-import { gql, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
+import { graphql } from "gql.tada";
 import {
   Stat,
   StatLabel,
@@ -14,14 +15,10 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { ReactNode } from "react";
-import {
-  DownloadDistributionEventsStatisticsQuery,
-  DownloadDistributionEventsStatisticsQueryVariables,
-} from "types/generated/graphql";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { VictoryPie } from "victory";
 
-export const DOWNLOAD_STATIC_DATA = gql`
+export const DOWNLOAD_STATIC_DATA = graphql(`
   query DownloadDistributionEventsStatistics($baseId: ID!) {
     base(id: $baseId) {
       id
@@ -42,7 +39,7 @@ export const DOWNLOAD_STATIC_DATA = gql`
       }
     }
   }
-`;
+`);
 
 const Card = ({ children }: { children: ReactNode[] | ReactNode }) => (
   <Box
@@ -117,30 +114,25 @@ const DistroEventsStatistics = () => {
   ];
 
   const downloadCsvExport = (baseId: string) => {
-    apolloClient
-      .query<
-        DownloadDistributionEventsStatisticsQuery,
-        DownloadDistributionEventsStatisticsQueryVariables
-      >({ query: DOWNLOAD_STATIC_DATA, variables: { baseId } })
-      .then((result) => {
-        const csvContent =
-          "data:text/csv;charset=utf-8," +
-          exportCsvColumns.join(",") +
-          "\n" +
-          result.data.base?.distributionEventsStatistics
-            .map((e) => exportCsvColumns.map((c) => e[c]).join(","))
-            .join("\n");
+    apolloClient.query({ query: DOWNLOAD_STATIC_DATA, variables: { baseId } }).then((result) => {
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        exportCsvColumns.join(",") +
+        "\n" +
+        result.data.base?.distributionEventsStatistics
+          .map((e) => exportCsvColumns.map((c) => e[c]).join(","))
+          .join("\n");
 
-        const dateStr = format(new Date(), "MM-dd-yyyy-HH-mm-ss");
-        const filename = `boxtribute_base_${baseId}_distributions_export_${dateStr}.csv`;
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", filename);
-        document.body.appendChild(link);
+      const dateStr = format(new Date(), "MM-dd-yyyy-HH-mm-ss");
+      const filename = `boxtribute_base_${baseId}_distributions_export_${dateStr}.csv`;
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
 
-        link.click();
-      });
+      link.click();
+    });
   };
 
   return (

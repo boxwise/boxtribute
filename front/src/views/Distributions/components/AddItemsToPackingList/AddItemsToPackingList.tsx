@@ -15,9 +15,9 @@ import {
 } from "@chakra-ui/react";
 import _ from "lodash";
 import { useContext, useState } from "react";
-import { ProductGender } from "types/generated/graphql";
 import { DistroEventDetailsForPlanningStateContext } from "views/Distributions/DistroEventView/components/State1Planning/DistroEventDetailsForPlanningStateContainer";
 import { IPackingListEntry } from "views/Distributions/types";
+import { ProductGender } from "../../../../../../graphql/types";
 
 export interface ProductDataForPackingList {
   id: string;
@@ -95,7 +95,7 @@ const AddItemsToPackingList = ({
     productDataWithPackingListEntriesSignals,
   )
     .groupBy("gender")
-    .map((value, key) => ({ gender: ProductGender[key], products: value }))
+    .map((value, key) => ({ gender: key, products: value }))
     .value();
 
   const productsGroupedByGenderAndCategory: ProductsGroupedByCategoryForGender[] = _.chain(

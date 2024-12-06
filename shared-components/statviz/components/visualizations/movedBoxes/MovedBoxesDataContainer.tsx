@@ -1,12 +1,11 @@
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
-import { gql } from "../../../../types/generated";
-import { MovedBoxesData, QueryMovedBoxesArgs } from "../../../../types/generated/graphql";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
+import { graphql } from "../../../../../graphql/graphql";
 
-export const MOVED_BOXES_QUERY = gql(`
+export const MOVED_BOXES_QUERY = graphql(`
   query movedBoxes($baseId: Int!) {
     movedBoxes(baseId: $baseId) {
       facts {
@@ -40,12 +39,9 @@ export const MOVED_BOXES_QUERY = gql(`
 // the filter wrapper passes it to the Chart which maps the Datacube to a VisX or Nivo Chart
 export default function MovedBoxesDataContainer() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery<{ movedBoxes: MovedBoxesData }, QueryMovedBoxesArgs>(
-    MOVED_BOXES_QUERY,
-    {
-      variables: { baseId: parseInt(baseId!, 10) },
-    },
-  );
+  const { data, loading, error } = useQuery(MOVED_BOXES_QUERY, {
+    variables: { baseId: parseInt(baseId!, 10) },
+  });
 
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;

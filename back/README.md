@@ -44,7 +44,7 @@ On Windows run instead
 <details>
   <summary>You can automate the activation of the virtual environment. Click to read more.</summary>
 
-  Virtual environments (venvs for short) must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With the [direnv](https://github.com/direnv/direnv) tool you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `example.envrc` file in the root of this repo. If you install `direnv`, copy the `example.envrc` file into `.envrc` and allow to run it for your local repo, it will activate the Python virtual environment `venv` every time you enter the folder via a command line.
+Virtual environments (venvs for short) must be activated and deactivated. If you are moving through folders in the terminal it can easily happen that you either miss activating or deactivating the venv resulting in errors and time wasted for development. With the [direnv](https://github.com/direnv/direnv) tool you can automate the activation and deactivation of venv depending on which folder you are in. There is already a `example.envrc` file in the root of this repo. If you install `direnv`, copy the `example.envrc` file into `.envrc` and allow to run it for your local repo, it will activate the Python virtual environment `venv` every time you enter the folder via a command line.
 
 </details>
 
@@ -137,6 +137,7 @@ Mind the following perks of peewee:
 1. When creating a model instance referencing another model via a foreign key, use the ID of the FK model instance instead of a model instance, e.g. `Location(base=1)`.
 1. If you want to retrieve only the ID of a foreign key field, access it with the "magic" suffix `_id`, e.g. `location.base_id`. This avoids overhead of an additional select query issued by peewee when using `location.base.id`.
 1. You can activate peewee's logging to gain insight into the generated SQL queries:
+
 ```python
 from .utils import activate_logging
 activate_logging()
@@ -191,6 +192,7 @@ You can now set break-points in your code.
 If you want to debug a certain endpoint, set a break-point in the endpoint and call this endpoint at the port 5001, e.g.
 `localhost:5001/api/public`
 If you want to break on any other code lines (not endpoints), then you can only catch them during the server start-up.
+
 </details>
 
 #### Usage of Logger
@@ -241,25 +243,25 @@ Before implementing any tests, the test behavior should be listed and agreed upo
 <details>
   <summary>Find more info here about the structure of the document.</summary>
 
-  #### 2.0 Back-end endpoint tests
+#### 2.0 Back-end endpoint tests
 
-  - test cases are organized in sections. Each section corresponds to one module (i.e. a logical subsection) of the back-end
-  - the test cases define the behavior of a module when it is accessed by its associated GraphQL endpoints
-  - GraphQL endpoints are either queries or mutations. The respective test cases are organized in sub-sections and, if deemed necessary for readability, grouped by functionality
-  - a test case is uniquely identified by a test ID. Test IDs are put as comments into the test code for reference. *Please do not* modify the test IDs, or sort the test cases in the document, without updating the comments in the code, and vice versa.
-  - test cases come in four categories to verify the implementation under all circumstances
-      1. when an endpoint is accessed with a valid request (i.e. valid input data and sufficient permissions)
-      2. when an endpoint is accessed with insufficient permissions
-      3. when an endpoint is accessed with invalid input data (i.e. creating a box with negative number of items)
-      4. when an endpoint is accessed for a non-existing resource
-  - the expected behavior in these categories is
-      1. the response holds the requested (queried/created/modified/deleted) data resource
-      2. the response holds a Forbidden error
-      3. the response holds a BadUserRequest error
-      4. the response holds a BadUserRequest error
-  - due to the nature of GraphQL APIs all responses (successful and erroneous) have HTTP status code 200. The content of the "data" and "errors" fields in the JSON response has to be inspected
-  - test cases for queries are formulated as "*Client requests single X by ID*" or "*Client requests list of Xs*"
-  - test cases for mutations are formulated as "*Client requests operating on X*"
+- test cases are organized in sections. Each section corresponds to one module (i.e. a logical subsection) of the back-end
+- the test cases define the behavior of a module when it is accessed by its associated GraphQL endpoints
+- GraphQL endpoints are either queries or mutations. The respective test cases are organized in sub-sections and, if deemed necessary for readability, grouped by functionality
+- a test case is uniquely identified by a test ID. Test IDs are put as comments into the test code for reference. _Please do not_ modify the test IDs, or sort the test cases in the document, without updating the comments in the code, and vice versa.
+- test cases come in four categories to verify the implementation under all circumstances
+  1. when an endpoint is accessed with a valid request (i.e. valid input data and sufficient permissions)
+  2. when an endpoint is accessed with insufficient permissions
+  3. when an endpoint is accessed with invalid input data (i.e. creating a box with negative number of items)
+  4. when an endpoint is accessed for a non-existing resource
+- the expected behavior in these categories is
+  1. the response holds the requested (queried/created/modified/deleted) data resource
+  2. the response holds a Forbidden error
+  3. the response holds a BadUserRequest error
+  4. the response holds a BadUserRequest error
+- due to the nature of GraphQL APIs all responses (successful and erroneous) have HTTP status code 200. The content of the "data" and "errors" fields in the JSON response has to be inspected
+- test cases for queries are formulated as "_Client requests single X by ID_" or "_Client requests list of Xs_"
+- test cases for mutations are formulated as "_Client requests operating on X_"
 
 </details>
 
@@ -277,9 +279,9 @@ In the pytest framework, **fixtures** serve as common base setups for individual
 Fixtures are configured in the `conftest.py` files which are automatically loaded before test execution.
 
 The actual test implementation can be in the form of
-    a. one test function per test case
-    b. one test parameter per test case (useful e.g. for permission tests)
-    c. one test function for multiple test cases (e.g. if the tested functionality represents a user flow)
+a. one test function per test case
+b. one test parameter per test case (useful e.g. for permission tests)
+c. one test function for multiple test cases (e.g. if the tested functionality represents a user flow)
 
 #### Data model tests
 
@@ -289,17 +291,17 @@ For each data model, retrieve the default data, and verify the result in `model_
 
 Test data is set up in the `test/data/` folder. Three definitions are required:
 
-1. The default data function returns a dictionary which holds a row of data for that database table (or an iterable containing data for multiple rows)
+1.  The default data function returns a dictionary which holds a row of data for that database table (or an iterable containing data for multiple rows)
 
         def data():
 
-2. The fixture passes this data into the required tests
+2.  The fixture passes this data into the required tests
 
         @pytest.fixture
         def default_<model>():
             return data()
 
-3. The creation function is called on the setup of a test so that all of the data is in the database when the test is ran
+3.  The creation function is called on the setup of a test so that all of the data is in the database when the test is ran
 
         def create():
             <data_model>.create(**data())
@@ -334,6 +336,7 @@ The following diagram shows the responsibilities of and the relationships betwee
 ## GraphQL API
 
 The back-end exposes the GraphQL API in two variants.
+
 1. The auth-protected, full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
 1. The auth-protected, 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
 1. The public statistics API is used by our partners at `/public` (for data retrieval; it is deployed on the `api*` subdomains).
@@ -350,18 +353,18 @@ For the production schema, documentation can be found online at `api.boxtribute.
 
 You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
-1. Set up the `.env` file and acquire the test client secret as described [here](#test-environment-set-up).
-1. Start the required services by `docker compose up webapp`
-1. Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
-1. Simulate being a valid, logged-in user by fetching an authorization token: `docker compose exec webapp ./back/fetch_token --test`
-1. Copy the displayed token
-1. Insert the access token in the following format in the section called 'Headers' on the bottom left of the explorer.
+1.  Set up the `.env` file and acquire the test client secret as described [here](#test-environment-set-up).
+1.  Start the required services by `docker compose up webapp`
+1.  Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
+1.  Simulate being a valid, logged-in user by fetching an authorization token: `docker compose exec webapp ./back/fetch_token --test`
+1.  Copy the displayed token
+1.  Insert the access token in the following format in the section called 'Headers' on the bottom left of the explorer.
 
         { "authorization": "Bearer <the token you retrieved from Auth0>"}
 
-1. Re-fetch the schema to enable GraphQL code completion and documentation by clicking the circling arrows button in the bottom left.
-1. The documentation can be inspected from the button in the top left.
-1. A sample query you can try if it works is:
+1.  Re-fetch the schema to enable GraphQL code completion and documentation by clicking the circling arrows button in the bottom left.
+1.  The documentation can be inspected from the button in the top left.
+1.  A sample query you can try if it works is:
 
         query { organisations { name } }
 
@@ -371,6 +374,11 @@ If you lack an internet connection to communicate with Auth0, it might be benefi
     return f(*args, **kwargs)
 
 to simulate a god user with ID 8 (for a regular user, set something like `id=1, organisation_id=1`).
+
+> [!IMPORTANT]  
+> To keep the front-end side up-to-date with the GraphQL schema, make sure that the pre-commit command for `*.graphql` files (`id: generate-graphql-ts-types`) is running properly.
+>
+> It should generate both `schema.graphql` (the introspected unified schema) and `graphql-env.d.ts` (the generated types to be ìnferred and consumed in the FE with `gql.tada`) inside `/graphql/generated/`.
 
 ## Project structure
 
@@ -440,6 +448,7 @@ index c3180709..518d7689 100755
        - ./back:/app/back
      environment:
 ```
+
 </details>
 
 Eventually run
@@ -456,7 +465,7 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
 
 #### Execution time
 
-1. Add profiling middleware by extending `main.py`
+1.  Add profiling middleware by extending `main.py`
 
         import pathlib
         from werkzeug.middleware.profiler import ProfilerMiddleware
@@ -466,18 +475,18 @@ Used in combination with [k6](https://k6.io/docs/). See the example [script](./s
         BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
         app = ProfilerMiddleware(app, profile_dir=str(BASE_DIR / "stats"))
 
-1. Create output directory for profile files
+1.  Create output directory for profile files
 
         mkdir -p back/stats
 
-1. Launch the production server as mentioned above, and the database service
-1. Run a request, e.g. `dotenv run k6 run back/scripts/load-test.js`
-1. `pip install` a profile visualization tool, e.g. [tuna](https://github.com/nschloe/tuna) or [snakeviz](https://github.com/jiffyclub/snakeviz) and load the profile
+1.  Launch the production server as mentioned above, and the database service
+1.  Run a request, e.g. `dotenv run k6 run back/scripts/load-test.js`
+1.  `pip install` a profile visualization tool, e.g. [tuna](https://github.com/nschloe/tuna) or [snakeviz](https://github.com/jiffyclub/snakeviz) and load the profile
 
         tuna back/stats/some.profile
         snakeviz back/stats/some.profile
 
-1. Inspect the stack visualization in your web browser.
+1.  Inspect the stack visualization in your web browser.
 
 #### Memory
 

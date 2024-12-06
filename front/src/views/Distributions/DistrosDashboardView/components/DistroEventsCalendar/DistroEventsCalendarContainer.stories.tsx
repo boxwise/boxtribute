@@ -1,6 +1,5 @@
 import { Meta, StoryFn } from "@storybook/react";
 import { addDays, addHours } from "date-fns";
-import { DistributionEventState } from "types/generated/graphql";
 import DistroEventsCalendarContainer from "./DistroEventsCalendarContainer";
 
 export default {
@@ -23,7 +22,7 @@ const distroEvents = [
     name: "Distro 1",
     plannedStartDateTime: addDays(todayAtTenThirty, 3),
     plannedEndDateTime: addHours(addDays(todayAtTenThirty, 3), 3),
-    state: DistributionEventState.Packing,
+    state: "Packing",
     distributionSpot: {
       id: "1",
       name: "Horgos (River)",
@@ -34,7 +33,7 @@ const distroEvents = [
     name: "Distro 2",
     plannedStartDateTime: addDays(todayAtTenThirty, 11),
     plannedEndDateTime: addHours(addDays(todayAtTenThirty, 11), 5),
-    state: DistributionEventState.Completed,
+    state: "Completed",
     distributionSpot: {
       id: "2",
       name: "Subotica (LIDL)",

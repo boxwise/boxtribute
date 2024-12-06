@@ -3,14 +3,13 @@ import { range } from "lodash";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
 import { useMemo } from "react";
 import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
-import {
-  BeneficiaryDemographicsData,
-  BeneficiaryDemographicsResult,
-  HumanGender,
-} from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
+import {
+  BeneficiaryDemographics,
+  BeneficiaryDemographicsResult,
+} from "../../../../../graphql/types";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -32,7 +31,7 @@ export interface IDemographicCube {
 }
 
 interface IDemographicChartProps {
-  demographics: BeneficiaryDemographicsData;
+  demographics: Partial<BeneficiaryDemographics>;
   width: number;
   height: number;
 }
@@ -48,15 +47,15 @@ export default function DemographicPyramid({
 
   const prepareFacts = () => {
     const dataXr = tidy(
-      demographics.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === HumanGender.Male),
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.gender === "Male"),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
 
     const dataXl = tidy(
-      demographics.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === HumanGender.Female),
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.gender === "Female"),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
@@ -64,14 +63,14 @@ export default function DemographicPyramid({
     return [dataXr, dataXl];
   };
 
-  const [dataXr, dataXl] = useMemo(prepareFacts, [demographics.facts]);
+  const [dataXr, dataXl] = useMemo(prepareFacts, [demographics?.facts]);
 
   if (dataXr.length === 0 && dataXl.length === 0) {
     return <NoDataCard header={heading} />;
   }
 
   const maxAge: number =
-    demographics.facts!.reduce((acc: number, current: BeneficiaryDemographicsResult) => {
+    demographics?.facts!.reduce((acc: number, current: BeneficiaryDemographicsResult) => {
       if (!current!.age) return acc;
       if (current!.age > acc) return current!.age;
       return acc;

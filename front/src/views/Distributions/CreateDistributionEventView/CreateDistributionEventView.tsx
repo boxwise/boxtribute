@@ -1,28 +1,24 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../../graphql/graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  CreateDistributionEventMutation,
-  CreateDistributionEventMutationVariables,
-  DistributionSpotQuery,
-} from "types/generated/graphql";
 import CreateDistroEvent, { CreateDistroEventFormData } from "./components/CreateDistributionEvent";
 import { addHours } from "date-fns";
 import { getISODateTimeFromDateAndTimeString } from "utils/helpers";
 import { Center } from "@chakra-ui/react";
 
 const CreateDistributionEventView = () => {
-  const DISTRIBUTION_SPOT_QUERY = gql`
+  const DISTRIBUTION_SPOT_QUERY = graphql(`
     query DistributionSpot($id: ID!) {
       distributionSpot(id: $id) {
         id
         name
       }
     }
-  `;
+  `);
 
-  const CREATE_DISTRIBUTION_EVENT_MUTATION = gql`
+  const CREATE_DISTRIBUTION_EVENT_MUTATION = graphql(`
     mutation CreateDistributionEvent(
       $distributionSpotId: Int!
       $name: String!
@@ -43,7 +39,7 @@ const CreateDistributionEventView = () => {
         plannedEndDateTime
       }
     }
-  `;
+  `);
 
   const { baseId, distributionSpotId } = useParams<{
     baseId: string;
@@ -51,10 +47,7 @@ const CreateDistributionEventView = () => {
   }>();
   const navigate = useNavigate();
 
-  const [createDistributionEventMutation] = useMutation<
-    CreateDistributionEventMutation,
-    CreateDistributionEventMutationVariables
-  >(CREATE_DISTRIBUTION_EVENT_MUTATION);
+  const [createDistributionEventMutation] = useMutation(CREATE_DISTRIBUTION_EVENT_MUTATION);
 
   const onSubmitNewDistroEvent = useCallback(
     (createDistroEventFormData: CreateDistroEventFormData) => {
@@ -90,8 +83,8 @@ const CreateDistributionEventView = () => {
     [baseId, createDistributionEventMutation, distributionSpotId, navigate],
   );
 
-  const { data, loading, error } = useQuery<DistributionSpotQuery>(DISTRIBUTION_SPOT_QUERY, {
-    variables: { id: distributionSpotId },
+  const { data, loading, error } = useQuery(DISTRIBUTION_SPOT_QUERY, {
+    variables: { id: distributionSpotId || "0" },
   });
 
   if (loading) {

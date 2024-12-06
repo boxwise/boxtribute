@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { graphql } from "../../../../graphql/graphql"
 
-export const ALL_PRODUCTS_FOR_PACKING_LIST = gql`
+export const ALL_PRODUCTS_FOR_PACKING_LIST = graphql(`
   query AllProductsForPackingList($baseId: ID!) {
     base(id: $baseId) {
       products {
@@ -20,9 +20,9 @@ export const ALL_PRODUCTS_FOR_PACKING_LIST = gql`
       }
     }
   }
-`;
+`);
 
-export const DISTRO_SPOTS_FOR_BASE_ID = gql`
+export const DISTRO_SPOTS_FOR_BASE_ID = graphql(`
   query DistroSpotsForBaseId($baseId: ID!) {
     base(id: $baseId) {
       distributionSpots {
@@ -40,8 +40,9 @@ export const DISTRO_SPOTS_FOR_BASE_ID = gql`
       }
     }
   }
-`;
-export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
+`);
+
+export const DISTRIBUTION_EVENTS_FOR_BASE_ID = graphql(`
   query DistributionEventsForBase($baseId: ID!) {
     base(id: $baseId) {
       distributionEvents {
@@ -57,9 +58,9 @@ export const DISTRIBUTION_EVENTS_FOR_BASE_ID = gql`
       }
     }
   }
-`;
+`);
 
-export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = gql`
+export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = graphql(`
   mutation AssignBoxToDistributionEvent(
     $boxLabelIdentifier: ID!
     $distributionEventId: ID!
@@ -78,9 +79,9 @@ export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
-export const UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION = gql`
+export const UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION = graphql(`
   mutation UnassignBoxFromDistributionEvent(
     $boxLabelIdentifier: ID!
     $distributionEventId: ID!
@@ -92,9 +93,9 @@ export const UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION = gql`
       id
     }
   }
-`;
+`);
 
-export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
+export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = graphql(`
   mutation MoveItemsToDistributionEvent(
     $boxLabelIdentifier: ID!
     $distributionEventId: ID!
@@ -123,20 +124,18 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = gql`
       }
     }
   }
-`;
+`);
 
-
-
-export const RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY = gql`
+export const RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY = graphql(`
 query ReturnTrackingGroupIdForDistributionEvent($distributionEventId: ID!) {
   distributionEvent(id: $distributionEventId) {
     distributionEventsTrackingGroup {
       id
     }
   }
-}`;
+}`);
 
-export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
+export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = graphql(`
   query PackingListEntriesForDistributionEvent($distributionEventId: ID!) {
     distributionEvent(id: $distributionEventId) {
       id
@@ -165,9 +164,9 @@ export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
+export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = graphql(`
   mutation ChangeDistributionEventState(
     $distributionEventId: ID!
     $newState: DistributionEventState!
@@ -182,9 +181,9 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = gql`
       __typename
     }
   }
-`;
+`);
 
-export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
+export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = graphql(`
   query DistributionEventsTrackingGroup($trackingGroupId: ID!) {
     distributionEventsTrackingGroup(id: $trackingGroupId) {
       id
@@ -248,9 +247,9 @@ export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-// export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE_QUERY = gql`
+// export const DISTRIBUTION_EVENTS_IN_RETURN_STATE_FOR_BASE_QUERY = graphql(`
 //   query DistributionEventsInReturnStateForBase($baseId: ID!) {
 //     base(id: $baseId) {
 //       distributionEventsInReturnedFromDistributionState {
@@ -293,7 +292,7 @@ export const DISTRIBUTION_EVENTS_TRACKING_GROUP_QUERY = gql`
 //   }
 // `;
 
-export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = graphql(`
   mutation StartDistributionEventsTrackingGroup(
     $distributionEventIds: [ID!]!
     $baseId: ID! # $returnedToLocationId: ID
@@ -312,9 +311,9 @@ export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
-// export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = gql`
+// export const DISTRIBUTION_EVENTS_SUMMARY_BY_IDS_QUERY = graphql(`
 //   query DistributionEventsSummaryByIds($distributionEventIds: [ID!]!) {
 //     distributionEventsSummary(ids: $distributionEventIds) {
 //       distributionEvents {
@@ -333,7 +332,7 @@ export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
 //   }
 // `;
 
-// export const MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY = gql`
+// export const MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY = graphql(`
 // query MatchingPackedItemsCollectionsForPackingListEntry($packingListEntryId: ID!) {
 //   packingListEntry(id: $packingListEntryId) {
 //     matchingPackedItemsCollections {
@@ -346,7 +345,7 @@ export const START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
 //   }
 // }`;
 
-export const DISTRIBUTION_EVENT_QUERY = gql`
+export const DISTRIBUTION_EVENT_QUERY = graphql(`
   query DistributionEvent($eventId: ID!) {
     distributionEvent(id: $eventId) {
       id
@@ -360,9 +359,9 @@ export const DISTRIBUTION_EVENT_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
+export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = graphql(`
   query DataForReturnTrackingOverviewForBase($baseId: ID!) {
     base(id: $baseId) {
       distributionEventsTrackingGroups(states: [InProgress]) {
@@ -394,9 +393,9 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = gql`
       }
     }
   }
-`;
+`);
 
-export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = graphql(`
   mutation SetReturnedNumberOfItemsForDistributionEventsTrackingGroup(
     $distributionEventsTrackingGroupId: ID!
     $productId: ID!
@@ -412,9 +411,9 @@ export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP
       id
     }
   }
-`;
+`);
 
-export const COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
+export const COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = graphql(`
   mutation CompleteDistributionEventsTrackingGroup(
     $distributionEventsTrackingGroupId: ID!
   ) {
@@ -424,4 +423,4 @@ export const COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = gql`
       id
     }
   }
-`;
+`);

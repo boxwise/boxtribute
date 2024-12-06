@@ -16,24 +16,24 @@ import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
-import { CreatedBoxesData, CreatedBoxesResult } from "../../../../types/generated/graphql";
 import CreatedBoxesGrouping, {
   createdBoxesGroupingOptions,
   createdBoxesUrlId,
   defaultCreatedBoxesGrouping,
 } from "../../filter/CreatedBoxesGrouping";
 import useValueFilter from "../../../hooks/useValueFilter";
+import { CreatedBoxesResult, CreatedBoxes as CreatedBoxesType } from "../../../../../graphql/types";
 
 interface ICreatedBoxesProps {
   width: string;
   height: string;
-  data: CreatedBoxesData;
+  data: Partial<CreatedBoxesType>;
   boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICreatedBoxesProps) {
   const onExport = getOnExport(BarChart);
-  const facts = data.facts as CreatedBoxesResult[];
+  const facts = data?.facts;
 
   const { filterValue: createdBoxesGrouping } = useValueFilter(
     createdBoxesGroupingOptions,
@@ -43,7 +43,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
 
   const getChartData = () => {
     const createdBoxes = tidy(
-      facts,
+      facts as CreatedBoxesResult[],
       filter((row) => row.createdOn !== null),
       groupBy("createdOn", [
         summarize({
@@ -133,7 +133,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
 
   const heading = boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";
 
-  if (createdBoxesPerDay.length === 0) {
+  if (createdBoxesPerDay?.length === 0) {
     return <NoDataCard header={heading} />;
   }
 

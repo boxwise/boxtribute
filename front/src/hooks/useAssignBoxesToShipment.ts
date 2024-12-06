@@ -1,16 +1,10 @@
-import { gql, useMutation } from "@apollo/client";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { useMutation } from "@apollo/client";
+import { graphql } from "../../../graphql/graphql"
 import { useCallback, useState } from "react";
-import {
-  AssignBoxesToShipmentMutation,
-  AssignBoxesToShipmentMutationVariables,
-  UnassignBoxesFromShipmentMutation,
-  UnassignBoxesFromShipmentMutationVariables,
-  BoxState,
-} from "types/generated/graphql";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 
 export enum IAssignBoxToShipmentResultKind {
   BAD_USER_INPUT = "badUserInput", // no Boxes InStock were passed to the function
@@ -32,23 +26,21 @@ export interface IAssignBoxToShipmentResult {
   error?: any;
 }
 
-export const ASSIGN_BOXES_TO_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
+export const ASSIGN_BOXES_TO_SHIPMENT = graphql(`
   mutation AssignBoxesToShipment($id: ID!, $labelIdentifiers: [String!]) {
     updateShipmentWhenPreparing(
       updateInput: {
         id: $id
         preparedBoxLabelIdentifiers: $labelIdentifiers
-        removedBoxLabelIdentifiers: []
+        removedBoxLabelIdentifiers: [],
       }
     ) {
       ...ShipmentFields
     }
   }
-`;
+`, [SHIPMENT_FIELDS_FRAGMENT]);
 
-export const UNASSIGN_BOX_FROM_SHIPMENT = gql`
-  ${SHIPMENT_FIELDS_FRAGMENT}
+export const UNASSIGN_BOX_FROM_SHIPMENT = graphql(`
   mutation UnassignBoxesFromShipment($id: ID!, $labelIdentifiers: [String!]) {
     updateShipmentWhenPreparing(
       updateInput: {
@@ -60,22 +52,16 @@ export const UNASSIGN_BOX_FROM_SHIPMENT = gql`
       ...ShipmentFields
     }
   }
-`;
+`, [SHIPMENT_FIELDS_FRAGMENT]);
 
 export const useAssignBoxesToShipment = () => {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [assignBoxesToShipmentMutation] = useMutation<
-    AssignBoxesToShipmentMutation,
-    AssignBoxesToShipmentMutationVariables
-  >(ASSIGN_BOXES_TO_SHIPMENT);
+  const [assignBoxesToShipmentMutation] = useMutation(ASSIGN_BOXES_TO_SHIPMENT);
 
-  const [unassignBoxesFromShipmentMutation] = useMutation<
-    UnassignBoxesFromShipmentMutation,
-    UnassignBoxesFromShipmentMutationVariables
-  >(UNASSIGN_BOX_FROM_SHIPMENT);
+  const [unassignBoxesFromShipmentMutation] = useMutation(UNASSIGN_BOX_FROM_SHIPMENT);
 
   const assignBoxesToShipment = useCallback(
     (
@@ -85,8 +71,8 @@ export const useAssignBoxesToShipment = () => {
       showErrors: boolean = true,
     ) => {
       setIsLoading(true);
-      const inStockBoxes = boxes.filter((box) => box.state === BoxState.InStock);
-      const notInStockBoxes = boxes.filter((box) => box.state !== BoxState.InStock);
+      const inStockBoxes = boxes.filter((box) => box.state === "InStock");
+      const notInStockBoxes = boxes.filter((box) => box.state !== "InStock");
 
       // no Boxes InStock were passed
       if (inStockBoxes.length === 0) {
@@ -152,7 +138,7 @@ export const useAssignBoxesToShipment = () => {
           const boxesInShipment: IBoxBasicFields[] =
             data?.updateShipmentWhenPreparing?.details
               .filter((detail) => detail.removedOn === null)
-              .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
+              .filter((detail) => detail.box.state === "MarkedForShipment")
               .map((detail) => detail.box as IBoxBasicFields) ?? [];
           const failedBoxes: IBoxBasicFields[] = inStockBoxes.filter(
             (box) =>
@@ -218,7 +204,7 @@ export const useAssignBoxesToShipment = () => {
       const inStockLabelIdentifiers = boxes
         .filter(
           (box) =>
-            box.state === BoxState.MarkedForShipment &&
+            box.state === "MarkedForShipment" &&
             box.shipmentDetail?.shipment.id === shipmentId,
         )
         .map((box) => box.labelIdentifier);
@@ -270,7 +256,7 @@ export const useAssignBoxesToShipment = () => {
           const boxesInShipment =
             (data?.updateShipmentWhenPreparing?.details
               .filter((detail) => detail.removedOn === null)
-              .filter((detail) => detail.box.state === BoxState.MarkedForShipment)
+              .filter((detail) => detail.box.state === "MarkedForShipment")
               .map((detail) => detail.box) as IBoxBasicFields[]) ?? [];
 
           const failedBoxes: IBoxBasicFields[] = boxes.filter((box) =>

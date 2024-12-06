@@ -2,11 +2,8 @@ import { useCallback, useState } from "react";
 import { FetchPolicy, useApolloClient } from "@apollo/client";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
-import {
-  GetBoxLabelIdentifierForQrCodeQuery,
-  GetBoxLabelIdentifierForQrCodeQueryVariables,
-} from "types/generated/graphql";
 import { useErrorHandling } from "./useErrorHandling";
+import { Box } from "queries/types";
 
 export enum IQrResolverResultKind {
   SUCCESS = "success",
@@ -24,7 +21,10 @@ export enum IQrResolverResultKind {
 export type IQrResolvedValue = {
   kind: IQrResolverResultKind;
   qrHash?: string;
-  box?: any; // TODO: infer box type from generated type.
+  box?: Partial<Box & {
+    baseName: string;
+    organisationName: string;
+  }>;
   error?: unknown;
 };
 
@@ -48,8 +48,8 @@ export const useQrResolver = () => {
   const resolveQrHash = useCallback(
     async (hash: string, fetchPolicy: FetchPolicy): Promise<IQrResolvedValue> => {
       setLoading(true);
-      const qrResolvedValue: IQrResolvedValue = await apolloClient
-        .query<GetBoxLabelIdentifierForQrCodeQuery, GetBoxLabelIdentifierForQrCodeQueryVariables>({
+      const qrResolvedValue = await apolloClient
+        .query({
           query: GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
           variables: { qrCode: hash },
           fetchPolicy,
@@ -135,7 +135,7 @@ export const useQrResolver = () => {
         });
 
       if (qrResolvedValue.kind === IQrResolverResultKind.SUCCESS) {
-        const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box.labelIdentifier}"}`;
+        const boxCacheRef = `Box:{"labelIdentifier":"${qrResolvedValue.box?.labelIdentifier}"}`;
         // add a scannedOn parameter in the cache if Box was scanned
         apolloClient.writeFragment({
           id: boxCacheRef,

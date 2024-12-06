@@ -1,18 +1,12 @@
 import { useEffect } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../graphql/graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
-  BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables,
-  BoxState,
-  UpdateContentOfBoxMutation,
-  UpdateContentOfBoxMutationVariables,
-} from "types/generated/graphql";
-import {
   TAG_OPTIONS_FRAGMENT,
-  BOX_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
+  BOX_FIELDS_FRAGMENT,
 } from "queries/fragments";
 // TODO: move to global queries file
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -21,44 +15,44 @@ import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries
 import BoxEdit, { IBoxEditFormDataOutput } from "./components/BoxEdit";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 
-export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = gql`
-  ${TAG_OPTIONS_FRAGMENT}
-  ${PRODUCT_FIELDS_FRAGMENT}
-  ${BOX_FIELDS_FRAGMENT}
-  query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
-    box(labelIdentifier: $labelIdentifier) {
-      ...BoxFields
-      tags {
-        ...TagOptions
-      }
-      product {
-        ...ProductFields
-      }
-    }
-
-    base(id: $baseId) {
-      tags(resourceType: Box) {
-        ...TagOptions
-      }
-
-      # TODO create location Fragment
-      locations {
-        ... on ClassicLocation {
-          defaultBoxState
+export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphql(
+  `
+    query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
+      box(labelIdentifier: $labelIdentifier) {
+        ...BoxFields
+        tags {
+          ...TagOptions
         }
-        id
-        seq
-        name
+        product {
+          ...ProductFields
+        }
       }
 
-      products {
-        ...ProductFields
+      base(id: $baseId) {
+        tags(resourceType: Box) {
+          ...TagOptions
+        }
+
+        # TODO create location Fragment
+        locations {
+          ... on ClassicLocation {
+            defaultBoxState
+          }
+          id
+          seq
+          name
+        }
+
+        products {
+          ...ProductFields
+        }
       }
     }
-  }
-`;
+  `,
+  [TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, BOX_FIELDS_FRAGMENT],
+);
 
-export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
+export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
   mutation UpdateContentOfBox(
     $boxLabelIdentifier: String!
     $productId: Int!
@@ -82,7 +76,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = gql`
       labelIdentifier
     }
   }
-`;
+`);
 
 function BoxEditView() {
   // Basics
@@ -95,10 +89,7 @@ function BoxEditView() {
   const { baseId } = useBaseIdParam();
 
   // Query Data for the Form
-  const allBoxAndFormData = useQuery<
-    BoxByLabelIdentifierAndAllProductsWithBaseIdQuery,
-    BoxByLabelIdentifierAndAllProductsWithBaseIdQueryVariables
-  >(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
+  const allBoxAndFormData = useQuery(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, {
     variables: {
       baseId,
       labelIdentifier,
@@ -113,12 +104,12 @@ function BoxEditView() {
   });
 
   // Mutation after form submission
-  const [updateContentOfBoxMutation, updateContentOfBoxMutationState] = useMutation<
-    UpdateContentOfBoxMutation,
-    UpdateContentOfBoxMutationVariables
-  >(UPDATE_CONTENT_OF_BOX_MUTATION, {
-    refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
-  });
+  const [updateContentOfBoxMutation, updateContentOfBoxMutationState] = useMutation(
+    UPDATE_CONTENT_OF_BOX_MUTATION,
+    {
+      refetchQueries: [refetchBoxByLabelIdentifierQueryConfig()],
+    },
+  );
 
   // Handle Submission
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormDataOutput) => {
@@ -147,16 +138,12 @@ function BoxEditView() {
             title: `Box ${labelIdentifier}`,
             type: "success",
             message: `Successfully modified with ${
-              (
-                allBoxAndFormData.data?.base?.products.find(
-                  (p) => p.id === boxEditFormData.productId.value,
-                ) as any
+              allBoxAndFormData.data?.base?.products.find(
+                (p) => p.id === boxEditFormData.productId.value,
               )?.name || boxEditFormData.productId.label
             } (${boxEditFormData?.numberOfItems}x) in ${
-              (
-                allBoxAndFormData.data?.base?.locations.find(
-                  (l) => l.id === boxEditFormData.locationId.value,
-                ) as any
+              allBoxAndFormData.data?.base?.locations.find(
+                (l) => l.id === boxEditFormData.locationId.value,
               )?.name || boxEditFormData.locationId.label
             }.`,
           });
@@ -179,13 +166,12 @@ function BoxEditView() {
   // These are all the locations that are retrieved from the query which then filtered out the Scrap and Lost according to the defaultBoxState
   const allLocations = allBoxAndFormData.data?.base?.locations
     .filter(
-      (location) =>
-        location?.defaultBoxState !== BoxState.Lost && location?.defaultBoxState !== BoxState.Scrap,
+      (location) => location?.defaultBoxState !== "Lost" && location?.defaultBoxState !== "Scrap",
     )
     .map((location) => ({
       ...location,
       name:
-        (location.defaultBoxState !== BoxState.InStock
+        (location.defaultBoxState !== "InStock"
           ? `${location.name} - Boxes are ${location.defaultBoxState}`
           : location.name) ?? "",
     }))

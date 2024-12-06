@@ -2,14 +2,13 @@ import { it, expect } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
-import { ShipmentState } from "types/generated/graphql";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import ShipmentsOverviewView from "./ShipmentsOverviewView";
 import userEvent from "@testing-library/user-event";
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,
-  state = ShipmentState.Preparing,
+  state = "Preparing",
   iAmSource = true,
 }) => ({
   request: {

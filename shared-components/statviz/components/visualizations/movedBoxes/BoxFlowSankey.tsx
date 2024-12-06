@@ -1,17 +1,15 @@
 import { Box, Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
+import { ResultOf } from "gql.tada";
 import { groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { sample } from "lodash";
 import VisHeader from "../../VisHeader";
 import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
-import {
-  MovedBoxesData,
-  MovedBoxesResult,
-  TargetDimensionInfo,
-} from "../../../../types/generated/graphql";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
 import Targetfilter from "../../filter/LocationFilter";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
+import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
@@ -33,7 +31,7 @@ const outgoingNode = {
 interface IBoxFlowSankeyProps {
   width: string;
   height: string;
-  data: MovedBoxesData;
+  data: Partial<MovedBoxes>;
   boxesOrItems: BoxesOrItemsCount;
 }
 
@@ -42,10 +40,10 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
   const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
-  const movedBoxesFacts = data.facts as MovedBoxesResult[];
+  const movedBoxesFacts = data?.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
-    movedBoxesFacts,
+    movedBoxesFacts satisfies MovedBoxesResult[],
     groupBy(["targetId", "organisationName"], [summarize({ count: sum(boxesOrItems) })]),
     map((item) => {
       if (item.count < 0) {
@@ -60,7 +58,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         isNegative: false,
       };
     }),
-    innerJoin(data.dimensions?.target as TargetDimensionInfo[], {
+    innerJoin(data?.dimensions?.target as ResultOf<typeof TARGET_DIMENSION_INFO_FRAGMENT>[], {
       by: { id: "targetId" },
     }),
   );

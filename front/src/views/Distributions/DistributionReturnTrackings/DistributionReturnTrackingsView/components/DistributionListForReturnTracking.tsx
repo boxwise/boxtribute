@@ -16,11 +16,6 @@ import { getDay, parseISO, isPast } from "date-fns";
 import _ from "lodash";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  DistributionEventState,
-  StartDistributionEventsTrackingGroupMutation,
-  StartDistributionEventsTrackingGroupMutationVariables,
-} from "types/generated/graphql";
 import { getDateNormalizedDateTime, weekDayNumberToWeekDayName } from "utils/helpers";
 import { START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION } from "views/Distributions/queries";
 import { DistributionEventDetails, DistributionTrackingGroup } from "views/Distributions/types";
@@ -75,8 +70,9 @@ function DistributionListForReturnTracking({
   const navigate = useNavigate();
   const baseId = useParams<{ baseId: string }>().baseId!;
 
+  // TODO: infer types
   const sortedDistroEventsWhichNeedReturnTracking = _.chain(distributionEventsData)
-    .filter((el) => el.state === DistributionEventState.ReturnedFromDistribution)
+    .filter((el) => el.state === "ReturnedFromDistribution")
     .orderBy((el) => el.plannedStartDateTime, "desc")
     .value();
 
@@ -84,10 +80,7 @@ function DistributionListForReturnTracking({
     .filter(
       (el) =>
         isPast(el.plannedEndDateTime) &&
-        ![
-          DistributionEventState.Completed,
-          DistributionEventState.ReturnedFromDistribution,
-        ].includes(el.state),
+        !["Completed", "ReturnedFromDistribution"].includes(el.state),
     )
     .value();
 
@@ -105,10 +98,7 @@ function DistributionListForReturnTracking({
 
   const onStartReturnTrackingClick = () => {
     apolloClient
-      .query<
-        StartDistributionEventsTrackingGroupMutation,
-        StartDistributionEventsTrackingGroupMutationVariables
-      >({
+      .query({
         query: START_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION,
         variables: {
           baseId,

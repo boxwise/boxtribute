@@ -1,29 +1,29 @@
 import { Box, Wrap, WrapItem } from "@chakra-ui/react";
-import { ShipmentState } from "types/generated/graphql";
+import { ShipmentState } from "queries/types";
 
 export interface IShipmentColoredStatusProps {
-  state: ShipmentState | undefined | null;
+  state: ShipmentState;
 }
 
 function ShipmentColoredStatus({ state }: IShipmentColoredStatusProps) {
   let stateColor;
   switch (state) {
-    case ShipmentState.Preparing:
+    case "Preparing":
       stateColor = "blue.500";
       break;
-    case ShipmentState.Receiving:
+    case "Receiving":
       stateColor = "blue.500";
       break;
-    case ShipmentState.Canceled:
+    case "Canceled":
       stateColor = "red.500";
       break;
-    case ShipmentState.Lost:
+    case "Lost":
       stateColor = "red.500";
       break;
-    case ShipmentState.Sent:
+    case "Sent":
       stateColor = "green.500";
       break;
-    case ShipmentState.Completed:
+    case "Completed":
       stateColor = "black";
       break;
     default:

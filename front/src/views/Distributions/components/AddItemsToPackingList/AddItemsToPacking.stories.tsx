@@ -1,5 +1,4 @@
 import { StoryFn, Meta } from "@storybook/react";
-import { ProductGender } from "types/generated/graphql";
 import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";
 
 const clothingCategory = {
@@ -17,25 +16,25 @@ const mockedProductData: ProductDataForPackingList[] = [
     id: "1",
     name: "Jacket",
     category: { ...clothingCategory },
-    gender: ProductGender.Men,
+    gender: "Men",
   },
   {
     id: "2",
     name: "T-shirt",
     category: { ...clothingCategory },
-    gender: ProductGender.Men,
+    gender: "Men",
   },
   {
     id: "3",
     name: "Skirt",
     category: { ...clothingCategory },
-    gender: ProductGender.Women,
+    gender: "Women",
   },
   {
     id: "10",
     name: "Razor (50 pack)",
     category: { ...hygenicCategory },
-    gender: ProductGender.Men,
+    gender: "Men",
   },
 ];
 

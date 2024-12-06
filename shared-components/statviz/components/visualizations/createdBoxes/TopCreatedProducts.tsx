@@ -2,27 +2,23 @@ import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { arrange, desc, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import BarChart from "../../nivo/BarChart";
-import {
-  CreatedBoxesData,
-  CreatedBoxesResult,
-  ProductDimensionInfo,
-} from "../../../../types/generated/graphql";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import NoDataCard from "../../NoDataCard";
+import { CreatedBoxes, CreatedBoxesResult, Product } from "../../../../../graphql/types";
 
 export default function TopCreatedProducts(props: {
   width: string;
   height: string;
   boxesOrItems: string;
-  data: CreatedBoxesData;
+  data: Partial<CreatedBoxes>;
 }) {
   const onExport = getOnExport(BarChart);
   const { boxesOrItems, data } = { ...props };
 
   const getChartData = () =>
     tidy(
-      data.facts as CreatedBoxesResult[],
+      data?.facts as CreatedBoxesResult[],
       map((row) => ({ ...row, productId: row.productId })),
       groupBy(
         ["productId", "gender"],
@@ -33,7 +29,7 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      innerJoin(data.dimensions?.product as ProductDimensionInfo[], { by: { id: "productId" } }),
+      innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],

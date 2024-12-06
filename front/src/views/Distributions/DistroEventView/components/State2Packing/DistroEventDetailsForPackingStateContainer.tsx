@@ -1,16 +1,9 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "../../../../../../../graphql/graphql";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { createContext, useCallback } from "react";
-import {
-  PackingListEntriesForDistributionEventQuery,
-  PackingListEntriesForDistributionEventQueryVariables,
-  RemoveItemsFromUnboxedItemsCollectionMutation,
-  RemoveItemsFromUnboxedItemsCollectionMutationVariables,
-  UnassignBoxFromDistributionEventMutation,
-  UnassignBoxFromDistributionEventMutationVariables,
-} from "types/generated/graphql";
 import { graphqlPackingListEntriesForDistributionEventTransformer } from "views/Distributions/dataTransformers";
 import {
   DISTRIBUTION_EVENT_QUERY,
@@ -20,7 +13,7 @@ import {
 import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 
-const REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION = gql`
+const REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION = graphql(`
   mutation RemoveItemsFromUnboxedItemsCollection($id: ID!, $numberOfItems: Int!) {
     removeItemsFromUnboxedItemsCollection(id: $id, numberOfItems: $numberOfItems) {
       id
@@ -30,7 +23,7 @@ const REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 interface IDistroEventDetailsForPackingStateContext {
   onUnassignBoxFromDistributionEvent: (labelIdentifier: string) => void;
@@ -49,15 +42,13 @@ const DistroEventDetailsForPackingStateContainer = ({
 }: DistroEventDetailsForPackingStateProps) => {
   const toast = useToast();
 
-  const [removeItemsFromUnboxedItemsCollectionMutation] = useMutation<
-    RemoveItemsFromUnboxedItemsCollectionMutation,
-    RemoveItemsFromUnboxedItemsCollectionMutationVariables
-  >(REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION);
+  const [removeItemsFromUnboxedItemsCollectionMutation] = useMutation(
+    REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION,
+  );
 
-  const [unassignBoxFromDistributionEventMutation] = useMutation<
-    UnassignBoxFromDistributionEventMutation,
-    UnassignBoxFromDistributionEventMutationVariables
-  >(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
+  const [unassignBoxFromDistributionEventMutation] = useMutation(
+    UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
+  );
 
   const distributionEventId = distributionEventDetails.id;
 
@@ -190,10 +181,7 @@ const DistroEventDetailsForPackingStateContainer = ({
     onRemoveUnboxedItems,
   };
 
-  const { data, loading, error } = useQuery<
-    PackingListEntriesForDistributionEventQuery,
-    PackingListEntriesForDistributionEventQueryVariables
-  >(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
+  const { data, loading, error } = useQuery(PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY, {
     variables: { distributionEventId: distributionEventDetails.id },
     // pollInterval: 5000,
   });

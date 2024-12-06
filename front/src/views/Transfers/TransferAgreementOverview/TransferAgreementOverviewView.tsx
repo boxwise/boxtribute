@@ -1,22 +1,9 @@
 import { useCallback, useContext, useMemo, useState } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql, ResultOf } from "../../../../../graphql/graphql";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
-import {
-  AcceptTransferAgreementMutation,
-  AcceptTransferAgreementMutationVariables,
-  CancelTransferAgreementMutation,
-  CancelTransferAgreementMutationVariables,
-  RejectTransferAgreementMutation,
-  RejectTransferAgreementMutationVariables,
-  ShipmentState,
-  TransferAgreement,
-  TransferAgreementsQuery,
-  TransferAgreementState,
-  TransferAgreementType,
-} from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
@@ -36,45 +23,56 @@ import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { TransferAgreements } from "queries/types";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 
 export interface IAcceptedTransferAgreement {
-  transferAgreements: TransferAgreement[];
+  transferAgreements: TransferAgreements;
 }
-export const ALL_TRANSFER_AGREEMENTS_QUERY = gql`
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  query TransferAgreements {
-    transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Expired]) {
-      ...TransferAgreementFields
-    }
-  }
-`;
 
-export const ACCEPT_TRANSFER_AGREEMENT = gql`
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  mutation AcceptTransferAgreement($id: ID!) {
-    acceptTransferAgreement(id: $id) {
-      ...TransferAgreementFields
+export const ALL_TRANSFER_AGREEMENTS_QUERY = graphql(
+  `
+    query TransferAgreements {
+      transferAgreements(states: [Accepted, UnderReview, Rejected, Canceled, Expired]) {
+        ...TransferAgreementFields
+      }
     }
-  }
-`;
+  `,
+  [TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
 
-export const REJECT_TRANSFER_AGREEMENT = gql`
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  mutation RejectTransferAgreement($id: ID!) {
-    rejectTransferAgreement(id: $id) {
-      ...TransferAgreementFields
+export const ACCEPT_TRANSFER_AGREEMENT = graphql(
+  `
+    mutation AcceptTransferAgreement($id: ID!) {
+      acceptTransferAgreement(id: $id) {
+        ...TransferAgreementFields
+      }
     }
-  }
-`;
+  `,
+  [TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
 
-export const CANCEL_TRANSFER_AGREEMENT = gql`
-  ${TRANSFER_AGREEMENT_FIELDS_FRAGMENT}
-  mutation CancelTransferAgreement($id: ID!) {
-    cancelTransferAgreement(id: $id) {
-      ...TransferAgreementFields
+export const REJECT_TRANSFER_AGREEMENT = graphql(
+  `
+    mutation RejectTransferAgreement($id: ID!) {
+      rejectTransferAgreement(id: $id) {
+        ...TransferAgreementFields
+      }
     }
-  }
-`;
+  `,
+  [TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
+
+export const CANCEL_TRANSFER_AGREEMENT = graphql(
+  `
+    mutation CancelTransferAgreement($id: ID!) {
+      cancelTransferAgreement(id: $id) {
+        ...TransferAgreementFields
+      }
+    }
+  `,
+  [TRANSFER_AGREEMENT_FIELDS_FRAGMENT],
+);
 
 interface IShipmentBase {
   __typename?: "Base";
@@ -106,83 +104,85 @@ function TransferAgreementOverviewView() {
   );
 
   // Mutations for transfer agreement actions
-  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] = useMutation<
-    AcceptTransferAgreementMutation,
-    AcceptTransferAgreementMutationVariables
-  >(ACCEPT_TRANSFER_AGREEMENT, {
-    update(cache, { data: returnedTransferAgreement }) {
-      if (returnedTransferAgreement?.acceptTransferAgreement) {
-        const acceptedTransferAgreement = returnedTransferAgreement?.acceptTransferAgreement;
+  const [acceptTransferAgreementMutation, acceptTransferAgreementMutationStatus] = useMutation(
+    ACCEPT_TRANSFER_AGREEMENT,
+    {
+      update(cache, { data: returnedTransferAgreement }) {
+        if (returnedTransferAgreement?.acceptTransferAgreement) {
+          const acceptedTransferAgreement = returnedTransferAgreement?.acceptTransferAgreement;
 
-        const existingAcceptedTransferAgreementsData = cache.readQuery<IAcceptedTransferAgreement>({
-          query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-          variables: { baseId },
-        });
-
-        if (existingAcceptedTransferAgreementsData?.transferAgreements) {
-          const updatedTransferAgreements = [
-            ...(existingAcceptedTransferAgreementsData.transferAgreements || []), // Use existing array or an empty array
-            acceptedTransferAgreement,
-          ];
-
-          cache.writeQuery({
+          const existingAcceptedTransferAgreementsData = cache.readQuery({
             query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
             variables: { baseId },
-            data: {
-              transferAgreements: updatedTransferAgreements,
-            },
           });
-        } else {
-          cache.writeQuery({
-            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-            variables: { baseId },
-            data: {
-              transferAgreements: [acceptedTransferAgreement],
-            },
-          });
-        }
-      }
-    },
-  });
 
-  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] = useMutation<
-    RejectTransferAgreementMutation,
-    RejectTransferAgreementMutationVariables
-  >(REJECT_TRANSFER_AGREEMENT);
+          if (existingAcceptedTransferAgreementsData?.transferAgreements) {
+            const updatedTransferAgreements = [
+              ...(existingAcceptedTransferAgreementsData.transferAgreements || []), // Use existing array or an empty array
+              acceptedTransferAgreement,
+            ];
 
-  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] = useMutation<
-    CancelTransferAgreementMutation,
-    CancelTransferAgreementMutationVariables
-  >(CANCEL_TRANSFER_AGREEMENT, {
-    update(cache, { data: returnedTransferAgreement }) {
-      if (returnedTransferAgreement?.cancelTransferAgreement) {
-        const cancelledTransferAgreementId = returnedTransferAgreement?.cancelTransferAgreement.id;
-
-        const existingAcceptedTransferAgreementsData = cache.readQuery<IAcceptedTransferAgreement>({
-          query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-          variables: { baseId },
-        });
-
-        const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
-          (a) => a.id === cancelledTransferAgreementId,
-        );
-
-        if (index !== undefined && index > -1) {
-          existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
-
-          cache.writeQuery({
-            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
-            variables: {
+            cache.writeQuery({
+              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
               variables: { baseId },
-            },
-            data: {
-              transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
-            },
-          });
+              data: {
+                transferAgreements: updatedTransferAgreements,
+                base: null,
+              },
+            });
+          } else {
+            cache.writeQuery({
+              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+              variables: { baseId },
+              data: {
+                transferAgreements: [acceptedTransferAgreement],
+                base: null,
+              },
+            });
+          }
         }
-      }
+      },
     },
-  });
+  );
+
+  const [rejectTransferAgreementMutation, rejectTransferAgreementMutationStatus] =
+    useMutation(REJECT_TRANSFER_AGREEMENT);
+
+  const [cancelTransferAgreementMutation, cancelTransferAgreementMutationStatus] = useMutation(
+    CANCEL_TRANSFER_AGREEMENT,
+    {
+      update(cache, { data: returnedTransferAgreement }) {
+        if (returnedTransferAgreement?.cancelTransferAgreement) {
+          const cancelledTransferAgreementId =
+            returnedTransferAgreement?.cancelTransferAgreement.id;
+
+          const existingAcceptedTransferAgreementsData = cache.readQuery({
+            query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+            variables: { baseId },
+          });
+
+          const index = existingAcceptedTransferAgreementsData?.transferAgreements.findIndex(
+            (a) => a.id === cancelledTransferAgreementId,
+          );
+
+          if (index !== undefined && index > -1) {
+            existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
+
+            cache.writeQuery({
+              query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
+              variables: {
+                baseId,
+              },
+              data: {
+                transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements!,
+                base: existingAcceptedTransferAgreementsData?.base!,
+              },
+            });
+          }
+        }
+      },
+    },
+  );
 
   const isLoadingFromMutation =
     acceptTransferAgreementMutationStatus.loading ||
@@ -218,17 +218,14 @@ function TransferAgreementOverviewView() {
   const onCancel = handleTransferAgreement(cancelTransferAgreementMutation, "cancel");
 
   // fetch agreements data
-  const { loading, error, data } = useQuery<TransferAgreementsQuery>(
-    ALL_TRANSFER_AGREEMENTS_QUERY,
-    {
-      // returns cache first, but syncs with server in background
-      fetchPolicy: "cache-and-network",
-    },
-  );
+  const { loading, error, data } = useQuery(ALL_TRANSFER_AGREEMENTS_QUERY, {
+    // returns cache first, but syncs with server in background
+    fetchPolicy: "cache-and-network",
+  });
 
   // transform agreements data for UI
   const graphqlToTableTransformer = (
-    transferAgreementQueryResult: TransferAgreementsQuery | undefined,
+    transferAgreementQueryResult?: ResultOf<typeof ALL_TRANSFER_AGREEMENTS_QUERY>,
   ) =>
     transferAgreementQueryResult?.transferAgreements.map((element) => {
       if (globalPreferences.organisation !== undefined) {
@@ -238,7 +235,7 @@ function TransferAgreementOverviewView() {
 
         const agreementRow = {
           id: element.id,
-          direction: TransferAgreementType.Bidirectional,
+          direction: "Bidirectional",
           partnerOrg: element.targetOrganisation.name,
           state: element.state as IExtendedTransferAgreementState,
           shipments: {},
@@ -250,9 +247,9 @@ function TransferAgreementOverviewView() {
           requestedBy: element.requestedBy.name,
         };
 
-        if (element.type === TransferAgreementType.Bidirectional) {
+        if (element.type === "Bidirectional") {
           // We can do both
-          agreementRow.direction = TransferAgreementType.Bidirectional;
+          agreementRow.direction = "Bidirectional";
           if (currentOrgId === sourceOrgId) {
             agreementRow.partnerOrg = element.targetOrganisation.name;
           } else if (currentOrgId === targetOrgId) {
@@ -260,21 +257,20 @@ function TransferAgreementOverviewView() {
           }
         } else if (currentOrgId === sourceOrgId) {
           // we are can only send stock to the partner
-          agreementRow.direction = TransferAgreementType.SendingTo;
+          agreementRow.direction = "SendingTo";
           agreementRow.partnerOrg = element.targetOrganisation.name;
         } else if (currentOrgId === targetOrgId) {
           // we are can only receive items from the partner
-          agreementRow.direction = TransferAgreementType.ReceivingFrom;
+          agreementRow.direction = "ReceivingFrom";
           agreementRow.partnerOrg = element.sourceOrganisation.name;
         }
 
         // The initiating Org is not always the sourceOrg. Therefore, we need to do this complex if statement
         if (
-          element.state === TransferAgreementState.UnderReview &&
+          element.state === "UnderReview" &&
           ((currentOrgId === targetOrgId &&
-            (element.type === TransferAgreementType.Bidirectional ||
-              element.type === TransferAgreementType.SendingTo)) ||
-            (currentOrgId === sourceOrgId && element.type === TransferAgreementType.ReceivingFrom))
+            (element.type === "Bidirectional" || element.type === "SendingTo")) ||
+            (currentOrgId === sourceOrgId && element.type === "ReceivingFrom"))
         ) {
           // You can accept this agreement if it is UnderReview and the partnerOrg created it
           agreementRow.state = CanAcceptTransferAgreementState.CanAccept;
@@ -284,9 +280,9 @@ function TransferAgreementOverviewView() {
         const shipmentsTmp = [] as IShipmentBase[];
         element.shipments.forEach((shipment) => {
           if (
-            (shipment.state === ShipmentState.Preparing ||
-              shipment.state === ShipmentState.Sent ||
-              shipment.state === ShipmentState.Receiving) &&
+            (shipment.state === "Preparing" ||
+              shipment.state === "Sent" ||
+              shipment.state === "Receiving") &&
             globalPreferences.availableBases !== undefined
           ) {
             if (

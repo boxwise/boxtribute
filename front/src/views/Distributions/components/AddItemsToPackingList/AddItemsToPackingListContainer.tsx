@@ -1,11 +1,6 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
-import {
-  AllProductsForPackingListQuery,
-  AllProductsForPackingListQueryVariables,
-  ProductGender,
-} from "types/generated/graphql";
 import { ALL_PRODUCTS_FOR_PACKING_LIST } from "views/Distributions/queries";
 import { IPackingListEntry, Product } from "views/Distributions/types";
 import AddItemsToPackingList, { ProductDataForPackingList } from "./AddItemsToPackingList";
@@ -23,7 +18,7 @@ const graphqlToContainerTransformer = (graphQLData: Product[]): ProductDataForPa
     id: product.id,
     name: product.name,
     category: product.category,
-    gender: product.gender ?? ProductGender.None,
+    gender: product.gender ?? "none",
   }));
 };
 
@@ -34,10 +29,7 @@ const AddItemsToPackingListContainer = ({
 }: AddItemsToPackingListContainerProps) => {
   const baseId = useParams<{ baseId: string }>().baseId!;
 
-  const { loading, data } = useQuery<
-    AllProductsForPackingListQuery,
-    AllProductsForPackingListQueryVariables
-  >(ALL_PRODUCTS_FOR_PACKING_LIST, {
+  const { loading, data } = useQuery(ALL_PRODUCTS_FOR_PACKING_LIST, {
     variables: {
       baseId,
     },

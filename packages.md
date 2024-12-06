@@ -22,9 +22,9 @@
 
 ### devDependencies
 
-#### graphQL type generation
+#### graphQL types
 
-@graphql-codegen/cli
+gql.tada
 
 #### types
 

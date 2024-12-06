@@ -25,24 +25,18 @@ import {
 } from "@chakra-ui/react";
 import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
-import {
-  BoxByLabelIdentifierQuery,
-  BoxState,
-  ClassicLocation,
-  HistoryEntry,
-  UpdateLocationOfBoxMutation,
-} from "types/generated/graphql";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
+import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
 
 export interface IBoxCardProps {
-  boxData: BoxByLabelIdentifierQuery["box"] | UpdateLocationOfBoxMutation["updateBox"];
+  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
   boxInTransit: boolean;
   onHistoryOpen: () => void;
   onPlusOpen: () => void;
   onMinusOpen: () => void;
-  onStateChange: (boxState: BoxState) => void;
+  onStateChange: (boxState: string) => void;
   isLoading: boolean;
 }
 
@@ -68,21 +62,21 @@ function BoxCard({
   const hasTag = !!boxData?.tags?.length;
 
   const product =
-    boxData?.state === BoxState.Receiving
+    boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.shipment.details.filter(
           (b) => b.box.labelIdentifier === boxData.labelIdentifier,
         )[0].sourceProduct
       : boxData?.product;
 
   const numberOfItems =
-    boxData?.state === BoxState.Receiving
+    boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.shipment.details.filter(
           (b) => b.box.labelIdentifier === boxData.labelIdentifier,
         )[0].sourceQuantity
       : boxData?.numberOfItems;
 
   const size =
-    boxData?.state === BoxState.Receiving
+    boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.shipment.details.filter(
           (b) => b.box.labelIdentifier === boxData.labelIdentifier,
         )[0]?.sourceSize
@@ -106,9 +100,9 @@ function BoxCard({
               border="2px"
               isDisabled={
                 isLoading ||
-                BoxState.Lost === boxData?.state ||
-                BoxState.Scrap === boxData?.state ||
-                BoxState.NotDelivered === boxData?.state ||
+                "Lost" === boxData?.state ||
+                "Scrap" === boxData?.state ||
+                "NotDelivered" === boxData?.state ||
                 boxInTransit
               }
             />
@@ -152,9 +146,9 @@ function BoxCard({
                 <IconButton
                   onClick={onPlusOpen}
                   isDisabled={
-                    BoxState.Lost === boxData?.state ||
-                    BoxState.Scrap === boxData?.state ||
-                    BoxState.NotDelivered === boxData?.state ||
+                    "Lost" === boxData?.state ||
+                    "Scrap" === boxData?.state ||
+                    "NotDelivered" === boxData?.state ||
                     boxInTransit ||
                     isLoading
                   }
@@ -181,9 +175,9 @@ function BoxCard({
                   border="2px"
                   size="sm"
                   isDisabled={
-                    BoxState.Lost === boxData?.state ||
-                    BoxState.Scrap === boxData?.state ||
-                    BoxState.NotDelivered === boxData?.state ||
+                    "Lost" === boxData?.state ||
+                    "Scrap" === boxData?.state ||
+                    "NotDelivered" === boxData?.state ||
                     boxInTransit ||
                     isLoading
                   }
@@ -246,19 +240,21 @@ function BoxCard({
                 id="scrap"
                 isDisabled={
                   boxInTransit ||
-                  boxData?.state === BoxState.NotDelivered ||
-                  (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
+                  boxData?.state === "NotDelivered" ||
+                  (boxData?.location?.__typename === "ClassicLocation" &&
+                    boxData?.location?.defaultBoxState === "Lost")
                 }
                 isReadOnly={isLoading}
-                isChecked={boxData?.state === BoxState.Scrap}
+                isChecked={boxData?.state === "Scrap"}
                 data-testid="box-scrap-btn"
                 isFocusable={false}
                 onChange={() =>
                   onStateChange(
                     // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
-                    boxData?.state === BoxState.Scrap
-                      ? (boxData?.location as any)?.defaultBoxState
-                      : BoxState.Scrap,
+                    boxData?.state === "Scrap" &&
+                      boxData?.location?.__typename !== "DistributionSpot"
+                      ? boxData?.location?.defaultBoxState!
+                      : "Scrap",
                   )
                 }
                 mr={2}
@@ -276,19 +272,21 @@ function BoxCard({
                 data-testid="box-lost-btn"
                 isDisabled={
                   boxInTransit ||
-                  boxData?.state === BoxState.NotDelivered ||
-                  (boxData?.location as ClassicLocation)?.defaultBoxState === BoxState.Lost
+                  boxData?.state === "NotDelivered" ||
+                  (boxData?.location?.__typename !== "DistributionSpot" &&
+                    boxData?.location?.defaultBoxState === "Lost")
                 }
                 onChange={() =>
                   onStateChange(
                     // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
-                    boxData?.state === BoxState.Lost
-                      ? (boxData?.location as any)?.defaultBoxState
-                      : BoxState.Lost,
+                    boxData?.state === "Lost" &&
+                      boxData?.location?.__typename !== "DistributionSpot"
+                      ? boxData?.location?.defaultBoxState!
+                      : "Lost",
                   )
                 }
                 mr={2}
-                isChecked={boxData?.state === BoxState.Lost}
+                isChecked={boxData?.state === "Lost"}
               />
             )}
           </Flex>
@@ -305,9 +303,7 @@ function BoxCard({
               </Text>
               <Spacer />
               <Flex py={0} px={0} alignContent="space-between" verticalAlign="center">
-                {!isLoading && (
-                  <HistoryEntries data={boxData?.history as unknown as HistoryEntry[]} total={1} />
-                )}
+                {!isLoading && <HistoryEntries data={boxData?.history} total={1} />}
                 {isLoading && (
                   <SkeletonText noOfLines={3} width="100%" py={2} px={2} alignContent="center" />
                 )}

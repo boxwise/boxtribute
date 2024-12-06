@@ -1,4 +1,3 @@
-import { BoxState } from "types/generated/graphql";
 import { product1, productBasic1 } from "./products";
 import { size1, size2 } from "./sizeRanges";
 import { location1, generateMockLocationWithBase } from "./locations";
@@ -7,7 +6,7 @@ import { history1, history2 } from "./histories";
 
 export const box123 = {
   labelIdentifier: "123",
-  state: BoxState.InStock,
+  state: "InStock",
   product: product1,
   size: size1,
   shipmentDetail: null,
@@ -22,8 +21,9 @@ export const box123 = {
 };
 
 export const generateMockBox = ({
+  id = "1",
   labelIdentifier = "123",
-  state = BoxState.InStock,
+  state = "InStock",
   numberOfItems = 31,
   location = generateMockLocationWithBase({}),
   comment = "Good Comment",
@@ -33,6 +33,7 @@ export const generateMockBox = ({
   tags = [tag2],
   histories = [history1, history2],
 }) => ({
+  id,
   labelIdentifier,
   state,
   product,
@@ -68,7 +69,7 @@ const insufficientPermissionErrorBox = {
  */
 export const handleBoxGeneration = ({
   labelIdentifier = "123",
-  state = BoxState.InStock,
+  state = "InStock",
   isBoxAssociated = true,
   isBoxSameBase = true,
   isBoxSameOrg = true

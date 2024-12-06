@@ -11,9 +11,10 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 import { BiTrash } from "react-icons/bi";
-import { ProductGender, ShipmentDetail } from "types/generated/graphql";
 
 import { BoxReconcilationAccordion } from "./BoxReconciliationAccordion";
+import { ProductGender } from "../../../../../graphql/types";
+import { ShipmentDetail } from "queries/types";
 
 export interface ICategoryData {
   name: string;

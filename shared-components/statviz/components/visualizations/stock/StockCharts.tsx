@@ -1,10 +1,10 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
-import { StockOverviewData } from "../../../../types/generated/graphql";
 import StockOverviewPie from "./StockOverviewPie";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
+import { StockOverview } from "../../../../../graphql/types";
 
 interface IStockChartProps {
-  stockOverview: StockOverviewData;
+  stockOverview: StockOverview;
   boxesOrItems: BoxesOrItemsCount;
 }
 

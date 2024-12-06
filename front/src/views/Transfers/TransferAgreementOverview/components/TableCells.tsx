@@ -1,21 +1,21 @@
 import { Button, chakra, Link, Stack, Tooltip, VStack } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
+import { CellProps } from "react-table";
 import { BidirectionalIcon } from "components/Icon/Transfer/BidirectionalIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
-import { Link as RouterLink } from "react-router-dom";
-import { CellProps } from "react-table";
-import { TransferAgreementState } from "types/generated/graphql";
+import { TransferAgreements } from "queries/types";
 
 export enum CanAcceptTransferAgreementState {
   CanAccept = "CanAccept",
 }
 
 export type IExtendedTransferAgreementState =
-  | TransferAgreementState
+  | TransferAgreements["state"]
   | CanAcceptTransferAgreementState;
 
 export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
-  if (cellProps.value === TransferAgreementState.UnderReview) {
+  if (cellProps.value === "UnderReview") {
     return (
       <Tooltip label="Waiting for response from partner">
         <chakra.span>Pending ...</chakra.span>
@@ -31,7 +31,7 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
       </Tooltip>
     );
   }
-  if (cellProps.value === TransferAgreementState.Accepted) {
+  if (cellProps.value === "Accepted") {
     return (
       <Tooltip label="Click here if you want to terminate the agreement!">
         <Button colorScheme="green" onClick={() => onClick(cellProps.row)}>
@@ -40,17 +40,14 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
       </Tooltip>
     );
   }
-  if (cellProps.value === TransferAgreementState.Rejected) {
+  if (cellProps.value === "Rejected") {
     return (
       <Tooltip label="Click here if you want to retry!">
         <Button onClick={() => onClick(cellProps.row)}>Declined</Button>
       </Tooltip>
     );
   }
-  if (
-    cellProps.value === TransferAgreementState.Canceled ||
-    cellProps.value === TransferAgreementState.Expired
-  ) {
+  if (cellProps.value === "Canceled" || cellProps.value === "Expired") {
     return (
       <Tooltip label="Click here if you want to renew the agreement!">
         <Button onClick={() => onClick(cellProps.row)}>Ended</Button>

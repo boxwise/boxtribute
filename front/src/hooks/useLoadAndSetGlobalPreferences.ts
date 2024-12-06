@@ -3,7 +3,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useLazyQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { OrganisationAndBasesQuery } from "types/generated/graphql";
 import { ORGANISATION_AND_BASES_QUERY } from "queries/queries";
 import { useBaseIdParam } from "./useBaseIdParam";
 
@@ -17,7 +16,7 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { baseId } = useBaseIdParam();
 
   const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData }] =
-    useLazyQuery<OrganisationAndBasesQuery>(ORGANISATION_AND_BASES_QUERY);
+    useLazyQuery(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client and the base is not set

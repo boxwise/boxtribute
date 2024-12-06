@@ -19,10 +19,6 @@ import {
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import {
-  DistributionEventsForBaseQuery,
-  DistributionEventsForBaseQueryVariables,
-} from "types/generated/graphql";
 import { z } from "zod";
 import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
@@ -54,11 +50,8 @@ const DistrosDashboardView = () => {
     }
   }, [currentTabIndex, tabIndexSearchParamAsNumber]);
 
-  const { data, error, loading } = useQuery<
-    DistributionEventsForBaseQuery,
-    DistributionEventsForBaseQueryVariables
-    // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
-  >(DISTRIBUTION_EVENTS_FOR_BASE_ID, {
+  // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
+  const { data, error, loading } = useQuery(DISTRIBUTION_EVENTS_FOR_BASE_ID, {
     variables: {
       baseId: baseId!,
     },

@@ -1,15 +1,15 @@
-import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import NumberField from "components/Form/NumberField";
-import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { groupBy } from "lodash";
 import { useEffect, useRef, useState } from "react";
+import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { groupBy } from "lodash";
 import { useForm } from "react-hook-form";
 import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
-import { ShipmentDetail } from "types/generated/graphql";
-import { z } from "zod";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
+import NumberField from "components/Form/NumberField";
+import SelectField, { IDropdownOption } from "components/Form/SelectField";
+import { ShipmentDetail } from "queries/types";
 
 export interface ICategoryData {
   name: string;

@@ -1,10 +1,9 @@
-import { ProductGender } from "types/generated/graphql";
 import { sizeRange1, sizeRange2 } from "./sizeRanges";
 
 export const product1 = {
   id: "1",
   name: "Long Sleeves",
-  gender: ProductGender.Women,
+  gender: "Women",
   category: {
     name: "Tops",
     __typename: "ProductCategory",
@@ -17,7 +16,7 @@ export const product1 = {
 export const productBasic1 = {
   id: "1",
   name: "Snow trousers",
-  gender: ProductGender.Boy,
+  gender: "Boy",
   deletedOn: null,
   __typename: "Product",
 };
@@ -25,7 +24,7 @@ export const productBasic1 = {
 export const product3 = {
   id: "3",
   name: "Long Sleeves",
-  gender: ProductGender.None,
+  gender: "None",
   category: {
     name: "Tops",
     __typename: "ProductCategory",
@@ -40,7 +39,7 @@ export const products = [
   {
     id: "2",
     name: "Winter Jackets",
-    gender: ProductGender.Men,
+    gender: "Men",
     category: {
       name: "Jackets / Outerwear",
       __typename: "ProductCategory",

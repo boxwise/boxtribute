@@ -1,19 +1,15 @@
 import { useQuery } from "@apollo/client";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
-import {
-  DistributionEventQuery,
-  DistributionEventQueryVariables
-} from "types/generated/graphql";
 import { DISTRIBUTION_EVENT_QUERY } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventContainer from "./components/DistroEventContainer";
+import { ResultOf } from "gql.tada";
 
 const graphqlToContainerTransformer = (
-  distributionEventData: DistributionEventQuery | undefined
+  distributionEventData: ResultOf<typeof DISTRIBUTION_EVENT_QUERY> | undefined,
 ): DistributionEventDetails => {
-
-  if(distributionEventData?.distributionEvent?.distributionSpot == null) {
+  if (distributionEventData?.distributionEvent?.distributionSpot == null) {
     throw new Error("distributionEventData.distributionEvent.distributionSpot is null");
   }
   return DistributionEventDetailsSchema.parse(distributionEventData?.distributionEvent);
@@ -22,10 +18,7 @@ const graphqlToContainerTransformer = (
 const DistroEventView = () => {
   const eventId = useParams<{ eventId: string }>().eventId;
 
-  const { data, error, loading } = useQuery<
-    DistributionEventQuery,
-    DistributionEventQueryVariables
-  >(DISTRIBUTION_EVENT_QUERY, {
+  const { data, error, loading } = useQuery(DISTRIBUTION_EVENT_QUERY, {
     variables: {
       eventId: eventId!,
     },
@@ -43,7 +36,7 @@ const DistroEventView = () => {
 
   const transformedData = graphqlToContainerTransformer(data);
 
-    return <DistroEventContainer distributionEventDetails={transformedData} />;
+  return <DistroEventContainer distributionEventDetails={transformedData} />;
 };
 
 export default DistroEventView;

@@ -26,12 +26,11 @@ import {
   CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { QueryReference, useReadQuery } from "@apollo/client";
+import { QueryRef, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMulipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
-import { BoxesForBoxesViewQuery, BoxesForBoxesViewQueryVariables } from "types/generated/graphql";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
@@ -42,11 +41,12 @@ import {
 } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: BoxesForBoxesViewQueryVariables) => void;
-  boxesQueryRef: QueryReference<BoxesForBoxesViewQuery>;
+  onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
+  boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
   actionButtons: React.ReactNode[];
   onBoxRowClick: (labelIdentified: string) => void;
@@ -66,7 +66,7 @@ function BoxesTable({
 }: IBoxesTableProps) {
   const { baseId } = useBaseIdParam();
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
-  const { data: rawData } = useReadQuery<BoxesForBoxesViewQuery>(boxesQueryRef);
+  const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
 
   // Add custom filter function to filter objects in a column

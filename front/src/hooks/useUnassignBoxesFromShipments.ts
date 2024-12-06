@@ -1,6 +1,5 @@
 import { useApolloClient } from "@apollo/client";
 import { useState, useCallback } from "react";
-import { BoxState } from "types/generated/graphql";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import {
   IUnassignmentFromShipment,
@@ -37,11 +36,11 @@ export const useUnassignBoxesFromShipments = () => {
     (boxes: IBoxBasicFields[]) => {
       setIsLoading(true);
       const markedForShipmentBoxes = boxes.filter(
-        (box) => box.state === BoxState.MarkedForShipment,
+        (box) => box.state === "MarkedForShipment",
       );
 
       const notMarkedForShipmentBoxes = boxes.filter(
-        (box) => box.state !== BoxState.MarkedForShipment,
+        (box) => box.state !== "MarkedForShipment",
       );
 
       const shipmentBoxDictionary = markedForShipmentBoxes.reduce(
@@ -122,9 +121,8 @@ export const useUnassignBoxesFromShipments = () => {
           // some boxes were unassigned
           if (unassignedBoxes.length > 0) {
             createToast({
-              message: `${
-                unassignedBoxes.length === 1 ? "A Box was" : `${unassignedBoxes.length} Boxes were`
-              } successfully unassigned from their corresponding shipment.`,
+              message: `${unassignedBoxes.length === 1 ? "A Box was" : `${unassignedBoxes.length} Boxes were`
+                } successfully unassigned from their corresponding shipment.`,
             });
           }
           if (failedBoxes.length > 0) {

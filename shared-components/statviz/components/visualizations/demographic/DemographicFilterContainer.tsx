@@ -1,19 +1,19 @@
 import { useReactiveVar } from "@apollo/client";
 import { useEffect, useMemo } from "react";
 import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
-import {
-  BeneficiaryDemographicsData,
-  BeneficiaryDemographicsResult,
-} from "../../../../types/generated/graphql";
 import DemographicCharts from "./DemographicCharts";
 import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import { tagFilterValuesVar } from "../../../state/filter";
+import {
+  BeneficiaryDemographics,
+  BeneficiaryDemographicsResult,
+} from "../../../../../graphql/types";
 
 interface IDemographicFilterContainerProps {
-  demographics: BeneficiaryDemographicsData;
+  demographics: BeneficiaryDemographics;
 }
 
 export default function DemographicFilterContainer({
@@ -26,13 +26,13 @@ export default function DemographicFilterContainer({
 
   // merge Beneficiary tags to Box and All tags
   useEffect(() => {
-    const beneficiaryTagFilterValues = demographics.dimensions!.tag!.map((e) =>
+    const beneficiaryTagFilterValues = demographics?.dimensions!.tag!.map((e) =>
       tagToFilterValue(e!),
     );
 
-    if (beneficiaryTagFilterValues.length > 0) {
+    if (beneficiaryTagFilterValues?.length! > 0) {
       const distinctTagFilterValues = tidy(
-        [...tagFilterValues, ...beneficiaryTagFilterValues],
+        [...tagFilterValues, ...beneficiaryTagFilterValues!],
         distinct(["id"]),
       );
 
@@ -41,12 +41,12 @@ export default function DemographicFilterContainer({
     // including tagFilterOptions in the dependencies can lead to infinite update loops
     // between CreatedBoxes updating the TagFilter and DemographicFilter updating the TagFilter
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demographics.dimensions]);
+  }, [demographics?.dimensions]);
 
   const demographicFacts = useMemo(() => {
     try {
       return filterListByInterval(
-        (demographics.facts as BeneficiaryDemographicsResult[]) ?? [],
+        (demographics?.facts as BeneficiaryDemographicsResult[]) ?? [],
         "createdOn",
         interval,
       ) as BeneficiaryDemographicsResult[];
@@ -54,7 +54,7 @@ export default function DemographicFilterContainer({
       // TODO useError
     }
     return [];
-  }, [demographics.facts, interval]);
+  }, [demographics?.facts, interval]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
@@ -75,7 +75,7 @@ export default function DemographicFilterContainer({
 
   const demographicCube = {
     ...demographics,
-    facts: filteredFacts,
+    facts: filteredFacts as BeneficiaryDemographicsResult[],
   };
 
   return <DemographicCharts demographics={demographicCube} />;

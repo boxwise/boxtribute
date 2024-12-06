@@ -14,7 +14,6 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
-import { ShipmentsQuery, ShipmentState } from "types/generated/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { compareDesc } from "date-fns";
 import { TableSkeleton } from "components/Skeletons";
@@ -26,6 +25,7 @@ import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPrefere
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
+import { ShipmentState } from "queries/types";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow =
@@ -54,7 +54,7 @@ function ShipmentsOverviewView() {
   const [direction, setDirection] = useState<"Receiving" | "Sending">("Receiving");
 
   // fetch shipments data
-  const { loading, error, data } = useQuery<ShipmentsQuery>(ALL_SHIPMENTS_QUERY, {
+  const { loading, error, data } = useQuery(ALL_SHIPMENTS_QUERY, {
     // returns cache first, but syncs with server in background
     fetchPolicy: "cache-and-network",
   });
@@ -121,15 +121,17 @@ function ShipmentsOverviewView() {
           element.details
             .reduce(
               (accumulator, detail) =>
-                accumulator.concat(detail.createdOn).concat(detail.removedOn),
-              [],
+                accumulator.concat(detail.createdOn).concat(detail.removedOn || ""),
+              [] as string[],
             )
             .filter((date) => Boolean(date)),
         );
 
         // get max date for last updates
         shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
-          new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date).getTime()))),
+          new Date(
+            Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date || "").getTime())),
+          ),
         );
 
         return shipmentRow;

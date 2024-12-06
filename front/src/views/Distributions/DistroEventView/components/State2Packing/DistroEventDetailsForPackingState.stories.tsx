@@ -1,5 +1,4 @@
 import { StoryFn, Meta } from "@storybook/react";
-import { ProductGender } from "types/generated/graphql";
 import DistroEventDetailsForPackingState from "./DistroEventDetailsForPackingState";
 // import { DistroEvent } from "../State1Planning/DistroEventPlanning";
 import { BoxData, IPackingListEntryForPackingState } from "views/Distributions/types";
@@ -44,7 +43,7 @@ const mockedDistroEventPackingList: IPackingListEntryForPackingState[] = [
     product: {
       id: "1",
       name: "T-shirt",
-      gender: ProductGender.Men,
+      gender: "Men",
     },
     matchingPackedItemsCollections: mockedBoxesData,
   },
@@ -58,7 +57,7 @@ const mockedDistroEventPackingList: IPackingListEntryForPackingState[] = [
     product: {
       id: "2",
       name: "T-shirt",
-      gender: ProductGender.Women,
+      gender: "Women",
     },
     matchingPackedItemsCollections: [],
   },
