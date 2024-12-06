@@ -76,7 +76,6 @@ export const CHECK_IF_QR_EXISTS_IN_DB = graphql(`
 `);
 
 export const ALL_SHIPMENTS_QUERY = graphql(`
-  ${BASE_ORG_FIELDS_FRAGMENT}
   query Shipments {
     shipments {
       id
@@ -103,7 +102,7 @@ export const ALL_SHIPMENTS_QUERY = graphql(`
       canceledOn
     }
   }
-`, [SHIPMENT_FIELDS_FRAGMENT]);
+`, [BASE_ORG_FIELDS_FRAGMENT]);
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(`
   query BoxByLabelIdentifier($labelIdentifier: String!) {
