@@ -15,7 +15,6 @@ export const useScannedBoxesActions = () => {
         {
           query: GET_SCANNED_BOXES,
         },
-        // @ts-expect-error TODO: revisit this after gql.tada merge
         (data: IScannedBoxesData) => {
           const existingBoxRefs = data.scannedBoxes;
 
