@@ -27,6 +27,7 @@ import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 
+// TODO: Revisit this after gql.tada merge
 type ShipmentRow =
   | {
       id: string;
