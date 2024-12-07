@@ -1,12 +1,13 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+files: back/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        types: [python]
       - id: end-of-file-fixer
-        exclude: statviz/src/types/generated
   - repo: local
     hooks:
       - id: black
