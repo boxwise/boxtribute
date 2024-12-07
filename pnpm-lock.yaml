@@ -219,6 +219,9 @@ importers:
       chakra-react-select:
         specifier: 4.9.2
         version: 4.9.2(gezwdd6hve5tnop5f5onje767m)
+      jotai:
+        specifier: ^2.10.3
+        version: 2.10.3(@types/react@18.3.14)(react@18.3.1)
       react-big-calendar:
         specifier: ^1.16.3
         version: 1.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3616,6 +3619,18 @@ packages:
   jiti@2.4.0:
     resolution: {integrity: sha512-H5UpaUI+aHOqZXlYOaFP/8AzKsg+guWu+Pr3Y8i7+Y3zr1aXAvCvTAQ1RxSc6oVD8R8c7brgNtTVP91E7upH/g==}
     hasBin: true
+
+  jotai@2.10.3:
+    resolution: {integrity: sha512-Nnf4IwrLhNfuz2JOQLI0V/AgwcpxvVy8Ec8PidIIDeRi4KCFpwTFIpHAAcU+yCgnw/oASYElq9UY0YdUUegsSA==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -8963,6 +8978,11 @@ snapshots:
 
   jiti@2.4.0:
     optional: true
+
+  jotai@2.10.3(@types/react@18.3.14)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 18.3.14
+      react: 18.3.1
 
   js-tokens@4.0.0: {}
 

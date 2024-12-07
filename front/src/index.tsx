@@ -10,7 +10,6 @@ import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
-import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import * as Sentry from "@sentry/react";
 import App from "./App";
 import { theme } from "./utils/theme";
@@ -19,9 +18,7 @@ import React from "react";
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
-    <GlobalPreferencesProvider>
-      <App />
-    </GlobalPreferencesProvider>
+    <App />
   </ApolloAuth0Provider>
 ));
 

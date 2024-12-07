@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import {
   ILabelIdentifierResolvedValue,
@@ -12,9 +13,9 @@ import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { QrReaderSkeleton } from "components/Skeletons";
 import { Alert, CloseButton, useDisclosure } from "@chakra-ui/react";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 interface IQrReaderContainerProps {
   onSuccess: () => void;
@@ -32,7 +33,7 @@ const IOS_PSA_TEXT = (
 );
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { resolveQrCode } = useQrResolver();
