@@ -5,6 +5,7 @@ repos:
     rev: v2.4.0
     hooks:
       - id: trailing-whitespace
+        types: [python]
       - id: end-of-file-fixer
         exclude: statviz/src/types/generated
   - repo: local
