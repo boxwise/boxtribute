@@ -8,7 +8,6 @@ repos:
       - id: trailing-whitespace
         types: [python]
       - id: end-of-file-fixer
-        exclude: statviz/src/types/generated
   - repo: local
     hooks:
       - id: black
