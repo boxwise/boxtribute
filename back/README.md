@@ -378,7 +378,7 @@ to simulate a god user with ID 8 (for a regular user, set something like `id=1, 
 > [!IMPORTANT]
 > To keep the front-end side up-to-date with the GraphQL schema, make sure that the pre-commit command for `*.graphql` files (`id: generate-graphql-ts-types`) is running properly.
 >
-> It should generate both `schema.graphql` (the introspected unified schema) and `graphql-env.d.ts` (the generated types to be ìnferred and consumed in the FE with `gql.tada`) inside `/graphql/generated/`.
+> It should generate `schema.graphql` (the introspected unified schema), `graphql-env.d.ts` (the generated types to be ìnferred and consumed in the FE with `gql.tada`), `types.ts` (base generated types for msw handlers and mocks) and lastly `mocks.ts` (base mocks to make fixtures and use in tests) inside `/graphql/generated/`.
 
 ## Project structure
 

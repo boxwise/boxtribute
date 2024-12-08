@@ -1,0 +1,85 @@
+{
+  "cookies": [
+    {
+      "name": "__cf_bm",
+      "value": "UkqShxXuVpEwXJqlNEQwA2TK0oddiPaIMa5K0HwfHpA-1733457346-1.0.1.1-N_pqahAKq0hSHmECI2M1Xiq2e1pW11A6M_dQJD_D6CZnuJLA3k1y9uX_4y3_GDZK",
+      "domain": ".eu.auth0.com",
+      "path": "/",
+      "expires": 1733459148.977555,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "did",
+      "value": "s%3Av0%3Aa8132756-f0d2-43b3-aedb-7adf8e2216be%3Abd645e2b31a92d56a01d58d8646a59222b80a01bb885de60c7913a1aed0c6720.IgfbLFnYAeHn68k24jMGovoT9Du5xEstCkPaVbMbM6Y",
+      "domain": "boxtribute-dev.eu.auth0.com",
+      "path": "/",
+      "expires": 1765014949.767699,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "did_compat",
+      "value": "s%3Av0%3Aa8132756-f0d2-43b3-aedb-7adf8e2216be%3Abd645e2b31a92d56a01d58d8646a59222b80a01bb885de60c7913a1aed0c6720.IgfbLFnYAeHn68k24jMGovoT9Du5xEstCkPaVbMbM6Y",
+      "domain": "boxtribute-dev.eu.auth0.com",
+      "path": "/",
+      "expires": 1765014949.767783,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "auth0",
+      "value": "s%3A3BKS1al4la1zLS0Sn3cJ6OVODN1U_-BC.qW5%2BNFmr4EtK1tin3ZmjiJp%2FJTggManCn8XCWrzn8F8",
+      "domain": "boxtribute-dev.eu.auth0.com",
+      "path": "/",
+      "expires": 1733716551.383217,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "auth0_compat",
+      "value": "s%3A3BKS1al4la1zLS0Sn3cJ6OVODN1U_-BC.qW5%2BNFmr4EtK1tin3ZmjiJp%2FJTggManCn8XCWrzn8F8",
+      "domain": "boxtribute-dev.eu.auth0.com",
+      "path": "/",
+      "expires": 1733716551.383284,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_legacy_auth0.ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS.is.authenticated",
+      "value": "true",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1733543752,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "auth0.ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS.is.authenticated",
+      "value": "true",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1733543752,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "chakra-ui-color-mode",
+          "value": "light"
+        }
+      ]
+    }
+  ]
+}

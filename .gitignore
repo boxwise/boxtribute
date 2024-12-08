@@ -36,3 +36,7 @@ docs/graphql-api/public
 .VSCodeCounter
 *.old.*
 __pycache__/*
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
