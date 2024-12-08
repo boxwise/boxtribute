@@ -1,6 +1,6 @@
 import { Table, TableContainer, Tbody, Td, Tr } from "@chakra-ui/react";
 import {
-  includesOneOfMulipleStringsFilterFn,
+  includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
 import { ReactNode, useMemo } from "react";
@@ -57,7 +57,7 @@ export function FilteringSortingTable({ columns, tableData, initialState = {} }:
   const filterTypes = useMemo(
     () => ({
       includesSomeObject: includesSomeObjectFilterFn,
-      includesOneOfMulipleStrings: includesOneOfMulipleStringsFilterFn,
+      includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
     }),
     [],
   );

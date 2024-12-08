@@ -50,12 +50,21 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
             id
             shipment {
               id
+              labelIdentifier
             }
           }
           comment
           createdOn
           lastModifiedOn
           deletedOn
+          createdBy {
+            id
+            name
+          }
+          lastModifiedBy {
+            id
+            name
+          }
         }
       }
     }
@@ -105,7 +114,17 @@ function Boxes() {
     defaultTableConfig: {
       columnFilters: [{ id: "state", value: ["InStock"] }],
       sortBy: [{ id: "lastModified", desc: true }],
-      hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
+      hiddenColumns: [
+        "gender",
+        "size",
+        "tags",
+        "shipment",
+        "comment",
+        "age",
+        "lastModified",
+        "lastModifiedBy",
+        "createdBy",
+      ],
     },
   });
 
@@ -134,21 +153,21 @@ function Boxes() {
         accessor: "product",
         id: "product",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Size",
         accessor: "size",
         id: "size",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Items",
@@ -162,14 +181,14 @@ function Boxes() {
         id: "state",
         Cell: StateCell,
         Filter: SelectBoxStateFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Location",
         accessor: "location",
         id: "location",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Tags",
@@ -192,7 +211,7 @@ function Boxes() {
         accessor: "comment",
         id: "comment",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Age",
@@ -208,6 +227,20 @@ function Boxes() {
         Cell: DateCell,
         disableFilters: true,
         sortType: "datetime",
+      },
+      {
+        Header: "Last Modified By",
+        accessor: "lastModifiedBy",
+        id: "lastModifiedBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Created By",
+        accessor: "createdBy",
+        id: "createdBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
       },
     ],
     [],
