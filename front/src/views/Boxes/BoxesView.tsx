@@ -50,6 +50,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
             id
             shipment {
               id
+              labelIdentifier
             }
           }
           comment
