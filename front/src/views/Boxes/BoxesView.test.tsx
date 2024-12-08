@@ -168,7 +168,7 @@ const boxesQuery = {
               },
               defaultBoxState: "InStock",
               id: "18",
-              name: "WH2",
+              name: "WH1",
             },
             numberOfItems: 33,
             product: {
@@ -631,8 +631,8 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }),
       );
 
-      expect(await within(row1).findByText(/wh1/i)).toBeInTheDocument();
-      expect(await within(row2).findByText(/wh1/i)).toBeInTheDocument();
+      expect(await within(row1).findByText(/8650860/i)).toBeInTheDocument();
+      expect(await within(row2).findByText(/1481666/i)).toBeInTheDocument();
     }
   }, 15000);
 });
