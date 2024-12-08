@@ -60,6 +60,12 @@ function BoxesActionsAndTable({
 
   const onMoveBoxes = useCallback(
     (locationId: string) => {
+      if (selectedBoxes.length === 0) {
+        createToast({
+          type: "warning",
+          message: `Please select a box to move`,
+        });
+      }
       const movableLabelIdentifiers = selectedBoxes
         .filter(
           (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state),
@@ -102,6 +108,12 @@ function BoxesActionsAndTable({
 
   const onAssignBoxesToShipment = useCallback(
     (shipmentId: string) => {
+      if (selectedBoxes.length === 0) {
+        createToast({
+          type: "warning",
+          message: `Please select a box to assign to shipment`,
+        });
+      }
       assignBoxesToShipment(
         shipmentId,
         selectedBoxes.map((box) => box.values as IBoxBasicFields),
@@ -150,6 +162,12 @@ function BoxesActionsAndTable({
   } = useUnassignBoxesFromShipments();
 
   const onUnassignBoxesToShipment = useCallback(() => {
+    if (selectedBoxes.length === 0) {
+      createToast({
+        type: "warning",
+        message: `Please select a box to unassign from`,
+      });
+    }
     unassignBoxesFromShipments(
       selectedBoxes.map((box) => {
         const { labelIdentifier, state, shipment } = box.original;
@@ -164,7 +182,7 @@ function BoxesActionsAndTable({
         } as IBoxBasicFields;
       }),
     );
-  }, [unassignBoxesFromShipments, selectedBoxes]);
+  }, [unassignBoxesFromShipments, selectedBoxes, createToast]);
 
   useEffect(() => {
     if (unassignBoxesFromShipmentsResult) {
