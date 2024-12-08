@@ -234,7 +234,7 @@ function ShipmentsOverviewView() {
         </Link>
       </Stack>
       <Tabs
-        variant="unstyled"
+        variant="enclosed-colored"
         onChange={() => setDirection((prev) => (prev === "Sending" ? "Receiving" : "Sending"))}
       >
         <TabList borderTop="none" borderBottom="none">
