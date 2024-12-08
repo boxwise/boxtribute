@@ -375,7 +375,7 @@ If you lack an internet connection to communicate with Auth0, it might be benefi
 
 to simulate a god user with ID 8 (for a regular user, set something like `id=1, organisation_id=1`).
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > To keep the front-end side up-to-date with the GraphQL schema, make sure that the pre-commit command for `*.graphql` files (`id: generate-graphql-ts-types`) is running properly.
 >
 > It should generate `schema.graphql` (the introspected unified schema), `graphql-env.d.ts` (the generated types to be ìnferred and consumed in the FE with `gql.tada`), `types.ts` (base generated types for msw handlers and mocks) and lastly `mocks.ts` (base mocks to make fixtures and use in tests) inside `/graphql/generated/`.

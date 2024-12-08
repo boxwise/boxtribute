@@ -129,9 +129,7 @@ function ShipmentsOverviewView() {
 
         // get max date for last updates
         shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
-          new Date(
-            Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date || "").getTime())),
-          ),
+          new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date!).getTime()))),
         );
 
         return shipmentRow;
@@ -141,6 +139,12 @@ function ShipmentsOverviewView() {
 
   const receivingData = rowData.filter((row) => row?.direction === "Receiving");
   const sendingData = rowData.filter((row) => row?.direction === "Sending");
+  const receivingCount = receivingData.filter(
+    (shipment) => shipment.state !== "Completed" && shipment.state !== "Canceled",
+  ).length;
+  const sendingCount = sendingData.filter(
+    (shipment) => shipment.state !== "Completed" && shipment.state !== "Canceled",
+  ).length;
 
   // Set default filter if user was forwarded from AgreementsOverview
   const initialState = useMemo(
@@ -239,14 +243,14 @@ function ShipmentsOverviewView() {
             color={direction === "Receiving" ? "blue.500" : "inherit"}
             fontWeight={direction === "Receiving" ? "bold" : "inherit"}
           >
-            <ReceivingIcon mr={2} /> Receiving ({receivingData.length})
+            <ReceivingIcon mr={2} /> Receiving ({receivingCount})
           </Tab>
           <Tab
             flex={1}
             color={direction === "Sending" ? "blue.500" : "inherit"}
             fontWeight={direction === "Sending" ? "bold" : "inherit"}
           >
-            <SendingIcon mr={2} /> Sending ({sendingData.length})
+            <SendingIcon mr={2} /> Sending ({sendingCount})
           </Tab>
         </TabList>
         <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
