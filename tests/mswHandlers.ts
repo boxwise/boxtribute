@@ -44,43 +44,43 @@ function baseMutationHandler<T extends TadaDocumentNode>(
   )
 }
 
-export const mockCreatedBoxesHandler = baseQueryHandler(CREATED_BOXES_QUERY, "createdBoxes", () => {
+const mockCreatedBoxesHandler = baseQueryHandler(CREATED_BOXES_QUERY, "createdBoxes", () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.createdBoxes);
 });
 
-export const mockMovedBoxesHandler = baseQueryHandler(MOVED_BOXES_QUERY, "movedBoxes", () => {
+const mockMovedBoxesHandler = baseQueryHandler(MOVED_BOXES_QUERY, "movedBoxes", () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.movedBoxes);
 });
 
-export const mockBeneficiaryDemographicsHandler = baseQueryHandler(DEMOGRAPHIC_QUERY, "BeneficiaryDemographics", () => {
+const mockBeneficiaryDemographicsHandler = baseQueryHandler(DEMOGRAPHIC_QUERY, "BeneficiaryDemographics", () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.BeneficiaryDemographics);
 });
 
-export const mockStockOverviewHandler = baseQueryHandler(STOCK_QUERY, "stockOverview", () => {
+const mockStockOverviewHandler = baseQueryHandler(STOCK_QUERY, "stockOverview", () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.stockOverview);
 });
 
-export const mockOrganisationsAndBasesQueryHandler = baseQueryHandler(ORGANISATION_AND_BASES_QUERY, "OrganisationAndBases", () => {
+const mockOrganisationsAndBasesQueryHandler = baseQueryHandler(ORGANISATION_AND_BASES_QUERY, "OrganisationAndBases", () => {
   return HttpResponse.json(devCoordinator.OrganisationAndBases);
 });
 
-export const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY, "BoxesForBoxesView", ({ variables }) => {
+const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY, "BoxesForBoxesView", ({ variables }) => {
   const { baseId } = variables;
 
   return HttpResponse.json(devCoordinator.BoxesForBoxesViewQuery.baseId[baseId]);
 });
 
-export const mockActionOptionsForBoxesViewHandler = baseQueryHandler(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, "ActionOptionsForBoxesView", ({ variables }) => {
+const mockActionOptionsForBoxesViewHandler = baseQueryHandler(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, "ActionOptionsForBoxesView", ({ variables }) => {
   const { baseId } = variables;
 
   return HttpResponse.json(devCoordinator.ActionOptionsForBoxesView.baseId[baseId]);
 });
 
-export const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", ({ variables }) => {
+const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", ({ variables }) => {
   const { labelIdentifier } = variables;
 
   devCoordinator.BoxByLabelIdentifier.data.box.labelIdentifier = labelIdentifier;
@@ -89,7 +89,7 @@ export const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDE
   return HttpResponse.json(devCoordinator.BoxByLabelIdentifier);
 })
 
-export const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, "UpdateLocationOfBox", ({ variables }) => {
+const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, "UpdateLocationOfBox", ({ variables }) => {
   const { boxLabelIdentifier, newLocationId } = variables;
 
   const override = { ...devCoordinator };
@@ -104,7 +104,7 @@ export const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUT
   return HttpResponse.json(devCoordinator.UpdateLocationOfBox);
 })
 
-export const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION, "UpdateState", ({ variables }) => {
+const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION, "UpdateState", ({ variables }) => {
   const { boxLabelIdentifier, newState } = variables;
 
   const override = { ...devCoordinator };
@@ -118,3 +118,16 @@ export const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MU
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.UpdateState);
 })
+
+export const handlers = [
+  mockOrganisationsAndBasesQueryHandler,
+  mockCreatedBoxesHandler,
+  mockMovedBoxesHandler,
+  mockBeneficiaryDemographicsHandler,
+  mockStockOverviewHandler,
+  mockBoxesForBoxesViewHandler,
+  mockActionOptionsForBoxesViewHandler,
+  mockBoxByLabelIdentifierHandler,
+  mockUpdateLocationOfBoxHandler,
+  mockUpdateStateHandler
+];
