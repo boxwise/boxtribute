@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import {
   Alert,
@@ -12,7 +12,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { AddIcon } from "@chakra-ui/icons";
 import { compareDesc } from "date-fns";
@@ -22,7 +22,7 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom, selectedBaseAtom } from "stores/globalPreferenceStore";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { ShipmentState } from "queries/types";
@@ -45,12 +45,12 @@ type ShipmentRow =
   | undefined;
 
 function ShipmentsOverviewView() {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const selectedBase = useAtomValue(selectedBaseAtom);
   // If forwarded from AgreementsOverview
   const location = useLocation();
-  const currentBaseName = globalPreferences.selectedBase?.name || "";
+  const currentBaseName = selectedBase?.name || "";
   const [direction, setDirection] = useState<"Receiving" | "Sending">("Receiving");
 
   // fetch shipments data
