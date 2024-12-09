@@ -8,6 +8,7 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 import { ACCOUNT_SETTINGS_URL } from "./consts";
 import { useHandleLogout } from "hooks/hooks";
@@ -22,9 +23,10 @@ import { useBaseIdParam } from "hooks/useBaseIdParam";
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { handleLogout } = useHandleLogout();
+  const { user, handleLogout } = useHandleLogout();
   const { baseId: currentBaseId } = useBaseIdParam();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const { t, i18n } = useTranslation();
   const baseName = globalPreferences.selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
@@ -91,12 +93,12 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           </AccordionItem>
           <AccordionItem>
             <AccordionButton gap={3} as={NavLink} to={ACCOUNT_SETTINGS_URL}>
-              <MenuIcon icon="Account" /> Account
+              <MenuIcon icon="Account" /> {t("account", {user: user.name})}
             </AccordionButton>
           </AccordionItem>
           <AccordionItem>
             <AccordionButton gap={3} onClick={handleLogout}>
-              <MenuIcon icon="Logout" /> Logout
+              <MenuIcon icon="Logout" /> {t("logout")}
             </AccordionButton>
           </AccordionItem>
         </Accordion>
