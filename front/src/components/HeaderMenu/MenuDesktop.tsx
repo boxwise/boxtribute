@@ -101,6 +101,11 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
               <MenuIcon icon="Logout" /> {t("logout")}
             </AccordionButton>
           </AccordionItem>
+          <AccordionItem>
+            <AccordionButton gap={3} onClick={() => i18n.changeLanguage("fr")}>
+              French
+            </AccordionButton>
+          </AccordionItem>
         </Accordion>
       </Flex>
     </>
