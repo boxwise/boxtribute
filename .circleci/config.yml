@@ -174,7 +174,7 @@ jobs:
       - run:
           name: Show memory usage of FE tests in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
+          when: true
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
