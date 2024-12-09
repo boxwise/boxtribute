@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Result } from "@zxing/library";
 import {
   FormControl,
@@ -67,6 +68,7 @@ function QrReader({
     [setBoxLabelInputValue, setBoxLabelInputError],
   );
 
+  const { t, i18n } = useTranslation();
   return (
     <>
       <QrReaderScanner
@@ -85,7 +87,7 @@ function QrReader({
         <TabPanels>
           <TabPanel>
             <FormControl isInvalid={!!boxLabelInputError}>
-              <FormLabel>Find Box</FormLabel>
+              <FormLabel>{t("find_box")}</FormLabel>
               <InputGroup borderRadius={0}>
                 <Input
                   type="string"
