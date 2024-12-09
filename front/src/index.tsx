@@ -13,6 +13,7 @@ import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
 import { GlobalPreferencesProvider } from "providers/GlobalPreferencesProvider";
 import * as Sentry from "@sentry/react";
 import App from "./App";
+import "./i18n";
 import { theme } from "./utils/theme";
 import { captureConsoleIntegration } from "@sentry/react";
 import React from "react";
