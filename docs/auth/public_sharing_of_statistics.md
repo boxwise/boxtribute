@@ -127,7 +127,7 @@ The following serves as a concept for a first implementation of the "link-sharin
 
 - there has to be a new action-based permission to allow link-creation for certain usergroups
 - there has to be a public FE and a public GraphQL endpoint to fetch data
-- the public FE is hosted under `api.boxtribute.org/shared` and deployed with the `deploy-api` CircleCI job (depends a new `build-statviz` job)
+- the public FE is hosted under `api.boxtribute.org/shared` and deployed with the `deploy-api` CircleCI job (depends on a new `build-statviz` job)
 - the public GraphQL endpoint is exposed for the `api` GAE service
 - new DB view and user to avoid access to sensitive data
 
@@ -202,6 +202,6 @@ union ShareableLinkResult = ShareableLink | ExpiredLinkError | UnknownLinkError
 
 ### Open questions
 
-- how do avoid misuse of the link, or the exposed public GraphQL endpoint (DDoS mitigation)?
-- can FE resolve a URL like `.../<code>` into a route like `.../<code>/bases/X/statviz` on the FE **and** process the returned data as if it was a GraphQL response?
-- how do deal with routing changes (target of link becomes outdated)?
+- [x] how to avoid misuse of the link, or the exposed public GraphQL endpoint (DDoS mitigation)? E.g. by rate limiting server-side based on link code, or https://cloud.google.com/armor/docs
+- [x] can FE resolve a URL like `.../<code>` into a route like `.../<code>/bases/X/statviz` on the FE **and** process the returned data as if it was a GraphQL response? Yes, in principal it's possible
+- [x] how do deal with routing changes (target of link becomes outdated)? We'd have to add redirection
