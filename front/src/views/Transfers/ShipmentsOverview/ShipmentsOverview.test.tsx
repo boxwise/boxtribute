@@ -66,6 +66,8 @@ it("4.4.1.4 - Initial Load of Page", async () => {
   user.click(screen.getByText(/Sending \(/i));
   // Data of Mock Transfer is shown correctly
   expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
+  // Display the filtered count for "Sending" shipments.
+  expect(screen.getByText(/Sending \(1\)/i)).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /preparing/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2\/1\/2023/i })).toBeInTheDocument();
