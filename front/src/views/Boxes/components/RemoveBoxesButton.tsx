@@ -5,6 +5,7 @@ import { Button } from "@chakra-ui/react";
 import { FaTrashAlt } from "react-icons/fa";
 import RemoveBoxesOverlay from "./RemoveBoxesOverlay";
 import { BoxRow } from "./types";
+import { useNotification } from "hooks/useNotification";
 
 interface RemoveBoxesButtonProps {
   onDeleteBoxes: () => void;
@@ -17,9 +18,17 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
   actionsAreLoading,
   selectedBoxes,
 }) => {
+  const { createToast } = useNotification();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleOpenDialog = () => {
+    if (selectedBoxes.length === 0) {
+      createToast({
+        type: "warning",
+        message: `Please select a box to delete`,
+      });
+    }
     if (!actionsAreLoading && selectedBoxes.length !== 0) {
       setIsDialogOpen(true);
     }
