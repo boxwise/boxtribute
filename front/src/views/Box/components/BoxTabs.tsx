@@ -92,14 +92,14 @@ function BoxTabs({
         </Stack>
         <Tabs w="100%" isFitted defaultIndex={boxData?.shipmentDetail ? 1 : 0}>
           <TabList>
-            <Tab textTransform="uppercase">
+            <Tab>
               <Stack direction="row" alignContent="center" alignItems="center">
                 <FaDollyFlatbed />
                 <Text>Move</Text>
               </Stack>
             </Tab>
             {shipmentOptions.length !== 0 && (
-              <Tab textTransform="uppercase">
+              <Tab>
                 <Stack direction="row" alignContent="center" alignItems="center">
                   <BiNetworkChart />
                   <Text>Transfer</Text>
