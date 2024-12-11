@@ -23,6 +23,8 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           lastModified: element.lastModifiedOn
             ? new Date(element.lastModifiedOn)
             : new Date(element.createdOn || new Date()),
+          createdBy: element.createdBy?.name,
+          lastModifiedBy: element.lastModifiedBy?.name,
         }) as BoxRow,
     );
 
