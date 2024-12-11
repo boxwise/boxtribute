@@ -2,7 +2,7 @@ import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
 
-import { FaWarehouse } from "react-icons/fa"; // Add Trash Icon for delete action
+import { FaDollyFlatbed, FaTractor, FaWarehouse } from "react-icons/fa"; // Add Trash Icon for delete action
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
@@ -20,6 +20,8 @@ import { useBaseIdParam } from "hooks/useBaseIdParam";
 import RemoveBoxesButton from "./RemoveBoxesButton";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ExportToCsvButton from "./ExportToCsvButton";
+import { FaTruckArrowRight } from "react-icons/fa6";
+import { BsBox2HeartFill } from "react-icons/bs";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -228,18 +230,11 @@ function BoxesActionsAndTable({
 
   const actionButtons = useMemo(
     () => [
-      <RemoveBoxesButton
-        onDeleteBoxes={onDeleteBoxes}
-        actionsAreLoading={actionsAreLoading}
-        selectedBoxes={selectedBoxes}
-        key="remove-boxes"
-      />,
-      <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />,
       <SelectButton
         label="Move to ..."
         options={locationOptions}
         onSelect={onMoveBoxes}
-        icon={<FaWarehouse />}
+        icon={<FaDollyFlatbed />}
         isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />,
@@ -247,9 +242,27 @@ function BoxesActionsAndTable({
         label="Assign to Shipment"
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
-        icon={<ShipmentIcon />}
+        icon={<FaTruckArrowRight />}
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
+      />,
+      <SelectButton
+        label=""
+        options={locationOptions}
+        // Use MenuItem
+        // TODO: Handle Create a Box, Delete Boxes, Export Data, Add/Remove Tags, Make QR Labels
+        onSelect={() => {}}
+        icon={<BsBox2HeartFill />}
+        // isDisabled={actionsAreLoading || locationOptions.length === 0}
+        key="box-actions"
+      />,
+
+      <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />,
+      <RemoveBoxesButton
+        onDeleteBoxes={onDeleteBoxes}
+        actionsAreLoading={actionsAreLoading}
+        selectedBoxes={selectedBoxes}
+        key="remove-boxes"
       />,
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
