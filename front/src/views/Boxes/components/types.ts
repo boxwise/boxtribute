@@ -15,4 +15,6 @@ export type BoxRow = {
   comment: string | null;
   age: number;
   lastModified: Date | null;
+  createdBy: string | null;
+  lastModifiedBy: string | null;
 };

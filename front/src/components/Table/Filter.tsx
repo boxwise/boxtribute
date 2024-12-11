@@ -147,7 +147,7 @@ includesSomeObjectFilterFn.autoRemove = (val) => !val || !val.length;
 
 // This is a custom filter function for columns that consist of objects
 // https://react-table-v7.tanstack.com/docs/examples/filtering
-export const includesOneOfMulipleStringsFilterFn = (rows, ids, filterValue) =>
+export const includesOneOfMultipleStringsFilterFn = (rows, ids, filterValue) =>
   rows.filter((row) =>
     ids.some((id) => {
       const rowValue = row.values[id];
@@ -159,4 +159,4 @@ export const includesOneOfMulipleStringsFilterFn = (rows, ids, filterValue) =>
       );
     }),
   );
-includesOneOfMulipleStringsFilterFn.autoRemove = (val) => !val || !val.length;
+includesOneOfMultipleStringsFilterFn.autoRemove = (val) => !val || !val.length;
