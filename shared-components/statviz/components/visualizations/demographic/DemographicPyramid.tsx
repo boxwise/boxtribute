@@ -107,8 +107,37 @@ export default function DemographicPyramid({
   const [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount] =
     useMemo(prepareFactsForText, [demographics?.facts]);
 
+  const beneficiariesRegistrationsText = (
+    <Text>
+      There were <chakra.span as="b">{totalCount}</chakra.span> beneficiaries registered in the
+      selected time period, <chakra.span as="b">{maleCount}</chakra.span> were male and{" "}
+      <chakra.span as="b">{femaleCount}</chakra.span> were female.
+      {ageNullOrDiverseCount ? (
+        <chakra.span>
+          <br />
+          <chakra.span as="b">{ageNullOrDiverseCount}</chakra.span> of these beneficiaries are not
+          shown in the graph:
+          <br />
+          <Box as="ul" listStylePosition="inside">
+            <li>
+              <chakra.span as="b">{ageNullCount}</chakra.span> people are missing a date of birth.
+            </li>
+            <li>
+              <chakra.span as="b">{diverseCount}</chakra.span> people have an unknown gender.
+            </li>
+          </Box>
+        </chakra.span>
+      ) : (
+        ""
+      )}
+    </Text>
+  );
+
   if (dataXr.length === 0 && dataXl.length === 0) {
-    return <NoDataCard header={heading} />;
+    if (totalCount === 0) {
+      return <NoDataCard header={heading} />;
+    }
+    return beneficiariesRegistrationsText;
   }
 
   const maxAge: number =
@@ -147,23 +176,7 @@ export default function DemographicPyramid({
         defaultWidth={600}
       />
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
-        <Text>
-          There were <chakra.span as="b">{totalCount}</chakra.span> beneficiaries registered in the
-          selected time period, <chakra.span as="b">{maleCount}</chakra.span> were male and{" "}
-          <chakra.span as="b">{femaleCount}</chakra.span> were female. <br />
-          <chakra.span as="b">{ageNullOrDiverseCount}</chakra.span> of these beneficiaries are not
-          shown in the graph:
-          <br />
-          <Box as="ul" listStylePosition="inside">
-            <li>
-              <chakra.span as="b">{ageNullCount}</chakra.span> people are missing a date of birth.
-            </li>
-            <li>
-              <chakra.span as="b">{diverseCount}</chakra.span> people have an unknown gender.
-            </li>
-          </Box>
-        </Text>
-
+        {beneficiariesRegistrationsText}
         <BarChartCenterAxis {...chartProps} />
       </CardBody>
     </Card>
