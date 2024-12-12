@@ -1,9 +1,12 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
 import { useErrorHandling } from "hooks/useErrorHandling";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 function NotFoundView() {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { user } = useAuth0();
   const location = useLocation();
   const { triggerError } = useErrorHandling();
@@ -18,7 +21,9 @@ function NotFoundView() {
   }
 
   // If the requested route was not found redirect to statviz
-  const baseId = user["https://www.boxtribute.com/base_ids"][0];
+
+  const baseId =
+    globalPreferences.selectedBase?.id || user["https://www.boxtribute.com/base_ids"][0];
   if (isLargeScreen.matches) {
     return (
       <Navigate to={`/bases/${baseId}/statviz`} replace state={{ origin: location.pathname }} />

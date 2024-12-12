@@ -1,5 +1,5 @@
 import "regenerator-runtime/runtime";
-import { ReactElement, Suspense, useEffect, useState } from "react";
+import { ReactElement, Suspense, useContext, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -23,6 +23,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 import ErrorView from "views/ErrorView/ErrorView";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -64,6 +65,7 @@ function Protected({
  * Fetch first available base id from user JWT token from Auth0 to prepend `/bases/:baseId` with that id, if available.
  */
 function DropappRedirect({ path }: DropappRedirectProps) {
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { user } = useAuth0();
   /**
    * Redirect to this `/error`, non-existent path by default, which will lead to `<NotFoundView />`.
@@ -75,7 +77,8 @@ function DropappRedirect({ path }: DropappRedirectProps) {
   if (!user || !user["https://www.boxtribute.com/base_ids"])
     return <Navigate to={pathToRedirect} replace />;
 
-  const baseId = user["https://www.boxtribute.com/base_ids"][0];
+  const baseId =
+    globalPreferences.selectedBase?.id || user["https://www.boxtribute.com/base_ids"][0];
   const baseURL = `/bases/${baseId}`;
   const urlParam = location.pathname.split("/").at(-1);
 
