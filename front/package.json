@@ -2,6 +2,7 @@
   "name": "@boxtribute/front",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
