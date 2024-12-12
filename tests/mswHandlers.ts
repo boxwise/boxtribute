@@ -102,6 +102,9 @@ const mockOrganisationsAndBasesQueryHandler = baseQueryHandler(ORGANISATION_AND_
 const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY, "BoxesForBoxesView", ({ variables }) => {
   const { baseId } = variables;
 
+  worker.resetHandlers();
+  // TODO: update box in elements?
+
   return HttpResponse.json(devCoordinator.BoxesForBoxesViewQuery.baseId[baseId]);
 });
 
