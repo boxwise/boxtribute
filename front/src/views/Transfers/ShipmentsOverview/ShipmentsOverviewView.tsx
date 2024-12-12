@@ -1,16 +1,6 @@
 import { useContext, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import {
-  Alert,
-  AlertIcon,
-  Button,
-  Heading,
-  Stack,
-  Tab,
-  TabIndicator,
-  TabList,
-  Tabs,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Heading, Stack, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
@@ -240,11 +230,12 @@ function ShipmentsOverviewView() {
         variant="enclosed-colored"
         onChange={() => setDirection((prev) => (prev === "Sending" ? "Receiving" : "Sending"))}
       >
-        <TabList borderTop="none" borderBottom="none">
+        <TabList>
           <Tab
             flex={1}
             color={direction === "Receiving" ? "blue.500" : "inherit"}
             fontWeight={direction === "Receiving" ? "bold" : "inherit"}
+            textTransform="uppercase"
           >
             <ReceivingIcon mr={2} /> {`Receiving (${receivingCount})`}
           </Tab>
@@ -252,11 +243,11 @@ function ShipmentsOverviewView() {
             flex={1}
             color={direction === "Sending" ? "blue.500" : "inherit"}
             fontWeight={direction === "Sending" ? "bold" : "inherit"}
+            textTransform="uppercase"
           >
             <SendingIcon mr={2} /> {`Sending (${sendingCount})`}
           </Tab>
         </TabList>
-        <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
       </Tabs>
       <br />
       {shipmentsTable}

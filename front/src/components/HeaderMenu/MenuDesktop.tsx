@@ -72,7 +72,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           ))}
         </Accordion>
         <Accordion marginTop={"auto"}>
-          <strong style={{ marginLeft: "1rem" }}>Settings</strong>
+          <strong style={{ marginLeft: "1rem", textTransform: "uppercase" }}>Settings</strong>
           <AccordionItem>
             <AccordionButton
               gap={3}
