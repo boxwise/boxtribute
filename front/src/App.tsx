@@ -2,7 +2,6 @@ import "regenerator-runtime/runtime";
 import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
 import Boxes from "views/Boxes/BoxesView";
@@ -23,6 +22,7 @@ import { TableSkeleton } from "components/Skeletons";
 import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
+import ErrorView from "views/ErrorView/ErrorView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -54,10 +54,7 @@ function Protected({
   }
 
   return (
-    <Navigate
-      to={redirectPath && redirectPath !== currentPath ? redirectPath : "/qrreader"}
-      replace
-    />
+    <Navigate to={redirectPath && redirectPath !== currentPath ? redirectPath : "/error"} replace />
   );
 }
 
@@ -103,7 +100,6 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 }
 
 function App() {
-  const { logout } = useAuth0();
   const { error } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
@@ -116,21 +112,11 @@ function App() {
   }, [location]);
 
   if (error) {
-    console.error(error);
-    return (
-      <>
-        <Alert status="error">
-          <AlertIcon />
-          {error}
-        </Alert>
-        <Button onClick={() => logout()}>Logout</Button>
-      </>
-    );
+    return <ErrorView error={error} />;
   }
 
   return (
     <Routes>
-      <Route index element={<Navigate to="/qrreader" />} />
       <Route path="bases">
         <Route index />
         <Route path=":baseId" element={<Layout />}>
@@ -277,6 +263,7 @@ function App() {
         <Route index element={<DropappRedirect path="/qrreader" />} />
         <Route path=":qrCodeHash" element={<DropappRedirect path="/qrreader/:qrCodeHash" />} />
       </Route>
+      <Route path="error" element={<ErrorView error="Something went wrong!" />} />
       <Route path="/*" element={<NotFoundView />} />
     </Routes>
   );
