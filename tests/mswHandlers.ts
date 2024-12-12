@@ -10,6 +10,8 @@ import { MOVED_BOXES_QUERY } from '../shared-components/statviz/components/visua
 import { STOCK_QUERY } from '../shared-components/statviz/components/visualizations/stock/StockDataContainer';
 import { DEMOGRAPHIC_QUERY } from '../shared-components/statviz/components/visualizations/demographic/DemographicDataContainer';
 
+// Utilities
+
 function baseQueryHandler<T extends TadaDocumentNode>(
   /** For type inference only. */
   _operation: T,
@@ -43,6 +45,16 @@ function baseMutationHandler<T extends TadaDocumentNode>(
     options
   )
 }
+
+const boxByLabelIdentifierLocation = devCoordinator.BoxByLabelIdentifier.data.box.location;
+const boxByLabelIdentifierHistory = devCoordinator.BoxByLabelIdentifier.data.box.history;
+const boxByLabelIdentifierShipments = devCoordinator.BoxByLabelIdentifier.data.shipments;
+
+const findBox = (labelIdentifier: string) => Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
+  .flatMap(res => res.data.boxes.elements)
+  .find(box => box.labelIdentifier === labelIdentifier)!;
+
+// Handlers
 
 const mockCreatedBoxesHandler = baseQueryHandler(CREATED_BOXES_QUERY, "createdBoxes", () => {
   // @ts-expect-error
@@ -83,28 +95,35 @@ const mockActionOptionsForBoxesViewHandler = baseQueryHandler(ACTION_OPTIONS_FOR
 const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", ({ variables }) => {
   const { labelIdentifier } = variables;
 
-  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
-    .flatMap(res => res.data.boxes.elements)
-    .find(box => box.labelIdentifier === labelIdentifier)!;
+  const box = findBox(labelIdentifier);
 
-
-  // @ts-expect-error
-  return HttpResponse.json({ data: { box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments } });
+  return HttpResponse.json({
+    data: {
+      // @ts-expect-error
+      box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation }, history: boxByLabelIdentifierHistory },
+      // @ts-expect-error
+      shipments: boxByLabelIdentifierShipments
+    }
+  });
 })
 
 const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, "UpdateLocationOfBox", ({ variables }) => {
   const { boxLabelIdentifier, newLocationId } = variables;
 
-  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
-    .flatMap(res => res.data.boxes.elements)
-    .find(box => box.labelIdentifier === boxLabelIdentifier)!;
+  const box = findBox(boxLabelIdentifier);
 
   box.location.id = "" + newLocationId;
 
+  const newLocationName = boxByLabelIdentifierLocation.base.locations.find(location => location.id === "" + newLocationId)!.name;
+
   worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
     HttpResponse.json({
-      // @ts-expect-error
-      data: { box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments }
+      data: {
+        // @ts-expect-error
+        box: { ...box, location: { ...box, name: newLocationName, base: boxByLabelIdentifierLocation.base }, history: boxByLabelIdentifierHistory },
+        // @ts-expect-error
+        shipments: boxByLabelIdentifierShipments
+      }
     }))
   );
 
@@ -115,16 +134,18 @@ const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, 
 const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION, "UpdateState", ({ variables }) => {
   const { boxLabelIdentifier, newState } = variables;
 
-  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
-    .flatMap(res => res.data.boxes.elements)
-    .find(box => box.labelIdentifier === boxLabelIdentifier)!;
+  const box = findBox(boxLabelIdentifier);
 
   box.state = newState ? newState : "InStock";
 
   worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
     HttpResponse.json({
-      // @ts-expect-error
-      data: { box: box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments }
+      data: {
+        // @ts-expect-error
+        box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation }, history: boxByLabelIdentifierHistory },
+        // @ts-expect-error
+        shipments: boxByLabelIdentifierShipments
+      }
     }))
   );
 
@@ -135,16 +156,18 @@ const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION,
 const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, "UpdateNumberOfItems", ({ variables }) => {
   const { boxLabelIdentifier, numberOfItems } = variables;
 
-  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
-    .flatMap(res => res.data.boxes.elements)
-    .find(box => box.labelIdentifier === boxLabelIdentifier)!;
+  const box = findBox(boxLabelIdentifier);
 
   box.numberOfItems = numberOfItems;
 
   worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
     HttpResponse.json({
-      // @ts-expect-error
-      data: { box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments }
+      data: {
+        // @ts-expect-error
+        box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation }, history: boxByLabelIdentifierHistory },
+        // @ts-expect-error
+        shipments: boxByLabelIdentifierShipments
+      }
     }))
   );
 
@@ -152,6 +175,7 @@ const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEM
   return HttpResponse.json({ data: { updateBox: box } });
 })
 
+// Exported handlers to be consumed by MSW
 export const handlers = [
   mockOrganisationsAndBasesQueryHandler,
   mockCreatedBoxesHandler,
