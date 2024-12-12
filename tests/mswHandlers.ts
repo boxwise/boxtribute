@@ -4,7 +4,7 @@ import { devCoordinator } from './fixtures';
 import { worker } from "../front/browser"
 import { ORGANISATION_AND_BASES_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "../front/src/queries/queries"
 import { BOXES_FOR_BOXESVIEW_QUERY, ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "../front/src/views/Boxes/BoxesView"
-import { UPDATE_BOX_MUTATION, UPDATE_STATE_IN_BOX_MUTATION } from "../front/src/views/Box/BoxView"
+import { UPDATE_BOX_MUTATION, UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, UPDATE_STATE_IN_BOX_MUTATION } from "../front/src/views/Box/BoxView"
 import { CREATED_BOXES_QUERY } from '../shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer';
 import { MOVED_BOXES_QUERY } from '../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer';
 import { STOCK_QUERY } from '../shared-components/statviz/components/visualizations/stock/StockDataContainer';
@@ -83,40 +83,73 @@ const mockActionOptionsForBoxesViewHandler = baseQueryHandler(ACTION_OPTIONS_FOR
 const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", ({ variables }) => {
   const { labelIdentifier } = variables;
 
-  devCoordinator.BoxByLabelIdentifier.data.box.labelIdentifier = labelIdentifier;
+  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
+    .flatMap(res => res.data.boxes.elements)
+    .find(box => box.labelIdentifier === labelIdentifier)!;
+
 
   // @ts-expect-error
-  return HttpResponse.json(devCoordinator.BoxByLabelIdentifier);
+  return HttpResponse.json({ data: { box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments } });
 })
 
 const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, "UpdateLocationOfBox", ({ variables }) => {
   const { boxLabelIdentifier, newLocationId } = variables;
 
-  const override = { ...devCoordinator };
+  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
+    .flatMap(res => res.data.boxes.elements)
+    .find(box => box.labelIdentifier === boxLabelIdentifier)!;
 
-  override.BoxByLabelIdentifier.data.box.labelIdentifier = boxLabelIdentifier;
-  override.BoxByLabelIdentifier.data.box.location.id = "" + newLocationId;
+  box.location.id = "" + newLocationId;
+
+  worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+    HttpResponse.json({
+      // @ts-expect-error
+      data: { box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments }
+    }))
+  );
 
   // @ts-expect-error
-  worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () => HttpResponse.json(override.BoxByLabelIdentifier)));
-
-  // @ts-expect-error
-  return HttpResponse.json(devCoordinator.UpdateLocationOfBox);
+  return HttpResponse.json({ data: { updateBox: box } });
 })
 
 const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION, "UpdateState", ({ variables }) => {
   const { boxLabelIdentifier, newState } = variables;
 
-  const override = { ...devCoordinator };
+  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
+    .flatMap(res => res.data.boxes.elements)
+    .find(box => box.labelIdentifier === boxLabelIdentifier)!;
 
-  override.BoxByLabelIdentifier.data.box.labelIdentifier = boxLabelIdentifier;
-  override.BoxByLabelIdentifier.data.box.state = newState;
+  box.state = newState ? newState : "InStock";
+
+  worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+    HttpResponse.json({
+      // @ts-expect-error
+      data: { box: box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments }
+    }))
+  );
 
   // @ts-expect-error
-  worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () => HttpResponse.json(override.BoxByLabelIdentifier)));
+  return HttpResponse.json({ data: { updateBox: box } });
+})
+
+const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, "UpdateNumberOfItems", ({ variables }) => {
+  const { boxLabelIdentifier, numberOfItems } = variables;
+
+  const box = Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
+    .flatMap(res => res.data.boxes.elements)
+    .find(box => box.labelIdentifier === boxLabelIdentifier)!;
+
+  box.numberOfItems = numberOfItems;
+
+  worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+    HttpResponse.json({
+      // @ts-expect-error
+      data: { box, shipments: devCoordinator.BoxByLabelIdentifier.data.shipments }
+    }))
+  );
 
   // @ts-expect-error
-  return HttpResponse.json(devCoordinator.UpdateState);
+  return HttpResponse.json({ data: { updateBox: box } });
 })
 
 export const handlers = [
@@ -129,5 +162,6 @@ export const handlers = [
   mockActionOptionsForBoxesViewHandler,
   mockBoxByLabelIdentifierHandler,
   mockUpdateLocationOfBoxHandler,
-  mockUpdateStateHandler
+  mockUpdateStateHandler,
+  mockUpdateNumberOfItemsHandler
 ];
