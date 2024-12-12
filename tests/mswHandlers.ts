@@ -1,10 +1,12 @@
 import { graphql, GraphQLResponseResolver, HttpResponse, RequestHandlerOptions } from 'msw'
 import { ResultOf, TadaDocumentNode, VariablesOf } from 'gql.tada';
 import { devCoordinator } from './fixtures';
+
 import { worker } from "../front/browser"
 import { ORGANISATION_AND_BASES_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "../front/src/queries/queries"
 import { BOXES_FOR_BOXESVIEW_QUERY, ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "../front/src/views/Boxes/BoxesView"
 import { UPDATE_BOX_MUTATION, UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, UPDATE_STATE_IN_BOX_MUTATION } from "../front/src/views/Box/BoxView"
+import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, UPDATE_CONTENT_OF_BOX_MUTATION } from '../front/src/views/BoxEdit/BoxEditView';
 import { CREATED_BOXES_QUERY } from '../shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer';
 import { MOVED_BOXES_QUERY } from '../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer';
 import { STOCK_QUERY } from '../shared-components/statviz/components/visualizations/stock/StockDataContainer';
@@ -53,6 +55,10 @@ const boxByLabelIdentifierShipments = devCoordinator.BoxByLabelIdentifier.data.s
 const findBox = (labelIdentifier: string) => Object.values(devCoordinator.BoxesForBoxesViewQuery.baseId)
   .flatMap(res => res.data.boxes.elements)
   .find(box => box.labelIdentifier === labelIdentifier)!;
+
+const findProduct = (id: string) => Object.values(devCoordinator.BoxByLabelIdentifierAndAllProductsWithBaseId.baseId)
+  .flatMap(res => res.data.base.products)
+  .find(product => product.id === id)!;
 
 // Handlers
 
@@ -142,7 +148,7 @@ const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION,
     HttpResponse.json({
       data: {
         // @ts-expect-error
-        box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation }, history: boxByLabelIdentifierHistory },
+        box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation, defaultBoxState: "InStock" }, history: boxByLabelIdentifierHistory },
         // @ts-expect-error
         shipments: boxByLabelIdentifierShipments
       }
@@ -175,6 +181,45 @@ const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEM
   return HttpResponse.json({ data: { updateBox: box } });
 })
 
+const mockBoxByLabelIdentifierAndAllProductsWithBaseIdHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, "BoxByLabelIdentifierAndAllProductsWithBaseId", ({ variables }) => {
+  const { baseId, labelIdentifier } = variables;
+
+  const box = findBox(labelIdentifier);
+  const base = devCoordinator.BoxByLabelIdentifierAndAllProductsWithBaseId.baseId[baseId].data.base;
+
+  return HttpResponse.json({
+    data: {
+      // @ts-expect-error
+      base, box: { ...box, id: labelIdentifier, history: boxByLabelIdentifierHistory },
+    }
+  });
+})
+
+const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_MUTATION, "UpdateContentOfBox", ({ variables }) => {
+  const { boxLabelIdentifier, locationId, numberOfItems, productId, sizeId, comment, tagIds } = variables;
+
+  const box = findBox(boxLabelIdentifier);
+
+  box.comment = comment!;
+  box.numberOfItems = numberOfItems;
+  box.product = findProduct("" + productId);
+  box.size = findProduct("" + productId).sizeRange.sizes.find(s => s.id === "" + sizeId)!;
+  box.location.id = "" + locationId;
+
+  worker.use(baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+    HttpResponse.json({
+      data: {
+        // @ts-expect-error
+        box: { ...box, location: { ...box, ...boxByLabelIdentifierLocation }, history: boxByLabelIdentifierHistory },
+        // @ts-expect-error
+        shipments: boxByLabelIdentifierShipments
+      }
+    }))
+  );
+
+  return HttpResponse.json({ data: { updateBox: box } });
+})
+
 // Exported handlers to be consumed by MSW
 export const handlers = [
   mockOrganisationsAndBasesQueryHandler,
@@ -187,5 +232,7 @@ export const handlers = [
   mockBoxByLabelIdentifierHandler,
   mockUpdateLocationOfBoxHandler,
   mockUpdateStateHandler,
-  mockUpdateNumberOfItemsHandler
+  mockUpdateNumberOfItemsHandler,
+  mockBoxByLabelIdentifierAndAllProductsWithBaseIdHandler,
+  mockUpdateContentOfBoxHandler,
 ];
