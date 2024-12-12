@@ -48,14 +48,14 @@ export default function DemographicPyramid({
   const prepareFactsForGraph = () => {
     const dataXr = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Male"),
+      filter((value) => value.gender === "Male" && value.age !== null),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
 
     const dataXl = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Female"),
+      filter((value) => value.gender === "Female" && value.age !== null),
       groupBy("age", [summarize({ count: sum("count") })]),
       map((value) => ({ x: value.count, y: value.age ?? 0 })),
     );
