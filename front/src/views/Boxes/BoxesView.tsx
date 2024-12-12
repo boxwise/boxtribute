@@ -14,11 +14,13 @@ import {
 } from "../../../../graphql/fragments";
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
-import { SelectColumnFilter } from "components/Table/Filter";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
+import { SelectBoxStateFilter } from "./components/Filter";
+import { SelectColumnFilter } from "components/Table/Filter";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
-import { SelectBoxStateFilter } from "./components/Filter";
+import { Heading } from "@chakra-ui/react";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -248,14 +250,22 @@ function Boxes() {
 
   // TODO: pass tag options to BoxesActionsAndTable
   return (
-    <BoxesActionsAndTable
-      tableConfig={tableConfig}
-      onRefetch={refetchBoxes}
-      boxesQueryRef={boxesQueryRef}
-      availableColumns={availableColumns}
-      shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
-      locationOptions={locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? [])}
-    />
+    <>
+      <BreadcrumbNavigation items={[{ label: "Aid Inventory" }, { label: "Manage Boxes" }]} />
+      <Heading fontWeight="bold" mb={4} as="h2">
+        Manage Boxes
+      </Heading>
+      <BoxesActionsAndTable
+        tableConfig={tableConfig}
+        onRefetch={refetchBoxes}
+        boxesQueryRef={boxesQueryRef}
+        availableColumns={availableColumns}
+        shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
+        locationOptions={locationToDropdownOptionTransformer(
+          actionOptionsData.base?.locations ?? [],
+        )}
+      />
+    </>
   );
 }
 
