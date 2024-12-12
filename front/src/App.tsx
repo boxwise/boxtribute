@@ -54,10 +54,7 @@ function Protected({
   }
 
   return (
-    <Navigate
-      to={redirectPath && redirectPath !== currentPath ? redirectPath : "/qrreader"}
-      replace
-    />
+    <Navigate to={redirectPath && redirectPath !== currentPath ? redirectPath : "/error"} replace />
   );
 }
 
@@ -130,7 +127,6 @@ function App() {
 
   return (
     <Routes>
-      <Route index element={<Navigate to="/qrreader" />} />
       <Route path="bases">
         <Route index />
         <Route path=":baseId" element={<Layout />}>
