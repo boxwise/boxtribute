@@ -2,6 +2,7 @@
   "name": "@boxtribute/front",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
@@ -15,7 +16,7 @@
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "chakra-react-select": "4.9.2",
-    "react-big-calendar": "^1.16.3",
+    "react-big-calendar": "^1.17.0",
     "react-icons": "^5.4.0",
     "react-table": "^7.8.0",
     "react-csv": "^2.2.2",
