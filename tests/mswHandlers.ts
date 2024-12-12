@@ -64,6 +64,10 @@ const findProduct = (id: string) => Object.values(devCoordinator.BoxByLabelIdent
   .flatMap(res => res.data.base.products)
   .find(product => product.id === id)!;
 
+const findLocation = (id: string) => Object.values(devCoordinator.BoxByLabelIdentifierAndAllProductsWithBaseId.baseId)
+  .flatMap(res => res.data.base.locations)
+  .find(location => location.id === id)!;
+
 const findTags = (ids: number[]) => Object.values(devCoordinator.BoxByLabelIdentifierAndAllProductsWithBaseId.baseId)
   .flatMap(res => res.data.base.tags)
   .filter((tag) => ids.includes(Number(tag.value)))!
@@ -214,13 +218,12 @@ const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_
   box.product = findProduct("" + productId);
   box.size = findProduct("" + productId).sizeRange.sizes.find(s => s.id === "" + sizeId)!;
   box.tags = findTags(tagIds!);
-  box.location.id = "" + locationId;
 
   worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
     HttpResponse.json({
       data: {
         // @ts-expect-error
-        box: { ...box, location: { ...box, ...boxByLabelIdentifierLocation }, history: boxByLabelIdentifierHistory },
+        box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation, ...findLocation("" + locationId) }, history: boxByLabelIdentifierHistory },
         // @ts-expect-error
         shipments: boxByLabelIdentifierShipments
       }
