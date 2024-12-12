@@ -2,7 +2,6 @@
   "name": "@boxtribute/front",
   "version": "2.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.0",
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
@@ -12,7 +11,7 @@
     "@fortawesome/fontawesome-svg-core": "6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@sentry/react": "^8.43.0",
+    "@sentry/react": "^8.44.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "chakra-react-select": "4.9.2",
@@ -25,7 +24,7 @@
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
-    "@sentry/types": "^8.43.0",
+    "@sentry/types": "^8.44.0",
     "@storybook/addon-actions": "^8.4.7",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
