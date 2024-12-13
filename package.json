@@ -18,7 +18,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "@apollo/client": "^3.12.2",
+    "@apollo/client": "^3.12.3",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.14.0",
@@ -47,7 +47,7 @@
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.54.0",
+    "react-hook-form": "^7.54.1",
     "react-router-dom": "^6.28.0",
     "zod": "^3.24.1"
   },
