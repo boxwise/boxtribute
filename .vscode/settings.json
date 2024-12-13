@@ -11,6 +11,7 @@
   "editor.formatOnPaste": false, // required
   "editor.formatOnType": false, // required
   "editor.formatOnSave": true,
+  "prettier.configPath": ".prettierrc",
 
   // eslint
   "eslint.workingDirectories": ["./", "./front", "./shared-components", "./statviz"],
