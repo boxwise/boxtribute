@@ -11,7 +11,6 @@ interface ExportToCsvButtonProps {
 
 const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) => {
   const filename = `Stock_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
-
   return (
     <>
       <Button key="export" data-testid="export-button">
@@ -30,6 +29,7 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
           headers={[
             { label: "Box Number", key: "labelIdentifier" },
             { label: "Product", key: "product" },
+            { label: "Product Category", key: "productCategory" },
             { label: "Gender", key: "gender" },
             { label: "Size", key: "size" },
             { label: "Number of items", key: "numberOfItems" },
