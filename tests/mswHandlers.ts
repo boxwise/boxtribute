@@ -3,12 +3,16 @@ import { ResultOf, TadaDocumentNode, VariablesOf } from "gql.tada";
 import { devCoordinator } from "./fixtures";
 
 import { worker } from "../front/browser"
-import { ORGANISATION_AND_BASES_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, CHECK_IF_QR_EXISTS_IN_DB, MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "../front/src/queries/queries"
+import { ORGANISATION_AND_BASES_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, CHECK_IF_QR_EXISTS_IN_DB, MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY, ALL_SHIPMENTS_QUERY } from "../front/src/queries/queries"
 import { BOXES_FOR_BOXESVIEW_QUERY, ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "../front/src/views/Boxes/BoxesView"
 import { UPDATE_BOX_MUTATION, UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, UPDATE_STATE_IN_BOX_MUTATION } from "../front/src/views/Box/BoxView"
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, UPDATE_CONTENT_OF_BOX_MUTATION } from "../front/src/views/BoxEdit/BoxEditView";
+import { ALL_ORGS_AND_BASES_QUERY } from "../front/src/views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
 import { ASSIGN_BOXES_TO_SHIPMENT, UNASSIGN_BOX_FROM_SHIPMENT } from "../front/src/hooks/useAssignBoxesToShipment";
 import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, CREATE_BOX_MUTATION } from "../front/src/views/BoxCreate/BoxCreateView";
+import { SHIPMENT_BY_ID_QUERY } from "../front/src/views/Transfers/ShipmentView/ShipmentView";
+import { ALL_TRANSFER_AGREEMENTS_QUERY } from "../front/src/views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
+import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, ALL_BASES_OF_CURRENT_ORG_QUERY } from "../front/src/views/Transfers/CreateShipment/CreateShipmentView";
 import { CREATED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
 import { STOCK_QUERY } from "../shared-components/statviz/components/visualizations/stock/StockDataContainer";
@@ -26,7 +30,7 @@ async function baseQueryHandler<T extends TadaDocumentNode>(
   /** MSW handler options. */
   options?: RequestHandlerOptions
 ) {
-  await delay(300);
+  await delay(100);
 
   return graphql.query<ResultOf<T>, VariablesOf<T>>(
     operationName,
@@ -45,7 +49,7 @@ async function baseMutationHandler<T extends TadaDocumentNode>(
   /** MSW handler options. */
   options?: RequestHandlerOptions
 ) {
-  await delay(300);
+  await delay(100);
 
   return graphql.mutation<ResultOf<T>, VariablesOf<T>>(
     operationName,
@@ -238,7 +242,7 @@ const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION,
     HttpResponse.json({
       data: {
         // @ts-expect-error
-        box: { ...box, location: { ...box.location, ...boxByLabelIdentifierLocation, defaultBoxState: "InStock" }, history: boxByLabelIdentifierHistory },
+        box: { ...box, state: box.state, location: { ...box.location, ...boxByLabelIdentifierLocation, defaultBoxState: "InStock" }, history: boxByLabelIdentifierHistory },
         // @ts-expect-error
         shipments: boxByLabelIdentifierShipments
       }
@@ -375,6 +379,34 @@ const mockUnassignBoxesFromShipmentHandler = baseMutationHandler(UNASSIGN_BOX_FR
   return HttpResponse.json(result);
 });
 
+const mockAllOrganisationsAndBasesHandler = baseQueryHandler(ALL_ORGS_AND_BASES_QUERY, "AllOrganisationsAndBases", () => {
+  return HttpResponse.json(devCoordinator.AllOrganisationsAndBases);
+});
+
+const mockAllBasesOfCurrentOrgHandler = baseQueryHandler(ALL_BASES_OF_CURRENT_ORG_QUERY, "AllBasesOfCurrentOrg", () => {
+  return HttpResponse.json(devCoordinator.AllBasesOfCurrentOrg);
+});
+
+const mockShipmentsHandler = baseQueryHandler(ALL_SHIPMENTS_QUERY, "Shipments", () => {
+  // @ts-expect-error
+  return HttpResponse.json(devCoordinator.Shipments);
+});
+
+const mockShipmentByIdHandler = baseQueryHandler(SHIPMENT_BY_ID_QUERY, "ShipmentById", ({ variables }) => {
+  const { id } = variables;
+  return HttpResponse.json(devCoordinator.ShipmentById[id]);
+});
+
+const mockTransferAgreementsHandler = baseQueryHandler(ALL_TRANSFER_AGREEMENTS_QUERY, "TransferAgreements", () => {
+  // @ts-expect-error
+  return HttpResponse.json(devCoordinator.TransferAgreements);
+});
+
+const mockAllAcceptedTransferAgreementsHandler = baseQueryHandler(ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, "AllAcceptedTransferAgreements", () => {
+  // @ts-expect-error
+  return HttpResponse.json(devCoordinator.AllAcceptedTransferAgreements);
+});
+
 // Exported handlers to be consumed by MSW
 export const handlers = [
   await mockOrganisationsAndBasesQueryHandler,
@@ -397,4 +429,10 @@ export const handlers = [
   await mockUpdateContentOfBoxHandler,
   await mockAssignBoxesToShipmentHandler,
   await mockUnassignBoxesFromShipmentHandler,
+  await mockAllOrganisationsAndBasesHandler,
+  await mockAllBasesOfCurrentOrgHandler,
+  await mockShipmentsHandler,
+  await mockShipmentByIdHandler,
+  await mockTransferAgreementsHandler,
+  await mockAllAcceptedTransferAgreementsHandler,
 ];
