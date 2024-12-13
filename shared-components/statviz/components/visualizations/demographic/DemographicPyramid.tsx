@@ -36,7 +36,7 @@ interface IDemographicChartProps {
   height: number;
 }
 
-const heading = "Beneficiaries Registrations";
+const heading = "Beneficiary Registrations";
 
 export default function DemographicPyramid({
   demographics,
@@ -114,6 +114,7 @@ export default function DemographicPyramid({
       <chakra.span as="b">{femaleCount}</chakra.span> were female.
       {ageNullOrDiverseCount ? (
         <chakra.span>
+          <br />
           <br />
           <chakra.span as="b">{ageNullOrDiverseCount}</chakra.span> of these beneficiaries are not
           shown in the graph:
