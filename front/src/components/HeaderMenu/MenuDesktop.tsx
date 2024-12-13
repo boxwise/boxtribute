@@ -39,7 +39,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         as="nav"
         flexDirection="column"
         minW={256}
-        gap={16}
+        gap={4}
         pt={6}
         boxShadow="base"
         bg="white"
@@ -47,7 +47,12 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         top="0"
       >
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-        <Accordion allowMultiple={allowMultipleAccordionsOpen} defaultIndex={expandedMenuIndex()}>
+        <Accordion
+          allowToggle={!allowMultipleAccordionsOpen}
+          allowMultiple={allowMultipleAccordionsOpen}
+          defaultIndex={expandedMenuIndex()}
+          overflowY="scroll"
+        >
           {menuItemsGroups.map((menu) => (
             <AccordionItem key={menu.text}>
               <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
