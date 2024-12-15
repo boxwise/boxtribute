@@ -12,7 +12,7 @@ import { ASSIGN_BOXES_TO_SHIPMENT, UNASSIGN_BOX_FROM_SHIPMENT } from "../front/s
 import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, CREATE_BOX_MUTATION } from "../front/src/views/BoxCreate/BoxCreateView";
 import { SHIPMENT_BY_ID_QUERY } from "../front/src/views/Transfers/ShipmentView/ShipmentView";
 import { ALL_TRANSFER_AGREEMENTS_QUERY } from "../front/src/views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
-import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, ALL_BASES_OF_CURRENT_ORG_QUERY } from "../front/src/views/Transfers/CreateShipment/CreateShipmentView";
+import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, ALL_BASES_OF_CURRENT_ORG_QUERY, CREATE_SHIPMENT_MUTATION } from "../front/src/views/Transfers/CreateShipment/CreateShipmentView";
 import { CREATED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
 import { STOCK_QUERY } from "../shared-components/statviz/components/visualizations/stock/StockDataContainer";
@@ -315,6 +315,7 @@ const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_
   return HttpResponse.json({ data: { updateBox: box } });
 })
 
+// TODO: support multiple boxes assigment
 const mockAssignBoxesToShipmentHandler = baseMutationHandler(ASSIGN_BOXES_TO_SHIPMENT, "AssignBoxesToShipment", async ({ variables }) => {
   const { labelIdentifiers, id: resId } = variables;
 
@@ -407,6 +408,93 @@ const mockAllAcceptedTransferAgreementsHandler = baseQueryHandler(ALL_ACCEPTED_T
   return HttpResponse.json(devCoordinator.AllAcceptedTransferAgreements);
 });
 
+const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, "CreateShipment", async ({ variables }) => {
+  const { sourceBaseId, targetBaseId, transferAgreementId } = variables;
+
+  // TODO: labelIdentifier, user, sourceBase, targetBase
+
+  const newShipment = devCoordinator.ShipmentById[10].data.shipment;
+
+  newShipment.id = `${devCoordinator.Shipments.data.shipments.length + 1}`;
+
+  devCoordinator.Shipments.data.shipments.push(newShipment);
+
+  devCoordinator.ShipmentById[newShipment.id] = { data: { shipment: newShipment } };
+
+  // @ts-expect-error
+  if (transferAgreementId) newShipment.transferAgreement = devCoordinator.TransferAgreements.data.transferAgreements
+    .find(transferAgreement => transferAgreement.id === "" + transferAgreementId);
+
+  // @ts-expect-error
+  return HttpResponse.json({ data: { createShipment: newShipment } });
+})
+
+// CreateTransferAgreements
+// CancelTransferAgreements
+// CreateShipment
+// UpdateShipmentWhenReceiving
+// DeleteBoxes
+// box history
+// update boxes list?
+// box not changing state 2nd time?
+// multibox shipment diff bases?
+// multibox diff bases errors?
+
+const mockMoveBoxesHandler = graphql.mutation("MoveBoxes", ({ variables }) => {
+  console.log(variables)
+  // {
+  //   "operationName": "MoveBoxes",
+  //     "variables": {
+  //        "newLocationId": 100000043,
+  //       "labelIdentifier0": "38216171"
+  //      },
+  //   "query": "mutation MoveBoxes($newLocationId: Int!, $labelIdentifier0: String!) {\n  moveBox38216171: updateBox(\n    updateInput: {labelIdentifier: $labelIdentifier0, locationId: $newLocationId}\n  ) {\n    labelIdentifier\n    state\n    location {\n      id\n      __typename\n    }\n    lastModifiedOn\n    __typename\n  }\n}"
+  // }
+
+  // {
+  //   "data": {
+  //     "moveBox38216171": {
+  //       "__typename": "Box",
+  //         "labelIdentifier": "38216171",
+  //           "lastModifiedOn": "2024-12-14T01:01:54+00:00",
+  //             "location": {
+  //         "__typename": "ClassicLocation",
+  //           "id": "100000043"
+  //       },
+  //       "state": "InStock"
+  //     }
+  //   }
+  // }
+});
+
+const mockAssignTagsHandler = graphql.mutation("MoveBoxes", ({ variables }) => {
+  console.log(variables)
+  // {
+  //   "operationName": "AssignTags",
+  //     "variables": {
+  //     "tagIds": [75],
+  //       "labelIdentifier0": "38216171"
+  //     },
+  //   "query": "mutation AssignTags($tagIds: [Int!]!, $labelIdentifier0: String!) {\n  assignTagsToBox38216171: updateBox(\n    updateInput: {labelIdentifier: $labelIdentifier0, tagIdsToBeAdded: $tagIds}\n  ) {\n    labelIdentifier\n    tags {\n      id\n      __typename\n    }\n    lastModifiedOn\n    __typename\n  }\n}"
+  // }
+
+  // {
+  //   "data": {
+  //     "assignTagsToBox38216171": {
+  //       "__typename": "Box",
+  //         "labelIdentifier": "38216171",
+  //           "lastModifiedOn": "2024-01-10T02:48:07+00:00",
+  //             "tags": [
+  //               {
+  //                 "__typename": "Tag",
+  //                 "id": "75"
+  //               }
+  //             ]
+  //     }
+  //   }
+  // }
+});
+
 // Exported handlers to be consumed by MSW
 export const handlers = [
   await mockOrganisationsAndBasesQueryHandler,
@@ -435,4 +523,7 @@ export const handlers = [
   await mockShipmentByIdHandler,
   await mockTransferAgreementsHandler,
   await mockAllAcceptedTransferAgreementsHandler,
+  await mockCreateShipmentHandler,
+  mockMoveBoxesHandler,
+  mockAssignTagsHandler,
 ];
