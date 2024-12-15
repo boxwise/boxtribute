@@ -431,7 +431,7 @@ const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, 
 
 // CreateTransferAgreements
 // CancelTransferAgreements
-// CreateShipment
+// SendShipment
 // UpdateShipmentWhenReceiving
 // DeleteBoxes
 // box history
