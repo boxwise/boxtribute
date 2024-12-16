@@ -50,14 +50,14 @@ export default function DemographicPyramid({
       demographics?.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === "Male" && value.age !== null),
       groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age ?? 0 })),
+      map((value) => ({ x: value.count, y: value.age! })),
     );
 
     const dataXl = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === "Female" && value.age !== null),
       groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age ?? 0 })),
+      map((value) => ({ x: value.count, y: value.age! })),
     );
 
     return [dataXr, dataXl];
@@ -77,7 +77,7 @@ export default function DemographicPyramid({
 
     const femaleCount = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Male"),
+      filter((value) => value.gender === "Female"),
       summarize({ total: sum("count") }),
     )[0].total;
 
@@ -120,12 +120,22 @@ export default function DemographicPyramid({
           shown in the graph:
           <br />
           <Box as="ul" listStylePosition="inside">
-            <li>
-              <chakra.span as="b">{ageNullCount}</chakra.span> people are missing a date of birth.
-            </li>
-            <li>
-              <chakra.span as="b">{diverseCount}</chakra.span> people have an unknown gender.
-            </li>
+            {ageNullCount ? (
+              <chakra.span ml="4" as="li">
+                <chakra.span as="b">{ageNullCount}</chakra.span>
+                {ageNullCount === 1 ? " person is" : " people are"} missing a date of birth.
+              </chakra.span>
+            ) : (
+              ""
+            )}
+            {diverseCount ? (
+              <chakra.span ml="4" as="li">
+                <chakra.span as="b">{diverseCount}</chakra.span>
+                {diverseCount === 1 ? " person has" : " people have"} an unknown gender.
+              </chakra.span>
+            ) : (
+              ""
+            )}
           </Box>
         </chakra.span>
       ) : (
