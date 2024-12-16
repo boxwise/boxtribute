@@ -9,6 +9,7 @@ from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
+from .utils import in_staging_environment
 
 
 def create_app():
@@ -76,6 +77,7 @@ def main(*blueprints):
     )
 
     app = create_app()
+    setup_opentelemetry(app)
     configure_app(
         app,
         *blueprints,
@@ -91,3 +93,43 @@ def main(*blueprints):
         replica_socket=os.getenv("MYSQL_REPLICA_SOCKET"),
     )
     return app
+
+
+def setup_opentelemetry(app):
+    if not in_staging_environment():
+        return
+
+    # https://cloud.google.com/stackdriver/docs/instrumentation/choose-approach#app_engine
+    # https://cloud.google.com/trace/docs/setup/python-ot
+    # https://github.com/GoogleCloudPlatform/opentelemetry-operations-python/blob/1f1775886d7314b113acd322633afb278f875687/samples/instrumentation-quickstart/setup_opentelemetry.py
+    # No permission for trace.googleapis.com
+    from opentelemetry import trace
+    from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+    from opentelemetry.propagate import set_global_textmap
+    from opentelemetry.propagators.cloud_trace_propagator import (
+        CloudTraceFormatPropagator,
+    )
+    from opentelemetry.sdk.resources import SERVICE_INSTANCE_ID, Resource
+
+    # from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+    resource = Resource.create(
+        attributes={
+            # Use the PID as the service.instance.id to avoid duplicate timeseries
+            # from different Gunicorn worker processes.
+            SERVICE_INSTANCE_ID: f"worker-{os.getpid()}",
+        }
+    )
+
+    provider = TracerProvider(resource=resource)
+    processor = BatchSpanProcessor(CloudTraceSpanExporter())
+    provider.add_span_processor(processor)
+
+    trace.set_tracer_provider(provider)
+    set_global_textmap(CloudTraceFormatPropagator())
+
+    from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
+    FlaskInstrumentor().instrument_app(app)
