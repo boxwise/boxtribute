@@ -1,4 +1,4 @@
-import { graphql } from "./graphql"
+import { graphql } from "./graphql";
 
 // Basic Fields without reference to other fragments first
 export const ORGANISATION_BASIC_FIELDS_FRAGMENT = graphql(`
@@ -28,6 +28,10 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
     name
     gender
     deletedOn
+    category {
+      id
+      name
+    }
   }
 `);
 
@@ -39,24 +43,30 @@ export const SIZE_BASIC_FIELDS_FRAGMENT = graphql(`
 `);
 
 // fragments with references to Basic Fields
-export const BASE_ORG_FIELDS_FRAGMENT = graphql(`
-  fragment BaseOrgFields on Base @_unmask {
-    ...BaseBasicFields
-    organisation {
-      ...OrganisationBasicFields
+export const BASE_ORG_FIELDS_FRAGMENT = graphql(
+  `
+    fragment BaseOrgFields on Base @_unmask {
+      ...BaseBasicFields
+      organisation {
+        ...OrganisationBasicFields
+      }
     }
-  }
-`, [ORGANISATION_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT]);
+  `,
+  [ORGANISATION_BASIC_FIELDS_FRAGMENT, BASE_BASIC_FIELDS_FRAGMENT],
+);
 
-export const SIZE_RANGE_FIELDS_FRAGMENT = graphql(`
-  fragment SizeRangeFields on SizeRange @_unmask {
-    id
-    label
-    sizes {
-      ...SizeBasicFields
+export const SIZE_RANGE_FIELDS_FRAGMENT = graphql(
+  `
+    fragment SizeRangeFields on SizeRange @_unmask {
+      id
+      label
+      sizes {
+        ...SizeBasicFields
+      }
     }
-  }
-`, [SIZE_BASIC_FIELDS_FRAGMENT]);
+  `,
+  [SIZE_BASIC_FIELDS_FRAGMENT],
+);
 
 export const BOX_BASIC_FIELDS_FRAGMENT = graphql(`
   fragment BoxBasicFields on Box @_unmask {
@@ -81,25 +91,25 @@ export const BOX_BASIC_FIELDS_FRAGMENT = graphql(`
 
 export const USER_FRAGMENT = graphql(`
   fragment UserFragment on User @_unmask {
+    id
+    name
+    email
+    lastLogin
+    lastAction
+    validFirstDay
+    validLastDay
+    organisation {
       id
       name
-      email
-      lastLogin
-      lastAction
-      validFirstDay
-      validLastDay
-      organisation {
-        id
-        name
-        bases {
-          id
-        }
-      }
       bases {
         id
       }
+    }
+    bases {
+      id
+    }
   }
-  `)
+`);
 
 export const PRODUCT_FRAGMENT = graphql(`
   fragment ProductFragment on ProductDimensionInfo @_unmask {

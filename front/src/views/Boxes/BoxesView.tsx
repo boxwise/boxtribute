@@ -14,12 +14,12 @@ import {
 } from "../../../../graphql/fragments";
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
-import { SelectBoxStateFilter } from "./components/Filter";
 import { SelectColumnFilter } from "components/Table/Filter";
+import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
+import { SelectBoxStateFilter } from "./components/Filter";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { Heading } from "@chakra-ui/react";
 
 // TODO: Implement Pagination and Filtering
@@ -126,6 +126,7 @@ function Boxes() {
         "lastModified",
         "lastModifiedBy",
         "createdBy",
+        "productCategory",
       ],
     },
   });
@@ -154,6 +155,13 @@ function Boxes() {
         Header: "Product",
         accessor: "product",
         id: "product",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Product Category",
+        accessor: "productCategory",
+        id: "productCategory",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
