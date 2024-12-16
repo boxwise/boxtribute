@@ -19,6 +19,8 @@ import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
+import { Heading } from "@chakra-ui/react";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -157,6 +159,13 @@ function Boxes() {
         filter: "includesOneOfMultipleStrings",
       },
       {
+        Header: "Product Category",
+        accessor: "productCategory",
+        id: "productCategory",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
@@ -243,27 +252,28 @@ function Boxes() {
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
-      {
-        Header: "Product Category",
-        accessor: "productCategory",
-        id: "productCategory",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
-      },
     ],
     [],
   );
 
   // TODO: pass tag options to BoxesActionsAndTable
   return (
-    <BoxesActionsAndTable
-      tableConfig={tableConfig}
-      onRefetch={refetchBoxes}
-      boxesQueryRef={boxesQueryRef}
-      availableColumns={availableColumns}
-      shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
-      locationOptions={locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? [])}
-    />
+    <>
+      <BreadcrumbNavigation items={[{ label: "Aid Inventory" }, { label: "Manage Boxes" }]} />
+      <Heading fontWeight="bold" mb={4} as="h2">
+        Manage Boxes
+      </Heading>
+      <BoxesActionsAndTable
+        tableConfig={tableConfig}
+        onRefetch={refetchBoxes}
+        boxesQueryRef={boxesQueryRef}
+        availableColumns={availableColumns}
+        shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
+        locationOptions={locationToDropdownOptionTransformer(
+          actionOptionsData.base?.locations ?? [],
+        )}
+      />
+    </>
   );
 }
 
