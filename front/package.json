@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
-    "@sentry/types": "^8.44.0",
+    "@sentry/types": "^8.46.0",
     "@storybook/addon-actions": "^8.4.7",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
@@ -35,7 +35,7 @@
     "@storybook/test": "^8.4.7",
     "@types/react-big-calendar": "^1.16.0",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.6.8",
+    "msw": "^2.7.0",
     "mutationobserver-shim": "^0.3.7",
     "storybook": "^8.4.7"
   },
