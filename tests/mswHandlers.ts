@@ -282,7 +282,7 @@ const mockBoxByLabelIdentifierAndAllProductsWithBaseIdHandler = baseQueryHandler
     const box = findBox(labelIdentifier);
     const base = devCoordinator.BoxByLabelIdentifierAndAllProductsWithBaseId.baseId[baseId].data.base;
 
-    // TODO: why??? 
+    // TODO: Revisit this.
     box.tags = box.tags.map(tag => ({ ...tag, label: tag.name }))
 
     return HttpResponse.json({
