@@ -18,7 +18,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "@apollo/client": "^3.12.2",
+    "@apollo/client": "^3.12.3",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.14.0",
