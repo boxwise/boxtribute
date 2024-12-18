@@ -43,11 +43,11 @@
     "date-fns": "^4.1.0",
     "dom-to-image-more": "^3.5.0",
     "gql.tada": "^1.8.10",
-    "graphql": "^16.8.1",
+    "graphql": "^16.10.0",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.54.0",
+    "react-hook-form": "^7.54.1",
     "react-router-dom": "^6.28.0",
     "zod": "^3.24.1"
   },
