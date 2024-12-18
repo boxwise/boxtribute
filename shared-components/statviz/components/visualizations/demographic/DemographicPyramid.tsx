@@ -1,4 +1,4 @@
-import { Card, CardBody } from "@chakra-ui/react";
+import { Card, CardBody, Text, chakra, Box } from "@chakra-ui/react";
 import { range } from "lodash";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
 import { useMemo } from "react";
@@ -36,7 +36,7 @@ interface IDemographicChartProps {
   height: number;
 }
 
-const heading = "Beneficiaries Registered";
+const heading = "Beneficiary Registrations";
 
 export default function DemographicPyramid({
   demographics,
@@ -45,28 +45,110 @@ export default function DemographicPyramid({
 }: IDemographicChartProps) {
   const onExport = getOnExport(BarChartCenterAxis);
 
-  const prepareFacts = () => {
+  const prepareFactsForGraph = () => {
     const dataXr = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Male"),
+      filter((value) => value.gender === "Male" && value.age !== null),
       groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age ?? 0 })),
+      map((value) => ({ x: value.count, y: value.age! })),
     );
 
     const dataXl = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Female"),
+      filter((value) => value.gender === "Female" && value.age !== null),
       groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age ?? 0 })),
+      map((value) => ({ x: value.count, y: value.age! })),
     );
 
     return [dataXr, dataXl];
   };
 
-  const [dataXr, dataXl] = useMemo(prepareFacts, [demographics?.facts]);
+  const prepareFactsForText = () => {
+    const totalCount = tidy(
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      summarize({ total: sum("count") }),
+    )[0].total;
+
+    const maleCount = tidy(
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.gender === "Male"),
+      summarize({ total: sum("count") }),
+    )[0].total;
+
+    const femaleCount = tidy(
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.gender === "Female"),
+      summarize({ total: sum("count") }),
+    )[0].total;
+
+    const diverseCount = tidy(
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.gender === "Diverse"),
+      summarize({ total: sum("count") }),
+    )[0].total;
+
+    const ageNullCount = tidy(
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.age === null),
+      summarize({ total: sum("count") }),
+    )[0].total;
+
+    const ageNullOrDiverseCount = tidy(
+      demographics?.facts as BeneficiaryDemographicsResult[],
+      filter((value) => value.age === null || value.gender === "Diverse"),
+      summarize({ total: sum("count") }),
+    )[0].total;
+
+    return [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount];
+  };
+
+  const [dataXr, dataXl] = useMemo(prepareFactsForGraph, [demographics?.facts]);
+
+  const [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount] =
+    useMemo(prepareFactsForText, [demographics?.facts]);
+
+  const beneficiariesRegistrationsText = (
+    <Text>
+      There were <chakra.span as="b">{totalCount}</chakra.span> beneficiaries registered in the
+      selected time period, <chakra.span as="b">{maleCount}</chakra.span> were male and{" "}
+      <chakra.span as="b">{femaleCount}</chakra.span> were female.
+      {ageNullOrDiverseCount ? (
+        <chakra.span>
+          <br />
+          <br />
+          <chakra.span as="b">{ageNullOrDiverseCount}</chakra.span> of these beneficiaries are not
+          shown in the graph:
+          <br />
+          <Box as="ul" listStylePosition="inside">
+            {ageNullCount ? (
+              <chakra.span ml="4" as="li">
+                <chakra.span as="b">{ageNullCount}</chakra.span>
+                {ageNullCount === 1 ? " person is" : " people are"} missing a date of birth.
+              </chakra.span>
+            ) : (
+              ""
+            )}
+            {diverseCount ? (
+              <chakra.span ml="4" as="li">
+                <chakra.span as="b">{diverseCount}</chakra.span>
+                {diverseCount === 1 ? " person has" : " people have"} an unknown gender.
+              </chakra.span>
+            ) : (
+              ""
+            )}
+          </Box>
+        </chakra.span>
+      ) : (
+        ""
+      )}
+    </Text>
+  );
 
   if (dataXr.length === 0 && dataXl.length === 0) {
-    return <NoDataCard header={heading} />;
+    if (totalCount === 0) {
+      return <NoDataCard header={heading} />;
+    }
+    return beneficiariesRegistrationsText;
   }
 
   const maxAge: number =
@@ -105,6 +187,7 @@ export default function DemographicPyramid({
         defaultWidth={600}
       />
       <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
+        {beneficiariesRegistrationsText}
         <BarChartCenterAxis {...chartProps} />
       </CardBody>
     </Card>

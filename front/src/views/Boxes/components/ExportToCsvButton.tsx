@@ -4,18 +4,32 @@ import { Button } from "@chakra-ui/react";
 import { Row } from "react-table";
 
 import { BoxRow } from "./types";
+import { useNotification } from "hooks/useNotification";
 
 interface ExportToCsvButtonProps {
   selectedBoxes: Row<BoxRow>[];
 }
 
 const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) => {
-  const filename = `Stock_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
+  const { createToast } = useNotification();
 
+  const checkForSelectedBoxes = () => {
+    if (selectedBoxes.length === 0) {
+      createToast({
+        type: "warning",
+        message: `Please select a box for export`,
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const filename = `Stock_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
   return (
     <>
       <Button key="export" data-testid="export-button">
         <CSVLink
+          onClick={checkForSelectedBoxes}
           data={selectedBoxes.map((box) => {
             return {
               ...box.values,
@@ -30,6 +44,7 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
           headers={[
             { label: "Box Number", key: "labelIdentifier" },
             { label: "Product", key: "product" },
+            { label: "Product Category", key: "productCategory" },
             { label: "Gender", key: "gender" },
             { label: "Size", key: "size" },
             { label: "Number of items", key: "numberOfItems" },
