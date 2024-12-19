@@ -21,10 +21,8 @@ import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visua
 // Utilities
 
 async function baseQueryHandler<T extends TadaDocumentNode>(
-  /** For type inference only. */
-  _operation: T,
-  /** Operation name inside the GraphQL string. */
-  operationName: string,
+  /** Query used for handler. */
+  operation: T,
   /** MSW resolver, with result and variable types inferred from the operation. */
   resolver: GraphQLResponseResolver<ResultOf<T>, VariablesOf<T>>,
   /** MSW handler options. */
@@ -33,17 +31,15 @@ async function baseQueryHandler<T extends TadaDocumentNode>(
   await delay(100);
 
   return graphql.query<ResultOf<T>, VariablesOf<T>>(
-    operationName,
+    operation.definitions[0]["name"].value,
     resolver,
     options
   )
 }
 
 async function baseMutationHandler<T extends TadaDocumentNode>(
-  /** For type inference only. */
-  _operation: T,
-  /** Operation name inside the GraphQL string. */
-  operationName: string,
+  /** Mutation used for handler. */
+  operation: T,
   /** MSW resolver, with result and variable types inferred from the operation. */
   resolver: GraphQLResponseResolver<ResultOf<T>, VariablesOf<T>>,
   /** MSW handler options. */
@@ -52,7 +48,7 @@ async function baseMutationHandler<T extends TadaDocumentNode>(
   await delay(100);
 
   return graphql.mutation<ResultOf<T>, VariablesOf<T>>(
-    operationName,
+    operation.definitions[0]["name"].value,
     resolver,
     options
   )
@@ -81,31 +77,32 @@ const findTags = (ids: number[]) => Object.values(devCoordinator.BoxByLabelIdent
 
 // Handlers
 
-const mockCreatedBoxesHandler = baseQueryHandler(CREATED_BOXES_QUERY, "createdBoxes", () => {
+const mockCreatedBoxesHandler = baseQueryHandler(CREATED_BOXES_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.createdBoxes);
 });
 
-const mockMovedBoxesHandler = baseQueryHandler(MOVED_BOXES_QUERY, "movedBoxes", () => {
+const mockMovedBoxesHandler = baseQueryHandler(MOVED_BOXES_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.movedBoxes);
 });
 
-const mockBeneficiaryDemographicsHandler = baseQueryHandler(DEMOGRAPHIC_QUERY, "BeneficiaryDemographics", () => {
+const mockBeneficiaryDemographicsHandler = baseQueryHandler(DEMOGRAPHIC_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.BeneficiaryDemographics);
 });
 
-const mockStockOverviewHandler = baseQueryHandler(STOCK_QUERY, "stockOverview", () => {
+const mockStockOverviewHandler = baseQueryHandler(STOCK_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.stockOverview);
 });
 
-const mockOrganisationsAndBasesQueryHandler = baseQueryHandler(ORGANISATION_AND_BASES_QUERY, "OrganisationAndBases", () => {
+const mockOrganisationsAndBasesQueryHandler = baseQueryHandler(ORGANISATION_AND_BASES_QUERY, () => {
+
   return HttpResponse.json(devCoordinator.OrganisationAndBases);
 });
 
-const mockGetBoxLabelIdentifierForQrCodeHandler = baseQueryHandler(GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, "GetBoxLabelIdentifierForQrCode", ({ variables }) => {
+const mockGetBoxLabelIdentifierForQrCodeHandler = baseQueryHandler(GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE, ({ variables }) => {
   const { qrCode } = variables;
 
   const result = devCoordinator.GetBoxLabelIdentifierForQrCode[qrCode];
@@ -116,7 +113,7 @@ const mockGetBoxLabelIdentifierForQrCodeHandler = baseQueryHandler(GET_BOX_LABEL
   return HttpResponse.json(result);
 });
 
-const mockCheckIfQrExistsInDbHandler = baseQueryHandler(CHECK_IF_QR_EXISTS_IN_DB, "CheckIfQrExistsInDb", ({ variables }) => {
+const mockCheckIfQrExistsInDbHandler = baseQueryHandler(CHECK_IF_QR_EXISTS_IN_DB, ({ variables }) => {
   const { qrCode } = variables;
 
   const result = devCoordinator.CheckIfQrExistsInDb[qrCode];
@@ -128,20 +125,20 @@ const mockCheckIfQrExistsInDbHandler = baseQueryHandler(CHECK_IF_QR_EXISTS_IN_DB
 });
 
 const mockMultiBoxActionOptionsForLocationsTagsAndShipmentseHandler = baseQueryHandler(
-  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY, "MultiBoxActionOptionsForLocationsTagsAndShipments", ({ variables }) => {
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY, ({ variables }) => {
     const { baseId } = variables;
 
     return HttpResponse.json(devCoordinator.MultiBoxActionOptionsForLocationsTagsAndShipments.baseId[baseId]);
   });
 
-const mockAllProductsAndLocationsForBaseHandler = baseQueryHandler(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, "AllProductsAndLocationsForBase", ({ variables }) => {
+const mockAllProductsAndLocationsForBaseHandler = baseQueryHandler(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, ({ variables }) => {
   const { baseId } = variables;
 
   return HttpResponse.json(devCoordinator.AllProductsAndLocationsForBase.baseId[baseId]);
 });
 
 // TODO: include box in BoxesForBoxesViewQuery?
-const mockCreateBoxHandler = baseMutationHandler(CREATE_BOX_MUTATION, "CreateBox", async ({ variables }) => {
+const mockCreateBoxHandler = baseMutationHandler(CREATE_BOX_MUTATION, async ({ variables }) => {
   const { locationId, numberOfItems, productId, comment, tagIds, sizeId } = variables;
 
   const allProducts = Object.values(devCoordinator.AllProductsAndLocationsForBase.baseId)
@@ -159,7 +156,7 @@ const mockCreateBoxHandler = baseMutationHandler(CREATE_BOX_MUTATION, "CreateBox
   if (comment) box.comment = comment;
   if (tagIds?.length) box.tags = findTags(tagIds);
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", ({ variables: { labelIdentifier } }) =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, ({ variables: { labelIdentifier } }) =>
     HttpResponse.json({
       data: {
         box: {
@@ -177,7 +174,7 @@ const mockCreateBoxHandler = baseMutationHandler(CREATE_BOX_MUTATION, "CreateBox
   return HttpResponse.json(devCoordinator.CreateBox);
 })
 
-const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY, "BoxesForBoxesView", ({ variables }) => {
+const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY, ({ variables }) => {
   const { baseId } = variables;
 
   worker.resetHandlers();
@@ -186,13 +183,13 @@ const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY,
   return HttpResponse.json(devCoordinator.BoxesForBoxesViewQuery.baseId[baseId]);
 });
 
-const mockActionOptionsForBoxesViewHandler = baseQueryHandler(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, "ActionOptionsForBoxesView", ({ variables }) => {
+const mockActionOptionsForBoxesViewHandler = baseQueryHandler(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, ({ variables }) => {
   const { baseId } = variables;
 
   return HttpResponse.json(devCoordinator.ActionOptionsForBoxesView.baseId[baseId]);
 });
 
-const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", ({ variables }) => {
+const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, ({ variables }) => {
   const { labelIdentifier } = variables;
 
   const box = findBox(labelIdentifier);
@@ -207,7 +204,7 @@ const mockBoxByLabelIdentifierHandler = baseQueryHandler(BOX_BY_LABEL_IDENTIFIER
   });
 })
 
-const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, "UpdateLocationOfBox", async ({ variables }) => {
+const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, async ({ variables }) => {
   const { boxLabelIdentifier, newLocationId } = variables;
 
   const box = findBox(boxLabelIdentifier);
@@ -216,7 +213,7 @@ const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, 
 
   const newLocationName = boxByLabelIdentifierLocation.base.locations.find(location => location.id === "" + newLocationId)!.name;
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, () =>
     HttpResponse.json({
       data: {
         // @ts-expect-error
@@ -231,14 +228,14 @@ const mockUpdateLocationOfBoxHandler = baseMutationHandler(UPDATE_BOX_MUTATION, 
   return HttpResponse.json({ data: { updateBox: box } });
 })
 
-const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION, "UpdateState", async ({ variables }) => {
+const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION, async ({ variables }) => {
   const { boxLabelIdentifier, newState } = variables;
 
   const box = findBox(boxLabelIdentifier);
 
   box.state = newState ? newState : "InStock";
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, () =>
     HttpResponse.json({
       data: {
         // @ts-expect-error
@@ -253,14 +250,14 @@ const mockUpdateStateHandler = baseMutationHandler(UPDATE_STATE_IN_BOX_MUTATION,
   return HttpResponse.json({ data: { updateBox: box } });
 })
 
-const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, "UpdateNumberOfItems", async ({ variables }) => {
+const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION, async ({ variables }) => {
   const { boxLabelIdentifier, numberOfItems } = variables;
 
   const box = findBox(boxLabelIdentifier);
 
   box.numberOfItems = numberOfItems;
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, () =>
     HttpResponse.json({
       data: {
         // @ts-expect-error
@@ -276,7 +273,7 @@ const mockUpdateNumberOfItemsHandler = baseMutationHandler(UPDATE_NUMBER_OF_ITEM
 })
 
 const mockBoxByLabelIdentifierAndAllProductsWithBaseIdHandler = baseQueryHandler(
-  BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, "BoxByLabelIdentifierAndAllProductsWithBaseId", ({ variables }) => {
+  BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY, ({ variables }) => {
     const { baseId, labelIdentifier } = variables;
 
     const box = findBox(labelIdentifier);
@@ -293,7 +290,7 @@ const mockBoxByLabelIdentifierAndAllProductsWithBaseIdHandler = baseQueryHandler
     });
   })
 
-const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_MUTATION, "UpdateContentOfBox", async ({ variables }) => {
+const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_MUTATION, async ({ variables }) => {
   const { boxLabelIdentifier, locationId, numberOfItems, productId, sizeId, comment, tagIds } = variables;
 
   const box = findBox(boxLabelIdentifier);
@@ -304,7 +301,7 @@ const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_
   box.size = findProduct("" + productId).sizeRange.sizes.find(s => s.id === "" + sizeId)!;
   box.tags = findTags(tagIds!);
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, () =>
     HttpResponse.json({
       data: {
         // @ts-expect-error
@@ -319,7 +316,7 @@ const mockUpdateContentOfBoxHandler = baseMutationHandler(UPDATE_CONTENT_OF_BOX_
 })
 
 // TODO: support multiple boxes assigment
-const mockAssignBoxesToShipmentHandler = baseMutationHandler(ASSIGN_BOXES_TO_SHIPMENT, "AssignBoxesToShipment", async ({ variables }) => {
+const mockAssignBoxesToShipmentHandler = baseMutationHandler(ASSIGN_BOXES_TO_SHIPMENT, async ({ variables }) => {
   const { labelIdentifiers, id: resId } = variables;
 
   const result = devCoordinator.AssignBoxesToShipment;
@@ -332,7 +329,7 @@ const mockAssignBoxesToShipmentHandler = baseMutationHandler(ASSIGN_BOXES_TO_SHI
   lastShipmentDetailCopy.box.shipmentDetail = { __typename: "", id: "", shipment: { __typename: "", id: resId } };
   result.data.updateShipmentWhenPreparing.details.push(lastShipmentDetailCopy);
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, () =>
     HttpResponse.json({
       data: {
         box: {
@@ -355,7 +352,7 @@ const mockAssignBoxesToShipmentHandler = baseMutationHandler(ASSIGN_BOXES_TO_SHI
   return HttpResponse.json(result);
 });
 
-const mockUnassignBoxesFromShipmentHandler = baseMutationHandler(UNASSIGN_BOX_FROM_SHIPMENT, "UnassignBoxesFromShipment", async ({ variables }) => {
+const mockUnassignBoxesFromShipmentHandler = baseMutationHandler(UNASSIGN_BOX_FROM_SHIPMENT, async ({ variables }) => {
   const { labelIdentifiers } = variables;
 
   const result = devCoordinator.UnassignBoxesFromShipment;
@@ -368,7 +365,7 @@ const mockUnassignBoxesFromShipmentHandler = baseMutationHandler(UNASSIGN_BOX_FR
   lastShipmentDetailCopy.box.shipmentDetail = null;
   result.data.updateShipmentWhenPreparing.details.push(lastShipmentDetailCopy);
 
-  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, "BoxByLabelIdentifier", () =>
+  worker.use(await baseQueryHandler(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, () =>
     HttpResponse.json({
       data: {
         // @ts-expect-error
@@ -383,35 +380,35 @@ const mockUnassignBoxesFromShipmentHandler = baseMutationHandler(UNASSIGN_BOX_FR
   return HttpResponse.json(result);
 });
 
-const mockAllOrganisationsAndBasesHandler = baseQueryHandler(ALL_ORGS_AND_BASES_QUERY, "AllOrganisationsAndBases", () => {
+const mockAllOrganisationsAndBasesHandler = baseQueryHandler(ALL_ORGS_AND_BASES_QUERY, () => {
   return HttpResponse.json(devCoordinator.AllOrganisationsAndBases);
 });
 
-const mockAllBasesOfCurrentOrgHandler = baseQueryHandler(ALL_BASES_OF_CURRENT_ORG_QUERY, "AllBasesOfCurrentOrg", () => {
+const mockAllBasesOfCurrentOrgHandler = baseQueryHandler(ALL_BASES_OF_CURRENT_ORG_QUERY, () => {
   return HttpResponse.json(devCoordinator.AllBasesOfCurrentOrg);
 });
 
-const mockShipmentsHandler = baseQueryHandler(ALL_SHIPMENTS_QUERY, "Shipments", () => {
+const mockShipmentsHandler = baseQueryHandler(ALL_SHIPMENTS_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.Shipments);
 });
 
-const mockShipmentByIdHandler = baseQueryHandler(SHIPMENT_BY_ID_QUERY, "ShipmentById", ({ variables }) => {
+const mockShipmentByIdHandler = baseQueryHandler(SHIPMENT_BY_ID_QUERY, ({ variables }) => {
   const { id } = variables;
   return HttpResponse.json(devCoordinator.ShipmentById[id]);
 });
 
-const mockTransferAgreementsHandler = baseQueryHandler(ALL_TRANSFER_AGREEMENTS_QUERY, "TransferAgreements", () => {
+const mockTransferAgreementsHandler = baseQueryHandler(ALL_TRANSFER_AGREEMENTS_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.TransferAgreements);
 });
 
-const mockAllAcceptedTransferAgreementsHandler = baseQueryHandler(ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, "AllAcceptedTransferAgreements", () => {
+const mockAllAcceptedTransferAgreementsHandler = baseQueryHandler(ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, () => {
   // @ts-expect-error
   return HttpResponse.json(devCoordinator.AllAcceptedTransferAgreements);
 });
 
-const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, "CreateShipment", async ({ variables }) => {
+const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, async ({ variables }) => {
   const { sourceBaseId, targetBaseId, transferAgreementId } = variables;
 
   // TODO: labelIdentifier, user, sourceBase, targetBase
