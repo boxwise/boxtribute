@@ -1,3 +1,9 @@
+/**
+ * Draft script to generate mocks and handlers for MSW based on the GraphQL schema and queries/mutations.
+ * 
+ * (ty free copilot)
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { faker } from '@faker-js/faker';
