@@ -51,7 +51,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           allowToggle={!allowMultipleAccordionsOpen}
           allowMultiple={allowMultipleAccordionsOpen}
           defaultIndex={expandedMenuIndex()}
-          overflowY="scroll"
+          overflowY="auto"
         >
           {menuItemsGroups.map((menu) => (
             <AccordionItem key={menu.text}>
