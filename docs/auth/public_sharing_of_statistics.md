@@ -205,3 +205,7 @@ union ShareableLinkResult = ShareableLink | ExpiredLinkError | UnknownLinkError
 - [x] how to avoid misuse of the link, or the exposed public GraphQL endpoint (DDoS mitigation)? E.g. by rate limiting server-side based on link code, or https://cloud.google.com/armor/docs
 - [x] can FE resolve a URL like `.../<code>` into a route like `.../<code>/bases/X/statviz` on the FE **and** process the returned data as if it was a GraphQL response? Yes, in principal it's possible
 - [x] how do deal with routing changes (target of link becomes outdated)? We'd have to add redirection
+
+### Alternatives
+
+Check https://github.com/pglombardo/PasswordPusher?tab=readme-ov-file
