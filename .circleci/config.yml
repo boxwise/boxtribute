@@ -164,7 +164,7 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 SHARD="$((${CIRCLE_NODE_INDEX}+1))"; npm -C front/ run dev && npx playwright test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
+            DEBUG_PRINT_LIMIT=10000 SHARD="$((${CIRCLE_NODE_INDEX}+1))"; (npm -C front/ run dev&); sleep 1; npx playwright test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
       # - run:
       #     name: Test shared-components and create reports
       #     command: |
