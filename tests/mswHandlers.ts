@@ -411,6 +411,7 @@ const mockAllAcceptedTransferAgreementsHandler = baseQueryHandler(ALL_ACCEPTED_T
 });
 
 const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, async ({ variables }) => {
+  // eslint-disable-next-line no-unused-vars
   const { sourceBaseId, targetBaseId, transferAgreementId } = variables;
 
   // TODO: labelIdentifier, user, sourceBase, targetBase
