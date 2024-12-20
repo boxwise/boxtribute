@@ -1,14 +1,15 @@
 import { IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
 import { BoxViewSkeleton } from "components/Skeletons";
 import QrReaderView from "../QrReaderView";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 function ResolveHash() {
   const navigate = useNavigate();
   const { resolveQrHash } = useQrResolver();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const [showQrScanner, setShowQrScanner] = useState<boolean>(false);
 
   const hash = useParams<{ hash: string }>().hash!;

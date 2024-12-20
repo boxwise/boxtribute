@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import { graphql } from "gql.tada";
 import {
@@ -10,7 +10,6 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
@@ -44,7 +43,8 @@ import { formatDateKey, prepareBoxHistoryEntryText } from "utils/helpers";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxState } from "queries/types";
 
 // Queries and Mutations
@@ -141,8 +141,7 @@ function BTBox() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const { baseId: currentBaseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
@@ -227,9 +226,9 @@ function BTBox() {
         shipmentId,
       });
     } else if (shipmentId && boxData?.state === "InTransit") {
-      navigate(`/bases/${currentBaseId}/transfers/shipments/${shipmentId}`);
+      navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
     }
-  }, [boxData, globalPreferences, navigate, currentBaseId]);
+  }, [boxData, navigate, baseId]);
 
   const loading =
     allData.networkStatus !== NetworkStatus.ready ||
@@ -555,15 +554,13 @@ function BTBox() {
   const shipmentOptions: IDropdownOption[] = useMemo(
     () =>
       shipmentsQueryResult
-        ?.filter(
-          (shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === currentBaseId,
-        )
+        ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           subTitle: shipment.labelIdentifier,
           value: shipment.id,
         })) ?? [],
-    [currentBaseId, shipmentsQueryResult],
+    [baseId, shipmentsQueryResult],
   );
 
   if (error) {

@@ -11,24 +11,27 @@ import { NavLink } from "react-router-dom";
 
 import { ACCOUNT_SETTINGS_URL } from "./consts";
 import { useHandleLogout } from "hooks/hooks";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import BoxtributeLogo from "./BoxtributeLogo";
 import { IHeaderMenuProps } from "./HeaderMenu";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
-import { useContext } from "react";
 import BaseSwitcher from "./BaseSwitcher";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { useAtomValue } from "jotai";
+import {
+  availableBasesAtom,
+  selectedBaseAtom,
+  selectedBaseIdAtom,
+} from "stores/globalPreferenceStore";
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
-  const { baseId: currentBaseId } = useBaseIdParam();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseName = globalPreferences.selectedBase?.name;
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const selectedBase = useAtomValue(selectedBaseAtom);
+  const availableBases = useAtomValue(availableBasesAtom);
+  const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
-    (globalPreferences.availableBases?.filter((base) => base.id !== currentBaseId).length || 0) >=
-    1;
+    (availableBases?.filter((base) => base.id !== baseId).length || 0) >= 1;
   const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
 
   return (
