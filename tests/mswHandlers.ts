@@ -97,6 +97,14 @@ const mockStockOverviewHandler = baseQueryHandler(STOCK_QUERY, () => {
   return HttpResponse.json(devCoordinator.stockOverview);
 });
 
+const mockMoveBoxesHandler = graphql.mutation("MoveBoxes", ({ variables }) => {
+  console.log(variables);
+});
+
+const mockAssignTagsHandler = graphql.mutation("AssignTags", ({ variables }) => {
+  console.log(variables);
+});
+
 const mockOrganisationsAndBasesQueryHandler = baseQueryHandler(ORGANISATION_AND_BASES_QUERY, () => {
 
   return HttpResponse.json(devCoordinator.OrganisationAndBases);
@@ -176,9 +184,6 @@ const mockCreateBoxHandler = baseMutationHandler(CREATE_BOX_MUTATION, async ({ v
 
 const mockBoxesForBoxesViewHandler = baseQueryHandler(BOXES_FOR_BOXESVIEW_QUERY, ({ variables }) => {
   const { baseId } = variables;
-
-  worker.resetHandlers();
-  // TODO: update box in BoxesForBoxesViewQuery elements?
 
   return HttpResponse.json(devCoordinator.BoxesForBoxesViewQuery.baseId[baseId]);
 });
@@ -278,9 +283,6 @@ const mockBoxByLabelIdentifierAndAllProductsWithBaseIdHandler = baseQueryHandler
 
     const box = findBox(labelIdentifier);
     const base = devCoordinator.BoxByLabelIdentifierAndAllProductsWithBaseId.baseId[baseId].data.base;
-
-    // TODO: Revisit this and related fixture due 2024-12-18 merge.
-    box.tags = box.tags.map(tag => ({ ...tag, label: tag.name }))
 
     return HttpResponse.json({
       data: {
@@ -435,65 +437,9 @@ const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, 
 // UpdateShipmentWhenReceiving
 // DeleteBoxes
 // box history
-// update boxes list?
 // box not changing state 2nd time?
-// multibox shipment diff bases?
-// multibox diff bases errors?
-
-const mockMoveBoxesHandler = graphql.mutation("MoveBoxes", ({ variables }) => {
-  console.log(variables)
-  // {
-  //   "operationName": "MoveBoxes",
-  //     "variables": {
-  //        "newLocationId": 100000043,
-  //       "labelIdentifier0": "38216171"
-  //      },
-  //   "query": "mutation MoveBoxes($newLocationId: Int!, $labelIdentifier0: String!) {\n  moveBox38216171: updateBox(\n    updateInput: {labelIdentifier: $labelIdentifier0, locationId: $newLocationId}\n  ) {\n    labelIdentifier\n    state\n    location {\n      id\n      __typename\n    }\n    lastModifiedOn\n    __typename\n  }\n}"
-  // }
-
-  // {
-  //   "data": {
-  //     "moveBox38216171": {
-  //       "__typename": "Box",
-  //         "labelIdentifier": "38216171",
-  //           "lastModifiedOn": "2024-12-14T01:01:54+00:00",
-  //             "location": {
-  //         "__typename": "ClassicLocation",
-  //           "id": "100000043"
-  //       },
-  //       "state": "InStock"
-  //     }
-  //   }
-  // }
-});
-
-const mockAssignTagsHandler = graphql.mutation("MoveBoxes", ({ variables }) => {
-  console.log(variables)
-  // {
-  //   "operationName": "AssignTags",
-  //     "variables": {
-  //     "tagIds": [75],
-  //       "labelIdentifier0": "38216171"
-  //     },
-  //   "query": "mutation AssignTags($tagIds: [Int!]!, $labelIdentifier0: String!) {\n  assignTagsToBox38216171: updateBox(\n    updateInput: {labelIdentifier: $labelIdentifier0, tagIdsToBeAdded: $tagIds}\n  ) {\n    labelIdentifier\n    tags {\n      id\n      __typename\n    }\n    lastModifiedOn\n    __typename\n  }\n}"
-  // }
-
-  // {
-  //   "data": {
-  //     "assignTagsToBox38216171": {
-  //       "__typename": "Box",
-  //         "labelIdentifier": "38216171",
-  //           "lastModifiedOn": "2024-01-10T02:48:07+00:00",
-  //             "tags": [
-  //               {
-  //                 "__typename": "Tag",
-  //                 "id": "75"
-  //               }
-  //             ]
-  //     }
-  //   }
-  // }
-});
+// bug with assigning tags?
+// multibox tag, location, shipment diff base errors?
 
 // Exported handlers to be consumed by MSW
 export const handlers = [

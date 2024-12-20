@@ -176,6 +176,23 @@ jobs:
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
 
+  playwright-test:
+    executor: node-executor
+    working_directory: ~/front
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: pnpm install
+      - run:
+          name: Run Playwright tests
+          command: pnpm exec playwright test
+      - store_test_results:
+          path: playwright-report
+      - store_artifacts:
+          path: playwright-report
+
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
     executor: python-mysql-executor
@@ -448,6 +465,10 @@ workflows:
           context: STAGING
           requires:
             - install-node-packages
+      - playwright-test:
+          context: STAGING
+          requires:
+            - build-front
 
   build-and-deploy:
     jobs:
