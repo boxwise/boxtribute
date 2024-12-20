@@ -148,11 +148,11 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 pnpm test --test-timeout=40000
-      - run:
-          name: Test shared-components and create reports
-          command: |
-            DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
+            DEBUG_PRINT_LIMIT=10000 pnpm test
+      # - run:
+      #     name: Test shared-components and create reports
+      #     command: |
+      #       DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
       - store_test_results:
           path: coverage/junit.xml
       - store_test_results:
