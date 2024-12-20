@@ -162,6 +162,10 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: Run front app in dev mode
+          command: |
+            npm -C front/ run dev
+      - run:
           name: Test front app and create reports
           command: |
             DEBUG_PRINT_LIMIT=10000 SHARD="$((${CIRCLE_NODE_INDEX}+1))"; npx playwright test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
