@@ -11,6 +11,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
         ({
           labelIdentifier: element.labelIdentifier,
           product: element.product!.name,
+          productCategory: element.product!.category.name,
           gender: element.product!.gender,
           numberOfItems: element.numberOfItems,
           size: element.size?.label,
@@ -23,6 +24,8 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           lastModified: element.lastModifiedOn
             ? new Date(element.lastModifiedOn)
             : new Date(element.createdOn || new Date()),
+          createdBy: element.createdBy?.name,
+          lastModifiedBy: element.lastModifiedBy?.name,
         }) as BoxRow,
     );
 

@@ -122,7 +122,7 @@ export const useUnassignBoxesFromShipments = () => {
           if (unassignedBoxes.length > 0) {
             createToast({
               message: `${unassignedBoxes.length === 1 ? "A Box was" : `${unassignedBoxes.length} Boxes were`
-                } successfully unassigned from their corresponding shipment.`,
+                } successfully unassigned from the corresponding shipment.`,
             });
           }
           if (failedBoxes.length > 0) {

@@ -5,6 +5,7 @@ import { Shipment } from "queries/types";
 export type BoxRow = {
   labelIdentifier: string;
   product: string;
+  productCategory: string;
   gender: string;
   numberOfItems: number;
   size: string;
@@ -15,4 +16,6 @@ export type BoxRow = {
   comment: string | null;
   age: number;
   lastModified: Date | null;
+  createdBy: string | null;
+  lastModifiedBy: string | null;
 };

@@ -78,13 +78,16 @@ export const REMOVE_BOX_FROM_SHIPMENT = graphql(
   [SHIPMENT_FIELDS_FRAGMENT],
 );
 
-export const SEND_SHIPMENT = graphql(`
-  mutation SendShipment($id: ID!) {
-    sendShipment(id: $id) {
-      ...ShipmentFields
+export const SEND_SHIPMENT = graphql(
+  `
+    mutation SendShipment($id: ID!) {
+      sendShipment(id: $id) {
+        ...ShipmentFields
+      }
     }
-  }
-`);
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
 export const CANCEL_SHIPMENT = graphql(
   `

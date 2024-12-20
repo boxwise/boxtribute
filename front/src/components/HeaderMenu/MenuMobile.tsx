@@ -60,7 +60,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
     (availableBases?.filter((base) => base.id !== baseId).length || 0) >= 1;
 
   return (
-    <Flex as="nav" py={4} zIndex="2">
+    <Flex as="nav" py={4} zIndex="3">
       <BaseSwitcher isOpen={isOpen} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />

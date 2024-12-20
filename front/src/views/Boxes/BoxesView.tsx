@@ -19,6 +19,8 @@ import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./compone
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
+import { Heading } from "@chakra-ui/react";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -50,12 +52,21 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
             id
             shipment {
               id
+              labelIdentifier
             }
           }
           comment
           createdOn
           lastModifiedOn
           deletedOn
+          createdBy {
+            id
+            name
+          }
+          lastModifiedBy {
+            id
+            name
+          }
         }
       }
     }
@@ -106,7 +117,18 @@ function Boxes() {
     defaultTableConfig: {
       columnFilters: [{ id: "state", value: ["InStock"] }],
       sortBy: [{ id: "lastModified", desc: true }],
-      hiddenColumns: ["gender", "size", "tags", "shipment", "comment", "age", "lastModified"],
+      hiddenColumns: [
+        "gender",
+        "size",
+        "tags",
+        "shipment",
+        "comment",
+        "age",
+        "lastModified",
+        "lastModifiedBy",
+        "createdBy",
+        "productCategory",
+      ],
     },
   });
 
@@ -135,21 +157,28 @@ function Boxes() {
         accessor: "product",
         id: "product",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Product Category",
+        accessor: "productCategory",
+        id: "productCategory",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Size",
         accessor: "size",
         id: "size",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Items",
@@ -163,14 +192,14 @@ function Boxes() {
         id: "state",
         Cell: StateCell,
         Filter: SelectBoxStateFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Location",
         accessor: "location",
         id: "location",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Tags",
@@ -193,7 +222,7 @@ function Boxes() {
         accessor: "comment",
         id: "comment",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMulipleStrings",
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Age",
@@ -210,20 +239,42 @@ function Boxes() {
         disableFilters: true,
         sortType: "datetime",
       },
+      {
+        Header: "Last Modified By",
+        accessor: "lastModifiedBy",
+        id: "lastModifiedBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Created By",
+        accessor: "createdBy",
+        id: "createdBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
     ],
     [],
   );
 
   // TODO: pass tag options to BoxesActionsAndTable
   return (
-    <BoxesActionsAndTable
-      tableConfig={tableConfig}
-      onRefetch={refetchBoxes}
-      boxesQueryRef={boxesQueryRef}
-      availableColumns={availableColumns}
-      shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
-      locationOptions={locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? [])}
-    />
+    <>
+      <BreadcrumbNavigation items={[{ label: "Aid Inventory" }, { label: "Manage Boxes" }]} />
+      <Heading fontWeight="bold" mb={4} as="h2">
+        Manage Boxes
+      </Heading>
+      <BoxesActionsAndTable
+        tableConfig={tableConfig}
+        onRefetch={refetchBoxes}
+        boxesQueryRef={boxesQueryRef}
+        availableColumns={availableColumns}
+        shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
+        locationOptions={locationToDropdownOptionTransformer(
+          actionOptionsData.base?.locations ?? [],
+        )}
+      />
+    </>
   );
 }
 

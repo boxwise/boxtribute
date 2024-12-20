@@ -29,7 +29,7 @@ import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { useAtomValue } from "jotai";
 import { QueryRef, useReadQuery } from "@apollo/client";
 import {
-  includesOneOfMulipleStringsFilterFn,
+  includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/hooks";
@@ -75,7 +75,7 @@ function BoxesTable({
   const filterTypes = useMemo(
     () => ({
       includesSomeObject: includesSomeObjectFilterFn,
-      includesOneOfMulipleStrings: includesOneOfMulipleStringsFilterFn,
+      includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
     }),
     [],
   );

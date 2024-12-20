@@ -5,6 +5,7 @@ export const product1 = {
   name: "Long Sleeves",
   gender: "Women",
   category: {
+    id: "1",
     name: "Tops",
     __typename: "ProductCategory",
   },
@@ -16,6 +17,11 @@ export const product1 = {
 export const productBasic1 = {
   id: "1",
   name: "Snow trousers",
+  category: {
+    id: "2",
+    name: "Bottoms",
+    __typename: "ProductCategory",
+  },
   gender: "Boy",
   deletedOn: null,
   __typename: "Product",
@@ -26,6 +32,7 @@ export const product3 = {
   name: "Long Sleeves",
   gender: "None",
   category: {
+    id: "1",
     name: "Tops",
     __typename: "ProductCategory",
   },
@@ -41,6 +48,7 @@ export const products = [
     name: "Winter Jackets",
     gender: "Men",
     category: {
+      id: "3",
       name: "Jackets / Outerwear",
       __typename: "ProductCategory",
     },

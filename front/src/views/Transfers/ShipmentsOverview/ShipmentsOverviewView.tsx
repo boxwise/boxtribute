@@ -1,16 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import {
-  Alert,
-  AlertIcon,
-  Button,
-  Heading,
-  Stack,
-  Tab,
-  TabIndicator,
-  TabList,
-  Tabs,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Heading, Stack, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
@@ -129,9 +119,7 @@ function ShipmentsOverviewView() {
 
         // get max date for last updates
         shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
-          new Date(
-            Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date || "").getTime())),
-          ),
+          new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date!).getTime()))),
         );
 
         return shipmentRow;
@@ -139,8 +127,17 @@ function ShipmentsOverviewView() {
       // Default to list by last updated.
       .sort((a, b) => compareDesc(a?.lastUpdated || "", b?.lastUpdated || "")) || [];
 
+  const shipmentFilter = ["Completed", "Canceled", "Lost"];
+
   const receivingData = rowData.filter((row) => row?.direction === "Receiving");
   const sendingData = rowData.filter((row) => row?.direction === "Sending");
+
+  const receivingCount = receivingData.filter(
+    (shipment) => !shipmentFilter.includes(shipment.state!),
+  ).length;
+  const sendingCount = sendingData.filter(
+    (shipment) => !shipmentFilter.includes(shipment.state!),
+  ).length;
 
   // Set default filter if user was forwarded from AgreementsOverview
   const initialState = useMemo(
@@ -230,26 +227,27 @@ function ShipmentsOverviewView() {
         </Link>
       </Stack>
       <Tabs
-        variant="unstyled"
+        variant="enclosed-colored"
         onChange={() => setDirection((prev) => (prev === "Sending" ? "Receiving" : "Sending"))}
       >
-        <TabList borderTop="none" borderBottom="none">
+        <TabList>
           <Tab
             flex={1}
             color={direction === "Receiving" ? "blue.500" : "inherit"}
             fontWeight={direction === "Receiving" ? "bold" : "inherit"}
+            textTransform="uppercase"
           >
-            <ReceivingIcon mr={2} /> Receiving ({receivingData.length})
+            <ReceivingIcon mr={2} /> {`Receiving (${receivingCount})`}
           </Tab>
           <Tab
             flex={1}
             color={direction === "Sending" ? "blue.500" : "inherit"}
             fontWeight={direction === "Sending" ? "bold" : "inherit"}
+            textTransform="uppercase"
           >
-            <SendingIcon mr={2} /> Sending ({sendingData.length})
+            <SendingIcon mr={2} /> {`Sending (${sendingCount})`}
           </Tab>
         </TabList>
-        <TabIndicator mt="-1.5px" height="2px" bg="blue.500" borderRadius="1px" />
       </Tabs>
       <br />
       {shipmentsTable}

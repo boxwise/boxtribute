@@ -48,6 +48,11 @@ const boxesQuery = {
             product: {
               __typename: "Product",
               deletedOn: null,
+              category: {
+                id: "1",
+                name: "Bottoms",
+                __typename: "ProductCategory",
+              },
               gender: "none",
               id: "233",
               name: "Toothbrush",
@@ -61,6 +66,16 @@ const boxesQuery = {
             state: "Scrap",
             tags: [],
             createdOn: "2021-10-29T15:02:40+00:00",
+            createdBy: {
+              __typename: "User",
+              id: "123",
+              name: "Some User",
+            },
+            lastModifiedBy: {
+              __typename: "User",
+              id: "1234",
+              name: "Another User",
+            },
             lastModifiedOn: new Date().toISOString(),
             deletedOn: null,
           },
@@ -84,6 +99,11 @@ const boxesQuery = {
             product: {
               __typename: "Product",
               deletedOn: null,
+              category: {
+                id: "1",
+                name: "Bottoms",
+                __typename: "ProductCategory",
+              },
               gender: "Men",
               id: "267",
               name: "Sweatpants",
@@ -106,6 +126,16 @@ const boxesQuery = {
               },
             ],
             createdOn: "2021-10-29T15:02:40+00:00",
+            createdBy: {
+              __typename: "User",
+              id: "123",
+              name: "Some User",
+            },
+            lastModifiedBy: {
+              __typename: "User",
+              id: "1234",
+              name: "Another User",
+            },
             lastModifiedOn: new Date().toISOString(),
             deletedOn: null,
           },
@@ -168,12 +198,17 @@ const boxesQuery = {
               },
               defaultBoxState: "InStock",
               id: "18",
-              name: "WH2",
+              name: "WH1",
             },
             numberOfItems: 33,
             product: {
               __typename: "Product",
               deletedOn: null,
+              category: {
+                id: "1",
+                name: "Bottoms",
+                __typename: "ProductCategory",
+              },
               gender: "UnisexKid",
               id: "350",
               name: "Robes",
@@ -212,6 +247,16 @@ const boxesQuery = {
               },
             ],
             createdOn: "2021-10-29T15:02:40+00:00",
+            createdBy: {
+              __typename: "User",
+              id: "123",
+              name: "Some User",
+            },
+            lastModifiedBy: {
+              __typename: "User",
+              id: "1234",
+              name: "Another User",
+            },
             lastModifiedOn: new Date().toISOString(),
             deletedOn: null,
           },
@@ -631,8 +676,8 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }),
       );
 
-      expect(await within(row1).findByText(/wh1/i)).toBeInTheDocument();
-      expect(await within(row2).findByText(/wh1/i)).toBeInTheDocument();
+      expect(await within(row1).findByText(/8650860/i)).toBeInTheDocument();
+      expect(await within(row2).findByText(/1481666/i)).toBeInTheDocument();
     }
   }, 15000);
 });

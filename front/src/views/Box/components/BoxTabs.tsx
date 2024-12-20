@@ -90,12 +90,7 @@ function BoxTabs({
             </Stack>
           )}
         </Stack>
-        <Tabs
-          w="100%"
-          isFitted
-          variant="enclosed-colored"
-          defaultIndex={boxData?.shipmentDetail ? 1 : 0}
-        >
+        <Tabs w="100%" isFitted defaultIndex={boxData?.shipmentDetail ? 1 : 0}>
           <TabList>
             <Tab>
               <Stack direction="row" alignContent="center" alignItems="center">
