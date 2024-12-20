@@ -39,7 +39,7 @@
     "storybook": "^8.4.7"
   },
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "vite build",
     "dev": "vite",
     "preview": "vite preview",
     "tsc:check": "tsc --noEmit",

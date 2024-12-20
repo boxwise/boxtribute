@@ -8,6 +8,9 @@ executors:
   node-executor:
     docker:
       - image: cimg/node:20.9.0
+  pw-noble-development:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.49.1-noble
   python-executor:
     docker:
       - image: cimg/python:3.12.2
@@ -138,8 +141,21 @@ jobs:
           paths:
             - front/dist
 
-  test-front:
+  lint-front:
     executor: node-executor
+    working_directory: ~/
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Lint and type-check front app
+          command: |
+            pnpm check-types
+
+  test-front:
+    executor: pw-noble-development
+    parallelism: 4
     working_directory: ~/
     resource_class: medium+
     steps:
@@ -148,50 +164,33 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 pnpm test
+            DEBUG_PRINT_LIMIT=10000 SHARD="$((${CIRCLE_NODE_INDEX}+1))"; pnpm test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
       # - run:
       #     name: Test shared-components and create reports
       #     command: |
       #       DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
-      - store_test_results:
-          path: coverage/junit.xml
-      - store_test_results:
-          path: ../shared-components/coverage/junit.xml
-      - store_artifacts:
-          path: coverage
-          destination: front-coverage
-      - store_artifacts:
-          path: ../shared-components/coverage
-          destination: shared-components-coverage
-      - codecov/upload:
-          flags: frontend
-          file: coverage/coverage-final.json
-      - codecov/upload:
-          flags: sharedComponents
-          file: ../shared-components/coverage/coverage-final.json
+      # - store_test_results:
+      #     path: coverage/junit.xml
+      # - store_test_results:
+      #     path: ../shared-components/coverage/junit.xml
+      # - store_artifacts:
+      #     path: coverage
+      #     destination: front-coverage
+      # - store_artifacts:
+      #     path: ../shared-components/coverage
+      #     destination: shared-components-coverage
+      # - codecov/upload:
+      #     flags: frontend
+      #     file: coverage/coverage-final.json
+      # - codecov/upload:
+      #     flags: sharedComponents
+      #     file: ../shared-components/coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
       - run:
           name: Show memory usage of FE tests in Bytes
           command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
           when: always
-
-  playwright-test:
-    executor: node-executor
-    working_directory: ~/front
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: pnpm install
-      - run:
-          name: Run Playwright tests
-          command: pnpm exec playwright test
-      - store_test_results:
-          path: playwright-report
-      - store_artifacts:
-          path: playwright-report
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
@@ -461,14 +460,14 @@ workflows:
           context: STAGING
           requires:
             - install-node-packages
+      - lint-front:
+          context: STAGING
+          requires:
+            - install-node-packages
       - test-front:
           context: STAGING
           requires:
             - install-node-packages
-      - playwright-test:
-          context: STAGING
-          requires:
-            - build-front
 
   build-and-deploy:
     jobs:
