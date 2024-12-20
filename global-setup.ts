@@ -10,6 +10,7 @@ async function globalSetup(config: FullConfig) {
 	await page.getByText('Continue').click();
 	await expect(page.getByText("Settings")).toBeVisible({ timeout: 30000 });
 	await page.context().storageState({ path: storageState as string });
+	console.log("*********************************** CHECKPOINT ***********************************");
 	await browser.close();
 }
 
