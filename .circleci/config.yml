@@ -163,28 +163,21 @@ jobs:
           at: ~/
       - run:
           name: Test front app and create reports
+          environment:
+            FRONT_AUTH0_DOMAIN: boxtribute-dev.eu.auth0.com
+            FRONT_AUTH0_CLIENT_ID: ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS
+            FRONT_USE_MSW: true
           command: |
             DEBUG_PRINT_LIMIT=10000 SHARD="$((${CIRCLE_NODE_INDEX}+1))"; (npm -C front/ run dev&); sleep 1; npx playwright test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
-      # - run:
-      #     name: Test shared-components and create reports
-      #     command: |
-      #       DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
+      # TODO: add coverage, report
       # - store_test_results:
       #     path: coverage/junit.xml
-      # - store_test_results:
-      #     path: ../shared-components/coverage/junit.xml
       # - store_artifacts:
       #     path: coverage
       #     destination: front-coverage
-      # - store_artifacts:
-      #     path: ../shared-components/coverage
-      #     destination: shared-components-coverage
       # - codecov/upload:
       #     flags: frontend
       #     file: coverage/coverage-final.json
-      # - codecov/upload:
-      #     flags: sharedComponents
-      #     file: ../shared-components/coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
       - run:
