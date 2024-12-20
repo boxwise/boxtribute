@@ -10,6 +10,9 @@ export default defineConfig({
     port: 3000,
   },
   envPrefix: "FRONT_",
+  build: {
+    target: 'esnext'
+  },
   test: {
     globals: true,
     environment: "jsdom",
