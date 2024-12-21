@@ -8,9 +8,6 @@ executors:
   node-executor:
     docker:
       - image: cimg/node:20.9.0
-  pw-noble-development:
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.49.1-noble
   python-executor:
     docker:
       - image: cimg/python:3.12.2
