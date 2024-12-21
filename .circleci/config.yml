@@ -162,9 +162,9 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-        name: Install Playwright deps
-        command: |
-          npx playwright install --with-deps chromium
+          name: Install Playwright deps
+          command: |
+            npx playwright install --with-deps chromium
       - run:
           name: Test front app and create reports
           environment:
