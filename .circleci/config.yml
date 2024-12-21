@@ -154,7 +154,7 @@ jobs:
             pnpm check-types
 
   test-front:
-    executor: pw-noble-development
+    executor: node-executor
     parallelism: 4
     working_directory: ~/
     resource_class: medium+
@@ -162,13 +162,17 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+        name: Install Playwright deps
+        command: |
+          npx playwright install --with-deps chromium
+      - run:
           name: Test front app and create reports
           environment:
             FRONT_AUTH0_DOMAIN: boxtribute-dev.eu.auth0.com
             FRONT_AUTH0_CLIENT_ID: ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS
             FRONT_USE_MSW: true
           command: |
-            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; npx playwright test tests/app.spec.ts -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
+            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; pnpm test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
       # TODO: add coverage, report, memory usage
       # - store_test_results:
       #     path: coverage/junit.xml
