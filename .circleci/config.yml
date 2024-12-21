@@ -168,8 +168,8 @@ jobs:
             FRONT_AUTH0_CLIENT_ID: ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS
             FRONT_USE_MSW: true
           command: |
-            DEBUG_PRINT_LIMIT=10000 SHARD="$((${CIRCLE_NODE_INDEX}+1))"; (npm -C front/ run dev&); sleep 1; ls tests && npx playwright test tests/app.spec.ts -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
-      # TODO: add coverage, report
+            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; (npm -C front/ run dev&); sleep 1; npx playwright test tests/app.spec.ts -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
+      # TODO: add coverage, report, memory usage
       # - store_test_results:
       #     path: coverage/junit.xml
       # - store_artifacts:
@@ -180,10 +180,10 @@ jobs:
       #     file: coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
-      - run:
-          name: Show memory usage of FE tests in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
+      # - run:
+      #     name: Show memory usage of FE tests in Bytes
+      #     command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+      #     when: always
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
