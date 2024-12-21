@@ -169,7 +169,7 @@ jobs:
             FRONT_AUTH0_CLIENT_ID: ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS
             FRONT_USE_MSW: true
           command: |
-            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; pnpm test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
+            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; ls tests && pnpm test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
       # TODO: add coverage, report, memory usage
       # - store_test_results:
       #     path: coverage/junit.xml

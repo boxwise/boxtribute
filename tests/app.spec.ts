@@ -2,7 +2,7 @@
 import { test, expect, chromium } from '@playwright/test';
 import path from 'path';
 
-const QR_CODE_TIMEOUT = 60000;
+const QR_CODE_TIMEOUT = 30000;
 
 const fakeCamArgs = (qrCodeRelativePath: string) => ({
   args: [
