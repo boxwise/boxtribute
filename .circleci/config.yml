@@ -138,43 +138,53 @@ jobs:
           paths:
             - front/dist
 
-  test-front:
+  lint-front:
     executor: node-executor
-    working_directory: ~/front
+    working_directory: ~/
     resource_class: medium+
     steps:
       - attach_workspace:
           at: ~/
       - run:
-          name: Test front app and create reports
+          name: Lint and type-check front app
           command: |
-            DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
+            pnpm check-types
+
+  test-front:
+    executor: node-executor
+    parallelism: 4
+    working_directory: ~/
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Test shared-components and create reports
+          name: Install Playwright deps
           command: |
-            DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
-      - store_test_results:
-          path: coverage/junit.xml
-      - store_test_results:
-          path: ../shared-components/coverage/junit.xml
-      - store_artifacts:
-          path: coverage
-          destination: front-coverage
-      - store_artifacts:
-          path: ../shared-components/coverage
-          destination: shared-components-coverage
-      - codecov/upload:
-          flags: frontend
-          file: coverage/coverage-final.json
-      - codecov/upload:
-          flags: sharedComponents
-          file: ../shared-components/coverage/coverage-final.json
+            npx playwright install --with-deps chromium
+      - run:
+          name: Test front app and create reports
+          environment:
+            FRONT_AUTH0_DOMAIN: boxtribute-dev.eu.auth0.com
+            FRONT_AUTH0_CLIENT_ID: ni9ZdcoIv3HU10kyc4t1qxOMxjVyxcbS
+            FRONT_USE_MSW: true
+          command: |
+            SHARD="$((${CIRCLE_NODE_INDEX}+1))"; ls tests && pnpm test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
+      # TODO: add coverage, report, memory usage
+      # - store_test_results:
+      #     path: coverage/junit.xml
+      # - store_artifacts:
+      #     path: coverage
+      #     destination: front-coverage
+      # - codecov/upload:
+      #     flags: frontend
+      #     file: coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
-      - run:
-          name: Show memory usage of FE tests in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
+      # - run:
+      #     name: Show memory usage of FE tests in Bytes
+      #     command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+      #     when: always
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
@@ -441,6 +451,10 @@ workflows:
           requires:
             - build-back
       - build-front:
+          context: STAGING
+          requires:
+            - install-node-packages
+      - lint-front:
           context: STAGING
           requires:
             - install-node-packages
