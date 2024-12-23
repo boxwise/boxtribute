@@ -1,7 +1,7 @@
 {
   "private": true,
   "license": "Apache-2.0",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.1",
   "scripts": {
     "check-types": "pnpm -C front tsc:check && pnpm -C statviz tsc:check && pnpm -C shared-components tsc:check",
     "format:check:all": "pnpm format:check \"+(front|shared-components|statviz)/**/*.{js,json,ts,tsx}\" ",
