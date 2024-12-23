@@ -10,7 +10,7 @@ Proposed, Implementing
 
 ## Context or Problem Statement
 
-We need a global state management solution for our React application. Currently, we are using React Context for this purpose. However, we have encountered some issues with ease of use and rendering performance. We are considering switching to a more efficient state management library.
+We need a global state management solution for our React application. Currently, we are using React Context for this purpose. However, we have encountered some issues with ease of use and rendering performance. We are considering switching to a more efficient state management library and only leaving React Context for mandatory Dependency Injection.
 
 ## Decision Drivers
 
@@ -161,8 +161,7 @@ We are considering switching to Jotai for global state management in our React a
 
 ## References
 
+- [React Context Documentation](https://reactjs.org/docs/context.html)
 - [Jotai Documentation](https://jotai.org/docs/introduction)
 - [Zustand Documentation](https://zustand.surge.sh/)
 - [Legend State Documentation](https://legendapp.com/open-source/state/v3/)
-- [React Context Documentation](https://reactjs.org/docs/context.html)
-- [Comparison of State Management Libraries](https://blog.logrocket.com/comparing-state-management-tools-react/)
