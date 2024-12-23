@@ -1,5 +1,7 @@
 # ADR: Typing GraphQL Usage
 
+Author: [Felipe](https://github.com/fhenrich33)
+
 ## Status
 
 Implemented
@@ -24,25 +26,27 @@ We will adopt `gql.tada` for typing GraphQL usage in our project. This decision 
   - Well-documented and widely used in the community.
 - **Cons**:
   - Can be complex to configure and maintain, especially for large projects.
-  - Generated code can be verbose and difficult to navigate.
-  - Requires additional build steps, which can slow down the development process.
+  - Although we don't really need to manually check and review, generated code can be verbose and difficult to navigate.
+  - Requires additional build steps, which can slow down the development process. While infrequent, we must regenerate the types when the schema changes.
+  - Requires extra boilerplate code, as we need to pass generated types as generics to GraphQL functions.
 
 ### gql.tada
 
 - **Pros**:
-  - Simplifies the process of defining and using GraphQL types with a more intuitive API.
+  - Simplifies defining and using GraphQL types with a more intuitive API.
   - Provides better type inference, reducing the need for manual type annotations.
   - Lightweight and fast, with minimal impact on build times.
   - Easier to integrate into existing projects with less configuration overhead.
+  - A less impactful in the grand scheme of things but a nice bonus: orders of magnitude less generated code (a few thousand lines of code removed).
 - **Cons**:
   - Less mature and less widely adopted compared to GraphQL Code Generator.
-  - May have fewer plugins and integrations available.
+  - Nearly non-existent plugins and integrations available.
 
 ## Consequences
 
 By adopting `gql.tada`, we expect to achieve the following benefits:
 
-- Improved developer experience with a more intuitive and streamlined API.
+- Improved developer experience with a more intuitive and streamlined API. We can explore and experiment with queries from the code as we have type hints inside GraphQL strings.
 - Better type inference, leading to more accurate and maintainable code.
 - Faster development workflow with reduced build times.
 
@@ -61,5 +65,5 @@ Overall, we believe that the benefits of adopting `gql.tada` outweigh the potent
 
 ## References
 
-- [gql.tada Documentation](https://example.com/gql-tada-docs)
-- [GraphQL Code Generator Documentation](https://example.com/graphql-code-generator-docs)
+- [gql.tada Documentation](https://gql-tada.0no.co/)
+- [GraphQL Code Generator Documentation](https://the-guild.dev/graphql/codegen)
