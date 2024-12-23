@@ -12,6 +12,7 @@ services:
       - backend
     volumes:
       - ./back:/app/back
+      - ./front/public/locales:/app/locales
     environment:
       PYTHONUNBUFFERED: 1
       AUTH0_DOMAIN: ${AUTH0_DOMAIN:?auth0 config not set in .env file}

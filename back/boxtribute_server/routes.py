@@ -1,6 +1,8 @@
 """Construction of routes for web app and API"""
 
+import json
 import os
+from pathlib import Path
 
 from ariadne.explorer import ExplorerGraphiQL
 from flask import jsonify, request
@@ -144,3 +146,42 @@ def cron(job_name):
         return jsonify({"message": "reseed-db job executed"}), 200
 
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
+
+
+@app_bp.post("/missing-translations/<language>/<namespace>")
+@cross_origin(
+    # Allow dev localhost ports
+    origins=[
+        "http://localhost:5005",
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ],
+    methods=["POST"],
+    allow_headers="*" if in_development_environment() else CORS_HEADERS,
+)
+def missing_translations_dev_endpoint(language, namespace):
+    if not in_development_environment():
+        return {"error": "No permission to access endpoint"}, 401
+
+    module_dirpath = Path(__file__).absolute().parent
+    # The FE locales/ directory is mounted into /app of the webapp service
+    translations_dirpath = module_dirpath.parent.parent / "locales"
+    translations_filepath = translations_dirpath / language / f"{namespace}.json"
+
+    missing_translations = request.get_json()
+    try:
+        # Read all content of JSON file, then override it with update, cf.
+        # https://stackoverflow.com/a/15976014/3865876
+        with open(translations_filepath, "r+") as file:
+            content = json.load(file)
+            content.update(missing_translations)
+            file.seek(0)
+            json.dump(content, file, indent=2)
+            file.truncate()
+
+    except Exception as e:
+        from flask import current_app
+
+        current_app.logger.error(e)
+        return jsonify({"message": f"Error trying to update translations: {e}"}), 500
+    return jsonify({"message": f"Added {len(missing_translations)} translations"}), 200

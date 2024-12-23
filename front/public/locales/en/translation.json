@@ -1,4 +1,5 @@
 {
   "account": "Account of {{user}}",
-  "logout": "Logout"
+  "logout": "Logout",
+  "find_box": "find_box"
 }
