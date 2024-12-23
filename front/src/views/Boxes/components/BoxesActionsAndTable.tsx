@@ -8,6 +8,7 @@ import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
+import { useAtomValue } from "jotai";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
@@ -16,8 +17,8 @@ import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import RemoveBoxesButton from "./RemoveBoxesButton";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ExportToCsvButton from "./ExportToCsvButton";
 
@@ -39,7 +40,7 @@ function BoxesActionsAndTable({
   availableColumns,
 }: IBoxesActionsAndTableProps) {
   const navigate = useNavigate();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   const { createToast } = useNotification();
 

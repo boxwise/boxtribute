@@ -21,13 +21,14 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useNavigate } from "react-router-dom";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface IBaseData {
   id: string;
@@ -94,7 +95,7 @@ function CreateShipment({
   noAcceptedAgreements,
 }: ICreateShipmentProps) {
   const navigate = useNavigate();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   // React Hook Form with zod validation
   const {
@@ -219,7 +220,9 @@ function CreateShipment({
         </HStack>
         <TabList border="2px" borderTop="none" borderBottom="none">
           <Tab flex={1}>PARTNERS</Tab>
-          {haveIntraOrganisationOptions && <Tab flex={1}>{currentOrganisationName.toUpperCase()}</Tab>}
+          {haveIntraOrganisationOptions && (
+            <Tab flex={1}>{currentOrganisationName.toUpperCase()}</Tab>
+          )}
         </TabList>
         <TabIndicator
           mt="-1.5px"

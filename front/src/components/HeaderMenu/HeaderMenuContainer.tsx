@@ -1,14 +1,15 @@
 import { useMemo } from "react";
+import { useAtomValue } from "jotai";
+import { useReactiveVar } from "@apollo/client";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
-import { useReactiveVar } from "@apollo/client";
 import { useAuthorization } from "hooks/useAuthorization";
 import HeaderMenu, { MenuItemsGroupData } from "./HeaderMenu";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 function HeaderMenuContainer() {
   const authorize = useAuthorization();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
 
   // TODO: do this at route definition
