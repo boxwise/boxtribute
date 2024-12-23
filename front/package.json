@@ -15,12 +15,12 @@
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "chakra-react-select": "4.9.2",
-    "react-big-calendar": "^1.17.0",
+    "react-big-calendar": "^1.17.1",
     "react-icons": "^5.4.0",
     "react-table": "^7.8.0",
     "react-csv": "^2.2.2",
     "regenerator-runtime": "^0.14.1",
-    "victory": "^37.3.3"
+    "victory": "^37.3.5"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",

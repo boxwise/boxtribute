@@ -1,7 +1,7 @@
 {
   "private": true,
   "license": "Apache-2.0",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.1",
   "scripts": {
     "check-types": "pnpm -C front tsc:check && pnpm -C statviz tsc:check && pnpm -C shared-components tsc:check",
     "format:check:all": "pnpm format:check \"+(front|shared-components|statviz)/**/*.{js,json,ts,tsx}\" ",
@@ -81,7 +81,7 @@
     "prettier": "^3.4.2",
     "tsc-files": "^1.1.4",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3",
+    "vite": "^6.0.5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.8"
   },
