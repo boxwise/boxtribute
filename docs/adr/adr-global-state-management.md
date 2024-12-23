@@ -2,7 +2,7 @@
 
 Author: [Felipe](https://github.com/fhenrich33)
 
-Trello-card:
+Trello-card: https://trello.com/c/CK6TtXPS/1495-20-fe-replace-globalpreferencescontext
 
 ## Status
 
@@ -134,6 +134,8 @@ const Counter = observer(() => (
 
 ### Rendering performance
 
+See this [benchmark](https://legendapp.com/open-source/state/v2/intro/fast/) from the Legend State docs for reference.
+
 - **React Context:** Can cause entire component trees to re-render when the context value changes, leading to potential performance issues and unnecessary re-renders.
 - **Jotai:** Minimizes unnecessary re-renders by only updating components that depend on the specific piece of state that has changed. Second fastest while retaining very familiar API to React devs.
 - **Zustand:** Uses a subscription-based model to minimize unnecessary re-renders. Faster than Context but slower than the others in this comparison.
@@ -149,9 +151,9 @@ const Counter = observer(() => (
 ### Community and support
 
 - **React Context:** Built-in feature of React with a large community and ecosystem support.
-- **Jotai:** Active and growing community with good documentation and support, but may not have the same level of ecosystem integration as React Context (since it's baked in React).
-- **Zustand:** Excellent community with good support and documentation, maintained by the same team as Jotai.
-- **Legend State:** Fairly dedicated community with good documentation and support, but less so than the other options.
+- **Jotai:** Excellent community with good documentation and support, second only to Zustand (maintained by the same team as Jotai), but may not have the same level of ecosystem integration as React Context (since it's baked in React).
+- **Zustand:** Excellent community with good support and documentation, maintained by the same team as Jotai, but again, may not have the same level of ecosystem integration as React Context
+- **Legend State:** Fairly dedicated community with good documentation and support, but less so than the other options. Worse integration than the others as Legend State removes itself from React conventions to achieve top performance.
 
 ## Decision
 
