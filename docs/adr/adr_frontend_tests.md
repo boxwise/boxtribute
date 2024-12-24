@@ -40,6 +40,7 @@ Additionally, we are using Mock Service Worker (MSW) to mock API requests and av
      - Tests against the real DOM, as even in headless mode the tests run inside a real browser.
      - Supports cross-browser testing (Chromium, Firefox, WebKit).
      - Easy to set up and use with excellent documentation. The API for test specs are very similar to React Testing Library.
+     - Ability to generate tests by using the app. See https://playwright.dev/docs/codegen-intro.
      - Can still run isolated component tests. See https://playwright.dev/docs/test-components.
      - Can run visual diffing. See https://playwright.dev/docs/test-snapshots.
      - Fast and efficient, with parallel test execution. Might not match React Testing Library speed but gets close while testing in a real environment.
