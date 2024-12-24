@@ -82,35 +82,54 @@ Afterwards:
 
 ## Testing
 
-Testing is done with React Testing Library and Jest.
+Testing is done with [Playwright](https://playwright.dev/) for application, integration, and component testing.
 
-Test files are located in the same directory as the files they are testing. For example, `EditBox.test.js` and `EditBox.tsx` are both located in `front/src/views/EditBox`.
+[Vitest](https://vitest.dev/) is used for standalone TypeScript functions and modules.
 
-For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
+We use [Mock Service Worker](https://mswjs.io/) (MSW for short) to mock data in a way that faithfully mimics the real server. It's also very useful to mock GraphQL Schema bits that aren't implemented in the real backend yet to build new features on top of it.
 
-To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.js`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.js` for examples of the custom renderer's use.
+Application test specs are inside the `/tests` folder. Other tests are colocated with the files that are the subject of what is being tested.
 
-Tests and test coverage can be run with the following command:
+See Playwright's docs to see how to make the most of it's API to help you build test cases e.g. [recording tests by using the app](https://playwright.dev/docs/codegen-intro).
+
+### Fixtures and mock data
+
+Mock data is located inside `tests/fixtures.ts`, and usually retrieved from real backend calls to speed up testing and development. As long as both frontend and backend matches the GraphQL Schema, we can be sure that the mocked data will match real data consumed in the app. You can add more fixtures by hand or by using the real API results that you can get from the Network tab inside Devtools in the browser.
+
+To label the fixture/mock data, follow the convention of placing it as `userName: { graphqlOperationName: { modifierEGbaseId: data } }`. Then use it inside the MSW handler at `mswHandlers.ts` (also to export the handler at the bottom of the file).
+
+> [!IMPORTANT]  
+> You must place this entry on your `.env` file in order for the tests to run against MSW and mock data in `tests/fixtures.ts`.
+>
+> `USE_MSW=true`
+>
+> You might need to bring down the Docker containers, rebuild and start again to pick up the enviroment variable changes.
+
+### Running tests
+
+Tests and test coverage can be run with the following commands:
 
 ```sh
-# run tests
-docker compose exec front pnpm test
-
-# or locally
+# Run tests locally in headless mode (CLI only)
 pnpm test
 
-# test coverage
-docker compose exec front pnpm test:coverage
+# Run tests in UI mode (opens a Chromium browser to visually run and debug tests)
+pnpm test:ui
 
-# or locally
+# test coverage
 pnpm test:coverage
+
+# run tests inside Docker
+docker compose exec front pnpm test
+
+# test coverage inside Docker
+docker compose exec front pnpm test:coverage
 ```
 
-Here, a list of best practices you should follow when writing front-end tests with React Testing Library:
+Here, a list of best practices you should follow when writing front-end tests:
 
-- [Common mistakes with React Testing Library](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
 - [Write tests that simulate user behavior rather than single components](https://kentcdodds.com/blog/write-fewer-longer-tests)
-- [Use the right queries in React Testing Library according to their priorization](https://testing-library.com/docs/queries/about#priority)
+- [Use the right queries according to their priorization](https://testing-library.com/docs/queries/about#priority)
 - [Maybe use this Browser extension to find the best query](https://chrome.google.com/webstore/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
 
 ## Mobile functional testing
