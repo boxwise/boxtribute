@@ -2,6 +2,8 @@
 
 Author: [Felipe](https://github.com/fhenrich33)
 
+Reviewed by: [Philipp](https://github.com/pylipp)
+
 ## Status
 
 Implemented
