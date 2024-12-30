@@ -49,11 +49,20 @@ export const acceptedTransferAgreement = {
   __typename: "TransferAgreement",
   comment: "",
   id: "1",
+  requestedOn: "2023-02-09T17:24:29+00:00",
   requestedBy: {
     __typename: "User",
     id: "1",
     name: "some admin",
   },
+  acceptedOn: "2023-02-19T17:24:29+00:00",
+  acceptedBy: {
+    __typename: "User",
+    id: "1",
+    name: "some admin",
+  },
+  terminatedOn: null,
+  terminatedBy: null,
   shipments: [],
   targetBases: [
     {
