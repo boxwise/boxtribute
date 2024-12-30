@@ -11,12 +11,14 @@ interface RemoveBoxesButtonProps {
   onDeleteBoxes: () => void;
   actionsAreLoading: boolean;
   selectedBoxes: Row<BoxRow>[];
+  labelIdentifier: string;
 }
 
 const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
   onDeleteBoxes,
   actionsAreLoading,
   selectedBoxes,
+  labelIdentifier,
 }) => {
   const { createToast } = useNotification();
 
@@ -43,12 +45,15 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
   return (
     <>
       <Button
+        variant="link"
         onClick={handleOpenDialog}
         leftIcon={<FaTrashAlt />}
         iconSpacing={0}
         isDisabled={actionsAreLoading}
         data-testid="delete-boxes-button"
-      />
+      >
+        {labelIdentifier}
+      </Button>
       <RemoveBoxesOverlay
         isLoading={actionsAreLoading}
         isOpen={isDialogOpen}
