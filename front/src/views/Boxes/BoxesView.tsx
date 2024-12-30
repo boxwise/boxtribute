@@ -20,7 +20,7 @@ import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./compone
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import { Heading } from "@chakra-ui/react";
+import { Heading, Tooltip } from "@chakra-ui/react";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -224,7 +224,14 @@ function Boxes() {
         filter: "includesOneOfMultipleStrings",
       },
       {
-        Header: "Age",
+        Header: (
+          <Tooltip
+            label="How old the box is from the time it was first created in Boxtribute. We generally recommend not to let your inventory get too old as it can become damaged or degrade while in storage."
+            aria-label="age-tooltip"
+          >
+            Age
+          </Tooltip>
+        ),
         accessor: "age",
         id: "age",
         Cell: DaysCell,
