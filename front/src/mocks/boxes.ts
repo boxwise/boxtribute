@@ -53,7 +53,7 @@ export const generateMockBox = ({
 
 const unauthorizedForBaseErrorBox = {
   __typename: "UnauthorizedForBaseError",
-  name: "Base Foo",
+  baseName: "Base Foo",
   organisationName: "BoxAid",
 };
 
