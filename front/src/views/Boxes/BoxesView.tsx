@@ -20,7 +20,17 @@ import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./compone
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import { Heading, Tooltip } from "@chakra-ui/react";
+import {
+  Heading,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  HStack,
+  PopoverAnchor,
+  useBoolean,
+} from "@chakra-ui/react";
+import { FaInfoCircle } from "react-icons/fa";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -109,6 +119,9 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
 
 function Boxes() {
   const { baseId } = useBaseIdParam();
+  const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
+  const agePopoverText =
+    "How old the box is from the time it was first created in Boxtribute. We generally recommend not to let your inventory get too old as it can become damaged or degrade while in storage.";
 
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
@@ -225,12 +238,26 @@ function Boxes() {
       },
       {
         Header: (
-          <Tooltip
-            label="How old the box is from the time it was first created in Boxtribute. We generally recommend not to let your inventory get too old as it can become damaged or degrade while in storage."
-            aria-label="age-tooltip"
+          <Popover
+            isOpen={isPopoverOpen}
+            onOpen={setIsPopoverOpen.on}
+            onClose={setIsPopoverOpen.off}
+            closeOnBlur={false}
+            isLazy
+            lazyBehavior="keepMounted"
           >
-            Age
-          </Tooltip>
+            <HStack>
+              <PopoverAnchor>
+                <div>Age</div>
+              </PopoverAnchor>
+              <PopoverTrigger>
+                <FaInfoCircle height={8} width={8} />
+              </PopoverTrigger>
+            </HStack>
+            <PopoverContent>
+              <PopoverBody>{agePopoverText}</PopoverBody>
+            </PopoverContent>
+          </Popover>
         ),
         accessor: "age",
         id: "age",
@@ -260,7 +287,7 @@ function Boxes() {
         filter: "includesOneOfMultipleStrings",
       },
     ],
-    [],
+    [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
   );
 
   // TODO: pass tag options to BoxesActionsAndTable
