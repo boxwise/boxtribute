@@ -11,6 +11,7 @@
   "editor.formatOnPaste": false, // required
   "editor.formatOnType": false, // required
   "editor.formatOnSave": true,
+  "prettier.configPath": ".prettierrc",
 
   // eslint
   "eslint.workingDirectories": ["./", "./front", "./shared-components", "./statviz"],
@@ -29,5 +30,6 @@
   },
 
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "git.enableCommitSigning": true
 }
