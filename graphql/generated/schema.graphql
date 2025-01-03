@@ -173,7 +173,7 @@ input BoxMoveInput {
 
 input BoxAssignTagInput {
   labelIdentifiers: [String!]!
-  tagId: Int!
+  tagIds: [Int!]!
 }
 
 input CustomProductCreationInput {
@@ -349,9 +349,9 @@ type Mutation {
   " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
   " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
+  assignTagsToBoxes(updateInput: BoxAssignTagInput): AssignTagsToBoxesResult
   " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
+  unassignTagsFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -1135,6 +1135,23 @@ type ShipmentDetail {
   receivedBy: User
   receivedOn: Datetime
 }
+
+"""
+Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing) as well as optional info about erroneous tags.
+"""
+type AssignTagsToBoxesResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+""" Error info about tag with specified ID. """
+type TagErrorInfo {
+  id: ID!
+  error: TagError!
+}
+
+union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
 
 type InsufficientPermissionError {
   " e.g. 'product:write' missing "

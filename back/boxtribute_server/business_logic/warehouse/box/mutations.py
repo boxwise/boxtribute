@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from ariadne import MutationType
 from flask import g
@@ -19,7 +20,7 @@ from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from .crud import (
-    assign_tag_to_boxes,
+    assign_tags_to_boxes,
     create_box,
     delete_boxes,
     move_boxes_to_location,
@@ -34,6 +35,11 @@ mutation = MutationType()
 class BoxesResult:
     updated_boxes: list[Box]
     invalid_box_label_identifiers: list[str]
+
+
+@dataclass(kw_only=True)
+class AssignTagsToBoxesResult(BoxesResult):
+    tag_error_info: list[dict[str, Any]]
 
 
 @mutation.field("createBox")
@@ -156,18 +162,51 @@ def resolve_move_boxes_to_location(*_, update_input):
     )
 
 
-@mutation.field("assignTagToBoxes")
 @handle_unauthorized
-def resolve_assign_tag_to_boxes(*_, update_input):
-    tag_id = update_input["tag_id"]
-    if (tag := Tag.get_or_none(tag_id)) is None:
-        return ResourceDoesNotExist(name="Tag", id=tag_id)
+def authorize_tag(tag):
     authorize(permission="tag_relation:assign")
     authorize(permission="tag:read", base_id=tag.base_id)
-    if tag.deleted_on is not None:
-        return DeletedTag(name=tag.name)
-    if tag.type == TagType.Beneficiary:
-        return TagTypeMismatch(expected_type=TagType.Box)
+
+
+def _validate_tags(tag_ids):
+    tag_errors = []
+    valid_tag_ids = []
+    for tag_id in tag_ids:
+        if (tag := Tag.get_or_none(tag_id)) is None:
+            tag_errors.append(
+                {"id": tag_id, "error": ResourceDoesNotExist(name="Tag", id=tag_id)}
+            )
+            continue
+
+        if (error := authorize_tag(tag)) is not None:
+            tag_errors.append({"id": tag_id, "error": error})
+            continue
+
+        if tag.deleted_on is not None:
+            tag_errors.append({"id": tag_id, "error": DeletedTag(name=tag.name)})
+            continue
+
+        if tag.type == TagType.Beneficiary:
+            tag_errors.append(
+                {"id": tag_id, "error": TagTypeMismatch(expected_type=TagType.Box)}
+            )
+            continue
+
+        valid_tag_ids.append(tag_id)
+    return valid_tag_ids, tag_errors
+
+
+@mutation.field("assignTagsToBoxes")
+def resolve_assign_tags_to_boxes(*_, update_input):
+    tag_ids = set(update_input["tag_ids"])
+    valid_tag_ids, tag_errors = _validate_tags(tag_ids)
+
+    if not valid_tag_ids:
+        return AssignTagsToBoxesResult(
+            updated_boxes=[],
+            invalid_box_label_identifiers=[],
+            tag_error_info=tag_errors,
+        )
 
     label_identifiers = set(update_input["label_identifiers"])
     boxes = (
@@ -179,7 +218,9 @@ def resolve_assign_tag_to_boxes(*_, update_input):
             on=(
                 (TagsRelation.object_id == Box.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
-                & (TagsRelation.tag == tag.id)
+                # TODO: this is not correct because it filters out a box if it has only
+                # one of the requested tags already
+                & (TagsRelation.tag << valid_tag_ids)
                 & TagsRelation.deleted_on.is_null()
             ),
         )
@@ -194,18 +235,21 @@ def resolve_assign_tag_to_boxes(*_, update_input):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxesResult(
-        updated_boxes=assign_tag_to_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
+    return AssignTagsToBoxesResult(
+        updated_boxes=assign_tags_to_boxes(
+            user_id=g.user.id, boxes=boxes, tag_ids=valid_tag_ids
+        ),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
         ),
+        tag_error_info=tag_errors,
     )
 
 
-@mutation.field("unassignTagFromBoxes")
+@mutation.field("unassignTagsFromBoxes")
 @handle_unauthorized
-def resolve_unassign_tag_from_boxes(*_, update_input):
-    tag_id = update_input["tag_id"]
+def resolve_unassign_tags_from_boxes(*_, update_input):
+    tag_id = update_input["tag_ids"][0]
     if (tag := Tag.get_or_none(tag_id)) is None:
         return ResourceDoesNotExist(name="Tag", id=tag_id)
     authorize(permission="tag_relation:assign")

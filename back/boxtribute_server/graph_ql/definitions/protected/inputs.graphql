@@ -34,7 +34,7 @@ input BoxMoveInput {
 
 input BoxAssignTagInput {
   labelIdentifiers: [String!]!
-  tagId: Int!
+  tagIds: [Int!]!
 }
 
 input CustomProductCreationInput {

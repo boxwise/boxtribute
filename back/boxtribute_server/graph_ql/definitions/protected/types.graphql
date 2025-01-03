@@ -588,6 +588,23 @@ type ShipmentDetail {
   receivedOn: Datetime
 }
 
+"""
+Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing) as well as optional info about erroneous tags.
+"""
+type AssignTagsToBoxesResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+""" Error info about tag with specified ID. """
+type TagErrorInfo {
+  id: ID!
+  error: TagError!
+}
+
+union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
+
 type InsufficientPermissionError {
   " e.g. 'product:write' missing "
   name: String!
