@@ -321,7 +321,7 @@ def test_update_non_existent_resource(
         ],
         # Test case 8.2.23g
         [
-            "assignTagToBoxes",
+            "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagId: 0 }',
             "...on ResourceDoesNotExistError { id name }",
             {"id": "0", "name": "Tag"},
