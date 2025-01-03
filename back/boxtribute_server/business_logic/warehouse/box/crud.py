@@ -440,8 +440,8 @@ def move_boxes_to_location(*, user_id, boxes, location):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def assign_tag_to_boxes(*, user_id, boxes, tag):
-    """Add TagsRelation entries for given boxes and tag. Update last_modified_* fields
+def assign_tags_to_boxes(*, user_id, boxes, tag_ids):
+    """Add TagsRelation entries for given boxes and tags. Update last_modified_* fields
     of the affected boxes.
     Return the list of updated boxes.
     """
@@ -453,11 +453,12 @@ def assign_tag_to_boxes(*, user_id, boxes, tag):
         TagsRelation(
             object_id=box.id,
             object_type=TaggableObjectType.Box,
-            tag=tag.id,
+            tag=tag_id,
             created_on=now,
             created_by=user_id,
         )
         for box in boxes
+        for tag_id in tag_ids
     ]
 
     box_ids = [box.id for box in boxes]

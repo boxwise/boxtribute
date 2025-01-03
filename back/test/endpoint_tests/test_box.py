@@ -567,7 +567,7 @@ def test_box_mutations(
     assert response == {"name": f"{deleted_location['name']}"}
 
     # Test case 8.2.23a, 8.2.23c
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
                 ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
@@ -579,7 +579,7 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": [another_created_box_label_identifier],
     }
 
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
                 ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
@@ -592,7 +592,7 @@ def test_box_mutations(
     }
 
     generic_tag_id = str(tags[2]["id"])
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {generic_tag_id} }} ) {{
                 ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
@@ -607,7 +607,7 @@ def test_box_mutations(
     }
 
     another_generic_tag_id = str(tags[5]["id"])
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}],
             tagId: {another_generic_tag_id} }} ) {{
                 ...on BoxesResult {{
@@ -672,7 +672,7 @@ def test_box_mutations(
 
     # Test case 8.2.23h
     beneficiary_tag_id = str(tags[0]["id"])
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {beneficiary_tag_id} }} ) {{
                 ...on TagTypeMismatchError {{ expectedType }} }} }}"""
     response = assert_successful_request(client, mutation)
@@ -694,7 +694,7 @@ def test_box_mutations(
     # Test case 8.2.23i
     deleted_tag_id = str(tags[4]["id"])
     tag_name = tags[4]["name"]
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {deleted_tag_id} }} ) {{
                 ...on DeletedTagError {{ name }} }} }}"""
     response = assert_successful_request(client, mutation)
@@ -750,7 +750,7 @@ def test_box_mutations(
     }
 
     # Test case 8.2.23b, 8.2.23d, 8.2.23j
-    mutation = f"""mutation {{ assignTagToBoxes( updateInput: {{
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagId: {tag_id} }} ) {{
                 ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
