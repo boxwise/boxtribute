@@ -21,7 +21,7 @@ Following the [general set-up steps](../README.md), here a few steps that make y
 
 ### Install node and pnpm
 
-For almost all features of our development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE (e.g. VSCode).
+For almost all features of Boxtribute's development set-up you should also have [node](https://nodejs.org/en/download/) installed on your computer. You will need it to run front-end tests and the formatters and linters in your IDE (e.g. VSCode).
 
 We recommend you to install node through a [version control like nvm](https://github.com/nvm-sh/nvm). It provides you with much more clarity which version you are running and makes it easy to switch versions of node.
 
@@ -61,7 +61,7 @@ docker compose exec front pnpm format:write
 
 ## Note about pnpm and Docker
 
-We are using docker to spin up our dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the node development server should function.
+We are using docker to spin up Boxtribute's dev environment. The front folder is in sync with the front Docker container. Therefore, the hot-reloading of the node development server should function.
 
 When you wish to add a dependency, e.g. when you make a change to your local `package.json`, you will need to rebuild the docker container and relaunch.
 
@@ -88,7 +88,57 @@ Testing is done with [Playwright](https://playwright.dev/) for application, inte
 
 [Vitest](https://vitest.dev/) is used for standalone TypeScript functions and modules.
 
-We use [Mock Service Worker](https://mswjs.io/) (MSW for short) to mock data in a way that faithfully mimics the real server. It's also very useful to mock GraphQL Schema bits that aren't implemented in the real backend yet to build new features on top of it.
+We use [Mock Service Worker](https://mswjs.io/) (MSW for short) to mock data in a way that faithfully mimics the real server. It's also very useful to mock GraphQL Schema bits that aren't implemented in the production backend yet to build new features on top of it.
+
+Application test specs are inside the `/tests` folder. Other tests are colocated with the files that are the subject of what is being tested.
+
+See Playwright's docs to see how to make the most of its API to help you build test cases e.g. [recording tests by using the app](https://playwright.dev/docs/codegen-intro).
+
+### Fixtures and mock data
+
+Mock data is located inside `tests/fixtures.ts`, and is usually retrieved from the development backend calls to speed up testing and development since fixtures for that data were already written. As long as both the front-end and backend match the GraphQL Schema, we can be sure that the mocked data will match real data consumed in the app. You can add more fixtures by hand or by using the real API results that you can get from the Network tab inside Devtools in the browser.
+
+To label the fixture/mock data, follow the convention of placing it as `userName: { graphqlOperationName: { modifierEGbaseId: data } }`. Then use it inside the MSW handler at `mswHandlers.ts` (also to export the handler at the bottom of the file).
+
+> [!IMPORTANT]  
+> You must place this entry on your `.env` file for the tests to run against MSW and mock data in `tests/fixtures.ts`.
+>
+> `USE_MSW=true`
+>
+> You might need to bring down the Docker containers, rebuild, and start again to pick up the environment variable changes.
+
+### Running tests
+
+Tests and test coverage can be run with the following commands:
+
+```sh
+# Run tests locally in headless mode (CLI only)
+pnpm test
+
+# Run tests in UI mode (opens a Chromium browser to visually run and debug tests)
+pnpm test:ui
+
+# test coverage
+pnpm test:coverage
+
+# run tests inside Docker
+docker compose exec front pnpm test
+
+# test coverage inside Docker
+docker compose exec front pnpm test:coverage
+```
+
+Here, is a list of best practices you should follow when writing front-end tests:
+
+- [Write tests that simulate user behavior rather than single components](https://kentcdodds.com/blog/write-fewer-longer-tests)
+- [Use the right queries according to their priorization](https://testing-library.com/docs/queries/about#priority)
+- [Maybe use this Browser extension to find the best query](https://chrome.google.com/webstore/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
+
+Testing is done with [Playwright](https://playwright.dev/) for application, integration, and component testing.
+
+[Vitest](https://vitest.dev/) is used for standalone TypeScript functions and modules.
+
+We use [Mock Service Worker](https://mswjs.io/) (MSW for short) to mock data in a way that faithfully mimics the real server. It's also very useful to mock GraphQL Schema bits that aren't implemented in the production backend yet to build new features on top of it.
 
 Application test specs are inside the `/tests` folder. Other tests are colocated with the files that are the subject of what is being tested.
 
@@ -96,7 +146,7 @@ See Playwright's docs to see how to make the most of it's API to help you build 
 
 ### Fixtures and mock data
 
-Mock data is located inside `tests/fixtures.ts`, and usually retrieved from real backend calls to speed up testing and development. As long as both frontend and backend matches the GraphQL Schema, we can be sure that the mocked data will match real data consumed in the app. You can add more fixtures by hand or by using the real API results that you can get from the Network tab inside Devtools in the browser.
+Mock data is located inside `tests/fixtures.ts`, and usually retrieved from the development backend calls to speed up testing and development since fixtures for that data were already written. As long as both frontend and backend matches the GraphQL Schema, we can be sure that the mocked data will match real data consumed in the app. You can add more fixtures by hand or by using the real API results that you can get from the Network tab inside Devtools in the browser.
 
 To label the fixture/mock data, follow the convention of placing it as `userName: { graphqlOperationName: { modifierEGbaseId: data } }`. Then use it inside the MSW handler at `mswHandlers.ts` (also to export the handler at the bottom of the file).
 
@@ -233,18 +283,18 @@ The folder structure is as follows:
 
 ## Apollo
 
-Apollo is our client to send GraphQL queries and mutation to the back-end. It can also be used as a local storage for global states. Here, some articles you might want to check out:
+Apollo is Boxtribute's client to send GraphQL queries and mutation to the backend. It can also be used as a local storage for global states. Here, some articles you might want to check out:
 
 - [Apollo Client for State Management](https://www.apollographql.com/blog/apollo-client/caching/dispatch-this-using-apollo-client-3-as-a-state-management-solution/)
 - [When to use refetchQueries](https://www.apollographql.com/blog/apollo-client/caching/when-to-use-refetch-queries/)
 
 ## Types and GraphQL
 
-As our front-end uses TypeScript to statically type our codebase and has a GraphQL schema as our source of truth for almost all of our data, we should make the most of this by inferring types as much as possible from the schema.
+As Boxtribute's front-end uses TypeScript to statically type the codebase and has a GraphQL schema as the source of truth for almost all of the data, we should make the most of this by inferring types as much as possible from the schema.
 
-And we do that by using [gql.tada](https://gql-tada.0no.co/), which automagically infer types from a unified schema generated from introspection of our API.
+And we do that by using [gql.tada](https://gql-tada.0no.co/), which automagically infer types from a unified schema generated from introspection of Boxtribute's API.
 
-See how it's generated by checking out the root `package.json` command `graphql-gen` and by taking a look at the end of the [GraphQL API section](../back/README.md#graphql-api) in the back-end README.
+See how it's generated by checking out the root `package.json` command `graphql-gen` and by taking a look at the end of the [GraphQL API section](../back/README.md#graphql-api) in the backend README.
 
 ### Convention for creating new GraphQL Fragments, Mutations, Queries, and Types
 
