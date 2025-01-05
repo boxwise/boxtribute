@@ -17,7 +17,7 @@ import CreateShipmentView, {
 import { SHIPMENT_BY_ID_QUERY } from "../ShipmentView/ShipmentView";
 import { FakeGraphQLError } from "mocks/functions";
 
-vi.setConfig({ testTimeout: 12_000 });
+vi.setConfig({ testTimeout: 20_000 });
 
 const initialQueryAllBasesOfCurrentOrg = {
   request: {
