@@ -23,7 +23,7 @@
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@hookform/resolvers": "^3.9.1",
+    "@hookform/resolvers": "^3.10.0",
     "@nivo/bar": "0.88.0",
     "@nivo/core": "0.88.0",
     "@nivo/pie": "0.88.0",
