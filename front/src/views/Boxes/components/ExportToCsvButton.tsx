@@ -5,6 +5,7 @@ import { Row } from "react-table";
 
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
+import { RiFileDownloadLine } from "react-icons/ri";
 
 interface ExportToCsvButtonProps {
   selectedBoxes: Row<BoxRow>[];
@@ -30,11 +31,10 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
       <Button
         key="export"
         data-testid="export-button"
-        height="48px"
-        width="200px"
-        border="0px"
-        bgColor="white"
-        borderColor="white"
+        variant="ghost"
+        leftIcon={<RiFileDownloadLine />}
+        iconSpacing={2}
+        padding={1}
       >
         <CSVLink
           onClick={checkForSelectedBoxes}

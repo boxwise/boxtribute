@@ -250,7 +250,6 @@ function BoxesActionsAndTable({
           <BsBox2HeartFill />
         </MenuButton>
         <MenuList>
-          <MenuItem>Create a Box</MenuItem>
           <MenuItem>
             <RemoveBoxesButton
               labelIdentifier="Delete Boxes"
@@ -263,8 +262,6 @@ function BoxesActionsAndTable({
           <MenuItem>
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
-          <MenuItem>Add/Remove Tags</MenuItem>
-          <MenuItem>Make QR Labels</MenuItem>
         </MenuList>
       </Menu>,
 
