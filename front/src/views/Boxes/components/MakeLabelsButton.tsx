@@ -1,11 +1,10 @@
 import React from "react";
-import { Button, MenuItem } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { Row } from "react-table";
 
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { RiQrCodeLine } from "react-icons/ri";
-import { NavLink, redirect, useNavigate } from "react-router-dom";
 
 interface MakeLabelsButtonProps {
   selectedBoxes: Row<BoxRow>[];
