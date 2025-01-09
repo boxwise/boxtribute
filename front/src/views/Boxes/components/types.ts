@@ -18,4 +18,5 @@ export type BoxRow = {
   lastModified: Date | null;
   createdBy: string | null;
   lastModifiedBy: string | null;
+  id: string;
 };

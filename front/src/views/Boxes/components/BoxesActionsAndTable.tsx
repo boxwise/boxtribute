@@ -21,6 +21,7 @@ import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/type
 import ExportToCsvButton from "./ExportToCsvButton";
 import { FaTruckArrowRight } from "react-icons/fa6";
 import { BsBox2HeartFill } from "react-icons/bs";
+import MakeLabelsButton from "./MakeLabelsButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -261,6 +262,9 @@ function BoxesActionsAndTable({
           </MenuItem>
           <MenuItem>
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
+          </MenuItem>
+          <MenuItem>
+            <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
         </MenuList>
       </Menu>,
