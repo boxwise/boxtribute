@@ -603,7 +603,7 @@ type TagErrorInfo {
   error: TagError!
 }
 
-union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
+union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | TagBaseMismatchError | DeletedTagError
 
 type InsufficientPermissionError {
   " e.g. 'product:write' missing "
@@ -639,6 +639,10 @@ type ProductTypeMismatchError {
 }
 type TagTypeMismatchError {
   expectedType: TagType!
+}
+type TagBaseMismatchError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
 }
 type DeletedLocationError {
   name: String!

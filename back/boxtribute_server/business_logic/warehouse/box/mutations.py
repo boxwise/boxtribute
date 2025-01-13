@@ -12,6 +12,7 @@ from ....errors import (
     DeletedLocation,
     DeletedTag,
     ResourceDoesNotExist,
+    TagBaseMismatch,
     TagTypeMismatch,
 )
 from ....models.definitions.box import Box
@@ -170,7 +171,7 @@ def authorize_tag(tag):
 
 def _validate_tags(tag_ids):
     tag_errors = []
-    valid_tag_ids = []
+    valid_tags = []
     for tag_id in tag_ids:
         if (tag := Tag.get_or_none(tag_id)) is None:
             tag_errors.append(
@@ -192,8 +193,16 @@ def _validate_tags(tag_ids):
             )
             continue
 
-        valid_tag_ids.append(tag_id)
-    return valid_tag_ids, tag_errors
+        valid_tags.append(tag)
+
+    tag_base_ids = {t.base_id for t in valid_tags}
+    # All requested tags must be registered in the same base
+    if len(tag_base_ids) > 1:
+        return [], tag_errors + [
+            {"id": tag_id, "error": TagBaseMismatch()} for tag_id in tag_ids
+        ]
+
+    return [tag.id for tag in valid_tags], tag_errors
 
 
 @mutation.field("assignTagsToBoxes")

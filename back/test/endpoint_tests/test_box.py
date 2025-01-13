@@ -758,7 +758,6 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
     }
 
-    # Test case 8.2.23b, 8.2.23d, 8.2.23j
     mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagIds: [{tag_id}] }} ) {{
                     updatedBoxes {{ tags {{ id }} }}
@@ -842,6 +841,28 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": sorted(
             [created_box["labelIdentifier"], "99119911"]
         ),
+    }
+
+    # Test case 8.2.23k
+    base_1_tag_id = str(tags[5]["id"])
+    base_3_tag_id = str(tags[6]["id"])
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
+            labelIdentifiers: [{label_identifiers}],
+            tagIds: [{base_1_tag_id},{base_3_tag_id}] }} ) {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                    tagErrorInfo {{ id
+                        id
+                        error {{ ...on TagBaseMismatchError {{ _ }} }}
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [
+            {"id": base_1_tag_id, "error": {"_": None}},
+            {"id": base_3_tag_id, "error": {"_": None}},
+        ],
     }
 
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
