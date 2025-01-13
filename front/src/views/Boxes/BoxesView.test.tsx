@@ -423,6 +423,7 @@ const moveBoxesMutation = {
           id: "17",
         },
         state: "InStock",
+        lastModifiedOn: new Date().toISOString(),
       },
       moveBox1481666: {
         __typename: "Box",
@@ -432,6 +433,7 @@ const moveBoxesMutation = {
           id: "17",
         },
         state: "InStock",
+        lastModifiedOn: new Date().toISOString(),
       },
     },
   },
