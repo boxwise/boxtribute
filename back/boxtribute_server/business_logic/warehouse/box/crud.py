@@ -29,6 +29,7 @@ from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
+    convert_ids,
     save_creation_to_history,
     save_update_to_history,
     utcnow,
@@ -440,9 +441,11 @@ def move_boxes_to_location(*, user_id, boxes, location):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def assign_tags_to_boxes(*, user_id, boxes, tag_ids):
-    """Add TagsRelation entries for given boxes and tags. Update last_modified_* fields
-    of the affected boxes.
+def assign_missing_tags_to_boxes(*, user_id, boxes):
+    """Add TagsRelation entries according to information in `boxes` (a list of tag IDs
+    to be added per box). The tags must not be already assigned to the boxes.
+
+    Update last_modified_* fields of the affected boxes.
     Return the list of updated boxes.
     """
     if not boxes:
@@ -451,25 +454,24 @@ def assign_tags_to_boxes(*, user_id, boxes, tag_ids):
     now = utcnow()
     tags_relations = [
         TagsRelation(
-            object_id=box.id,
+            object_id=box["id"],
             object_type=TaggableObjectType.Box,
             tag=tag_id,
             created_on=now,
             created_by=user_id,
         )
         for box in boxes
-        for tag_id in tag_ids
+        for tag_id in convert_ids(box["missing_tag_ids"])
     ]
 
-    box_ids = [box.id for box in boxes]
+    box_ids = [box["id"] for box in boxes]
     with db.database.atomic():
         Box.update(last_modified_on=now, last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
-    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
-    return boxes
+    return list(Box.select().where(Box.id << box_ids))
 
 
 def unassign_tag_from_boxes(*, user_id, boxes, tag):

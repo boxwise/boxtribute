@@ -567,16 +567,20 @@ def test_box_mutations(
     assert response == {"name": f"{deleted_location['name']}"}
 
     # Test case 8.2.23a, 8.2.23c
+    generic_tag_id = str(tags[2]["id"])
     mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
-            labelIdentifiers: [{label_identifiers}], tagIds: [{tag_id}] }} ) {{
+            labelIdentifiers: [{label_identifiers}],
+            tagIds: [{tag_id},{generic_tag_id}] }} ) {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
                     tagErrorInfo {{ id }}
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": tag_id}]}],
-        "invalidBoxLabelIdentifiers": [another_created_box_label_identifier],
+        "updatedBoxes": [
+            {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
+        ],
+        "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
     }
 
@@ -590,22 +594,6 @@ def test_box_mutations(
     assert response == {
         "updatedBoxes": [],
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
-        "tagErrorInfo": [],
-    }
-
-    generic_tag_id = str(tags[2]["id"])
-    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
-            labelIdentifiers: [{label_identifiers}], tagIds: [{generic_tag_id}] }} ) {{
-                    updatedBoxes {{ tags {{ id }} }}
-                    invalidBoxLabelIdentifiers
-                    tagErrorInfo {{ id }}
-                }} }}"""
-    response = assert_successful_request(client, mutation)
-    assert response == {
-        "updatedBoxes": [
-            {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
-        ],
-        "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
     }
 

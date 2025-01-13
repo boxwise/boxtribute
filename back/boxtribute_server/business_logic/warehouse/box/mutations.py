@@ -3,10 +3,10 @@ from typing import Any
 
 from ariadne import MutationType
 from flask import g
-from peewee import JOIN
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
+from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
@@ -20,7 +20,7 @@ from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from .crud import (
-    assign_tags_to_boxes,
+    assign_missing_tags_to_boxes,
     create_box,
     delete_boxes,
     move_boxes_to_location,
@@ -209,35 +209,76 @@ def resolve_assign_tags_to_boxes(*_, update_input):
         )
 
     label_identifiers = set(update_input["label_identifiers"])
-    boxes = (
-        Box.select(Box, Location)
-        .join(Location)
-        .join(
-            TagsRelation,
-            JOIN.LEFT_OUTER,
-            on=(
-                (TagsRelation.object_id == Box.id)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-                # TODO: this is not correct because it filters out a box if it has only
-                # one of the requested tags already
-                & (TagsRelation.tag << valid_tag_ids)
-                & TagsRelation.deleted_on.is_null()
-            ),
-        )
-        .where(
-            Box.label_identifier << label_identifiers,
-            authorized_bases_filter(Location, permission="stock:write"),
-            # Any boxes that already have the new tag assigned are ignored
-            TagsRelation.tag.is_null(),
-            (~Box.deleted_on | Box.deleted_on.is_null()),
-        )
-        .order_by(Box.id)
+    cursor = db.database.execute_sql(
+        """\
+WITH box_ids AS (
+    -- Map the provided box label identifiers to their corresponding IDs
+    SELECT s.id
+    FROM stock s
+    INNER JOIN locations l
+    ON l.id = s.location_id
+    WHERE s.box_id IN %s
+    -- filter out deleted boxes
+    AND (s.deleted IS NULL OR NOT s.deleted)
+    -- filter out boxes in bases that user is not authorized for
+    AND l.camp_id IN %s
+),
+tag_ids AS (
+    SELECT id
+    FROM tags
+    WHERE id IN %s
+),
+box_tag_combinations AS (
+    -- Generate all combinations of box IDs and tag IDs
+    SELECT
+        box_ids.id as box_id,
+        tag_ids.id AS tag_id
+    FROM box_ids CROSS JOIN tag_ids
+),
+existing_relations AS (
+    -- Find existing box-to-tag assignments
+    SELECT object_id AS box_id, tag_id
+    FROM tags_relations
+    WHERE object_type = "Stock" AND deleted_on IS NULL
+),
+missing_tags AS (
+    -- Identify missing tags for each box
+    SELECT
+        btc.box_id,
+        btc.tag_id
+    FROM
+        box_tag_combinations btc
+    LEFT JOIN existing_relations er
+        ON btc.box_id = er.box_id AND btc.tag_id = er.tag_id
+    WHERE
+        er.tag_id IS NULL
+)
+-- Aggregate the missing tags per box
+SELECT
+    s.box_id as label_identifier,
+    s.id,
+    GROUP_CONCAT(mt.tag_id) AS missing_tag_ids
+FROM
+    missing_tags mt
+INNER JOIN stock s
+    ON s.id = mt.box_id
+GROUP BY
+    mt.box_id;
+        """,
+        (
+            label_identifiers,
+            g.user.authorized_base_ids("stock:write"),
+            valid_tag_ids,
+        ),
     )
-    valid_box_label_identifiers = {box.label_identifier for box in boxes}
+    column_names = [x[0] for x in cursor.description]
+    valid_boxes = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+
+    valid_box_label_identifiers = {box["label_identifier"] for box in valid_boxes}
 
     return AssignTagsToBoxesResult(
-        updated_boxes=assign_tags_to_boxes(
-            user_id=g.user.id, boxes=boxes, tag_ids=valid_tag_ids
+        updated_boxes=assign_missing_tags_to_boxes(
+            user_id=g.user.id, boxes=valid_boxes
         ),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
