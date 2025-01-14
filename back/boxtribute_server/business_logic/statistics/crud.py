@@ -17,7 +17,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
-from ...models.utils import compute_age, convert_ids
+from ...models.utils import compute_age, convert_ids, execute_sql
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
@@ -359,25 +359,21 @@ def compute_moved_boxes(base_id):
     if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
         min_history_id = 1_324_559
-    database = db.replica or db.database
-    cursor = database.execute_sql(
-        MOVED_BOXES_QUERY,
-        (
-            base_id,
-            min_history_id,
-            TargetType.BoxState.name,
-            TargetType.BoxState.name,
-            TargetType.OutgoingLocation.name,
-            TargetType.OutgoingLocation.name,
-            TargetType.Shipment.name,
-            base_id,
-            TargetType.BoxState.name,
-            base_id,
-        ),
+
+    facts = execute_sql(
+        base_id,
+        min_history_id,
+        TargetType.BoxState.name,
+        TargetType.BoxState.name,
+        TargetType.OutgoingLocation.name,
+        TargetType.OutgoingLocation.name,
+        TargetType.Shipment.name,
+        base_id,
+        TargetType.BoxState.name,
+        base_id,
+        database=db.replica or db.database,
+        query=MOVED_BOXES_QUERY,
     )
-    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
-    column_names = [x[0] for x in cursor.description]
-    facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     for fact in facts:
         fact["tag_ids"] = convert_ids(fact["tag_ids"])
 

@@ -6,7 +6,6 @@ from flask import g
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
-from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
@@ -20,6 +19,7 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
+from ....models.utils import execute_sql
 from .crud import (
     assign_missing_tags_to_boxes,
     create_box,
@@ -28,6 +28,7 @@ from .crud import (
     unassign_tag_from_boxes,
     update_box,
 )
+from .sql import BOXES_WITH_MISSING_TAGS_QUERY
 
 mutation = MutationType()
 
@@ -218,71 +219,12 @@ def resolve_assign_tags_to_boxes(*_, update_input):
         )
 
     label_identifiers = set(update_input["label_identifiers"])
-    cursor = db.database.execute_sql(
-        """\
-WITH box_ids AS (
-    -- Map the provided box label identifiers to their corresponding IDs
-    SELECT s.id
-    FROM stock s
-    INNER JOIN locations l
-    ON l.id = s.location_id
-    WHERE s.box_id IN %s
-    -- filter out deleted boxes
-    AND (s.deleted IS NULL OR NOT s.deleted)
-    -- filter out boxes in bases that user is not authorized for
-    AND l.camp_id IN %s
-),
-tag_ids AS (
-    SELECT id
-    FROM tags
-    WHERE id IN %s
-),
-box_tag_combinations AS (
-    -- Generate all combinations of box IDs and tag IDs
-    SELECT
-        box_ids.id as box_id,
-        tag_ids.id AS tag_id
-    FROM box_ids CROSS JOIN tag_ids
-),
-existing_relations AS (
-    -- Find existing box-to-tag assignments
-    SELECT object_id AS box_id, tag_id
-    FROM tags_relations
-    WHERE object_type = "Stock" AND deleted_on IS NULL
-),
-missing_tags AS (
-    -- Identify missing tags for each box
-    SELECT
-        btc.box_id,
-        btc.tag_id
-    FROM
-        box_tag_combinations btc
-    LEFT JOIN existing_relations er
-        ON btc.box_id = er.box_id AND btc.tag_id = er.tag_id
-    WHERE
-        er.tag_id IS NULL
-)
--- Aggregate the missing tags per box
-SELECT
-    s.box_id as label_identifier,
-    s.id,
-    GROUP_CONCAT(mt.tag_id) AS missing_tag_ids
-FROM
-    missing_tags mt
-INNER JOIN stock s
-    ON s.id = mt.box_id
-GROUP BY
-    mt.box_id;
-        """,
-        (
-            label_identifiers,
-            g.user.authorized_base_ids("stock:write"),
-            valid_tag_ids,
-        ),
+    valid_boxes = execute_sql(
+        label_identifiers,
+        g.user.authorized_base_ids("stock:write"),
+        valid_tag_ids,
+        query=BOXES_WITH_MISSING_TAGS_QUERY,
     )
-    column_names = [x[0] for x in cursor.description]
-    valid_boxes = [dict(zip(column_names, row)) for row in cursor.fetchall()]
-
     valid_box_label_identifiers = {box["label_identifier"] for box in valid_boxes}
 
     return AssignTagsToBoxesResult(
