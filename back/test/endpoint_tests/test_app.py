@@ -330,8 +330,8 @@ def test_update_non_existent_resource(
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
-            "...on ResourceDoesNotExistError { id name }",
-            {"id": "0", "name": "Tag"},
+            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
     ],
 )

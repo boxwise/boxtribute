@@ -25,7 +25,7 @@ from .crud import (
     create_box,
     delete_boxes,
     move_boxes_to_location,
-    unassign_tag_from_boxes,
+    unassign_tags_from_boxes,
     update_box,
 )
 from .sql import BOXES_WITH_MISSING_TAGS_QUERY
@@ -170,7 +170,7 @@ def authorize_tag(tag):
     authorize(permission="tag:read", base_id=tag.base_id)
 
 
-def _validate_tags(tag_ids):
+def _validate_tags(tag_ids, for_unassigning=False):
     tag_errors = []
     valid_tags = []
     for tag_id in tag_ids:
@@ -182,6 +182,11 @@ def _validate_tags(tag_ids):
 
         if (error := authorize_tag(tag)) is not None:
             tag_errors.append({"id": tag_id, "error": error})
+            continue
+
+        if for_unassigning:
+            # For unassigning it's valid to operate with deleted or type-mismatched tags
+            valid_tags.append(tag)
             continue
 
         if tag.deleted_on is not None:
@@ -202,6 +207,29 @@ def _validate_tags(tag_ids):
         return [], tag_errors + [
             {"id": tag_id, "error": TagBaseMismatch()} for tag_id in tag_ids
         ]
+
+    if for_unassigning:
+        for tag in valid_tags:
+            if tag.deleted_on is not None:
+                # When a tag is deleted, it is also unassigned from any resource, hence
+                # in theory unassigning a deleted tag should not happen. However we have
+                # to deal with legacy data (there are 1.3k boxes assigned to deleted
+                # tags) and want to be notified about it.
+                emit_sentry_message(
+                    "User unassigned deleted tag from boxes",
+                    level="warning",
+                    extras={"tag_id": tag.id},
+                )
+            if tag.type == TagType.Beneficiary:
+                # When a tag type changes, it is also unassigned from any resource,
+                # hence in theory boxes assigned with a Beneficiary tag should not
+                # occur. However we have to deal with legacy data and want to be
+                # notified about it.
+                emit_sentry_message(
+                    "User unassigned Beneficiary-type tag from boxes",
+                    level="warning",
+                    extras={"tag_id": tag.id},
+                )
 
     return [tag.id for tag in valid_tags], tag_errors
 
@@ -241,29 +269,14 @@ def resolve_assign_tags_to_boxes(*_, update_input):
 @mutation.field("unassignTagsFromBoxes")
 @handle_unauthorized
 def resolve_unassign_tags_from_boxes(*_, update_input):
-    tag_id = update_input["tag_ids"][0]
-    if (tag := Tag.get_or_none(tag_id)) is None:
-        return ResourceDoesNotExist(name="Tag", id=tag_id)
-    authorize(permission="tag_relation:assign")
-    authorize(permission="tag:read", base_id=tag.base_id)
-    if tag.deleted_on is not None:
-        # When a tag is deleted, it is also unassigned from any resource, hence in
-        # theory unassigning a deleted tag should not happen. However we have to deal
-        # with legacy data (there are 1.3k boxes assigned to deleted tags) and want to
-        # be notified about it.
-        emit_sentry_message(
-            "User unassigned deleted tag from boxes",
-            level="warning",
-            extras={"tag_id": tag_id},
-        )
-    if tag.type == TagType.Beneficiary:
-        # When a tag type changes, it is also unassigned from any resource, hence in
-        # theory boxes assigned with a Beneficiary tag should not occur. However we have
-        # to deal with legacy data and want to be notified about it.
-        emit_sentry_message(
-            "User unassigned Beneficiary-type tag from boxes",
-            level="warning",
-            extras={"tag_id": tag_id},
+    tag_ids = set(update_input["tag_ids"])
+    valid_tag_ids, tag_errors = _validate_tags(tag_ids, for_unassigning=True)
+
+    if not valid_tag_ids:
+        return AssignTagsToBoxesResult(
+            updated_boxes=[],
+            invalid_box_label_identifiers=[],
+            tag_error_info=tag_errors,
         )
 
     label_identifiers = set(update_input["label_identifiers"])
@@ -275,8 +288,8 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
             on=(
                 (TagsRelation.object_id == Box.id)
                 & (TagsRelation.object_type == TaggableObjectType.Box)
-                # Any boxes that don't have the tag assigned are silently ignored
-                & (TagsRelation.tag == tag_id)
+                # Boxes without any of the requested tags assigned are silently ignored
+                & (TagsRelation.tag << valid_tag_ids)
                 & (TagsRelation.deleted_on.is_null())
             ),
         )
@@ -289,9 +302,12 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return BoxesResult(
-        updated_boxes=unassign_tag_from_boxes(user_id=g.user.id, boxes=boxes, tag=tag),
+    return AssignTagsToBoxesResult(
+        updated_boxes=unassign_tags_from_boxes(
+            user_id=g.user.id, boxes=boxes, tag_ids=valid_tag_ids
+        ),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
         ),
+        tag_error_info=tag_errors,
     )

@@ -351,7 +351,7 @@ type Mutation {
   " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   assignTagsToBoxes(updateInput: BoxAssignTagInput): AssignTagsToBoxesResult
   " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  unassignTagsFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
+  unassignTagsFromBoxes(updateInput: BoxAssignTagInput): AssignTagsToBoxesResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary

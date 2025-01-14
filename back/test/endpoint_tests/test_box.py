@@ -624,15 +624,17 @@ def test_box_mutations(
     # Test case 8.2.24a
     label_identifier = f'"{created_box["labelIdentifier"]}"'
     mutation = f"""mutation {{ unassignTagsFromBoxes( updateInput: {{
-            labelIdentifiers: [{label_identifier}], tagIds: [{generic_tag_id}] }} ) {{
-                ...on BoxesResult {{
+            labelIdentifiers: [{label_identifier}],
+            tagIds: [{generic_tag_id},{tag_id}] }} ) {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
-                }} }} }}"""
+                    tagErrorInfo {{ id }}
+                }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
+        "updatedBoxes": [{"tags": [{"id": another_generic_tag_id}]}],
         "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
     }
     query = f"""query {{ box(labelIdentifier: {label_identifier})
                     {{ history {{ changes }} }} }}"""
@@ -652,14 +654,15 @@ def test_box_mutations(
     # Test case 8.2.24c
     mutation = f"""mutation {{ unassignTagsFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagIds: [{generic_tag_id}] }} ) {{
-                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
-                }} }} }}"""
+                    tagErrorInfo {{ id }}
+                }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
         "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
         "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"]],
+        "tagErrorInfo": [],
     }
 
     # Test case 8.2.23h
@@ -685,14 +688,15 @@ def test_box_mutations(
     mutation = f"""mutation {{ unassignTagsFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagIds: [{beneficiary_tag_id}] }} )
                 {{
-                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
-                }} }} }}"""
+                    tagErrorInfo {{ id }}
+                }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
         "updatedBoxes": [],
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
+        "tagErrorInfo": [],
     }
 
     # Test case 8.2.23i
@@ -712,14 +716,15 @@ def test_box_mutations(
     # Test case 8.2.24i
     mutation = f"""mutation {{ unassignTagsFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagIds: [{deleted_tag_id}] }} ) {{
-                ...on BoxesResult {{
                     updatedBoxes {{ id }}
                     invalidBoxLabelIdentifiers
-                }} }} }}"""
+                    tagErrorInfo {{ id }}
+                }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
         "updatedBoxes": [],
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
+        "tagErrorInfo": [],
     }
 
     # Test case 8.2.25
@@ -774,14 +779,15 @@ def test_box_mutations(
     # Test case 8.2.24b, 8.2.24d, 8.2.24j
     mutation = f"""mutation {{ unassignTagsFromBoxes( updateInput: {{
             labelIdentifiers: [{label_identifiers}], tagIds: [{tag_id}] }} ) {{
-                ...on BoxesResult {{
                     updatedBoxes {{ tags {{ id }} }}
                     invalidBoxLabelIdentifiers
-                }} }} }}"""
+                    tagErrorInfo {{ id }}
+                }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
         "updatedBoxes": [],
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
+        "tagErrorInfo": [],
     }
 
     # Test case 8.2.28a
