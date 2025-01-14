@@ -585,8 +585,8 @@ def test_invalid_permission_for_user_read(
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "...on InsufficientPermissionError { name }",
-            {"name": "tag_relation:assign"},
+            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
     ],
 )
@@ -662,8 +662,8 @@ def test_mutate_insufficient_permission(
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "2"},
+            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
     ],
 )

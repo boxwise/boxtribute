@@ -474,26 +474,27 @@ def assign_missing_tags_to_boxes(*, user_id, boxes):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def unassign_tag_from_boxes(*, user_id, boxes, tag):
-    """Soft-delete TagsRelation rows containing the given tag. Update last_modified_*
-    fields of the affected boxes.
+def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
+    """Soft-delete TagsRelation rows containing the given boxes and tag IDs. Already
+    deleted TagsRelations are ignored.
+
+    Update last_modified_* fields of the affected boxes.
     Return the list of updated boxes.
     """
     if not boxes:
         return []
 
-    box_ids = [box.id for box in boxes]
+    box_ids = {box.id for box in boxes}
     now = utcnow()
     with db.database.atomic():
         Box.update(last_modified_on=now, last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
         TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
-            TagsRelation.tag == tag.id,
+            TagsRelation.tag << tag_ids,
             TagsRelation.object_id << box_ids,
             TagsRelation.object_type == TaggableObjectType.Box,
             TagsRelation.deleted_on.is_null(),
         ).execute()
 
-    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
-    return boxes
+    return list(Box.select().where(Box.id << box_ids))
