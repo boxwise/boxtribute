@@ -40,7 +40,7 @@ class BoxesResult:
 
 
 @dataclass(kw_only=True)
-class AssignTagsToBoxesResult(BoxesResult):
+class BoxesTagsOperationResult(BoxesResult):
     tag_error_info: list[dict[str, Any]]
 
 
@@ -240,7 +240,7 @@ def resolve_assign_tags_to_boxes(*_, update_input):
     valid_tag_ids, tag_errors = _validate_tags(tag_ids)
 
     if not valid_tag_ids:
-        return AssignTagsToBoxesResult(
+        return BoxesTagsOperationResult(
             updated_boxes=[],
             invalid_box_label_identifiers=[],
             tag_error_info=tag_errors,
@@ -255,7 +255,7 @@ def resolve_assign_tags_to_boxes(*_, update_input):
     )
     valid_box_label_identifiers = {box["label_identifier"] for box in valid_boxes}
 
-    return AssignTagsToBoxesResult(
+    return BoxesTagsOperationResult(
         updated_boxes=assign_missing_tags_to_boxes(
             user_id=g.user.id, boxes=valid_boxes
         ),
@@ -273,7 +273,7 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
     valid_tag_ids, tag_errors = _validate_tags(tag_ids, for_unassigning=True)
 
     if not valid_tag_ids:
-        return AssignTagsToBoxesResult(
+        return BoxesTagsOperationResult(
             updated_boxes=[],
             invalid_box_label_identifiers=[],
             tag_error_info=tag_errors,
@@ -302,7 +302,7 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
     )
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
-    return AssignTagsToBoxesResult(
+    return BoxesTagsOperationResult(
         updated_boxes=unassign_tags_from_boxes(
             user_id=g.user.id, boxes=boxes, tag_ids=valid_tag_ids
         ),

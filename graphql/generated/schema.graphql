@@ -171,7 +171,7 @@ input BoxMoveInput {
   locationId: Int!
 }
 
-input BoxAssignTagInput {
+input BoxesTagsOperationInput {
   labelIdentifiers: [String!]!
   tagIds: [Int!]!
 }
@@ -348,10 +348,10 @@ type Mutation {
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
   " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  assignTagsToBoxes(updateInput: BoxAssignTagInput): AssignTagsToBoxesResult
-  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  unassignTagsFromBoxes(updateInput: BoxAssignTagInput): AssignTagsToBoxesResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that the user must not access are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
+  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that the user must not access are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
+  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -1137,9 +1137,9 @@ type ShipmentDetail {
 }
 
 """
-Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing) as well as optional info about erroneous tags.
+Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in prohibited base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
 """
-type AssignTagsToBoxesResult {
+type BoxesTagsOperationResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
   tagErrorInfo: [TagErrorInfo!]
@@ -1200,8 +1200,6 @@ type DeletedTagError {
 }
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
-union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
