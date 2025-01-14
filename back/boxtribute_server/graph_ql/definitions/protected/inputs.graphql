@@ -190,9 +190,3 @@ input TagUpdateInput {
   color: String
   type: TagType
 }
-
-input TagOperationInput {
-  id: ID!
-  resourceId: ID!
-  resourceType: TaggableResourceType!
-}

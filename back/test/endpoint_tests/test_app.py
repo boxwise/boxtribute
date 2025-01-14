@@ -157,54 +157,6 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         ["updateShipmentWhenReceiving", "updateInput: { id: 0 }", "id"],
         # Test case 4.2.5
         ["updateTag", "updateInput: { id: 0 }", "id"],
-        # Test case 4.2.15
-        [
-            "assignTag",
-            "assignmentInput: { id: 0, resourceId: 2, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.16
-        [
-            "assignTag",
-            "assignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
-        # Test case 4.2.17
-        [
-            "assignTag",
-            "assignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.18
-        [
-            "assignTag",
-            "assignmentInput: { id: 1, resourceId: 0, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
-        # Test case 4.2.29
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 0, resourceId: 2, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.30
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
-        # Test case 4.2.31
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.32
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
     ],
 )
 def test_update_non_existent_resource(

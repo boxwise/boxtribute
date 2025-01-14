@@ -71,8 +71,6 @@ def create_beneficiary(
         ).execute()
 
         if tag_ids:
-            # Don't use assign_tag() because it requires an existing Beneficiary object,
-            # however the Beneficiary creation has not yet been committed to the DB
             tags_relations = [
                 {
                     "object_id": new_beneficiary.id,
