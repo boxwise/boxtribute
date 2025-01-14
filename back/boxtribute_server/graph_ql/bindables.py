@@ -178,8 +178,6 @@ union_types = (
     UnionType("StandardProductsResult", resolve_type_by_class_name),
     UnionType("DeleteBoxesResult", resolve_type_by_class_name),
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
-    UnionType("AssignTagToBoxesResult", resolve_type_by_class_name),
-    UnionType("UnassignTagFromBoxesResult", resolve_type_by_class_name),
     UnionType("QrCodeResult", resolve_type_by_class_name),
     UnionType("BoxResult", resolve_type_by_class_name),
     UnionType("TagError", resolve_type_by_class_name),
