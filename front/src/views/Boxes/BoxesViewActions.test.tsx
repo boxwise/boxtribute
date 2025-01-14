@@ -211,7 +211,17 @@ const boxesViewActionsTests = [
             location: {
               id: "1",
             },
+            createdBy: {
+              __typename: "User",
+              id: "123",
+              name: "Some User",
+            },
             lastModifiedOn: new Date().toISOString(),
+            lastModifiedBy: {
+              __typename: "User",
+              id: "1234",
+              name: "Another User",
+            },
           },
         },
       }),

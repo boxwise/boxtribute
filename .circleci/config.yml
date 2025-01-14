@@ -49,7 +49,7 @@ jobs:
             pnpm config set store-dir .pnpm-store
       - run:
           name: Install node packages for all front-ends
-          command: pnpm install
+          command: pnpm install --no-frozen-lockfile
       - save_cache:
           key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
           paths:
@@ -171,10 +171,6 @@ jobs:
           file: ../shared-components/coverage/coverage-final.json
       - slack/notify-on-failure:
           only_for_branches: master,production
-      - run:
-          name: Show memory usage of FE tests in Bytes
-          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
-          when: always
 
   # following https://circleci.com/docs/2.0/project-walkthrough/
   test-back:
