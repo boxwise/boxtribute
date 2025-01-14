@@ -179,20 +179,6 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
         "updateTag( updateInput : { id: 1 }) { id }",
         # Test case 4.2.11
         "deleteTag( id: 1 ) { id }",
-        # Test case 4.2.19, 4.2.20
-        """assignTag(
-            assignmentInput: {
-                id: 1
-                resourceId: 1
-                resourceType: Box
-            }) { ...on Box { id } }""",
-        # Test case 4.2.33, 4.2.34
-        """unassignTag(
-            unassignmentInput: {
-                id: 1
-                resourceId: 1
-                resourceType: Box
-            }) { ...on Box { id } }""",
     ],
     ids=operation_name,
 )
@@ -576,17 +562,17 @@ def test_invalid_permission_for_user_read(
         ],
         # Test case 8.2.23e
         [
-            "assignTagToBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 2 }',
-            "...on InsufficientPermissionError { name }",
-            {"name": "tag_relation:assign"},
+            "assignTagsToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
+            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
         # Test case 8.2.24e
         [
-            "unassignTagFromBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 2 }',
-            "...on InsufficientPermissionError { name }",
-            {"name": "tag_relation:assign"},
+            "unassignTagsFromBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
+            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
     ],
 )
@@ -653,17 +639,17 @@ def test_mutate_insufficient_permission(
         ],
         # Test case 8.2.23f
         [
-            "assignTagToBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 4 }',
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "2"},
+            "assignTagsToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
+            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
         # Test case 8.2.24f
         [
-            "unassignTagFromBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 4 }',
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "2"},
+            "unassignTagsFromBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
+            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
     ],
 )

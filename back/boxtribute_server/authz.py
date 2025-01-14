@@ -335,8 +335,8 @@ MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
 MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + ("deleteBoxes",)
 MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "moveBoxesToLocation",
-    "assignTagToBoxes",
-    "unassignTagFromBoxes",
+    "assignTagsToBoxes",
+    "unassignTagsFromBoxes",
 )
 MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createCustomProduct",
@@ -359,8 +359,6 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[6] + (
     "createBeneficiary",
     "updateBeneficiary",
     "deactivateBeneficiary",
-    "assignTag",
-    "unassignTag",
 )
 MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
     # + mutations for mobile distribution pages
