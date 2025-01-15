@@ -245,7 +245,7 @@ It's possible to use PP as a back-end for the link-sharing feature:
 
 #### Disadvantages
 
-- less data insight: we don't have control over created links (no information about amount or which views are being shared; at least not without further tracking)
+- ~less data insight: we don't have control over created links (no information about amount or which views are being shared; at least not without further tracking)~ Using a PP user account enables introspection of generated links
 - increased complexity: we add a second interface that FE has to communicate with; and we have to define a data structure to store information on PP
 - increased complexity: we add an external service for the BE to communicate with
 - dependency: using PP as storage, we become depend and have to update boxtribute (FE or BE or both) if the service becomes unavailable
