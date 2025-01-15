@@ -20,7 +20,7 @@
     "react-table": "^7.8.0",
     "react-csv": "^2.2.2",
     "regenerator-runtime": "^0.14.1",
-    "victory": "^37.3.5"
+    "victory": "^37.3.6"
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
