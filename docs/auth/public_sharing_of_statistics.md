@@ -159,8 +159,10 @@ type Mutation {
 
 input LinkCreationInput {
   baseId: Int!
+  validUntil: Datetime
   # everything after /
   urlTail: String
+  urlParameters: String
   view: ShareableView!
 }
 
@@ -178,6 +180,9 @@ type ShareableLink {
   validUntil: Datetime
   createdOn: Datetime!
   createdBy: User
+  view: ShareableView!
+  # null at creation
+  data: DataCube
 }
 ```
 
