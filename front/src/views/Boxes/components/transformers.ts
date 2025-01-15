@@ -9,6 +9,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
     .map(
       (element) =>
         ({
+          id: element.id,
           labelIdentifier: element.labelIdentifier,
           product: element.product!.name,
           productCategory: element.product!.category.name,
