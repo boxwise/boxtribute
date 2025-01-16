@@ -32,6 +32,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
           hasNextPage
         }
         elements {
+          id
           labelIdentifier
           product {
             ...ProductBasicFields
@@ -127,6 +128,7 @@ function Boxes() {
         "lastModifiedBy",
         "createdBy",
         "productCategory",
+        "id",
       ],
     },
   });
@@ -251,6 +253,13 @@ function Boxes() {
         id: "createdBy",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "ID",
+        accessor: "id",
+        id: "id",
+        Filter: SelectColumnFilter,
+        disableFilters: true,
       },
     ],
     [],
