@@ -147,6 +147,8 @@ def create_box(
                 new_box.save()
 
                 if tag_ids:
+                    # Don't use assign_tag() because it requires an existing Box object,
+                    # however the Box creation has not yet been committed to the DB
                     tags_relations = [
                         {
                             "object_id": new_box.id,

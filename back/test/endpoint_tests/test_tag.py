@@ -3,7 +3,11 @@ from datetime import date
 import pytest
 from boxtribute_server.enums import TagType
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from utils import assert_forbidden_request, assert_successful_request
+from utils import (
+    assert_bad_user_input,
+    assert_forbidden_request,
+    assert_successful_request,
+)
 
 
 def test_tag_query(read_only_client, tags):
@@ -175,6 +179,71 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
             "type": type,
         }
 
+    # Test case 4.2.13
+    box_id = str(lost_box["id"])
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": [{"id": tag_id}]}
+    # Verify that tag can only be assigned once
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": [{"id": tag_id}]}
+
+    # Test case 4.2.14
+    beneficiary_id = str(another_beneficiary["id"])
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    beneficiary = assert_successful_request(client, mutation)
+    assert beneficiary == {"tags": [{"id": tag_id}]}
+
+    query = f"""query {{ tag( id: {tag_id} ) {{
+                taggedResources {{
+                    ...on Beneficiary {{ id }}
+                    ...on Box {{ id }}
+                }}
+    }} }}"""
+    tag = assert_successful_request(client, query)
+    assert tag == {"taggedResources": [{"id": i} for i in [beneficiary_id, box_id]]}
+
+    # Test case 4.2.27
+    mutation = f"""mutation {{
+                unassignTag(unassignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    box = assert_successful_request(client, mutation)
+    assert box == {"tags": []}
+
+    # Test case 4.2.28
+    mutation = f"""mutation {{
+                unassignTag(unassignmentInput: {{
+                    id: {tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    beneficiary = assert_successful_request(client, mutation)
+    assert beneficiary == {"tags": []}
+
+    tag = assert_successful_request(client, query)
+    assert tag == {"taggedResources": []}
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
@@ -276,6 +345,53 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     # Test case 4.2.12
     mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{ id }} }}"""
     assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.39
+    assignment_input = f"""{{
+        id: {tag_id}
+        resourceId: 2
+        resourceType: Box
+    }}"""
+    mutation = f"""mutation {{
+            assignTag( assignmentInput: {assignment_input} ) {{
+                ...on Box {{ id }} }} }}"""
+    assert_forbidden_request(client, mutation)
+
+    # Test case 4.2.40
+    mutation = f"""mutation {{
+            unassignTag( unassignmentInput: {assignment_input} ) {{
+                ...on Box {{ id }} }} }}"""
+    assert_forbidden_request(client, mutation)
+
+
+def test_assign_tag_with_invalid_resource_type(
+    read_only_client, tags, another_beneficiary, default_box
+):
+    # Test case 4.2.23
+    box_tag_id = tags[1]["id"]
+    beneficiary_id = another_beneficiary["id"]
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {box_tag_id}
+                    resourceId: {beneficiary_id}
+                    resourceType: Beneficiary
+                }} ) {{
+                    ...on Beneficiary {{ tags {{ id }} }}
+                }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
+
+    # Test case 4.2.24
+    beneficiary_tag_id = tags[0]["id"]
+    box_id = default_box["id"]
+    mutation = f"""mutation {{
+                assignTag(assignmentInput: {{
+                    id: {beneficiary_tag_id}
+                    resourceId: {box_id}
+                    resourceType: Box
+                }} ) {{
+                    ...on Box {{ tags {{ id }} }}
+                }} }}"""
+    assert_bad_user_input(read_only_client, mutation)
 
 
 @pytest.mark.parametrize(

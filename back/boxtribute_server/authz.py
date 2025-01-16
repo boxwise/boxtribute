@@ -359,6 +359,8 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[6] + (
     "createBeneficiary",
     "updateBeneficiary",
     "deactivateBeneficiary",
+    "assignTag",
+    "unassignTag",
 )
 MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
     # + mutations for mobile distribution pages
