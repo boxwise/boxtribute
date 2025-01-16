@@ -8,8 +8,8 @@ WITH box_ids AS (
     WHERE s.box_id IN %s
     -- filter out deleted boxes
     AND (s.deleted IS NULL OR NOT s.deleted)
-    -- filter out boxes in bases that user is not authorized for
-    AND l.camp_id IN %s
+    -- filter out boxes in bases different from the tags' base
+    AND l.camp_id = %s
 ),
 tag_ids AS (
     SELECT id

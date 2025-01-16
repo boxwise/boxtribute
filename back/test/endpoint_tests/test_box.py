@@ -149,6 +149,7 @@ def test_boxes_query(read_only_client, default_location_boxes):
 
 def test_box_mutations(
     client,
+    default_box,
     another_box,
     qr_code_without_box,
     box_without_qr_code,
@@ -869,6 +870,24 @@ def test_box_mutations(
             {"id": base_1_tag_id, "error": {"_": None}},
             {"id": base_3_tag_id, "error": {"_": None}},
         ],
+    }
+
+    # Test case 8.2.23m
+    label_identifier = default_box["label_identifier"]  # in base 1
+    mutation = f"""mutation {{ assignTagsToBoxes( updateInput: {{
+            labelIdentifiers: ["{label_identifier}"],
+            tagIds: [{base_3_tag_id}] }} ) {{
+                    updatedBoxes {{ tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                    tagErrorInfo {{ id
+                        id
+                        error {{ ...on TagBaseMismatchError {{ _ }} }}
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": [label_identifier],
+        "tagErrorInfo": [],
     }
 
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25

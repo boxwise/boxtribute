@@ -168,9 +168,17 @@ def resolve_move_boxes_to_location(*_, update_input):
 def authorize_tag(tag):
     authorize(permission="tag_relation:assign")
     authorize(permission="tag:read", base_id=tag.base_id)
+    authorize(permission="stock:write", base_id=tag.base_id)
 
 
 def _validate_tags(tag_ids, for_unassigning=False):
+    """Validate tags for given IDs.
+    Return tuple consisting of:
+    - list of IDs of valid tags
+    - list of info about erroneous tags (non-existing, unauthorized for, deleted, or
+      mismatching type)
+    - ID of common base of all tags, if there's a single base, otherwise None
+    """
     tag_errors = []
     valid_tags = []
     for tag_id in tag_ids:
@@ -204,9 +212,17 @@ def _validate_tags(tag_ids, for_unassigning=False):
     tag_base_ids = {t.base_id for t in valid_tags}
     # All requested tags must be registered in the same base
     if len(tag_base_ids) > 1:
-        return [], tag_errors + [
-            {"id": tag_id, "error": TagBaseMismatch()} for tag_id in tag_ids
-        ]
+        # None of the tags is valid; return errors for all of them
+        return (
+            [],
+            tag_errors
+            + [{"id": tag_id, "error": TagBaseMismatch()} for tag_id in tag_ids],
+            None,
+        )
+    elif len(tag_base_ids) == 1:
+        tags_base_id = list(tag_base_ids)[0]
+    else:
+        tags_base_id = None
 
     if for_unassigning:
         for tag in valid_tags:
@@ -231,13 +247,13 @@ def _validate_tags(tag_ids, for_unassigning=False):
                     extras={"tag_id": tag.id},
                 )
 
-    return [tag.id for tag in valid_tags], tag_errors
+    return [tag.id for tag in valid_tags], tag_errors, tags_base_id
 
 
 @mutation.field("assignTagsToBoxes")
 def resolve_assign_tags_to_boxes(*_, update_input):
     tag_ids = set(update_input["tag_ids"])
-    valid_tag_ids, tag_errors = _validate_tags(tag_ids)
+    valid_tag_ids, tag_errors, tags_base_id = _validate_tags(tag_ids)
 
     if not valid_tag_ids:
         return BoxesTagsOperationResult(
@@ -249,7 +265,7 @@ def resolve_assign_tags_to_boxes(*_, update_input):
     label_identifiers = set(update_input["label_identifiers"])
     valid_boxes = execute_sql(
         label_identifiers,
-        g.user.authorized_base_ids("stock:write"),
+        tags_base_id,
         valid_tag_ids,
         query=BOXES_WITH_MISSING_TAGS_QUERY,
     )
@@ -270,7 +286,9 @@ def resolve_assign_tags_to_boxes(*_, update_input):
 @handle_unauthorized
 def resolve_unassign_tags_from_boxes(*_, update_input):
     tag_ids = set(update_input["tag_ids"])
-    valid_tag_ids, tag_errors = _validate_tags(tag_ids, for_unassigning=True)
+    valid_tag_ids, tag_errors, tags_base_id = _validate_tags(
+        tag_ids, for_unassigning=True
+    )
 
     if not valid_tag_ids:
         return BoxesTagsOperationResult(
@@ -295,7 +313,8 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
         )
         .where(
             Box.label_identifier << label_identifiers,
-            authorized_bases_filter(Location, permission="stock:write"),
+            # Boxes in bases different from the tags' common base are filtered out
+            Location.base == tags_base_id,
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
