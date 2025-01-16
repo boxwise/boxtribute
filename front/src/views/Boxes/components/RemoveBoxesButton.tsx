@@ -2,21 +2,23 @@ import React, { useState } from "react";
 import { Row } from "react-table";
 
 import { Button } from "@chakra-ui/react";
-import { FaTrashAlt } from "react-icons/fa";
 import RemoveBoxesOverlay from "./RemoveBoxesOverlay";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
+import { BiTrash } from "react-icons/bi";
 
 interface RemoveBoxesButtonProps {
   onDeleteBoxes: () => void;
   actionsAreLoading: boolean;
   selectedBoxes: Row<BoxRow>[];
+  labelIdentifier: string;
 }
 
 const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
   onDeleteBoxes,
   actionsAreLoading,
   selectedBoxes,
+  labelIdentifier,
 }) => {
   const { createToast } = useNotification();
 
@@ -43,12 +45,16 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
   return (
     <>
       <Button
+        padding={1}
+        variant="ghost"
         onClick={handleOpenDialog}
-        leftIcon={<FaTrashAlt />}
-        iconSpacing={0}
+        leftIcon={<BiTrash />}
+        iconSpacing={2}
         isDisabled={actionsAreLoading}
         data-testid="delete-boxes-button"
-      />
+      >
+        {labelIdentifier}
+      </Button>
       <RemoveBoxesOverlay
         isLoading={actionsAreLoading}
         isOpen={isDialogOpen}
