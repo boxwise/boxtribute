@@ -55,6 +55,10 @@ class TagTypeMismatch(UserError):
         self.expected_type = expected_type
 
 
+class TagBaseMismatch(UserError):
+    _ = None
+
+
 class DeletedTag(UserError):
     def __init__(self, *, name):
         self.name = name

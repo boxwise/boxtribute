@@ -588,6 +588,23 @@ type ShipmentDetail {
   receivedOn: Datetime
 }
 
+"""
+Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in base different from tags' base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
+"""
+type BoxesTagsOperationResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+""" Error info about tag with specified ID. """
+type TagErrorInfo {
+  id: ID!
+  error: TagError!
+}
+
+union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | TagBaseMismatchError | DeletedTagError
+
 type InsufficientPermissionError {
   " e.g. 'product:write' missing "
   name: String!
@@ -623,6 +640,10 @@ type ProductTypeMismatchError {
 type TagTypeMismatchError {
   expectedType: TagType!
 }
+type TagBaseMismatchError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
+}
 type DeletedLocationError {
   name: String!
 }
@@ -631,8 +652,6 @@ type DeletedTagError {
 }
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
-union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
