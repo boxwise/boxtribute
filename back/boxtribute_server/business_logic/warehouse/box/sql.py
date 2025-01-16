@@ -27,7 +27,10 @@ existing_relations AS (
     -- Find existing box-to-tag assignments
     SELECT object_id AS box_id, tag_id
     FROM tags_relations
-    WHERE object_type = "Stock" AND deleted_on IS NULL
+    WHERE object_type = "Stock"
+    AND deleted_on IS NULL
+    AND object_id IN (SELECT id FROM box_ids)
+    AND tag_id IN (SELECT id FROM tag_ids)
 ),
 missing_tags AS (
     -- Identify missing tags for each box
