@@ -242,7 +242,7 @@ function Boxes() {
             isOpen={isPopoverOpen}
             onOpen={setIsPopoverOpen.on}
             onClose={setIsPopoverOpen.off}
-            closeOnBlur={false}
+            closeOnBlur={true}
             isLazy
             lazyBehavior="keepMounted"
           >
@@ -254,7 +254,7 @@ function Boxes() {
                 <FaInfoCircle height={8} width={8} />
               </PopoverTrigger>
             </HStack>
-            <PopoverContent>
+            <PopoverContent minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>
               <PopoverBody>{agePopoverText}</PopoverBody>
             </PopoverContent>
           </Popover>
