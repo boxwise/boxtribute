@@ -237,6 +237,13 @@ It's possible to use PP as a back-end for the link-sharing feature:
 1. The view requests data from the public back-end (e.g. the statviz GraphQL requests), sending the code along
 1. The BE validates the code and returns the data
 
+Second option:
+1. FE sends request to v2 BE to generate link for public sharing. BE generates code by sending a request to the PP REST API. We would need an admin user + password for this and possibly a passphrase if we think we have to secure the data stored in the PP. BE returns code as link URL
+1. When resolving a link, the FE sends request to the public BE. BE validates code and retrieves information from PP.
+1. BE returns information about view along with data, public FE redirects and shows view
+
+Eventually PP can also be self-hosted (to keep take control, and to be independent of an external service) but this would come with increased DevOps effort, and the inconvenience of introducing a second database to store shared links.
+
 #### Advantages
 
 - we can save the entire BE business and database logic around creating and storing shared links (incl. not having to take care of link expiration; plus having the passphrase as extra security mechanism (albeit it can be inspected easily when the public FE sends a request to the public BE))
@@ -246,12 +253,10 @@ It's possible to use PP as a back-end for the link-sharing feature:
 #### Disadvantages
 
 - ~less data insight: we don't have control over created links (no information about amount or which views are being shared; at least not without further tracking)~ Using a PP user account enables introspection of generated links
-- increased complexity: we add a second interface that FE has to communicate with; and we have to define a data structure to store information on PP
-- increased complexity: we add an external service for the BE to communicate with
+- increased complexity: we add a second interface that FE has to communicate with; and we have to define a data structure to store information on PP ("hacky" encoding of link metadata into string)
+- increased complexity: we add an external service for the BE to communicate with. This complicates testing since the service needs to be mocked, and adds a latency
 - dependency: using PP as storage, we become depend and have to update boxtribute (FE or BE or both) if the service becomes unavailable
 
 #### Conclusion
 
-Indecisive. If it's not a major concern to depend on the availability of PP, using it as a back-end makes sense since we save implementation work.
-
-Eventually PP can also be self-hosted (to keep take control, and to be independent of an external service) but this would come with increased DevOps effort, and the inconvenience of introducing a second database to store shared links.
+Implement the data storage ourselves. Using an external service only shifts development and maintenance work while bearing the risk of becoming unavailable
