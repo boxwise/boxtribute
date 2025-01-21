@@ -10,7 +10,12 @@ today = date.today().isoformat()
 
 
 def test_product_query(
-    read_only_client, default_product, default_size, another_size, default_boxes
+    read_only_client,
+    default_product,
+    default_size,
+    another_size,
+    default_boxes,
+    disabled_standard_product,
 ):
     # Test case 8.1.21
     product_id = default_product["id"]
@@ -62,6 +67,12 @@ def test_product_query(
         "lastModifiedBy": None,
         "deletedOn": default_product["deleted_on"],
     }
+
+    query = f"""query {{
+                product(id: {disabled_standard_product["id"]}) {{ instockItemsCount }}
+            }}"""
+    queried_product = assert_successful_request(read_only_client, query)
+    assert queried_product == {"instockItemsCount": 0}
 
 
 @pytest.mark.parametrize(

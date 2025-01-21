@@ -47,6 +47,7 @@ def resolve_instock_items_count(product_obj, _):
             (Box.deleted_on.is_null() | ~Box.deleted_on),
         )
         .scalar()
+        or 0
     )
 
 
