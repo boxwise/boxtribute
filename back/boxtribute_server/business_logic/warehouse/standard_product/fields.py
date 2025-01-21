@@ -10,6 +10,16 @@ def resolve_standard_product_enabled_for_bases(standard_product_obj, info):
     )
 
 
+@standard_product.field("instantiation")
+def resolve_standard_product_instantiation(standard_product_obj, info):
+    try:
+        return standard_product_obj.product
+    except AttributeError:
+        # The product attribute is only set if the originating query was
+        # "standardProducts" with a non-null base ID input
+        return
+
+
 @standard_product.field("category")
 def resolve_standard_product_product_category(standard_product_obj, info):
     return info.context["product_category_loader"].load(
