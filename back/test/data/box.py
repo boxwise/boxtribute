@@ -34,6 +34,7 @@ def default_box_data():
         "qr_code": default_qr_code_data()["id"],
         "display_unit": None,
         "measure_value": None,
+        "deleted_on": None,
     }
 
 

@@ -640,6 +640,8 @@ type Product {
   price: Float
   gender: ProductGender
   comment: String
+  " Number of items of all non-deleted InStock boxes containing the product. "
+  instockItemsCount: Int!
   inShop: Boolean!
   createdBy: User
   createdOn: Datetime
