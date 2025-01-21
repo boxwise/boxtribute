@@ -1,9 +1,7 @@
 from ariadne import ObjectType
-from peewee import fn
 
 from ....authz import authorize
-from ....enums import BoxState, ProductType
-from ....models.definitions.box import Box
+from ....enums import ProductType
 
 product = ObjectType("Product")
 
@@ -38,17 +36,8 @@ def resolve_product_type(product_obj, _):
 
 
 @product.field("instockItemsCount")
-def resolve_instock_items_count(product_obj, _):
-    return (
-        Box.select(fn.SUM(Box.number_of_items))
-        .where(
-            Box.product == product_obj.id,
-            Box.state == BoxState.InStock,
-            (Box.deleted_on.is_null() | ~Box.deleted_on),
-        )
-        .scalar()
-        or 0
-    )
+def resolve_instock_items_count(product_obj, info):
+    return info.context["instock_items_count_for_product_loader"].load(product_obj.id)
 
 
 @product.field("createdBy")

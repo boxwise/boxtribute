@@ -7,6 +7,7 @@ from peewee import SQL, Case, NodeList, fn
 
 from ..authz import authorize, authorized_bases_filter
 from ..db import db
+from ..enums import BoxState as BoxStateEnum
 from ..enums import TaggableObjectType
 from ..models.definitions.base import Base
 from ..models.definitions.box import Box
@@ -485,6 +486,24 @@ class ShipmentDetailForBoxLoader(DataLoader):
         }
         # Keys are in fact box IDs. Return None if box has no shipment detail associated
         return [details.get(i) for i in keys]
+
+
+class InstockItemsCountForProductLoader(DataLoader):
+    async def batch_load_fn(self, product_ids):
+        counts = {
+            product.product_id: product.total_number_of_items
+            for product in Box.select(
+                Box.product,
+                fn.SUM(Box.number_of_items).alias("total_number_of_items"),
+            )
+            .where(
+                Box.product << product_ids,
+                Box.state == BoxStateEnum.InStock,
+                (Box.deleted_on.is_null() | ~Box.deleted_on),
+            )
+            .group_by(Box.product)
+        }
+        return [counts.get(i, 0) for i in product_ids]
 
 
 class SizesForSizeRangeLoader(DataLoader):
