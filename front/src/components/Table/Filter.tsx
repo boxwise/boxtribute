@@ -104,7 +104,7 @@ export function SelectColumnFilter({
         const objectToString = ObjectToString(value);
         groupedOptionLabels.add(objectToString);
         optionValues[objectToString] = value;
-      } else {
+      } else if (value !== undefined) {
         groupedOptionLabels.add(value);
         optionValues[value] = value;
       }
