@@ -524,20 +524,3 @@ class UnitsForDimensionLoader(DataLoader):
         for unit in Unit.select().iterator():
             units[unit.dimension_id].append(unit)
         return [units.get(i, []) for i in keys]
-
-
-class EnabledBasesForStandardProductLoader(DataLoader):
-    async def batch_load_fn(self, standard_product_ids):
-        result = Product.select(Product.standard_product, Base).join(
-            Base,
-            on=(
-                (Product.base == Base.id)
-                & authorized_bases_filter(model=Product)
-                & (Product.standard_product << standard_product_ids)
-                & (Product.deleted_on.is_null())
-            ),
-        )
-        standard_products = defaultdict(list)
-        for row in result:
-            standard_products[row.standard_product_id].append(row.base)
-        return [standard_products.get(i, []) for i in standard_product_ids]

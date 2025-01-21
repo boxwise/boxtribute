@@ -3,13 +3,6 @@ from ariadne import ObjectType
 standard_product = ObjectType("StandardProduct")
 
 
-@standard_product.field("enabledForBases")
-def resolve_standard_product_enabled_for_bases(standard_product_obj, info):
-    return info.context["bases_for_standard_product_loader"].load(
-        standard_product_obj.id
-    )
-
-
 @standard_product.field("instantiation")
 def resolve_standard_product_instantiation(standard_product_obj, info):
     try:

@@ -26,7 +26,6 @@ def test_standard_product_query(
                     gender
                     version
                     instantiation {{ id }}
-                    enabledForBases {{ id }}
                     addedBy {{ id }}
                     deprecatedBy {{ id }}
                     deprecatedOn
@@ -39,7 +38,6 @@ def test_standard_product_query(
         "gender": ProductGender(default_standard_product["gender"]).name,
         "sizeRange": {"id": str(default_standard_product["size_range"])},
         "version": default_standard_product["version"],
-        "enabledForBases": [{"id": "1"}],
         "instantiation": None,
         "addedBy": {"id": str(default_standard_product["added_by"])},
         "deprecatedBy": None,
@@ -65,24 +63,19 @@ def test_standard_product_query(
     query = f"""query {{
                 standardProduct(id: {another_standard_product['id']}) {{
                 ... on StandardProduct {{
-                    enabledForBases {{ id }}
                     instantiation {{ id }}
                 }} }} }}"""
     product = assert_successful_request(read_only_client, query)
-    assert product == {"enabledForBases": [], "instantiation": None}
+    assert product == {"instantiation": None}
 
     mock_user_for_request(mocker, is_god=True)
     query = f"""query {{
                 standardProduct(id: {default_standard_product['id']}) {{
                 ... on StandardProduct {{
-                    enabledForBases {{ id }}
                     instantiation {{ id }}
                 }} }} }}"""
     product = assert_successful_request(read_only_client, query)
-    assert product == {
-        "enabledForBases": [{"id": "1"}, {"id": "3"}],
-        "instantiation": None,
-    }
+    assert product == {"instantiation": None}
 
 
 def test_standard_products_query(

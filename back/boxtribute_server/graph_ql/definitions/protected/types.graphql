@@ -115,8 +115,6 @@ type StandardProduct {
   version: Int!
   " If the standard product is enabled in the current base, this field provides the corresponding product instantiation. The field is only set in the result of the [`standardProducts`]({{Query.standardProducts}}) query with non-null `baseId` input, and null otherwise. "
   instantiation: Product
-  " All bases that this standard product is enabled for. "
-  enabledForBases: [Base!]
   addedBy: User
   addedOn: Datetime
   deprecatedBy: User
