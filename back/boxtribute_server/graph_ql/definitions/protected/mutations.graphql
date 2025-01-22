@@ -73,6 +73,8 @@ type Mutation {
   " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
+  " Create a link that can be publicly shared and resolved. "
+  createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
 
   # Undocumented mutations of the mobile-distribution feature
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot

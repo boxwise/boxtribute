@@ -196,3 +196,10 @@ input TagOperationInput {
   resourceId: ID!
   resourceType: TaggableResourceType!
 }
+
+input LinkCreationInput {
+  baseId: Int!
+  validUntil: Datetime
+  urlParameters: String
+  view: ShareableView!
+}

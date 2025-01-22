@@ -106,6 +106,10 @@ enum TargetType {
   BoxState
 }
 
+enum ShareableView {
+  StatvizDashboard
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """

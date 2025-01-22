@@ -62,6 +62,7 @@ from ..business_logic.mobile_distribution.tracking_group.fields import (
 from ..business_logic.mobile_distribution.tracking_group.queries import (
     query as distribution_events_tracking_group_query,
 )
+from ..business_logic.statistics.mutations import mutation as statistics_mutation
 from ..business_logic.statistics.queries import query as statistics_query
 from ..business_logic.tag.fields import tag
 from ..business_logic.tag.mutations import mutation as tag_mutation
@@ -123,6 +124,7 @@ mutation_types = (
     product_mutation,
     qr_code_mutation,
     shipment_mutation,
+    statistics_mutation,
     tag_mutation,
     transfer_agreement_mutation,
 )
@@ -180,6 +182,7 @@ union_types = (
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
     UnionType("QrCodeResult", resolve_type_by_class_name),
     UnionType("BoxResult", resolve_type_by_class_name),
+    UnionType("ShareableLinkCreationResult", resolve_type_by_class_name),
     UnionType("TagError", resolve_type_by_class_name),
 )
 interface_types = (

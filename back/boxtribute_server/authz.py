@@ -337,6 +337,7 @@ MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "moveBoxesToLocation",
     "assignTagsToBoxes",
     "unassignTagsFromBoxes",
+    "createShareableLink",
 )
 MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createCustomProduct",

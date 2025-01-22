@@ -11,13 +11,14 @@ from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.shareable_link import ShareableLink
 from ...models.definitions.size import Size
 from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
-from ...models.utils import compute_age, convert_ids, execute_sql
+from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
@@ -475,3 +476,19 @@ def compute_stock_overview(base_id):
         "size", "location", "category", "tag", "dimension", facts=facts
     )
     return {"facts": facts, "dimensions": dimensions}
+
+
+def create_shareable_link(
+    *, user_id, base_id, view, valid_until=None, url_parameters=None
+):
+    """Insert information for a new shareable link. Create unique 8-digit code."""
+    link = ShareableLink.create(
+        code="abcdefgh",
+        base_id=base_id,
+        view=view,
+        valid_until=valid_until,
+        url_parameters=url_parameters,
+        created_on=utcnow(),
+        created_by=user_id,
+    )
+    return link
