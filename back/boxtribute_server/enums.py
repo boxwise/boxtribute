@@ -134,3 +134,7 @@ class ProductTypeFilter(enum.Enum):
 class ProductType(enum.IntEnum):
     Custom = 1
     StandardInstantiation = enum.auto()
+
+
+class ShareableView(enum.IntEnum):
+    StatvizDashboard = 1
