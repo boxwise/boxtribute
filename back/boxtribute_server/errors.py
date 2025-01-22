@@ -16,6 +16,11 @@ class InvalidPrice(UserError):
         self.value = value
 
 
+class InvalidDate(UserError):
+    def __init__(self, *, date):
+        self.date = date
+
+
 class EmptyName(UserError):
     _ = None
 

@@ -36,3 +36,15 @@ def test_shareable_link_mutations(client, default_base):
         "validUntil": valid_until + "T00:00:00+00:00",
         "createdBy": {"id": "8"},
     }
+
+    valid_until = "2024-12-31"
+    mutation = f"""mutation {{
+                createShareableLink(creationInput: {{
+                    baseId: {base_id}
+                    view: {ShareableView.StatvizDashboard.name}
+                    validUntil: "{valid_until}"
+                }}) {{
+                    ...on InvalidDateError {{ date }}
+                }} }}"""
+    link = assert_successful_request(client, mutation)
+    assert link == {"date": valid_until + "T00:00:00+00:00"}

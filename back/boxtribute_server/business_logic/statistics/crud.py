@@ -4,6 +4,7 @@ from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
+from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -482,13 +483,18 @@ def create_shareable_link(
     *, user_id, base_id, view, valid_until=None, url_parameters=None
 ):
     """Insert information for a new shareable link. Create unique 8-digit code."""
+    now = utcnow()
+    # Enable comparing offset-naive (valid_until) and offset-aware (now) datetimes
+    if valid_until is not None and valid_until < now.replace(tzinfo=None):
+        return InvalidDate(date=valid_until)
+
     link = ShareableLink.create(
         code="abcdefgh",
         base_id=base_id,
         view=view,
         valid_until=valid_until,
         url_parameters=url_parameters,
-        created_on=utcnow(),
+        created_on=now,
         created_by=user_id,
     )
     return link
