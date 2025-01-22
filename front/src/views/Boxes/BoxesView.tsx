@@ -120,9 +120,6 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
 function Boxes() {
   const { baseId } = useBaseIdParam();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
-  const agePopoverText =
-    "How old the box is from the time it was first created in Boxtribute. We generally recommend not to let your inventory get too old as it can become damaged or degrade while in storage.";
-
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
     tableConfigKey,
@@ -255,7 +252,11 @@ function Boxes() {
               </PopoverTrigger>
             </HStack>
             <PopoverContent minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>
-              <PopoverBody>{agePopoverText}</PopoverBody>
+              <PopoverBody>
+                How old the box is from the time
+                <br />
+                it was first created in Boxtribute.
+              </PopoverBody>
             </PopoverContent>
           </Popover>
         ),
