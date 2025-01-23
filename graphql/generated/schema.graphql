@@ -342,6 +342,7 @@ input TagOperationInput {
 
 input LinkCreationInput {
   baseId: Int!
+  " If not specified, the link will expire after one week. "
   validUntil: Datetime
   urlParameters: String
   view: ShareableView!

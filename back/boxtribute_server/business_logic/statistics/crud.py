@@ -1,5 +1,6 @@
 import random
 import string
+from datetime import timedelta
 from datetime import timezone as dtimezone
 from functools import wraps
 
@@ -492,9 +493,13 @@ def compute_stock_overview(base_id):
 def create_shareable_link(
     *, user_id, base_id, view, valid_until=None, url_parameters=None
 ):
-    """Insert information for a new shareable link. Create unique 8-digit code."""
+    """Insert information for a new shareable link. Create unique 8-digit code.
+    `valid-until` defaults to the date one week from now.
+    """
     now = utcnow()
-    if valid_until is not None:
+    if valid_until is None:
+        valid_until = now + timedelta(weeks=1)
+    else:
         if valid_until.tzinfo is None:
             # If valid_until doesn't have any tzinfo, interprete it as UTC
             valid_until = valid_until.replace(tzinfo=dtimezone.utc)
