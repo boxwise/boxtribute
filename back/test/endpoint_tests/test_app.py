@@ -321,17 +321,17 @@ def test_update_non_existent_resource(
         ],
         # Test case 8.2.23g
         [
-            "assignTagToBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 0 }',
-            "...on ResourceDoesNotExistError { id name }",
-            {"id": "0", "name": "Tag"},
+            "assignTagsToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
+            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
         # Test case 8.2.24g
         [
-            "unassignTagFromBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 0 }',
-            "...on ResourceDoesNotExistError { id name }",
-            {"id": "0", "name": "Tag"},
+            "unassignTagsFromBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
+            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
     ],
 )
