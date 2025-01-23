@@ -1,17 +1,20 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 
 from boxtribute_server.enums import ShareableView
 from boxtribute_server.models.utils import RANDOM_SEQUENCE_GENERATION_ATTEMPTS
 from utils import assert_successful_request
 
-today = date.today()
+today = datetime.today()
 
 
 def test_shareable_link_mutations(client, default_base, mocker):
     # Test case 8.X.X
     base_id = default_base["id"]
     url_parameters = "?from=2024-10-22&to=2025-01-22&boi=ic"
-    valid_until = (today + timedelta(weeks=1)).isoformat()
+    # Future date in system timezone
+    one_week_from_now = (today + timedelta(weeks=1)).astimezone()
+    valid_until = one_week_from_now.isoformat()
+    valid_until_utc = one_week_from_now.astimezone(timezone.utc).isoformat()
     mutation = f"""mutation {{
                 createShareableLink(creationInput: {{
                     baseId: {base_id}
@@ -30,12 +33,12 @@ def test_shareable_link_mutations(client, default_base, mocker):
     link = assert_successful_request(client, mutation)
     first_link_code = link.pop("code")
     assert len(first_link_code) == 8
-    assert link.pop("createdOn").startswith(today.isoformat())
+    assert link.pop("createdOn").startswith(today.date().isoformat())
     assert link == {
         "baseId": base_id,
         "urlParameters": url_parameters,
         "view": ShareableView.StatvizDashboard.name,
-        "validUntil": valid_until + "T00:00:00+00:00",
+        "validUntil": valid_until_utc,
         "createdBy": {"id": "8"},
     }
 

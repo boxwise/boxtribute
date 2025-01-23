@@ -1,5 +1,6 @@
 import random
 import string
+from datetime import timezone as dtimezone
 from functools import wraps
 
 import peewee
@@ -493,9 +494,14 @@ def create_shareable_link(
 ):
     """Insert information for a new shareable link. Create unique 8-digit code."""
     now = utcnow()
-    # Enable comparing offset-naive (valid_until) and offset-aware (now) datetimes
-    if valid_until is not None and valid_until < now.replace(tzinfo=None):
-        return InvalidDate(date=valid_until)
+    if valid_until is not None:
+        if valid_until.tzinfo is None:
+            # If valid_until doesn't have any tzinfo, interprete it as UTC
+            valid_until = valid_until.replace(tzinfo=dtimezone.utc)
+        else:
+            valid_until = valid_until.astimezone(dtimezone.utc)
+        if valid_until < now:
+            return InvalidDate(date=valid_until)
 
     link = None
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
