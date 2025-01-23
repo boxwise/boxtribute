@@ -588,6 +588,13 @@ def test_invalid_permission_for_user_read(
             "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
             {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
+        # Test case 8.
+        [
+            "createShareableLink",
+            'creationInput: { baseId: 1, view: StatvizDashboard, validUntil: "2100-01-01"}',  # noqa
+            "...on InsufficientPermissionError { name }",
+            {"name": "shareable_link:create"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -664,6 +671,13 @@ def test_mutate_insufficient_permission(
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
             "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
             {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
+        ],
+        # Test case 8.
+        [
+            "createShareableLink",
+            'creationInput: { baseId: 3, view: StatvizDashboard, validUntil: "2100-01-01"}',  # noqa
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
         ],
     ],
 )
