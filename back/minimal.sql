@@ -2372,6 +2372,38 @@ INSERT INTO `qr` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `shareable_link`
+--
+
+DROP TABLE IF EXISTS `shareable_link`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `shareable_link` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `valid_until` datetime DEFAULT NULL,
+  `view` varchar(255) NOT NULL,
+  `base_id` int(11) DEFAULT NULL,
+  `url_parameters` varchar(255) DEFAULT NULL,
+  `created_on` datetime NOT NULL,
+  `created_by_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `shareable_link_code` (`code`),
+  KEY `shareable_link_created_by` (`created_by_id`),
+  CONSTRAINT `shareable_link_ibfk_1` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `shareable_link`
+--
+
+LOCK TABLES `shareable_link` WRITE;
+/*!40000 ALTER TABLE `shareable_link` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shareable_link` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `shipment`
 --
 
