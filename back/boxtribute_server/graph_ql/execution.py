@@ -7,8 +7,8 @@ from ..exceptions import format_database_errors
 from .loaders import (
     BaseLoader,
     BoxLoader,
-    EnabledBasesForStandardProductLoader,
     HistoryForBoxLoader,
+    InstockItemsCountForProductLoader,
     LocationLoader,
     OrganisationLoader,
     ProductCategoryLoader,
@@ -40,8 +40,8 @@ def execute_async(*, schema, introspection=None):
         context = {
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
-            "bases_for_standard_product_loader": EnabledBasesForStandardProductLoader(),
             "history_for_box_loader": HistoryForBoxLoader(),
+            "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
             "location_loader": LocationLoader(),
             "organisation_loader": OrganisationLoader(),
             "product_category_loader": ProductCategoryLoader(),

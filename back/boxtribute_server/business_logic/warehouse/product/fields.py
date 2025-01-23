@@ -35,6 +35,11 @@ def resolve_product_type(product_obj, _):
     return ProductType.StandardInstantiation
 
 
+@product.field("instockItemsCount")
+def resolve_instock_items_count(product_obj, info):
+    return info.context["instock_items_count_for_product_loader"].load(product_obj.id)
+
+
 @product.field("createdBy")
 def resolve_product_created_by(product_obj, info):
     return info.context["user_loader"].load(product_obj.created_by_id)

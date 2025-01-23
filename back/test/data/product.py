@@ -162,6 +162,11 @@ def products():
 
 
 @pytest.fixture
+def disabled_standard_product(products):
+    return products[5]
+
+
+@pytest.fixture
 def base1_products(products):
     return [
         products[0],

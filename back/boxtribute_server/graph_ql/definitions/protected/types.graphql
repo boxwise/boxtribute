@@ -92,6 +92,8 @@ type Product {
   price: Float
   gender: ProductGender
   comment: String
+  " Number of items of all non-deleted InStock boxes containing the product. "
+  instockItemsCount: Int!
   inShop: Boolean!
   createdBy: User
   createdOn: Datetime
@@ -111,8 +113,8 @@ type StandardProduct {
   sizeRange: SizeRange!
   gender: ProductGender!
   version: Int!
-  " All bases that this standard product is enabled for. "
-  enabledForBases: [Base!]
+  " If the standard product is enabled in the current base, this field provides the corresponding product instantiation. The field is only set in the result of the [`standardProducts`]({{Query.standardProducts}}) query with non-null `baseId` input, and null otherwise. "
+  instantiation: Product
   addedBy: User
   addedOn: Datetime
   deprecatedBy: User

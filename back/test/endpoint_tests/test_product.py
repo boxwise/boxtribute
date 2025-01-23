@@ -2,17 +2,25 @@ import enum
 from datetime import date
 
 import pytest
-from boxtribute_server.enums import ProductGender, ProductType
+from boxtribute_server.enums import BoxState, ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_successful_request
 
 today = date.today().isoformat()
 
 
-def test_product_query(read_only_client, default_product, default_size, another_size):
+def test_product_query(
+    read_only_client,
+    default_product,
+    default_size,
+    another_size,
+    default_boxes,
+    disabled_standard_product,
+):
     # Test case 8.1.21
+    product_id = default_product["id"]
     query = f"""query {{
-                product(id: {default_product['id']}) {{
+                product(id: {product_id}) {{
                     id
                     name
                     type
@@ -24,6 +32,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
                     price
                     gender
                     comment
+                    instockItemsCount
                     createdBy {{ id }}
                     lastModifiedOn
                     lastModifiedBy {{ id }}
@@ -32,7 +41,7 @@ def test_product_query(read_only_client, default_product, default_size, another_
             }}"""
     queried_product = assert_successful_request(read_only_client, query)
     assert queried_product == {
-        "id": str(default_product["id"]),
+        "id": str(product_id),
         "name": default_product["name"],
         "type": ProductType.Custom.name,
         "category": {"hasGender": True},
@@ -43,12 +52,27 @@ def test_product_query(read_only_client, default_product, default_size, another_
         "base": {"id": str(default_product["base"])},
         "price": default_product["price"],
         "comment": default_product["comment"],
+        "instockItemsCount": sum(
+            [
+                b["number_of_items"]
+                for b in default_boxes
+                if b["product"] == product_id
+                and b["state"] == BoxState.InStock
+                and not b["deleted_on"]
+            ]
+        ),
         "gender": "Women",
         "createdBy": {"id": str(default_product["created_by"])},
         "lastModifiedOn": None,
         "lastModifiedBy": None,
         "deletedOn": default_product["deleted_on"],
     }
+
+    query = f"""query {{
+                product(id: {disabled_standard_product["id"]}) {{ instockItemsCount }}
+            }}"""
+    queried_product = assert_successful_request(read_only_client, query)
+    assert queried_product == {"instockItemsCount": 0}
 
 
 @pytest.mark.parametrize(

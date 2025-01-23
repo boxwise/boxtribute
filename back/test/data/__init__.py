@@ -60,6 +60,7 @@ from .product import (
     base1_products,
     base1_undeleted_products,
     default_product,
+    disabled_standard_product,
     products,
 )
 from .product_category import default_product_category, product_categories
@@ -165,6 +166,7 @@ __all__ = [
     "default_users",
     "deleted_base",
     "deleted_location",
+    "disabled_standard_product",
     "distribution_spot",
     "distro_spot5_distribution_events",
     "distro_spot5_distribution_events_before_return_state",
