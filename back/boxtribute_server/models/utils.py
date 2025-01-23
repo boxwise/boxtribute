@@ -17,6 +17,9 @@ from .definitions.unit import Unit
 # Batch size for bulk insert/update operations
 BATCH_SIZE = 100
 
+# Number of attempts when trying to a generate unique random sequence
+RANDOM_SEQUENCE_GENERATION_ATTEMPTS = 10
+
 
 def utcnow():
     """Return current datetime in UTC, in second precision (the MySQL database is

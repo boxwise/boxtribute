@@ -1,10 +1,13 @@
+import random
+import string
 from functools import wraps
 
+import peewee
 from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
-from ...errors import InvalidDate
+from ...errors import InvalidDate, UniqueCodeCreation
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -19,7 +22,13 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
-from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
+from ...models.utils import (
+    RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
+    compute_age,
+    convert_ids,
+    execute_sql,
+    utcnow,
+)
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
@@ -488,13 +497,26 @@ def create_shareable_link(
     if valid_until is not None and valid_until < now.replace(tzinfo=None):
         return InvalidDate(date=valid_until)
 
-    link = ShareableLink.create(
-        code="abcdefgh",
-        base_id=base_id,
-        view=view,
-        valid_until=valid_until,
-        url_parameters=url_parameters,
-        created_on=now,
-        created_by=user_id,
-    )
+    link = None
+    for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
+        try:
+            code = "".join(random.choices(string.ascii_letters, k=8))
+            link = ShareableLink.create(
+                code=code,
+                base_id=base_id,
+                view=view,
+                valid_until=valid_until,
+                url_parameters=url_parameters,
+                created_on=now,
+                created_by=user_id,
+            )
+            break
+        except peewee.IntegrityError as e:
+            # peewee throws the same exception for different constraint violations.
+            # E.g. failing "NOT NULL" constraint shall be directly reported
+            if f"Duplicate entry '{code}'" not in str(e):
+                raise
+
+    if link is None:
+        return UniqueCodeCreation(code=code)
     return link
