@@ -254,3 +254,14 @@ def test_mutations(auth0_client, mocker):
                 {{ ...on Product {{ deletedOn }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response["deletedOn"].startswith(today)
+
+    mutation = """mutation { createShareableLink (
+            creationInput: { baseId: 100000000, view: StatvizDashboard }
+        ) { ...on ShareableLink {
+            baseId
+            createdOn
+            createdBy { id }
+        } } }"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response.pop("createdOn").startswith(today)
+    assert response == {"baseId": 100000000, "createdBy": {"id": user_id}}
