@@ -3,11 +3,9 @@ from datetime import date
 
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.business_logic.warehouse.box.crud import (
-    BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS,
-)
 from boxtribute_server.enums import BoxState, TagType
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.utils import RANDOM_SEQUENCE_GENERATION_ATTEMPTS
 from utils import (
     assert_bad_user_input,
     assert_forbidden_request,
@@ -1406,7 +1404,7 @@ def test_box_label_identifier_generation(
     # identifier is never unique
     rng_function.return_value = default_box["label_identifier"]
     assert_internal_server_error(client, mutation)
-    assert rng_function.call_count == BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS
+    assert rng_function.call_count == RANDOM_SEQUENCE_GENERATION_ATTEMPTS
 
     # Verify that box-creation succeeds even if an existing identifier happens to be
     # generated once
