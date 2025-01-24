@@ -19,20 +19,10 @@
     "victory": "^37.3.6"
   },
   "devDependencies": {
-    "@chakra-ui/storybook-addon": "^5.2.5",
     "@sentry/types": "^8.50.0",
-    "@storybook/addon-actions": "^8.5.0",
-    "@storybook/addon-essentials": "^8.5.0",
-    "@storybook/addon-interactions": "^8.5.0",
-    "@storybook/addon-links": "^8.5.0",
-    "@storybook/node-logger": "^8.5.0",
-    "@storybook/react": "^8.5.0",
-    "@storybook/react-vite": "^8.5.0",
-    "@storybook/test": "^8.5.0",
     "@types/react-big-calendar": "^1.16.1",
     "@types/react-table": "^7.7.20",
-    "mutationobserver-shim": "^0.3.7",
-    "storybook": "^8.5.0"
+    "mutationobserver-shim": "^0.3.7"
   },
   "scripts": {
     "build": "vite build",
@@ -47,8 +37,6 @@
     "format:check:all": "pnpm format:check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
     "format:check": "prettier --check --ignore-path ../.eslintignore",
     "format:write:all": "pnpm format:write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write": "prettier --write --ignore-path ../.eslintignore",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "format:write": "prettier --write --ignore-path ../.eslintignore"
   }
 }
