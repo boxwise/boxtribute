@@ -8,7 +8,7 @@ today = datetime.today()
 
 
 def test_shareable_link_mutations(client, default_base, mocker):
-    # Test case 8.X.X
+    # Test case 12.2.1
     base_id = default_base["id"]
     view = ShareableView.StatvizDashboard.name
     mutation = f"""mutation {{
@@ -30,6 +30,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
         "view": view,
     }
 
+    # Test case 12.2.2
     url_parameters = "?from=2024-10-22&to=2025-01-22&boi=ic"
     # Future date in system timezone
     two_weeks_from_now = (today + timedelta(weeks=2)).astimezone()
@@ -62,7 +63,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
         "createdBy": {"id": "8"},
     }
 
-    # Test case 8.A
+    # Test case 12.2.3
     past_valid_until = "2024-12-31"
     mutation = f"""mutation {{
                 createShareableLink(creationInput: {{

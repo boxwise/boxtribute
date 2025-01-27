@@ -333,7 +333,7 @@ def test_update_non_existent_resource(
             "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
             {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
-        # Test case 8.
+        # Test case 12.2.6
         [
             "createShareableLink",
             'creationInput: { baseId: 0, view: StatvizDashboard, validUntil: "2100-01-01"}',  # noqa
