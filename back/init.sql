@@ -1726,7 +1726,7 @@ CREATE TABLE `shareable_link` (
   `valid_until` datetime DEFAULT NULL,
   `view` varchar(255) NOT NULL,
   `base_id` int(11) DEFAULT NULL,
-  `url_parameters` varchar(255) DEFAULT NULL,
+  `url_parameters` varchar(65535) DEFAULT NULL,
   `created_on` datetime NOT NULL,
   `created_by_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
