@@ -31,6 +31,7 @@ export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
+  tagOptions: { label: string; value: string }[];
   availableColumns: Column<BoxRow>[];
 }
 
@@ -40,6 +41,7 @@ function BoxesActionsAndTable({
   boxesQueryRef,
   locationOptions,
   shipmentOptions,
+  tagOptions,
   availableColumns,
 }: IBoxesActionsAndTableProps) {
   const navigate = useNavigate();
@@ -269,6 +271,7 @@ function BoxesActionsAndTable({
             <AssignTagsButton
               selectedBoxes={selectedBoxes}
               key="assign-tags"
+              tagOptions={tagOptions}
               onAssignTags={() => {}}
             />
           </MenuItem>
@@ -303,6 +306,7 @@ function BoxesActionsAndTable({
       selectedBoxes,
       thereIsABoxMarkedForShipmentSelected,
       onUnassignBoxesToShipment,
+      tagOptions,
     ],
   );
 

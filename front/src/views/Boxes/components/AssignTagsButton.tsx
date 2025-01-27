@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { Row } from "react-table";
 
-import { Button } from "@chakra-ui/react";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
+import { Button } from "@chakra-ui/react";
 
 interface AssignTagsButtonProps {
   onAssignTags: () => void;
   selectedBoxes: Row<BoxRow>[];
+  tagOptions: { label: string; value: string }[];
 }
 
 const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   //   onAssignTags,
+  // eslint-disable-next-line no-unused-vars
+  // tagOptions,
   selectedBoxes,
 }) => {
   const { createToast } = useNotification();
@@ -38,19 +41,16 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   //   };
 
   return (
-    <>
-      <Button
-        padding={1}
-        variant="ghost"
-        onClick={handleOpenDialog}
-        leftIcon={<BiTag />}
-        iconSpacing={2}
-        // isDisabled={actionsAreLoading}
-        data-testid="assign-tags-button"
-      >
-        Add Tags
-      </Button>
-    </>
+    <Button
+      padding={1}
+      iconSpacing={2}
+      onSelect={handleOpenDialog}
+      leftIcon={<BiTag />}
+      variant="ghost"
+      data-testid="assign-tags-button"
+    >
+      Add Tags
+    </Button>
   );
 };
 
