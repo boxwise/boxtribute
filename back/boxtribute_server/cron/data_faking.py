@@ -28,6 +28,7 @@ from ..business_logic.box_transfer.shipment.crud import (
     update_shipment_when_preparing,
     update_shipment_when_receiving,
 )
+from ..business_logic.statistics.crud import create_shareable_link
 from ..business_logic.tag.crud import create_tag, delete_tag, update_tag
 from ..business_logic.warehouse.box.crud import (
     create_box,
@@ -50,6 +51,7 @@ from ..enums import (
     HumanGender,
     Language,
     ProductGender,
+    ShareableView,
     TagType,
     TransferAgreementType,
 )
@@ -64,7 +66,8 @@ from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unit import Unit
-from ..models.utils import convert_ids
+from ..models.definitions.user import User
+from ..models.utils import convert_ids, utcnow
 
 NR_BASES = 4
 NR_OF_CREATED_TAGS_PER_BASE = 20
@@ -92,6 +95,7 @@ NR_OF_BENEFICIARIES_PER_SMALL_BASE = (
 NR_OF_BOXES_PER_BASE = 100
 NR_OF_BOXES_PER_LARGE_BASE = 500
 NR_OF_QR_CODES = (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE + 99
+NR_OF_SHAREABLE_LINKS_PER_BASE = 25
 
 
 class Generator:
@@ -216,6 +220,10 @@ class Generator:
         )
         with freeze_time(newest_resource_modified_on, auto_tick_seconds=about_one_hour):
             self._generate_transactions()
+
+        newest_resource_created_on = _max_value(Base.created, User.created)
+        with freeze_time(newest_resource_created_on, auto_tick_seconds=about_ten_hours):
+            self._generate_shareable_links()
 
     def _fetch_bases_and_users(self):
         """Obtain relevant test bases (exclude the ones used for Cypress tests), as well
@@ -1064,3 +1072,19 @@ class Generator:
                         user_id=self._user_id(b),
                     )
                     credit -= tokens
+
+    def _generate_shareable_links(self):
+        now = utcnow()
+        for b in self.base_ids:
+            for _ in range(NR_OF_SHAREABLE_LINKS_PER_BASE):
+                create_shareable_link(
+                    base_id=b,
+                    view=self.fake.enum(ShareableView),
+                    # 50% default values; 50% with expiration within 2-10 weeks
+                    valid_until=(
+                        (now + timedelta(weeks=self.fake.random_int(min=2, max=10)))
+                        if self.fake.boolean()
+                        else None
+                    ),
+                    user_id=self._user_id(b),
+                )
