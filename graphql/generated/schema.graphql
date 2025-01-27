@@ -1158,6 +1158,7 @@ type ShipmentDetail {
 
 type ShareableLink {
   id: ID!
+  " A unique SHA256 hash (hex format of length 64) "
   code: String!
   baseId: Int!
   urlParameters: String
@@ -1232,9 +1233,6 @@ type DeletedTagError {
 type InvalidDateError {
   date: Datetime!
 }
-type UniqueCodeCreationError {
-  code: String!
-}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
@@ -1249,7 +1247,7 @@ union StandardProductResult = StandardProduct | InsufficientPermissionError | Re
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
 union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
 union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
-union ShareableLinkCreationResult = ShareableLink | InsufficientPermissionError | UnauthorizedForBaseError | InvalidDateError | UniqueCodeCreationError
+union ShareableLinkCreationResult = ShareableLink | InsufficientPermissionError | UnauthorizedForBaseError | InvalidDateError
 
 type Metrics {
   """

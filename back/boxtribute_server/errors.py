@@ -21,11 +21,6 @@ class InvalidDate(UserError):
         self.date = date
 
 
-class UniqueCodeCreation(UserError):
-    def __init__(self, *, code):
-        self.code = code
-
-
 class EmptyName(UserError):
     _ = None
 

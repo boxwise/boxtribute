@@ -1,15 +1,15 @@
+import hashlib
 import random
 import string
 from datetime import timedelta
 from datetime import timezone as dtimezone
 from functools import wraps
 
-import peewee
 from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
-from ...errors import InvalidDate, UniqueCodeCreation
+from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -24,13 +24,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
-from ...models.utils import (
-    RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
-    compute_age,
-    convert_ids,
-    execute_sql,
-    utcnow,
-)
+from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
@@ -493,7 +487,8 @@ def compute_stock_overview(base_id):
 def create_shareable_link(
     *, user_id, base_id, view, valid_until=None, url_parameters=None
 ):
-    """Insert information for a new shareable link. Create unique 8-digit code.
+    """Insert information for a new shareable link. Create unique SHA256 hex-code of
+    length 64 from input data and additional (random) info.
     `valid-until` defaults to the date one week from now.
     """
     now = utcnow()
@@ -508,26 +503,25 @@ def create_shareable_link(
         if valid_until < now:
             return InvalidDate(date=valid_until)
 
-    link = None
-    for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
-        try:
-            code = "".join(random.choices(string.ascii_letters, k=8))
-            link = ShareableLink.create(
-                code=code,
-                base_id=base_id,
-                view=view,
-                valid_until=valid_until,
-                url_parameters=url_parameters,
-                created_on=now,
-                created_by=user_id,
-            )
-            break
-        except peewee.IntegrityError as e:
-            # peewee throws the same exception for different constraint violations.
-            # E.g. failing "NOT NULL" constraint shall be directly reported
-            if f"Duplicate entry '{code}'" not in str(e):
-                raise
+    short_code = "".join(random.choices(string.ascii_letters, k=8))
+    full_code = hashlib.sha256(
+        bytes(user_id)
+        + bytes(base_id)
+        + view.name.encode()
+        + valid_until.isoformat().encode()
+        + now.isoformat().encode()
+        + short_code.encode(),
+        usedforsecurity=False,
+    )
+    if url_parameters:
+        full_code.update(url_parameters.encode())
 
-    if link is None:
-        return UniqueCodeCreation(code=code)
-    return link
+    return ShareableLink.create(
+        code=full_code.hexdigest(),
+        base_id=base_id,
+        view=view,
+        valid_until=valid_until,
+        url_parameters=url_parameters,
+        created_on=now,
+        created_by=user_id,
+    )

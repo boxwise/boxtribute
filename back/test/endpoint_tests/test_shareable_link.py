@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
 from boxtribute_server.enums import ShareableView
-from boxtribute_server.models.utils import RANDOM_SEQUENCE_GENERATION_ATTEMPTS
 from utils import assert_successful_request
 
 today = datetime.today()
@@ -53,7 +52,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
                 }} }} }}"""
     link = assert_successful_request(client, mutation)
     first_link_code = link.pop("code")
-    assert len(first_link_code) == 8
+    assert len(first_link_code) == 64
     assert link.pop("createdOn").startswith(today.date().isoformat())
     assert link == {
         "baseId": base_id,
@@ -75,32 +74,3 @@ def test_shareable_link_mutations(client, default_base, mocker):
                 }} }}"""
     link = assert_successful_request(client, mutation)
     assert link == {"date": past_valid_until + "T00:00:00+00:00"}
-
-    # Test case 8.Y
-    # Verify that link-creation fails after several attempts if newly generated code is
-    # never unique
-    mutation = f"""mutation {{
-                createShareableLink(creationInput: {{
-                    baseId: {base_id}
-                    view: {view}
-                    validUntil: "{valid_until}"
-                }}) {{
-                    ...on UniqueCodeCreationError {{ code }}
-                    ...on ShareableLink {{ code }}
-                }} }}"""
-
-    rng_function = mocker.patch("random.choices")
-    rng_function.return_value = first_link_code
-    link = assert_successful_request(client, mutation)
-    assert link == {"code": first_link_code}
-    assert rng_function.call_count == RANDOM_SEQUENCE_GENERATION_ATTEMPTS
-
-    # Verify that link-creation succeeds even if an existing code happens to be
-    # generated once
-    code = "fakecode"
-    side_effect = [first_link_code, code]
-    rng_function.reset_mock(return_value=True)
-    rng_function.side_effect = side_effect
-    link = assert_successful_request(client, mutation)
-    assert link == {"code": code}
-    assert rng_function.call_count == len(side_effect)
