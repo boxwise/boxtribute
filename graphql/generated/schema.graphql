@@ -661,7 +661,7 @@ type StandardProduct {
   sizeRange: SizeRange!
   gender: ProductGender!
   version: Int!
-  " If the standard product is enabled in the current base, this field provides the corresponding product instantiation. The field is only set in the result of the [`standardProducts`]({{Query.standardProducts}}) query with non-null `baseId` input, and null otherwise. "
+  " If the standard product is enabled in the current base, this field provides the corresponding product instantiation. The field is only set in the result of the [`standardProducts`]({{Queries.standardProducts}}) query with non-null `baseId` input, and null otherwise. "
   instantiation: Product
   addedBy: User
   addedOn: Datetime
