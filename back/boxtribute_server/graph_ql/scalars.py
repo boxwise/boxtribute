@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from ariadne import ScalarType
 
@@ -19,7 +19,8 @@ def serialize_date(value):
 
 @date_scalar.value_parser
 def parse_date(value):
-    return datetime.strptime(value, "%Y-%m-%d").date()
+    # Allowed formats: YYYY-MM-DD and YYYYMMDD
+    return date.fromisoformat(value)
 
 
 @datetime_scalar.value_parser
