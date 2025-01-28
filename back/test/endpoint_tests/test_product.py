@@ -14,6 +14,7 @@ def test_product_query(
     default_product,
     default_size,
     another_size,
+    default_size_range,
     default_boxes,
     disabled_standard_product,
 ):
@@ -24,10 +25,13 @@ def test_product_query(
                     id
                     name
                     type
-                    category {{
-                        hasGender
+                    category {{ hasGender }}
+                    sizeRange {{
+                        id
+                        name
+                        label
+                        sizes {{ id name label }}
                     }}
-                    sizeRange {{ id sizes {{ id }} }}
                     base {{ id }}
                     price
                     gender
@@ -47,7 +51,20 @@ def test_product_query(
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
-            "sizes": [{"id": str(default_size["id"])}, {"id": str(another_size["id"])}],
+            "name": default_size_range["label"],
+            "label": default_size_range["label"],
+            "sizes": [
+                {
+                    "id": str(default_size["id"]),
+                    "name": default_size["label"],
+                    "label": default_size["label"],
+                },
+                {
+                    "id": str(another_size["id"]),
+                    "name": another_size["label"],
+                    "label": another_size["label"],
+                },
+            ],
         },
         "base": {"id": str(default_product["base"])},
         "price": default_product["price"],
