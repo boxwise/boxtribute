@@ -102,7 +102,7 @@ def _validate_unique_transfer_agreement(
             raise DuplicateTransferAgreement(agreement_id=am.id)
 
 
-def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone):
+def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone, now):
     """Use given valid_* dates and insert time information such that start/end is at
     midnight. Let valid_from default to current UTC time.
     Return converted datetimes (UTC but without timezone information) as tuple.
@@ -115,7 +115,7 @@ def _convert_dates_to_utc_datetimes(valid_from, valid_until, timezone):
             .replace(tzinfo=None)
         )
     else:
-        valid_from = utcnow().replace(tzinfo=None)
+        valid_from = now.replace(tzinfo=None)
 
     if valid_until is not None:
         valid_until = (
@@ -158,8 +158,9 @@ def create_transfer_agreement(
     if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
 
+    now = utcnow()
     valid_from, valid_until = _convert_dates_to_utc_datetimes(
-        valid_from, valid_until, user.timezone
+        valid_from, valid_until, user.timezone, now
     )
 
     if valid_until and valid_from.date() >= valid_until.date():
@@ -210,6 +211,7 @@ def create_transfer_agreement(
             type=type,
             valid_from=valid_from,
             valid_until=valid_until,
+            requested_on=now,
             requested_by=user.id,
             comment=comment,
         )

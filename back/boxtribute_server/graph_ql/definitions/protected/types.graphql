@@ -175,6 +175,8 @@ Representation of product size (e.g. clothing size "XL", shoe size 39).
 """
 type Size {
   id: ID!
+  name: String!
+  " Alias for `name` "
   label: String!
 }
 
@@ -192,6 +194,8 @@ Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a di
 """
 type SizeRange {
   id: ID!
+  name: String!
+  " Alias for `name` "
   label: String!
   " List of sizes belonging to the group "
   sizes: [Size!]!
