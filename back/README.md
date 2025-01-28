@@ -256,9 +256,14 @@ Before implementing any tests, the test behavior should be listed and agreed upo
   4. when an endpoint is accessed for a non-existing resource
 - the expected behavior in these categories is
   1. the response holds the requested (queried/created/modified/deleted) data resource
-  2. the response holds a Forbidden error
+  2. the response holds a Forbidden error (in the GraphQL `errors` response field)
   3. the response holds a BadUserRequest error
   4. the response holds a BadUserRequest error
+- more recently, unions are used to hold the information returned from the endpoint. The union resolves to different results in the scenarios above:
+  1. the requested data resource
+  2. an `InsufficientPermissionError` or `UnauthorizedForBaseError`
+  3. a specific error type (e.g. `NegativeNumberOfItemsError`)
+  4. a `ResourceDoesNotExistError`
 - due to the nature of GraphQL APIs all responses (successful and erroneous) have HTTP status code 200. The content of the "data" and "errors" fields in the JSON response has to be inspected
 - test cases for queries are formulated as "_Client requests single X by ID_" or "_Client requests list of Xs_"
 - test cases for mutations are formulated as "_Client requests operating on X_"
@@ -279,9 +284,9 @@ In the pytest framework, **fixtures** serve as common base setups for individual
 Fixtures are configured in the `conftest.py` files which are automatically loaded before test execution.
 
 The actual test implementation can be in the form of
-a. one test function per test case
-b. one test parameter per test case (useful e.g. for permission tests)
-c. one test function for multiple test cases (e.g. if the tested functionality represents a user flow)
+1.  one test function per test case
+2.  one test parameter per test case (useful e.g. for permission tests)
+3.  one test function for multiple test cases (e.g. if the tested functionality represents a user flow)
 
 #### Data model tests
 
@@ -294,17 +299,18 @@ Test data is set up in the `test/data/` folder. Three definitions are required:
 1.  The default data function returns a dictionary which holds a row of data for that database table (or an iterable containing data for multiple rows)
 
         def data():
+            return [{"id": 1, "name": "foo"}, {"id": 2, "name": "bar"}]
 
-2.  The fixture passes this data into the required tests
+2.  To define a fixture, use the decorator, and let the function return the data.
 
         @pytest.fixture
-        def default_<model>():
+        def <data_model>s():
             return data()
 
 3.  The creation function is called on the setup of a test so that all of the data is in the database when the test is ran
 
         def create():
-            <data_model>.create(**data())
+            <DataModel>.create(**data())
 
 **Please be aware that**
 
@@ -385,10 +391,12 @@ to simulate a god user with ID 8 (for a regular user, set something like `id=1, 
 The back-end codebase is organized as a Python package called `boxtribute_server`. On the top-most level the most relevant modules are
 
 - `main.py` and `api_main.py`: entry-points to start the Flask app
-- `app.py`: Definition and configuration of Flask app
+- `app.py` and `blueprints.py`: Definition and configuration of Flask app
 - `db.py`: Definition of MySQL interface
 - `routes.py`: Definition of web endpoints; invocation of ariadne GraphQL server
 - `auth.py` and `authz.py`: Authentication and authorization utilities
+- `exceptions.py` and `errors.py`: Utility classes for error handling
+- `enums.py`: Application enum definitions
 - `models/`: peewee database models
 - `graph_ql/`: GraphQL schema, definitions, utilities, and resolvers
 
@@ -406,8 +414,12 @@ These submodules contain business logic that ties together the GraphQL layer and
 - `fields.py`: Resolvers for GraphQL type fields that are not handled by the default resolver (e.g. `Beneficiary.registered` returns the logical opposite of the `Beneficiary.not_registered` data model field)
 - `mutations.py`: Resolvers for GraphQL mutations, calling into functions from `crud.py`
 - `queries.py`: Resolvers for GraphQL queries
+- `sql.py`: Optional file for raw SQL query definitions
 
-Ariadne query/mutation/object definitions for a GraphQL type have to be imported into `graph_ql/bindables.py` and added to the respective containers to be visible.
+**During development take into account**:
+- Ariadne query definitions, mutation definitions, and object definitions for a GraphQL type have to be imported into `graph_ql/bindables.py` and added to the respective containers to be visible. The object definition is only required for custom field resolvers
+- Application enum definitions have to be imported into `graph_ql/enums.py` and added to the `enum_types` list
+- Union types must be registered in `graph_ql/bindables.py`. Any object returned from a union resolver (e.g. the `moveBoxesToLocation` mutation) must have counterpart in the GraphQL schema of the same name as the object class (e.g. `BoxesResult`)
 
 ## Production environment
 
