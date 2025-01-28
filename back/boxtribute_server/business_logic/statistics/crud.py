@@ -2,7 +2,6 @@ import hashlib
 import random
 import string
 from datetime import timedelta
-from datetime import timezone as dtimezone
 from functools import wraps
 
 from peewee import JOIN, SQL, fn
@@ -494,14 +493,8 @@ def create_shareable_link(
     now = utcnow()
     if valid_until is None:
         valid_until = now + timedelta(weeks=1)
-    else:
-        if valid_until.tzinfo is None:
-            # If valid_until doesn't have any tzinfo, interprete it as UTC
-            valid_until = valid_until.replace(tzinfo=dtimezone.utc)
-        else:
-            valid_until = valid_until.astimezone(dtimezone.utc)
-        if valid_until < now:
-            return InvalidDate(date=valid_until)
+    elif valid_until < now:
+        return InvalidDate(date=valid_until)
 
     short_code = "".join(random.choices(string.ascii_letters, k=8))
     full_code = hashlib.sha256(

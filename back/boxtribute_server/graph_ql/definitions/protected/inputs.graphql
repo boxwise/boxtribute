@@ -199,7 +199,7 @@ input TagOperationInput {
 
 input LinkCreationInput {
   baseId: Int!
-  " If not specified, the link will expire after one week. "
+  " By default, the link will expire after one week. If no timezone-offset information is passed (via +XX:XX suffix), the time is assumed to be in UTC "
   validUntil: Datetime
   urlParameters: String
   view: ShareableView!
