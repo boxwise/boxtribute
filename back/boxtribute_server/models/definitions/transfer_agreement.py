@@ -3,7 +3,6 @@ from peewee import DateTimeField, TextField
 from ...db import db
 from ...enums import TransferAgreementState, TransferAgreementType
 from ..fields import EnumCharField, UIntForeignKeyField
-from ..utils import utcnow
 from .organisation import Organisation
 from .user import User
 
@@ -16,7 +15,7 @@ class TransferAgreement(db.Model):  # type: ignore
         default=TransferAgreementState.UnderReview,
     )
     type = EnumCharField(choices=TransferAgreementType)
-    requested_on = DateTimeField(default=utcnow)
+    requested_on = DateTimeField()
     requested_by = UIntForeignKeyField(
         model=User,
         column_name="requested_by",
@@ -41,7 +40,7 @@ class TransferAgreement(db.Model):  # type: ignore
         on_delete="SET NULL",
         null=True,
     )
-    valid_from = DateTimeField(default=utcnow)
+    valid_from = DateTimeField()
     valid_until = DateTimeField(null=True)
     comment = TextField(null=True)
 

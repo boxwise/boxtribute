@@ -32,6 +32,8 @@ def data():
             "state": TransferAgreementState.Expired,
             "type": TransferAgreementType.Bidirectional,
             "requested_by": default_user_data()["id"],
+            "requested_on": TIME,
+            "valid_from": TIME,
         },
         {
             "id": 3,
@@ -40,6 +42,8 @@ def data():
             "state": TransferAgreementState.UnderReview,
             "type": TransferAgreementType.Bidirectional,
             "requested_by": default_user_data()["id"],
+            "requested_on": TIME,
+            "valid_from": TIME,
         },
         {
             "id": 4,
@@ -48,6 +52,8 @@ def data():
             "state": TransferAgreementState.Accepted,
             "type": TransferAgreementType.SendingTo,
             "requested_by": default_user_data()["id"],
+            "requested_on": TIME,
+            "valid_from": TIME,
         },
         {
             "id": 5,
@@ -56,6 +62,8 @@ def data():
             "state": TransferAgreementState.UnderReview,
             "type": TransferAgreementType.ReceivingFrom,
             "requested_by": default_user_data()["id"],
+            "requested_on": TIME,
+            "valid_from": TIME,
         },
         {
             "id": 6,
@@ -64,6 +72,7 @@ def data():
             "state": TransferAgreementState.Accepted,
             "type": TransferAgreementType.Bidirectional,
             "requested_by": default_user_data()["id"],
+            "requested_on": TIME,
             "valid_from": datetime(2021, 1, 1),
             "valid_until": datetime(2024, 12, 31),
         },
@@ -74,6 +83,8 @@ def data():
             "state": TransferAgreementState.Accepted,
             "type": TransferAgreementType.Bidirectional,
             "requested_by": default_user_data()["id"],
+            "requested_on": TIME,
+            "valid_from": TIME,
         },
     ]
 
