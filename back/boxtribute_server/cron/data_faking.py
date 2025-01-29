@@ -953,6 +953,10 @@ class Generator:
                     break
 
         for detail in details:
+            if detail.box.label_identifier in lost_box_label_identifiers:
+                # Skip reconciliation of boxes that shall become NotDelivered
+                continue
+
             assert detail.box in prepared_boxes, detail.box.label_identifier
 
             try:
