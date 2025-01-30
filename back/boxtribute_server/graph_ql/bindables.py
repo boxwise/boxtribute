@@ -171,6 +171,10 @@ def resolve_location_type(obj, *_):
     return obj.type.name
 
 
+def resolve_data_cube_type(obj, *_):
+    return obj.type
+
+
 union_types = (
     UnionType("TaggableResource", resolve_type_by_class_name),
     UnionType("CreateCustomProductResult", resolve_type_by_class_name),
@@ -192,4 +196,5 @@ union_types = (
 interface_types = (
     InterfaceType("Location", resolve_location_type),
     InterfaceType("ItemsCollection", resolve_type_by_class_name),
+    InterfaceType("DataCube", resolve_data_cube_type),
 )

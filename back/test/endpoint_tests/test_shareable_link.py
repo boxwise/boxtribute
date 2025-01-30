@@ -84,8 +84,23 @@ def test_shareable_link_queries(read_only_client, shareable_link):
                     view
                     baseId
                     urlParameters
+                    data {{
+                        ...on BeneficiaryDemographicsData {{
+                            demographicsFacts: facts {{ age }}
+                        }}
+                        ...on CreatedBoxesData {{
+                            createdBoxesFacts: facts {{ createdOn }}
+                        }}
+                        ...on MovedBoxesData {{
+                            movedBoxesFacts: facts {{ movedOn }}
+                        }}
+                        ...on StockOverviewData {{
+                            stockOverviewFacts: facts {{ boxState }}
+                        }}
+                    }}
                 }} }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
+    data = response.pop("data")
     assert response == {
         "code": code,
         "validUntil": shareable_link["valid_until"].isoformat(),
@@ -93,3 +108,7 @@ def test_shareable_link_queries(read_only_client, shareable_link):
         "baseId": shareable_link["base_id"],
         "urlParameters": shareable_link["url_parameters"],
     }
+    assert len(data[0]["demographicsFacts"]) > 0
+    assert len(data[1]["createdBoxesFacts"]) > 0
+    assert len(data[2]["movedBoxesFacts"]) > 0
+    assert len(data[3]["stockOverviewFacts"]) > 0
