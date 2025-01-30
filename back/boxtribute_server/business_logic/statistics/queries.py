@@ -1,5 +1,3 @@
-from ariadne import QueryType
-
 from ...authz import authorize, authorize_cross_organisation_access
 from . import query
 from .crud import (
@@ -11,8 +9,6 @@ from .crud import (
     compute_top_products_donated,
     use_db_replica,
 )
-
-public_query = QueryType()
 
 
 @query.field("beneficiaryDemographics")
@@ -88,40 +84,4 @@ def resolve_stock_overview(*_, base_id):
         "tag_relation",
         base_id=base_id,
     )
-    return compute_stock_overview(base_id)
-
-
-@public_query.field("beneficiaryDemographics")
-@use_db_replica
-def public_resolve_beneficiary_demographics(*_, base_id):
-    return compute_beneficiary_demographics(base_id)
-
-
-@public_query.field("createdBoxes")
-@use_db_replica
-def public_resolve_created_boxes(*_, base_id):
-    return compute_created_boxes(base_id)
-
-
-@public_query.field("topProductsCheckedOut")
-@use_db_replica
-def public_resolve_top_products_checked_out(*_, base_id):
-    return compute_top_products_checked_out(base_id)
-
-
-@public_query.field("topProductsDonated")
-@use_db_replica
-def public_resolve_top_products_donated(*_, base_id):
-    return compute_top_products_donated(base_id)
-
-
-@public_query.field("movedBoxes")
-@use_db_replica
-def public_resolve_moved_boxes(*_, base_id=None):
-    return compute_moved_boxes(base_id)
-
-
-@public_query.field("stockOverview")
-@use_db_replica
-def public_resolve_stock_overview(*_, base_id):
     return compute_stock_overview(base_id)
