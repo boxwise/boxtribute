@@ -1,8 +1,10 @@
 import hashlib
 import random
 import string
+from dataclasses import dataclass
 from datetime import timedelta
 from functools import wraps
+from typing import Any
 
 from peewee import JOIN, SQL, fn
 
@@ -26,6 +28,13 @@ from ...models.definitions.unit import Unit
 from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
+
+
+@dataclass(kw_only=True)
+class DataCube:
+    facts: list[dict[str, Any]]
+    dimensions: list[dict[str, Any]]
+    type: str  # Identical to GraphQL DataCube implementation type
 
 
 def use_db_replica(f):
@@ -158,7 +167,9 @@ def compute_beneficiary_demographics(base_id):
     )
 
     dimensions = _generate_dimensions("tag", facts=demographics)
-    return {"facts": demographics, "dimensions": dimensions}
+    return DataCube(
+        facts=demographics, dimensions=dimensions, type="BeneficiaryDemographicsData"
+    )
 
 
 def compute_created_boxes(base_id):
@@ -272,7 +283,7 @@ def compute_created_boxes(base_id):
     ).dicts()
 
     dimensions = _generate_dimensions("category", "product", "tag", facts=facts)
-    return {"facts": facts, "dimensions": dimensions}
+    return DataCube(facts=facts, dimensions=dimensions, type="CreatedBoxesData")
 
 
 def compute_top_products_checked_out(base_id):
@@ -297,7 +308,9 @@ def compute_top_products_checked_out(base_id):
 
     dimensions = _generate_dimensions("category", "product", facts=facts)
     dimensions["size"] = None
-    return {"facts": facts, "dimensions": dimensions}
+    return DataCube(
+        facts=facts, dimensions=dimensions, type="TopProductsCheckedOutData"
+    )
 
 
 def compute_top_products_donated(base_id):
@@ -339,7 +352,7 @@ def compute_top_products_donated(base_id):
     ).dicts()
 
     dimensions = _generate_dimensions("category", "product", "size", facts=facts)
-    return {"facts": facts, "dimensions": dimensions}
+    return DataCube(facts=facts, dimensions=dimensions, type="TopProductsDonatedData")
 
 
 def compute_moved_boxes(base_id):
@@ -398,7 +411,7 @@ def compute_moved_boxes(base_id):
             facts=facts,
         )["target"]
     )
-    return {"facts": facts, "dimensions": dimensions}
+    return DataCube(facts=facts, dimensions=dimensions, type="MovedBoxesData")
 
 
 def compute_stock_overview(base_id):
@@ -480,7 +493,7 @@ def compute_stock_overview(base_id):
     dimensions = _generate_dimensions(
         "size", "location", "category", "tag", "dimension", facts=facts
     )
-    return {"facts": facts, "dimensions": dimensions}
+    return DataCube(facts=facts, dimensions=dimensions, type="StockOverviewData")
 
 
 def create_shareable_link(

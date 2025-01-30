@@ -1,5 +1,6 @@
 from ariadne import make_executable_schema
 
+from ..business_logic.statistics.fields import resolved_link
 from ..business_logic.statistics.queries import public_query
 from .bindables import (
     interface_types,
@@ -46,6 +47,8 @@ public_api_schema = make_executable_schema(
     date_scalar,
     datetime_scalar,
     public_query,
+    resolved_link,
+    interface_types[-1],
     *enum_types,
     convert_names_case=True,
 )
