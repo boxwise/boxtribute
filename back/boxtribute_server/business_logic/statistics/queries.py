@@ -1,7 +1,11 @@
+from datetime import timezone
+
 from ariadne import QueryType
 
 from ...authz import authorize, authorize_cross_organisation_access
+from ...errors import ExpiredLink, UnknownLink
 from ...models.definitions.shareable_link import ShareableLink
+from ...models.utils import utcnow
 from . import query
 from .crud import (
     compute_beneficiary_demographics,
@@ -95,4 +99,17 @@ def resolve_stock_overview(*_, base_id):
 @public_query.field("shareableLink")
 @use_db_replica
 def resolve_shareable_link(*_, code):
-    return ShareableLink.get(ShareableLink.code == code)
+    # Enable resolving union by masking actual model class with subclass whose name
+    # matches the required GraphQL type
+    class ResolvedLink(ShareableLink):
+        class Meta:
+            table_name = ShareableLink._meta.table_name
+
+    link = ResolvedLink.get_or_none(ResolvedLink.code == code)
+    if link is None:
+        return UnknownLink(code=code)
+
+    if link.valid_until.replace(tzinfo=timezone.utc) < utcnow():
+        return ExpiredLink(valid_until=link.valid_until)
+
+    return link

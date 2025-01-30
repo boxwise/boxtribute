@@ -72,7 +72,7 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
-from .shareable_link import shareable_link
+from .shareable_link import expired_link, shareable_link
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -173,6 +173,7 @@ __all__ = [
     "distro_spot5_distribution_events",
     "distro_spot5_distribution_events_before_return_state",
     "distro_spot5_distribution_events_in_return_state",
+    "expired_link",
     "expired_transfer_agreement",
     "god_user",
     "gram_unit",

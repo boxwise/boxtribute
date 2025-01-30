@@ -205,5 +205,6 @@ interface_types = (
 public_api_types = (
     shareable_link_query,
     resolved_link,
+    UnionType("ResolvedLinkResult", resolve_type_by_class_name),
     InterfaceType("DataCube", resolve_data_cube_type),
 )
