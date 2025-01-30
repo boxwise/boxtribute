@@ -511,7 +511,7 @@ def create_shareable_link(
 
     return ShareableLink.create(
         code=full_code.hexdigest(),
-        base_id=base_id,
+        base=base_id,
         view=view,
         valid_until=valid_until,
         url_parameters=url_parameters,

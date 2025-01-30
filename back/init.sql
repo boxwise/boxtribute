@@ -1725,14 +1725,16 @@ CREATE TABLE `shareable_link` (
   `code` varchar(255) NOT NULL,
   `valid_until` datetime DEFAULT NULL,
   `view` varchar(255) NOT NULL,
-  `base_id` int DEFAULT NULL,
-  `url_parameters` varchar(65535) DEFAULT NULL,
+  `base_id` int unsigned DEFAULT NULL,
+  `url_parameters` varchar(2000) DEFAULT NULL,
   `created_on` datetime NOT NULL,
   `created_by_id` int unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `shareable_link_code` (`code`),
-  KEY `shareable_link_created_by` (`created_by_id`),
-  CONSTRAINT `shareable_link_ibfk_1` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `created_by_id` (`created_by_id`),
+  KEY `base_id` (`base_id`),
+  CONSTRAINT `shareable_link_ibfk_1` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `shareable_link_ibfk_2` FOREIGN KEY (`base_id`) REFERENCES `camps` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
