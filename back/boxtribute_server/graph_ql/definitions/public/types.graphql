@@ -191,3 +191,11 @@ type ResolvedLink {
   validUntil: Datetime
   data: [DataCube!]
 }
+
+type UnknownLinkError {
+  code: String!
+}
+type ExpiredLinkError {
+  validUntil: Datetime!
+}
+union ResolvedLinkResult = ResolvedLink | ExpiredLinkError | UnknownLinkError

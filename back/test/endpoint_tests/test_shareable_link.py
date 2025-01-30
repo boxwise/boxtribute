@@ -76,9 +76,10 @@ def test_shareable_link_mutations(client, default_base, mocker):
     assert link == {"date": past_valid_until + "T00:00:00+00:00"}
 
 
-def test_shareable_link_queries(read_only_client, shareable_link):
+def test_shareable_link_queries(read_only_client, shareable_link, expired_link):
     code = shareable_link["code"]
     query = f"""query {{ shareableLink(code: "{code}") {{
+                ...on ResolvedLink {{
                     code
                     validUntil
                     view
@@ -98,7 +99,7 @@ def test_shareable_link_queries(read_only_client, shareable_link):
                             stockOverviewFacts: facts {{ boxState }}
                         }}
                     }}
-                }} }}"""
+                }} }} }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     data = response.pop("data")
     assert response == {
@@ -112,3 +113,17 @@ def test_shareable_link_queries(read_only_client, shareable_link):
     assert len(data[1]["createdBoxesFacts"]) > 0
     assert len(data[2]["movedBoxesFacts"]) > 0
     assert len(data[3]["stockOverviewFacts"]) > 0
+
+    code = expired_link["code"]
+    query = f"""query {{ shareableLink(code: "{code}") {{
+                    ...on ExpiredLinkError {{ validUntil }}
+                }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == {"validUntil": expired_link["valid_until"].isoformat()}
+
+    code = "unknown"
+    query = f"""query {{ shareableLink(code: "{code}") {{
+                    ...on UnknownLinkError {{ code }}
+                }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == {"code": code}

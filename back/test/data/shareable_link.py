@@ -23,13 +23,28 @@ def data():
             "url_parameters": "?filter=foo",
             "created_on": now,
             "created_by": default_user_data()["id"],
-        }
+        },
+        {
+            "id": 2,
+            "code": hashlib.sha256(b"2").hexdigest(),
+            "valid_until": now - timedelta(weeks=1),
+            "view": ShareableView.StatvizDashboard,
+            "base_id": 1,
+            "url_parameters": None,
+            "created_on": now - timedelta(weeks=2),
+            "created_by": default_user_data()["id"],
+        },
     ]
 
 
 @pytest.fixture
 def shareable_link():
     return data()[0]
+
+
+@pytest.fixture
+def expired_link():
+    return data()[1]
 
 
 def create():
