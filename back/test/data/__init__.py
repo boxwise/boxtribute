@@ -72,6 +72,7 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
+from .shareable_link import shareable_link
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -204,6 +205,7 @@ __all__ = [
     "removed_shipment_detail",
     "reviewed_transfer_agreement",
     "sent_shipment",
+    "shareable_link",
     "shipments",
     "size_ranges",
     "standard_products",
@@ -239,6 +241,7 @@ _NAMES = [
     "transfer_agreement",
     "shipment",
     "tag",
+    "shareable_link",
 ]
 
 
