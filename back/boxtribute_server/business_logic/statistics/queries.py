@@ -1,4 +1,7 @@
+from ariadne import QueryType
+
 from ...authz import authorize, authorize_cross_organisation_access
+from ...models.definitions.shareable_link import ShareableLink
 from . import query
 from .crud import (
     compute_beneficiary_demographics,
@@ -9,6 +12,8 @@ from .crud import (
     compute_top_products_donated,
     use_db_replica,
 )
+
+public_query = QueryType()
 
 
 @query.field("beneficiaryDemographics")
@@ -85,3 +90,9 @@ def resolve_stock_overview(*_, base_id):
         base_id=base_id,
     )
     return compute_stock_overview(base_id)
+
+
+@public_query.field("shareableLink")
+@use_db_replica
+def resolve_shareable_link(*_, code):
+    return ShareableLink.get(ShareableLink.code == code)

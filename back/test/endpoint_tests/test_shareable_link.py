@@ -74,3 +74,22 @@ def test_shareable_link_mutations(client, default_base, mocker):
                 }} }}"""
     link = assert_successful_request(client, mutation)
     assert link == {"date": past_valid_until + "T00:00:00+00:00"}
+
+
+def test_shareable_link_queries(read_only_client, shareable_link):
+    code = shareable_link["code"]
+    query = f"""query {{ shareableLink(code: "{code}") {{
+                    code
+                    validUntil
+                    view
+                    baseId
+                    urlParameters
+                }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == {
+        "code": code,
+        "validUntil": shareable_link["valid_until"].isoformat(),
+        "view": ShareableView.StatvizDashboard.name,
+        "baseId": shareable_link["base_id"],
+        "urlParameters": shareable_link["url_parameters"],
+    }
