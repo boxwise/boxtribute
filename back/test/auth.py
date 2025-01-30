@@ -128,6 +128,7 @@ def _create_jwt_payload(
             f"{base_prefix}/product_category:read",
             f"{base_prefix}/qr:create",
             f"{base_prefix}/qr:read",
+            f"{base_prefix}/shareable_link:create",
             f"{base_prefix}/size:read",
             f"{base_prefix}/size_range:read",
             f"{base_prefix}/stock:read",

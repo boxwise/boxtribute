@@ -106,6 +106,10 @@ enum TargetType {
   BoxState
 }
 
+enum ShareableView {
+  StatvizDashboard
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """
@@ -335,6 +339,14 @@ input TagOperationInput {
   resourceId: ID!
   resourceType: TaggableResourceType!
 }
+
+input LinkCreationInput {
+  baseId: Int!
+  " By default, the link will expire after one week. If no timezone-offset information is passed (via +XX:XX suffix), the time is assumed to be in UTC "
+  validUntil: Datetime
+  urlParameters: String
+  view: ShareableView!
+}
 # Naming convention:
 # - input argument: creationInput/updateInput
 # - input type: <Resource>CreationInput/UpdateInput
@@ -410,6 +422,8 @@ type Mutation {
   " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
+  " Create a link that can be publicly shared and resolved. "
+  createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
 
   # Undocumented mutations of the mobile-distribution feature
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
@@ -1142,6 +1156,18 @@ type ShipmentDetail {
   receivedOn: Datetime
 }
 
+type ShareableLink {
+  id: ID!
+  " A unique SHA256 hash (hex format of length 64) "
+  code: String!
+  baseId: Int!
+  urlParameters: String
+  view: ShareableView!
+  validUntil: Datetime
+  createdOn: Datetime!
+  createdBy: User!
+}
+
 """
 Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in base different from tags' base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
 """
@@ -1204,6 +1230,9 @@ type DeletedLocationError {
 type DeletedTagError {
   name: String!
 }
+type InvalidDateError {
+  date: Datetime!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
@@ -1218,6 +1247,7 @@ union StandardProductResult = StandardProduct | InsufficientPermissionError | Re
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
 union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
 union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
+union ShareableLinkCreationResult = ShareableLink | InsufficientPermissionError | UnauthorizedForBaseError | InvalidDateError
 
 type Metrics {
   """

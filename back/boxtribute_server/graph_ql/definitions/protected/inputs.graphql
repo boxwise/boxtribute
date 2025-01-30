@@ -196,3 +196,11 @@ input TagOperationInput {
   resourceId: ID!
   resourceType: TaggableResourceType!
 }
+
+input LinkCreationInput {
+  baseId: Int!
+  " By default, the link will expire after one week. If no timezone-offset information is passed (via +XX:XX suffix), the time is assumed to be in UTC "
+  validUntil: Datetime
+  urlParameters: String
+  view: ShareableView!
+}

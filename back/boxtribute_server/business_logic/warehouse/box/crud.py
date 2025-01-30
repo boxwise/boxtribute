@@ -29,13 +29,12 @@ from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
+    RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
     convert_ids,
     save_creation_to_history,
     save_update_to_history,
     utcnow,
 )
-
-BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
 def is_measure_product(product):
@@ -120,7 +119,7 @@ def create_box(
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
 
-    for _ in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
+    for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
             new_box = Box()
             new_box.comment = comment
