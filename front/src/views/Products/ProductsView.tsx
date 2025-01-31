@@ -185,9 +185,7 @@ function Products() {
         onRefetch={refetchStandardProducts}
         productsQueryRef={standardProductsQueryRef}
         columns={availableColumns}
-        selectedRowsArePending={false} // TODO: what's this?
-        // setSelectedBoxes={} // TODO: what's this?
-        // onBoxRowClick={}
+        selectedRowsArePending={false} // true on disable product
       />
     </>
   );

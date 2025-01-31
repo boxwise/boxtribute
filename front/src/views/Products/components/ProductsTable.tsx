@@ -48,8 +48,6 @@ type ProductTableProps = {
   onRefetch: (variables?: StandardProductsforProductsViewVariables) => void;
   productsQueryRef: QueryRef<StandardProductsforProductsViewQuery>;
   columns: Column<ProductRow>[];
-  // onBoxRowClick?: (labelIdentified: string) => void;
-  setSelectedBoxes?: (rows: Row<ProductRow>[]) => void;
   selectedRowsArePending: boolean;
 };
 
@@ -58,8 +56,6 @@ function ProductsTable({
   onRefetch,
   productsQueryRef,
   columns,
-  // onBoxRowClick,
-  // setSelectedBoxes,
   selectedRowsArePending,
 }: ProductTableProps) {
   const { baseId } = useBaseIdParam();
@@ -91,7 +87,6 @@ function ProductsTable({
     pageOptions,
     nextPage,
     previousPage,
-    // selectedFlatRows,
   } = useTable(
     {
       columns,
@@ -129,10 +124,6 @@ function ProductsTable({
     //   ]);
     // },
   );
-
-  // useEffect(() => {
-  //   setSelectedBoxes(selectedFlatRows.map((row) => row));
-  // }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {
     // refetch
@@ -211,7 +202,6 @@ function ProductsTable({
                   }
                   cursor="pointer"
                   {...row.getRowProps()}
-                  // onClick={() => onBoxRowClick(row.original.labelIdentifier)}
                   key={row.original.id}
                 >
                   {row.cells.map((cell) => (
