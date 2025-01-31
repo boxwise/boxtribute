@@ -432,18 +432,18 @@ const mockCreateShipmentHandler = baseMutationHandler(CREATE_SHIPMENT_MUTATION, 
   return HttpResponse.json({ data: { createShipment: newShipment } });
 })
 
+// box history
+// shipment history
+// CreateTransferAgreements
 // SendShipment
 // CancelShipment
 // UpdateShipmentWhenReceiving
 // RemoveBoxFromShipment
-// DeleteBoxes
-// CreateTransferAgreements
 // CancelTransferAgreements
-// box history
-// shipment history
-// box not changing state 2nd time?
+// DeleteBoxes
 // bug with assigning tags?
 // multibox tag, location, shipment diff base errors?
+// box not changing state 2nd time?
 
 // Exported handlers to be consumed by MSW
 export const handlers = [
