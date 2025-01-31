@@ -193,7 +193,6 @@ function ProductsTable({
               </Tr>
             )}
             {page.map((row) => {
-              console.log("ROW", row);
               prepareRow(row);
               if (row.isSelected && selectedRowsArePending) {
                 return (

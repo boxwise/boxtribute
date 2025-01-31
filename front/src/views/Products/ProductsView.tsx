@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useBackgroundQuery } from "@apollo/client";
-import { Box, Heading } from "@chakra-ui/react";
+import { Heading, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { Column } from "react-table";
 import { graphql } from "../../../../graphql/graphql";
 import { useTableConfig } from "hooks/hooks";
@@ -10,6 +10,7 @@ import { ProductRow } from "./components/transformers";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import ProductsTable from "./components/ProductsTable";
 import { FaCheckCircle } from "react-icons/fa";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -55,6 +56,9 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
 
 function Products() {
   const { baseId } = useBaseIdParam();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
+  const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
   const tableConfigKey = `bases/${baseId}/products`;
   const tableConfig = useTableConfig({
     tableConfigKey,
@@ -162,7 +166,20 @@ function Products() {
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Products
       </Heading>
-      {/* TODO: tabs with base products linking to dropapp `${oldAppUrlWithBase}&action=products` */}
+      <Tabs variant="enclosed" mb={4} defaultIndex={1}>
+        <TabList>
+          <Tab
+            onClick={() => (window.location.href = `${oldAppUrlWithBase}&action=products`)}
+            fontWeight="bold"
+            flex={1}
+          >
+            {baseName?.toUpperCase()} PRODUCTS
+          </Tab>
+          <Tab fontWeight="bold" flex={1}>
+            ASSORT STANDARD PRODUCTS
+          </Tab>
+        </TabList>
+      </Tabs>
       <ProductsTable
         tableConfig={tableConfig}
         onRefetch={refetchStandardProducts}
