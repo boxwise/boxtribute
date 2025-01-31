@@ -170,7 +170,7 @@ jobs:
             FRONT_USE_MSW: true
           command: |
             SHARD="$((${CIRCLE_NODE_INDEX}+1))"; ls tests && pnpm test -- --shard=${SHARD}/${CIRCLE_NODE_TOTAL}
-      # TODO: add coverage, report, memory usage
+      # TODO: add coverage, report, record video on fail
       # - store_test_results:
       #     path: coverage/junit.xml
       # - store_artifacts:

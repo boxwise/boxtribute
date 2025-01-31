@@ -83,15 +83,5 @@ module.exports = {
         tsx: "never",
       },
     ],
-  },
-  overrides: [
-    {
-      files: [
-        "**/?(__)tests?(__)/**/*.[jt]s?(x)",
-        "**/?(*.)+(spec|test).[jt]s?(x)",
-        "**/mocks/**/*.[jt]s?(x)",
-      ],
-      extends: ["plugin:testing-library/react"],
-    },
-  ],
+  }
 };
