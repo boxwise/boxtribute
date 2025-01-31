@@ -113,20 +113,21 @@ function ProductsTable({
     useSortBy,
     usePagination,
     useRowSelect,
-    (hooks) => {
-      hooks.visibleColumns.push((col) => [
-        {
-          id: "selection",
-          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any>) => (
-            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-          ),
-          Cell: ({ row }: CellProps<any>) => (
-            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-          ),
-        },
-        ...col,
-      ]);
-    },
+    // TODO: uncomment this on next interactions
+    // (hooks) => {
+    //   hooks.visibleColumns.push((col) => [
+    //     {
+    //       id: "selection",
+    //       Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any>) => (
+    //         <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
+    //       ),
+    //       Cell: ({ row }: CellProps<any>) => (
+    //         <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+    //       ),
+    //     },
+    //     ...col,
+    //   ]);
+    // },
   );
 
   // useEffect(() => {
@@ -154,11 +155,11 @@ function ProductsTable({
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        {/* TODO: bulk actions */}
-        <ButtonGroup mb={2}>
+        {/* TODO: bulk actions + uncomment this on next interactions */}
+        {/* <ButtonGroup mb={2}>
           <Button>Enable</Button>
           <Button>Disable</Button>
-        </ButtonGroup>
+        </ButtonGroup> */}
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector availableColumns={allColumns} />
