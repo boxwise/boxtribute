@@ -1,4 +1,7 @@
+from peewee import fn
+
 from ..db import db
+from ..models.definitions.user import User
 
 
 def clean_up_user_email_addresses():
@@ -6,12 +9,8 @@ def clean_up_user_email_addresses():
     updated rows.
     """
     with db.database.atomic():
-        cursor = db.database.execute_sql(
-            r"""
-UPDATE cms_users
-SET email = SUBSTRING_INDEX(email, '.deleted.', 2)
-WHERE email REGEXP '\\.deleted\\.\\d+\\.deleted\\.\\d+$'
-;
-"""
+        return (
+            User.update(email=fn.SUBSTRING_INDEX(User.email, ".deleted.", 2))
+            .where(User.email.iregexp(r"\.deleted\.\d+\.deleted\.\d+$"))
+            .execute()
         )
-        return db.database.rows_affected(cursor)
