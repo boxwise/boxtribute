@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useTransition } from "react";
+import { QueryRef, useReadQuery } from "@apollo/client";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -27,7 +28,6 @@ import {
   CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { QueryRef, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
@@ -35,43 +35,42 @@ import {
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
-import { BoxRow } from "./types";
-import {
-  boxesRawDataToTableDataTransformer,
-  prepareBoxesForBoxesViewQueryVariables,
-} from "./transformers";
+import { ProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import {
+  StandardProductsforProductsViewQuery,
+  StandardProductsforProductsViewVariables,
+} from "queries/types";
 
-interface IBoxesTableProps {
+type ProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
-  boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
-  columns: Column<BoxRow>[];
-  actionButtons: React.ReactNode[];
-  onBoxRowClick: (labelIdentified: string) => void;
-  setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
+  onRefetch: (variables?: StandardProductsforProductsViewVariables) => void;
+  productsQueryRef: QueryRef<StandardProductsforProductsViewQuery>;
+  columns: Column<ProductRow>[];
+  // onBoxRowClick?: (labelIdentified: string) => void;
+  setSelectedBoxes?: (rows: Row<ProductRow>[]) => void;
   selectedRowsArePending: boolean;
-}
+};
 
-function BoxesTable({
+function ProductsTable({
   tableConfig,
   onRefetch,
-  boxesQueryRef,
+  productsQueryRef,
   columns,
-  actionButtons,
-  onBoxRowClick,
-  setSelectedBoxes,
+  // onBoxRowClick,
+  // setSelectedBoxes,
   selectedRowsArePending,
-}: IBoxesTableProps) {
+}: ProductTableProps) {
   const { baseId } = useBaseIdParam();
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
-  const { data: rawData } = useReadQuery(boxesQueryRef);
-  const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
+  const { data: rawData } = useReadQuery(productsQueryRef);
+  const tableData = useMemo(
+    () => standardProductsRawDataToTableDataTransformer(rawData),
+    [rawData],
+  );
 
-  // Add custom filter function to filter objects in a column
-  // https://react-table-v7.tanstack.com/docs/examples/filtering
+  // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
       includesSomeObject: includesSomeObjectFilterFn,
@@ -118,10 +117,10 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => (
+          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any>) => (
             <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
-          Cell: ({ row }: CellProps<any, any>) => (
+          Cell: ({ row }: CellProps<any>) => (
             <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
           ),
         },
@@ -130,50 +129,44 @@ function BoxesTable({
     },
   );
 
-  useEffect(() => {
-    setSelectedBoxes(selectedFlatRows.map((row) => row));
-  }, [selectedFlatRows, setSelectedBoxes]);
+  // useEffect(() => {
+  //   setSelectedBoxes(selectedFlatRows.map((row) => row));
+  // }, [selectedFlatRows, setSelectedBoxes]);
 
   useEffect(() => {
     // refetch
     const newStateFilter = filters.find((filter) => filter.id === "state");
     const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-    if (newStateFilter !== oldStateFilter) {
-      startRefetchBoxes(() => {
-        onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
-      });
-    }
+
+    if (newStateFilter !== oldStateFilter) startRefetchBoxes(() => onRefetch({ baseId }));
 
     // update tableConfig
-    if (globalFilter !== tableConfig.getGlobalFilter()) {
-      tableConfig.setGlobalFilter(globalFilter);
-    }
-    if (filters !== tableConfig.getColumnFilters()) {
-      tableConfig.setColumnFilters(filters);
-    }
-    if (sortBy !== tableConfig.getSortBy()) {
-      tableConfig.setSortBy(sortBy);
-    }
-    if (hiddenColumns !== tableConfig.getHiddenColumns()) {
+    if (globalFilter !== tableConfig.getGlobalFilter()) tableConfig.setGlobalFilter(globalFilter);
+
+    if (filters !== tableConfig.getColumnFilters()) tableConfig.setColumnFilters(filters);
+
+    if (sortBy !== tableConfig.getSortBy()) tableConfig.setSortBy(sortBy);
+
+    if (hiddenColumns !== tableConfig.getHiddenColumns())
       tableConfig.setHiddenColumns(hiddenColumns);
-    }
   }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
+        {/* TODO: bulk actions */}
+        <ButtonGroup mb={2}>
+          <Button>Enable</Button>
+          <Button>Disable</Button>
+        </ButtonGroup>
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector availableColumns={allColumns} />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-      {/*
-      see https://chakra-ui.com/docs/components/table/usage#table-container
-      I added overflowY and flex={1} to make the table scrollable vertically scrollable and
-      took the other settings from <TableContainer>
-      */}
+      {/* overflowY and flex={1} make the table scrollable vertically and took the other settings from <TableContainer>
+      See https://chakra-ui.com/docs/components/table/usage#table-container */}
       <Box
         flex={1}
         display="block"
@@ -182,7 +175,7 @@ function BoxesTable({
         overflowY="auto"
         whiteSpace="nowrap"
       >
-        <Table key="boxes-table">
+        <Table key="products-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
             {refetchBoxesIsPending && (
@@ -200,6 +193,7 @@ function BoxesTable({
               </Tr>
             )}
             {page.map((row) => {
+              console.log("ROW", row);
               prepareRow(row);
               if (row.isSelected && selectedRowsArePending) {
                 return (
@@ -212,15 +206,16 @@ function BoxesTable({
               }
               return (
                 <Tr
+                  backgroundColor={
+                    row.original.instockItemsCount !== undefined ? "inherit" : "#D9D9D9"
+                  }
                   cursor="pointer"
                   {...row.getRowProps()}
-                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                  key={row.original.labelIdentifier}
+                  // onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                  key={row.original.id}
                 >
                   {row.cells.map((cell) => (
-                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                      {cell.render("Cell")}
-                    </Td>
+                    <Td key={`${row.original.name}-${cell.column.id}`}>{cell.render("Cell")}</Td>
                   ))}
                 </Tr>
               );
@@ -237,7 +232,6 @@ function BoxesTable({
             icon={<ChevronLeftIcon h={6} w={6} />}
           />
         </Flex>
-
         <Flex justifyContent="center" m={4}>
           <Text>
             Page{" "}
@@ -250,7 +244,6 @@ function BoxesTable({
             </Text>
           </Text>
         </Flex>
-
         <Flex>
           <IconButton
             aria-label="Next Page"
@@ -264,4 +257,4 @@ function BoxesTable({
   );
 }
 
-export default BoxesTable;
+export default ProductsTable;

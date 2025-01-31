@@ -24,6 +24,7 @@ import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 import ErrorView from "views/ErrorView/ErrorView";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import Products from "views/Products/ProductsView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -255,6 +256,28 @@ function App() {
                 }
               />
             </Route>
+          </Route>
+          <Route path="products">
+            <Route
+              index
+              element={
+                <Protected
+                  component={
+                    <ErrorBoundary
+                      fallback={
+                        <AlertWithoutAction alertText="Could not fetch products data! Please try reloading the page." />
+                      }
+                    >
+                      <Suspense fallback={<TableSkeleton />}>
+                        <Products />
+                      </Suspense>
+                    </ErrorBoundary>
+                  }
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_inventory"]}
+                />
+              }
+            />
           </Route>
         </Route>
       </Route>

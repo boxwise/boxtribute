@@ -147,7 +147,7 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
-            link: `${oldAppUrlWithBase}&action=products`,
+            link: `/bases/${baseId}/products`,
             name: "Manage Products",
             requiredAbps: ["manage_products"],
             external: true,
