@@ -5,9 +5,9 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.2.4",
+    "@auth0/auth0-react": "^2.3.0",
     "@boxtribute/shared-components": "workspace:*",
-    "@sentry/react": "^8.51.0",
+    "@sentry/react": "^8.52.1",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "chakra-react-select": "4.9.2",
