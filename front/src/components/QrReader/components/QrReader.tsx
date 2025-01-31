@@ -38,9 +38,11 @@ function QrReader({
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
-    (multiScan: boolean, qrReaderResult: Result | undefined | null) => {
-      if (qrReaderResult) {
+    (multiScan: boolean, qrReaderResult: Result | string | undefined | null) => {
+      if (qrReaderResult && qrReaderResult instanceof Result) {
         onScan(qrReaderResult.getText(), multiScan);
+      } else if (qrReaderResult && typeof qrReaderResult === "string") {
+        onScan(qrReaderResult, multiScan);
       }
     },
     [onScan],

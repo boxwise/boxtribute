@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from "react";
+import { ElementRef, MutableRefObject, useEffect, useRef } from "react";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { Result } from "@zxing/library";
 import { styles } from "./QrReaderScannerStyles";
@@ -10,9 +10,9 @@ export type OnResultFunction = (
    */
   multiScan: boolean,
   /**
-   * The QR values extracted by Zxing
+   * The QR values extracted by Zxing or mocked through search params
    */
-  result?: Result | undefined | null,
+  result?: Result | string | undefined | null,
   /**
    * The name of the exceptions thrown while reading the QR
    */
@@ -44,8 +44,11 @@ export function QrReaderScanner({
   onResult,
   scanPeriod: delayBetweenScanAttempts = 500,
 }: QrReaderScannerProps) {
+  // this is to avoid infinite rendering loops when using qr code from url for testing
+  const scanFromURLSearchParam = useRef(false);
   // this ref is needed to pass/preview the video stream coming from BrowserQrCodeReader to the the user
-  const previewVideoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
+  const previewVideoRef: MutableRefObject<HTMLVideoElement | null> =
+    useRef<ElementRef<"video">>(null);
   // this ref is to store the controls for the BrowerQRCodeReader. We only need it to tell it to stop scanning at certain points.
   const controlsRef: MutableRefObject<IScannerControls | null> = useRef<IScannerControls>(null);
   // this ref is to store the BrowerQRCodeReader. We need a reference with useRef to ensure that multiple scanning processes are started by the different renders.
@@ -57,6 +60,23 @@ export function QrReaderScanner({
       facingMode,
       zoom,
     };
+
+    /**
+     * Mock QR code in URL Search Params for testing purposes.
+     *
+     * Multiple `qr` search params means multiscan.
+     */
+    const qrCodeParams = new URLSearchParams(window.location.search).getAll("qr");
+
+    if (!scanFromURLSearchParam.current && qrCodeParams.length) {
+      scanFromURLSearchParam.current = true;
+
+      // Convert to format readed by QrResolver Hook. e.g. barcode=foobar
+      const qrCodeConvertedToBarcode = qrCodeParams.map((qrCode) => `barcode=${qrCode}`);
+      for (const qrCode of qrCodeConvertedToBarcode) {
+        onResult(qrCodeParams.length > 1, qrCode);
+      }
+    }
 
     if (previewVideoRef.current == null) {
       console.error("QR Reader: Video Element not (yet) available");
