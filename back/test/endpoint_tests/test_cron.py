@@ -40,9 +40,25 @@ def test_cron_job_endpoint_errors(dropapp_dev_client, monkeypatch, url):
     assert response.json == {"message": "unknown job 'unknown-job'"}
 
 
-def test_reseed_db(cron_client, monkeypatch, mocker):
-    monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
+def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     mock_user_for_request(mocker, user_id=1, is_god=True)
+    # Housekeeping tests
+    response = cron_client.get(housekeeping_path, headers=headers)
+    assert response.status_code == 200
+    assert response.json == {"message": "cleaned up 1 email addresses"}
+
+    user = default_users[6]
+    query = f"query {{ user(id: {user['id']}) {{ email }} }}"
+    response = assert_successful_request(cron_client, query)
+    assert response == {"email": "a.b@web.de.deleted.1031"}
+
+    user = default_users[7]
+    query = f"query {{ user(id: {user['id']}) {{ email }} }}"
+    response = assert_successful_request(cron_client, query)
+    assert response == {"email": user["email"]}
+
+    # Reseed-DB tests
+    monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
 
     # Success; perform actual sourcing of seed (takes about 2s)
     # Create QR code and verify that it is removed after reseeding
@@ -118,20 +134,3 @@ def test_reseed_db(cron_client, monkeypatch, mocker):
     response = cron_client.get(reseed_db_path, headers=headers)
     assert response.status_code == 400
     assert response.json == {"message": "Reset of 'dropapp_production' not permitted"}
-
-
-def test_housekeeping(cron_client, default_users, mocker):
-    response = cron_client.get(housekeeping_path, headers=headers)
-    assert response.status_code == 200
-    assert response.json == {"message": "cleaned up 1 email addresses"}
-
-    mock_user_for_request(mocker, user_id=1, is_god=True)
-    user = default_users[6]
-    query = f"query {{ user(id: {user['id']}) {{ email }} }}"
-    response = assert_successful_request(cron_client, query)
-    assert response == {"email": "a.b@web.de.deleted.1031"}
-
-    user = default_users[7]
-    query = f"query {{ user(id: {user['id']}) {{ email }} }}"
-    response = assert_successful_request(cron_client, query)
-    assert response == {"email": user["email"]}
