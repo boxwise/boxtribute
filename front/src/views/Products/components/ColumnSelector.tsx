@@ -13,12 +13,12 @@ import {
 import React, { useMemo } from "react";
 import { ColumnInstance } from "react-table";
 import { RiLayoutColumnFill } from "react-icons/ri";
-import { BoxRow } from "./types";
+import { ProductRow } from "./transformers";
 
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
 interface IColumnSelectorProps {
-  availableColumns: ColumnInstance<BoxRow>[];
+  availableColumns: ColumnInstance<ProductRow>[];
 }
 
 function ColumnSelector({ availableColumns }: IColumnSelectorProps) {

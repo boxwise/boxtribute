@@ -91,7 +91,7 @@ function ProductsTable({
     pageOptions,
     nextPage,
     previousPage,
-    selectedFlatRows,
+    // selectedFlatRows,
   } = useTable(
     {
       columns,

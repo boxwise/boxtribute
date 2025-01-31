@@ -1,10 +1,10 @@
 import { SelectColumnFilterUI } from "components/Table/Filter";
 import { ColumnInstance } from "react-table";
-import { BoxRow } from "./types";
 import { BoxState } from "queries/types";
+import { ProductRow } from "./transformers";
 
 interface ISelectBoxStateFilterProps {
-  column: ColumnInstance<BoxRow>;
+  column: ColumnInstance<ProductRow>;
 }
 
 export function SelectBoxStateFilter({ column }: ISelectBoxStateFilterProps) {
