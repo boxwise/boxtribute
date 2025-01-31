@@ -11,10 +11,10 @@ import {
   Flex,
   Text,
   IconButton,
-  ButtonGroup,
   HStack,
   Box,
-  Button,
+  // ButtonGroup,
+  // Button,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -25,7 +25,7 @@ import {
   useRowSelect,
   usePagination,
   Row,
-  CellProps,
+  // CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
@@ -33,7 +33,7 @@ import {
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/hooks";
-import IndeterminateCheckbox from "./Checkbox";
+// import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { ProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
