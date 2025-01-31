@@ -144,6 +144,9 @@ def cron(job_name):
         return jsonify({"message": "reseed-db job executed"}), 200
 
     if job_name == "housekeeping":
-        pass
+        from .cron.housekeeping import clean_up_user_email_addresses
+
+        nr_addresses = clean_up_user_email_addresses()
+        return jsonify({"message": f"cleaned up {nr_addresses} email addresses"}), 200
 
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
