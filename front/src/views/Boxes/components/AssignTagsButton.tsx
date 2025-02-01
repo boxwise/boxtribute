@@ -4,7 +4,20 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
-import { Button } from "@chakra-ui/react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+} from "@chakra-ui/react";
+
+import { useAssignTags } from "hooks/useAssignTags";
+import { SelectButton } from "./ActionButtons";
+import { Select } from "chakra-react-select";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 interface AssignTagsButtonProps {
   onAssignTags: () => void;
@@ -13,14 +26,15 @@ interface AssignTagsButtonProps {
 }
 
 const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
-  //   onAssignTags,
+  // onAssignTags,
   // eslint-disable-next-line no-unused-vars
-  // tagOptions,
+  tagOptions,
   selectedBoxes,
 }) => {
   const { createToast } = useNotification();
+  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
 
-  const [, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleOpenDialog = () => {
     if (selectedBoxes.length === 0) {
@@ -33,24 +47,37 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       setIsDialogOpen(true);
     }
   };
-  //   const handleCloseDialog = () => setIsDialogOpen(false);
+  const handleCloseDialog = () => setIsDialogOpen(false);
 
-  //   const handleConfirmAssignTags = () => {
-  //     onAssignTags();
-  //     handleCloseDialog();
-  //   };
+  // const handleConfirmAssignTags = () => {
+  //   console.log("assign tags");
+  //   // assignTags();
+  //   handleCloseDialog();
+  // };
 
   return (
-    <Button
-      padding={1}
-      iconSpacing={2}
-      onSelect={handleOpenDialog}
-      leftIcon={<BiTag />}
-      variant="ghost"
-      data-testid="assign-tags-button"
-    >
-      Add Tags
-    </Button>
+    <>
+      <Button
+        padding={1}
+        iconSpacing={2}
+        onClick={handleOpenDialog}
+        leftIcon={<BiTag />}
+        variant="ghost"
+        data-testid="assign-tags-button"
+      >
+        Add Tags
+      </Button>
+      <Modal isOpen={isDialogOpen} onClose={handleCloseDialog}>
+        <ModalOverlay />
+        <ModalContent borderRadius="0">
+          <ModalHeader>Add Tags</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>{JSON.stringify(tagOptions)}</ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* ,{isDialogOpen ? <div>{JSON.stringify(tagOptions)}</div> : null} */}
+    </>
   );
 };
 
