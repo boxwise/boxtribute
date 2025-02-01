@@ -2,7 +2,7 @@ import { FragmentOf, ResultOf } from "gql.tada";
 
 import { IDropdownOption } from "components/Form/SelectField";
 import { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
-import { LOCATION_BASIC_FIELDS_FRAGMENT, TAG_OPTIONS_FRAGMENT } from "queries/fragments";
+import { LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 
 export function locationToDropdownOptionTransformer(
   locations: FragmentOf<typeof LOCATION_BASIC_FIELDS_FRAGMENT>[],
@@ -39,13 +39,13 @@ export function shipmentToDropdownOptionTransformer(
 }
 
 export function tagToDropdownOptionsTransformer(
-  tags: FragmentOf<typeof TAG_OPTIONS_FRAGMENT>[],
+  tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[],
 ): IDropdownOption[] {
   return (
     tags?.map((tag) => ({
       __typename: "Tag",
-      label: `${tag.label}`,
-      value: tag.value,
+      label: tag.name,
+      value: tag.id,
     })) || []
   );
 }
