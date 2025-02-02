@@ -63,6 +63,13 @@ function BoxesActionsAndTable({
     [selectedBoxes],
   );
 
+  const getSelectedBoxTags = useMemo(() => {
+    const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
+    const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
+    const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
+    return commonTags;
+  }, [selectedBoxes, tagOptions]);
+
   // Move Boxes
   const moveBoxesAction = useMoveBoxes();
 
@@ -271,8 +278,8 @@ function BoxesActionsAndTable({
             <AssignTagsButton
               selectedBoxes={selectedBoxes}
               key="assign-tags"
-              tagOptions={tagOptions}
-              onAssignTags={() => {}}
+              tagOptions={getSelectedBoxTags}
+              onAssignTags={() => console.log({ tagOptions })}
             />
           </MenuItem>
           <MenuItem>
@@ -304,9 +311,10 @@ function BoxesActionsAndTable({
       onAssignBoxesToShipment,
       onDeleteBoxes,
       selectedBoxes,
+      getSelectedBoxTags,
       thereIsABoxMarkedForShipmentSelected,
-      onUnassignBoxesToShipment,
       tagOptions,
+      onUnassignBoxesToShipment,
     ],
   );
 
