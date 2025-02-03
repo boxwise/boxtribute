@@ -23,7 +23,6 @@ import { FaTruckArrowRight } from "react-icons/fa6";
 import { BsBox2HeartFill } from "react-icons/bs";
 import MakeLabelsButton from "./MakeLabelsButton";
 import AssignTagsButton from "./AssignTagsButton";
-import RemoveTagsButton from "./RemoveTagsButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -280,13 +279,6 @@ function BoxesActionsAndTable({
               key="assign-tags"
               tagOptions={getSelectedBoxTags}
               onAssignTags={() => console.log({ tagOptions })}
-            />
-          </MenuItem>
-          <MenuItem>
-            <RemoveTagsButton
-              selectedBoxes={selectedBoxes}
-              key="remove-tags"
-              onRemoveTags={() => {}}
             />
           </MenuItem>
           <MenuItem>
