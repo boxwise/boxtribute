@@ -22,7 +22,7 @@ import ExportToCsvButton from "./ExportToCsvButton";
 import { FaTruckArrowRight } from "react-icons/fa6";
 import { BsBox2HeartFill } from "react-icons/bs";
 import MakeLabelsButton from "./MakeLabelsButton";
-import AssignTagsButton from "./AssignTagsButton";
+import AssignOrRemoveTagsButton from "./AssignOrRemoveTagsButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -274,11 +274,12 @@ function BoxesActionsAndTable({
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
           <MenuItem>
-            <AssignTagsButton
+            <AssignOrRemoveTagsButton
               selectedBoxes={selectedBoxes}
-              key="assign-tags"
+              key="assign-or-remove-tags"
               tagOptions={getSelectedBoxTags}
               onAssignTags={() => console.log({ tagOptions })}
+              allTagOptions={tagOptions}
             />
           </MenuItem>
           <MenuItem>
