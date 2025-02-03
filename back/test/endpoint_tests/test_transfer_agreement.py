@@ -230,6 +230,13 @@ def test_transfer_agreement_mutations(
         validUntil: "{valid_until}" """
     assert_bad_user_input(client, _create_mutation(creation_input))
 
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [2]
+        partnerOrganisationBaseIds: []
+        type: {TransferAgreementType.Bidirectional.name} """
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
     # Test case 2.2.2
     creation_input = f"""partnerOrganisationId: {another_organisation['id']},
         initiatingOrganisationId: {default_organisation['id']}
