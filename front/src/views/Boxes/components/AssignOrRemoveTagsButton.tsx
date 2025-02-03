@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Row } from "react-table";
 
 import { BoxRow } from "./types";
@@ -70,11 +70,11 @@ const AssignOrRemoveTagsButton: React.FC<AssignOrRemoveTagsButtonProps> = ({
   };
   const handleCloseModal = () => setIsModalOpen(false);
 
-  // const handleConfirmAssignTags = () => {
-  //   console.log("assign tags");
-  //   // assignTags();
-  //   handleCloseDialog();
-  // };
+  const handleConfirmAssignTags = () => {
+    console.log("assign tags");
+    // assignTags();
+    handleCloseModal();
+  };
 
   return (
     <>
@@ -109,7 +109,9 @@ const AssignOrRemoveTagsButton: React.FC<AssignOrRemoveTagsButtonProps> = ({
                 })}
               </VStack>
             </CheckboxGroup>
-            <Button>Apply</Button>
+            <Button colorScheme="blue" onClick={() => handleConfirmAssignTags()}>
+              Apply
+            </Button>
           </ModalBody>
         </ModalContent>
       </Modal>
