@@ -291,6 +291,13 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { id name }",
             {"id": None, "name": "StandardProduct"},
         ],
+        # Test case 8.2.88
+        [
+            "enableStandardProducts",
+            """enableInput: { baseId: 0, standardProductIds: [2] }""",
+            "...on UnauthorizedForBaseError { id name organisationName }",
+            {"id": "0", "name": "", "organisationName": ""},
+        ],
         # Test case 8.2.71
         [
             "editStandardProductInstantiation",
