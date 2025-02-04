@@ -45,8 +45,7 @@ function AssignBoxToShipment({
         placeholder="Please select a shipment ..."
         isSearchable
         tagVariant="outline"
-        colorScheme="black"
-        useBasicStyles
+        tagColorScheme="black"
         focusBorderColor="blue.500"
         components={{ Option: ShipmentOption }}
         chakraStyles={{
