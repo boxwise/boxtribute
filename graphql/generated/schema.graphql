@@ -211,6 +211,11 @@ input StandardProductEnableInput {
   inShop: Boolean
 }
 
+input StandardProductsEnableInput {
+  standardProductIds: [Int!]!
+  baseId: Int!
+}
+
 input StandardProductInstantiationEditInput {
   id: ID!
   sizeRangeId: Int
@@ -417,6 +422,8 @@ type Mutation {
   deleteProduct(id: ID!): DeleteProductResult
   " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base. "
   enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
+  " Enable multiple standard products for a base. "
+  enableStandardProducts(enableInput: StandardProductsEnableInput): EnableStandardProductsResult
   " Edit properties of the standard product instantiation with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
   editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
   " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
@@ -713,6 +720,15 @@ type StandardProductPage {
   elements: [StandardProduct!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+"""
+Utility response type for standard product bulk-enable mutations, containing both enabled standard product instantiations and IDs of invalid standard products.
+"""
+type ProductsResult {
+  instantiations: [Product!]!
+  " e.g. standard products that don't exist, or already are enabled for the base "
+  invalidStandardProductIds: [Int!]!
 }
 
 " Union for resources that tags can be applied to. "
@@ -1240,6 +1256,7 @@ union CreateCustomProductResult = Product | InsufficientPermissionError | Resour
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 

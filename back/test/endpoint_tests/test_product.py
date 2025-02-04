@@ -732,3 +732,75 @@ def test_standard_product_instantiation_mutations(
             "to_int": 0,
         },
     ]
+
+
+def test_standard_product_bulk_mutations(
+    client, default_base, default_standard_product, another_standard_product
+):
+    # Test case 8.2.86
+    base_id = str(default_base["id"])
+    non_existing_standard_product_id = 0
+    standard_product_ids = ",".join(
+        [
+            str(i)
+            for i in [
+                default_standard_product["id"],
+                another_standard_product["id"],
+                non_existing_standard_product_id,
+            ]
+        ]
+    )
+    mutation = f"""mutation {{ enableStandardProducts(
+                enableInput: {{
+                    baseId: {base_id}
+                    standardProductIds: [{standard_product_ids}]
+                }} ) {{
+                ...on ProductsResult {{
+                    instantiations {{
+                        name
+                        type
+                        category {{ id }}
+                        sizeRange {{ id }}
+                        gender
+                        base {{ id }}
+                        price
+                        comment
+                        inShop
+                        createdOn
+                    }}
+                    invalidStandardProductIds
+                }} }} }}"""
+    products = assert_successful_request(client, mutation)
+    assert products["instantiations"][0].pop("createdOn").startswith(today)
+    assert products == {
+        "instantiations": [
+            {
+                "name": another_standard_product["name"],
+                "type": ProductType.StandardInstantiation.name,
+                "category": {"id": str(another_standard_product["category"])},
+                "sizeRange": {"id": str(another_standard_product["size_range"])},
+                "gender": ProductGender(another_standard_product["gender"]).name,
+                "base": {"id": base_id},
+                "price": 0.0,
+                "comment": None,
+                "inShop": False,
+            },
+        ],
+        "invalidStandardProductIds": [
+            non_existing_standard_product_id,
+            default_standard_product["id"],
+        ],
+    }
+
+    # Test case 8.2.87
+    mutation = f"""mutation {{ enableStandardProducts(
+                enableInput: {{
+                    baseId: {base_id}
+                    standardProductIds: []
+                }} ) {{
+                ...on ProductsResult {{
+                    instantiations {{ name }}
+                    invalidStandardProductIds
+                }} }} }}"""
+    products = assert_successful_request(client, mutation)
+    assert products == {"instantiations": [], "invalidStandardProductIds": []}

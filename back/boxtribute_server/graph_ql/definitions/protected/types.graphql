@@ -153,6 +153,15 @@ type StandardProductPage {
   totalCount: Int!
 }
 
+"""
+Utility response type for standard product bulk-enable mutations, containing both enabled standard product instantiations and IDs of invalid standard products.
+"""
+type ProductsResult {
+  instantiations: [Product!]!
+  " e.g. standard products that don't exist, or already are enabled for the base "
+  invalidStandardProductIds: [Int!]!
+}
+
 " Union for resources that tags can be applied to. "
 union TaggableResource = Box | Beneficiary
 
@@ -678,6 +687,7 @@ union CreateCustomProductResult = Product | InsufficientPermissionError | Resour
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 
