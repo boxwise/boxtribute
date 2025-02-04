@@ -25,6 +25,7 @@ def test_product_query(
                     id
                     name
                     type
+                    standardProduct {{ id }}
                     category {{ hasGender }}
                     sizeRange {{
                         id
@@ -48,6 +49,7 @@ def test_product_query(
         "id": str(product_id),
         "name": default_product["name"],
         "type": ProductType.Custom.name,
+        "standardProduct": None,
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
@@ -86,10 +88,17 @@ def test_product_query(
     }
 
     query = f"""query {{
-                product(id: {disabled_standard_product["id"]}) {{ instockItemsCount }}
-            }}"""
+                product(id: {disabled_standard_product["id"]}) {{
+                    instockItemsCount
+                    type
+                    standardProduct {{ id }}
+                }} }}"""
     queried_product = assert_successful_request(read_only_client, query)
-    assert queried_product == {"instockItemsCount": 0}
+    assert queried_product == {
+        "instockItemsCount": 0,
+        "type": ProductType.StandardInstantiation.name,
+        "standardProduct": {"id": str(disabled_standard_product["standard_product"])},
+    }
 
 
 @pytest.mark.parametrize(

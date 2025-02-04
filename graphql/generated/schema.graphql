@@ -658,6 +658,8 @@ type Product {
   category: ProductCategory!
   sizeRange: SizeRange!
   base: Base
+  " null for products of type [`Custom`]({{Types.ProductType}}) "
+  standardProduct: StandardProduct
   price: Float
   gender: ProductGender
   comment: String
