@@ -5,7 +5,11 @@ import pytest
 from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, TagType
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.models.utils import RANDOM_SEQUENCE_GENERATION_ATTEMPTS
+from boxtribute_server.models.utils import (
+    HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+    RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
+)
 from utils import (
     assert_bad_user_input,
     assert_forbidden_request,
@@ -907,7 +911,7 @@ def test_box_mutations(
     box_id = int(updated_box["id"])
     assert history[22:] == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
             "record_id": box_id,
@@ -918,7 +922,7 @@ def test_box_mutations(
             "to_float": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
             "record_id": box_id + 1,
@@ -929,7 +933,7 @@ def test_box_mutations(
             "to_float": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
             "record_id": box_id + 2,
@@ -1165,7 +1169,7 @@ def test_box_mutations(
             "to_float": None,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "from_int": None,
             "to_int": None,
             "record_id": box_id,
@@ -1176,7 +1180,7 @@ def test_box_mutations(
             "to_float": None,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "from_int": None,
             "to_int": None,
             "record_id": box_id + 1,

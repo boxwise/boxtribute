@@ -4,6 +4,10 @@ from datetime import date
 import pytest
 from boxtribute_server.enums import BoxState, ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.utils import (
+    HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+)
 from utils import assert_successful_request
 
 today = date.today().isoformat()
@@ -401,7 +405,7 @@ def test_custom_product_mutations(
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
@@ -449,13 +453,13 @@ def test_custom_product_mutations(
             "to_int": 1,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,
@@ -699,19 +703,19 @@ def test_standard_product_instantiation_mutations(
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,
@@ -831,7 +835,7 @@ def test_standard_product_bulk_mutations(
         assert entry.pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,

@@ -15,6 +15,7 @@ from ....models.definitions.product import Product
 from ....models.definitions.standard_product import StandardProduct
 from ....models.utils import (
     BATCH_SIZE,
+    HISTORY_CREATION_MESSAGE,
     handle_non_existing_resource,
     safely_handle_deletion,
     save_creation_to_history,
@@ -249,7 +250,7 @@ def enable_standard_products(
         )
         history_entries = [
             DbChangeHistory(
-                changes="Record created",
+                changes=HISTORY_CREATION_MESSAGE,
                 table_name=Product._meta.table_name,
                 record_id=product.id,
                 user=user_id,

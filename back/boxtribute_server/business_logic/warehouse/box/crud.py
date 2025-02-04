@@ -29,6 +29,7 @@ from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
+    HISTORY_DELETION_MESSAGE,
     RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
     convert_ids,
     save_creation_to_history,
@@ -358,7 +359,7 @@ def delete_boxes(*, user_id, boxes):
     now = utcnow()
     history_entries = [
         DbChangeHistory(
-            changes="Record deleted",
+            changes=HISTORY_DELETION_MESSAGE,
             table_name=Box._meta.table_name,
             record_id=box.id,
             user=user_id,
