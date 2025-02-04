@@ -10,6 +10,7 @@ from ....errors import (
     StandardProductAlreadyEnabledForBase,
 )
 from ....models.definitions.box import Box
+from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.product import Product
 from ....models.definitions.standard_product import StandardProduct
 from ....models.utils import (
@@ -198,7 +199,7 @@ def enable_standard_products(
 ):
     """Enable multiple standard products for the specified base.
     Attributes for the product instantiations default to the values in the corresponding
-    standard products.
+    standard products. Log product instantiations in the history table.
     Return successfully instantianted products, and a list of IDs of invalid standard
     products (e.g. non-existing, and/or already enabled for the base).
     """
@@ -236,13 +237,32 @@ def enable_standard_products(
         )
         for sp in valid_standard_products
     ]
+
+    valid_standard_product_ids = {sp.id for sp in valid_standard_products}
     with db.database.atomic():
         Product.bulk_create(product_instantiations, batch_size=BATCH_SIZE)
+
+        # Query again to obtain Product.id primary key
+        product_instantiations = Product.select().where(
+            Product.standard_product << valid_standard_product_ids,
+            Product.base == base_id,
+        )
+        history_entries = [
+            DbChangeHistory(
+                changes="Record created",
+                table_name=Product._meta.table_name,
+                record_id=product.id,
+                user=user_id,
+                change_date=now,
+            )
+            for product in product_instantiations
+        ]
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
     return ProductsResult(
         instantiations=product_instantiations,
         invalid_standard_product_ids=sorted(
-            standard_product_ids.difference({sp.id for sp in valid_standard_products})
+            standard_product_ids.difference(valid_standard_product_ids)
         ),
     )
 

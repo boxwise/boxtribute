@@ -757,6 +757,7 @@ def test_standard_product_bulk_mutations(
                 }} ) {{
                 ...on ProductsResult {{
                     instantiations {{
+                        id
                         name
                         type
                         category {{ id }}
@@ -771,6 +772,7 @@ def test_standard_product_bulk_mutations(
                     invalidStandardProductIds
                 }} }} }}"""
     products = assert_successful_request(client, mutation)
+    product_id = products["instantiations"][0].pop("id")
     assert products["instantiations"][0].pop("createdOn").startswith(today)
     assert products == {
         "instantiations": [
@@ -804,3 +806,25 @@ def test_standard_product_bulk_mutations(
                 }} }} }}"""
     products = assert_successful_request(client, mutation)
     assert products == {"instantiations": [], "invalidStandardProductIds": []}
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "products")
+        .dicts()
+    )
+    for entry in history_entries:
+        assert entry.pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": "Record created",
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+    ]
