@@ -73,8 +73,7 @@ function SelectField({
             placeholder={placeholder}
             isSearchable
             tagVariant="outline"
-            colorScheme="black"
-            useBasicStyles
+            tagColorScheme="black"
             isMulti={isMulti}
             focusBorderColor="blue.500"
             menuPortalTarget={document.body}

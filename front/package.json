@@ -10,7 +10,6 @@
     "@sentry/react": "^8.52.1",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
-    "chakra-react-select": "4.9.2",
     "react-big-calendar": "^1.17.1",
     "react-csv": "^2.2.2",
     "react-icons": "^5.4.0",
