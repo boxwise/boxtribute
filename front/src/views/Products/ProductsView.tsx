@@ -1,16 +1,35 @@
-import { useContext, useMemo } from "react";
-import { useBackgroundQuery } from "@apollo/client";
-import { Heading, Tab, TabList, Tabs } from "@chakra-ui/react";
+import { useCallback, useContext, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useBackgroundQuery, useMutation } from "@apollo/client";
 import { Column } from "react-table";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Heading,
+  Tab,
+  TabList,
+  Tabs,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
+import { FaCheckCircle } from "react-icons/fa";
+
 import { graphql } from "../../../../graphql/graphql";
+import {
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
+} from "../../../../graphql/fragments";
 import { useTableConfig } from "hooks/hooks";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { SelectColumnFilter } from "components/Table/Filter";
-import { ProductRow } from "./components/transformers";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import ProductsTable from "./components/ProductsTable";
-import { FaCheckCircle } from "react-icons/fa";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { ProductRow } from "./components/transformers";
+import ProductsTable from "./components/ProductsTable";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
+import { SelectColumnFilter } from "components/Table/Filter";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -19,13 +38,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
         ... on StandardProductPage {
           totalCount
           elements {
-            id
-            name
-            category {
-              id
-              name
-            }
-            gender
+            ...StandardProductBasicFields
             sizeRange {
               id
               name
@@ -37,6 +50,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
               }
             }
             instantiation {
+              id
               instockItemsCount
               createdOn
               createdBy {
@@ -51,11 +65,55 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
       }
     }
   `,
-  [],
+  [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
+
+export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
+  `
+    mutation DisableStandardProduct($instantiationId: ID!) {
+      disableStandardProduct(instantiationId: $instantiationId) {
+        ...ProductBasicFields
+      }
+    }
+  `,
+  [PRODUCT_BASIC_FIELDS_FRAGMENT],
+);
+
+function InStockProductAlert({
+  instockItemsCount,
+  productName,
+}: {
+  instockItemsCount?: number;
+  productName?: string;
+  // locations?: string, // TODO: should be derived from product locations somehow
+}) {
+  return (
+    <Alert status="error" data-testid="ErrorAlertProduct">
+      <>
+        <AlertIcon />
+        <Box display="flex" flexDirection="column">
+          <AlertTitle>Disabling Product with Active Stock</AlertTitle>
+          <AlertDescription>
+            You are attempting to disable the product {productName} with {instockItemsCount}{" "}
+            <Text fontWeight="600" color="#659A7E" display="inline">
+              InStock
+            </Text>{" "}
+            items in one or more locations. To continue, you must first reclassify all{" "}
+            <Text fontWeight="600" color="#659A7E" display="inline">
+              InStock
+            </Text>{" "}
+            boxes as a different product.
+          </AlertDescription>
+        </Box>
+      </>
+    </Alert>
+  );
+}
 
 function Products() {
   const { baseId } = useBaseIdParam();
+  const navigate = useNavigate();
+  const toast = useToast();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
   const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
@@ -63,8 +121,8 @@ function Products() {
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
-      sortBy: [{ id: "lastModified", desc: true }],
+      columnFilters: [],
+      sortBy: [],
       hiddenColumns: ["version", "enabledOn", "enabledBy", "disabledOn", "id"],
     },
   });
@@ -73,6 +131,36 @@ function Products() {
   const [standardProductsQueryRef, { refetch: refetchStandardProducts }] = useBackgroundQuery(
     STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY,
     { variables: { baseId } },
+  );
+
+  const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
+    useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
+
+  const handleDisableProduct = useCallback(
+    (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
+      if (instockItemsCount !== undefined && instockItemsCount > 0) {
+        toast({
+          position: "bottom",
+          duration: 6000,
+          render: () => (
+            <InStockProductAlert instockItemsCount={instockItemsCount} productName={productName} />
+          ),
+        });
+      } else if (instantiationId) {
+        disableStandardProductMutation({
+          variables: {
+            instantiationId,
+          },
+        });
+      }
+      // TODO: handle unlikely standard product with no instantiation id?
+    },
+    [disableStandardProductMutation, toast],
+  );
+
+  const handleEnableProduct = useCallback(
+    () => navigate(`/bases/${baseId}/products/create`),
+    [navigate, baseId],
   );
 
   const availableColumns: Column<ProductRow>[] = useMemo(
@@ -86,6 +174,35 @@ function Products() {
           <>
             {value.row.original.enabled && (
               <FaCheckCircle style={{ margin: "auto" }} color="#659A7E" />
+            )}
+          </>
+        ),
+      },
+      {
+        Header: "",
+        accessor: "enabled",
+        id: "actionButton",
+        disableFilters: true,
+        Cell: (value) => (
+          <>
+            {value.row.original.enabled ? (
+              <Button
+                onClick={() =>
+                  handleDisableProduct(
+                    value.row.original.instantiationId,
+                    value.row.original.instockItemsCount,
+                    value.row.original.name,
+                  )
+                }
+                size="sm"
+                disabled={disableStandardProductMutationLoading}
+              >
+                Disable
+              </Button>
+            ) : (
+              <Button onClick={handleEnableProduct} size="sm">
+                Enable
+              </Button>
             )}
           </>
         ),
@@ -155,7 +272,7 @@ function Products() {
         disableFilters: true,
       },
     ],
-    [],
+    [disableStandardProductMutationLoading, handleEnableProduct, handleDisableProduct],
   );
 
   return (
@@ -166,7 +283,7 @@ function Products() {
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Products
       </Heading>
-      <Tabs variant="enclosed" mb={4} defaultIndex={1}>
+      <Tabs variant="enclosed-colored" mb={4} defaultIndex={1}>
         <TabList>
           <Tab
             onClick={() => (window.location.href = `${oldAppUrlWithBase}&action=products`)}

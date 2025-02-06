@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useTransition } from "react";
 import { QueryRef, useReadQuery } from "@apollo/client";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import {
+  Column,
+  useTable,
+  useFilters,
+  useGlobalFilter,
+  useSortBy,
+  useRowSelect,
+  usePagination,
+} from "react-table";
 import {
   Skeleton,
   Table,
@@ -13,35 +21,23 @@ import {
   IconButton,
   HStack,
   Box,
-  // ButtonGroup,
-  // Button,
 } from "@chakra-ui/react";
+import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+
 import {
-  Column,
-  useTable,
-  useFilters,
-  useGlobalFilter,
-  useSortBy,
-  useRowSelect,
-  usePagination,
-  Row,
-  // CellProps,
-} from "react-table";
+  StandardProductsforProductsViewQuery,
+  StandardProductsforProductsViewVariables,
+} from "queries/types";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { IUseTableConfigReturnType } from "hooks/hooks";
+import { ProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
 } from "components/Table/Filter";
-import { IUseTableConfigReturnType } from "hooks/hooks";
-// import IndeterminateCheckbox from "./Checkbox";
-import { GlobalFilter } from "./GlobalFilter";
-import { ProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
-import ColumnSelector from "./ColumnSelector";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
-import {
-  StandardProductsforProductsViewQuery,
-  StandardProductsforProductsViewVariables,
-} from "queries/types";
+import ColumnSelector from "components/Table/ColumnSelector";
+import { GlobalFilter } from "components/Table/GlobalFilter";
 
 type ProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
@@ -108,7 +104,7 @@ function ProductsTable({
     useSortBy,
     usePagination,
     useRowSelect,
-    // TODO: uncomment this on next interactions
+    // TODO: uncomment this on next interactions with bulk mutations + move <IndeterminateCheckbox /> to root components
     // (hooks) => {
     //   hooks.visibleColumns.push((col) => [
     //     {
@@ -146,14 +142,16 @@ function ProductsTable({
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        {/* TODO: bulk actions + uncomment this on next interactions */}
+        {/* TODO: uncomment this on next interactions with bulk actions */}
         {/* <ButtonGroup mb={2}>
           <Button>Enable</Button>
           <Button>Disable</Button>
         </ButtonGroup> */}
         <Spacer />
         <HStack spacing={2} mb={2}>
-          <ColumnSelector availableColumns={allColumns} />
+          <ColumnSelector
+            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+          />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>

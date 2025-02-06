@@ -12,6 +12,7 @@ export type ProductRow = {
   enabledBy?: string | null;
   disabledOn?: string | null;
   id: string;
+  instantiationId?: string;
 };
 
 export const standardProductsRawDataToTableDataTransformer = (
@@ -31,6 +32,7 @@ export const standardProductsRawDataToTableDataTransformer = (
         enabledBy: instantiation?.createdBy?.name,
         disabledOn: instantiation?.deletedOn,
         version,
+        instantiationId: instantiation?.id
       } satisfies ProductRow));
   } else {
     return [];
