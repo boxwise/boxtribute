@@ -163,8 +163,7 @@ function QrReaderMultiBox({
                       placeholder="Please select a shipment ..."
                       isSearchable
                       tagVariant="outline"
-                      colorScheme="black"
-                      useBasicStyles
+                      tagColorScheme="black"
                       focusBorderColor="blue.500"
                       components={{ Option: ShipmentOption }}
                       chakraStyles={{
@@ -189,8 +188,7 @@ function QrReaderMultiBox({
                   placeholder="Please select a location ..."
                   isSearchable
                   tagVariant="outline"
-                  colorScheme="black"
-                  useBasicStyles
+                  tagColorScheme="black"
                   focusBorderColor="blue.500"
                   chakraStyles={{
                     control: (provided) => ({
@@ -212,8 +210,7 @@ function QrReaderMultiBox({
                   placeholder="Please select tags ..."
                   isSearchable
                   tagVariant="outline"
-                  colorScheme="black"
-                  useBasicStyles
+                  tagColorScheme="black"
                   isMulti
                   focusBorderColor="blue.500"
                   chakraStyles={{
