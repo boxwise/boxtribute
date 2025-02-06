@@ -8,7 +8,7 @@ interface IFilteringSortingTableHeaderProps {
 
 export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingTableHeaderProps) {
   return (
-    <Thead position="sticky" top={0} background="white">
+    <Thead position="sticky" top={0} background="white" zIndex={2}>
       {headerGroups.map((headerGroup: HeaderGroup, idx) => (
         <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
           {headerGroup.headers.map((column, idx) => (
