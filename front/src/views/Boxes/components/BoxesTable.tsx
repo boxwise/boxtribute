@@ -39,9 +39,9 @@ import {
   boxesRawDataToTableDataTransformer,
   prepareBoxesForBoxesViewQueryVariables,
 } from "./transformers";
-import ColumnSelector from "./ColumnSelector";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import ColumnSelector from "components/Table/ColumnSelector";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -164,7 +164,11 @@ function BoxesTable({
         <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
         <HStack spacing={2} mb={2}>
-          <ColumnSelector availableColumns={allColumns} />
+          <ColumnSelector
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "shipment" && column.id !== "selection",
+            )}
+          />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
