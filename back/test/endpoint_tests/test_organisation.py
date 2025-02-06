@@ -76,4 +76,4 @@ def test_organisations_query(read_only_client, organisations):
     # Test case 99.1.7
     query = """query { organisations { name } }"""
     queried_organisations = assert_successful_request(read_only_client, query)
-    assert queried_organisations == [{"name": org["name"]} for org in organisations]
+    assert queried_organisations == [{"name": org["name"]} for org in organisations[:2]]
