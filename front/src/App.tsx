@@ -13,6 +13,8 @@ import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement
 import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentView";
 import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
+import Products from "views/Products/ProductsView";
+import ProductCreateView from "views/ProductCreate/ProductCreateView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 import { AuthorizeProps, useAuthorization } from "hooks/useAuthorization";
@@ -24,7 +26,6 @@ import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 import ErrorView from "views/ErrorView/ErrorView";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import Products from "views/Products/ProductsView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -274,10 +275,22 @@ function App() {
                     </ErrorBoundary>
                   }
                   redirectPath={prevLocation}
-                  requiredAbps={["manage_inventory"]}
+                  requiredAbps={["manage_products"]}
                 />
               }
             />
+            <Route path="create">
+              <Route
+                index
+                element={
+                  <Protected
+                    component={<ProductCreateView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_products"]}
+                  />
+                }
+              />
+            </Route>
           </Route>
         </Route>
       </Route>
