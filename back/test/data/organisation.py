@@ -1,5 +1,8 @@
 import pytest
 from boxtribute_server.models.definitions.organisation import Organisation
+from boxtribute_server.models.utils import utcnow
+
+now = utcnow()
 
 
 def data():
@@ -7,14 +10,17 @@ def data():
         {
             "id": 1,
             "name": "CoolOrganisation",
+            "deleted_on": None,
         },
         {
             "id": 2,
             "name": "Helpers",
+            "deleted_on": None,
         },
         {
             "id": 3,
             "name": "Inactives",
+            "deleted_on": now,
         },
     ]
 

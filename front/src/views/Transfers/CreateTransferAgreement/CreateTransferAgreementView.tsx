@@ -143,8 +143,9 @@ function CreateTransferAgreementView() {
     bases: globalPreferences?.availableBases,
   } as IBasesForOrganisationData;
 
+  // Filter out organisations without active bases
   const partnerOrganisationsWithTheirBasesData = allOrgsAndTheirBases?.filter(
-    (organisation) => organisation.id !== globalPreferences.organisation?.id,
+    (organisation) => (organisation.id !== globalPreferences.organisation?.id) && ((organisation.bases?.length || 0) > 0),
   );
 
   // Handle Submission

@@ -5,7 +5,7 @@ type Query {
   base(id: ID!): Base
   " Return [`Organisation`]({{Types.Organisation}}) with specified ID. "
   organisation(id: ID!): Organisation
-  " Return all [`Organisations`]({{Types.Organisation}}). "
+  " Return all non-deleted [`Organisations`]({{Types.Organisation}}). "
   organisations: [Organisation!]!
   " Return [`User`]({{Types.User}}) with specified ID. Some fields might be restricted. "
   user(id: ID): User
