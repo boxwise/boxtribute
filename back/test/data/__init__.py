@@ -96,6 +96,7 @@ from .standard_product import (
     measure_standard_product,
     newest_standard_product,
     standard_products,
+    superceding_measure_standard_product,
 )
 from .tag import base1_active_tags, tags
 from .transaction import another_transaction, default_transaction, relative_transaction
@@ -205,6 +206,7 @@ __all__ = [
     "sent_shipment",
     "shipments",
     "standard_products",
+    "superceding_measure_standard_product",
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",

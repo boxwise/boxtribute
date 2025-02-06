@@ -160,7 +160,7 @@ Utility response type for standard product bulk-enable mutations, containing bot
 """
 type ProductsResult {
   instantiations: [Product!]!
-  " e.g. standard products that don't exist, or already are enabled for the base "
+  " e.g. standard products that don't exist, already are enabled for the base, and/or are superceded by a more recent version "
   invalidStandardProductIds: [Int!]!
 }
 
@@ -663,6 +663,9 @@ type BoxesStillAssignedToProductError {
 type StandardProductAlreadyEnabledForBaseError {
   existingStandardProductInstantiationId: ID!
 }
+type OutdatedStandardProductVersionError {
+  mostRecentStandardProductId: ID!
+}
 type ProductTypeMismatchError {
   expectedType: ProductType!
 }
@@ -688,7 +691,7 @@ union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
-union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError | OutdatedStandardProductVersionError
 union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError

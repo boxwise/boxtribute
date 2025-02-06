@@ -66,7 +66,7 @@ type Mutation {
   editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
   " Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   deleteProduct(id: ID!): DeleteProductResult
-  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base. "
+  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (e.g. if the standard product has already been enabled for the base, or if a more recent version of the standard product exists). The client must be member of the specified base. "
   enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
   " Enable multiple standard products for a base. "
   enableStandardProducts(enableInput: StandardProductsEnableInput): EnableStandardProductsResult

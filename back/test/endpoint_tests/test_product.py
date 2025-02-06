@@ -491,6 +491,9 @@ def _enable_mutation(enable_input):
                 ...on StandardProductAlreadyEnabledForBaseError {{
                     existingStandardProductInstantiationId
                 }}
+                ...on OutdatedStandardProductVersionError {{
+                    mostRecentStandardProductId
+                }}
                 }} }}"""
 
 
@@ -501,6 +504,7 @@ def test_standard_product_instantiation_mutations(
     another_size_range,
     default_standard_product,
     another_standard_product,
+    measure_standard_product,
     another_user,
     products,
     default_boxes,
@@ -610,6 +614,16 @@ def test_standard_product_instantiation_mutations(
     mutation = _enable_mutation(enable_input)
     response = assert_successful_request(client, mutation)
     assert response == {"existingStandardProductInstantiationId": "5"}
+
+    # Test case 8.2.69
+    standard_product_id = measure_standard_product["id"]
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"mostRecentStandardProductId": "5"}
 
     # Test case 8.2.70
     def _create_update_mutation(field, value):
@@ -748,7 +762,11 @@ def test_standard_product_instantiation_mutations(
 
 
 def test_standard_product_bulk_mutations(
-    client, default_base, default_standard_product, another_standard_product
+    client,
+    default_base,
+    default_standard_product,
+    another_standard_product,
+    measure_standard_product,
 ):
     # Test case 8.2.86
     base_id = str(default_base["id"])
@@ -759,6 +777,7 @@ def test_standard_product_bulk_mutations(
             for i in [
                 default_standard_product["id"],
                 another_standard_product["id"],
+                measure_standard_product["id"],
                 non_existing_standard_product_id,
             ]
         ]
@@ -804,6 +823,7 @@ def test_standard_product_bulk_mutations(
         "invalidStandardProductIds": [
             non_existing_standard_product_id,
             default_standard_product["id"],
+            measure_standard_product["id"],
         ],
     }
 

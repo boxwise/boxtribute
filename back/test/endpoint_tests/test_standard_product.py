@@ -82,6 +82,7 @@ def test_standard_products_query(
     read_only_client,
     default_standard_product,
     newest_standard_product,
+    superceding_measure_standard_product,
     products,
     mocker,
 ):
@@ -93,7 +94,11 @@ def test_standard_products_query(
                 } } } }"""
     std_products = assert_successful_request(read_only_client, query)["elements"]
     assert std_products == [
-        {"name": str(newest_standard_product["name"]), "instantiation": None}
+        {"name": str(newest_standard_product["name"]), "instantiation": None},
+        {
+            "name": str(superceding_measure_standard_product["name"]),
+            "instantiation": None,
+        },
     ]
 
     # Test case 8.1.45
@@ -109,6 +114,7 @@ def test_standard_products_query(
             "instantiation": {"id": str(products[4]["id"])},
         },
         {"id": str(newest_standard_product["id"]), "instantiation": None},
+        {"id": str(superceding_measure_standard_product["id"]), "instantiation": None},
     ]
 
     mock_user_for_request(mocker, base_ids=[2])
@@ -119,5 +125,6 @@ def test_standard_products_query(
                 } } } }"""
     std_products = assert_successful_request(read_only_client, query)["elements"]
     assert std_products == [
-        {"id": str(newest_standard_product["id"]), "instantiation": None}
+        {"id": str(newest_standard_product["id"]), "instantiation": None},
+        {"id": str(superceding_measure_standard_product["id"]), "instantiation": None},
     ]

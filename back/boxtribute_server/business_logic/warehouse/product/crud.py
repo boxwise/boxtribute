@@ -6,6 +6,7 @@ from ....errors import (
     BoxesStillAssignedToProduct,
     EmptyName,
     InvalidPrice,
+    OutdatedStandardProductVersion,
     ProductTypeMismatch,
     StandardProductAlreadyEnabledForBase,
 )
@@ -173,6 +174,9 @@ def enable_standard_product(
 
     standard_product = StandardProduct.get_by_id(standard_product_id)
 
+    if standard_product.superceded_by_product_id is not None:
+        return OutdatedStandardProductVersion(standard_product.superceded_by_product_id)
+
     product = Product()
     product.base = base_id
     product.category = standard_product.category_id
@@ -202,7 +206,8 @@ def enable_standard_products(
     Attributes for the product instantiations default to the values in the corresponding
     standard products. Log product instantiations in the history table.
     Return successfully instantianted products, and a list of IDs of invalid standard
-    products (e.g. non-existing, and/or already enabled for the base).
+    products (e.g. non-existing, already enabled for the base, and/or superceded by more
+    recent standard product).
     """
     standard_product_ids = set(standard_product_ids)
     # Get all existing standard products not yet enabled in the specified base
@@ -217,6 +222,7 @@ def enable_standard_products(
         )
         .where(
             StandardProduct.id << standard_product_ids,
+            StandardProduct.superceded_by_product.is_null(),
             Product.base.is_null(),
         )
     )

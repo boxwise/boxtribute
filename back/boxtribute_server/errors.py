@@ -50,6 +50,11 @@ class StandardProductAlreadyEnabledForBase(UserError):
         self.existing_standard_product_instantiation_id = product_id
 
 
+class OutdatedStandardProductVersion(UserError):
+    def __init__(self, product_id):
+        self.most_recent_standard_product_id = product_id
+
+
 class ProductTypeMismatch(UserError):
     def __init__(self, *, expected_type):
         self.expected_type = expected_type
