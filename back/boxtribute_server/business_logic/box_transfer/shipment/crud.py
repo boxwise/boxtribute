@@ -322,7 +322,7 @@ def _remove_boxes_from_shipment(
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
         return
-    if box_state not in [BoxState.InStock, BoxState.NotDelivered]:
+    if box_state not in [BoxState.InStock, BoxState.NotDelivered]:  # pragma: no cover
         raise ValueError("Function used with invalid box state")
 
     if box_state == BoxState.InStock:

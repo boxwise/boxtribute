@@ -143,7 +143,7 @@ DEMO_AUTH0_ROLE_IDS = {
 def update_auth0_role_ids():
     if in_staging_environment():
         role_ids = STAGING_AUTH0_ROLE_IDS
-    elif in_demo_environment():
+    elif in_demo_environment():  # pragma: no cover
         role_ids = DEMO_AUTH0_ROLE_IDS
     else:  # pragma: no cover
         raise ValueError("Invalid environment")
