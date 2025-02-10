@@ -11,5 +11,5 @@ def test_private_endpoint(read_only_client, endpoint):
 
 def test_public_endpoint(read_only_client):
     response = read_only_client.get("/public")
-    assert response.status_code == 200
-    assert EXPLORER_TITLE in response.data.decode()
+    # A resource exists at the requested URL but doesn't support the request method
+    assert response.status_code == 405

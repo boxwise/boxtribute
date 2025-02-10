@@ -8,7 +8,15 @@ from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
 from .authz import check_user_beta_level
-from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, CRON_PATH, api_bp, app_bp
+from .blueprints import (
+    API_GRAPHQL_PATH,
+    APP_GRAPHQL_PATH,
+    CRON_PATH,
+    SHARED_GRAPHQL_PATH,
+    api_bp,
+    app_bp,
+    shared_bp,
+)
 from .bridges import authenticate_auth0_log_stream, send_transformed_logs_to_slack
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
@@ -43,7 +51,7 @@ def query_api_server():
     return execute_async(schema=query_api_schema, introspection=True)
 
 
-@api_bp.post("/public")
+@shared_bp.post(SHARED_GRAPHQL_PATH)
 @cross_origin(
     # Allow dev localhost ports
     origins=[
@@ -109,11 +117,6 @@ def graphql_server():
 
 @app_bp.get(APP_GRAPHQL_PATH)
 def graphql_explorer():
-    return EXPLORER_HTML, 200
-
-
-@api_bp.get("/public")
-def public():
     return EXPLORER_HTML, 200
 
 
