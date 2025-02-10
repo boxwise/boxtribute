@@ -21,6 +21,7 @@ from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
+from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
@@ -113,6 +114,11 @@ class ProductCategoryLoader(SimpleDataLoader):
 class SizeRangeLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(SizeRange)
+
+
+class StandardProductLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(StandardProduct)
 
 
 class ShipmentLoader(DataLoader):

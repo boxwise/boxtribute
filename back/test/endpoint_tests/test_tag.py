@@ -3,6 +3,10 @@ from datetime import date
 import pytest
 from boxtribute_server.enums import TagType
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.utils import (
+    HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+)
 from utils import (
     assert_bad_user_input,
     assert_forbidden_request,
@@ -260,13 +264,13 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(deleted_tag_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(tag_id),
             "from_int": None,
             "to_int": None,

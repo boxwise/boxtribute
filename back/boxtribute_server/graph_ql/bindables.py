@@ -175,6 +175,7 @@ union_types = (
     UnionType("EditCustomProductResult", resolve_type_by_class_name),
     UnionType("DeleteProductResult", resolve_type_by_class_name),
     UnionType("EnableStandardProductResult", resolve_type_by_class_name),
+    UnionType("EnableStandardProductsResult", resolve_type_by_class_name),
     UnionType("EditStandardProductInstantiationResult", resolve_type_by_class_name),
     UnionType("DisableStandardProductResult", resolve_type_by_class_name),
     UnionType("StandardProductResult", resolve_type_by_class_name),

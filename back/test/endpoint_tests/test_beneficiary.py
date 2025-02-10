@@ -3,7 +3,11 @@ from datetime import date
 import pytest
 from boxtribute_server.enums import HumanGender
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.models.utils import compute_age
+from boxtribute_server.models.utils import (
+    HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+    compute_age,
+)
 from utils import assert_successful_request
 
 
@@ -282,7 +286,7 @@ def test_beneficiary_mutations(
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(beneficiary_id),
             "from_int": None,
             "to_int": None,
@@ -355,13 +359,13 @@ def test_beneficiary_mutations(
             "to_int": int(beneficiary_id),
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(deactivated_child_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(deactivated_beneficiary_id),
             "from_int": None,
             "to_int": None,
