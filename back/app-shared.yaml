@@ -1,0 +1,7 @@
+runtime: python312
+service: api-staging
+entrypoint: gunicorn -b :$PORT boxtribute_server.shared_main:app
+handlers:
+- url: /public
+  script: auto
+  secure: always
