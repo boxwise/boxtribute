@@ -86,7 +86,7 @@ def test_transfer_agreement_query(
     assert agreement == {"sourceBases": [{"id": "1"}], "targetBases": []}
 
     query = f"""query {{ transferAgreement(id: {agreement_id}) {{
-                    sourceBases {{ id }}
+                    sourceBases(filterInput: {{ includeDeleted: true }}) {{ id }}
                     targetBases(filterInput: {{ includeDeleted: true }}) {{ id }}
                 }} }}"""
     agreement = assert_successful_request(read_only_client, query)

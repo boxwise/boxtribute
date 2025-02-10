@@ -186,7 +186,7 @@ def generate_page(*conditions, elements, cursor, selection, **page_info_kwargs):
     return page
 
 
-def load_into_page(model, *conditions, selection=None, union=None, pagination_input):
+def load_into_page(model, *conditions, selection=None, pagination_input):
     """High-level convenience function to load result query of given model into a
     GraphQL page type.
     The query is constructed from the given selection (default: `model.select()`), and
@@ -202,8 +202,6 @@ def load_into_page(model, *conditions, selection=None, union=None, pagination_in
         .order_by(model.id)
         .limit(limit + 1)
     )
-    if union is not None:
-        query_result |= union
     return generate_page(
         *conditions,
         elements=list(query_result.iterator()),
