@@ -1,4 +1,5 @@
 import pytest
+from boxtribute_server.db import db
 from boxtribute_server.models.definitions.standard_product import StandardProduct
 
 from .product_category import data as all_product_category_data
@@ -18,6 +19,8 @@ def data():
             "size_range": all_size_range_data()[2]["id"],
             "version": 0,
             "added_by": default_user_data()["id"],
+            "preceded_by_product": None,
+            "superceded_by_product": None,
         },
         {
             "id": 2,
@@ -27,6 +30,8 @@ def data():
             "size_range": all_size_range_data()[3]["id"],
             "version": 0,
             "added_by": default_user_data()["id"],
+            "preceded_by_product": None,
+            "superceded_by_product": None,
         },
         {
             "id": 3,
@@ -36,6 +41,8 @@ def data():
             "size_range": all_size_range_data()[2]["id"],
             "version": 1,
             "added_by": default_user_data()["id"],
+            "preceded_by_product": None,
+            "superceded_by_product": None,
         },
         {
             "id": 4,
@@ -45,6 +52,19 @@ def data():
             "size_range": mass_dimension_data()["id"],
             "version": 0,
             "added_by": default_user_data()["id"],
+            "preceded_by_product": None,
+            "superceded_by_product": 5,
+        },
+        {
+            "id": 5,
+            "name": "Wheat flour",
+            "category": all_product_category_data()[1]["id"],
+            "gender": all_product_gender_data()[7]["id"],
+            "size_range": mass_dimension_data()["id"],
+            "version": 1,
+            "added_by": default_user_data()["id"],
+            "preceded_by_product": 4,
+            "superceded_by_product": None,
         },
     ]
 
@@ -70,9 +90,18 @@ def measure_standard_product():
 
 
 @pytest.fixture
+def superceding_measure_standard_product():
+    return data()[4]
+
+
+@pytest.fixture
 def standard_products():
     return data()
 
 
 def create():
+    # Avoid self-referential foreign-key constraint failures due to hen-egg issues when
+    # adding data with superceded_by_product/preceded_by_product set
+    db.database.execute_sql("SET FOREIGN_KEY_CHECKS=0;")
     StandardProduct.insert_many(data()).execute()
+    db.database.execute_sql("SET FOREIGN_KEY_CHECKS=1;")

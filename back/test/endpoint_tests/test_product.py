@@ -4,6 +4,10 @@ from datetime import date
 import pytest
 from boxtribute_server.enums import BoxState, ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.utils import (
+    HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+)
 from utils import assert_successful_request
 
 today = date.today().isoformat()
@@ -25,6 +29,7 @@ def test_product_query(
                     id
                     name
                     type
+                    standardProduct {{ id }}
                     category {{ hasGender }}
                     sizeRange {{
                         id
@@ -48,6 +53,7 @@ def test_product_query(
         "id": str(product_id),
         "name": default_product["name"],
         "type": ProductType.Custom.name,
+        "standardProduct": None,
         "category": {"hasGender": True},
         "sizeRange": {
             "id": str(default_product["size_range"]),
@@ -86,10 +92,17 @@ def test_product_query(
     }
 
     query = f"""query {{
-                product(id: {disabled_standard_product["id"]}) {{ instockItemsCount }}
-            }}"""
+                product(id: {disabled_standard_product["id"]}) {{
+                    instockItemsCount
+                    type
+                    standardProduct {{ id }}
+                }} }}"""
     queried_product = assert_successful_request(read_only_client, query)
-    assert queried_product == {"instockItemsCount": 0}
+    assert queried_product == {
+        "instockItemsCount": 0,
+        "type": ProductType.StandardInstantiation.name,
+        "standardProduct": {"id": str(disabled_standard_product["standard_product"])},
+    }
 
 
 @pytest.mark.parametrize(
@@ -392,7 +405,7 @@ def test_custom_product_mutations(
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
@@ -440,13 +453,13 @@ def test_custom_product_mutations(
             "to_int": 1,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,
@@ -478,6 +491,9 @@ def _enable_mutation(enable_input):
                 ...on StandardProductAlreadyEnabledForBaseError {{
                     existingStandardProductInstantiationId
                 }}
+                ...on OutdatedStandardProductVersionError {{
+                    mostRecentStandardProductId
+                }}
                 }} }}"""
 
 
@@ -488,6 +504,7 @@ def test_standard_product_instantiation_mutations(
     another_size_range,
     default_standard_product,
     another_standard_product,
+    measure_standard_product,
     another_user,
     products,
     default_boxes,
@@ -598,6 +615,16 @@ def test_standard_product_instantiation_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"existingStandardProductInstantiationId": "5"}
 
+    # Test case 8.2.69
+    standard_product_id = measure_standard_product["id"]
+    enable_input = f"""{{
+            standardProductId: {standard_product_id}
+            baseId: {base_id}
+            }}"""
+    mutation = _enable_mutation(enable_input)
+    response = assert_successful_request(client, mutation)
+    assert response == {"mostRecentStandardProductId": "5"}
+
     # Test case 8.2.70
     def _create_update_mutation(field, value):
         if isinstance(value, str):
@@ -690,19 +717,19 @@ def test_standard_product_instantiation_mutations(
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record deleted",
+            "changes": HISTORY_DELETION_MESSAGE,
             "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
-            "changes": "Record created",
+            "changes": HISTORY_CREATION_MESSAGE,
             "record_id": int(another_product_id),
             "from_int": None,
             "to_int": None,
@@ -730,5 +757,107 @@ def test_standard_product_instantiation_mutations(
             "record_id": int(another_product_id),
             "from_int": 1,
             "to_int": 0,
+        },
+    ]
+
+
+def test_standard_product_bulk_mutations(
+    client,
+    default_base,
+    default_standard_product,
+    another_standard_product,
+    measure_standard_product,
+):
+    # Test case 8.2.86
+    base_id = str(default_base["id"])
+    non_existing_standard_product_id = 0
+    standard_product_ids = ",".join(
+        [
+            str(i)
+            for i in [
+                default_standard_product["id"],
+                another_standard_product["id"],
+                measure_standard_product["id"],
+                non_existing_standard_product_id,
+            ]
+        ]
+    )
+    mutation = f"""mutation {{ enableStandardProducts(
+                enableInput: {{
+                    baseId: {base_id}
+                    standardProductIds: [{standard_product_ids}]
+                }} ) {{
+                ...on ProductsResult {{
+                    instantiations {{
+                        id
+                        name
+                        type
+                        category {{ id }}
+                        sizeRange {{ id }}
+                        gender
+                        base {{ id }}
+                        price
+                        comment
+                        inShop
+                        createdOn
+                    }}
+                    invalidStandardProductIds
+                }} }} }}"""
+    products = assert_successful_request(client, mutation)
+    product_id = products["instantiations"][0].pop("id")
+    assert products["instantiations"][0].pop("createdOn").startswith(today)
+    assert products == {
+        "instantiations": [
+            {
+                "name": another_standard_product["name"],
+                "type": ProductType.StandardInstantiation.name,
+                "category": {"id": str(another_standard_product["category"])},
+                "sizeRange": {"id": str(another_standard_product["size_range"])},
+                "gender": ProductGender(another_standard_product["gender"]).name,
+                "base": {"id": base_id},
+                "price": 0.0,
+                "comment": None,
+                "inShop": False,
+            },
+        ],
+        "invalidStandardProductIds": [
+            non_existing_standard_product_id,
+            default_standard_product["id"],
+            measure_standard_product["id"],
+        ],
+    }
+
+    # Test case 8.2.87
+    mutation = f"""mutation {{ enableStandardProducts(
+                enableInput: {{
+                    baseId: {base_id}
+                    standardProductIds: []
+                }} ) {{
+                ...on ProductsResult {{
+                    instantiations {{ name }}
+                    invalidStandardProductIds
+                }} }} }}"""
+    products = assert_successful_request(client, mutation)
+    assert products == {"instantiations": [], "invalidStandardProductIds": []}
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "products")
+        .dicts()
+    )
+    for entry in history_entries:
+        assert entry.pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
         },
     ]

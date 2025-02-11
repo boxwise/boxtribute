@@ -1,21 +1,34 @@
+from dataclasses import dataclass
+
 from ....db import db
 from ....enums import ProductType
 from ....errors import (
     BoxesStillAssignedToProduct,
     EmptyName,
     InvalidPrice,
+    OutdatedStandardProductVersion,
     ProductTypeMismatch,
     StandardProductAlreadyEnabledForBase,
 )
 from ....models.definitions.box import Box
+from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.product import Product
 from ....models.definitions.standard_product import StandardProduct
 from ....models.utils import (
+    BATCH_SIZE,
+    HISTORY_CREATION_MESSAGE,
     handle_non_existing_resource,
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
+    utcnow,
 )
+
+
+@dataclass(kw_only=True)
+class ProductsResult:
+    instantiations: list[Product]
+    invalid_standard_product_ids: list[int]
 
 
 @save_creation_to_history
@@ -161,6 +174,9 @@ def enable_standard_product(
 
     standard_product = StandardProduct.get_by_id(standard_product_id)
 
+    if standard_product.superceded_by_product_id is not None:
+        return OutdatedStandardProductVersion(standard_product.superceded_by_product_id)
+
     product = Product()
     product.base = base_id
     product.category = standard_product.category_id
@@ -178,6 +194,84 @@ def enable_standard_product(
     with db.database.atomic():
         product.save()
         return product
+
+
+def enable_standard_products(
+    *,
+    user_id,
+    standard_product_ids,
+    base_id,
+):
+    """Enable multiple standard products for the specified base.
+    Attributes for the product instantiations default to the values in the corresponding
+    standard products. Log product instantiations in the history table.
+    Return successfully instantianted products, and a list of IDs of invalid standard
+    products (e.g. non-existing, already enabled for the base, and/or superceded by more
+    recent standard product).
+    """
+    standard_product_ids = set(standard_product_ids)
+    # Get all existing standard products not yet enabled in the specified base
+    valid_standard_products = (
+        StandardProduct.select()
+        .left_outer_join(
+            Product,
+            on=(
+                (StandardProduct.id == Product.standard_product)
+                & (Product.base == base_id)
+            ),
+        )
+        .where(
+            StandardProduct.id << standard_product_ids,
+            StandardProduct.superceded_by_product.is_null(),
+            Product.base.is_null(),
+        )
+    )
+
+    now = utcnow()
+    product_instantiations = [
+        Product(
+            base=base_id,
+            category=sp.category_id,
+            gender=sp.gender_id,
+            name=sp.name,
+            size_range=sp.size_range_id,
+            price=0,
+            comment=None,
+            in_shop=False,
+            created_on=now,
+            created_by=user_id,
+            standard_product=sp,
+        )
+        for sp in valid_standard_products
+    ]
+
+    valid_standard_product_ids = {sp.id for sp in valid_standard_products}
+    with db.database.atomic():
+        Product.bulk_create(product_instantiations, batch_size=BATCH_SIZE)
+
+        # Query again to obtain Product.id primary key
+        product_instantiations = Product.select().where(
+            Product.standard_product << valid_standard_product_ids,
+            Product.base == base_id,
+        )
+        history_entries = [
+            DbChangeHistory(
+                changes=HISTORY_CREATION_MESSAGE,
+                table_name=Product._meta.table_name,
+                record_id=product.id,
+                user=user_id,
+                change_date=now,
+            )
+            for product in product_instantiations
+        ]
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+
+    return ProductsResult(
+        instantiations=product_instantiations,
+        invalid_standard_product_ids=sorted(
+            standard_product_ids.difference(valid_standard_product_ids)
+        ),
+    )
 
 
 @handle_non_existing_resource
