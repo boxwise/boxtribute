@@ -249,7 +249,6 @@ jobs:
       - slack/notify-on-failure:
           only_for_branches: master,production
       - codecov/upload:
-          upload_args: -s artifacts
           flags: backend
 
   deploy:
