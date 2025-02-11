@@ -151,6 +151,7 @@ jobs:
             DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
       - run:
           name: Test shared-components and create reports
+          when: always
           command: |
             DEBUG_PRINT_LIMIT=10000 pnpm -C ../shared-components test:coverage --test-timeout=40000
       - store_test_results:
@@ -166,9 +167,14 @@ jobs:
       - codecov/upload:
           flags: frontend
           file: coverage/coverage-final.json
+          upload_args: --plugin noop
+          validate: false
       - codecov/upload:
           flags: sharedComponents
           file: ../shared-components/coverage/coverage-final.json
+          # https://docs.codecov.com/docs/cli-options#do-upload
+          upload_args: --exclude coverage --plugin noop
+          validate: false
       - slack/notify-on-failure:
           only_for_branches: master,production
 
@@ -248,8 +254,9 @@ jobs:
       - slack/notify-on-failure:
           only_for_branches: master,production
       - codecov/upload:
-          upload_args: -s artifacts
           flags: backend
+          upload_args: --plugin noop
+          validate: false
 
   deploy:
     parameters:

@@ -1,10 +1,11 @@
 # Docs: https://docs.codecov.com/docs/codecovyml-reference
 codecov:
-  require_ci_to_pass: yes
+  require_ci_to_pass: false
   notify:
     after_n_builds: 2
     wait_for_ci: yes
 coverage:
+  range: "80...100"
   status:
     # project doesn't work reliably, so show the result
     # but don't fail anything
