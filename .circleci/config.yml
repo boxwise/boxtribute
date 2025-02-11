@@ -171,6 +171,8 @@ jobs:
       - codecov/upload:
           flags: sharedComponents
           file: ../shared-components/coverage/coverage-final.json
+          # https://docs.codecov.com/docs/cli-options#do-upload
+          upload_args: --exclude coverage
           validate: false
       - slack/notify-on-failure:
           only_for_branches: master,production
