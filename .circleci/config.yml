@@ -167,12 +167,13 @@ jobs:
       - codecov/upload:
           flags: frontend
           file: coverage/coverage-final.json
+          upload_args: --plugin noop
           validate: false
       - codecov/upload:
           flags: sharedComponents
           file: ../shared-components/coverage/coverage-final.json
           # https://docs.codecov.com/docs/cli-options#do-upload
-          upload_args: --exclude coverage
+          upload_args: --exclude coverage --plugin noop
           validate: false
       - slack/notify-on-failure:
           only_for_branches: master,production
@@ -254,6 +255,7 @@ jobs:
           only_for_branches: master,production
       - codecov/upload:
           flags: backend
+          upload_args: --plugin noop
           validate: false
 
   deploy:
