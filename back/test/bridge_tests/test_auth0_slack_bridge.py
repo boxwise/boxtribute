@@ -18,7 +18,7 @@ def no_db_client():
 def test_auth0_slack_bridge(no_db_client, monkeypatch, mocker):
     path = "/auth0-slack-bridge"
 
-    # Handle missing header
+    # Scenario: Handle missing header
     response = no_db_client.post(path)
     assert response.status_code == 401
     assert response.json["details"]["code"] == "authorization_header_missing"
@@ -26,19 +26,21 @@ def test_auth0_slack_bridge(no_db_client, monkeypatch, mocker):
     # Add the Authorization header to the client's requests
     no_db_client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
 
-    # Handle token mismatch
+    # Scenario: Handle token mismatch
     monkeypatch.setenv("AUTH0_LOG_STREAM_TOKEN", "wrongtoken")
     response = no_db_client.post(path)
     assert response.status_code == 401
     assert response.json == {"message": "invalid token"}
 
+    # Set correct token
     monkeypatch.setenv("AUTH0_LOG_STREAM_TOKEN", token)
 
-    # Handle empty payload
+    # Scenario: Handle empty payload
     response = no_db_client.post(path, json={})
     assert response.status_code == 200
     assert response.json == {"message": "empty payload"}
 
+    # Scenario: Successfully forward Auth0 log stream to Slack
     url = "https://www.test.it"
     monkeypatch.setenv("SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM", url)
     # Mocking Python context managers ("with" blocks) is a painful...
@@ -47,7 +49,6 @@ def test_auth0_slack_bridge(no_db_client, monkeypatch, mocker):
     cm = mocked_open.return_value.__enter__.return_value
     cm.getcode.return_value = 200
     cm.read.return_value = b"okay"
-
     raw_logs = [
         {"data": {"log_id": 1, "type": "fp", "description": "Failed login"}},
         {"data": {"log_id": 2, "type": "fs", "description": "Failed signup"}},
@@ -62,6 +63,7 @@ def test_auth0_slack_bridge(no_db_client, monkeypatch, mocker):
         "failures": [],
     }
 
+    # Scenario: Simulate error when forwarding to Slack
     reason = "internal_server_error"
     mocked_open.side_effect = urllib.error.HTTPError(url, 503, reason, None, None)
     response = no_db_client.post(path, json=raw_logs)
