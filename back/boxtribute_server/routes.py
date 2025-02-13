@@ -1,12 +1,19 @@
 """Construction of routes for web app and API"""
 
+import json
 import os
+import urllib
 
 from ariadne.explorer import ExplorerGraphiQL
 from flask import jsonify, request
 from flask_cors import cross_origin
 
-from .auth import request_jwt, requires_auth
+from .auth import (
+    get_auth_string_from_header,
+    get_token_from_auth_header,
+    request_jwt,
+    requires_auth,
+)
 from .authz import check_user_beta_level
 from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, CRON_PATH, api_bp, app_bp
 from .exceptions import AuthenticationFailed
@@ -150,3 +157,57 @@ def cron(job_name):
         return jsonify({"message": f"cleaned up {nr_addresses} email addresses"}), 200
 
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
+
+
+@api_bp.post("/auth0-slack-bridge")
+def auth0_slack_bridge():
+    try:
+        token = get_token_from_auth_header(get_auth_string_from_header())
+        if token != os.getenv("AUTH0_LOG_STREAM_TOKEN"):
+            return jsonify({"message": "invalid token"}), 401
+    except AuthenticationFailed as e:
+        return jsonify({"details": e.error}), 401
+
+    # Auth0 streams in JSON array format
+    payload = request.get_json()
+    if not payload:
+        return jsonify({"message": "empty payload"}), 200
+
+    # Transform data structure because Slack webhook can't handle nested JSON
+    # https://slack.com/help/articles/360041352714-Build-a-workflow--Create-a-workflow-that-starts-outside-of-Slack
+    transformed_logs = [
+        {
+            "title": f"{log['data']['description']} [type: {log['data']['type']}]",
+            "auth0_link": f"https://manage.auth0.com/#/logs/{log['data']['log_id']}",
+            "log_id": log["data"]["log_id"],
+        }
+        for log in payload
+    ]
+
+    url = os.getenv("SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM")
+    headers = {"Content-Type": "application/json"}
+    successes = []
+    failures = []
+    for log in transformed_logs:
+        data = json.dumps(log).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+
+        try:
+            with urllib.request.urlopen(req) as response:
+                successes.append(
+                    {
+                        "response": response.read().decode("utf-8"),
+                        "code": response.getcode(),
+                        "log_id": log["log_id"],
+                    }
+                )
+        except urllib.error.URLError as e:
+            failures.append(
+                {
+                    "response": e.reason,
+                    "code": getattr(e, "code", None),
+                    "log_id": log["log_id"],
+                }
+            )
+    code = 500 if not successes else 200
+    return jsonify({"successes": successes, "failures": failures}), code
