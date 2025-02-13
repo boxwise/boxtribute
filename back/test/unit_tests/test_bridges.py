@@ -1,22 +1,9 @@
 import urllib
 
-import pytest
-from boxtribute_server.app import create_app
-from boxtribute_server.routes import api_bp
-
-token = "testtoken"
-
-
-@pytest.fixture
-def no_db_client():
-    app = create_app()
-    app.register_blueprint(api_bp)
-    with app.app_context():
-        yield app.test_client()
-
 
 def test_auth0_slack_bridge(no_db_client, monkeypatch, mocker):
     path = "/auth0-slack-bridge"
+    token = "testtoken"
 
     # Scenario: Handle missing header
     response = no_db_client.post(path)
@@ -43,7 +30,7 @@ def test_auth0_slack_bridge(no_db_client, monkeypatch, mocker):
     # Scenario: Successfully forward Auth0 log stream to Slack
     url = "https://www.test.it"
     monkeypatch.setenv("SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM", url)
-    # Mocking Python context managers ("with" blocks) is a painful...
+    # Mocking Python context managers ("with" blocks) is painful...
     # https://stackoverflow.com/a/58310550
     mocked_open = mocker.patch("urllib.request.urlopen")
     cm = mocked_open.return_value.__enter__.return_value
