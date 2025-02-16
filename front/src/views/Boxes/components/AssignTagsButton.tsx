@@ -4,7 +4,7 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
-import { Button, Input, VStack } from "@chakra-ui/react";
+import { Box, Button, Input, Tag, VStack } from "@chakra-ui/react";
 
 import { useAssignTags } from "hooks/useAssignTags";
 
@@ -47,49 +47,58 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       setIsInputOpen(true);
     }
   };
-  const handleCloseInput = () => setIsInputOpen(false);
 
   const handleConfirmAssignTags = () => {
     console.log("assign tags");
     // assignTags();
-    handleCloseModal();
+    setIsInputOpen(false);
   };
 
   return (
-    <VStack>
-      <Button
-        padding={1}
-        iconSpacing={2}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleOpenInput();
-        }}
-        leftIcon={<BiTag />}
-        variant="ghost"
-        data-testid="assign-tags-button"
-      >
-        Add Tags
-      </Button>
-
+    <VStack spacing={2}>
+      <Box alignSelf="start">
+        <Button
+          padding={1}
+          iconSpacing={2}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenInput();
+          }}
+          leftIcon={<BiTag />}
+          variant="ghost"
+          data-testid="assign-tags-button"
+        >
+          Add Tags
+        </Button>
+      </Box>
       {isInputOpen && (
-        <div>
-          <Input
-            placeholder="Type to find tags"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            onChange={(e) => {
-              (e) => e.stopPropagation();
-              setSearchInput(e.target.value);
-            }}
-          />
-          <Button onClick={handleCloseInput}>Apply</Button>
-          {filteredTags.map((tag) => (
-            <div key={tag.value}>{tag.label}</div>
-          ))}
-        </div>
+        <>
+          <Box>
+            <Input
+              placeholder="Type to find tags"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              onChange={(e) => {
+                (e) => e.stopPropagation();
+                setSearchInput(e.target.value);
+              }}
+            />
+          </Box>
+          <Box alignSelf="end">
+            <Button borderRadius={4} colorScheme="blue" onClick={handleConfirmAssignTags}>
+              Apply
+            </Button>
+          </Box>
+          <Box alignSelf="start">
+            <VStack>
+              {filteredTags.map((tag) => (
+                <Tag key={tag.value}>{tag.label}</Tag>
+              ))}
+            </VStack>
+          </Box>
+        </>
       )}
-      {/* tag value and label */}
     </VStack>
   );
 };

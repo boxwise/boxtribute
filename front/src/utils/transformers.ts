@@ -46,6 +46,7 @@ export function tagToDropdownOptionsTransformer(
       __typename: "Tag",
       label: tag.name,
       value: tag.id,
+      color: tag.color,
     })) || []
   );
 }
