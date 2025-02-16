@@ -4,21 +4,9 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
-import {
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  VStack,
-} from "@chakra-ui/react";
+import { Button, Input, VStack } from "@chakra-ui/react";
 
-// import { useAssignTags } from "hooks/useAssignTags";
+import { useAssignTags } from "hooks/useAssignTags";
 
 interface AssignTagsButtonProps {
   onAssignTags: () => void;
@@ -31,33 +19,24 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   // onAssignTags,
   tagOptions,
   selectedBoxes,
-  // allTagOptions,
+  allTagOptions,
 }) => {
   const { createToast } = useNotification();
-  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
+  const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
+  // search filter only filters from all
+  // assignTags (ids selected)
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInputOpen, setIsInputOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [renderedTagOptions, setRenderedTagOptions] = useState(new Set());
 
-  const filteredTags = tagOptions.filter((tag) =>
-    tag.label.toLowerCase().includes(searchInput.toLowerCase()),
-  );
+  const filteredTags = allTagOptions.filter((tag) => {
+    if (searchInput.toLowerCase().length === 0) {
+      return tagOptions;
+    }
+    return tag.label.includes(searchInput.toLowerCase());
+  });
 
-  // eslint-disable-next-line no-unused-vars
-  const handleTagOptionToggle = (tagValue) => {
-    setRenderedTagOptions((prev) => {
-      const newChecked = new Set(prev);
-      if (newChecked.has(tagValue)) {
-        newChecked.delete(tagValue);
-      } else {
-        newChecked.add(tagValue);
-      }
-      return newChecked;
-    });
-  };
-
-  const handleOpenModal = () => {
+  const handleOpenInput = () => {
     if (selectedBoxes.length === 0) {
       createToast({
         type: "warning",
@@ -65,10 +44,10 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       });
     }
     if (selectedBoxes.length !== 0) {
-      setIsModalOpen(true);
+      setIsInputOpen(true);
     }
   };
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseInput = () => setIsInputOpen(false);
 
   const handleConfirmAssignTags = () => {
     console.log("assign tags");
@@ -77,45 +56,41 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   };
 
   return (
-    <>
+    <VStack>
       <Button
         padding={1}
         iconSpacing={2}
-        onClick={handleOpenModal}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleOpenInput();
+        }}
         leftIcon={<BiTag />}
         variant="ghost"
         data-testid="assign-tags-button"
       >
         Add Tags
       </Button>
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <ModalOverlay />
-        <ModalContent borderRadius="0">
-          <ModalHeader>Add Tags</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Input
-              placeholder="Type to find tags"
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-            <CheckboxGroup>
-              <VStack>
-                {Array.from(renderedTagOptions).map((tag) => {
-                  return (
-                    <Checkbox key={tag.value} value={tag.value} onChange={handleTagOptionToggle}>
-                      {tag.label}
-                    </Checkbox>
-                  );
-                })}
-              </VStack>
-            </CheckboxGroup>
-            <Button colorScheme="blue" onClick={() => handleConfirmAssignTags()}>
-              Apply
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+
+      {isInputOpen && (
+        <div>
+          <Input
+            placeholder="Type to find tags"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            onChange={(e) => {
+              (e) => e.stopPropagation();
+              setSearchInput(e.target.value);
+            }}
+          />
+          <Button onClick={handleCloseInput}>Apply</Button>
+          {filteredTags.map((tag) => (
+            <div key={tag.value}>{tag.label}</div>
+          ))}
+        </div>
+      )}
+      {/* tag value and label */}
+    </VStack>
   );
 };
 
