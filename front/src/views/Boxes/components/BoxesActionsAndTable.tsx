@@ -23,7 +23,7 @@ import { FaTruckArrowRight } from "react-icons/fa6";
 import { BsBox2HeartFill } from "react-icons/bs";
 import MakeLabelsButton from "./MakeLabelsButton";
 import AssignTagsButton from "./AssignTagsButton";
-import RemoveTagsButton from "./RemoveTagsButton";
+import { IDropdownOption } from "components/Form/SelectField";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -31,7 +31,7 @@ export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
-  tagOptions: { label: string; value: string }[];
+  tagOptions: IDropdownOption[];
   availableColumns: Column<BoxRow>[];
 }
 
@@ -257,7 +257,7 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
-      <Menu key="box-actions">
+      <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
         </MenuButton>
@@ -274,7 +274,7 @@ function BoxesActionsAndTable({
           <MenuItem>
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
-          <MenuItem>
+          <Menu>
             <AssignTagsButton
               selectedBoxes={selectedBoxes}
               key="assign-tags"
@@ -282,16 +282,7 @@ function BoxesActionsAndTable({
               onAssignTags={() => console.log({ tagOptions })}
               allTagOptions={tagOptions}
             />
-          </MenuItem>
-          <MenuItem>
-            <RemoveTagsButton
-              selectedBoxes={selectedBoxes}
-              key="remove-tags"
-              tagOptions={getSelectedBoxTags}
-              onUnassignTags={() => console.log({ tagOptions })}
-              allTagOptions={tagOptions}
-            />
-          </MenuItem>
+          </Menu>
           <MenuItem>
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>

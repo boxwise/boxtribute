@@ -4,37 +4,29 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
-import { Box, Button, Input, Tag, VStack } from "@chakra-ui/react";
+import { Box, Button, VStack } from "@chakra-ui/react";
 
 import { useAssignTags } from "hooks/useAssignTags";
+import { Select } from "chakra-react-select";
+import { IDropdownOption } from "components/Form/SelectField";
 
 interface AssignTagsButtonProps {
   onAssignTags: () => void;
   selectedBoxes: Row<BoxRow>[];
-  tagOptions: { label: string; value: string }[];
-  allTagOptions: { label: string; value: string }[];
+  tagOptions: IDropdownOption[];
+  allTagOptions: IDropdownOption[];
 }
 
 const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   // onAssignTags,
-  tagOptions,
   selectedBoxes,
   allTagOptions,
 }) => {
   const { createToast } = useNotification();
-  const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
-  // search filter only filters from all
-  // assignTags (ids selected)
+  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
 
   const [isInputOpen, setIsInputOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
-
-  const filteredTags = allTagOptions.filter((tag) => {
-    if (searchInput.toLowerCase().length === 0) {
-      return tagOptions;
-    }
-    return tag.label.includes(searchInput.toLowerCase());
-  });
+  const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
 
   const handleOpenInput = () => {
     if (selectedBoxes.length === 0) {
@@ -49,16 +41,16 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   };
 
   const handleConfirmAssignTags = () => {
-    console.log("assign tags");
-    // assignTags();
+    console.log(selectedTagOptions.map((tag) => tag.value));
     setIsInputOpen(false);
+    setSelectedTagOptions([]);
   };
 
   return (
     <VStack spacing={2}>
       <Box alignSelf="start">
         <Button
-          padding={1}
+          padding={4}
           iconSpacing={2}
           onClick={(e) => {
             e.stopPropagation();
@@ -74,28 +66,32 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       {isInputOpen && (
         <>
           <Box>
-            <Input
+            <Select
               placeholder="Type to find tags"
-              onClick={(e) => {
-                e.stopPropagation();
+              isSearchable
+              tagVariant="outline"
+              colorScheme="black"
+              useBasicStyles
+              focusBorderColor="blue.500"
+              chakraStyles={{
+                control: (provided) => ({
+                  ...provided,
+                  border: "2px",
+                  borderRadius: "0",
+                }),
               }}
-              onChange={(e) => {
-                (e) => e.stopPropagation();
-                setSearchInput(e.target.value);
+              isMulti
+              options={allTagOptions}
+              value={selectedTagOptions}
+              onChange={(s: any) => {
+                setSelectedTagOptions(s);
               }}
             />
           </Box>
-          <Box alignSelf="end">
+          <Box marginRight="10px" alignSelf="end" marginBottom="20px">
             <Button borderRadius={4} colorScheme="blue" onClick={handleConfirmAssignTags}>
               Apply
             </Button>
-          </Box>
-          <Box alignSelf="start">
-            <VStack>
-              {filteredTags.map((tag) => (
-                <Tag key={tag.value}>{tag.label}</Tag>
-              ))}
-            </VStack>
           </Box>
         </>
       )}
