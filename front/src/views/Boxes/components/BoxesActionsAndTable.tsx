@@ -63,6 +63,8 @@ function BoxesActionsAndTable({
     [selectedBoxes],
   );
 
+  // Used for remove tags
+  // eslint-disable-next-line no-unused-vars
   const getSelectedBoxTags = useMemo(() => {
     const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
     const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
@@ -278,7 +280,6 @@ function BoxesActionsAndTable({
             <AssignTagsButton
               selectedBoxes={selectedBoxes}
               key="assign-tags"
-              tagOptions={getSelectedBoxTags}
               onAssignTags={() => console.log({ tagOptions })}
               allTagOptions={tagOptions}
             />
@@ -305,7 +306,7 @@ function BoxesActionsAndTable({
       onAssignBoxesToShipment,
       onDeleteBoxes,
       selectedBoxes,
-      getSelectedBoxTags,
+      // getSelectedBoxTags,
       thereIsABoxMarkedForShipmentSelected,
       tagOptions,
       onUnassignBoxesToShipment,

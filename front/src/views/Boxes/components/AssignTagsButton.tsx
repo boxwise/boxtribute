@@ -6,24 +6,21 @@ import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
 import { Box, Button, VStack } from "@chakra-ui/react";
 
-import { useAssignTags } from "hooks/useAssignTags";
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 
 interface AssignTagsButtonProps {
-  onAssignTags: () => void;
+  onAssignTags: (tagIds: string[]) => void;
   selectedBoxes: Row<BoxRow>[];
-  tagOptions: IDropdownOption[];
   allTagOptions: IDropdownOption[];
 }
 
 const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
-  // onAssignTags,
+  onAssignTags,
   selectedBoxes,
   allTagOptions,
 }) => {
   const { createToast } = useNotification();
-  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
 
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
@@ -41,7 +38,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   };
 
   const handleConfirmAssignTags = () => {
-    console.log(selectedTagOptions.map((tag) => tag.value));
+    onAssignTags(selectedTagOptions.map((tag) => tag.value));
     setIsInputOpen(false);
     setSelectedTagOptions([]);
   };
