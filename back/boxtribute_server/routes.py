@@ -153,7 +153,7 @@ def cron(job_name):
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
 
 
-@api_bp.post("/auth0-slack-bridge")
+@app_bp.post("/auth0-slack-bridge")
 def auth0_slack_bridge():
     info = authenticate_auth0_log_stream()
     if info is not None:
