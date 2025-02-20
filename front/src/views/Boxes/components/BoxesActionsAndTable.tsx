@@ -241,10 +241,10 @@ function BoxesActionsAndTable({
   const onAssignTags = useCallback(
     async (tagIds: string[]) => {
       const result = await assignTags(
-        selectedBoxes.map((box) => box.id),
+        selectedBoxes.map((box) => box.values.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
       );
-      console.log(result);
+      console.log({ result });
     },
     [assignTags, selectedBoxes],
   );
@@ -321,10 +321,10 @@ function BoxesActionsAndTable({
       onAssignBoxesToShipment,
       onDeleteBoxes,
       selectedBoxes,
-      // getSelectedBoxTags,
       thereIsABoxMarkedForShipmentSelected,
       tagOptions,
       onUnassignBoxesToShipment,
+      onAssignTags,
     ],
   );
 
