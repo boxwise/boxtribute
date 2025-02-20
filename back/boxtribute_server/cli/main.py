@@ -119,7 +119,7 @@ def _confirm_removal(*, force, base_id):
 
     # Validate that base exists
     base = (
-        Base.select(Base.name, Organisation.name)
+        Base.select(Base.name, Organisation.name, Organisation.id)
         .join(Organisation)
         .where(Base.id == base_id)
         .get_or_none()
@@ -130,12 +130,24 @@ def _confirm_removal(*, force, base_id):
     LOGGER.info(
         f"Selected base: '{base.name}' from organisation '{base.organisation.name}'"
     )
+    nr_active_bases = (
+        Base.select()
+        .where(Base.deleted_on.is_null(), Base.organisation == base.organisation.id)
+        .count()
+    )
+    LOGGER.info(f"The organisation has {nr_active_bases} active bases in total")
+
     if not force:
         return  # skip confirmation
 
+    extra = (
+        f" (the organisation '{base.organisation.name}' will be soft-deleted)"
+        if nr_active_bases == 1
+        else ""
+    )
     reply = input(
         f"Type YES to confirm removing access to base '{base.name}' (ID: {base_id}) "
-        "for all affected users: "
+        f"for all affected users{extra}: "
     )
     if reply != "YES":
         raise RuntimeError("Operation was not confirmed, cancelling.")
