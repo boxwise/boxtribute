@@ -24,6 +24,7 @@ import { BsBox2HeartFill } from "react-icons/bs";
 import MakeLabelsButton from "./MakeLabelsButton";
 import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
+import { useAssignTags } from "hooks/useAssignTags";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -235,11 +236,25 @@ function BoxesActionsAndTable({
     deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
   }, [deleteBoxes, selectedBoxes]);
 
+  // Assign Tags to Boxes
+  const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
+  const onAssignTags = useCallback(
+    async (tagIds: string[]) => {
+      const result = await assignTags(
+        selectedBoxes.map((box) => box.id),
+        tagIds.map((id) => parseInt(id, 10)),
+      );
+      console.log(result);
+    },
+    [assignTags, selectedBoxes],
+  );
+
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
-    isDeleteBoxesLoading;
+    isDeleteBoxesLoading ||
+    isAssignTagsLoading;
 
   const actionButtons = useMemo(
     () => [
@@ -280,7 +295,7 @@ function BoxesActionsAndTable({
             <AssignTagsButton
               selectedBoxes={selectedBoxes}
               key="assign-tags"
-              onAssignTags={() => console.log({ tagOptions })}
+              onAssignTags={onAssignTags}
               allTagOptions={tagOptions}
             />
           </Menu>
