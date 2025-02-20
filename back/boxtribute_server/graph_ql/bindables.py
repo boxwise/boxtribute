@@ -28,6 +28,7 @@ from ..business_logic.core.product_category.queries import (
     query as product_category_query,
 )
 from ..business_logic.core.size_range.fields import size, size_range
+from ..business_logic.core.size_range.queries import query as size_range_query
 from ..business_logic.metrics.fields import metrics
 from ..business_logic.metrics.queries import query as metrics_query
 from ..business_logic.mobile_distribution.event.fields import distribution_event
@@ -107,6 +108,7 @@ query_types = (
     product_query,
     qr_code_query,
     shipment_query,
+    size_range_query,
     standard_product_query,
     statistics_query,
     tag_query,
