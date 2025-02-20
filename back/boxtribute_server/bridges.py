@@ -9,8 +9,8 @@ from .exceptions import AuthenticationFailed
 def authenticate_auth0_log_stream():
     """Verify the request's Authorization header. It must be of form 'Bearer TOKEN', and
     TOKEN must match with the stored value.
-    The token is set in the Auth0 Monitoring menu, subsection Streams, in the settings
-    of the item "Boxtribute slack".
+    The header (with the "Bearer" prefix) is set in the Auth0 Monitoring menu,
+    subsection Streams, in the settings of the item "Boxtribute slack".
     """
     try:
         token = get_token_from_auth_header(get_auth_string_from_header())
@@ -23,7 +23,7 @@ def authenticate_auth0_log_stream():
 def send_transformed_logs_to_slack(payload):
     """Transform the streams from Auth0 (JSON array format) into single requests with
     flattened data to the Slack webhook (it can't handle nested JSON).
-    Return information about successful and failed requests to the webhook.
+    Return information about successful and failed requests to Auth0.
     See also:
     https://marketplace.auth0.com/integrations/slack-log-streaming
     https://auth0.com/docs/deploy-monitor/logs/log-event-type-codes
