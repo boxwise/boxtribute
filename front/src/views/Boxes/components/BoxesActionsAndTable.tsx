@@ -64,15 +64,6 @@ function BoxesActionsAndTable({
     [selectedBoxes],
   );
 
-  // Used for remove tags
-  // eslint-disable-next-line no-unused-vars
-  const getSelectedBoxTags = useMemo(() => {
-    const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
-    const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
-    const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
-    return commonTags;
-  }, [selectedBoxes, tagOptions]);
-
   // Move Boxes
   const moveBoxesAction = useMoveBoxes();
 
