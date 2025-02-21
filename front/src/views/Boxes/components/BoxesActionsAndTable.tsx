@@ -240,11 +240,10 @@ function BoxesActionsAndTable({
   const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const onAssignTags = useCallback(
     async (tagIds: string[]) => {
-      const result = await assignTags(
+      await assignTags(
         selectedBoxes.map((box) => box.values.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
       );
-      console.log({ result });
     },
     [assignTags, selectedBoxes],
   );

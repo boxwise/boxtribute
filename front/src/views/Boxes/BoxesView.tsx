@@ -131,7 +131,6 @@ function Boxes() {
       hiddenColumns: [
         "gender",
         "size",
-        "tags",
         "shipment",
         "comment",
         "age",
