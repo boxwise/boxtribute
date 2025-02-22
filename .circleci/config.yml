@@ -456,8 +456,8 @@ jobs:
           name: Generate .env file
           command: |
             echo "
-              MYSQL_USER=${DB_NAME}
-              MYSQL_PASSWORD=${DB_PASS}
+              MYSQL_USER=${DB_SELECTONLY_USER}
+              MYSQL_PASSWORD=${DB_SELECTONLY_PASS}
               MYSQL_DB=${DB_NAME}
               MYSQL_SOCKET=${DB_SOCKET}
               MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
