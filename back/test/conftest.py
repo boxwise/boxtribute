@@ -23,7 +23,7 @@ from boxtribute_server.db import create_db_interface, db
 # b) all data models are registered as db.Model subclasses (because the GraphQL schema
 #    is imported into the routes module which in turn imports all data models down the
 #    line); this is relevant for setup_models() to work
-from boxtribute_server.routes import api_bp, app_bp
+from boxtribute_server.routes import api_bp, app_bp, shared_bp
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
@@ -112,7 +112,9 @@ def read_only_client(mysql_testing_database_read_only):
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with _create_app(mysql_testing_database_read_only, api_bp, app_bp) as app:
+    with _create_app(
+        mysql_testing_database_read_only, api_bp, app_bp, shared_bp
+    ) as app:
         yield app.test_client()
 
 

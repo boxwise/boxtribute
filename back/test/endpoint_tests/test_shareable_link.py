@@ -74,3 +74,56 @@ def test_shareable_link_mutations(client, default_base, mocker):
                 }} }}"""
     link = assert_successful_request(client, mutation)
     assert link == {"date": past_valid_until + "T00:00:00+00:00"}
+
+
+def test_shareable_link_queries(read_only_client, shareable_link, expired_link):
+    code = shareable_link["code"]
+    query = f"""query {{ resolveLink(code: "{code}") {{
+                ...on ResolvedLink {{
+                    code
+                    validUntil
+                    view
+                    baseId
+                    urlParameters
+                    data {{
+                        ...on BeneficiaryDemographicsData {{
+                            demographicsFacts: facts {{ age }}
+                        }}
+                        ...on CreatedBoxesData {{
+                            createdBoxesFacts: facts {{ createdOn }}
+                        }}
+                        ...on MovedBoxesData {{
+                            movedBoxesFacts: facts {{ movedOn }}
+                        }}
+                        ...on StockOverviewData {{
+                            stockOverviewFacts: facts {{ boxState }}
+                        }}
+                    }}
+                }} }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    data = response.pop("data")
+    assert response == {
+        "code": code,
+        "validUntil": shareable_link["valid_until"].isoformat(),
+        "view": ShareableView.StatvizDashboard.name,
+        "baseId": shareable_link["base_id"],
+        "urlParameters": shareable_link["url_parameters"],
+    }
+    assert len(data[0]["demographicsFacts"]) > 0
+    assert len(data[1]["createdBoxesFacts"]) > 0
+    assert len(data[2]["movedBoxesFacts"]) > 0
+    assert len(data[3]["stockOverviewFacts"]) > 0
+
+    code = expired_link["code"]
+    query = f"""query {{ resolveLink(code: "{code}") {{
+                    ...on ExpiredLinkError {{ validUntil }}
+                }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == {"validUntil": expired_link["valid_until"].isoformat()}
+
+    code = "unknown"
+    query = f"""query {{ resolveLink(code: "{code}") {{
+                    ...on UnknownLinkError {{ code }}
+                }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == {"code": code}

@@ -1,9 +1,3 @@
-# When updating the definitions, remember to also update ../protected/queries.graphql
 type Query {
-  beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
-  createdBoxes(baseId: Int!): CreatedBoxesData
-  topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
-  topProductsDonated(baseId: Int!): TopProductsDonatedData
-  movedBoxes(baseId: Int!): MovedBoxesData
-  stockOverview(baseId: Int!): StockOverviewData
+  resolveLink(code: String!): ResolvedLinkResult
 }
