@@ -121,6 +121,13 @@ def graphql_explorer():
     return EXPLORER_HTML, 200
 
 
+@shared_bp.get(SHARED_GRAPHQL_PATH)
+def public_graphql_explorer():
+    if not in_development_environment() and not in_staging_environment():
+        return {"error": "No permission to access public API"}, 401
+    return EXPLORER_HTML, 200
+
+
 @app_bp.get(f"{CRON_PATH}/<job_name>")
 def cron(job_name):
     authorized = False

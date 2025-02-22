@@ -9,7 +9,12 @@ def test_private_endpoint(read_only_client, endpoint):
     assert EXPLORER_TITLE in response.data.decode()
 
 
-def test_public_endpoint(read_only_client):
+def test_public_endpoint(read_only_client, monkeypatch):
     response = read_only_client.get("/public")
-    # A resource exists at the requested URL but doesn't support the request method
-    assert response.status_code == 405
+    assert response.status_code == 200
+    assert EXPLORER_TITLE in response.data.decode()
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    response = read_only_client.get("/public")
+    assert response.status_code == 401
+    assert response.json["error"] == "No permission to access public API"
