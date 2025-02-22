@@ -96,7 +96,7 @@ def resolve_stock_overview(*_, base_id):
     return compute_stock_overview(base_id)
 
 
-@public_query.field("shareableLink")
+@public_query.field("resolveLink")
 @use_db_replica
 def resolve_shareable_link(*_, code):
     # Enable resolving union by masking actual model class with subclass whose name

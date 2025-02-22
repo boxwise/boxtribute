@@ -1,3 +1,3 @@
 type Query {
-  shareableLink(code: String!): ResolvedLinkResult
+  resolveLink(code: String!): ResolvedLinkResult
 }
