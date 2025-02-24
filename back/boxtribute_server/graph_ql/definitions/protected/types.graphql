@@ -89,9 +89,13 @@ type Product {
   category: ProductCategory!
   sizeRange: SizeRange!
   base: Base
+  " null for products of type [`Custom`]({{Types.ProductType}}) "
+  standardProduct: StandardProduct
   price: Float
   gender: ProductGender
   comment: String
+  " Number of items of all non-deleted InStock boxes containing the product. "
+  instockItemsCount: Int!
   inShop: Boolean!
   createdBy: User
   createdOn: Datetime
@@ -111,8 +115,8 @@ type StandardProduct {
   sizeRange: SizeRange!
   gender: ProductGender!
   version: Int!
-  " All bases that this standard product is enabled for. "
-  enabledForBases: [Base!]
+  " If the standard product is enabled in the current base, this field provides the corresponding product instantiation. The field is only set in the result of the [`standardProducts`]({{Queries.standardProducts}}) query with non-null `baseId` input, and null otherwise. "
+  instantiation: Product
   addedBy: User
   addedOn: Datetime
   deprecatedBy: User
@@ -151,6 +155,15 @@ type StandardProductPage {
   totalCount: Int!
 }
 
+"""
+Utility response type for standard product bulk-enable mutations, containing both enabled standard product instantiations and IDs of invalid standard products.
+"""
+type ProductsResult {
+  instantiations: [Product!]!
+  " e.g. standard products that don't exist, already are enabled for the base, and/or are superceded by a more recent version "
+  invalidStandardProductIds: [Int!]!
+}
+
 " Union for resources that tags can be applied to. "
 union TaggableResource = Box | Beneficiary
 
@@ -173,6 +186,8 @@ Representation of product size (e.g. clothing size "XL", shoe size 39).
 """
 type Size {
   id: ID!
+  name: String!
+  " Alias for `name` "
   label: String!
 }
 
@@ -190,6 +205,8 @@ Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a di
 """
 type SizeRange {
   id: ID!
+  name: String!
+  " Alias for `name` "
   label: String!
   " List of sizes belonging to the group "
   sizes: [Size!]!
@@ -588,6 +605,35 @@ type ShipmentDetail {
   receivedOn: Datetime
 }
 
+type ShareableLink {
+  id: ID!
+  " A unique SHA256 hash (hex format of length 64) "
+  code: String!
+  baseId: Int!
+  urlParameters: String
+  view: ShareableView!
+  validUntil: Datetime
+  createdOn: Datetime!
+  createdBy: User!
+}
+
+"""
+Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in base different from tags' base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
+"""
+type BoxesTagsOperationResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+""" Error info about tag with specified ID. """
+type TagErrorInfo {
+  id: ID!
+  error: TagError!
+}
+
+union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | TagBaseMismatchError | DeletedTagError
+
 type InsufficientPermissionError {
   " e.g. 'product:write' missing "
   name: String!
@@ -617,11 +663,18 @@ type BoxesStillAssignedToProductError {
 type StandardProductAlreadyEnabledForBaseError {
   existingStandardProductInstantiationId: ID!
 }
+type OutdatedStandardProductVersionError {
+  mostRecentStandardProductId: ID!
+}
 type ProductTypeMismatchError {
   expectedType: ProductType!
 }
 type TagTypeMismatchError {
   expectedType: TagType!
+}
+type TagBaseMismatchError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
 }
 type DeletedLocationError {
   name: String!
@@ -629,15 +682,17 @@ type DeletedLocationError {
 type DeletedTagError {
   name: String!
 }
+type InvalidDateError {
+  date: Datetime!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
-union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
-union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError | OutdatedStandardProductVersionError
+union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 
@@ -645,6 +700,7 @@ union StandardProductResult = StandardProduct | InsufficientPermissionError | Re
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
 union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
 union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
+union ShareableLinkCreationResult = ShareableLink | InsufficientPermissionError | UnauthorizedForBaseError | InvalidDateError
 
 type Metrics {
   """

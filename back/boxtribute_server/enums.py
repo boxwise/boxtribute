@@ -1,4 +1,6 @@
-"""Enumeration types used in the application."""
+"""Enumeration types used in the application.
+Remember to adjust graph_ql/enums.py when adding a new class here.
+"""
 
 import enum
 
@@ -132,3 +134,7 @@ class ProductTypeFilter(enum.Enum):
 class ProductType(enum.IntEnum):
     Custom = 1
     StandardInstantiation = enum.auto()
+
+
+class ShareableView(enum.IntEnum):
+    StatvizDashboard = 1

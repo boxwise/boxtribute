@@ -11,6 +11,7 @@ from .crud import (
     edit_custom_product,
     edit_standard_product_instantiation,
     enable_standard_product,
+    enable_standard_products,
 )
 
 mutation = MutationType()
@@ -58,6 +59,14 @@ def resolve_enable_standard_product(*_, enable_input):
     authorize(permission="size_range:read")
 
     return enable_standard_product(user_id=g.user.id, **enable_input)
+
+
+@mutation.field("enableStandardProducts")
+@handle_unauthorized
+def resolve_enable_standard_products(*_, enable_input):
+    base_id = enable_input["base_id"]
+    authorize(permission="product:write", base_id=base_id)
+    return enable_standard_products(user_id=g.user.id, **enable_input)
 
 
 @mutation.field("editStandardProductInstantiation")

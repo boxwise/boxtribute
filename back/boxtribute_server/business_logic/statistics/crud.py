@@ -1,9 +1,14 @@
+import hashlib
+import random
+import string
+from datetime import timedelta
 from functools import wraps
 
 from peewee import JOIN, SQL, fn
 
 from ...db import db
 from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
+from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -11,13 +16,14 @@ from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
+from ...models.definitions.shareable_link import ShareableLink
 from ...models.definitions.size import Size
 from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
-from ...models.utils import compute_age, convert_ids
+from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from .sql import MOVED_BOXES_QUERY
 
@@ -359,25 +365,21 @@ def compute_moved_boxes(base_id):
     if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
         min_history_id = 1_324_559
-    database = db.replica or db.database
-    cursor = database.execute_sql(
-        MOVED_BOXES_QUERY,
-        (
-            base_id,
-            min_history_id,
-            TargetType.BoxState.name,
-            TargetType.BoxState.name,
-            TargetType.OutgoingLocation.name,
-            TargetType.OutgoingLocation.name,
-            TargetType.Shipment.name,
-            base_id,
-            TargetType.BoxState.name,
-            base_id,
-        ),
+
+    facts = execute_sql(
+        base_id,
+        min_history_id,
+        TargetType.BoxState.name,
+        TargetType.BoxState.name,
+        TargetType.OutgoingLocation.name,
+        TargetType.OutgoingLocation.name,
+        TargetType.Shipment.name,
+        base_id,
+        TargetType.BoxState.name,
+        base_id,
+        database=db.replica or db.database,
+        query=MOVED_BOXES_QUERY,
     )
-    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
-    column_names = [x[0] for x in cursor.description]
-    facts = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     for fact in facts:
         fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
@@ -479,3 +481,40 @@ def compute_stock_overview(base_id):
         "size", "location", "category", "tag", "dimension", facts=facts
     )
     return {"facts": facts, "dimensions": dimensions}
+
+
+def create_shareable_link(
+    *, user_id, base_id, view, valid_until=None, url_parameters=None
+):
+    """Insert information for a new shareable link. Create unique SHA256 hex-code of
+    length 64 from input data and additional (random) info.
+    `valid-until` defaults to the date one week from now.
+    """
+    now = utcnow()
+    if valid_until is None:
+        valid_until = now + timedelta(weeks=1)
+    elif valid_until < now:
+        return InvalidDate(date=valid_until)
+
+    short_code = "".join(random.choices(string.ascii_letters, k=8))
+    full_code = hashlib.sha256(
+        bytes(user_id)
+        + bytes(base_id)
+        + view.name.encode()
+        + valid_until.isoformat().encode()
+        + now.isoformat().encode()
+        + short_code.encode(),
+        usedforsecurity=False,
+    )
+    if url_parameters:
+        full_code.update(url_parameters.encode())
+
+    return ShareableLink.create(
+        code=full_code.hexdigest(),
+        base=base_id,
+        view=view,
+        valid_until=valid_until,
+        url_parameters=url_parameters,
+        created_on=now,
+        created_by=user_id,
+    )

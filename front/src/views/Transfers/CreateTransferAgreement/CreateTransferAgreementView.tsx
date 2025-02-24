@@ -145,8 +145,9 @@ function CreateTransferAgreementView() {
     bases: availableBases,
   } as IBasesForOrganisationData;
 
+  // Filter out organisations without active bases
   const partnerOrganisationsWithTheirBasesData = allOrgsAndTheirBases?.filter(
-    (org) => org.id !== organisation?.id,
+    (org) => org.id !== organisation?.id && (org.bases?.length || 0) > 0,
   );
 
   // Handle Submission

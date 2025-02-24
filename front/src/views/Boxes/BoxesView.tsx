@@ -20,7 +20,17 @@ import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformer
 import { SelectBoxStateFilter } from "./components/Filter";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import { Heading } from "@chakra-ui/react";
+import {
+  Heading,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  HStack,
+  PopoverAnchor,
+  useBoolean,
+} from "@chakra-ui/react";
+import { FaInfoCircle } from "react-icons/fa";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -32,6 +42,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
           hasNextPage
         }
         elements {
+          id
           labelIdentifier
           product {
             ...ProductBasicFields
@@ -110,7 +121,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
 function Boxes() {
   // using base ID from URL to have it available immediately for the queries
   const { urlBaseId: baseId } = useLoadAndSetGlobalPreferences();
-
+  const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
     tableConfigKey,
@@ -128,6 +139,7 @@ function Boxes() {
         "lastModifiedBy",
         "createdBy",
         "productCategory",
+        "id",
       ],
     },
   });
@@ -225,7 +237,32 @@ function Boxes() {
         filter: "includesOneOfMultipleStrings",
       },
       {
-        Header: "Age",
+        Header: (
+          <Popover
+            isOpen={isPopoverOpen}
+            onOpen={setIsPopoverOpen.on}
+            onClose={setIsPopoverOpen.off}
+            closeOnBlur={true}
+            isLazy
+            lazyBehavior="keepMounted"
+          >
+            <HStack>
+              <PopoverAnchor>
+                <div>Age</div>
+              </PopoverAnchor>
+              <PopoverTrigger>
+                <FaInfoCircle height={8} width={8} />
+              </PopoverTrigger>
+            </HStack>
+            <PopoverContent minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>
+              <PopoverBody>
+                How old the box is from the time
+                <br />
+                it was first created in Boxtribute.
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        ),
         accessor: "age",
         id: "age",
         Cell: DaysCell,
@@ -253,8 +290,15 @@ function Boxes() {
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
+      {
+        Header: "ID",
+        accessor: "id",
+        id: "id",
+        Filter: SelectColumnFilter,
+        disableFilters: true,
+      },
     ],
-    [],
+    [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
   );
 
   // TODO: pass tag options to BoxesActionsAndTable

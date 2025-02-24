@@ -2,14 +2,13 @@ import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNavigate } from "react-router-dom";
 
-import { FaWarehouse } from "react-icons/fa"; // Add Trash Icon for delete action
+import { FaDollyFlatbed } from "react-icons/fa";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { Button } from "@chakra-ui/react";
+import { Button, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
 import { useAtomValue } from "jotai";
-import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryRef } from "@apollo/client";
@@ -21,6 +20,9 @@ import RemoveBoxesButton from "./RemoveBoxesButton";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ExportToCsvButton from "./ExportToCsvButton";
+import { FaTruckArrowRight } from "react-icons/fa6";
+import { BsBox2HeartFill } from "react-icons/bs";
+import MakeLabelsButton from "./MakeLabelsButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -229,18 +231,11 @@ function BoxesActionsAndTable({
 
   const actionButtons = useMemo(
     () => [
-      <RemoveBoxesButton
-        onDeleteBoxes={onDeleteBoxes}
-        actionsAreLoading={actionsAreLoading}
-        selectedBoxes={selectedBoxes}
-        key="remove-boxes"
-      />,
-      <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />,
       <SelectButton
         label="Move to ..."
         options={locationOptions}
         onSelect={onMoveBoxes}
-        icon={<FaWarehouse />}
+        icon={<FaDollyFlatbed />}
         isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />,
@@ -248,10 +243,33 @@ function BoxesActionsAndTable({
         label="Assign to Shipment"
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
-        icon={<ShipmentIcon />}
+        icon={<FaTruckArrowRight />}
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
+      <Menu key="box-actions">
+        <MenuButton as={Button}>
+          <BsBox2HeartFill />
+        </MenuButton>
+        <MenuList>
+          <MenuItem>
+            <RemoveBoxesButton
+              labelIdentifier="Delete Boxes"
+              onDeleteBoxes={onDeleteBoxes}
+              actionsAreLoading={actionsAreLoading}
+              selectedBoxes={selectedBoxes}
+              key="remove-boxes"
+            />
+          </MenuItem>
+          <MenuItem>
+            <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
+          </MenuItem>
+          <MenuItem>
+            <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
+          </MenuItem>
+        </MenuList>
+      </Menu>,
+
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
           <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>

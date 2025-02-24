@@ -7,6 +7,7 @@ from peewee import SQL, Case, NodeList, fn
 
 from ..authz import authorize, authorized_bases_filter
 from ..db import db
+from ..enums import BoxState as BoxStateEnum
 from ..enums import TaggableObjectType
 from ..models.definitions.base import Base
 from ..models.definitions.box import Box
@@ -20,6 +21,7 @@ from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
+from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
@@ -112,6 +114,11 @@ class ProductCategoryLoader(SimpleDataLoader):
 class SizeRangeLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(SizeRange)
+
+
+class StandardProductLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(StandardProduct)
 
 
 class ShipmentLoader(DataLoader):
@@ -487,6 +494,24 @@ class ShipmentDetailForBoxLoader(DataLoader):
         return [details.get(i) for i in keys]
 
 
+class InstockItemsCountForProductLoader(DataLoader):
+    async def batch_load_fn(self, product_ids):
+        counts = {
+            product.product_id: product.total_number_of_items
+            for product in Box.select(
+                Box.product,
+                fn.SUM(Box.number_of_items).alias("total_number_of_items"),
+            )
+            .where(
+                Box.product << product_ids,
+                Box.state == BoxStateEnum.InStock,
+                (Box.deleted_on.is_null() | ~Box.deleted_on),
+            )
+            .group_by(Box.product)
+        }
+        return [counts.get(i, 0) for i in product_ids]
+
+
 class SizesForSizeRangeLoader(DataLoader):
     async def batch_load_fn(self, keys):
         authorize(permission="size:read")
@@ -505,20 +530,3 @@ class UnitsForDimensionLoader(DataLoader):
         for unit in Unit.select().iterator():
             units[unit.dimension_id].append(unit)
         return [units.get(i, []) for i in keys]
-
-
-class EnabledBasesForStandardProductLoader(DataLoader):
-    async def batch_load_fn(self, standard_product_ids):
-        result = Product.select(Product.standard_product, Base).join(
-            Base,
-            on=(
-                (Product.base == Base.id)
-                & authorized_bases_filter(model=Product)
-                & (Product.standard_product << standard_product_ids)
-                & (Product.deleted_on.is_null())
-            ),
-        )
-        standard_products = defaultdict(list)
-        for row in result:
-            standard_products[row.standard_product_id].append(row.base)
-        return [standard_products.get(i, []) for i in standard_product_ids]

@@ -18,6 +18,8 @@ from utils import assert_forbidden_request, assert_successful_request
         "product",
         # Test cases 99.1.13, 99.1.14
         "productCategory",
+        # Test case 99.1.16
+        "sizeRange",
         # Test cases 3.1.4, 3.1.5
         "shipment",
         # Test cases 4.1.4, 4.1.6
@@ -41,6 +43,9 @@ def test_invalid_read_permissions(unauthorized, read_only_client, resource):
     elif resources == "products":
         query = "query { products { elements { id } } }"
     assert_forbidden_request(read_only_client, query, none_data=True)
+
+    if resource == "sizeRange":
+        return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
     assert_forbidden_request(read_only_client, query)
@@ -546,6 +551,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "product:write"},
         ],
+        # Test case 8.2.90
+        [
+            "enableStandardProducts",
+            """enableInput: { baseId: 1, standardProductIds: [2] }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
         # Test case 8.2.74
         [
             "editStandardProductInstantiation",
@@ -576,17 +588,24 @@ def test_invalid_permission_for_user_read(
         ],
         # Test case 8.2.23e
         [
-            "assignTagToBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 2 }',
-            "...on InsufficientPermissionError { name }",
-            {"name": "tag_relation:assign"},
+            "assignTagsToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
+            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
         # Test case 8.2.24e
         [
-            "unassignTagFromBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 2 }',
+            "unassignTagsFromBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
+            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
+        ],
+        # Test case 12.2.4
+        [
+            "createShareableLink",
+            'creationInput: { baseId: 1, view: StatvizDashboard, validUntil: "2100-01-01"}',  # noqa
             "...on InsufficientPermissionError { name }",
-            {"name": "tag_relation:assign"},
+            {"name": "shareable_link:create"},
         ],
     ],
 )
@@ -630,6 +649,13 @@ def test_mutate_insufficient_permission(
             "...on UnauthorizedForBaseError { id }",
             {"id": "2"},
         ],
+        # Test case 8.2.89
+        [
+            "enableStandardProducts",
+            """enableInput: { baseId: 2, standardProductIds: [2] }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
         # Test case 8.2.73
         [
             "editStandardProductInstantiation",
@@ -653,17 +679,24 @@ def test_mutate_insufficient_permission(
         ],
         # Test case 8.2.23f
         [
-            "assignTagToBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 4 }',
-            "...on UnauthorizedForBaseError { id }",
-            {"id": "2"},
+            "assignTagsToBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
+            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
         # Test case 8.2.24f
         [
-            "unassignTagFromBoxes",
-            'updateInput: { labelIdentifiers: ["12345678"], tagId: 4 }',
+            "unassignTagsFromBoxes",
+            'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
+            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
+        ],
+        # Test case 12.2.5
+        [
+            "createShareableLink",
+            'creationInput: { baseId: 3, view: StatvizDashboard, validUntil: "2100-01-01"}',  # noqa
             "...on UnauthorizedForBaseError { id }",
-            {"id": "2"},
+            {"id": "3"},
         ],
     ],
 )

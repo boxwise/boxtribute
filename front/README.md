@@ -1,6 +1,6 @@
 # Readme
 
-This front-end project of Boxtribute was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This front-end project of Boxtribute was bootstrapped with [Vite](https://vite.dev/).
 
 ## Table of Contents
 
@@ -13,6 +13,7 @@ This front-end project of Boxtribute was bootstrapped with [Create React App](ht
 4. [Testing](#testing)
 5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
 6. [About Apollo](#apollo)
+7. [Types and GraphQL](#types-and-graphql)
 
 ## Development Set-Up
 
@@ -57,6 +58,7 @@ docker compose exec front pnpm format:write
 - no console.log
 - no debugger statements
 - no vars
+- prefer types over interfaces
 - interfaces/type should start with "I"
 
 ## Note about pnpm and Docker

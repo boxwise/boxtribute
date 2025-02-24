@@ -35,17 +35,24 @@ def test_user_query(read_only_client, default_user, another_user, default_organi
     query = f"""query {{
                 user(id: {user_id}) {{
                     id
+                    bases {{ id }}
                     organisation {{ id }} }} }}"""
     queried_user = assert_successful_request(read_only_client, query)
-    assert queried_user == {"id": str(user_id), "organisation": None}
+    assert queried_user == {"id": str(user_id), "organisation": None, "bases": None}
 
 
-def test_user_query_for_god_user(read_only_client, mocker, god_user):
+def test_user_query_for_god_user(read_only_client, default_bases, mocker, god_user):
     user_id = god_user["id"]
     mock_user_for_request(mocker, is_god=True, user_id=user_id)
-    query = f"query {{ user (id: {user_id}) {{ organisation {{ id }} }} }}"
+    query = f"""query {{ user (id: {user_id}) {{
+                organisation {{ id }}
+                bases {{ id }}
+            }} }}"""
     user = assert_successful_request(read_only_client, query)
-    assert user == {"organisation": None}
+    assert user == {
+        "organisation": None,
+        "bases": [{"id": str(b["id"])} for b in default_bases],
+    }
 
 
 def test_users_query(read_only_client):

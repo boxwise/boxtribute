@@ -16,6 +16,11 @@ class InvalidPrice(UserError):
         self.value = value
 
 
+class InvalidDate(UserError):
+    def __init__(self, *, date):
+        self.date = date
+
+
 class EmptyName(UserError):
     _ = None
 
@@ -45,6 +50,11 @@ class StandardProductAlreadyEnabledForBase(UserError):
         self.existing_standard_product_instantiation_id = product_id
 
 
+class OutdatedStandardProductVersion(UserError):
+    def __init__(self, product_id):
+        self.most_recent_standard_product_id = product_id
+
+
 class ProductTypeMismatch(UserError):
     def __init__(self, *, expected_type):
         self.expected_type = expected_type
@@ -53,6 +63,10 @@ class ProductTypeMismatch(UserError):
 class TagTypeMismatch(UserError):
     def __init__(self, *, expected_type):
         self.expected_type = expected_type
+
+
+class TagBaseMismatch(UserError):
+    _ = None
 
 
 class DeletedTag(UserError):

@@ -67,6 +67,22 @@ def base2_volunteer_data():
     return data
 
 
+def deleted_user_data():
+    data = default_user_data()
+    data["id"] = 6
+    data["name"] = "deleted user"
+    data["email"] = "a.b@web.de.deleted.1031.deleted.1031"
+    data["deleted"] = TODAY
+    return data
+
+
+def another_deleted_user_data():
+    data = deleted_user_data()
+    data["id"] = 7
+    data["email"] = "a.b@gmail.com.deleted.124"
+    return data
+
+
 def another_user_data():
     data = default_user_data()
     data["id"] = 8
@@ -84,6 +100,8 @@ def data():
         another_user_data(),
         base2_coordinator_data(),
         base2_volunteer_data(),
+        deleted_user_data(),
+        another_deleted_user_data(),
     ]
 
 

@@ -25,7 +25,7 @@ def test_standard_product_query(
                     sizeRange {{ id }}
                     gender
                     version
-                    enabledForBases {{ id }}
+                    instantiation {{ id }}
                     addedBy {{ id }}
                     deprecatedBy {{ id }}
                     deprecatedOn
@@ -38,7 +38,7 @@ def test_standard_product_query(
         "gender": ProductGender(default_standard_product["gender"]).name,
         "sizeRange": {"id": str(default_standard_product["size_range"])},
         "version": default_standard_product["version"],
-        "enabledForBases": [{"id": "1"}],
+        "instantiation": None,
         "addedBy": {"id": str(default_standard_product["added_by"])},
         "deprecatedBy": None,
         "deprecatedOn": None,
@@ -63,41 +63,68 @@ def test_standard_product_query(
     query = f"""query {{
                 standardProduct(id: {another_standard_product['id']}) {{
                 ... on StandardProduct {{
-                    enabledForBases {{ id }}
+                    instantiation {{ id }}
                 }} }} }}"""
     product = assert_successful_request(read_only_client, query)
-    assert product == {"enabledForBases": []}
+    assert product == {"instantiation": None}
 
     mock_user_for_request(mocker, is_god=True)
     query = f"""query {{
                 standardProduct(id: {default_standard_product['id']}) {{
                 ... on StandardProduct {{
-                    enabledForBases {{ id }}
+                    instantiation {{ id }}
                 }} }} }}"""
     product = assert_successful_request(read_only_client, query)
-    assert product == {"enabledForBases": [{"id": "1"}, {"id": "3"}]}
+    assert product == {"instantiation": None}
 
 
 def test_standard_products_query(
-    read_only_client, default_standard_product, newest_standard_product, mocker
+    read_only_client,
+    default_standard_product,
+    newest_standard_product,
+    superceding_measure_standard_product,
+    products,
+    mocker,
 ):
     # Test case 8.1.40
     query = """query { standardProducts {
-                ...on StandardProductPage { elements { name } } } }"""
-    products = assert_successful_request(read_only_client, query)["elements"]
-    assert products == [{"name": str(newest_standard_product["name"])}]
+                ...on StandardProductPage { elements {
+                    name
+                    instantiation { id }
+                } } } }"""
+    std_products = assert_successful_request(read_only_client, query)["elements"]
+    assert std_products == [
+        {"name": str(newest_standard_product["name"]), "instantiation": None},
+        {
+            "name": str(superceding_measure_standard_product["name"]),
+            "instantiation": None,
+        },
+    ]
 
     # Test case 8.1.45
     query = """query { standardProducts( baseId: 1 ) {
-                ...on StandardProductPage { elements { id } } } }"""
-    products = assert_successful_request(read_only_client, query)["elements"]
-    assert products == [
-        {"id": str(sp["id"])}
-        for sp in [newest_standard_product, default_standard_product]
+                ...on StandardProductPage { elements {
+                    id
+                    instantiation { id }
+                } } } }"""
+    std_products = assert_successful_request(read_only_client, query)["elements"]
+    assert std_products == [
+        {
+            "id": str(default_standard_product["id"]),
+            "instantiation": {"id": str(products[4]["id"])},
+        },
+        {"id": str(newest_standard_product["id"]), "instantiation": None},
+        {"id": str(superceding_measure_standard_product["id"]), "instantiation": None},
     ]
 
     mock_user_for_request(mocker, base_ids=[2])
     query = """query { standardProducts( baseId: 2 ) {
-                ...on StandardProductPage { elements { id } } } }"""
-    products = assert_successful_request(read_only_client, query)["elements"]
-    assert products == [{"id": str(newest_standard_product["id"])}]
+                ...on StandardProductPage { elements {
+                    id
+                    instantiation { id }
+                } } } }"""
+    std_products = assert_successful_request(read_only_client, query)["elements"]
+    assert std_products == [
+        {"id": str(newest_standard_product["id"]), "instantiation": None},
+        {"id": str(superceding_measure_standard_product["id"]), "instantiation": None},
+    ]

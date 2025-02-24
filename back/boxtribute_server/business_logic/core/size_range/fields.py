@@ -1,6 +1,17 @@
 from ariadne import ObjectType
 
+size = ObjectType("Size")
 size_range = ObjectType("SizeRange")
+
+
+@size.field("name")
+def resolve_size_name(size_obj, _):
+    return size_obj.label
+
+
+@size_range.field("name")
+def resolve_size_range_name(size_range_obj, _):
+    return size_range_obj.label
 
 
 @size_range.field("sizes")

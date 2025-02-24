@@ -11,10 +11,10 @@ type Mutation {
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
   " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
-  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
+  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
+  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -66,13 +66,17 @@ type Mutation {
   editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
   " Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   deleteProduct(id: ID!): DeleteProductResult
-  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base. "
+  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (e.g. if the standard product has already been enabled for the base, or if a more recent version of the standard product exists). The client must be member of the specified base. "
   enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
+  " Enable multiple standard products for a base. "
+  enableStandardProducts(enableInput: StandardProductsEnableInput): EnableStandardProductsResult
   " Edit properties of the standard product instantiation with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
   editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
   " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
+  " Create a link that can be publicly shared and resolved. "
+  createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
 
   # Undocumented mutations of the mobile-distribution feature
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot

@@ -60,6 +60,7 @@ from .product import (
     base1_products,
     base1_undeleted_products,
     default_product,
+    disabled_standard_product,
     products,
 )
 from .product_category import default_product_category, product_categories
@@ -88,13 +89,14 @@ from .shipment_detail import (
     removed_shipment_detail,
 )
 from .size import another_size, default_size
-from .size_range import another_size_range, default_size_range
+from .size_range import another_size_range, default_size_range, size_ranges
 from .standard_product import (
     another_standard_product,
     default_standard_product,
     measure_standard_product,
     newest_standard_product,
     standard_products,
+    superceding_measure_standard_product,
 )
 from .tag import base1_active_tags, tags
 from .transaction import another_transaction, default_transaction, relative_transaction
@@ -165,6 +167,7 @@ __all__ = [
     "default_users",
     "deleted_base",
     "deleted_location",
+    "disabled_standard_product",
     "distribution_spot",
     "distro_spot5_distribution_events",
     "distro_spot5_distribution_events_before_return_state",
@@ -202,7 +205,9 @@ __all__ = [
     "reviewed_transfer_agreement",
     "sent_shipment",
     "shipments",
+    "size_ranges",
     "standard_products",
+    "superceding_measure_standard_product",
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",

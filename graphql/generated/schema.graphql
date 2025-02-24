@@ -106,6 +106,10 @@ enum TargetType {
   BoxState
 }
 
+enum ShareableView {
+  StatvizDashboard
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """
@@ -171,9 +175,9 @@ input BoxMoveInput {
   locationId: Int!
 }
 
-input BoxAssignTagInput {
+input BoxesTagsOperationInput {
   labelIdentifiers: [String!]!
-  tagId: Int!
+  tagIds: [Int!]!
 }
 
 input CustomProductCreationInput {
@@ -205,6 +209,11 @@ input StandardProductEnableInput {
   price: Int
   comment: String
   inShop: Boolean
+}
+
+input StandardProductsEnableInput {
+  standardProductIds: [Int!]!
+  baseId: Int!
 }
 
 input StandardProductInstantiationEditInput {
@@ -335,6 +344,14 @@ input TagOperationInput {
   resourceId: ID!
   resourceType: TaggableResourceType!
 }
+
+input LinkCreationInput {
+  baseId: Int!
+  " By default, the link will expire after one week. If no timezone-offset information is passed (via +XX:XX suffix), the time is assumed to be in UTC "
+  validUntil: Datetime
+  urlParameters: String
+  view: ShareableView!
+}
 # Naming convention:
 # - input argument: creationInput/updateInput
 # - input type: <Resource>CreationInput/UpdateInput
@@ -348,10 +365,10 @@ type Mutation {
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
   " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, already assigned to the requested tag, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  assignTagToBoxes(updateInput: BoxAssignTagInput): AssignTagToBoxesResult
-  " Any boxes that are non-existing, don't have the requested tag assigned, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  unassignTagFromBoxes(updateInput: BoxAssignTagInput): UnassignTagFromBoxesResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
+  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
+  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -403,13 +420,17 @@ type Mutation {
   editCustomProduct(editInput: CustomProductEditInput): EditCustomProductResult
   " Soft-delete the custom product with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   deleteProduct(id: ID!): DeleteProductResult
-  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (especially if the standard product has already been enabled for the base). The client must be member of the specified base. "
+  " Enable a standard product for a base, specifying properties like size range, and price. This creates a so-called standard product instantiation that can be treated like any [`Product`]({{Types.Product}}). Return errors in case of invalid input (e.g. if the standard product has already been enabled for the base, or if a more recent version of the standard product exists). The client must be member of the specified base. "
   enableStandardProduct(enableInput: StandardProductEnableInput): EnableStandardProductResult
+  " Enable multiple standard products for a base. "
+  enableStandardProducts(enableInput: StandardProductsEnableInput): EnableStandardProductsResult
   " Edit properties of the standard product instantiation with specified ID. Return errors in case of invalid input. The client must be member of the base that the product is registered in. "
   editStandardProductInstantiation(editInput: StandardProductInstantiationEditInput): EditStandardProductInstantiationResult
   " Disable the standard product instantiation with specified ID. Return errors if the product is still assigned to any boxes. The client must be member of the base that the product is registered in. "
   disableStandardProduct(instantiationId: ID!): DisableStandardProductResult
 
+  " Create a link that can be publicly shared and resolved. "
+  createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
 
   # Undocumented mutations of the mobile-distribution feature
   createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
@@ -477,7 +498,7 @@ type Query {
   base(id: ID!): Base
   " Return [`Organisation`]({{Types.Organisation}}) with specified ID. "
   organisation(id: ID!): Organisation
-  " Return all [`Organisations`]({{Types.Organisation}}). "
+  " Return all non-deleted [`Organisations`]({{Types.Organisation}}). "
   organisations: [Organisation!]!
   " Return [`User`]({{Types.User}}) with specified ID. Some fields might be restricted. "
   user(id: ID): User
@@ -506,6 +527,8 @@ type Query {
   productCategory(id: ID!): ProductCategory
   " Return all [`ProductCategories`]({{Types.ProductCategory}}). "
   productCategories: [ProductCategory!]!
+  " Return all [`SizeRanges`]({{Types.SizeRange}}). "
+  sizeRanges: [SizeRange!]!
   " Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base "
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
@@ -637,9 +660,13 @@ type Product {
   category: ProductCategory!
   sizeRange: SizeRange!
   base: Base
+  " null for products of type [`Custom`]({{Types.ProductType}}) "
+  standardProduct: StandardProduct
   price: Float
   gender: ProductGender
   comment: String
+  " Number of items of all non-deleted InStock boxes containing the product. "
+  instockItemsCount: Int!
   inShop: Boolean!
   createdBy: User
   createdOn: Datetime
@@ -659,8 +686,8 @@ type StandardProduct {
   sizeRange: SizeRange!
   gender: ProductGender!
   version: Int!
-  " All bases that this standard product is enabled for. "
-  enabledForBases: [Base!]
+  " If the standard product is enabled in the current base, this field provides the corresponding product instantiation. The field is only set in the result of the [`standardProducts`]({{Queries.standardProducts}}) query with non-null `baseId` input, and null otherwise. "
+  instantiation: Product
   addedBy: User
   addedOn: Datetime
   deprecatedBy: User
@@ -699,6 +726,15 @@ type StandardProductPage {
   totalCount: Int!
 }
 
+"""
+Utility response type for standard product bulk-enable mutations, containing both enabled standard product instantiations and IDs of invalid standard products.
+"""
+type ProductsResult {
+  instantiations: [Product!]!
+  " e.g. standard products that don't exist, already are enabled for the base, and/or are superceded by a more recent version "
+  invalidStandardProductIds: [Int!]!
+}
+
 " Union for resources that tags can be applied to. "
 union TaggableResource = Box | Beneficiary
 
@@ -721,6 +757,8 @@ Representation of product size (e.g. clothing size "XL", shoe size 39).
 """
 type Size {
   id: ID!
+  name: String!
+  " Alias for `name` "
   label: String!
 }
 
@@ -738,6 +776,8 @@ Representation of group of sizes (e.g. clothing sizes "S, M, L, XL"), or of a di
 """
 type SizeRange {
   id: ID!
+  name: String!
+  " Alias for `name` "
   label: String!
   " List of sizes belonging to the group "
   sizes: [Size!]!
@@ -1136,6 +1176,35 @@ type ShipmentDetail {
   receivedOn: Datetime
 }
 
+type ShareableLink {
+  id: ID!
+  " A unique SHA256 hash (hex format of length 64) "
+  code: String!
+  baseId: Int!
+  urlParameters: String
+  view: ShareableView!
+  validUntil: Datetime
+  createdOn: Datetime!
+  createdBy: User!
+}
+
+"""
+Utility response type for box bulk tag-mutations, containing both updated boxes and invalid boxes (ignored due to e.g. being deleted, in base different from tags' base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
+"""
+type BoxesTagsOperationResult {
+  updatedBoxes: [Box!]!
+  invalidBoxLabelIdentifiers: [String!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+""" Error info about tag with specified ID. """
+type TagErrorInfo {
+  id: ID!
+  error: TagError!
+}
+
+union TagError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | TagBaseMismatchError | DeletedTagError
+
 type InsufficientPermissionError {
   " e.g. 'product:write' missing "
   name: String!
@@ -1165,11 +1234,18 @@ type BoxesStillAssignedToProductError {
 type StandardProductAlreadyEnabledForBaseError {
   existingStandardProductInstantiationId: ID!
 }
+type OutdatedStandardProductVersionError {
+  mostRecentStandardProductId: ID!
+}
 type ProductTypeMismatchError {
   expectedType: ProductType!
 }
 type TagTypeMismatchError {
   expectedType: TagType!
+}
+type TagBaseMismatchError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
 }
 type DeletedLocationError {
   name: String!
@@ -1177,15 +1253,17 @@ type DeletedLocationError {
 type DeletedTagError {
   name: String!
 }
+type InvalidDateError {
+  date: Datetime!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union AssignTagToBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | TagTypeMismatchError | DeletedTagError
-union UnassignTagFromBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
-union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError | OutdatedStandardProductVersionError
+union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 
@@ -1193,6 +1271,7 @@ union StandardProductResult = StandardProduct | InsufficientPermissionError | Re
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
 union QrCodeResult = QrCode | InsufficientPermissionError | ResourceDoesNotExistError
 union BoxResult = Box | InsufficientPermissionError | UnauthorizedForBaseError
+union ShareableLinkCreationResult = ShareableLink | InsufficientPermissionError | UnauthorizedForBaseError | InvalidDateError
 
 type Metrics {
   """

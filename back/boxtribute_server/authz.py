@@ -335,8 +335,9 @@ MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
 MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + ("deleteBoxes",)
 MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "moveBoxesToLocation",
-    "assignTagToBoxes",
-    "unassignTagFromBoxes",
+    "assignTagsToBoxes",
+    "unassignTagsFromBoxes",
+    "createShareableLink",
 )
 MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createCustomProduct",

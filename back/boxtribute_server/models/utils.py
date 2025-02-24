@@ -17,6 +17,12 @@ from .definitions.unit import Unit
 # Batch size for bulk insert/update operations
 BATCH_SIZE = 100
 
+# Number of attempts when trying to a generate unique random sequence
+RANDOM_SEQUENCE_GENERATION_ATTEMPTS = 10
+
+HISTORY_CREATION_MESSAGE = "Record created"
+HISTORY_DELETION_MESSAGE = "Record deleted"
+
 
 def utcnow():
     """Return current datetime in UTC, in second precision (the MySQL database is
@@ -30,6 +36,19 @@ def convert_ids(concat_ids, converter=int):
     list using given convert (default: int).
     """
     return [converter(i) for i in (concat_ids or "").split(",") if i]
+
+
+def execute_sql(*params, database=None, query):
+    """Utility function to execute a raw SQL query, returning the result rows as
+    dicts.
+    By default, the primary database is selected. Any `params` are passed into peewee's
+    `execute_sql` method as values for query parameters.
+    """
+    database = database or db.database
+    cursor = database.execute_sql(query, params=params)
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
+    column_names = [x[0] for x in cursor.description]
+    return [dict(zip(column_names, row)) for row in cursor.fetchall()]
 
 
 today = date.today()
@@ -60,14 +79,14 @@ def save_creation_to_history(f):
     The function runs the decorated function, effectively executing the creation. An
     entry in the history table is created.
     """
-    return _save_to_history(f, "Record created")
+    return _save_to_history(f, HISTORY_CREATION_MESSAGE)
 
 
 def safely_handle_deletion(f):
     """Using this decorator will set the `deleted_on` timestamp of the to-be-deleted
     model instance and save the changes (i.e. `save()` does not have to be called).
     """
-    return _save_to_history(f, "Record deleted")
+    return _save_to_history(f, HISTORY_DELETION_MESSAGE)
 
 
 def _save_to_history(f, changes):
@@ -84,7 +103,7 @@ def _save_to_history(f, changes):
             if not isinstance(result, db.Model):
                 return result
 
-            if "deleted" in changes:
+            if changes == HISTORY_DELETION_MESSAGE:
                 result.deleted_on = now
                 result.save()
 

@@ -28,11 +28,21 @@ def resolve_product_base(product_obj, info):
     return info.context["base_loader"].load(product_obj.base_id)
 
 
+@product.field("standardProduct")
+def resolve_product_standard_product(product_obj, info):
+    return info.context["standard_product_loader"].load(product_obj.standard_product_id)
+
+
 @product.field("type")
 def resolve_product_type(product_obj, _):
     if product_obj.standard_product_id is None:
         return ProductType.Custom
     return ProductType.StandardInstantiation
+
+
+@product.field("instockItemsCount")
+def resolve_instock_items_count(product_obj, info):
+    return info.context["instock_items_count_for_product_loader"].load(product_obj.id)
 
 
 @product.field("createdBy")

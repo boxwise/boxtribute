@@ -2089,6 +2089,8 @@ LOCK TABLES `organisations` WRITE;
 INSERT INTO `organisations` VALUES
   (1,'BoxAid',NULL,NULL,NULL,NULL,NULL),
   (2,'BoxCare',NULL,NULL,NULL,NULL,NULL),
+  (3,'NoCampsOrg',NULL,NULL,NULL,NULL,NULL),
+  (4,'TheDeletedOrg',NULL,NULL,'2023-12-31 11:22:33',NULL,NULL),
   (100000000,'TestOrganisation','2019-07-10 08:05:56',1,NULL,NULL,NULL),
   (100000001,'DummyTestOrgWithBoxes','2019-09-29 08:05:56',1,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `organisations` ENABLE KEYS */;
@@ -2228,7 +2230,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20241021111555,'MakeShipmentAgreementNullable','2024-10-30 13:15:29','2024-10-30 13:15:30',0),
   (20241102132725,'UpdateCmsFunctionItems','2024-11-05 17:09:35','2024-11-05 17:09:36',0),
   (20241102153022,'UpdateTranslateItems','2024-11-05 17:09:36','2024-11-05 17:09:36',0),
-  (20241106213858,'AddMixedSizeToAllSizegroups','2024-11-07 11:54:52','2024-11-07 11:54:52',0);
+  (20241106213858,'AddMixedSizeToAllSizegroups','2024-11-07 11:54:52','2024-11-07 11:54:52',0),
+  (20241129084753,'EnableMenuesForAllCamps','2025-01-30 14:02:00','2025-01-30 14:02:00',0),
+  (20250127114447,'AddShareableLinkTable','2025-01-30 14:02:00','2025-01-30 14:02:01',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2369,6 +2373,40 @@ INSERT INTO `qr` VALUES
   (100000004,'4b382363fa161c111fa9ad2b335ceacd',NULL,0),
   (100000005,'b1cf83ae73adfce0d14dbe81b53cb96b',NULL,0);
 /*!40000 ALTER TABLE `qr` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `shareable_link`
+--
+
+DROP TABLE IF EXISTS `shareable_link`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `shareable_link` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `valid_until` datetime DEFAULT NULL,
+  `view` varchar(255) NOT NULL,
+  `base_id` int(11) unsigned DEFAULT NULL,
+  `url_parameters` varchar(2000) DEFAULT NULL,
+  `created_on` datetime NOT NULL,
+  `created_by_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `shareable_link_code` (`code`),
+  KEY `created_by_id` (`created_by_id`),
+  KEY `base_id` (`base_id`),
+  CONSTRAINT `shareable_link_ibfk_1` FOREIGN KEY (`created_by_id`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `shareable_link_ibfk_2` FOREIGN KEY (`base_id`) REFERENCES `camps` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `shareable_link`
+--
+
+LOCK TABLES `shareable_link` WRITE;
+/*!40000 ALTER TABLE `shareable_link` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shareable_link` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2527,7 +2565,8 @@ INSERT INTO `sizegroup` VALUES
 (20,'Children by month (2-5)',100),
 (21,'Baby by month (0-2, 3-6, 7-12, 13-18, 19-24)',19),
 (22,'Baby by month (0-6, 7-24)',20),
-(23,'Children by year (2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15)',11),(24,'Children by year (individual years)',12),
+(23,'Children by year (2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15)',11),
+(24,'Children by year (individual years)',12),
 (25,'Children by year (0-2, 2-4, 5-7, 8-10, 11-13, 14-17)', 13),
 (26,'All shoe sizes (<23-48)',61),
 (27,'Sock sizes',62),

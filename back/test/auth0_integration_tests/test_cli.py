@@ -146,7 +146,7 @@ def auth0_users(auth0_management_api_client, auth0_roles):
         [user_id(4)],
     )
 
-    time.sleep(WAIT)
+    time.sleep(2 * WAIT)
 
     # Return list
     yield users_data

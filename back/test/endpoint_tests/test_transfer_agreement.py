@@ -86,7 +86,7 @@ def test_transfer_agreement_query(
     assert agreement == {"sourceBases": [{"id": "1"}], "targetBases": []}
 
     query = f"""query {{ transferAgreement(id: {agreement_id}) {{
-                    sourceBases {{ id }}
+                    sourceBases(filterInput: {{ includeDeleted: true }}) {{ id }}
                     targetBases(filterInput: {{ includeDeleted: true }}) {{ id }}
                 }} }}"""
     agreement = assert_successful_request(read_only_client, query)
@@ -228,6 +228,13 @@ def test_transfer_agreement_mutations(
         type: {TransferAgreementType.Bidirectional.name}
         validFrom: "{valid_from}"
         validUntil: "{valid_until}" """
+    assert_bad_user_input(client, _create_mutation(creation_input))
+
+    creation_input = f"""partnerOrganisationId: {another_organisation['id']},
+        initiatingOrganisationId: {default_organisation['id']}
+        initiatingOrganisationBaseIds: [2]
+        partnerOrganisationBaseIds: []
+        type: {TransferAgreementType.Bidirectional.name} """
     assert_bad_user_input(client, _create_mutation(creation_input))
 
     # Test case 2.2.2

@@ -32,9 +32,9 @@ input BoxMoveInput {
   locationId: Int!
 }
 
-input BoxAssignTagInput {
+input BoxesTagsOperationInput {
   labelIdentifiers: [String!]!
-  tagId: Int!
+  tagIds: [Int!]!
 }
 
 input CustomProductCreationInput {
@@ -66,6 +66,11 @@ input StandardProductEnableInput {
   price: Int
   comment: String
   inShop: Boolean
+}
+
+input StandardProductsEnableInput {
+  standardProductIds: [Int!]!
+  baseId: Int!
 }
 
 input StandardProductInstantiationEditInput {
@@ -195,4 +200,12 @@ input TagOperationInput {
   id: ID!
   resourceId: ID!
   resourceType: TaggableResourceType!
+}
+
+input LinkCreationInput {
+  baseId: Int!
+  " By default, the link will expire after one week. If no timezone-offset information is passed (via +XX:XX suffix), the time is assumed to be in UTC "
+  validUntil: Datetime
+  urlParameters: String
+  view: ShareableView!
 }

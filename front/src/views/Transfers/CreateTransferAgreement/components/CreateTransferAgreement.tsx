@@ -1,21 +1,14 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import DateField from "components/Form/DateField";
 import { addDays } from "date-fns";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface IBaseData {
   id: string;
@@ -117,6 +110,8 @@ function CreateTransferAgreement({
     resolver: zodResolver(TransferAgreementFormDataSchema),
   });
 
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
   const [validUntilMinDate, setValidUntilMinDate] = useState("");
   const partnerOrganisation = watch("partnerOrganisation");
@@ -246,12 +241,28 @@ function CreateTransferAgreement({
           </ListItem>
         </List>
 
-        <Stack spacing={4}>
-          <ButtonGroup gap="4">
-            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
-              Create Agreement
-            </Button>
-          </ButtonGroup>
+        <Stack spacing={4} mt={8}>
+          <Button
+            isLoading={isSubmitting}
+            type="submit"
+            borderRadius="0"
+            w="full"
+            variant="solid"
+            backgroundColor="blue.500"
+            color="white"
+          >
+            Create Agreement
+          </Button>
+          <Button
+            size="md"
+            type="button"
+            borderRadius="0"
+            w="full"
+            variant="outline"
+            onClick={() => navigate(`/bases/${baseId}/transfers/agreements`)}
+          >
+            Nevermind
+          </Button>
         </Stack>
       </form>
     </Box>

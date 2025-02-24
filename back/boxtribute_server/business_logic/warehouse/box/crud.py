@@ -29,12 +29,13 @@ from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
+    HISTORY_DELETION_MESSAGE,
+    RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
+    convert_ids,
     save_creation_to_history,
     save_update_to_history,
     utcnow,
 )
-
-BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS = 10
 
 
 def is_measure_product(product):
@@ -119,7 +120,7 @@ def create_box(
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
 
-    for _ in range(BOX_LABEL_IDENTIFIER_GENERATION_ATTEMPTS):
+    for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
             new_box = Box()
             new_box.comment = comment
@@ -358,7 +359,7 @@ def delete_boxes(*, user_id, boxes):
     now = utcnow()
     history_entries = [
         DbChangeHistory(
-            changes="Record deleted",
+            changes=HISTORY_DELETION_MESSAGE,
             table_name=Box._meta.table_name,
             record_id=box.id,
             user=user_id,
@@ -440,9 +441,11 @@ def move_boxes_to_location(*, user_id, boxes, location):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def assign_tag_to_boxes(*, user_id, boxes, tag):
-    """Add TagsRelation entries for given boxes and tag. Update last_modified_* fields
-    of the affected boxes.
+def assign_missing_tags_to_boxes(*, user_id, boxes):
+    """Add TagsRelation entries according to information in `boxes` (a list of tag IDs
+    to be added per box). The tags must not be already assigned to the boxes.
+
+    Update last_modified_* fields of the affected boxes.
     Return the list of updated boxes.
     """
     if not boxes:
@@ -451,46 +454,47 @@ def assign_tag_to_boxes(*, user_id, boxes, tag):
     now = utcnow()
     tags_relations = [
         TagsRelation(
-            object_id=box.id,
+            object_id=box["id"],
             object_type=TaggableObjectType.Box,
-            tag=tag.id,
+            tag=tag_id,
             created_on=now,
             created_by=user_id,
         )
         for box in boxes
+        for tag_id in convert_ids(box["missing_tag_ids"])
     ]
 
-    box_ids = [box.id for box in boxes]
+    box_ids = [box["id"] for box in boxes]
     with db.database.atomic():
         Box.update(last_modified_on=now, last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
-    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
-    return boxes
+    return list(Box.select().where(Box.id << box_ids))
 
 
-def unassign_tag_from_boxes(*, user_id, boxes, tag):
-    """Soft-delete TagsRelation rows containing the given tag. Update last_modified_*
-    fields of the affected boxes.
+def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
+    """Soft-delete TagsRelation rows containing the given boxes and tag IDs. Already
+    deleted TagsRelations are ignored.
+
+    Update last_modified_* fields of the affected boxes.
     Return the list of updated boxes.
     """
     if not boxes:
         return []
 
-    box_ids = [box.id for box in boxes]
+    box_ids = {box.id for box in boxes}
     now = utcnow()
     with db.database.atomic():
         Box.update(last_modified_on=now, last_modified_by=user_id).where(
             Box.id << box_ids
         ).execute()
         TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
-            TagsRelation.tag == tag.id,
+            TagsRelation.tag << tag_ids,
             TagsRelation.object_id << box_ids,
             TagsRelation.object_type == TaggableObjectType.Box,
             TagsRelation.deleted_on.is_null(),
         ).execute()
 
-    # Skip re-fetching box data (last_modified_* fields will be outdated in response)
-    return boxes
+    return list(Box.select().where(Box.id << box_ids))
