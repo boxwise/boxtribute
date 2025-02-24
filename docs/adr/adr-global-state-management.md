@@ -25,8 +25,7 @@ We need a global state management solution for our React application. Currently,
 2. Switch to Jotai
 3. Switch to Zustand
 4. Switch to Legend State
-
-## Consequences
+5. Use already installed Apollo and its Reactive Variables
 
 ### Advantages of Jotai
 
@@ -122,6 +121,14 @@ const Counter = observer(() => (
 
 1. **Learning curve:** Legend State requires developers to learn a new API and mental model for managing state.
 2. **Ecosystem:** Legend State is an external library and may not have the same level of ecosystem integration as React Context.
+
+### Apollo Reactive Variables
+
+1. **Ease of development:** Apollo Reactive Variables provide a simple API for managing local state, which can be easily integrated with Apollo Client for managing both local and remote state. It works especially well with states that need to be synchronized with the BE.
+2. **Rendering performance:** Reactive Variables trigger updates only for the components that depend on the specific piece of state that has changed, minimizing unnecessary re-renders.
+3. **Scalability:** Apollo Reactive Variables can handle increasing complexity and state size, especially when combined with Apollo Client for managing remote state.
+4. **Community and support:** Apollo Client has a large and active community, with extensive documentation and support.
+5. **Ecosystem**: While Apollo Client is widely used for managing remote state, using it for local state management might not be as common, leading to potential integration challenges.
 
 ## Comparison with React Context
 
