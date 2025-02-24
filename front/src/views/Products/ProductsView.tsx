@@ -1,0 +1,311 @@
+import { useCallback, useContext, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useBackgroundQuery, useMutation } from "@apollo/client";
+import { Column } from "react-table";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Heading,
+  Tab,
+  TabList,
+  Tabs,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
+import { FaCheckCircle } from "react-icons/fa";
+
+import { graphql } from "../../../../graphql/graphql";
+import {
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
+} from "../../../../graphql/fragments";
+import { useTableConfig } from "hooks/hooks";
+import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { ProductRow } from "./components/transformers";
+import ProductsTable from "./components/ProductsTable";
+import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
+import { SelectColumnFilter } from "components/Table/Filter";
+
+export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
+  `
+    query StandardProductsForProductsView($baseId: ID!) {
+      standardProducts(baseId: $baseId) {
+        ... on StandardProductPage {
+          totalCount
+          elements {
+            ...StandardProductBasicFields
+            sizeRange {
+              id
+              name
+              label
+              sizes {
+                id
+                name
+                label
+              }
+            }
+            instantiation {
+              id
+              instockItemsCount
+              createdOn
+              createdBy {
+                id
+                name
+              }
+              deletedOn
+            }
+            version
+          }
+        }
+      }
+    }
+  `,
+  [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT],
+);
+
+export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
+  `
+    mutation DisableStandardProduct($instantiationId: ID!) {
+      disableStandardProduct(instantiationId: $instantiationId) {
+        ...ProductBasicFields
+      }
+    }
+  `,
+  [PRODUCT_BASIC_FIELDS_FRAGMENT],
+);
+
+function InStockProductAlert({
+  instockItemsCount,
+  productName,
+}: {
+  instockItemsCount?: number;
+  productName?: string;
+  // locations?: string, // TODO: should be derived from product locations somehow
+}) {
+  return (
+    <Alert status="error" data-testid="ErrorAlertProduct">
+      <>
+        <AlertIcon />
+        <Box display="flex" flexDirection="column">
+          <AlertTitle>Disabling Product with Active Stock</AlertTitle>
+          <AlertDescription>
+            You are attempting to disable the product {productName} with {instockItemsCount}{" "}
+            <Text fontWeight="600" color="#659A7E" display="inline">
+              InStock
+            </Text>{" "}
+            items in one or more locations. To continue, you must first reclassify all{" "}
+            <Text fontWeight="600" color="#659A7E" display="inline">
+              InStock
+            </Text>{" "}
+            boxes as a different product.
+          </AlertDescription>
+        </Box>
+      </>
+    </Alert>
+  );
+}
+
+function Products() {
+  const { baseId } = useBaseIdParam();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { globalPreferences } = useContext(GlobalPreferencesContext);
+  const baseName = globalPreferences.selectedBase?.name;
+  const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
+  const tableConfigKey = `bases/${baseId}/products`;
+  const tableConfig = useTableConfig({
+    tableConfigKey,
+    defaultTableConfig: {
+      columnFilters: [],
+      sortBy: [],
+      hiddenColumns: ["version", "enabledOn", "enabledBy", "disabledOn", "id"],
+    },
+  });
+
+  // fetch Standard Products data in the background
+  const [standardProductsQueryRef, { refetch: refetchStandardProducts }] = useBackgroundQuery(
+    STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY,
+    { variables: { baseId } },
+  );
+
+  const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
+    useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
+
+  const handleDisableProduct = useCallback(
+    (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
+      if (instockItemsCount !== undefined && instockItemsCount > 0) {
+        toast({
+          position: "bottom",
+          duration: 6000,
+          render: () => (
+            <InStockProductAlert instockItemsCount={instockItemsCount} productName={productName} />
+          ),
+        });
+      } else if (instantiationId) {
+        disableStandardProductMutation({
+          variables: {
+            instantiationId,
+          },
+        });
+      }
+      // TODO: handle unlikely standard product with no instantiation id?
+    },
+    [disableStandardProductMutation, toast],
+  );
+
+  const handleEnableProduct = useCallback(
+    () => navigate(`/bases/${baseId}/products/create`),
+    [navigate, baseId],
+  );
+
+  const availableColumns: Column<ProductRow>[] = useMemo(
+    () => [
+      {
+        Header: "Enabled",
+        accessor: "enabled",
+        id: "enabled",
+        disableFilters: true,
+        Cell: (value) => (
+          <>
+            {value.row.original.enabled && (
+              <FaCheckCircle style={{ margin: "auto" }} color="#659A7E" />
+            )}
+          </>
+        ),
+      },
+      {
+        Header: "",
+        accessor: "enabled",
+        id: "actionButton",
+        disableFilters: true,
+        Cell: (value) => (
+          <>
+            {value.row.original.enabled ? (
+              <Button
+                onClick={() =>
+                  handleDisableProduct(
+                    value.row.original.instantiationId,
+                    value.row.original.instockItemsCount,
+                    value.row.original.name,
+                  )
+                }
+                size="sm"
+                disabled={disableStandardProductMutationLoading}
+              >
+                Disable
+              </Button>
+            ) : (
+              <Button onClick={handleEnableProduct} size="sm">
+                Enable
+              </Button>
+            )}
+          </>
+        ),
+      },
+      {
+        Header: "Name",
+        accessor: "name",
+        id: "name",
+        disableFilters: true,
+      },
+      {
+        Header: "Category",
+        accessor: "category",
+        id: "category",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Gender",
+        accessor: "gender",
+        id: "gender",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Size Range",
+        accessor: "size",
+        id: "size",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "inStock Items",
+        accessor: "instockItemsCount",
+        id: "instockItemsCount",
+        disableFilters: true,
+      },
+      {
+        Header: "Version",
+        accessor: "version",
+        id: "version",
+        disableFilters: true,
+      },
+      {
+        Header: "Enabled On",
+        accessor: "enabledOn",
+        id: "enabledOn",
+        disableFilters: true,
+      },
+      {
+        Header: "Enabled By",
+        accessor: "enabledBy",
+        id: "enabledBy",
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
+      },
+      {
+        Header: "Disabled On",
+        accessor: "disabledOn",
+        id: "disabledOn",
+        disableFilters: true,
+      },
+      {
+        Header: "ID",
+        accessor: "id",
+        id: "id",
+        disableFilters: true,
+      },
+    ],
+    [disableStandardProductMutationLoading, handleEnableProduct, handleDisableProduct],
+  );
+
+  return (
+    <>
+      <BreadcrumbNavigation
+        items={[{ label: "Coordinator Admin" }, { label: "Manage Products" }]}
+      />
+      <Heading fontWeight="bold" mb={4} as="h2">
+        Manage Products
+      </Heading>
+      <Tabs variant="enclosed-colored" mb={4} defaultIndex={1}>
+        <TabList>
+          <Tab
+            onClick={() => (window.location.href = `${oldAppUrlWithBase}&action=products`)}
+            fontWeight="bold"
+            flex={1}
+          >
+            {baseName?.toUpperCase()} PRODUCTS
+          </Tab>
+          <Tab fontWeight="bold" flex={1}>
+            ASSORT STANDARD PRODUCTS
+          </Tab>
+        </TabList>
+      </Tabs>
+      <ProductsTable
+        tableConfig={tableConfig}
+        onRefetch={refetchStandardProducts}
+        productsQueryRef={standardProductsQueryRef}
+        columns={availableColumns}
+        selectedRowsArePending={false} // true on disable product
+      />
+    </>
+  );
+}
+
+export default Products;
