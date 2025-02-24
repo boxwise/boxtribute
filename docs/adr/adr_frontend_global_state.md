@@ -8,6 +8,8 @@ Author: HaGuesto
 
 Early Discussion and research phase
 
+Update: [Use Jotai for Global State Management](./adr-global-state-management.md)
+
 ## Context or Problem Statement
 
 There are a few mutable global variables/shared states in the frontend that we want to access in all of the DOM. The basic example is something like `Dark Mode`. In our case, information about the bases and organisations a user has access to is best saved globally and not queried each time a new.
@@ -27,6 +29,7 @@ Since we are using Apollo for graphQL queries we can also use the Apollo Reactiv
 ## Considered Options
 
 ### React Context (with useReducer)
+
 Usually, one writes a Reducer in addition to React Context when you handle global states. In some simple cases the `useState` hook should be enough, but is not recommended. The reasons are:
 
 1. Predictable state changes: Reducers enforce a predictable way of changing state, which can help prevent bugs caused by unexpected state changes. Since reducers always produce a new state based on the previous state and an action, it's easier to reason about how the state changes in response to different actions.
@@ -46,7 +49,6 @@ Here are some general pros and cons to consider:
 
 - can require more boilerplate code for setting up and managing the context and reducer functions
 - can be less performant than other global state management approaches like Redux, especially if the state is deeply nested or frequently updated
-
 
 ### [Apollo local state](https://www.apollographql.com/docs/react/local-state/local-state-management)
 
@@ -70,9 +72,10 @@ Here are some general pros and cons to consider:
 React Context and Apollo can both and should both be used for global state management in React depending on the specific requirements of the feature.
 
 ### Comment
-In general, a mix out of both considered options is most likely needed to handle mutable shared states. In some cases the Apollo has more advantages (especially for remote states), sometimes the React Context is better to use. 
+
+In general, a mix out of both considered options is most likely needed to handle mutable shared states. In some cases the Apollo has more advantages (especially for remote states), sometimes the React Context is better to use.
 We should try out Apollo when the next mutable shared state comes around like for the QrReader when scanning multiple Boxes.
-There is no need to refactor the Global Preference Provider at the moment. Removing the React Context of the Global Preference Provider and creatingthe same structure in Apollo for it, is just unnecassary work. The Global Preference Provider works and the code is clean. 
+There is no need to refactor the Global Preference Provider at the moment. Removing the React Context of the Global Preference Provider and creatingthe same structure in Apollo for it, is just unnecassary work. The Global Preference Provider works and the code is clean.
 
 ## Reference
 
