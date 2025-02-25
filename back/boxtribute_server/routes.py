@@ -9,6 +9,7 @@ from flask_cors import cross_origin
 from .auth import request_jwt, requires_auth
 from .authz import check_user_beta_level
 from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, CRON_PATH, api_bp, app_bp
+from .bridges import authenticate_auth0_log_stream, send_transformed_logs_to_slack
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
@@ -150,3 +151,18 @@ def cron(job_name):
         return jsonify({"message": f"cleaned up {nr_addresses} email addresses"}), 200
 
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
+
+
+@app_bp.post("/auth0-slack-bridge")
+def auth0_slack_bridge():
+    info = authenticate_auth0_log_stream()
+    if info is not None:
+        return jsonify(info), 401
+
+    payload = request.get_json()
+    if not payload:
+        return jsonify({"message": "empty payload"}), 200
+
+    response = send_transformed_logs_to_slack(payload)
+    code = 500 if not response["successes"] else 200
+    return jsonify(response), code
