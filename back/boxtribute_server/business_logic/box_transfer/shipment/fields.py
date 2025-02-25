@@ -3,6 +3,7 @@ from datetime import datetime
 from ariadne import ObjectType
 
 from ....authz import authorize
+from ....models.definitions.product import Product
 
 shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
@@ -143,6 +144,33 @@ def resolve_shipment_detail_box(detail_obj, info):
         ],
     )
     return info.context["box_loader"].load(detail_obj.box_id)
+
+
+@shipment_detail.field("autoMatchingPossible")
+def resolve_shipment_detail_auto_matching_possible(detail_obj, info):
+    authorize(
+        permission="product:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
+
+    source_product_id = detail_obj.source_product_id
+    source_product = Product.get_by_id(source_product_id)
+    if source_product.standard_product_id is None:
+        return False
+
+    matching_standard_product_instantiation = (
+        Product.select()
+        .where(
+            Product.base == detail_obj.shipment.target_base_id,
+            (Product.deleted_on.is_null() | ~Product.deleted_on),
+            Product.standard_product == source_product.standard_product_id,
+        )
+        .get_or_none()
+    )
+    return matching_standard_product_instantiation is not None
 
 
 @shipment_detail.field("sourceSize")

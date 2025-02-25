@@ -48,7 +48,7 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
                     canceledBy {{ id }}
                     canceledOn
                     transferAgreement {{ id }}
-                    details {{ id }}
+                    details {{ id autoMatchingPossible }}
                 }}
             }}"""
     shipment = assert_successful_request(read_only_client, query)
@@ -70,7 +70,9 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
         "canceledBy": None,
         "canceledOn": None,
         "transferAgreement": {"id": str(default_shipment["transfer_agreement"])},
-        "details": [{"id": str(prepared_shipment_detail["id"])}],
+        "details": [
+            {"id": str(prepared_shipment_detail["id"]), "autoMatchingPossible": False}
+        ],
     }
 
 
@@ -200,6 +202,7 @@ def test_shipment_mutations_on_source_side(
                     details {{
                         sourceSize {{ id }}
                         box {{ id measureValue }}
+                        autoMatchingPossible
                     }} }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {
@@ -210,6 +213,7 @@ def test_shipment_mutations_on_source_side(
                     "id": str(measure_product_box["id"]),
                     "measureValue": 500.0,
                 },
+                "autoMatchingPossible": False,
             }
         ]
     }
