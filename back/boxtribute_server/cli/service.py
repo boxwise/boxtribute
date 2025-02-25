@@ -53,7 +53,7 @@ class Auth0Service:
             metadata = user["app_metadata"]
             base_ids = metadata.get("base_ids", [])
             if base_id not in base_ids:
-                LOGGER.warn(
+                LOGGER.warning(
                     f"Base ID {base_id} not present in metadata base IDs: "
                     f"{', '.join(base_ids)}"
                 )
