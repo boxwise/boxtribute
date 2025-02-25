@@ -184,19 +184,20 @@ def _update_user_data_in_database(
     # Soft-delete governing organisation if no active bases left
     db.database.execute_sql(
         """\
-UPDATE organisations
-SET deleted = UTC_TIMESTAMP()
-WHERE id = (
-    SELECT id FROM (
-        SELECT o.id,
-        SUM(IF(c.deleted IS NULL OR NOT c.deleted, 1, 0)) as nr_active_bases
-        FROM organisations o
-        LEFT JOIN camps c ON c.organisation_id = o.id
-        GROUP BY o.id
-    ) orgs
-    WHERE id = (SELECT organisation_id FROM camps c WHERE c.id = %s)
-    and nr_active_bases = 0
+UPDATE organisations o
+LEFT JOIN camps c ON c.organisation_id = o.id
+SET o.deleted = UTC_TIMESTAMP()
+WHERE o.id = (
+SELECT organisation_id
+FROM camps
+WHERE id = %s
 )
+AND (
+SELECT COUNT(*)
+FROM camps c2
+WHERE c2.organisation_id = o.id
+AND (c2.deleted IS NULL OR NOT c2.deleted)
+) = 0
 ;""",
         (int(base_id),),
     )
