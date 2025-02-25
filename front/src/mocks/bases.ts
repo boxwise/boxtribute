@@ -9,6 +9,11 @@ export const base1 = {
   },
 };
 
+export const basicBase1 = {
+  id: "1",
+  name: "Lesvos",
+};
+
 export const base2 = {
   __typename: "Base",
   id: "2",
