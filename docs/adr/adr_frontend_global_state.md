@@ -6,9 +6,7 @@ Author: HaGuesto
 
 ## Status
 
-Early Discussion and research phase
-
-Update: [Use Jotai for Global State Management](./adr-global-state-management.md)
+succeded by the following ADR: [Use Jotai for Global State Management](./adr-global-state-management.md)
 
 ## Context or Problem Statement
 
