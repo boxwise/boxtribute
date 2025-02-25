@@ -11,9 +11,9 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
         ({
           id: element.id,
           labelIdentifier: element.labelIdentifier,
-          product: element.product!.name,
-          productCategory: element.product!.category.name,
-          gender: element.product!.gender,
+          product: element.product?.name,
+          productCategory: element.product?.category.name,
+          gender: element.product?.gender,
           numberOfItems: element.numberOfItems,
           size: element.size?.label,
           state: element.state,
