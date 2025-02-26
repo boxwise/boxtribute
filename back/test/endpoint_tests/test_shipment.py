@@ -71,7 +71,7 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
         "canceledOn": None,
         "transferAgreement": {"id": str(default_shipment["transfer_agreement"])},
         "details": [
-            {"id": str(prepared_shipment_detail["id"]), "autoMatchingPossible": False}
+            {"id": str(prepared_shipment_detail["id"]), "autoMatchingPossible": True}
         ],
     }
 
