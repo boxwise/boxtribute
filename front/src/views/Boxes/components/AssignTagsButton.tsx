@@ -76,6 +76,10 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
                   border: "2px",
                   borderRadius: "0",
                 }),
+                multiValue: (provided, state) => ({
+                  ...provided,
+                  background: state.data?.color,
+                }),
               }}
               isMulti
               options={allTagOptions}
