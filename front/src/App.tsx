@@ -64,10 +64,6 @@ function Protected({
  */
 function DropappRedirect({ path }: DropappRedirectProps) {
   const selectedBaseId = useAtomValue(selectedBaseIdAtom);
-
-  // selectedBaseId is undefined on initial render
-  if (selectedBaseId === undefined) return;
-
   let pathToRedirect = "/";
   const baseURL = `/bases/${selectedBaseId}`;
   const urlParam = location.pathname.split("/").at(-1);
@@ -93,7 +89,7 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 }
 
 function App() {
-  const { error } = useLoadAndSetGlobalPreferences();
+  const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
 
@@ -106,6 +102,11 @@ function App() {
 
   if (error) {
     return <ErrorView error={error} />;
+  }
+
+  // selectedBaseId not set yet
+  if (!isInitialized) {
+    return;
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLazyQuery } from "@apollo/client";
 import { useLocation } from "react-router-dom";
@@ -8,6 +8,7 @@ import {
   availableBasesAtom,
   organisationAtom,
   selectedBaseAtom,
+  selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
 
 export const useLoadAndSetGlobalPreferences = () => {
@@ -17,6 +18,7 @@ export const useLoadAndSetGlobalPreferences = () => {
   const setOrganisation = useSetAtom(organisationAtom);
   const [selectedBase, setSelectedBase] = useAtom(selectedBaseAtom);
   const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
+  const selectedBaseId = useAtomValue(selectedBaseIdAtom);
 
   // validate if base Ids are set in auth0 id token
   if (!user || !user["https://www.boxtribute.com/base_ids"]?.length)
@@ -97,5 +99,7 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
-  return { isLoading, error };
+  const isInitialized = selectedBaseId !== "0";
+
+  return { isLoading, error, isInitialized };
 };

@@ -24,5 +24,5 @@ export const selectedBaseIdAtom = atom((get) => {
   // return the first available base id if it exists
   if (get(availableBasesAtom).length) return get(availableBasesAtom)[0].id;
   // This case should not happen except on initial render
-  return undefined;
+  return "0";
 });
