@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
@@ -9,9 +9,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { AlertWithoutAction } from "components/Alerts";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { useAtomValue } from "jotai";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
@@ -81,15 +81,15 @@ function BoxCreateView() {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseName = globalPreferences.selectedBase?.name;
+  const selectedBase = useAtomValue(selectedBaseAtom);
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const baseName = selectedBase?.name;
 
   // no warehouse location or products associated with base
   const [noLocation, setNoLocation] = useState(false);
   const [noProducts, setNoProducts] = useState(false);
 
   // variables in URL
-  const { baseId } = useBaseIdParam();
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
@@ -99,9 +99,7 @@ function BoxCreateView() {
 
   // Query Data for the Form
   const allFormOptions = useQuery(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
-    variables: {
-      baseId,
-    },
+    variables: { baseId },
   });
 
   // Mutation after form submission

@@ -1,9 +1,10 @@
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { graphql, ResultOf } from "../../../../../graphql/graphql";
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useAtomValue } from "jotai";
+import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { graphql, ResultOf } from "../../../../../graphql/graphql";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
@@ -21,10 +22,13 @@ import {
 } from "./components/TableCells";
 import TransferAgreementsOverlay from "./components/TransferAgreementOverlay";
 import { ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY } from "../CreateShipment/CreateShipmentView";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import {
+  organisationAtom,
+  availableBasesAtom,
+  selectedBaseIdAtom,
+} from "stores/globalPreferenceStore";
 import { TransferAgreements } from "queries/types";
-import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 
 export interface IAcceptedTransferAgreement {
   transferAgreements: TransferAgreements;
@@ -84,11 +88,10 @@ interface IShipmentBase {
 function TransferAgreementOverviewView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
-
-  // variables in URL
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const organisation = useAtomValue(organisationAtom);
+  const availableBases = useAtomValue(availableBasesAtom);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   // State to pass Data from a row to the Overlay
@@ -111,7 +114,9 @@ function TransferAgreementOverviewView() {
         if (returnedTransferAgreement?.acceptTransferAgreement) {
           const acceptedTransferAgreement = returnedTransferAgreement?.acceptTransferAgreement;
 
-          const existingAcceptedTransferAgreementsData = cache.readQuery({
+          const existingAcceptedTransferAgreementsData = cache.readQuery<
+            ResultOf<typeof ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY>
+          >({
             query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
             variables: { baseId },
           });
@@ -156,7 +161,9 @@ function TransferAgreementOverviewView() {
           const cancelledTransferAgreementId =
             returnedTransferAgreement?.cancelTransferAgreement.id;
 
-          const existingAcceptedTransferAgreementsData = cache.readQuery({
+          const existingAcceptedTransferAgreementsData = cache.readQuery<
+            ResultOf<typeof ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY>
+          >({
             query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
             variables: { baseId },
           });
@@ -228,8 +235,8 @@ function TransferAgreementOverviewView() {
     transferAgreementQueryResult?: ResultOf<typeof ALL_TRANSFER_AGREEMENTS_QUERY>,
   ) =>
     transferAgreementQueryResult?.transferAgreements.map((element) => {
-      if (globalPreferences.organisation !== undefined) {
-        const currentOrgId = parseInt(globalPreferences.organisation.id, 10);
+      if (organisation) {
+        const currentOrgId = parseInt(organisation?.id, 10);
         const sourceOrgId = parseInt(element.sourceOrganisation.id, 10);
         const targetOrgId = parseInt(element.targetOrganisation.id, 10);
 
@@ -283,20 +290,16 @@ function TransferAgreementOverviewView() {
             (shipment.state === "Preparing" ||
               shipment.state === "Sent" ||
               shipment.state === "Receiving") &&
-            globalPreferences.availableBases !== undefined
+            availableBases !== undefined
           ) {
             if (
               shipment.targetBase != null &&
-              globalPreferences.availableBases.findIndex(
-                ({ id }) => shipment.targetBase?.id === id,
-              ) === -1
+              availableBases.findIndex(({ id }) => shipment.targetBase?.id === id) === -1
             ) {
               shipmentsTmp.push(shipment.targetBase);
             } else if (
               shipment.sourceBase != null &&
-              globalPreferences.availableBases.findIndex(
-                ({ id }) => shipment.sourceBase?.id === id,
-              ) === -1
+              availableBases.findIndex(({ id }) => shipment.sourceBase?.id === id) === -1
             ) {
               shipmentsTmp.push(shipment.sourceBase);
             }

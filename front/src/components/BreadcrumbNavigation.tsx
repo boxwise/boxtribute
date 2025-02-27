@@ -1,10 +1,10 @@
-import { useContext } from "react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { Link } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { BreadcrumbNavigationSkeleton } from "./Skeletons";
+import { useAtomValue } from "jotai";
+import { organisationAtom, selectedBaseAtom } from "stores/globalPreferenceStore";
 
 interface IBreadcrumbItemData {
   label: string;
@@ -35,9 +35,10 @@ export function MobileBreadcrumbButton({ label, linkPath }: IBreadcrumbItemData)
 }
 
 export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const orgName = globalPreferences.organisation?.name;
-  const baseName = globalPreferences.selectedBase?.name;
+  const organisation = useAtomValue(organisationAtom);
+  const selectedBase = useAtomValue(selectedBaseAtom);
+  const orgName = organisation?.name;
+  const baseName = selectedBase?.name;
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   if (isGlobalStateLoading) return <BreadcrumbNavigationSkeleton />;

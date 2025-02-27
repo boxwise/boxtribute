@@ -26,6 +26,7 @@ import {
   CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
+import { useAtomValue } from "jotai";
 import { QueryRef, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -40,7 +41,7 @@ import {
   prepareBoxesForBoxesViewQueryVariables,
 } from "./transformers";
 import ColumnSelector from "./ColumnSelector";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 
 interface IBoxesTableProps {
@@ -64,7 +65,7 @@ function BoxesTable({
   setSelectedBoxes,
   selectedRowsArePending,
 }: IBoxesTableProps) {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);

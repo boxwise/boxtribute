@@ -12,13 +12,13 @@ import {
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useEffect, useRef, useState } from "react";
-
+import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
-import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
 import { ProductGender } from "../../../../../graphql/types";
@@ -105,7 +105,7 @@ function BoxEdit({
   allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const { labelIdentifier } = useParams<{
     labelIdentifier: string;
   }>();

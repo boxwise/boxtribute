@@ -1,14 +1,6 @@
-import {
-  Box,
-  Button,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +8,7 @@ import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import DateField from "components/Form/DateField";
 import { addDays } from "date-fns";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface IBaseData {
   id: string;
@@ -119,7 +111,7 @@ function CreateTransferAgreement({
   });
 
   const navigate = useNavigate();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
   const [validUntilMinDate, setValidUntilMinDate] = useState("");
   const partnerOrganisation = watch("partnerOrganisation");

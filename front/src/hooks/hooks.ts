@@ -5,7 +5,8 @@ import { UseToastOptions, ToastPosition } from "@chakra-ui/react";
 import { tableConfigsVar } from "queries/cache";
 import { useReactiveVar } from "@apollo/client";
 import { Filters, SortingRule } from "react-table";
-import { useBaseIdParam } from "./useBaseIdParam";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
@@ -31,7 +32,7 @@ export const useHandleLogout = () => {
 };
 
 export const useGetUrlForResourceHelpers = () => {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   if (baseId == null) {
     throw new Error("Could not extract baseId from URL");
   }
@@ -66,7 +67,7 @@ export const useToggle = (initialValue = false) => {
 
 // TODO: Probably need to refactor to remove this, seems unnecessary.
 export const useGlobalSiteState = () => {
-  const { baseId: currentBaseId } = useBaseIdParam();
+  const currentBaseId = useAtomValue(selectedBaseIdAtom);
   const navigate = useNavigate();
 
   return {

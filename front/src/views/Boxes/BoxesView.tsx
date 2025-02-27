@@ -8,7 +8,6 @@ import {
 } from "utils/transformers";
 import { Column } from "react-table";
 import { useTableConfig } from "hooks/hooks";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
@@ -20,6 +19,7 @@ import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
@@ -120,7 +120,8 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
 );
 
 function Boxes() {
-  const { baseId } = useBaseIdParam();
+  // using base ID from URL to have it available immediately for the queries
+  const { urlBaseId: baseId } = useLoadAndSetGlobalPreferences();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
