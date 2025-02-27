@@ -45,8 +45,10 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
 
   return (
     <VStack spacing={2}>
-      <Box alignSelf="start">
+      <Box w="full" alignSelf="start">
         <Button
+          w="full"
+          justifyContent="flex-start"
           padding={4}
           iconSpacing={2}
           onClick={(e) => {
