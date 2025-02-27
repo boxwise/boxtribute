@@ -43,13 +43,15 @@ export const useLoadAndSetGlobalPreferences = () => {
 
       // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
       const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
-      const urlBaseId = (urlBaseIdInput?.length && urlBaseIdInput[1]) || "0";
+      const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
 
       // validate that the selected base ID is part of the available base IDs from Auth0
-      if (!user["https://www.boxtribute.com/base_ids"].map(String).includes(urlBaseId)) {
-        setError("The requested base is not available to you.");
-      } else {
-        setSelectedBase({ id: urlBaseId });
+      if (urlBaseId) {
+        if (!user["https://www.boxtribute.com/base_ids"].map(String).includes(urlBaseId)) {
+          setError("The requested base is not available to you.");
+        } else {
+          setSelectedBase({ id: urlBaseId });
+        }
       }
     }
   }, [availableBases.length, error, location.pathname, setAvailableBases, setSelectedBase, user]);
