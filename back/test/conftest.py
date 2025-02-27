@@ -154,7 +154,7 @@ def mysql_dev_database(monkeypatch):
     monkeypatch.setenv("MYSQL_SOCKET", "")
     monkeypatch.setenv("MYSQL_REPLICA_SOCKET", "")
 
-    app = main(api_bp, app_bp)
+    app = main(api_bp, app_bp, shared_bp)
     app.testing = True
 
     with db.database.bind_ctx(MODELS):
