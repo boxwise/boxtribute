@@ -1,8 +1,10 @@
 from datetime import datetime
 
 from ariadne import ObjectType
+from peewee import JOIN
 
 from ....authz import authorize
+from ....models.definitions.product import Product
 
 shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
@@ -143,6 +145,36 @@ def resolve_shipment_detail_box(detail_obj, info):
         ],
     )
     return info.context["box_loader"].load(detail_obj.box_id)
+
+
+@shipment_detail.field("autoMatchingPossible")
+def resolve_shipment_detail_auto_matching_possible(detail_obj, info):
+    authorize(
+        permission="product:read",
+        base_ids=[
+            detail_obj.shipment.source_base_id,
+            detail_obj.shipment.target_base_id,
+        ],
+    )
+
+    TargetProduct = Product
+    SourceProduct = Product.alias()
+    matching_standard_product_instantiation = (
+        TargetProduct.select()
+        .join(
+            SourceProduct,
+            JOIN.RIGHT_OUTER,
+            on=(
+                (TargetProduct.standard_product == SourceProduct.standard_product)
+                & (TargetProduct.base == detail_obj.shipment.target_base_id)
+                & (TargetProduct.deleted_on.is_null() | ~TargetProduct.deleted_on)
+                & (SourceProduct.id == detail_obj.source_product_id)
+            ),
+        )
+        .where(TargetProduct.standard_product.is_null(False))
+        .get_or_none()
+    )
+    return matching_standard_product_instantiation is not None
 
 
 @shipment_detail.field("sourceSize")
