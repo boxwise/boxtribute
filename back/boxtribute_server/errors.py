@@ -77,3 +77,13 @@ class DeletedTag(UserError):
 class DeletedLocation(UserError):
     def __init__(self, *, name):
         self.name = name
+
+
+class ExpiredLink(UserError):
+    def __init__(self, *, valid_until):
+        self.valid_until = valid_until
+
+
+class UnknownLink(UserError):
+    def __init__(self, *, code):
+        self.code = code

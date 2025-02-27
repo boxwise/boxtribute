@@ -63,7 +63,9 @@ from ..business_logic.mobile_distribution.tracking_group.fields import (
 from ..business_logic.mobile_distribution.tracking_group.queries import (
     query as distribution_events_tracking_group_query,
 )
+from ..business_logic.statistics.fields import resolved_link
 from ..business_logic.statistics.mutations import mutation as statistics_mutation
+from ..business_logic.statistics.queries import public_query as shareable_link_query
 from ..business_logic.statistics.queries import query as statistics_query
 from ..business_logic.tag.fields import tag
 from ..business_logic.tag.mutations import mutation as tag_mutation
@@ -171,6 +173,10 @@ def resolve_location_type(obj, *_):
     return obj.type.name
 
 
+def resolve_data_cube_type(obj, *_):
+    return obj.type
+
+
 union_types = (
     UnionType("TaggableResource", resolve_type_by_class_name),
     UnionType("CreateCustomProductResult", resolve_type_by_class_name),
@@ -192,4 +198,13 @@ union_types = (
 interface_types = (
     InterfaceType("Location", resolve_location_type),
     InterfaceType("ItemsCollection", resolve_type_by_class_name),
+)
+
+
+# Types for public API
+public_api_types = (
+    shareable_link_query,
+    resolved_link,
+    UnionType("ResolvedLinkResult", resolve_type_by_class_name),
+    InterfaceType("DataCube", resolve_data_cube_type),
 )

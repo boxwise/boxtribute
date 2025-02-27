@@ -341,13 +341,19 @@ The following diagram shows the responsibilities of and the relationships betwee
 
 ## GraphQL API
 
-The back-end exposes the GraphQL API in two variants.
+The back-end exposes the GraphQL API in three variants.
 
 1. The auth-protected, full API is consumed by our front-end at the `/graphql` endpoint (deployed to e.g. `v2-staging` subdomain).
 1. The auth-protected, 'query-only' API is used by our partners at `/` (for data retrieval; it is deployed on the `api*` subdomains).
-1. The public statistics API is used by our partners at `/public` (for data retrieval; it is deployed on the `api*` subdomains).
+1. The public BE for resolving shared links will be available at `/public` (for data retrieval; it is deployed on the `shared-*` subdomains).
 
-Starting the back-end in the first case is achieved via `main.py`, in the latter case via `api_main.py`. For development, it is handy to start both with `dev_main.py`.
+Starting the back-end depends on the variant:
+
+1. via `main.py`
+1. via `api_main.py`
+1. via `shared_main.py`
+
+For development, it is handy to start all with `dev_main.py`.
 
 ### Schema documentation
 
@@ -361,7 +367,7 @@ You can experiment with the API in the `GraphiQL` GraphQL explorer.
 
 1.  Set up the `.env` file and acquire the test client secret as described [here](#test-environment-set-up).
 1.  Start the required services by `docker compose up webapp`
-1.  Open `localhost:5005/graphql` (or `/` for the query-only API; or `/public` for the statviz API, then the next steps can be skipped)
+1.  Open `localhost:5005/graphql` (or `/` for the query-only API)
 1.  Simulate being a valid, logged-in user by fetching an authorization token: `docker compose exec webapp ./back/fetch_token --test`
 1.  Copy the displayed token
 1.  Insert the access token in the following format in the section called 'Headers' on the bottom left of the explorer.

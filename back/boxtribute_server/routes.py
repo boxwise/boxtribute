@@ -8,13 +8,21 @@ from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
 from .authz import check_user_beta_level
-from .blueprints import API_GRAPHQL_PATH, APP_GRAPHQL_PATH, CRON_PATH, api_bp, app_bp
+from .blueprints import (
+    API_GRAPHQL_PATH,
+    APP_GRAPHQL_PATH,
+    CRON_PATH,
+    SHARED_GRAPHQL_PATH,
+    api_bp,
+    app_bp,
+    shared_bp,
+)
 from .bridges import authenticate_auth0_log_stream, send_transformed_logs_to_slack
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
-from .utils import in_development_environment
+from .utils import in_development_environment, in_staging_environment
 
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
@@ -43,24 +51,25 @@ def query_api_server():
     return execute_async(schema=query_api_schema, introspection=True)
 
 
-@api_bp.post("/public")
+@shared_bp.post(SHARED_GRAPHQL_PATH)
 @cross_origin(
     # Allow dev localhost ports
     origins=[
         "http://localhost:5005",
         "http://localhost:3000",
         "http://localhost:5173",
+        "https://shared-staging.boxtribute.org",
+        "https://shared-staging-dot-dropapp-242214.ew.r.appspot.com",
     ],
     methods=["POST"],
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
 def public_api_server():
-    # Block access unless in development
-    if not in_development_environment():
+    if not in_development_environment() and not in_staging_environment():
         return {"error": "No permission to access public API"}, 401
 
     log_request_to_gcloud(context=API_CONTEXT)
-    return execute_async(schema=public_api_schema, introspection=True)
+    return execute_async(schema=public_api_schema, introspection=False)
 
 
 @api_bp.post("/token")
@@ -112,8 +121,10 @@ def graphql_explorer():
     return EXPLORER_HTML, 200
 
 
-@api_bp.get("/public")
-def public():
+@shared_bp.get(SHARED_GRAPHQL_PATH)
+def public_graphql_explorer():
+    if not in_development_environment() and not in_staging_environment():
+        return {"error": "No permission to access public API"}, 401
     return EXPLORER_HTML, 200
 
 
