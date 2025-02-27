@@ -69,8 +69,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
               placeholder="Type to find tags"
               isSearchable
               tagVariant="outline"
-              colorScheme="black"
-              useBasicStyles
+              tagColorScheme="black"
               focusBorderColor="blue.500"
               chakraStyles={{
                 control: (provided) => ({
