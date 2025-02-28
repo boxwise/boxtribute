@@ -471,7 +471,7 @@ jobs:
       - run:
           name: Generate GAE app.yaml file
           command: |
-            sed 's/service: api-staging/service: << parameters.serviceName >>/g' app-shared.yaml > app-<< parameters.serviceName >>.yaml
+            sed 's/service: shared-staging/service: << parameters.serviceName >>/g' app-shared.yaml > app-<< parameters.serviceName >>.yaml
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
@@ -565,7 +565,7 @@ workflows:
       - deploy-shared:
           name: deploy-shared-staging
           context: STAGING
-          serviceName: api-staging
+          serviceName: shared-staging
           requires:
             - checkout-to-workspace
           filters:
