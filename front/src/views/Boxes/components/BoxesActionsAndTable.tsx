@@ -26,6 +26,7 @@ import MakeLabelsButton from "./MakeLabelsButton";
 import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
+import RemoveTagsButton from "./RemoveTagsButton";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -64,6 +65,14 @@ function BoxesActionsAndTable({
       ),
     [selectedBoxes],
   );
+
+  // Used for remove tags
+  const getSelectedBoxTags = useMemo(() => {
+    const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
+    const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
+    const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
+    return commonTags;
+  }, [selectedBoxes, tagOptions]);
 
   // Move Boxes
   const moveBoxesAction = useMoveBoxes();
