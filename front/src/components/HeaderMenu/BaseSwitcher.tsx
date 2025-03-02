@@ -21,8 +21,8 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const { pathname } = useLocation();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const availableBases = useAtomValue(availableBasesAtom);
-  const currentOrganisationBases = availableBases?.filter((base) => base.id !== baseId);
-  const firstAvailableBaseId = currentOrganisationBases?.find((base) => base)?.id;
+  const currentOrganisationBases = availableBases.filter((base) => base.id !== baseId);
+  const firstAvailableBaseId = currentOrganisationBases.find((base) => base)?.id;
   const [value, setValue] = useState(firstAvailableBaseId);
 
   // Need to set this as soon as we have this value available to set the default radio selection.
