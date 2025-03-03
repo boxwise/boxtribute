@@ -276,6 +276,7 @@ function App() {
                   }
                   redirectPath={prevLocation}
                   requiredAbps={["manage_products"]}
+                  minBeta={4}
                 />
               }
             />

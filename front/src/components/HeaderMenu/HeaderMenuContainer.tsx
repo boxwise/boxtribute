@@ -147,10 +147,17 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
-            link: `/bases/${baseId}/products`,
+            link: `${oldAppUrlWithBase}&action=products`,
             name: "Manage Products",
             requiredAbps: ["manage_products"],
             external: true,
+          },
+          {
+            link: `/bases/${baseId}/products`,
+            name: "ASSORT Products",
+            beta: true,
+            requiredAbps: ["manage_products"],
+            minBeta: 4,
           },
           {
             link: `${oldAppUrlWithBase}&action=locations`,
