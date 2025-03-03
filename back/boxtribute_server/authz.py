@@ -332,13 +332,14 @@ MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
         "moveNotDeliveredBoxesInStock",
     ),
 }
-MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + ("deleteBoxes",)
-MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
+MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + (
+    "deleteBoxes",
     "moveBoxesToLocation",
     "assignTagsToBoxes",
     "unassignTagsFromBoxes",
-    "createShareableLink",
 )
+# Beta-level 4 exists for FE display of ManageProducts
+MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3]
 MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createCustomProduct",
     "editCustomProduct",
@@ -348,6 +349,7 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "disableStandardProduct",
 )
 MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
+    "createShareableLink",
     # + mutations needed for bulk box creation
     "createTag",
     "updateTag",
