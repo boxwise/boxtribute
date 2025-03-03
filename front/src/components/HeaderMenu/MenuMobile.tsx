@@ -57,7 +57,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const availableBases = useAtomValue(availableBasesAtom);
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
-    (availableBases?.filter((base) => base.id !== baseId).length || 0) >= 1;
+    (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
 
   return (
     <Flex as="nav" py={4} zIndex="3">

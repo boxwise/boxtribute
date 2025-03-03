@@ -31,7 +31,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const availableBases = useAtomValue(availableBasesAtom);
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
-    (availableBases?.filter((base) => base.id !== baseId).length || 0) >= 1;
+    (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
   const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
 
   return (

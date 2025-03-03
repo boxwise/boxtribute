@@ -48,9 +48,9 @@ export function BoxReconciliationOverlay({
   const { loading, error, data } = useQuery(SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY, {
     variables: {
       shipmentId: boxReconciliationOverlayState.shipmentId || "",
-      baseId: baseId || "",
+      baseId: baseId,
     },
-    skip: !boxReconciliationOverlayState.shipmentId || !baseId,
+    skip: !boxReconciliationOverlayState.shipmentId,
   });
 
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation(
