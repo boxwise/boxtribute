@@ -23,7 +23,7 @@
 
     /* Linting */
     /* strict includes multiple other settings, e.g. strictFunctionTypes */
-    "strict": false,
+    "strict": true,
     /* skip type checking of declaration files (.d.ts) */
     "skipLibCheck": true,
     /* This setting ensures that the casing of import statements is consistent with the casing of the actual files on the filesystem. */
