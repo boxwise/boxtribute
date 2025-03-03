@@ -79,7 +79,7 @@
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^2.1.9"
+    "vitest": "^3.0.7"
   },
   "lint-staged": {
     "!(**/generated/*).{js,ts,tsx}": "pnpm lint:fix",
