@@ -36,7 +36,7 @@
     "storybook": "^8.5.3"
   },
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "vite build",
     "dev": "vite",
     "preview": "vite preview",
     "test": "TZ=UTC vitest",

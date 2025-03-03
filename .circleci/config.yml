@@ -129,7 +129,7 @@ jobs:
       - run:
           name: Build front
           command: |
-            pnpm build || true
+            pnpm build
       - slack/notify-on-failure:
           only_for_branches: master,production
       # Add build to workspace
