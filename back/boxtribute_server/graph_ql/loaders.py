@@ -530,3 +530,53 @@ class UnitsForDimensionLoader(DataLoader):
         for unit in Unit.select().iterator():
             units[unit.dimension_id].append(unit)
         return [units.get(i, []) for i in keys]
+
+
+class ShipmentDetailAutoMatchingPossibleLoader(DataLoader):
+    async def batch_load_fn(self, detail_ids):
+        # Obtain info about target base and source products of involved shipment details
+        ShipmentInfo = (
+            ShipmentDetail.select(
+                ShipmentDetail.id,
+                ShipmentDetail.source_product,
+                Shipment.target_base.alias("target_base"),
+            ).join(
+                Shipment,
+                on=(
+                    (ShipmentDetail.shipment == Shipment.id)
+                    & (ShipmentDetail.id << (detail_ids))
+                ),
+            )
+        ).cte("shipment_info")
+        # If details originate from shipments with different target bases, this will
+        # throw an error later
+        target_base_id = ShipmentInfo.select(ShipmentInfo.c.target_base).distinct()
+
+        TargetProduct = Product
+        SourceProduct = Product.alias()
+        result = (
+            # Find all shipment details containing products...
+            ShipmentDetail.select(ShipmentInfo.c.id)
+            .from_(ShipmentInfo)
+            .join(
+                SourceProduct, on=(SourceProduct.id == ShipmentInfo.c.source_product_id)
+            )
+            .join(
+                TargetProduct,
+                on=(
+                    # ...with matching standard products in source and target base
+                    # (using INNER JOIN, hence filtering out all results with
+                    # non-standard source products)
+                    (TargetProduct.standard_product == SourceProduct.standard_product)
+                    & (TargetProduct.base == target_base_id)
+                    & ((TargetProduct.deleted_on.is_null()) | ~TargetProduct.deleted_on)
+                ),
+            )
+            .where(TargetProduct.standard_product.is_null(False))
+            .with_cte(ShipmentInfo)
+        ).namedtuples()
+
+        matching_detail_ids = [detail.id for detail in result]
+        # Return True for shipment details with products ready to be matched in the
+        # target base
+        return [i in matching_detail_ids for i in detail_ids]
