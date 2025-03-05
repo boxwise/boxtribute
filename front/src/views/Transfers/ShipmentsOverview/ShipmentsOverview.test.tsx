@@ -1,10 +1,21 @@
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import ShipmentsOverviewView from "./ShipmentsOverviewView";
 import userEvent from "@testing-library/user-event";
+import { useAuth0 } from "@auth0/auth0-react";
+import { mockAuthenticatedUser } from "mocks/hooks";
+
+vi.mock("@auth0/auth0-react");
+// .mocked() is a nice helper function from jest for typescript support
+// https://jestjs.io/docs/mock-function-api/#typescript-usage
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+});
 
 const mockSuccessfulShipmentsQuery = ({
   query = ALL_SHIPMENTS_QUERY,
