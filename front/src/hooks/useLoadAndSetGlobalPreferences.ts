@@ -10,6 +10,7 @@ import {
   selectedBaseAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
+import { JWT_AVAILABLE_BASES } from "utils/constants";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
@@ -21,8 +22,7 @@ export const useLoadAndSetGlobalPreferences = () => {
   const selectedBaseId = useAtomValue(selectedBaseIdAtom);
 
   // validate if base Ids are set in auth0 id token
-  if (!user || !user["https://www.boxtribute.com/base_ids"]?.length)
-    setError("You do not have access to any bases.");
+  if (!user || !user[JWT_AVAILABLE_BASES]?.length) setError("You do not have access to any bases.");
 
   const [
     runOrganisationAndBasesQuery,
@@ -35,13 +35,11 @@ export const useLoadAndSetGlobalPreferences = () => {
   }, [runOrganisationAndBasesQuery, user, selectedBase?.name, error]);
 
   useEffect(() => {
-    if (!error && user && user["https://www.boxtribute.com/base_ids"]) {
+    if (!error && user && user[JWT_AVAILABLE_BASES]) {
       // set available bases from auth0 id token only if they are not set yet.
       // Otherwise, it would overwrite the names queried from the BE.
       if (!availableBases.length)
-        setAvailableBases(
-          user["https://www.boxtribute.com/base_ids"].map((id: string) => ({ id })),
-        );
+        setAvailableBases(user[JWT_AVAILABLE_BASES].map((id: string) => ({ id })));
 
       // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
       const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
@@ -49,7 +47,7 @@ export const useLoadAndSetGlobalPreferences = () => {
 
       // validate that the selected base ID is part of the available base IDs from Auth0
       if (urlBaseId) {
-        if (!user["https://www.boxtribute.com/base_ids"].map(String).includes(urlBaseId)) {
+        if (!user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
           setError("The requested base is not available to you.");
         } else if (!selectedBase?.id) {
           setSelectedBase({ id: urlBaseId });
