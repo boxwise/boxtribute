@@ -1,4 +1,4 @@
-import { beforeEach, it, describe, expect } from "vitest";
+import { beforeEach, it, describe, expect, vi } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
@@ -6,6 +6,17 @@ import { userEvent } from "@testing-library/user-event";
 import { FakeGraphQLError, mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
+import { useAuth0 } from "@auth0/auth0-react";
+import { mockAuthenticatedUser } from "mocks/hooks";
+
+vi.mock("@auth0/auth0-react");
+// .mocked() is a nice helper function from jest for typescript support
+// https://jestjs.io/docs/mock-function-api/#typescript-usage
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+});
 
 const initialQuery = {
   request: {
