@@ -532,12 +532,12 @@ class UnitsForDimensionLoader(DataLoader):
         return [units.get(i, []) for i in keys]
 
 
-class ShipmentDetailAutoMatchingPossibleLoader(DataLoader):
+class ShipmentDetailAutoMatchingLoader(DataLoader):
     async def batch_load_fn(self, detail_ids):
         # Obtain info about target base and source products of involved shipment details
         ShipmentInfo = (
             ShipmentDetail.select(
-                ShipmentDetail.id,
+                ShipmentDetail.id.alias("detail_id"),
                 ShipmentDetail.source_product,
                 Shipment.target_base.alias("target_base"),
             ).join(
@@ -555,10 +555,10 @@ class ShipmentDetailAutoMatchingPossibleLoader(DataLoader):
         TargetProduct = Product
         SourceProduct = Product.alias()
         result = (
-            # Find all shipment details containing products...
-            ShipmentInfo.select(ShipmentInfo.c.id)
+            # Find all shipment details...
+            SourceProduct.select(ShipmentInfo.c.detail_id, TargetProduct)
             .join(
-                SourceProduct, on=(SourceProduct.id == ShipmentInfo.c.source_product_id)
+                ShipmentInfo, on=(SourceProduct.id == ShipmentInfo.c.source_product_id)
             )
             .join(
                 TargetProduct,
@@ -571,13 +571,12 @@ class ShipmentDetailAutoMatchingPossibleLoader(DataLoader):
                     & ((TargetProduct.deleted_on.is_null()) | ~TargetProduct.deleted_on)
                 ),
             )
-            .where(TargetProduct.standard_product.is_null(False))
             .with_cte(ShipmentInfo)
-            .namedtuples()
-            .execute(database=db.database)
         )
 
-        matching_detail_ids = [detail.id for detail in result]
-        # Return True for shipment details with products ready to be matched in the
-        # target base
-        return [i in matching_detail_ids for i in detail_ids]
+        matching_target_products = {
+            row.shipment_info["detail_id"]: row.product for row in result
+        }
+        # Return products ready to be matched in the target base, corresponding to given
+        # shipment detail IDs
+        return [matching_target_products.get(i) for i in detail_ids]

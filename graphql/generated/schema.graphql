@@ -1171,8 +1171,8 @@ type ShipmentDetail {
   lostOn: Datetime
   receivedBy: User
   receivedOn: Datetime
-  " Return true if the source product is an ASSORT product with an existing instantiation in the target base "
-  autoMatchingPossible: Boolean
+  " Return matching target product if the source product is an ASSORT product with an existing instantiation in the target base; null if no matching possible "
+  autoMatchingTargetProduct: Product
 }
 
 type ShareableLink {

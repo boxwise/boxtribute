@@ -27,7 +27,9 @@ def mock_default_target_base_user(mocker, another_base, another_organisation):
     )
 
 
-def test_shipment_query(read_only_client, default_shipment, prepared_shipment_detail):
+def test_shipment_query(
+    read_only_client, default_shipment, prepared_shipment_detail, products
+):
     # Test case 3.1.2
     shipment_id = str(default_shipment["id"])
     query = f"""query {{
@@ -48,7 +50,7 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
                     canceledBy {{ id }}
                     canceledOn
                     transferAgreement {{ id }}
-                    details {{ id autoMatchingPossible }}
+                    details {{ id autoMatchingTargetProduct {{ id }} }}
                 }}
             }}"""
     shipment = assert_successful_request(read_only_client, query)
@@ -71,7 +73,10 @@ def test_shipment_query(read_only_client, default_shipment, prepared_shipment_de
         "canceledOn": None,
         "transferAgreement": {"id": str(default_shipment["transfer_agreement"])},
         "details": [
-            {"id": str(prepared_shipment_detail["id"]), "autoMatchingPossible": True}
+            {
+                "id": str(prepared_shipment_detail["id"]),
+                "autoMatchingTargetProduct": {"id": str(products[6]["id"])},
+            }
         ],
     }
 
@@ -202,7 +207,7 @@ def test_shipment_mutations_on_source_side(
                     details {{
                         sourceSize {{ id }}
                         box {{ id measureValue }}
-                        autoMatchingPossible
+                        autoMatchingTargetProduct {{ id }}
                     }} }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {
@@ -213,7 +218,7 @@ def test_shipment_mutations_on_source_side(
                     "id": str(measure_product_box["id"]),
                     "measureValue": 500.0,
                 },
-                "autoMatchingPossible": False,
+                "autoMatchingTargetProduct": None,
             }
         ]
     }

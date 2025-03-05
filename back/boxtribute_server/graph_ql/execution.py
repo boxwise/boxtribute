@@ -13,7 +13,7 @@ from .loaders import (
     OrganisationLoader,
     ProductCategoryLoader,
     ProductLoader,
-    ShipmentDetailAutoMatchingPossibleLoader,
+    ShipmentDetailAutoMatchingLoader,
     ShipmentDetailForBoxLoader,
     ShipmentDetailsForShipmentLoader,
     ShipmentLoader,
@@ -48,7 +48,7 @@ def execute_async(*, schema, introspection=None):
             "organisation_loader": OrganisationLoader(),
             "product_category_loader": ProductCategoryLoader(),
             "product_loader": ProductLoader(),
-            "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingPossibleLoader(),  # noqa
+            "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingLoader(),
             "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
             "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
             "shipment_loader": ShipmentLoader(),

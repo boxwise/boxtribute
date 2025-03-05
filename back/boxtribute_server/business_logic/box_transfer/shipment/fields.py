@@ -145,8 +145,8 @@ def resolve_shipment_detail_box(detail_obj, info):
     return info.context["box_loader"].load(detail_obj.box_id)
 
 
-@shipment_detail.field("autoMatchingPossible")
-def resolve_shipment_detail_auto_matching_possible(detail_obj, info):
+@shipment_detail.field("autoMatchingTargetProduct")
+def resolve_shipment_detail_auto_matching_target_product(detail_obj, info):
     return info.context["shipment_detail_auto_matching_loader"].load(detail_obj.id)
 
 
