@@ -556,8 +556,7 @@ class ShipmentDetailAutoMatchingPossibleLoader(DataLoader):
         SourceProduct = Product.alias()
         result = (
             # Find all shipment details containing products...
-            ShipmentDetail.select(ShipmentInfo.c.id)
-            .from_(ShipmentInfo)
+            ShipmentInfo.select(ShipmentInfo.c.id)
             .join(
                 SourceProduct, on=(SourceProduct.id == ShipmentInfo.c.source_product_id)
             )
@@ -574,7 +573,9 @@ class ShipmentDetailAutoMatchingPossibleLoader(DataLoader):
             )
             .where(TargetProduct.standard_product.is_null(False))
             .with_cte(ShipmentInfo)
-        ).namedtuples()
+            .namedtuples()
+            .execute(database=db.database)
+        )
 
         matching_detail_ids = [detail.id for detail in result]
         # Return True for shipment details with products ready to be matched in the
