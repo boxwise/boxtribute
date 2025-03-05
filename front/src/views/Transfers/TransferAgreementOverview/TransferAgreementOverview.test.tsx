@@ -1,4 +1,4 @@
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { generateMockTransferAgreement } from "mocks/transferAgreements";
@@ -11,6 +11,17 @@ import TransferAgreementOverviewView, {
   REJECT_TRANSFER_AGREEMENT,
 } from "./TransferAgreementOverviewView";
 import { TadaDocumentNode } from "gql.tada";
+import { useAuth0 } from "@auth0/auth0-react";
+import { mockAuthenticatedUser } from "mocks/hooks";
+
+vi.mock("@auth0/auth0-react");
+// .mocked() is a nice helper function from jest for typescript support
+// https://jestjs.io/docs/mock-function-api/#typescript-usage
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+});
 
 const mockSuccessfulTransferAgreementsQuery = ({
   query = ALL_TRANSFER_AGREEMENTS_QUERY,
