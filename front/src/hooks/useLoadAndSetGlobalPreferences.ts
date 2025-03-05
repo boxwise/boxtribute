@@ -51,12 +51,20 @@ export const useLoadAndSetGlobalPreferences = () => {
       if (urlBaseId) {
         if (!user["https://www.boxtribute.com/base_ids"].map(String).includes(urlBaseId)) {
           setError("The requested base is not available to you.");
-        } else {
+        } else if (!selectedBase?.id) {
           setSelectedBase({ id: urlBaseId });
         }
       }
     }
-  }, [availableBases.length, error, location.pathname, setAvailableBases, setSelectedBase, user]);
+  }, [
+    availableBases.length,
+    error,
+    location.pathname,
+    setAvailableBases,
+    setSelectedBase,
+    user,
+    selectedBase?.id,
+  ]);
 
   // handle additional base information being returned from the query
   useEffect(() => {

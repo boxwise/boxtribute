@@ -1,4 +1,4 @@
-import { JWT_ROLE, JWT_ABP, JWT_BETA } from "utils/constants";
+import { JWT_ROLE, JWT_ABP, JWT_BETA, JWT_AVAILABLE_BASES } from "utils/constants";
 import { vi } from "vitest";
 /**
  * Mocking the return value of the useAuth0 hook. This is needed to mock the authentication of a test user
@@ -12,7 +12,13 @@ import { vi } from "vitest";
  * @returns mocked `Auth0ContextInterface<TUser>` for an authenticated user. Check https://auth0.github.io/auth0-react/functions/useAuth0.html for the definition.
  */
 
-export function mockAuthenticatedUser(mockedUseAuth0: any, email: string, actions = ["be_user"], betaUser = "0", roles = "administrator") {
+export function mockAuthenticatedUser(
+  mockedUseAuth0: any,
+  email: string,
+  actions = ["be_user"],
+  betaUser = "0",
+  roles = "administrator",
+) {
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
     user: {
@@ -20,6 +26,7 @@ export function mockAuthenticatedUser(mockedUseAuth0: any, email: string, action
       [JWT_ABP]: actions,
       [JWT_BETA]: betaUser,
       [JWT_ROLE]: roles,
+      [JWT_AVAILABLE_BASES]: [1],
     },
     logout: vi.fn(),
     loginWithRedirect: vi.fn(),
