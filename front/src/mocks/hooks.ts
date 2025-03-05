@@ -18,6 +18,7 @@ export function mockAuthenticatedUser(
   actions = ["be_user"],
   betaUser = "0",
   roles = "administrator",
+  bases = [1],
 ) {
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
@@ -26,7 +27,7 @@ export function mockAuthenticatedUser(
       [JWT_ABP]: actions,
       [JWT_BETA]: betaUser,
       [JWT_ROLE]: roles,
-      [JWT_AVAILABLE_BASES]: [1],
+      [JWT_AVAILABLE_BASES]: bases,
     },
     logout: vi.fn(),
     loginWithRedirect: vi.fn(),
