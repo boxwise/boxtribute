@@ -1,11 +1,10 @@
-import { vi, beforeEach, it, expect } from "vitest";
+import { beforeEach, it, expect } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { cache } from "queries/cache";
 import {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY,
 } from "queries/queries";
-import { organisation1 } from "mocks/organisations";
 import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
@@ -126,14 +125,6 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
     mocks: [initialQueryForBoxInReceivingState, queryShipmentDetailForBoxReconciliation],
     addTypename: true,
     cache,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: organisation1.bases[0],
-      },
-    },
   });
 
   expect(await screen.findByRole("heading", { name: /box 123/i })).toBeInTheDocument();

@@ -1,6 +1,5 @@
-import { vi, beforeEach, it, describe, expect } from "vitest";
+import { beforeEach, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
-import { organisation1 } from "mocks/organisations";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { userEvent } from "@testing-library/user-event";
@@ -160,14 +159,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -201,14 +192,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialWithoutBoxQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     await waitFor(() => {
@@ -232,14 +215,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialWithGroupedItemQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     await waitFor(() => {
@@ -281,14 +256,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialQueryNetworkError],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(
@@ -304,14 +271,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialRecevingUIAsTargetOrgQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -334,14 +293,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialRecevingUIAsSourceOrgQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -361,14 +312,6 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     initialUrl: "/bases/1/transfers/shipments/1",
     mocks: [initialCompletedShipemntQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: organisation1.bases[0],
-      },
-    },
   });
 
   expect(screen.getByTestId("loader")).toBeInTheDocument();

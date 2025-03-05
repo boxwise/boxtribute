@@ -1,10 +1,9 @@
 import { vi, it, describe, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
-import { organisation1, organisation2 } from "mocks/organisations";
+import { organisation1 } from "mocks/organisations";
 import { acceptedTransferAgreement } from "mocks/transferAgreements";
 import { userEvent } from "@testing-library/user-event";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
-import { base1, base2 } from "mocks/bases";
 import { generateMockShipment } from "mocks/shipments";
 import { cache } from "queries/cache";
 import { graphql } from "gql.tada";
@@ -157,14 +156,6 @@ it("4.3.1 - Initial load of Page", async () => {
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
@@ -194,14 +185,6 @@ it("4.3.2 - Input Validations", async () => {
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
@@ -251,14 +234,6 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
     ],
     addTypename: true,
     cache,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   const title = await screen.findByRole("heading", { name: "New Shipment" });
@@ -298,14 +273,6 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery, mutationNetworkError],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   // Test case 4.3.3.3 - Form data was valid, but the mutation failed
@@ -338,14 +305,6 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery, mutationGraphQLError],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   // Test case 4.3.3.4 - Form data was valid, but the mutation response has errors
@@ -407,14 +366,6 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
     ],
     addTypename: true,
     cache,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation2.id, name: organisation2.name },
-        availableBases: organisation2.bases,
-        selectedBase: { id: base2.id, name: base2.name },
-      },
-    },
   });
 
   const title = await screen.findByRole("heading", { name: "New Shipment" });
@@ -455,14 +406,6 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       initialUrl: "/bases/1/transfers/shipment/create",
       mocks: [initialQueryAllBasesOfCurrentOrg, initialQueryNetworkError],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base1.id, name: base1.name },
-        },
-      },
     });
 
     // Test case 4.3.4.1 - No Partner Organisations and Bases Data
@@ -480,14 +423,6 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       initialUrl: "/bases/1/transfers/shipment/create",
       mocks: [initialQueryAllBasesOfCurrentOrg, initialQueryWithoutAgreement],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: { id: base1.id, name: base1.name },
-        },
-      },
     });
 
     // Test case 4.3.4.2 - No Accepeted Agreements Found

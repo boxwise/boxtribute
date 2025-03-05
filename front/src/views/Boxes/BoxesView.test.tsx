@@ -1,7 +1,5 @@
-import { vi, it, describe, expect } from "vitest";
+import { it, describe, expect } from "vitest";
 import { userEvent } from "@testing-library/user-event";
-import { base2 } from "mocks/bases";
-import { organisation1, organisation2 } from "mocks/organisations";
 import { screen, render, waitFor, within } from "tests/test-utils";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { ErrorBoundary } from "@sentry/react";
@@ -489,14 +487,6 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
       },
     );
     // Test case 4.8.1.1
@@ -520,14 +510,6 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [initialQueryGraphQLError, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
       },
     );
 
@@ -557,14 +539,6 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [initialQueryNetworkError, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
       },
     );
 
@@ -594,14 +568,6 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
       },
     );
 
@@ -629,14 +595,6 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
       },
     );
 
