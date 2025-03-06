@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBackgroundQuery, useMutation } from "@apollo/client";
-import { Column } from "react-table";
+import { CellProps, Column } from "react-table";
 import {
   Alert,
   AlertDescription,
@@ -14,7 +14,6 @@ import {
   TabList,
   Tabs,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 
@@ -30,6 +29,8 @@ import { ProductRow } from "./components/transformers";
 import ProductsTable from "./components/ProductsTable";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { SelectColumnFilter } from "components/Table/Filter";
+import { useNotification } from "hooks/useNotification";
+import { useErrorHandling } from "hooks/useErrorHandling";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -113,7 +114,8 @@ function InStockProductAlert({
 function Products() {
   const { baseId } = useBaseIdParam();
   const navigate = useNavigate();
-  const toast = useToast();
+  const { createToast } = useNotification();
+  const { triggerError } = useErrorHandling();
   const { globalPreferences } = useContext(GlobalPreferencesContext);
   const baseName = globalPreferences.selectedBase?.name;
   const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
@@ -122,7 +124,7 @@ function Products() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
-      sortBy: [],
+      sortBy: [{ id: "enabled", desc: false }],
       hiddenColumns: ["version", "enabledOn", "enabledBy", "disabledOn", "id"],
     },
   });
@@ -139,7 +141,7 @@ function Products() {
   const handleDisableProduct = useCallback(
     (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
       if (instockItemsCount !== undefined && instockItemsCount > 0) {
-        toast({
+        createToast({
           position: "bottom",
           duration: 6000,
           render: () => (
@@ -152,10 +154,14 @@ function Products() {
             instantiationId,
           },
         });
+      } else {
+        triggerError({
+          message: "No instantiationId provided for disabling product.",
+          userMessage: "Something went wrong.",
+        });
       }
-      // TODO: handle unlikely standard product with no instantiation id?
     },
-    [disableStandardProductMutation, toast],
+    [disableStandardProductMutation, createToast, triggerError],
   );
 
   const handleEnableProduct = useCallback(
@@ -170,12 +176,8 @@ function Products() {
         accessor: "enabled",
         id: "enabled",
         disableFilters: true,
-        Cell: (value) => (
-          <>
-            {value.row.original.enabled && (
-              <FaCheckCircle style={{ margin: "auto" }} color="#659A7E" />
-            )}
-          </>
+        Cell: ({ value }: CellProps<ProductRow, any>) => (
+          <>{value && <FaCheckCircle style={{ margin: "auto" }} color="#659A7E" />}</>
         ),
       },
       {
@@ -183,15 +185,15 @@ function Products() {
         accessor: "enabled",
         id: "actionButton",
         disableFilters: true,
-        Cell: (value) => (
+        Cell: ({ row }: CellProps<ProductRow, any>) => (
           <>
-            {value.row.original.enabled ? (
+            {row.original.enabled ? (
               <Button
                 onClick={() =>
                   handleDisableProduct(
-                    value.row.original.instantiationId,
-                    value.row.original.instockItemsCount,
-                    value.row.original.name,
+                    row.original.instantiationId,
+                    row.original.instockItemsCount,
+                    row.original.name,
                   )
                 }
                 size="sm"
