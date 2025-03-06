@@ -9,7 +9,6 @@ import {
   usePagination,
 } from "react-table";
 import {
-  Skeleton,
   Table,
   Tr,
   Tbody,
@@ -36,15 +35,9 @@ type ProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
   columns: Column<ProductRow>[];
-  selectedRowsArePending: boolean;
 };
 
-function ProductsTable({
-  tableConfig,
-  tableData,
-  columns,
-  selectedRowsArePending,
-}: ProductTableProps) {
+function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -104,11 +97,6 @@ function ProductsTable({
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        {/* TODO: uncomment this on next interactions with bulk actions */}
-        {/* <ButtonGroup mb={2}>
-          <Button>Enable</Button>
-          <Button>Disable</Button>
-        </ButtonGroup> */}
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
@@ -132,26 +120,18 @@ function ProductsTable({
           <Tbody>
             {page.map((row) => {
               prepareRow(row);
-              if (row.isSelected && selectedRowsArePending) {
-                return (
-                  <Tr key={row.original.labelIdentifier}>
-                    <Td colSpan={columns.length + 1}>
-                      <Skeleton height={5} />
-                    </Td>
-                  </Tr>
-                );
-              }
               return (
                 <Tr
                   backgroundColor={
-                    row.original.instockItemsCount !== undefined ? "inherit" : "#D9D9D9"
+                    row.values.instockItemsCount !== undefined ? "inherit" : "#D9D9D9"
                   }
-                  cursor="pointer"
                   {...row.getRowProps()}
-                  key={row.original.id}
+                  key={row.values.id}
                 >
                   {row.cells.map((cell) => (
-                    <Td key={`${row.original.name}-${cell.column.id}`}>{cell.render("Cell")}</Td>
+                    <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
                   ))}
                 </Tr>
               );

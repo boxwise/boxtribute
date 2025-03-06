@@ -202,6 +202,7 @@ function Products() {
                 }
                 size="sm"
                 disabled={disableStandardProductMutationLoading}
+                isLoading={disableStandardProductMutationLoading}
               >
                 Disable
               </Button>
@@ -310,7 +311,6 @@ function Products() {
           tableConfig={tableConfig}
           tableData={standardProductsRawDataToTableDataTransformer(standardProductsRawData)}
           columns={availableColumns}
-          selectedRowsArePending={false} // true on disable product
         />
       )}
     </>
