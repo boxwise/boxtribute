@@ -269,9 +269,7 @@ function App() {
                         <AlertWithoutAction alertText="Could not fetch products data! Please try reloading the page." />
                       }
                     >
-                      <Suspense fallback={<TableSkeleton />}>
-                        <Products />
-                      </Suspense>
+                      <Products />
                     </ErrorBoundary>
                   }
                   redirectPath={prevLocation}

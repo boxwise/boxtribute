@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useBackgroundQuery, useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { CellProps, Column } from "react-table";
 import {
   Alert,
@@ -25,12 +25,16 @@ import {
 import { useTableConfig } from "hooks/hooks";
 import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
-import { ProductRow } from "./components/transformers";
+import {
+  ProductRow,
+  standardProductsRawDataToTableDataTransformer,
+} from "./components/transformers";
 import ProductsTable from "./components/ProductsTable";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { useNotification } from "hooks/useNotification";
 import { useErrorHandling } from "hooks/useErrorHandling";
+import { TableSkeleton } from "components/Skeletons";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -129,8 +133,8 @@ function Products() {
     },
   });
 
-  // fetch Standard Products data in the background
-  const [standardProductsQueryRef, { refetch: refetchStandardProducts }] = useBackgroundQuery(
+  // fetch Standard Products data
+  const { loading: isStandardProductsQueryLoading, data: standardProductsRawData } = useQuery(
     STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY,
     { variables: { baseId } },
   );
@@ -299,13 +303,16 @@ function Products() {
           </Tab>
         </TabList>
       </Tabs>
-      <ProductsTable
-        tableConfig={tableConfig}
-        onRefetch={refetchStandardProducts}
-        productsQueryRef={standardProductsQueryRef}
-        columns={availableColumns}
-        selectedRowsArePending={false} // true on disable product
-      />
+      {isStandardProductsQueryLoading || !standardProductsRawData ? (
+        <TableSkeleton />
+      ) : (
+        <ProductsTable
+          tableConfig={tableConfig}
+          tableData={standardProductsRawDataToTableDataTransformer(standardProductsRawData)}
+          columns={availableColumns}
+          selectedRowsArePending={false} // true on disable product
+        />
+      )}
     </>
   );
 }

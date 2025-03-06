@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useTransition } from "react";
-import { QueryRef, useReadQuery } from "@apollo/client";
+import { useEffect, useMemo } from "react";
 import {
   Column,
   useTable,
@@ -23,14 +22,8 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
-
-import {
-  StandardProductsforProductsViewQuery,
-  StandardProductsforProductsViewVariables,
-} from "queries/types";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { IUseTableConfigReturnType } from "hooks/hooks";
-import { ProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
+import { ProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -41,27 +34,17 @@ import { GlobalFilter } from "components/Table/GlobalFilter";
 
 type ProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: StandardProductsforProductsViewVariables) => void;
-  productsQueryRef: QueryRef<StandardProductsforProductsViewQuery>;
+  tableData;
   columns: Column<ProductRow>[];
   selectedRowsArePending: boolean;
 };
 
 function ProductsTable({
   tableConfig,
-  onRefetch,
-  productsQueryRef,
+  tableData,
   columns,
   selectedRowsArePending,
 }: ProductTableProps) {
-  const { baseId } = useBaseIdParam();
-  const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
-  const { data: rawData } = useReadQuery(productsQueryRef);
-  const tableData = useMemo(
-    () => standardProductsRawDataToTableDataTransformer(rawData),
-    [rawData],
-  );
-
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -104,30 +87,9 @@ function ProductsTable({
     useSortBy,
     usePagination,
     useRowSelect,
-    // TODO: uncomment this on next interactions with bulk mutations + move <IndeterminateCheckbox /> to root components
-    // (hooks) => {
-    //   hooks.visibleColumns.push((col) => [
-    //     {
-    //       id: "selection",
-    //       Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any>) => (
-    //         <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-    //       ),
-    //       Cell: ({ row }: CellProps<any>) => (
-    //         <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-    //       ),
-    //     },
-    //     ...col,
-    //   ]);
-    // },
   );
 
   useEffect(() => {
-    // refetch
-    const newStateFilter = filters.find((filter) => filter.id === "state");
-    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-
-    if (newStateFilter !== oldStateFilter) startRefetchBoxes(() => onRefetch({ baseId }));
-
     // update tableConfig
     if (globalFilter !== tableConfig.getGlobalFilter()) tableConfig.setGlobalFilter(globalFilter);
 
@@ -137,7 +99,7 @@ function ProductsTable({
 
     if (hiddenColumns !== tableConfig.getHiddenColumns())
       tableConfig.setHiddenColumns(hiddenColumns);
-  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
+  }, [filters, globalFilter, hiddenColumns, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" height="100%">
@@ -168,20 +130,6 @@ function ProductsTable({
         <Table key="products-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
-            {refetchBoxesIsPending && (
-              <Tr key="refetchIsPending1">
-                <Td colSpan={columns.length + 1}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            )}
-            {refetchBoxesIsPending && (
-              <Tr key="refetchIsPending2">
-                <Td colSpan={columns.length + 1}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            )}
             {page.map((row) => {
               prepareRow(row);
               if (row.isSelected && selectedRowsArePending) {
