@@ -1,16 +1,26 @@
-import { vi, it, expect } from "vitest";
+import { vi, it, expect, beforeEach } from "vitest";
 import { screen, render, cleanup, fireEvent, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
-import { organisation1, organisations } from "mocks/organisations";
+import { organisations } from "mocks/organisations";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
 import { addDays } from "date-fns";
-import { base1 } from "mocks/bases";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import CreateTransferAgreementView, {
   ALL_ORGS_AND_BASES_QUERY,
   CREATE_AGREEMENT_MUTATION,
 } from "./CreateTransferAgreementView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
+import { useAuth0 } from "@auth0/auth0-react";
+import { mockAuthenticatedUser } from "mocks/hooks";
+
+vi.mock("@auth0/auth0-react");
+// .mocked() is a nice helper function from jest for typescript support
+// https://jestjs.io/docs/mock-function-api/#typescript-usage
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org");
+});
 
 const initialQuery = {
   request: {
@@ -102,14 +112,6 @@ it("4.1.1 - Initial load of Page", async () => {
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
@@ -148,14 +150,6 @@ it("4.1.2 - Input Validations", async () => {
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery, successfulMutation],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   const submitButton = await screen.findByRole("button", { name: /create agreement/i });
@@ -197,14 +191,6 @@ it("4.1.3 - Click on Submit Button", async () => {
     additionalRoute: "/bases/1/transfers/agreements",
     mocks: [initialQuery, successfulMutation],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   const submitButton = await screen.findByRole("button", { name: /create agreement/i });
@@ -232,14 +218,6 @@ it("4.1.3 - Click on Submit Button", async () => {
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery, mutationNetworkError],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
@@ -263,14 +241,6 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQueryNetworkError],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   // Test case 4.1.4.1 - No Partner Organisations and Bases Data
@@ -291,14 +261,6 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery, mutationIdenticalAgreementError],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: { id: base1.id, name: base1.name },
-      },
-    },
   });
 
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });

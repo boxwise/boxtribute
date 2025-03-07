@@ -1,7 +1,5 @@
-import { vi, it, describe, expect } from "vitest";
+import { it, describe, expect, vi, beforeEach } from "vitest";
 import { userEvent } from "@testing-library/user-event";
-import { base2 } from "mocks/bases";
-import { organisation1, organisation2 } from "mocks/organisations";
 import { screen, render, waitFor, within } from "tests/test-utils";
 import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { ErrorBoundary } from "@sentry/react";
@@ -11,6 +9,30 @@ import { Suspense } from "react";
 import { cache } from "queries/cache";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
+import {
+  selectedBaseAtom,
+  organisationAtom,
+  availableBasesAtom,
+} from "stores/globalPreferenceStore";
+import { base2 } from "mocks/bases";
+import { organisation2 } from "mocks/organisations";
+import { useAuth0 } from "@auth0/auth0-react";
+import { mockAuthenticatedUser } from "mocks/hooks";
+
+vi.mock("@auth0/auth0-react");
+// .mocked() is a nice helper function from jest for typescript support
+// https://jestjs.io/docs/mock-function-api/#typescript-usage
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxcare.org");
+});
+
+const jotaiAtoms = [
+  [selectedBaseAtom, base2],
+  [organisationAtom, organisation2],
+  [availableBasesAtom, organisation2.bases],
+];
 
 const boxesQuery = {
   request: {
@@ -29,6 +51,7 @@ const boxesQuery = {
         __typename: "BoxPage",
         elements: [
           {
+            id: "1",
             __typename: "Box",
             comment: null,
             history: [],
@@ -81,6 +104,7 @@ const boxesQuery = {
           },
           {
             __typename: "Box",
+            id: "2",
             comment: null,
             history: [],
             labelIdentifier: "1481666",
@@ -141,6 +165,7 @@ const boxesQuery = {
           },
           {
             __typename: "Box",
+            id: "3",
             comment: null,
             history: [
               {
@@ -489,14 +514,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
+        jotaiAtoms,
       },
     );
     // Test case 4.8.1.1
@@ -520,14 +538,6 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [initialQueryGraphQLError, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
       },
     );
 
@@ -557,14 +567,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [initialQueryNetworkError, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
+        jotaiAtoms,
       },
     );
 
@@ -594,14 +597,7 @@ describe("4.8.1 - Initial load of Page", () => {
         mocks: [boxesQuery, actionsQuery],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
+        jotaiAtoms,
       },
     );
 
@@ -629,14 +625,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
         cache,
         addTypename: true,
-        globalPreferences: {
-          dispatch: vi.fn(),
-          globalPreferences: {
-            organisation: { id: organisation2.id, name: organisation2.name },
-            availableBases: organisation1.bases,
-            selectedBase: { id: base2.id, name: base2.name },
-          },
-        },
+        jotaiAtoms,
       },
     );
 

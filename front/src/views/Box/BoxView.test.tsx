@@ -10,7 +10,6 @@ import { tags } from "mocks/tags";
 import { textContentMatcher } from "tests/helpers";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
-import { organisation1 } from "mocks/organisations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import BoxDetails from "./components/BoxDetails";
 import BTBox, {
@@ -361,13 +360,6 @@ it("3.1.1 - Initial load of Page", async () => {
     initialUrl: "/bases/2/boxes/123",
     mocks: [initialQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   // Test case 3.1.1.1 - Is the Loading State Shown First?
@@ -409,13 +401,6 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxInLegacyLostLocation],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   // Test case 3.1.1.7 - Content: Display an warning note if a box is located in a legacy location
@@ -438,13 +423,6 @@ it("3.1.1.8 - Content: Display an info alert if a box status is Lost", async () 
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxLostState],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   // Test case 3.1.1.8 - Content: Display an info alert if a box status is Lost
@@ -463,13 +441,6 @@ it("3.1.1.9 - Content: Display an info alert if a box status is Scrap", async ()
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxScrapState],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   // Test case 3.1.1.9 - Content: Display an info alert if a box status is Scrap
@@ -491,13 +462,6 @@ it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipme
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxMarkedForShipmentState],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   // Test case 3.1.1.10 - Content: Display an info alert if a box status is mark for shipment
@@ -520,13 +484,6 @@ it("3.1.2 - Change Number of Items", async () => {
     mocks: [initialQueryForChangeNumberOfBoxes, updateNumberOfItemsMutation],
     cache,
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   const title = await screen.findByRole("heading", { name: "Box 1235" });
@@ -588,13 +545,6 @@ it("3.1.3.1 - Change State to Scrap", async () => {
     mocks: [initialQuery, updateBoxStateToScrapMutation, updateBoxStateToLostMutation],
     cache,
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
@@ -620,13 +570,6 @@ it("3.1.3.2 - Change State to Lost", async () => {
     mocks: [initialQuery, updateBoxStateToLostMutation],
     addTypename: true,
     cache,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
@@ -657,13 +600,6 @@ it("3.1.4 - Move location", async () => {
     mocks: [initialQueryMoveLocationOfBox, moveLocationOfBoxMutation],
     cache,
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   expect(await screen.findByText(/move this box from/i)).toBeInTheDocument();
@@ -704,13 +640,6 @@ it("3.1.5 - Redirect to Edit Box", async () => {
     additionalRoute: "/bases/1/boxes/127/edit",
     mocks: [initialQueryBeforeRedirect, boxEditInitialQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   const title = await screen.findByRole("heading", { name: "Box 127" });
@@ -749,13 +678,6 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
     initialUrl: "/bases/2/boxes/124",
     mocks: [initialForFailedQuery, updateNumberOfItemsFailedMutation],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   const title = await screen.findByRole("heading", { name: "Box 124" });
@@ -788,13 +710,6 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
     initialUrl: "/bases/2/boxes/124",
     mocks: [initialForFailedQuery, moveLocationOfBoxFailedMutation],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   const title = await screen.findByRole("heading", { name: "Box 124" });
@@ -823,13 +738,6 @@ it("3.1.8 - Error When Move Locations", async () => {
     initialUrl: "/bases/2/boxes/124",
     mocks: [initialForFailedQuery, moveLocationOfBoxNetworkFailedMutation],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
   await waitFor(() => {
     expect(screen.getByTestId("box-header")).toBeInTheDocument();
@@ -858,13 +766,6 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
     initialUrl: "/bases/2/boxes/1111",
     mocks: [initialFailedQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   await screen.findByText(/could not fetch box data! please try reloading the page./i);
@@ -894,13 +795,6 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       initialUrl: "/bases/2/boxes/1111",
       mocks: [initialFailedQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-        },
-      },
     },
   );
 
@@ -915,13 +809,6 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
     initialUrl: "/bases/2/boxes/129",
     mocks: [initialWithoutShipmentQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   await waitFor(() => {
@@ -953,13 +840,6 @@ it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be vis
     initialUrl: "/bases/2/boxes/129",
     mocks: [initialWithoutShipmentQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-      },
-    },
   });
 
   await waitFor(() => {

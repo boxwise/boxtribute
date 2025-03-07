@@ -1,12 +1,22 @@
-import { vi, beforeEach, it, describe, expect } from "vitest";
+import { beforeEach, it, describe, expect, vi } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
-import { organisation1 } from "mocks/organisations";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
 import { userEvent } from "@testing-library/user-event";
 import { FakeGraphQLError, mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
 import ShipmentView, { SHIPMENT_BY_ID_QUERY } from "./ShipmentView";
+import { useAuth0 } from "@auth0/auth0-react";
+import { mockAuthenticatedUser } from "mocks/hooks";
+
+vi.mock("@auth0/auth0-react");
+// .mocked() is a nice helper function from jest for typescript support
+// https://jestjs.io/docs/mock-function-api/#typescript-usage
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+});
 
 const initialQuery = {
   request: {
@@ -160,14 +170,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -201,14 +203,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialWithoutBoxQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     await waitFor(() => {
@@ -232,14 +226,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialWithGroupedItemQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     await waitFor(() => {
@@ -281,14 +267,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialQueryNetworkError],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(
@@ -304,14 +282,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialRecevingUIAsTargetOrgQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -334,14 +304,6 @@ describe("4.5 Test Cases", () => {
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialRecevingUIAsSourceOrgQuery],
       addTypename: true,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -361,14 +323,6 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     initialUrl: "/bases/1/transfers/shipments/1",
     mocks: [initialCompletedShipemntQuery],
     addTypename: true,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: organisation1.bases[0],
-      },
-    },
   });
 
   expect(screen.getByTestId("loader")).toBeInTheDocument();

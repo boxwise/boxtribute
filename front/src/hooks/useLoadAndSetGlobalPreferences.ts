@@ -1,47 +1,87 @@
 import { useEffect, useState } from "react";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLazyQuery } from "@apollo/client";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { ORGANISATION_AND_BASES_QUERY } from "queries/queries";
-import { availableBasesAtom, organisationAtom, selectedBaseAtom } from "stores/globalPreferenceStore";
+import {
+  availableBasesAtom,
+  organisationAtom,
+  selectedBaseAtom,
+  selectedBaseIdAtom,
+} from "stores/globalPreferenceStore";
+import { JWT_AVAILABLE_BASES } from "utils/constants";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
-  const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string>();
   const setOrganisation = useSetAtom(organisationAtom);
-  const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
   const [selectedBase, setSelectedBase] = useAtom(selectedBaseAtom);
+  const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
+  const selectedBaseId = useAtomValue(selectedBaseIdAtom);
 
-  // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
-  const baseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
-  const baseId = baseIdInput?.length && baseIdInput[1] || "0";
+  // validate if base Ids are set in auth0 id token
+  if (!user || !user[JWT_AVAILABLE_BASES]?.length) setError("You do not have access to any bases.");
 
-  const [runOrganisationAndBasesQuery, { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData }] =
-    useLazyQuery(ORGANISATION_AND_BASES_QUERY);
+  const [
+    runOrganisationAndBasesQuery,
+    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData },
+  ] = useLazyQuery(ORGANISATION_AND_BASES_QUERY);
 
   useEffect(() => {
     // run query only if the access token is in the request header from the apollo client and the base is not set
-    if (user && !selectedBase?.id) runOrganisationAndBasesQuery();
-  }, [runOrganisationAndBasesQuery,
-    user, selectedBase?.id]);
+    if (user && !selectedBase?.name && !error) runOrganisationAndBasesQuery();
+  }, [runOrganisationAndBasesQuery, user, selectedBase?.name, error]);
 
-  // set available bases
+  useEffect(() => {
+    if (!error && user && user[JWT_AVAILABLE_BASES]) {
+      // set available bases from auth0 id token only if they are not set yet.
+      // Otherwise, it would overwrite the names queried from the BE.
+      if (!availableBases.length)
+        setAvailableBases(user[JWT_AVAILABLE_BASES].map((id: string) => ({ id })));
+
+      // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
+      const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+      const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
+
+      // validate that the selected base ID is part of the available base IDs from Auth0
+      if (urlBaseId) {
+        if (!user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+          setError("The requested base is not available to you.");
+        } else if (!selectedBase?.id) {
+          setSelectedBase({ id: urlBaseId });
+        }
+      }
+    }
+  }, [
+    availableBases.length,
+    error,
+    location.pathname,
+    setAvailableBases,
+    setSelectedBase,
+    user,
+    selectedBase?.id,
+  ]);
+
+  // handle additional base information being returned from the query
   useEffect(() => {
     if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
-      const { bases } = organisationAndBaseData;
+      const basesWithOrgData = organisationAndBaseData.bases;
+      const bases = basesWithOrgData.map((base) => ({
+        id: base.id,
+        name: base.name,
+      }));
 
       if (bases.length > 0) {
         setAvailableBases(bases);
-        // validate if requested base is in the array of available bases
-        if (baseId !== "0") {
-          const matchingBase = bases.find((base) => base.id === baseId);
+
+        if (selectedBase?.id) {
+          const matchingBase = basesWithOrgData.find((base) => base.id === selectedBase.id);
 
           if (matchingBase) {
             // set selected base
-            setSelectedBase(matchingBase);
+            setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
             // set organisation for selected base
             setOrganisation(matchingBase.organisation);
           } else {
@@ -54,9 +94,18 @@ export const useLoadAndSetGlobalPreferences = () => {
         setError("There are no available bases.");
       }
     }
-  }, [organisationAndBaseData, isOrganisationAndBasesQueryLoading, location.pathname, navigate, selectedBase?.id, setSelectedBase, setOrganisation, setAvailableBases, baseId]);
+  }, [
+    isOrganisationAndBasesQueryLoading,
+    organisationAndBaseData,
+    selectedBase?.id,
+    setAvailableBases,
+    setOrganisation,
+    setSelectedBase,
+  ]);
 
-  const isLoading = !availableBases.length || !selectedBase?.id;
+  const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
-  return { isLoading, error, urlBaseId: baseId };
+  const isInitialized = selectedBaseId !== "0";
+
+  return { isLoading, error, isInitialized };
 };
