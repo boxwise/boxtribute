@@ -59,6 +59,19 @@ HAVING count(*) = 1
 def _show_affected_database_entries(
     *, base_id, single_base_users, single_base_user_role_ids, single_base_user_group_ids
 ):
+    cursor = db.database.execute_sql(
+        """\
+SELECT count(c.id) FROM camps c
+WHERE organisation_id = (SELECT organisation_id FROM camps WHERE id = %s)
+AND (c.deleted IS NULL OR NOT c.deleted)
+;""",
+        (base_id,),
+    )
+    result = cursor.fetchall()
+    nr_active_bases = result[0][0]
+    if nr_active_bases == 1:
+        LOGGER.info("The governing organisation will be soft-deleted.")
+
     LOGGER.info(f"Nr of single base usergroups: {len(single_base_user_group_ids)}")
     LOGGER.info(single_base_user_group_ids)
 
@@ -165,6 +178,27 @@ def _update_user_data_in_database(
 
     db.database.execute_sql(
         """UPDATE camps SET deleted = UTC_TIMESTAMP() WHERE id = %s;""",
+        (int(base_id),),
+    )
+
+    # Soft-delete governing organisation if no active bases left
+    db.database.execute_sql(
+        """\
+UPDATE organisations o
+LEFT JOIN camps c ON c.organisation_id = o.id
+SET o.deleted = UTC_TIMESTAMP()
+WHERE o.id = (
+SELECT organisation_id
+FROM camps
+WHERE id = %s
+)
+AND (
+SELECT COUNT(*)
+FROM camps c2
+WHERE c2.organisation_id = o.id
+AND (c2.deleted IS NULL OR NOT c2.deleted)
+) = 0
+;""",
         (int(base_id),),
     )
 

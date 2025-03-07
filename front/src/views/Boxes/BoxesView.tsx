@@ -4,6 +4,7 @@ import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
   shipmentToDropdownOptionTransformer,
+  tagToDropdownOptionsTransformer,
 } from "utils/transformers";
 import { Column } from "react-table";
 import { useTableConfig } from "hooks/hooks";
@@ -131,7 +132,6 @@ function Boxes() {
       hiddenColumns: [
         "gender",
         "size",
-        "tags",
         "shipment",
         "comment",
         "age",
@@ -301,7 +301,6 @@ function Boxes() {
     [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
   );
 
-  // TODO: pass tag options to BoxesActionsAndTable
   return (
     <>
       <BreadcrumbNavigation items={[{ label: "Aid Inventory" }, { label: "Manage Boxes" }]} />
@@ -317,6 +316,7 @@ function Boxes() {
         locationOptions={locationToDropdownOptionTransformer(
           actionOptionsData.base?.locations ?? [],
         )}
+        tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
       />
     </>
   );

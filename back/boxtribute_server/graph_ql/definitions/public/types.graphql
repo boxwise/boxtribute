@@ -180,3 +180,22 @@ type TargetDimensionInfo {
   name: String
   type: TargetType
 }
+
+type ResolvedLink {
+  id: ID!
+  " A unique SHA256 hash (hex format of length 64) "
+  code: String!
+  baseId: Int!
+  urlParameters: String
+  view: ShareableView!
+  validUntil: Datetime
+  data: [DataCube!]
+}
+
+type UnknownLinkError {
+  code: String!
+}
+type ExpiredLinkError {
+  validUntil: Datetime!
+}
+union ResolvedLinkResult = ResolvedLink | ExpiredLinkError | UnknownLinkError

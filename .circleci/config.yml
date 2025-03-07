@@ -296,6 +296,7 @@ jobs:
               AUTH0_DOMAIN=${AUTH0_DOMAIN}
               AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
               AUTH0_PUBLIC_KEY=${AUTH0_PUBLIC_KEY}
+              AUTH0_LOG_STREAM_TOKEN=${AUTH0_LOG_STREAM_TOKEN}
               MYSQL_USER=${DB_NAME}
               MYSQL_PASSWORD=${DB_PASS}
               MYSQL_DB=${DB_NAME}
@@ -306,6 +307,7 @@ jobs:
               SENTRY_RELEASE=${CIRCLE_SHA1}
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               SENTRY_PROFILES_SAMPLE_RATE=${SENTRY_PROFILES_SAMPLE_RATE}
+              SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM=${SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM}
               ENVIRONMENT=${ENVIRONMENT}
               " > .env
       - run:
@@ -372,8 +374,8 @@ jobs:
               AUTH0_PUBLIC_KEY=${AUTH0_PUBLIC_KEY}
               AUTH0_CLIENT_ID=${QUERY_API_AUTH0_CLIENT_ID}
               AUTH0_CLIENT_SECRET=${QUERY_API_AUTH0_CLIENT_SECRET}
-              MYSQL_USER=${DB_NAME}
-              MYSQL_PASSWORD=${DB_PASS}
+              MYSQL_USER=${DB_SELECTONLY_USER}
+              MYSQL_PASSWORD=${DB_SELECTONLY_PASS}
               MYSQL_DB=${DB_NAME}
               MYSQL_SOCKET=${DB_SOCKET}
               MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
@@ -410,6 +412,66 @@ jobs:
           key: docs-npm-spectaql-{{ checksum "../docs/graphql-api/package.json" }}
           paths:
             - ~/docs/graphql-api/node_modules
+      - run:
+          name: Compress deployment artificats
+          command: tar -cvzf ~/deploy.tar.gz ~/back
+      - store_artifacts:
+          name: Store copy of deployment artifacts
+          path: ~/deploy.tar.gz
+      - run:
+          name: Authenticate the gcloud orb
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Deploy to GAE
+          command: |
+            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1}
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+
+  deploy-shared:
+    parameters:
+      serviceName:
+        type: string
+    executor: python-executor
+    working_directory: ~/back
+    steps:
+      # Attach workspace from build
+      - attach_workspace:
+          at: ~/
+      # install gcloud orb
+      - gcp-cli/install
+      - run:
+          name: Create version.txt
+          command: |
+            echo "CircleCI build number:${CIRCLE_BUILD_NUM}
+              Branch: ${CIRCLE_BRANCH}
+              Git hash: ${CIRCLE_SHA1}" > version.txt
+      - run:
+          # GAE only installs dependencies from requirements.txt
+          name: Extend dependencies to be installed in deploy-environment
+          command: cat requirements-deploy.txt >> requirements.txt
+      - run:
+          name: Generate .env file
+          command: |
+            echo "
+              MYSQL_USER=${DB_SELECTONLY_USER}
+              MYSQL_PASSWORD=${DB_SELECTONLY_PASS}
+              MYSQL_DB=${DB_NAME}
+              MYSQL_SOCKET=${DB_SOCKET}
+              MYSQL_REPLICA_SOCKET=${DB_REPLICA_SOCKET}
+              SENTRY_DSN=${SENTRY_BE_DSN}
+              SENTRY_ENVIRONMENT=${ENVIRONMENT}
+              SENTRY_RELEASE=${CIRCLE_SHA1}
+              SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              SENTRY_PROFILES_SAMPLE_RATE=${SENTRY_PROFILES_SAMPLE_RATE}
+              ENVIRONMENT=${ENVIRONMENT}
+              " > .env
+      - run:
+          name: Generate GAE app.yaml file
+          command: |
+            sed 's/service: shared-staging/service: << parameters.serviceName >>/g' app-shared.yaml > app-<< parameters.serviceName >>.yaml
       - run:
           name: Compress deployment artificats
           command: tar -cvzf ~/deploy.tar.gz ~/back
@@ -494,6 +556,16 @@ workflows:
           name: deploy-api-staging
           context: STAGING
           serviceName: api-staging
+          requires:
+            - checkout-to-workspace
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-shared:
+          name: deploy-shared-staging
+          context: STAGING
+          serviceName: shared-staging
           requires:
             - checkout-to-workspace
           filters:

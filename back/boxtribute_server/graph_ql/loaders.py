@@ -530,3 +530,53 @@ class UnitsForDimensionLoader(DataLoader):
         for unit in Unit.select().iterator():
             units[unit.dimension_id].append(unit)
         return [units.get(i, []) for i in keys]
+
+
+class ShipmentDetailAutoMatchingLoader(DataLoader):
+    async def batch_load_fn(self, detail_ids):
+        # Obtain info about target base and source products of involved shipment details
+        ShipmentInfo = (
+            ShipmentDetail.select(
+                ShipmentDetail.id.alias("detail_id"),
+                ShipmentDetail.source_product,
+                Shipment.target_base.alias("target_base"),
+            ).join(
+                Shipment,
+                on=(
+                    (ShipmentDetail.shipment == Shipment.id)
+                    & (ShipmentDetail.id << (detail_ids))
+                ),
+            )
+        ).cte("shipment_info")
+        # If details originate from shipments with different target bases, this will
+        # throw an error later
+        target_base_id = ShipmentInfo.select(ShipmentInfo.c.target_base).distinct()
+
+        TargetProduct = Product
+        SourceProduct = Product.alias()
+        result = (
+            # Find all shipment details...
+            SourceProduct.select(ShipmentInfo.c.detail_id, TargetProduct)
+            .join(
+                ShipmentInfo, on=(SourceProduct.id == ShipmentInfo.c.source_product_id)
+            )
+            .join(
+                TargetProduct,
+                on=(
+                    # ...with matching standard products in source and target base
+                    # (using INNER JOIN, hence filtering out all results with
+                    # non-standard source products)
+                    (TargetProduct.standard_product == SourceProduct.standard_product)
+                    & (TargetProduct.base == target_base_id)
+                    & ((TargetProduct.deleted_on.is_null()) | ~TargetProduct.deleted_on)
+                ),
+            )
+            .with_cte(ShipmentInfo)
+        )
+
+        matching_target_products = {
+            row.shipment_info["detail_id"]: row.product for row in result
+        }
+        # Return products ready to be matched in the target base, corresponding to given
+        # shipment detail IDs
+        return [matching_target_products.get(i) for i in detail_ids]
