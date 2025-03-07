@@ -128,7 +128,10 @@ function Products() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
-      sortBy: [{ id: "enabled", desc: false }],
+      sortBy: [
+        { id: "enabled", desc: false },
+        { id: "name", desc: false },
+      ],
       hiddenColumns: ["version", "enabledOn", "enabledBy", "disabledOn", "id"],
     },
   });
@@ -180,6 +183,11 @@ function Products() {
         accessor: "enabled",
         id: "enabled",
         disableFilters: true,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.enabled;
+          const b = rowB.values.enabled;
+          return a === b ? 0 : a ? -1 : 1;
+        },
         Cell: ({ value }: CellProps<ProductRow, any>) => (
           <>{value && <FaCheckCircle style={{ margin: "auto" }} color="#659A7E" />}</>
         ),
@@ -189,6 +197,7 @@ function Products() {
         accessor: "enabled",
         id: "actionButton",
         disableFilters: true,
+        disableSortBy: true,
         Cell: ({ row }: CellProps<ProductRow, any>) => (
           <>
             {row.original.enabled ? (
@@ -218,7 +227,8 @@ function Products() {
         Header: "Name",
         accessor: "name",
         id: "name",
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: "Category",
