@@ -305,7 +305,7 @@ it("3.4.2.3 - Mobile: user scans QR code of different org with associated box", 
 
   // error message appears
   expect(
-    await screen.findByText(/This box it at base Base Foo, which belongs to organization BoxAid./),
+    await screen.findByText(/This box is at base Base Foo, which belongs to organization BoxAid./),
   ).toBeInTheDocument();
   // QrOverlay stays open
   expect(screen.getByTestId("ReturnScannedQr")).toBeInTheDocument();
