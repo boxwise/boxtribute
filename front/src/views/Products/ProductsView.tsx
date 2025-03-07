@@ -79,7 +79,17 @@ export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
   `
     mutation DisableStandardProduct($instantiationId: ID!) {
       disableStandardProduct(instantiationId: $instantiationId) {
-        ...ProductBasicFields
+        __typename
+        ... on Product {
+          ...ProductBasicFields
+        }
+        ... on UnauthorizedForBaseError {
+          name
+          organisationName
+        }
+        ... on BoxesStillAssignedToProductError {
+          labelIdentifiers
+        }
       }
     }
   `,
@@ -152,7 +162,6 @@ function Products() {
     (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
       if (instockItemsCount !== undefined && instockItemsCount > 0) {
         createToast({
-          position: "bottom",
           duration: 6000,
           render: () => (
             <InStockProductAlert instockItemsCount={instockItemsCount} productName={productName} />
@@ -163,7 +172,45 @@ function Products() {
           variables: {
             instantiationId,
           },
-        });
+        })
+          .then(({ data }) => {
+            const result = data?.disableStandardProduct;
+            if (!result) return;
+
+            switch (result.__typename) {
+              case "Product":
+                createToast({
+                  message: `The ASSORT standard product was successfully disabled.`,
+                });
+                break;
+              case "InsufficientPermissionError":
+                triggerError({
+                  message: "You don't have permission to disable this ASSORT standard product!",
+                });
+                break;
+              case "UnauthorizedForBaseError":
+                triggerError({
+                  message: `This product belongs to organization ${result?.organisationName}.`,
+                });
+                break;
+              case "BoxesStillAssignedToProductError":
+                triggerError({
+                  message: `This product is still assigned to the following boxes: ${result?.labelIdentifiers.join(", ")}.`,
+                });
+                break;
+              default:
+                triggerError({
+                  message: "Could not disable this ASSORT standard product! Try again?",
+                });
+                break;
+            }
+          })
+          .catch(() => {
+            // Handle network or other errors
+            triggerError({
+              message: "Could not disable this ASSORT standard product! Try again?",
+            });
+          });
       } else {
         triggerError({
           message: "No instantiationId provided for disabling product.",
