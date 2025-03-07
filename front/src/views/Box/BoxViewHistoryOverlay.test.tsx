@@ -1,11 +1,9 @@
-import { vi, beforeEach, it, expect, describe } from "vitest";
+import { beforeEach, it, expect, describe } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
 
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
-import { organisation1 } from "mocks/organisations";
-
 import { history1, history2 } from "mocks/histories";
 import { generateMockBox } from "mocks/boxes";
 import { mockMatchMediaQuery } from "mocks/functions";
@@ -46,14 +44,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       mocks: [initialQueryForBoxWithHistory],
       addTypename: true,
       cache,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     const heading = await screen.findByRole("heading", { name: /box 123/i });
@@ -77,14 +67,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       mocks: [initialQueryForBoxWithHistory],
       addTypename: true,
       cache,
-      globalPreferences: {
-        dispatch: vi.fn(),
-        globalPreferences: {
-          organisation: { id: organisation1.id, name: organisation1.name },
-          availableBases: organisation1.bases,
-          selectedBase: organisation1.bases[0],
-        },
-      },
     });
 
     const heading = await screen.findByRole("heading", { name: /box 123/i });

@@ -1,7 +1,6 @@
 import "regenerator-runtime/runtime";
 import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
 import Boxes from "views/Boxes/BoxesView";
@@ -64,24 +63,11 @@ function Protected({
 
 /**
  * Handle Dropapp (Boxtribute V1 app) redirects whose paths don't start with `/bases/:baseId`.
- *
- * Fetch first available base id from user JWT token from Auth0 to prepend `/bases/:baseId` with that id, if available.
  */
 function DropappRedirect({ path }: DropappRedirectProps) {
   const selectedBaseId = useAtomValue(selectedBaseIdAtom);
-  const { user } = useAuth0();
-  /**
-   * Redirect to this `/error`, non-existent path by default, which will lead to `<NotFoundView />`.
-   *
-   * Otherwise, redirect to one of the valid paths in `DropappRedirectProps`.
-   */
-  let pathToRedirect = "/error";
-
-  if (!user || !user["https://www.boxtribute.com/base_ids"])
-    return <Navigate to={pathToRedirect} replace />;
-
-  const baseId = selectedBaseId || user["https://www.boxtribute.com/base_ids"][0];
-  const baseURL = `/bases/${baseId}`;
+  let pathToRedirect = "/";
+  const baseURL = `/bases/${selectedBaseId}`;
   const urlParam = location.pathname.split("/").at(-1);
 
   switch (path) {
@@ -105,7 +91,7 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 }
 
 function App() {
-  const { error } = useLoadAndSetGlobalPreferences();
+  const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
 
@@ -118,6 +104,11 @@ function App() {
 
   if (error) {
     return <ErrorView error={error} />;
+  }
+
+  // selectedBaseId not set yet
+  if (!isInitialized) {
+    return;
   }
 
   return (
