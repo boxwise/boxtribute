@@ -10,25 +10,17 @@ import {
   PopoverTrigger as OrigPopoverTrigger,
   Button,
 } from "@chakra-ui/react";
-import React, { useMemo } from "react";
 import { ColumnInstance } from "react-table";
 import { RiLayoutColumnFill } from "react-icons/ri";
-import { BoxRow } from "./types";
 
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
 interface IColumnSelectorProps {
-  availableColumns: ColumnInstance<BoxRow>[];
+  availableColumns: ColumnInstance<Record<string, unknown>>[];
 }
 
 function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
-  const availableColumnOptions = useMemo(
-    () =>
-      availableColumns.filter((column) => column.id !== "shipment" && column.id !== "selection"),
-    [availableColumns],
-  );
-
-  const selectedColumnsCount = availableColumnOptions.filter(
+  const selectedColumnsCount = availableColumns.filter(
     (column) => column.getToggleHiddenProps().checked,
   ).length;
 
@@ -46,7 +38,7 @@ function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
         <PopoverCloseButton />
         <PopoverBody textStyle="h1">
           <Flex flexWrap="wrap">
-            {availableColumnOptions.map((column) => (
+            {availableColumns.map((column) => (
               <Checkbox
                 m={1}
                 py={1}

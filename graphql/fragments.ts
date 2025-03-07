@@ -35,6 +35,18 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
   }
 `);
 
+export const STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
+  fragment StandardProductBasicFields on StandardProduct @_unmask {
+    id
+    name
+    gender
+    category {
+      id
+      name
+    }
+  }
+`);
+
 export const SIZE_BASIC_FIELDS_FRAGMENT = graphql(`
   fragment SizeBasicFields on Size @_unmask {
     id

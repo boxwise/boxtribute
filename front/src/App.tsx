@@ -12,6 +12,8 @@ import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement
 import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentView";
 import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
+import Products from "views/Products/ProductsView";
+import ProductCreateView from "views/ProductCreate/ProductCreateView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 import { AuthorizeProps, useAuthorization } from "hooks/useAuthorization";
@@ -242,6 +244,39 @@ function App() {
                     component={<ShipmentView />}
                     redirectPath={prevLocation}
                     requiredAbps={["view_shipments"]}
+                  />
+                }
+              />
+            </Route>
+          </Route>
+          <Route path="products">
+            <Route
+              index
+              element={
+                <Protected
+                  component={
+                    <ErrorBoundary
+                      fallback={
+                        <AlertWithoutAction alertText="Could not fetch products data! Please try reloading the page." />
+                      }
+                    >
+                      <Products />
+                    </ErrorBoundary>
+                  }
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_products"]}
+                  minBeta={4}
+                />
+              }
+            />
+            <Route path="create">
+              <Route
+                index
+                element={
+                  <Protected
+                    component={<ProductCreateView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_products"]}
                   />
                 }
               />

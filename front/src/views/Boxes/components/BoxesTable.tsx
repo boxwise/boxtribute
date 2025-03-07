@@ -40,9 +40,9 @@ import {
   boxesRawDataToTableDataTransformer,
   prepareBoxesForBoxesViewQueryVariables,
 } from "./transformers";
-import ColumnSelector from "./ColumnSelector";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import ColumnSelector from "components/Table/ColumnSelector";
 
 interface IBoxesTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -94,12 +94,7 @@ function BoxesTable({
     previousPage,
     selectedFlatRows,
   } = useTable(
-    // TODO: remove this ts-ignore again and try to fix the type error properly
-    // was most likely caused by setting one of the following flags in .tsconfig:
-    // "strictNullChecks": true
-    // "strictFunctionTypes": false
     {
-      // @ts-ignore
       columns,
       data: tableData,
       filterTypes,
@@ -170,7 +165,11 @@ function BoxesTable({
         <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
         <Spacer />
         <HStack spacing={2} mb={2}>
-          <ColumnSelector availableColumns={allColumns} />
+          <ColumnSelector
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "shipment" && column.id !== "selection",
+            )}
+          />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>

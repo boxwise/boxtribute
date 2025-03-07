@@ -3,7 +3,6 @@ import {
   Popover,
   PopoverArrow,
   PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
   PopoverTrigger as OrigPopoverTrigger,
 } from "@chakra-ui/react";
@@ -40,7 +39,7 @@ export function SelectColumnFilterUI({
 }) {
   // Render a multi-select box
   return (
-    <Popover>
+    <Popover isLazy={true}>
       <PopoverTrigger>
         <IconButton
           size="xs"
@@ -52,7 +51,6 @@ export function SelectColumnFilterUI({
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
-        <PopoverCloseButton />
         <PopoverBody textStyle="h1">
           <Select
             size="sm"

@@ -10,7 +10,7 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface INotificationProps extends UseToastOptions {
   title?: string;
-  message: string;
+  message?: string;
   type?: "info" | "warning" | "success" | "error" | undefined;
   position?: ToastPosition;
 }
