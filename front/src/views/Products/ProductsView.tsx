@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import { CellProps, Column } from "react-table";
@@ -10,6 +10,7 @@ import {
   Box,
   Button,
   Heading,
+  Skeleton,
   Tab,
   TabList,
   Tabs,
@@ -23,8 +24,6 @@ import {
   STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
 } from "../../../../graphql/fragments";
 import { useTableConfig } from "hooks/hooks";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 import {
   ProductRow,
   standardProductsRawDataToTableDataTransformer,
@@ -35,6 +34,9 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { useNotification } from "hooks/useNotification";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
+import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { useAtomValue } from "jotai";
+import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -116,12 +118,13 @@ function InStockProductAlert({
 }
 
 function Products() {
-  const { baseId } = useBaseIdParam();
+  const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const selectedBase = useAtomValue(selectedBaseAtom);
+  const baseName = selectedBase?.name;
   const navigate = useNavigate();
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseName = globalPreferences.selectedBase?.name;
   const oldAppUrlWithBase = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/?camp=${baseId}`;
   const tableConfigKey = `bases/${baseId}/products`;
   const tableConfig = useTableConfig({
@@ -307,7 +310,12 @@ function Products() {
             fontWeight="bold"
             flex={1}
           >
-            {baseName?.toUpperCase()} PRODUCTS
+            {!isGlobalStateLoading ? (
+              baseName?.toUpperCase()
+            ) : (
+              <Skeleton height="24px" width="200px" />
+            )}{" "}
+            PRODUCTS
           </Tab>
           <Tab fontWeight="bold" flex={1}>
             ASSORT STANDARD PRODUCTS

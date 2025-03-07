@@ -1,13 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Center, Heading, HStack, Stack, Text, Switch } from "@chakra-ui/react";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
-import { useContext } from "react";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
 
 function ProductCreateView() {
   const navigate = useNavigate();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
-  const baseName = globalPreferences.selectedBase?.name;
 
   return (
     <>
@@ -27,7 +23,7 @@ function ProductCreateView() {
             <HStack my={4} p={2}>
               <Switch id="custom-product" mr={2} />
               <Text fontWeight="medium" fontSize="md">
-                Custom Product ({baseName} Specific)
+                Custom Product (Base Specific)
               </Text>
             </HStack>
           </Box>
