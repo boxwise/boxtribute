@@ -42,6 +42,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
     query StandardProductsForProductsView($baseId: ID!) {
       standardProducts(baseId: $baseId) {
+        __typename
         ... on StandardProductPage {
           totalCount
           elements {
