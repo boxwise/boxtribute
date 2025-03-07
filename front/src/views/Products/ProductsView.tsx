@@ -173,6 +173,9 @@ function Products() {
           variables: {
             instantiationId,
           },
+          refetchQueries: [
+            { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
+          ],
         })
           .then(({ data }) => {
             const result = data?.disableStandardProduct;
@@ -219,7 +222,7 @@ function Products() {
         });
       }
     },
-    [disableStandardProductMutation, createToast, triggerError],
+    [createToast, disableStandardProductMutation, baseId, triggerError],
   );
 
   const handleEnableProduct = useCallback(
