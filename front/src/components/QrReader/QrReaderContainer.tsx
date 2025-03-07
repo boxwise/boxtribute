@@ -91,7 +91,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       switch (qrResolvedValue.kind) {
         case IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE: {
           setBoxNotOwned(
-            `This box it at base ${qrResolvedValue.box?.baseName}, which belongs to organization ${qrResolvedValue.box?.organisationName}.`,
+            `This box is at base ${qrResolvedValue.box?.baseName}, which belongs to organization ${qrResolvedValue.box?.organisationName}.`,
           );
           setIsProcessingQrCode(false);
           break;

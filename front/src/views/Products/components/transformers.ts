@@ -19,22 +19,24 @@ export const standardProductsRawDataToTableDataTransformer = (
   standardProductQueryResult: StandardProductsforProductsViewQuery,
 ) => {
   if (standardProductQueryResult.standardProducts?.__typename === "StandardProductPage") {
-    return standardProductQueryResult.standardProducts.elements
-      .map(({ id, name, category, gender, instantiation, sizeRange, version }) => ({
-        id,
-        enabled: instantiation?.instockItemsCount !== undefined,
-        name,
-        category: category.name,
-        gender,
-        size: sizeRange.label,
-        instockItemsCount: instantiation?.instockItemsCount,
-        enabledOn: instantiation?.createdOn,
-        enabledBy: instantiation?.createdBy?.name,
-        disabledOn: instantiation?.deletedOn,
-        version,
-        instantiationId: instantiation?.id
-      } satisfies ProductRow));
+    return standardProductQueryResult.standardProducts.elements.map(
+      ({ id, name, category, gender, instantiation, sizeRange, version }) =>
+        ({
+          id,
+          enabled: instantiation?.instockItemsCount !== undefined,
+          name,
+          category: category.name,
+          gender,
+          size: sizeRange.label,
+          instockItemsCount: instantiation?.instockItemsCount,
+          enabledOn: instantiation?.createdOn,
+          enabledBy: instantiation?.createdBy?.name,
+          disabledOn: instantiation?.deletedOn,
+          version,
+          instantiationId: instantiation?.id,
+        }) satisfies ProductRow,
+    );
   } else {
-    return [];
+    throw new Error("Could not fetch products data! Please try reloading the page.");
   }
 };
