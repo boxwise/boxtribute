@@ -313,7 +313,7 @@ function Products() {
             {!isGlobalStateLoading ? (
               baseName?.toUpperCase()
             ) : (
-              <Skeleton height="24px" width="200px" />
+              <Skeleton height={6} width={20} mr={2} />
             )}{" "}
             PRODUCTS
           </Tab>
