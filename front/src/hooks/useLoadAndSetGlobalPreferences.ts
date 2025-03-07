@@ -10,7 +10,7 @@ import {
   selectedBaseAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
-import { JWT_AVAILABLE_BASES } from "utils/constants";
+import { JWT_AVAILABLE_BASES, JWT_ROLE } from "utils/constants";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
@@ -24,33 +24,47 @@ export const useLoadAndSetGlobalPreferences = () => {
   // validate if base Ids are set in auth0 id token
   if (!user || !user[JWT_AVAILABLE_BASES]?.length) setError("You do not have access to any bases.");
 
+  // Boxtribute God user
+  const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
+
   const [
     runOrganisationAndBasesQuery,
     { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData },
   ] = useLazyQuery(ORGANISATION_AND_BASES_QUERY);
 
+  // run query only if
+  // - the access token is in the request header from the apollo client and
+  // - the base Name is not set
   useEffect(() => {
-    // run query only if the access token is in the request header from the apollo client and the base is not set
-    if (user && !selectedBase?.name && !error) runOrganisationAndBasesQuery();
+    if (user && !selectedBase?.name && !error) {
+      runOrganisationAndBasesQuery();
+    }
   }, [runOrganisationAndBasesQuery, user, selectedBase?.name, error]);
 
+  // setting auth atoms initially from auth0
   useEffect(() => {
-    if (!error && user && user[JWT_AVAILABLE_BASES]) {
+    if (!error && user && (user[JWT_AVAILABLE_BASES] || isGod)) {
       // set available bases from auth0 id token only if they are not set yet.
       // Otherwise, it would overwrite the names queried from the BE.
-      if (!availableBases.length)
+      if (!availableBases.length && !isGod) {
         setAvailableBases(user[JWT_AVAILABLE_BASES].map((id: string) => ({ id })));
+      }
 
       // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
       const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
       const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
 
-      // validate that the selected base ID is part of the available base IDs from Auth0
+      // validate that
+      // - the selected base ID is part of the available base IDs from Auth0 or
+      // - that the user is a Boxtribute God
       if (urlBaseId) {
-        if (!user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+        if (isGod || user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+          if (selectedBaseId !== urlBaseId) {
+            // only overwrite the selected base ID if the id is different from the existing one.
+            setSelectedBase({ id: urlBaseId });
+          }
+        } else {
           setError("The requested base is not available to you.");
-        } else if (!selectedBase?.id) {
-          setSelectedBase({ id: urlBaseId });
         }
       }
     }
@@ -61,7 +75,8 @@ export const useLoadAndSetGlobalPreferences = () => {
     setAvailableBases,
     setSelectedBase,
     user,
-    selectedBase?.id,
+    isGod,
+    selectedBaseId,
   ]);
 
   // handle additional base information being returned from the query
