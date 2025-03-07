@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
@@ -6,7 +6,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate } from "react-router-dom";
-import { GlobalPreferencesContext } from "providers/GlobalPreferencesProvider";
+import { useAtomValue } from "jotai";
 import {
   BASE_ORG_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
@@ -17,8 +17,8 @@ import CreateShipment, {
   IOrganisationBaseData,
   ICreateShipmentFormData,
 } from "./components/CreateShipment";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
+import { organisationAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export const ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY = graphql(
   `
@@ -74,11 +74,9 @@ function CreateShipmentView() {
   const navigate = useNavigate();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const { globalPreferences } = useContext(GlobalPreferencesContext);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
-
-  // variables in URL
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const organisation = useAtomValue(organisationAtom);
 
   // Query Data for the Form
   const allAcceptedTransferAgreements = useQuery(ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY, {
@@ -117,7 +115,7 @@ function CreateShipmentView() {
   const currentBase = allAcceptedTransferAgreements?.data?.base;
   const currentOrganisationName = currentBase?.organisation?.name;
   const currentOrganisationBase = currentBase?.name;
-  const currentOrganisationId = globalPreferences.organisation?.id;
+  const currentOrganisationId = organisation?.id;
 
   const [
     runAllBasesOfCurrentOrg,
@@ -249,10 +247,10 @@ function CreateShipmentView() {
     },
     [
       acceptedTransferAgreementsPartnerData,
-      baseId,
-      createShipmentMutation,
-      createToast,
       triggerError,
+      createShipmentMutation,
+      baseId,
+      createToast,
       navigate,
     ],
   );

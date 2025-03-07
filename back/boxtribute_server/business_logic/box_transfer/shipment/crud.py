@@ -316,23 +316,27 @@ def _remove_boxes_from_shipment(
     """With `box_state=InStock`, return boxes to stock; with `box_state=NotDelivered`,
     mark boxes as lost during shipment. Soft-delete corresponding shipment details.
     If boxes are requested to be removed that are not contained in the given shipment,
-    they are silently discarded.
+    or in an invalid state for the operation (e.g. only MarkedForShipment boxes can be
+    moved back to InStock during shipment preparation), they are silently discarded.
     """
     box_label_identifiers = box_label_identifiers or []
     if not box_label_identifiers:
         return
-    if box_state not in [BoxState.InStock, BoxState.NotDelivered]:
+    if box_state not in [BoxState.InStock, BoxState.NotDelivered]:  # pragma: no cover
         raise ValueError("Function used with invalid box state")
 
     if box_state == BoxState.InStock:
         fields = [ShipmentDetail.removed_on, ShipmentDetail.removed_by]
+        old_box_states = [BoxState.MarkedForShipment]
     else:
         fields = [ShipmentDetail.lost_on, ShipmentDetail.lost_by]
+        old_box_states = [BoxState.InTransit, BoxState.Receiving]
 
     details = []
     for detail in _retrieve_shipment_details(
         shipment_id,
         (Box.label_identifier << box_label_identifiers),
+        Box.state << old_box_states,
     ):
         setattr(detail, fields[0].name, now)
         setattr(detail, fields[1].name, user_id)

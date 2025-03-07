@@ -89,6 +89,8 @@ type Product {
   category: ProductCategory!
   sizeRange: SizeRange!
   base: Base
+  " null for products of type [`Custom`]({{Types.ProductType}}) "
+  standardProduct: StandardProduct
   price: Float
   gender: ProductGender
   comment: String
@@ -151,6 +153,15 @@ type StandardProductPage {
   elements: [StandardProduct!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+"""
+Utility response type for standard product bulk-enable mutations, containing both enabled standard product instantiations and IDs of invalid standard products.
+"""
+type ProductsResult {
+  instantiations: [Product!]!
+  " e.g. standard products that don't exist, already are enabled for the base, and/or are superceded by a more recent version "
+  invalidStandardProductIds: [Int!]!
 }
 
 " Union for resources that tags can be applied to. "
@@ -592,6 +603,8 @@ type ShipmentDetail {
   lostOn: Datetime
   receivedBy: User
   receivedOn: Datetime
+  " Return matching target product if the source product is an ASSORT product with an existing instantiation in the target base; null if no matching possible "
+  autoMatchingTargetProduct: Product
 }
 
 type ShareableLink {
@@ -652,6 +665,9 @@ type BoxesStillAssignedToProductError {
 type StandardProductAlreadyEnabledForBaseError {
   existingStandardProductInstantiationId: ID!
 }
+type OutdatedStandardProductVersionError {
+  mostRecentStandardProductId: ID!
+}
 type ProductTypeMismatchError {
   expectedType: ProductType!
 }
@@ -677,7 +693,8 @@ union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
-union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError
+union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError | OutdatedStandardProductVersionError
+union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 

@@ -5,6 +5,9 @@ handlers:
   - url: /graphql
     script: auto
     secure: always
+  - url: /auth0-slack-bridge
+    script: auto
+    secure: always
   - url: /cron/(.*)
     script: auto
     secure: always
@@ -22,10 +25,10 @@ handlers:
     secure: always
     static_files: front-build/assets/\1
     upload: front-build/assets/(.*)
-  - url: /(.*\.(ico|png|svg))$
+  - url: /(.*\.(ico|png|svg|woff2))$
     secure: always
     static_files: front-build/\1
-    upload: front-build/(.*\.(ico|png|svg))$
+    upload: front-build/(.*\.(ico|png|svg|woff2))$
   - url: /(.*)
     secure: always
     static_files: front-build/index.html

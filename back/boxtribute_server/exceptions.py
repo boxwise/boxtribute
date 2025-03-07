@@ -134,6 +134,13 @@ class DuplicateTransferAgreement(Exception):
         }
 
 
+class NoActivePartnerBases(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "None of the requested partner bases is active.",
+    }
+
+
 class InvalidShipmentState(_InvalidResourceState):
     def __init__(self, *args, expected_states, actual_state, **kwargs):
         super().__init__(

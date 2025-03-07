@@ -2089,6 +2089,8 @@ LOCK TABLES `organisations` WRITE;
 INSERT INTO `organisations` VALUES
   (1,'BoxAid',NULL,NULL,NULL,NULL,NULL),
   (2,'BoxCare',NULL,NULL,NULL,NULL,NULL),
+  (3,'NoCampsOrg',NULL,NULL,NULL,NULL,NULL),
+  (4,'TheDeletedOrg',NULL,NULL,'2023-12-31 11:22:33',NULL,NULL),
   (100000000,'TestOrganisation','2019-07-10 08:05:56',1,NULL,NULL,NULL),
   (100000001,'DummyTestOrgWithBoxes','2019-09-29 08:05:56',1,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `organisations` ENABLE KEYS */;
@@ -2563,7 +2565,8 @@ INSERT INTO `sizegroup` VALUES
 (20,'Children by month (2-5)',100),
 (21,'Baby by month (0-2, 3-6, 7-12, 13-18, 19-24)',19),
 (22,'Baby by month (0-6, 7-24)',20),
-(23,'Children by year (2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15)',11),(24,'Children by year (individual years)',12),
+(23,'Children by year (2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15)',11),
+(24,'Children by year (individual years)',12),
 (25,'Children by year (0-2, 2-4, 5-7, 8-10, 11-13, 14-17)', 13),
 (26,'All shoe sizes (<23-48)',61),
 (27,'Sock sizes',62),

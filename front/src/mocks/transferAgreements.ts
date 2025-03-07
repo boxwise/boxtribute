@@ -8,8 +8,7 @@ export const generateMockTransferAgreement = ({
   isInitiator = true,
 }) => {
   const iAmSource =
-    (isInitiator && type !== "ReceivingFrom") ||
-    (!isInitiator && type === "ReceivingFrom");
+    (isInitiator && type !== "ReceivingFrom") || (!isInitiator && type === "ReceivingFrom");
 
   return {
     id: "1",

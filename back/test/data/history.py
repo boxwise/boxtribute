@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.utils import HISTORY_CREATION_MESSAGE
 
 from .box import another_marked_for_shipment_box_data
 from .box import data as box_data
@@ -17,7 +18,7 @@ def data():
         [
             {
                 "id": i,
-                "changes": "Record created",
+                "changes": HISTORY_CREATION_MESSAGE,
                 "record_id": box["id"],
                 "change_date": box["created_on"],
                 "table_name": "stock",

@@ -68,6 +68,11 @@ input StandardProductEnableInput {
   inShop: Boolean
 }
 
+input StandardProductsEnableInput {
+  standardProductIds: [Int!]!
+  baseId: Int!
+}
+
 input StandardProductInstantiationEditInput {
   id: ID!
   sizeRangeId: Int

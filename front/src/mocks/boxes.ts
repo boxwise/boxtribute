@@ -72,17 +72,15 @@ export const handleBoxGeneration = ({
   state = "InStock",
   isBoxAssociated = true,
   isBoxSameBase = true,
-  isBoxSameOrg = true
+  isBoxSameOrg = true,
 }) => {
   if (isBoxAssociated && isBoxSameOrg && isBoxSameBase)
     return generateMockBox({ labelIdentifier, state });
 
-  if (isBoxAssociated && !isBoxSameOrg)
-    return unauthorizedForBaseErrorBox;
+  if (isBoxAssociated && !isBoxSameOrg) return unauthorizedForBaseErrorBox;
 
-  if (isBoxAssociated && !isBoxSameBase)
-    return insufficientPermissionErrorBox;
+  if (isBoxAssociated && !isBoxSameBase) return insufficientPermissionErrorBox;
 
   // Box not associated with the QR code or no permission and authorization will end up here.
   return null;
-}
+};

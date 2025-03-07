@@ -8,6 +8,7 @@ import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import { useAtomValue } from "jotai";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryRef } from "@apollo/client";
@@ -15,13 +16,16 @@ import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import RemoveBoxesButton from "./RemoveBoxesButton";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ExportToCsvButton from "./ExportToCsvButton";
 import { FaTruckArrowRight } from "react-icons/fa6";
 import { BsBox2HeartFill } from "react-icons/bs";
 import MakeLabelsButton from "./MakeLabelsButton";
+import AssignTagsButton from "./AssignTagsButton";
+import { IDropdownOption } from "components/Form/SelectField";
+import { useAssignTags } from "hooks/useAssignTags";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -29,6 +33,7 @@ export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
+  tagOptions: IDropdownOption[];
   availableColumns: Column<BoxRow>[];
 }
 
@@ -38,10 +43,11 @@ function BoxesActionsAndTable({
   boxesQueryRef,
   locationOptions,
   shipmentOptions,
+  tagOptions,
   availableColumns,
 }: IBoxesActionsAndTableProps) {
   const navigate = useNavigate();
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   const { createToast } = useNotification();
 
@@ -222,11 +228,24 @@ function BoxesActionsAndTable({
     deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
   }, [deleteBoxes, selectedBoxes]);
 
+  // Assign Tags to Boxes
+  const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
+  const onAssignTags = useCallback(
+    async (tagIds: string[]) => {
+      await assignTags(
+        selectedBoxes.map((box) => box.values.labelIdentifier),
+        tagIds.map((id) => parseInt(id, 10)),
+      );
+    },
+    [assignTags, selectedBoxes],
+  );
+
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
-    isDeleteBoxesLoading;
+    isDeleteBoxesLoading ||
+    isAssignTagsLoading;
 
   const actionButtons = useMemo(
     () => [
@@ -246,7 +265,7 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
-      <Menu key="box-actions">
+      <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
         </MenuButton>
@@ -263,6 +282,14 @@ function BoxesActionsAndTable({
           <MenuItem>
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
+          <Menu>
+            <AssignTagsButton
+              selectedBoxes={selectedBoxes}
+              key="assign-tags"
+              onAssignTags={onAssignTags}
+              allTagOptions={tagOptions}
+            />
+          </Menu>
           <MenuItem>
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
@@ -286,7 +313,9 @@ function BoxesActionsAndTable({
       onDeleteBoxes,
       selectedBoxes,
       thereIsABoxMarkedForShipmentSelected,
+      tagOptions,
       onUnassignBoxesToShipment,
+      onAssignTags,
     ],
   );
 

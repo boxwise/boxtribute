@@ -18,6 +18,7 @@ from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_
 from boxtribute_server.db import db
 from boxtribute_server.exceptions import ServiceError
 from boxtribute_server.models.definitions.base import Base
+from boxtribute_server.models.definitions.organisation import Organisation
 from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.models.definitions.user import User
 
@@ -449,6 +450,7 @@ class Service(Auth0Service):
 
 
 def test_remove_base_access(usergroup_data):
+    organisation_id = 1
     base_id = 1
     service = Service()
     interface = service._interface
@@ -484,6 +486,8 @@ def test_remove_base_access(usergroup_data):
 
     base = Base.get_by_id(base_id)
     assert base.deleted_on.date() == date.today()
+    organisation = Organisation.get_by_id(organisation_id)
+    assert organisation.deleted_on is None
 
     # Verify that User._usergroup field is set to NULL and User data is anonymized
     assert User.select(User.id, User._usergroup, User.name, User.email).dicts() == [
@@ -559,6 +563,15 @@ def test_remove_base_access(usergroup_data):
         call("rol_c"),
         call("rol_d"),
     ]
+
+    # Delete last active base of organisation
+    base_id = 2
+    remove_base_access(base_id=base_id, service=service, force=True)
+
+    base = Base.get_by_id(base_id)
+    assert base.deleted_on.date() == date.today()
+    organisation = Organisation.get_by_id(organisation_id)
+    assert organisation.deleted_on.date() == date.today()
 
     # Verify error handling
     code = 401

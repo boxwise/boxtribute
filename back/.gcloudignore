@@ -25,6 +25,10 @@ Dockerfile
 docker-compose.yml
 .venv
 *.pyc
+.coverage
+htmlcov/
+.mypy_cache/
+.pytest_cache/
 .vscode
 .DS_Store
 venv/
@@ -33,3 +37,5 @@ requirements-deploy.txt
 test/
 scripts/
 README.md
+minimal.sql
+# init.sql is required for /cron/reseed-db

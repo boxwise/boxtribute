@@ -13,6 +13,7 @@ from ....exceptions import (
     InvalidTransferAgreementDates,
     InvalidTransferAgreementOrganisation,
     InvalidTransferAgreementState,
+    NoActivePartnerBases,
 )
 from ....models.definitions.base import Base
 from ....models.definitions.transfer_agreement import TransferAgreement
@@ -154,6 +155,8 @@ def create_transfer_agreement(
     is not part of the source/target organisation.
     Raise InvalidTransferAgreementDates exception if valid_from is not earlier than
     valid_until.
+    Raise NoActivePartnerBases exception if specified partner bases (default: all bases
+    of the partner organisation) are inactive.
     """
     if initiating_organisation_id == partner_organisation_id:
         raise InvalidTransferAgreementOrganisation()
@@ -175,6 +178,9 @@ def create_transfer_agreement(
         )
     else:
         partner_organisation_base_ids = set(partner_organisation_base_ids)
+
+    if not partner_organisation_base_ids:
+        raise NoActivePartnerBases()
 
     _validate_unique_transfer_agreement(
         organisation_ids={initiating_organisation_id, partner_organisation_id},

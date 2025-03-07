@@ -27,6 +27,8 @@ We recommend you to install node through a [version control like nvm](https://gi
 
 To install pnpm, see https://pnpm.io/installation. We recommend either using [npm global install](https://pnpm.io/installation#using-npm) or [Corepack](https://pnpm.io/installation#using-corepack).
 
+Please do not forget to run `pnpm install` at the end if you want the FE tools like formatters and linters to be executed in your IDE.
+
 ### Linting and Formatting in VSCode
 
 We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.

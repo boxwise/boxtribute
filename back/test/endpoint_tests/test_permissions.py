@@ -18,6 +18,8 @@ from utils import assert_forbidden_request, assert_successful_request
         "product",
         # Test cases 99.1.13, 99.1.14
         "productCategory",
+        # Test case 99.1.16
+        "sizeRange",
         # Test cases 3.1.4, 3.1.5
         "shipment",
         # Test cases 4.1.4, 4.1.6
@@ -41,6 +43,9 @@ def test_invalid_read_permissions(unauthorized, read_only_client, resource):
     elif resources == "products":
         query = "query { products { elements { id } } }"
     assert_forbidden_request(read_only_client, query, none_data=True)
+
+    if resource == "sizeRange":
+        return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
     assert_forbidden_request(read_only_client, query)
@@ -546,6 +551,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "product:write"},
         ],
+        # Test case 8.2.90
+        [
+            "enableStandardProducts",
+            """enableInput: { baseId: 1, standardProductIds: [2] }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "product:write"},
+        ],
         # Test case 8.2.74
         [
             "editStandardProductInstantiation",
@@ -634,6 +646,13 @@ def test_mutate_insufficient_permission(
         [
             "enableStandardProduct",
             """enableInput: { baseId: 2, standardProductId: 2 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 8.2.89
+        [
+            "enableStandardProducts",
+            """enableInput: { baseId: 2, standardProductIds: [2] }""",
             "...on UnauthorizedForBaseError { id }",
             {"id": "2"},
         ],

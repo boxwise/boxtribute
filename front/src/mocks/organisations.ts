@@ -11,6 +11,11 @@ export const organisation1 = {
   name: "BoxAid",
 };
 
+export const basicOrg1 = {
+  id: "1",
+  name: "BoxAid",
+};
+
 export const organisation2 = {
   bases: [
     {

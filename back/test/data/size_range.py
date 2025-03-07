@@ -30,6 +30,11 @@ def volume_dimension_data():
 
 
 @pytest.fixture
+def size_ranges():
+    return data()
+
+
+@pytest.fixture
 def default_size_range():
     return data()[0]
 

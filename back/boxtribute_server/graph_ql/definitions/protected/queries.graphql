@@ -5,7 +5,7 @@ type Query {
   base(id: ID!): Base
   " Return [`Organisation`]({{Types.Organisation}}) with specified ID. "
   organisation(id: ID!): Organisation
-  " Return all [`Organisations`]({{Types.Organisation}}). "
+  " Return all non-deleted [`Organisations`]({{Types.Organisation}}). "
   organisations: [Organisation!]!
   " Return [`User`]({{Types.User}}) with specified ID. Some fields might be restricted. "
   user(id: ID): User
@@ -34,6 +34,8 @@ type Query {
   productCategory(id: ID!): ProductCategory
   " Return all [`ProductCategories`]({{Types.ProductCategory}}). "
   productCategories: [ProductCategory!]!
+  " Return all [`SizeRanges`]({{Types.SizeRange}}). "
+  sizeRanges: [SizeRange!]!
   " Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base "
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
@@ -57,9 +59,6 @@ type Query {
   " Return various metrics about stock and beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 
-  # Redundant definition of statviz-related queries (see ../public/queries.graphql).
-  # ariadne's GraphQL parser does not allow to define multiple 'type Query's
-  # and import them into one schema
   beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
   createdBoxes(baseId: Int!): CreatedBoxesData
   topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData

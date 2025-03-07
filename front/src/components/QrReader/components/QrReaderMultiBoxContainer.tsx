@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
+import { useAtomValue } from "jotai";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
@@ -12,7 +13,6 @@ import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
-import { useBaseIdParam } from "hooks/useBaseIdParam";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
   FailedBoxesFromAssignTagsAlert,
@@ -20,9 +20,10 @@ import {
   FailedBoxesFromMoveBoxesAlert,
   NotInStockAlertText,
 } from "./AlertTexts";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 function QrReaderMultiBoxContainer() {
-  const { baseId } = useBaseIdParam();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(IMultiBoxAction.moveBox);

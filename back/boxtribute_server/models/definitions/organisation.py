@@ -14,7 +14,7 @@ class Organisation(db.Model):  # type: ignore
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    deleted = DateTimeField(null=True, default=None)
+    deleted_on = DateTimeField(null=True, default=None, column_name="deleted")
     name = CharField(column_name="label")
     modified = DateTimeField(null=True)
     modified_by = UIntForeignKeyField(

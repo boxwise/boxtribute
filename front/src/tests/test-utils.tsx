@@ -1,7 +1,6 @@
 /* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
-import { vi } from "vitest";
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
@@ -18,13 +17,16 @@ import {
   ApolloProvider,
   DefaultOptions,
 } from "@apollo/client";
-import {
-  GlobalPreferencesContext,
-  IGlobalPreferencesContext,
-} from "providers/GlobalPreferencesProvider";
-import { organisation1 } from "mocks/organisations";
-import { base1 } from "mocks/bases";
+import { useHydrateAtoms } from "jotai/utils";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
+import { Provider } from "jotai";
+import {
+  availableBasesAtom,
+  organisationAtom,
+  selectedBaseAtom,
+} from "stores/globalPreferenceStore";
+import { basicBase1 } from "mocks/bases";
+import { basicOrg1 } from "mocks/organisations";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -36,6 +38,32 @@ const defaultOptions: DefaultOptions = {
   },
 };
 
+// Hydrate Jotai Atoms for testing
+// https://jotai.org/docs/guides/testing
+function HydrateAtoms({ initialValues, children }) {
+  useHydrateAtoms(initialValues);
+  return children;
+}
+function JotaiTestProvider({
+  initialValues,
+  children,
+}: {
+  initialValues: Iterable<any>;
+  children: any;
+}) {
+  return (
+    <Provider>
+      <HydrateAtoms initialValues={initialValues}>{children}</HydrateAtoms>
+    </Provider>
+  );
+}
+
+export const jotaiAtomsInitialValues = [
+  [selectedBaseAtom, basicBase1],
+  [organisationAtom, basicOrg1],
+  [availableBasesAtom, [basicBase1]],
+];
+
 /**
  * Renders a React component with Apollo GraphQL client and @testing-library/react.
  *
@@ -46,7 +74,7 @@ const defaultOptions: DefaultOptions = {
  * @param {string} options.initialUrl - A string representing the initial URL that the `MemoryRouter` should be initialized with.
  * @param {string} [options.additionalRoute] - A string representing a path the `ui` component might redirect to.
  * @param {boolean} [options.addTypename=false] - Whether to include the `__typename` field in query results.
- * @param {IGlobalPreferencesContext} [options.globalPreferences] - An object representing global preferences context for the rendered component.
+ * @param {Iterable<any>} [options.jotaiAtoms] - An iterable mocking jotai atoms for the rendered component.
  * @param {boolean} [options.mediaQueryReturnValue=true] - The return value for the mocked `window.matchMedia` function. This function is needed if the useMediaQuery is called.
  * @param {Object} options.renderOptions - Additional options that can be passed to the `rtlRender` function from `@testing-library/react`.
  * @returns {Object} An object containing the rendered component and functions for interacting with it.
@@ -61,7 +89,7 @@ function render(
     initialUrl,
     additionalRoute = undefined,
     addTypename = false,
-    globalPreferences,
+    jotaiAtoms = jotaiAtomsInitialValues,
     mediaQueryReturnValue = true,
     ...renderOptions
   }: {
@@ -71,7 +99,7 @@ function render(
     initialUrl: string;
     additionalRoute?: string;
     addTypename?: boolean;
-    globalPreferences?: IGlobalPreferencesContext;
+    jotaiAtoms?: Iterable<any>;
     mediaQueryReturnValue?: boolean;
   },
 ) {
@@ -104,35 +132,19 @@ function render(
   });
 
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
-  const globalPreferencesMock: IGlobalPreferencesContext = {
-    dispatch: vi.fn(),
-    globalPreferences: {
-      selectedBase: { id: base1.id, name: base1.name },
-      organisation: { id: organisation1.id, name: organisation1.name },
-      availableBases: organisation1.bases,
-    },
-  };
 
   mockMatchMediaQuery(mediaQueryReturnValue);
 
-  // Mock BaseId URL Param.
-
-  Object.defineProperty(window, "location", {
-    value: {
-      pathname: `http://localhost:3000/bases/${globalPreferences ? globalPreferences.globalPreferences.selectedBase?.id : base1.id}/`,
-    },
-  });
-
   const Wrapper: React.FC = ({ children }: any) => (
     <ChakraProvider theme={theme}>
-      <GlobalPreferencesContext.Provider value={globalPreferences ?? globalPreferencesMock}>
-        <MockedProvider
-          mocks={mocks}
-          addTypename={addTypename}
-          link={link}
-          defaultOptions={defaultOptions}
-          cache={cache}
-        >
+      <MockedProvider
+        mocks={mocks}
+        addTypename={addTypename}
+        link={link}
+        defaultOptions={defaultOptions}
+        cache={cache}
+      >
+        <JotaiTestProvider initialValues={jotaiAtoms}>
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>
               {additionalRoute !== undefined && (
@@ -141,8 +153,8 @@ function render(
               <Route path={routePath} element={children} />
             </Routes>
           </MemoryRouter>
-        </MockedProvider>
-      </GlobalPreferencesContext.Provider>
+        </JotaiTestProvider>
+      </MockedProvider>
     </ChakraProvider>
   );
   return rtlRender(ui, {
