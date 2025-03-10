@@ -269,9 +269,9 @@ function App() {
                 />
               }
             />
-            <Route path="create">
+            <Route path="enable">
               <Route
-                index
+                path=":standardProductId"
                 element={
                   <Protected
                     component={<ProductCreateView />}
