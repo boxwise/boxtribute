@@ -12,21 +12,25 @@ import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
-import { standardProductRawToInfoTransformer } from "./components/transformer";
+import { standardProductRawToFormDataTransformer } from "./components/transformer";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
   `
-    query EnableStandardProductQuery($standardProductId: ID!) {
-      standardProduct(id: $standardProductId) {
+    query EnableStandardProductQuery($baseId: ID!) {
+      standardProducts(baseId: $baseId) {
         __typename
-        ... on StandardProduct {
-          ...StandardProductBasicFields
-          instantiation {
-            id
-            price
-            comment
-            inShop
-            deletedOn
+        ... on StandardProductPage {
+          elements {
+            ...StandardProductBasicFields
+            instantiation {
+              id
+              price
+              comment
+              inShop
+              deletedOn
+            }
           }
         }
       }
@@ -68,9 +72,10 @@ export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
 );
 
 function EnableStandardProductFormContainer() {
-  const standardProductId = useParams<{ standardProductId: string }>().standardProductId!;
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId!;
   const { data: standardProductRawData } = useQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
-    variables: { standardProductId },
+    variables: { baseId },
   });
 
   // const [enableStandardProductMutation] = useMutation(
@@ -80,9 +85,16 @@ function EnableStandardProductFormContainer() {
     return null;
   }
 
+  const standardProductData = standardProductRawToFormDataTransformer(standardProductRawData);
+
+  const defaultValues = standardProductData.find(
+    (standardProduct) => standardProduct.standardProduct.value === requestedStandardProductId,
+  );
+
   return (
     <EnableStandardProductForm
-      standardProductData={standardProductRawToInfoTransformer(standardProductRawData)}
+      standardProductData={standardProductData}
+      defaultValues={defaultValues}
       onSubmit={() => null}
     />
   );

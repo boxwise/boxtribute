@@ -13,7 +13,9 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertWithoutAction } from "components/Alerts";
+import SelectField from "components/Form/SelectField";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
@@ -24,16 +26,14 @@ const SingleSelectOptionSchema = z.object({
   value: z.string(),
 });
 
-export const StandardProductInfoSchema = z.object({
-  productName: z.string(),
-  category: SingleSelectOptionSchema,
-  gender: z.string(),
-  sizeRange: SingleSelectOptionSchema,
-});
-
-export type IStandardProductInfoInput = z.input<typeof StandardProductInfoSchema>;
-
 export const EnableStandardProductFormSchema = z.object({
+  // see BoxEdit.tsx how to validate a select field
+  standardProduct: SingleSelectOptionSchema.refine(Boolean, {
+    message: "Please select a standard product",
+  }).transform((selectedOption) => selectedOption || z.NEVER),
+  category: SingleSelectOptionSchema.optional(),
+  gender: z.string().optional(),
+  sizeRange: SingleSelectOptionSchema.optional(),
   comment: z.string().optional(),
   inShop: z.boolean().optional(),
   price: z
@@ -49,12 +49,14 @@ export type IEnableStandardProductFormInput = z.input<typeof EnableStandardProdu
 export type IEnableStandardProductFormOutput = z.output<typeof EnableStandardProductFormSchema>;
 
 export type IEnableStandardProductFormProps = {
-  standardProductData: IStandardProductInfoInput;
-  onSubmit: (data: IEnableStandardProductFormOutput) => void;
+  standardProductData: IEnableStandardProductFormInput[];
+  defaultValues?: IEnableStandardProductFormInput;
+  onSubmit: (enableStandardProductFormData: IEnableStandardProductFormOutput) => void;
 };
 
 function EnableStandardProductForm({
   standardProductData,
+  defaultValues,
   onSubmit,
 }: IEnableStandardProductFormProps) {
   const navigate = useNavigate();
@@ -63,16 +65,35 @@ function EnableStandardProductForm({
 
   const {
     handleSubmit,
-    // control,
+    control,
     // register,
     // resetField,
     // setError,
-    // watch,
-    // formState: { errors, isSubmitting },
+    watch,
+    formState: { errors },
   } = useForm<IEnableStandardProductFormInput>({
     resolver: zodResolver(EnableStandardProductFormSchema),
-    // defaultValues,
+    defaultValues,
   });
+
+  const [currentInfoOnSelectedStandardProduct, setCurrentInfoOnSelectedStandardProduct] =
+    useState<IEnableStandardProductFormInput>(
+      defaultValues || ({} as IEnableStandardProductFormInput),
+    );
+
+  const selectedStandardProduct = watch("standardProduct");
+
+  useEffect(() => {
+    console.log("selectedStandardProduct", selectedStandardProduct);
+    if (selectedStandardProduct) {
+      const selectedStandardProductData = standardProductData.find(
+        (standardProduct) =>
+          standardProduct.standardProduct.value === selectedStandardProduct.value,
+      );
+      if (selectedStandardProductData)
+        setCurrentInfoOnSelectedStandardProduct(selectedStandardProductData);
+    }
+  }, [selectedStandardProduct, standardProductData]);
 
   return (
     <>
@@ -92,30 +113,52 @@ function EnableStandardProductForm({
             </Text>
           </Box>
           <VStack p={2}>
-            <FormControl>
-              <FormLabel>Name</FormLabel>
-              <Select isReadOnly>
-                <option selected>{standardProductData.productName}</option>
-              </Select>
-            </FormControl>
+            <SelectField
+              fieldId="standardProduct"
+              fieldLabel="Name"
+              placeholder="Please select a standard product."
+              options={standardProductData.map((data) => ({
+                label: data.standardProduct.label,
+                value: data.standardProduct.value,
+              }))}
+              errors={errors}
+              control={control}
+            />
             <FormControl>
               <FormLabel>Category</FormLabel>
-              <Select isReadOnly>
-                <option selected>{standardProductData.category.label}</option>
+              <Select
+                value={currentInfoOnSelectedStandardProduct.category?.value}
+                isReadOnly
+                placeholder="Please select a standard product."
+              >
+                <option value={currentInfoOnSelectedStandardProduct.category?.value}>
+                  {currentInfoOnSelectedStandardProduct.category?.label}
+                </option>
               </Select>
             </FormControl>
-            {standardProductData.gender !== "none" && (
-              <FormControl>
-                <FormLabel>Gender</FormLabel>
-                <Select isReadOnly>
-                  <option selected>{standardProductData.gender}</option>
-                </Select>
-              </FormControl>
-            )}
+            <FormControl>
+              <FormLabel>Gender</FormLabel>
+              <Select
+                value={currentInfoOnSelectedStandardProduct.gender}
+                isReadOnly
+                placeholder="Please select a standard product."
+              >
+                <option value={currentInfoOnSelectedStandardProduct.gender}>
+                  {currentInfoOnSelectedStandardProduct.gender}
+                </option>
+              </Select>
+            </FormControl>
+            e
             <FormControl>
               <FormLabel>SizeRange</FormLabel>
-              <Select isReadOnly>
-                <option selected>{standardProductData.sizeRange.label}</option>
+              <Select
+                value={currentInfoOnSelectedStandardProduct.sizeRange?.value}
+                isReadOnly
+                placeholder="Please select a standard product."
+              >
+                <option value={currentInfoOnSelectedStandardProduct.sizeRange?.value}>
+                  {currentInfoOnSelectedStandardProduct.sizeRange?.label}
+                </option>
               </Select>
             </FormControl>
           </VStack>

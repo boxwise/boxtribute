@@ -2,24 +2,33 @@ import {
   enableStandardProductQueryErrorText,
   IEnableStandardProductQueryResultType,
 } from "../EnableStandardProductView";
-import { IStandardProductInfoInput } from "./EnableStandardProductForm";
+import { IEnableStandardProductFormInput } from "./EnableStandardProductForm";
 
-export const standardProductRawToInfoTransformer = (
+export const standardProductRawToFormDataTransformer = (
   standardProductRawData: IEnableStandardProductQueryResultType,
 ) => {
-  if (standardProductRawData.standardProduct?.__typename === "StandardProduct") {
-    return {
-      productName: standardProductRawData.standardProduct.name,
-      category: {
-        label: standardProductRawData.standardProduct.category.name,
-        value: standardProductRawData.standardProduct.category.id,
-      },
-      gender: standardProductRawData.standardProduct.gender,
-      sizeRange: {
-        label: standardProductRawData.standardProduct.sizeRange.label,
-        value: standardProductRawData.standardProduct.sizeRange.id,
-      },
-    } as IStandardProductInfoInput;
+  if (standardProductRawData.standardProducts?.__typename === "StandardProductPage") {
+    return standardProductRawData.standardProducts.elements.map(
+      ({ id, name, category, gender, sizeRange, instantiation }) =>
+        ({
+          standardProduct: {
+            label: name,
+            value: id,
+          },
+          category: {
+            label: category.name,
+            value: id,
+          },
+          gender,
+          sizeRange: {
+            label: sizeRange.label,
+            value: sizeRange.id,
+          },
+          comment: instantiation?.comment ? instantiation.comment : undefined,
+          inShop: instantiation?.inShop ? instantiation.inShop : undefined,
+          price: instantiation?.price ? instantiation.price : undefined,
+        }) as IEnableStandardProductFormInput,
+    );
   } else {
     throw new Error(enableStandardProductQueryErrorText);
   }
