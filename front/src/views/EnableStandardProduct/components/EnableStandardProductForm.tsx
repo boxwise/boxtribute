@@ -9,6 +9,7 @@ import {
   Select,
   FormControl,
   FormLabel,
+  VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertWithoutAction } from "components/Alerts";
@@ -84,20 +85,40 @@ function EnableStandardProductForm({
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box border="2px" mb={8}>
-          <HStack mb={4} borderBottom="2px" p={2}>
+          <Box borderBottom="2px" p={2}>
             <Text fontWeight="bold" fontSize="md">
               {baseName ? baseName?.toUpperCase() : <Skeleton height={6} width={20} mr={2} />}{" "}
               PRODUCT DETAILS
             </Text>
-          </HStack>
-          <HStack my={4} p={2}>
+          </Box>
+          <VStack p={2}>
             <FormControl>
               <FormLabel>Name</FormLabel>
               <Select isReadOnly>
                 <option selected>{standardProductData.productName}</option>
               </Select>
             </FormControl>
-          </HStack>
+            <FormControl>
+              <FormLabel>Category</FormLabel>
+              <Select isReadOnly>
+                <option selected>{standardProductData.category.label}</option>
+              </Select>
+            </FormControl>
+            {standardProductData.gender !== "none" && (
+              <FormControl>
+                <FormLabel>Gender</FormLabel>
+                <Select isReadOnly>
+                  <option selected>{standardProductData.gender}</option>
+                </Select>
+              </FormControl>
+            )}
+            <FormControl>
+              <FormLabel>SizeRange</FormLabel>
+              <Select isReadOnly>
+                <option selected>{standardProductData.sizeRange.label}</option>
+              </Select>
+            </FormControl>
+          </VStack>
         </Box>
         <Box border="2px" mb={8}>
           <HStack mb={4} borderBottom="2px" p={2}>
