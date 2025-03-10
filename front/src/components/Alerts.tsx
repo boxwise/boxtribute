@@ -1,9 +1,10 @@
-import React from "react";
-import { Alert, AlertIcon, chakra, Stack } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { Alert, AlertIcon, AlertProps, chakra, CloseButton, Stack } from "@chakra-ui/react";
 
-export interface IAlertWithoutActionProps {
+export interface IAlertWithoutActionProps extends Omit<AlertProps, "status"> {
   alertText: React.ReactNode;
-  type?: "error" | "warning";
+  type?: "error" | "warning" | "info";
+  closeable?: boolean;
 }
 
 export interface IAlertWithActionProps extends IAlertWithoutActionProps {
@@ -11,13 +12,21 @@ export interface IAlertWithActionProps extends IAlertWithoutActionProps {
   onActionClick: () => void;
 }
 
-export function AlertWithoutAction({ alertText, type = "error" }: IAlertWithoutActionProps) {
+export function AlertWithoutAction({
+  alertText,
+  type = "error",
+  closeable = false,
+  ...alertProps
+}: IAlertWithoutActionProps) {
+  const [visible, setVisible] = useState(true);
+
+  if (!visible) return null;
+
   return (
-    <Alert status={type} data-testid="ErrorAlert">
-      <>
-        <AlertIcon />
-        {alertText}
-      </>
+    <Alert status={type} data-testid="ErrorAlert" position="relative" {...alertProps}>
+      <AlertIcon />
+      {alertText}
+      {closeable && <CloseButton onClick={() => setVisible(false)} />}
     </Alert>
   );
 }
