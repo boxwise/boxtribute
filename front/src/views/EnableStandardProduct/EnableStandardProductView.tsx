@@ -1,6 +1,6 @@
 import { Box, Center, Heading } from "@chakra-ui/react";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
-import { graphql } from "../../../../graphql/graphql";
+import { graphql, ResultOf } from "../../../../graphql/graphql";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
@@ -10,6 +10,9 @@ import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@apollo/client";
+import { standardProductRawToInfoTransformer } from "./components/transformer";
 
 export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
   `
@@ -18,11 +21,6 @@ export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
         __typename
         ... on StandardProduct {
           ...StandardProductBasicFields
-          sizeRange {
-            id
-            name
-            label
-          }
           instantiation {
             id
             price
@@ -36,6 +34,10 @@ export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
   `,
   [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
+
+export type IEnableStandardProductQueryResultType = ResultOf<typeof ENABLE_STANDARD_PRODUCT_QUERY>;
+export const enableStandardProductQueryErrorText =
+  "Could not fetch ASSORT standard data! Please try reloading the page.";
 
 export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
   `
@@ -66,16 +68,24 @@ export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
 );
 
 function EnableStandardProductFormContainer() {
-  // const standardProductId = useParams<{ standardProductId: string }>().standardProductId!;
-  // const { data: standardProductData } = useQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
-  //   variables: { standardProductId },
-  // });
+  const standardProductId = useParams<{ standardProductId: string }>().standardProductId!;
+  const { data: standardProductRawData } = useQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
+    variables: { standardProductId },
+  });
 
   // const [enableStandardProductMutation] = useMutation(
   //   ENABLE_STANDARD_PRODUCT_MUTATION,
   // );
+  if (!standardProductRawData) {
+    return null;
+  }
 
-  return <EnableStandardProductForm />;
+  return (
+    <EnableStandardProductForm
+      standardProductData={standardProductRawToInfoTransformer(standardProductRawData)}
+      onSubmit={() => null}
+    />
+  );
 }
 
 function EnableStandardProductView() {
@@ -89,9 +99,7 @@ function EnableStandardProductView() {
             Enable New Product
           </Heading>
           <ErrorBoundary
-            fallback={
-              <AlertWithoutAction alertText="Could not fetch ASSORT standard data! Please try reloading the page." />
-            }
+            fallback={<AlertWithoutAction alertText={enableStandardProductQueryErrorText} />}
           >
             <Suspense fallback={<TableSkeleton />}>
               <EnableStandardProductFormContainer />

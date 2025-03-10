@@ -45,6 +45,10 @@ export const STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
       id
       name
     }
+    sizeRange {
+      id
+      label
+    }
   }
 `);
 
