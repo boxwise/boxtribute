@@ -368,6 +368,13 @@ def test_custom_product_mutations(
         b["label_identifier"]
         for b in default_boxes[1:-1]
         if b["id"] not in [7, 12, 13, 17]  # test boxes with product IDs 5, 3, and 8
+        and b["state"]
+        in [
+            BoxState.InStock,
+            BoxState.MarkedForShipment,
+            BoxState.InTransit,
+            BoxState.Receiving,
+        ]
     ]
 
     # Test case 8.2.59a
@@ -702,7 +709,6 @@ def test_standard_product_instantiation_mutations(
     response = assert_successful_request(client, mutation)
     assert response["labelIdentifiers"] == [
         default_boxes[5]["label_identifier"],
-        default_boxes[9]["label_identifier"],
     ]
 
     history_entries = list(

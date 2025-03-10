@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from ....db import db
-from ....enums import ProductType
+from ....enums import BoxState, ProductType
 from ....errors import (
     BoxesStillAssignedToProduct,
     EmptyName,
@@ -131,6 +131,15 @@ def _boxes_still_assigned_to_product(product):
         for box in Box.select(Box.label_identifier).where(
             Box.product == product.id,
             (Box.deleted_on.is_null()) | (Box.deleted_on == 0),
+            (
+                Box.state
+                << (
+                    BoxState.InStock,
+                    BoxState.MarkedForShipment,
+                    BoxState.InTransit,
+                    BoxState.Receiving,
+                )
+            ),
         )
     ]
 
