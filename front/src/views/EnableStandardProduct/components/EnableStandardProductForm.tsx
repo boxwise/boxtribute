@@ -17,7 +17,7 @@ import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { useAtomValue } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
@@ -76,9 +76,6 @@ function EnableStandardProductForm({
     handleSubmit,
     control,
     register,
-    // setValue,
-    // resetField,
-    // setError,
     watch,
     formState: { errors },
   } = useForm<IEnableStandardProductFormInput>({
@@ -94,6 +91,16 @@ function EnableStandardProductForm({
       navigate(`../${selectedStandardProduct.value}`);
     }
   }, [defaultValues.standardProduct.value, navigate, selectedStandardProduct]);
+
+  const sortedProductOptions = useMemo(() => {
+    return [...standardProductData]
+      .sort((a, b) => a.standardProduct.label.localeCompare(b.standardProduct.label))
+      .map((data) => ({
+        label: data.standardProduct.label,
+        value: data.standardProduct.value,
+        data: { gender: data.gender },
+      }));
+  }, [standardProductData]);
 
   return (
     <>
@@ -121,11 +128,7 @@ function EnableStandardProductForm({
                 fieldId="standardProduct"
                 fieldLabel="Name"
                 placeholder="Please select a standard product."
-                options={standardProductData.map((data) => ({
-                  label: data.standardProduct.label,
-                  value: data.standardProduct.value,
-                  data: { gender: data.gender },
-                }))}
+                options={sortedProductOptions}
                 formatOptionLabel={(option, { context }) => {
                   if (context === "menu") {
                     // In dropdown menu: show name and gender
