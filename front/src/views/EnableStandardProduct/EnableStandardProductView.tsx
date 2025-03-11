@@ -92,7 +92,6 @@ function EnableStandardProductFormContainer() {
 
   const onSubmit = useCallback(
     (enableStandardProductFormOutput: IEnableStandardProductFormOutput) => {
-      console.log("enableStandardProductFormOutput", enableStandardProductFormOutput);
       enableStandardProduct({
         variables: {
           standardProductId: parseInt(enableStandardProductFormOutput.standardProduct.value, 10),

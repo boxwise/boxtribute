@@ -86,7 +86,6 @@ function EnableStandardProductForm({
   const selectedStandardProduct = watch("standardProduct");
 
   useEffect(() => {
-    console.log("selectedStandardProduct", selectedStandardProduct);
     if (selectedStandardProduct.value !== defaultValues.standardProduct.value) {
       navigate(`../${selectedStandardProduct.value}`);
     }
