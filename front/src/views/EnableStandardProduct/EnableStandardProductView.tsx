@@ -12,7 +12,7 @@ import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import { standardProductRawToFormDataTransformer } from "./components/transformer";
 import { useAtomValue } from "jotai";
@@ -77,6 +77,7 @@ export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
 );
 
 function EnableStandardProductFormContainer() {
+  const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId!;
   const { createToast } = useNotification();
@@ -107,6 +108,8 @@ function EnableStandardProductFormContainer() {
               createToast({
                 message: `The ASSORT standard product was successfully enabled.`,
               });
+              navigate(`../../`);
+
               break;
             case "InsufficientPermissionError":
               triggerError({
@@ -143,7 +146,7 @@ function EnableStandardProductFormContainer() {
           });
         });
     },
-    [enableStandardProduct, baseId, createToast, triggerError],
+    [enableStandardProduct, baseId, createToast, navigate, triggerError],
   );
 
   if (!standardProductRawData) {
