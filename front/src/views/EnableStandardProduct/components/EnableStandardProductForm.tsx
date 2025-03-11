@@ -124,7 +124,25 @@ function EnableStandardProductForm({
                 options={standardProductData.map((data) => ({
                   label: data.standardProduct.label,
                   value: data.standardProduct.value,
+                  data: { gender: data.gender },
                 }))}
+                formatOptionLabel={(option, { context }) => {
+                  if (context === "menu") {
+                    // In dropdown menu: show name and gender
+                    return (
+                      <HStack>
+                        <Text>{option.label}</Text>
+                        {option.data && (option.data as { gender?: string }).gender !== "none" && (
+                          <Text color="gray.500" fontSize="sm">
+                            ({(option.data as { gender?: string }).gender})
+                          </Text>
+                        )}
+                      </HStack>
+                    );
+                  }
+                  // When selected: show only name
+                  return option.label;
+                }}
                 errors={errors}
                 control={control}
               />
