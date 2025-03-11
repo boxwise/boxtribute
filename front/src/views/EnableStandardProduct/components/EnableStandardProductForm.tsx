@@ -172,7 +172,9 @@ function EnableStandardProductForm({
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >
-                  <option value={defaultValues.gender}>{defaultValues.gender}</option>
+                  <option value={defaultValues.gender}>
+                    {defaultValues.gender === "none" ? "-" : defaultValues.gender}
+                  </option>
                 </Select>
               </FormControl>
               <FormControl>
