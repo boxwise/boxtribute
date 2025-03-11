@@ -7,6 +7,9 @@ export type ProductRow = {
   gender: string;
   size: string;
   instockItemsCount?: number;
+  price?: number | null;
+  inShop?: boolean | null;
+  comment?: string | null;
   version: number;
   enabledOn?: string | null;
   enabledBy?: string | null;
@@ -29,6 +32,9 @@ export const standardProductsRawDataToTableDataTransformer = (
           gender,
           size: sizeRange.label,
           instockItemsCount: instantiation?.instockItemsCount,
+          price: instantiation?.price,
+          inShop: instantiation?.inShop,
+          comment: instantiation?.comment,
           enabledOn: instantiation?.createdOn,
           enabledBy: instantiation?.createdBy?.name,
           disabledOn: instantiation?.deletedOn,
