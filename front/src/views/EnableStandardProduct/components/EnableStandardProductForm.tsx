@@ -49,12 +49,16 @@ export type IEnableStandardProductFormInput = z.input<typeof EnableStandardProdu
 export type IEnableStandardProductFormOutput = z.output<typeof EnableStandardProductFormSchema>;
 
 export type IEnableStandardProductFormProps = {
+  showAlert: boolean;
+  isLoading: boolean;
   standardProductData: IEnableStandardProductFormInput[];
   defaultValues?: IEnableStandardProductFormInput;
   onSubmit: (enableStandardProductFormData: IEnableStandardProductFormOutput) => void;
 };
 
 function EnableStandardProductForm({
+  showAlert,
+  isLoading,
   standardProductData,
   defaultValues,
   onSubmit,
@@ -97,13 +101,14 @@ function EnableStandardProductForm({
 
   return (
     <>
-      <AlertWithoutAction
-        type="info"
-        closeable={true}
-        alertText=" For ASSORT standard products, only the product description, and free shop settings can be edited."
-        mb={2}
-      />
-
+      {showAlert && (
+        <AlertWithoutAction
+          type="info"
+          closeable={true}
+          alertText=" For ASSORT standard products, only the product description, and free shop settings can be edited."
+          mb={2}
+        />
+      )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box border="2px" mb={8}>
           <Box borderBottom="2px" p={2}>
@@ -178,7 +183,8 @@ function EnableStandardProductForm({
         </Box>
         <Stack spacing={4} mt={8}>
           <Button
-            // isLoading={isFormLoading}
+            isLoading={isLoading}
+            disabled={isLoading}
             type="submit"
             borderRadius="0"
             w="full"

@@ -5,16 +5,21 @@ import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
 } from "../../../../graphql/fragments";
-import EnableStandardProductForm from "./components/EnableStandardProductForm";
+import EnableStandardProductForm, {
+  IEnableStandardProductFormOutput,
+} from "./components/EnableStandardProductForm";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { standardProductRawToFormDataTransformer } from "./components/transformer";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/ProductsView";
+import { useNotification } from "hooks/useNotification";
+import { useErrorHandling } from "hooks/useErrorHandling";
 
 export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
   `
@@ -46,8 +51,8 @@ export const enableStandardProductQueryErrorText =
 export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
   `
     mutation EnableStandardProductMutation(
-      $baseId: ID!
-      $standardProductId: ID!
+      $baseId: Int!
+      $standardProductId: Int!
       $comment: String
       $inShop: Boolean
       $price: Int
@@ -74,13 +79,73 @@ export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
 function EnableStandardProductFormContainer() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId!;
+  const { createToast } = useNotification();
+  const { triggerError } = useErrorHandling();
   const { data: standardProductRawData } = useQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
     variables: { baseId },
   });
 
-  // const [enableStandardProductMutation] = useMutation(
-  //   ENABLE_STANDARD_PRODUCT_MUTATION,
-  // );
+  const [enableStandardProduct, { loading: isEnableStandardProductLoading }] = useMutation(
+    ENABLE_STANDARD_PRODUCT_MUTATION,
+  );
+
+  const onSubmit = useCallback(
+    (enableStandardProductFormOutput: IEnableStandardProductFormOutput) => {
+      enableStandardProduct({
+        variables: {
+          standardProductId: parseInt(enableStandardProductFormOutput.standardProduct.value, 10),
+          baseId: parseInt(baseId, 10),
+        },
+        refetchQueries: [{ query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } }],
+      })
+        .then(({ data }) => {
+          const result = data?.enableStandardProduct;
+          if (!result) return;
+
+          switch (result.__typename) {
+            case "Product":
+              createToast({
+                message: `The ASSORT standard product was successfully enabled.`,
+              });
+              break;
+            case "InsufficientPermissionError":
+              triggerError({
+                message: "You don't have permission to enable this ASSORT standard product!",
+              });
+              break;
+            case "InvalidPriceError":
+              triggerError({
+                message: "Price must be a positive integer number.",
+              });
+              break;
+            case "OutdatedStandardProductVersionError":
+              triggerError({
+                message: "This standard product is outdated and cannot be enabled. ",
+              });
+              break;
+            case "StandardProductAlreadyEnabledForBaseError":
+              triggerError({
+                message: "This standard product is already enabled for this base.",
+              });
+              break;
+
+            default:
+              triggerError({
+                message: "Could not enable this ASSORT standard product! Try again?",
+              });
+              break;
+          }
+        })
+        .catch(() => {
+          // Handle network or other errors
+          triggerError({
+            message: "Could not disable this ASSORT standard product! Try again?",
+          });
+        });
+    },
+    [enableStandardProduct, baseId, createToast, triggerError],
+  );
+
   if (!standardProductRawData) {
     return null;
   }
@@ -95,7 +160,9 @@ function EnableStandardProductFormContainer() {
     <EnableStandardProductForm
       standardProductData={standardProductData}
       defaultValues={defaultValues}
-      onSubmit={() => null}
+      onSubmit={onSubmit}
+      isLoading={isEnableStandardProductLoading}
+      showAlert={false}
     />
   );
 }
