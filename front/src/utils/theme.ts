@@ -104,5 +104,28 @@ export const theme = extendTheme({
         },
       },
     },
+    Select: {
+      parts: ["field"],
+      // Ensure the default variant pulls from your overrides
+      defaultProps: {
+        variant: "brand", // or “filled” etc.
+      },
+      variants: {
+        brand: {
+          field: {
+            border: "2px",
+            borderColor: "black",
+            borderRadius: "0",
+            backgroundColor: "transparent",
+            _hover: {
+              borderColor: "gray.300",
+            },
+            _focus: {
+              borderColor: "blue.500",
+            },
+          },
+        },
+      },
+    },
   },
 });
