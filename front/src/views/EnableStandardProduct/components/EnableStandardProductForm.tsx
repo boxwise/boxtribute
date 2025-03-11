@@ -10,6 +10,7 @@ import {
   FormControl,
   FormLabel,
   VStack,
+  Input,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertWithoutAction } from "components/Alerts";
@@ -34,7 +35,10 @@ export const EnableStandardProductFormSchema = z.object({
   category: SingleSelectOptionSchema.optional(),
   gender: z.string().optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
-  comment: z.string().optional(),
+  comment: z
+    .string()
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
   inShop: z.boolean().optional(),
   price: z
     .number({
@@ -70,7 +74,7 @@ function EnableStandardProductForm({
   const {
     handleSubmit,
     control,
-    // register,
+    register,
     // resetField,
     // setError,
     watch,
@@ -153,9 +157,8 @@ function EnableStandardProductForm({
                 </option>
               </Select>
             </FormControl>
-            e
             <FormControl>
-              <FormLabel>SizeRange</FormLabel>
+              <FormLabel>Size Range</FormLabel>
               <Select
                 value={currentInfoOnSelectedStandardProduct.sizeRange?.value}
                 isReadOnly
@@ -165,6 +168,12 @@ function EnableStandardProductForm({
                   {currentInfoOnSelectedStandardProduct.sizeRange?.label}
                 </option>
               </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="comment">Comment</FormLabel>
+              <Box border="2px" borderRadius={0}>
+                <Input border="0" borderRadius={0} type="string" {...register("comment")} />
+              </Box>
             </FormControl>
           </VStack>
         </Box>

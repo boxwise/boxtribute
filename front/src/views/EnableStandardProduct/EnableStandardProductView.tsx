@@ -92,10 +92,12 @@ function EnableStandardProductFormContainer() {
 
   const onSubmit = useCallback(
     (enableStandardProductFormOutput: IEnableStandardProductFormOutput) => {
+      console.log("enableStandardProductFormOutput", enableStandardProductFormOutput);
       enableStandardProduct({
         variables: {
           standardProductId: parseInt(enableStandardProductFormOutput.standardProduct.value, 10),
           baseId: parseInt(baseId, 10),
+          comment: enableStandardProductFormOutput.comment,
         },
         refetchQueries: [{ query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } }],
       })
