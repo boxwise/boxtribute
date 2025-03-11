@@ -269,7 +269,7 @@ function BoxesActionsAndTable({
         <MenuButton as={Button}>
           <BsBox2HeartFill />
         </MenuButton>
-        <MenuList>
+        <MenuList zIndex={3}>
           <MenuItem>
             <RemoveBoxesButton
               labelIdentifier="Delete Boxes"
