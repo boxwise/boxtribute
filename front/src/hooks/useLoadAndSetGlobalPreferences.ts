@@ -21,11 +21,11 @@ export const useLoadAndSetGlobalPreferences = () => {
   const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
   const selectedBaseId = useAtomValue(selectedBaseIdAtom);
 
-  // validate if base Ids are set in auth0 id token
-  if (!user || !user[JWT_AVAILABLE_BASES]?.length) setError("You do not have access to any bases.");
-
   // Boxtribute God user
   const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
+
+  // validate if base Ids are set in auth0 id token
+  if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length)) setError("You do not have access to any bases.");
 
   const [
     runOrganisationAndBasesQuery,
