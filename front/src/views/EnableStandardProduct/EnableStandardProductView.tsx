@@ -99,6 +99,7 @@ function EnableStandardProductFormContainer() {
           baseId: parseInt(baseId, 10),
           comment: enableStandardProductFormOutput.comment,
           price: enableStandardProductFormOutput.price,
+          inShop: enableStandardProductFormOutput.inShop,
         },
         refetchQueries: [{ query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } }],
       })
@@ -162,6 +163,10 @@ function EnableStandardProductFormContainer() {
     (standardProduct) => standardProduct.standardProduct.value === requestedStandardProductId,
   );
 
+  if (!defaultValues) {
+    return null;
+  }
+
   return (
     <EnableStandardProductForm
       standardProductData={standardProductData}
@@ -169,6 +174,7 @@ function EnableStandardProductFormContainer() {
       onSubmit={onSubmit}
       isLoading={isEnableStandardProductLoading}
       showAlert={false}
+      key={requestedStandardProductId}
     />
   );
 }

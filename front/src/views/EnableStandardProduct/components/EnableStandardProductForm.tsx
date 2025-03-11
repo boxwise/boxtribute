@@ -2,7 +2,6 @@ import {
   HStack,
   Stack,
   Button,
-  Switch,
   Box,
   Text,
   Skeleton,
@@ -16,8 +15,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertWithoutAction } from "components/Alerts";
 import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
+import SwitchField from "components/Form/SwitchField";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
@@ -57,7 +57,7 @@ export type IEnableStandardProductFormProps = {
   showAlert: boolean;
   isLoading: boolean;
   standardProductData: IEnableStandardProductFormInput[];
-  defaultValues?: IEnableStandardProductFormInput;
+  defaultValues: IEnableStandardProductFormInput;
   onSubmit: (enableStandardProductFormData: IEnableStandardProductFormOutput) => void;
 };
 
@@ -76,7 +76,8 @@ function EnableStandardProductForm({
     handleSubmit,
     control,
     register,
-    setValue,
+    // setValue,
+    // resetField,
     // setError,
     watch,
     formState: { errors },
@@ -85,32 +86,14 @@ function EnableStandardProductForm({
     defaultValues,
   });
 
-  const [
-    correspondingSelectedStandardProductValues,
-    setCorrespondingSelectedStandardProductValues,
-  ] = useState<IEnableStandardProductFormInput>(
-    defaultValues || ({} as IEnableStandardProductFormInput),
-  );
-
   const selectedStandardProduct = watch("standardProduct");
 
   useEffect(() => {
     console.log("selectedStandardProduct", selectedStandardProduct);
-    if (selectedStandardProduct) {
-      const selectedStandardProductData = standardProductData.find(
-        (standardProduct) =>
-          standardProduct.standardProduct.value === selectedStandardProduct.value,
-      );
-      if (selectedStandardProductData) {
-        console.log("selectedStandardProductData", selectedStandardProductData);
-        setCorrespondingSelectedStandardProductValues(selectedStandardProductData);
-        // rest form fiels to the newly selected standard product
-        setValue("comment", selectedStandardProductData?.comment);
-        setValue("inShop", selectedStandardProductData?.inShop);
-        setValue("price", selectedStandardProductData?.price);
-      }
+    if (selectedStandardProduct.value !== defaultValues.standardProduct.value) {
+      navigate(`../${selectedStandardProduct.value}`);
     }
-  }, [selectedStandardProduct, setValue, standardProductData]);
+  }, [defaultValues.standardProduct.value, navigate, selectedStandardProduct]);
 
   return (
     <>
@@ -145,36 +128,34 @@ function EnableStandardProductForm({
             <FormControl>
               <FormLabel>Category</FormLabel>
               <Select
-                value={correspondingSelectedStandardProductValues.category?.value}
+                value={defaultValues.category?.value}
                 isReadOnly
                 placeholder="Please select a standard product."
               >
-                <option value={correspondingSelectedStandardProductValues.category?.value}>
-                  {correspondingSelectedStandardProductValues.category?.label}
+                <option value={defaultValues.category?.value}>
+                  {defaultValues.category?.label}
                 </option>
               </Select>
             </FormControl>
             <FormControl>
               <FormLabel>Gender</FormLabel>
               <Select
-                value={correspondingSelectedStandardProductValues.gender}
+                value={defaultValues.gender}
                 isReadOnly
                 placeholder="Please select a standard product."
               >
-                <option value={correspondingSelectedStandardProductValues.gender}>
-                  {correspondingSelectedStandardProductValues.gender}
-                </option>
+                <option value={defaultValues.gender}>{defaultValues.gender}</option>
               </Select>
             </FormControl>
             <FormControl>
               <FormLabel>Size Range</FormLabel>
               <Select
-                value={correspondingSelectedStandardProductValues.sizeRange?.value}
+                value={defaultValues.sizeRange?.value}
                 isReadOnly
                 placeholder="Please select a standard product."
               >
-                <option value={correspondingSelectedStandardProductValues.sizeRange?.value}>
-                  {correspondingSelectedStandardProductValues.sizeRange?.label}
+                <option value={defaultValues.sizeRange?.value}>
+                  {defaultValues.sizeRange?.label}
                 </option>
               </Select>
             </FormControl>
@@ -192,12 +173,7 @@ function EnableStandardProductForm({
               FREE SHOP SETTINGS
             </Text>
           </HStack>
-          <HStack my={4} p={2}>
-            <Switch id="show-in-stockroom" mr={2} />
-            <Text fontWeight="medium" fontSize="md">
-              Always Show in Stockroom?
-            </Text>
-          </HStack>
+          <SwitchField fieldId="inShop" fieldLabel="Always Show in Stockroom?" control={control} />
           <NewNumberField
             fieldId="price"
             fieldLabel="Token Price"
