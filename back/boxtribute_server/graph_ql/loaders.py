@@ -494,7 +494,7 @@ class ShipmentDetailForBoxLoader(DataLoader):
         return [details.get(i) for i in keys]
 
 
-class InstockItemsCountForProductLoader(DataLoader):
+class ItemsCountForProductLoader(DataLoader):
     async def batch_load_fn(self, product_ids):
         counts = {
             product.product_id: product.total_number_of_items
