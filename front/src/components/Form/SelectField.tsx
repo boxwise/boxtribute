@@ -81,7 +81,7 @@ function SelectField({
             focusBorderColor="blue.500"
             menuPortalTarget={document.body}
             styles={{
-              menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+              menuPortal: (provided) => ({ ...provided, zIndex: 3 }),
             }}
             chakraStyles={{
               control: (provided) => ({
