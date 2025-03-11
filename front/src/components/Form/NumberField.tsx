@@ -8,6 +8,7 @@ import {
   NumberDecrementStepper,
   NumberInputStepper,
   Text,
+  FormControlProps,
 } from "@chakra-ui/react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 
@@ -93,7 +94,7 @@ function NumberField({
 export default NumberField;
 
 // TODO: replace NumberField with NewNumberField
-export type INewNumberFieldProps = {
+export interface INewNumberFieldProps extends Omit<FormControlProps, "onChange" | "defaultValue"> {
   fieldId: string;
   fieldLabel: string;
   errors: FieldErrors<any>;
@@ -102,7 +103,7 @@ export type INewNumberFieldProps = {
   showError?: boolean;
   isRequired?: boolean;
   testId?: string;
-};
+}
 
 export function NewNumberField({
   fieldId,
@@ -113,9 +114,10 @@ export function NewNumberField({
   showError = true,
   isRequired = false,
   testId,
+  ...props
 }: INewNumberFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]}>
+    <FormControl isInvalid={!!errors[fieldId]} {...props}>
       {showLabel && (
         <FormLabel htmlFor={fieldId} textAlign="left">
           {fieldLabel}{" "}

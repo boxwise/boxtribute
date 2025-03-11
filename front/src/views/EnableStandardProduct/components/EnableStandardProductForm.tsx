@@ -106,82 +106,94 @@ function EnableStandardProductForm({
         />
       )}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box border="2px" mb={8}>
-          <Box borderBottom="2px" p={2}>
+        <Box border="2px" mb={4} p={2}>
+          <HStack borderBottom="2px" pb={2} px={2}>
             <Text fontWeight="bold" fontSize="md">
-              {baseName ? baseName?.toUpperCase() : <Skeleton height={6} width={20} mr={2} />}{" "}
+              {baseName ? baseName?.toUpperCase() : <Skeleton height={6} width={20} />}
+            </Text>
+            <Text fontWeight="bold" fontSize="md">
               PRODUCT DETAILS
             </Text>
-          </Box>
-          <VStack p={2}>
-            <SelectField
-              fieldId="standardProduct"
-              fieldLabel="Name"
-              placeholder="Please select a standard product."
-              options={standardProductData.map((data) => ({
-                label: data.standardProduct.label,
-                value: data.standardProduct.value,
-              }))}
-              errors={errors}
-              control={control}
-            />
-            <FormControl>
-              <FormLabel>Category</FormLabel>
-              <Select
-                value={defaultValues.category?.value}
-                isReadOnly
+          </HStack>
+          <VStack>
+            <VStack p={2} w="full" bg="gray.100" borderRadius={10} mt={2}>
+              <SelectField
+                fieldId="standardProduct"
+                fieldLabel="Name"
                 placeholder="Please select a standard product."
-              >
-                <option value={defaultValues.category?.value}>
-                  {defaultValues.category?.label}
-                </option>
-              </Select>
-            </FormControl>
-            <FormControl>
-              <FormLabel>Gender</FormLabel>
-              <Select
-                value={defaultValues.gender}
-                isReadOnly
-                placeholder="Please select a standard product."
-              >
-                <option value={defaultValues.gender}>{defaultValues.gender}</option>
-              </Select>
-            </FormControl>
-            <FormControl>
-              <FormLabel>Size Range</FormLabel>
-              <Select
-                value={defaultValues.sizeRange?.value}
-                isReadOnly
-                placeholder="Please select a standard product."
-              >
-                <option value={defaultValues.sizeRange?.value}>
-                  {defaultValues.sizeRange?.label}
-                </option>
-              </Select>
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="comment">Comment</FormLabel>
-              <Box border="2px" borderRadius={0}>
-                <Input border="0" borderRadius={0} type="string" {...register("comment")} />
-              </Box>
+                options={standardProductData.map((data) => ({
+                  label: data.standardProduct.label,
+                  value: data.standardProduct.value,
+                }))}
+                errors={errors}
+                control={control}
+              />
+              <FormControl>
+                <FormLabel>Category</FormLabel>
+                <Select
+                  value={defaultValues.category?.value}
+                  isReadOnly
+                  placeholder="Please select a standard product."
+                >
+                  <option value={defaultValues.category?.value}>
+                    {defaultValues.category?.label}
+                  </option>
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Gender</FormLabel>
+                <Select
+                  value={defaultValues.gender}
+                  isReadOnly
+                  placeholder="Please select a standard product."
+                >
+                  <option value={defaultValues.gender}>{defaultValues.gender}</option>
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Size Range</FormLabel>
+                <Select
+                  value={defaultValues.sizeRange?.value}
+                  isReadOnly
+                  placeholder="Please select a standard product."
+                >
+                  <option value={defaultValues.sizeRange?.value}>
+                    {defaultValues.sizeRange?.label}
+                  </option>
+                </Select>
+              </FormControl>
+            </VStack>
+            <FormControl p={2}>
+              <FormLabel htmlFor="comment">Description</FormLabel>
+              <Input
+                borderColor="black"
+                border="2px"
+                borderRadius={0}
+                _focus={{ borderColor: "blue.500" }}
+                _hover={{ borderColor: "gray.300" }}
+                size="lg"
+                type="string"
+                {...register("comment")}
+              />
             </FormControl>
           </VStack>
         </Box>
-        <Box border="2px" mb={8}>
-          <HStack mb={4} borderBottom="2px" p={2}>
+        <Box border="2px" mb={4} p={2}>
+          <Box borderBottom="2px" pb={2} px={2} mb={2}>
             <Text fontWeight="bold" fontSize="md">
               FREE SHOP SETTINGS
             </Text>
-          </HStack>
+          </Box>
           <SwitchField fieldId="inShop" fieldLabel="Always Show in Stockroom?" control={control} />
           <NewNumberField
             fieldId="price"
             fieldLabel="Token Price"
             errors={errors}
             control={control}
+            p={2}
           />
         </Box>
-        <Stack spacing={4} mt={8}>
+        <Stack spacing={2} my={4}>
           <Button
             isLoading={isLoading}
             disabled={isLoading}
@@ -200,6 +212,8 @@ function EnableStandardProductForm({
             borderRadius="0"
             w="full"
             variant="outline"
+            border="2px"
+            borderColor="black"
             onClick={() => navigate("../../")}
           >
             Nevermind

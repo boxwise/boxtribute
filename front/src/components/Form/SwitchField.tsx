@@ -13,7 +13,7 @@ function SwitchField({ fieldId, fieldLabel, control }: IInShopSwitchProps) {
       name={fieldId}
       control={control}
       render={({ field: { onChange, value } }) => (
-        <HStack my={4} p={2}>
+        <HStack p={2}>
           <Switch
             id={`${fieldId}-switch`}
             mr={2}
