@@ -13,7 +13,7 @@ import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentVie
 import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import Products from "views/Products/ProductsView";
-import ProductCreateView from "views/ProductCreate/ProductCreateView";
+import EnableStandardProductView from "views/EnableStandardProduct/EnableStandardProductView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 import { AuthorizeProps, useAuthorization } from "hooks/useAuthorization";
@@ -269,12 +269,12 @@ function App() {
                 />
               }
             />
-            <Route path="create">
+            <Route path="enable">
               <Route
-                index
+                path=":standardProductId"
                 element={
                   <Protected
-                    component={<ProductCreateView />}
+                    component={<EnableStandardProductView />}
                     redirectPath={prevLocation}
                     requiredAbps={["manage_products"]}
                   />
