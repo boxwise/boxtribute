@@ -226,22 +226,16 @@ function EnableStandardProductForm({
             isLoading={isLoading}
             disabled={isLoading}
             type="submit"
-            borderRadius="0"
             w="full"
-            variant="solid"
-            backgroundColor="blue.500"
-            color="white"
+            variant="submit"
           >
             Enable Product
           </Button>
           <Button
             size="md"
             type="button"
-            borderRadius="0"
             w="full"
-            variant="outline"
-            border="2px"
-            borderColor="black"
+            variant="cancel"
             onClick={() => navigate("../../")}
           >
             Nevermind

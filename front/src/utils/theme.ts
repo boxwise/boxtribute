@@ -58,6 +58,16 @@ export const theme = extendTheme({
           color: "white",
           borderRadius: 0,
         },
+        submit: {
+          backgroundColor: "blue.500",
+          color: "white",
+          borderRadius: 0,
+        },
+        cancel: {
+          border: "2px",
+          borderColor: "black",
+          borderRadius: "0",
+        },
       },
     },
     Link: {
