@@ -2,15 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import { CellProps, Column } from "react-table";
-import {
-  Button,
-  Heading,
-  Skeleton,
-  Tab,
-  TabList,
-  Tabs,
-  Text,
-} from "@chakra-ui/react";
+import { Button, Heading, Skeleton, Tab, TabList, Tabs, Text } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 
 import { graphql } from "../../../../graphql/graphql";
@@ -132,7 +124,19 @@ function Products() {
             <>
               You are attempting to disable the product {productName} with {instockItemsCount}{" "}
               <Text fontWeight="600" color="#659A7E" display="inline">
-                InStock, MarkedForShipment, InTransit, or Receiving
+                InStock
+              </Text>
+              ,{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                MarkedForShipment
+              </Text>
+              ,{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                InTransit
+              </Text>
+              , or{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                Receiving
               </Text>{" "}
               items in one or more locations. To continue, you must first reclassify all{" "}
               <Text fontWeight="600" color="#659A7E" display="inline">
@@ -142,7 +146,7 @@ function Products() {
             </>
           ),
           type: "error",
-          duration: 10000
+          duration: 10000,
         });
       } else if (instantiationId) {
         disableStandardProductMutation({
