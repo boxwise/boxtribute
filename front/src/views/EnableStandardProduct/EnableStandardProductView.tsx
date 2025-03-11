@@ -13,7 +13,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useSuspenseQuery } from "@apollo/client";
 import { standardProductRawToFormDataTransformer } from "./components/transformer";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -82,7 +82,7 @@ function EnableStandardProductFormContainer() {
   const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId!;
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
-  const { data: standardProductRawData } = useQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
+  const { data: standardProductsRawData, error } = useSuspenseQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
     variables: { baseId },
   });
 
@@ -146,25 +146,33 @@ function EnableStandardProductFormContainer() {
         .catch(() => {
           // Handle network or other errors
           triggerError({
-            message: "Could not disable this ASSORT standard product! Try again?",
+            message: "Could not enable this ASSORT standard product! Try again?",
           });
         });
     },
     [enableStandardProduct, baseId, createToast, navigate, triggerError],
   );
 
-  if (!standardProductRawData) {
-    return null;
+  // If Apollo encountered an error (like network error), throw it
+  if (error) {
+    throw error;
+  }
+  // Otherwise, data is now loaded (Suspense has ended), but there could be errors returned in the data
+  if (
+    !standardProductsRawData ||
+    standardProductsRawData.standardProducts?.__typename !== "StandardProductPage"
+  ) {
+    throw new Error(enableStandardProductQueryErrorText);
   }
 
-  const standardProductData = standardProductRawToFormDataTransformer(standardProductRawData);
-
+  const standardProductData = standardProductRawToFormDataTransformer(standardProductsRawData);
   const defaultValues = standardProductData.find(
     (standardProduct) => standardProduct.standardProduct.value === requestedStandardProductId,
   );
 
+  // Handle the case where the requested standard product is not found
   if (!defaultValues) {
-    return null;
+    throw new Error("Requested ASSORT standard product not found!");
   }
 
   return (
@@ -190,7 +198,12 @@ function EnableStandardProductView() {
             Enable New Product
           </Heading>
           <ErrorBoundary
-            fallback={<AlertWithoutAction alertText={enableStandardProductQueryErrorText} />}
+            fallback={({ error }) => (
+              <AlertWithoutAction
+                type="error"
+                alertText={error?.toString() || enableStandardProductQueryErrorText}
+              />
+            )}
           >
             <Suspense fallback={<TableSkeleton />}>
               <EnableStandardProductFormContainer />
