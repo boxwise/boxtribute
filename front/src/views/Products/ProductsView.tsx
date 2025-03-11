@@ -114,13 +114,13 @@ function InStockProductAlert({
           <AlertDescription>
             You are attempting to disable the product {productName} with {instockItemsCount}{" "}
             <Text fontWeight="600" color="#659A7E" display="inline">
-              InStock
+              InStock, MarkedForShipment, InTransit, or Receiving
             </Text>{" "}
             items in one or more locations. To continue, you must first reclassify all{" "}
             <Text fontWeight="600" color="#659A7E" display="inline">
               InStock
             </Text>{" "}
-            boxes as a different product.
+            boxes as a different product, or complete your shipments.
           </AlertDescription>
         </Box>
       </>
