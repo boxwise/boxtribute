@@ -4,6 +4,8 @@ import {
   Button,
   Center,
   Flex,
+  FormControl,
+  FormLabel,
   IconButton,
   List,
   ListItem,
@@ -253,5 +255,45 @@ export function BoxViewSkeleton() {
         <TabsSkeleton />
       </Box>
     </Flex>
+  );
+}
+
+export function FormSkeleton() {
+  return (
+    <>
+      <Box mb={4} p={2}>
+        <VStack spacing={4} pt={4}>
+          {/* First form field */}
+          <FormControl>
+            <FormLabel>
+              <Skeleton height="20px" width="80px" />
+            </FormLabel>
+            <Skeleton height="40px" width="100%" />
+          </FormControl>
+
+          {/* Second form field */}
+          <FormControl>
+            <FormLabel>
+              <Skeleton height="20px" width="100px" />
+            </FormLabel>
+            <Skeleton height="40px" width="100%" />
+          </FormControl>
+
+          {/* Third form field */}
+          <FormControl>
+            <FormLabel>
+              <Skeleton height="20px" width="90px" />
+            </FormLabel>
+            <Skeleton height="40px" width="100%" />
+          </FormControl>
+        </VStack>
+      </Box>
+
+      {/* Buttons */}
+      <Stack spacing={2} my={4}>
+        <ButtonSkeleton />
+        <ButtonSkeleton />
+      </Stack>
+    </>
   );
 }

@@ -206,7 +206,8 @@ function Products() {
   );
 
   const handleEnableProduct = useCallback(
-    () => navigate(`/bases/${baseId}/products/create`),
+    (standardProductId: string) =>
+      navigate(`/bases/${baseId}/products/enable/${standardProductId}`),
     [navigate, baseId],
   );
 
@@ -250,7 +251,7 @@ function Products() {
                 Disable
               </Button>
             ) : (
-              <Button onClick={handleEnableProduct} size="sm">
+              <Button onClick={() => handleEnableProduct(row.original.id)} size="sm">
                 Enable
               </Button>
             )}

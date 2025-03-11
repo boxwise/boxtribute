@@ -26,6 +26,7 @@ export const PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
   fragment ProductBasicFields on Product @_unmask {
     id
     name
+    type
     gender
     deletedOn
     category {
@@ -43,6 +44,10 @@ export const STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT = graphql(`
     category {
       id
       name
+    }
+    sizeRange {
+      id
+      label
     }
   }
 `);
