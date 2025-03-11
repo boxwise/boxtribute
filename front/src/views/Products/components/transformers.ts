@@ -29,7 +29,7 @@ export const standardProductsRawDataToTableDataTransformer = (
           enabled: instantiation?.instockItemsCount !== undefined,
           name,
           category: category.name,
-          gender,
+          gender: gender === "none" ? "-" : gender,
           size: sizeRange.label,
           instockItemsCount: instantiation?.instockItemsCount,
           price: instantiation?.price,
