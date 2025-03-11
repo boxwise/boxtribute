@@ -2,7 +2,10 @@ import enum
 from datetime import date
 
 import pytest
-from boxtribute_server.enums import BoxState, ProductGender, ProductType
+from boxtribute_server.business_logic.warehouse.product.crud import (
+    STATES_OF_ACTIVELY_USED_BOXES,
+)
+from boxtribute_server.enums import ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
     HISTORY_CREATION_MESSAGE,
@@ -80,7 +83,7 @@ def test_product_query(
                 b["number_of_items"]
                 for b in default_boxes
                 if b["product"] == product_id
-                and b["state"] == BoxState.InStock
+                and b["state"] in STATES_OF_ACTIVELY_USED_BOXES
                 and not b["deleted_on"]
             ]
         ),
@@ -368,13 +371,7 @@ def test_custom_product_mutations(
         b["label_identifier"]
         for b in default_boxes[1:-1]
         if b["id"] not in [7, 12, 13, 17]  # test boxes with product IDs 5, 3, and 8
-        and b["state"]
-        in [
-            BoxState.InStock,
-            BoxState.MarkedForShipment,
-            BoxState.InTransit,
-            BoxState.Receiving,
-        ]
+        and b["state"] in STATES_OF_ACTIVELY_USED_BOXES
     ]
 
     # Test case 8.2.59a
