@@ -23,24 +23,26 @@ export const standardProductsRawDataToTableDataTransformer = (
 ) => {
   if (standardProductQueryResult.standardProducts?.__typename === "StandardProductPage") {
     return standardProductQueryResult.standardProducts.elements.map(
-      ({ id, name, category, gender, instantiation, sizeRange, version }) =>
-        ({
+      ({ id, name, category, gender, instantiation, sizeRange, version }) => {
+        const nonDeletedInstantiation = instantiation?.deletedOn ? null : instantiation;
+        return {
           id,
-          enabled: instantiation?.instockItemsCount !== undefined,
+          enabled: nonDeletedInstantiation?.instockItemsCount !== undefined,
           name,
           category: category.name,
           gender: gender === "none" ? "-" : gender,
           size: sizeRange.label,
-          instockItemsCount: instantiation?.instockItemsCount,
-          price: instantiation?.price,
-          inShop: instantiation?.inShop,
-          comment: instantiation?.comment,
-          enabledOn: instantiation?.createdOn,
-          enabledBy: instantiation?.createdBy?.name,
-          disabledOn: instantiation?.deletedOn,
+          instockItemsCount: nonDeletedInstantiation?.instockItemsCount,
+          price: nonDeletedInstantiation?.price,
+          inShop: nonDeletedInstantiation?.inShop,
+          comment: nonDeletedInstantiation?.comment,
+          enabledOn: nonDeletedInstantiation?.createdOn,
+          enabledBy: nonDeletedInstantiation?.createdBy?.name,
+          disabledOn: nonDeletedInstantiation?.deletedOn,
           version,
-          instantiationId: instantiation?.id,
-        }) satisfies ProductRow,
+          instantiationId: nonDeletedInstantiation?.id,
+        } satisfies ProductRow;
+      },
     );
   } else {
     throw new Error("Could not fetch products data! Please try reloading the page.");
