@@ -9,8 +9,9 @@ export const standardProductRawToFormDataTransformer = (
 ) => {
   if (standardProductRawData.standardProducts?.__typename === "StandardProductPage") {
     return standardProductRawData.standardProducts.elements.map(
-      ({ id, name, category, gender, sizeRange, instantiation }) =>
-        ({
+      ({ id, name, category, gender, sizeRange, instantiation }) => {
+        const nonDeletedInstantiation = instantiation?.deletedOn ? undefined : instantiation;
+        return {
           standardProduct: {
             label: name,
             value: id,
@@ -24,10 +25,11 @@ export const standardProductRawToFormDataTransformer = (
             label: sizeRange.label,
             value: sizeRange.id,
           },
-          comment: instantiation?.comment ? instantiation.comment : undefined,
-          inShop: instantiation?.inShop ? instantiation.inShop : undefined,
-          price: instantiation?.price ? instantiation.price : undefined,
-        }) as IEnableStandardProductFormInput,
+          comment: nonDeletedInstantiation?.comment ? nonDeletedInstantiation.comment : undefined,
+          inShop: nonDeletedInstantiation?.inShop ? nonDeletedInstantiation.inShop : undefined,
+          price: nonDeletedInstantiation?.price ? nonDeletedInstantiation.price : undefined,
+        } as IEnableStandardProductFormInput;
+      },
     );
   } else {
     throw new Error(enableStandardProductQueryErrorText);
