@@ -10,7 +10,7 @@ import EnableStandardProductForm, {
 } from "./components/EnableStandardProductForm";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
-import { TableSkeleton } from "components/Skeletons";
+import { FormSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
@@ -204,7 +204,7 @@ function EnableStandardProductView() {
               />
             )}
           >
-            <Suspense fallback={<TableSkeleton />}>
+            <Suspense fallback={<FormSkeleton />}>
               <EnableStandardProductFormContainer />
             </Suspense>
           </ErrorBoundary>
