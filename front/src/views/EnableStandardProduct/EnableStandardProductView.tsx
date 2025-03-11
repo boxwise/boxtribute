@@ -98,6 +98,7 @@ function EnableStandardProductFormContainer() {
           standardProductId: parseInt(enableStandardProductFormOutput.standardProduct.value, 10),
           baseId: parseInt(baseId, 10),
           comment: enableStandardProductFormOutput.comment,
+          price: enableStandardProductFormOutput.price,
         },
         refetchQueries: [{ query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } }],
       })

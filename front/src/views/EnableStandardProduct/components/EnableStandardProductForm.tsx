@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertWithoutAction } from "components/Alerts";
+import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
@@ -75,7 +76,7 @@ function EnableStandardProductForm({
     handleSubmit,
     control,
     register,
-    // resetField,
+    setValue,
     // setError,
     watch,
     formState: { errors },
@@ -84,10 +85,12 @@ function EnableStandardProductForm({
     defaultValues,
   });
 
-  const [currentInfoOnSelectedStandardProduct, setCurrentInfoOnSelectedStandardProduct] =
-    useState<IEnableStandardProductFormInput>(
-      defaultValues || ({} as IEnableStandardProductFormInput),
-    );
+  const [
+    correspondingSelectedStandardProductValues,
+    setCorrespondingSelectedStandardProductValues,
+  ] = useState<IEnableStandardProductFormInput>(
+    defaultValues || ({} as IEnableStandardProductFormInput),
+  );
 
   const selectedStandardProduct = watch("standardProduct");
 
@@ -98,10 +101,16 @@ function EnableStandardProductForm({
         (standardProduct) =>
           standardProduct.standardProduct.value === selectedStandardProduct.value,
       );
-      if (selectedStandardProductData)
-        setCurrentInfoOnSelectedStandardProduct(selectedStandardProductData);
+      if (selectedStandardProductData) {
+        console.log("selectedStandardProductData", selectedStandardProductData);
+        setCorrespondingSelectedStandardProductValues(selectedStandardProductData);
+        // rest form fiels to the newly selected standard product
+        setValue("comment", selectedStandardProductData?.comment);
+        setValue("inShop", selectedStandardProductData?.inShop);
+        setValue("price", selectedStandardProductData?.price);
+      }
     }
-  }, [selectedStandardProduct, standardProductData]);
+  }, [selectedStandardProduct, setValue, standardProductData]);
 
   return (
     <>
@@ -136,36 +145,36 @@ function EnableStandardProductForm({
             <FormControl>
               <FormLabel>Category</FormLabel>
               <Select
-                value={currentInfoOnSelectedStandardProduct.category?.value}
+                value={correspondingSelectedStandardProductValues.category?.value}
                 isReadOnly
                 placeholder="Please select a standard product."
               >
-                <option value={currentInfoOnSelectedStandardProduct.category?.value}>
-                  {currentInfoOnSelectedStandardProduct.category?.label}
+                <option value={correspondingSelectedStandardProductValues.category?.value}>
+                  {correspondingSelectedStandardProductValues.category?.label}
                 </option>
               </Select>
             </FormControl>
             <FormControl>
               <FormLabel>Gender</FormLabel>
               <Select
-                value={currentInfoOnSelectedStandardProduct.gender}
+                value={correspondingSelectedStandardProductValues.gender}
                 isReadOnly
                 placeholder="Please select a standard product."
               >
-                <option value={currentInfoOnSelectedStandardProduct.gender}>
-                  {currentInfoOnSelectedStandardProduct.gender}
+                <option value={correspondingSelectedStandardProductValues.gender}>
+                  {correspondingSelectedStandardProductValues.gender}
                 </option>
               </Select>
             </FormControl>
             <FormControl>
               <FormLabel>Size Range</FormLabel>
               <Select
-                value={currentInfoOnSelectedStandardProduct.sizeRange?.value}
+                value={correspondingSelectedStandardProductValues.sizeRange?.value}
                 isReadOnly
                 placeholder="Please select a standard product."
               >
-                <option value={currentInfoOnSelectedStandardProduct.sizeRange?.value}>
-                  {currentInfoOnSelectedStandardProduct.sizeRange?.label}
+                <option value={correspondingSelectedStandardProductValues.sizeRange?.value}>
+                  {correspondingSelectedStandardProductValues.sizeRange?.label}
                 </option>
               </Select>
             </FormControl>
@@ -189,6 +198,12 @@ function EnableStandardProductForm({
               Always Show in Stockroom?
             </Text>
           </HStack>
+          <NewNumberField
+            fieldId="price"
+            fieldLabel="Token Price"
+            errors={errors}
+            control={control}
+          />
         </Box>
         <Stack spacing={4} mt={8}>
           <Button

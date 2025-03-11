@@ -9,7 +9,7 @@ import {
   NumberInputStepper,
   Text,
 } from "@chakra-ui/react";
-import { Controller } from "react-hook-form";
+import { Control, Controller, FieldErrors } from "react-hook-form";
 
 export interface INumberFieldProps {
   fieldId: string;
@@ -91,3 +91,74 @@ function NumberField({
   );
 }
 export default NumberField;
+
+// TODO: replace NumberField with NewNumberField
+export type INewNumberFieldProps = {
+  fieldId: string;
+  fieldLabel: string;
+  errors: FieldErrors<any>;
+  control: Control<any>;
+  showLabel?: boolean;
+  showError?: boolean;
+  isRequired?: boolean;
+  testId?: string;
+};
+
+export function NewNumberField({
+  fieldId,
+  fieldLabel,
+  errors,
+  control,
+  showLabel = true,
+  showError = true,
+  isRequired = false,
+  testId,
+}: INewNumberFieldProps) {
+  return (
+    <FormControl isInvalid={!!errors[fieldId]}>
+      {showLabel && (
+        <FormLabel htmlFor={fieldId} textAlign="left">
+          {fieldLabel}{" "}
+          {isRequired && (
+            <Text as="span" color="red.500">
+              *
+            </Text>
+          )}
+        </FormLabel>
+      )}
+
+      <Controller
+        name={fieldId}
+        control={control}
+        render={({ field }) => (
+          <NumberInput
+            min={0}
+            data-testid={testId}
+            value={field.value ?? ""}
+            onChange={(_valueAsString, valueAsNumber) => {
+              // Convert empty string to undefined if you prefer
+              field.onChange(Number.isNaN(valueAsNumber) ? undefined : valueAsNumber);
+            }}
+          >
+            <NumberInputField
+              onKeyDown={(e) => {
+                // block negative sign
+                if (e.code === "Minus") {
+                  e.preventDefault();
+                }
+              }}
+              border="2px"
+              borderRadius="0"
+              borderColor="black"
+            />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        )}
+      />
+      {showError && <FormErrorMessage>{errors[fieldId]?.message as string}</FormErrorMessage>}
+    </FormControl>
+  );
+}
