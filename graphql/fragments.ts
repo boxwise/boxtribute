@@ -132,7 +132,6 @@ export const PRODUCT_FRAGMENT = graphql(`
   fragment ProductFragment on ProductDimensionInfo @_unmask {
     id
     name
-    type
     gender
   }
 `);
