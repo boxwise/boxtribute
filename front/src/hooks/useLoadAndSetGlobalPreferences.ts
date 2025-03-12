@@ -61,9 +61,11 @@ export const useLoadAndSetGlobalPreferences = () => {
         if (isGod) {
           setSelectedBase({ id: urlBaseId });
         }
-        else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId) && (selectedBaseId !== urlBaseId)) {
+        else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+          if (selectedBaseId !== urlBaseId) {
             // only overwrite the selected base ID if the id is different from the existing one.
             setSelectedBase({ id: urlBaseId });
+          }
         } else {
           setError("The requested base is not available to you.");
         }
