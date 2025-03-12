@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Row } from "react-table";
 
 import { BoxRow } from "./types";
@@ -25,8 +25,13 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
   const { createToast } = useNotification();
 
   const [isInputOpen, setIsInputOpen] = useState(false);
-  const [selectedTagOptions, setSelectedTagOptions] =
-    useState<IDropdownOption[]>(currentTagOptions);
+  const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
+
+  useEffect(() => {
+    if (currentTagOptions.length > 0) {
+      setSelectedTagOptions(currentTagOptions);
+    }
+  }, [currentTagOptions]);
 
   const handleOpenInput = () => {
     if (selectedBoxes.length === 0) {
