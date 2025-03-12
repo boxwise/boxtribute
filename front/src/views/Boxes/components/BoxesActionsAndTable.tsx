@@ -299,6 +299,15 @@ function BoxesActionsAndTable({
               allTagOptions={tagOptions}
             />
           </Menu>
+          <Menu>
+            <RemoveTagsButton
+              selectedBoxes={selectedBoxes}
+              key="remove-tags"
+              onRemoveTags={onAssignTags}
+              allTagOptions={tagOptions}
+              currentTagOptions={getSelectedBoxTags}
+            />
+          </Menu>
           <MenuItem as="div">
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
@@ -325,6 +334,7 @@ function BoxesActionsAndTable({
       tagOptions,
       onUnassignBoxesToShipment,
       onAssignTags,
+      getSelectedBoxTags,
     ],
   );
 
