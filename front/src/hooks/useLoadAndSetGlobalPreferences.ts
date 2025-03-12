@@ -58,11 +58,12 @@ export const useLoadAndSetGlobalPreferences = () => {
       // - the selected base ID is part of the available base IDs from Auth0 or
       // - that the user is a Boxtribute God
       if (urlBaseId) {
-        if (isGod || user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
-          if (selectedBaseId !== urlBaseId) {
+        if (isGod) {
+          setSelectedBase({ id: urlBaseId });
+        }
+        else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId) && (selectedBaseId !== urlBaseId)) {
             // only overwrite the selected base ID if the id is different from the existing one.
             setSelectedBase({ id: urlBaseId });
-          }
         } else {
           setError("The requested base is not available to you.");
         }
