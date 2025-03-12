@@ -305,7 +305,7 @@ function BoxesActionsAndTable({
               key="remove-tags"
               onRemoveTags={onAssignTags}
               allTagOptions={tagOptions}
-              currentTagOptions={getSelectedBoxTags()}
+              currentTagOptions={getSelectedBoxTags}
             />
           </Menu>
           <MenuItem>
@@ -334,6 +334,7 @@ function BoxesActionsAndTable({
       tagOptions,
       onUnassignBoxesToShipment,
       onAssignTags,
+      getSelectedBoxTags,
     ],
   );
 
