@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import { CellProps, Column } from "react-table";
-import { Button, Heading, Skeleton, Tab, TabList, Tabs, Text } from "@chakra-ui/react";
+import { Badge, Button, Heading, Skeleton, Tab, TabList, Tabs, Text } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 
 import { graphql } from "../../../../graphql/graphql";
@@ -47,6 +47,9 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
             instantiation {
               id
               instockItemsCount
+              price
+              inShop
+              comment
               createdOn
               createdBy {
                 id
@@ -102,15 +105,25 @@ function Products() {
         { id: "enabled", desc: false },
         { id: "name", desc: false },
       ],
-      hiddenColumns: ["version", "enabledOn", "enabledBy", "disabledOn", "id"],
+      hiddenColumns: [
+        "price",
+        "inShop",
+        "comment",
+        "version",
+        "enabledOn",
+        "enabledBy",
+        "disabledOn",
+        "id",
+      ],
     },
   });
 
   // fetch Standard Products data
-  const { loading: isStandardProductsQueryLoading, data: standardProductsRawData } = useQuery(
-    STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY,
-    { variables: { baseId } },
-  );
+  const {
+    loading: isStandardProductsQueryLoading,
+    data: standardProductsRawData,
+    error,
+  } = useQuery(STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, { variables: { baseId } });
 
   const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
     useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
@@ -287,9 +300,34 @@ function Products() {
         filter: "includesOneOfMultipleStrings",
       },
       {
-        Header: "inStock Items",
+        Header: "Items in Use",
         accessor: "instockItemsCount",
         id: "instockItemsCount",
+        disableFilters: true,
+      },
+      {
+        Header: "Price",
+        accessor: "price",
+        id: "price",
+        disableFilters: true,
+      },
+      {
+        Header: "In Shop?",
+        accessor: "inShop",
+        id: "inShop",
+        disableFilters: true,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.inShop;
+          const b = rowB.values.inShop;
+          return a === b ? 0 : a ? -1 : 1;
+        },
+        Cell: ({ value }: CellProps<ProductRow, boolean>) =>
+          value && <Badge colorScheme="green">Yes</Badge>,
+      },
+      {
+        Header: "Description",
+        accessor: "comment",
+        id: "comment",
         disableFilters: true,
       },
       {
@@ -325,6 +363,20 @@ function Products() {
       },
     ],
     [disableStandardProductMutationLoading, handleEnableProduct, handleDisableProduct],
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  if (!standardProductsRawData) {
+    return <TableSkeleton />;
+  }
+
+  console.log("standardProductsRawData", standardProductsRawData);
+  console.log(
+    "transformedData",
+    standardProductsRawDataToTableDataTransformer(standardProductsRawData),
   );
 
   return (
