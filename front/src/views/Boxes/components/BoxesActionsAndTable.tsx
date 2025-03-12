@@ -270,7 +270,7 @@ function BoxesActionsAndTable({
           <BsBox2HeartFill />
         </MenuButton>
         <MenuList zIndex={3}>
-          <MenuItem>
+          <MenuItem as="div">
             <RemoveBoxesButton
               labelIdentifier="Delete Boxes"
               onDeleteBoxes={onDeleteBoxes}
@@ -279,7 +279,7 @@ function BoxesActionsAndTable({
               key="remove-boxes"
             />
           </MenuItem>
-          <MenuItem>
+          <MenuItem as="div">
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
           <Menu>
@@ -290,7 +290,7 @@ function BoxesActionsAndTable({
               allTagOptions={tagOptions}
             />
           </Menu>
-          <MenuItem>
+          <MenuItem as="div">
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
         </MenuList>
