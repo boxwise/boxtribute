@@ -77,6 +77,7 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
               placeholder="Type to find tags"
               isSearchable
               tagVariant="outline"
+              tagColorScheme="black"
               focusBorderColor="blue.500"
               chakraStyles={{
                 control: (provided) => ({
