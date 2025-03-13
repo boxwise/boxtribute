@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
-    "@sentry/types": "^8.52.1",
+    "@sentry/types": "^9.5.0",
     "@storybook/addon-actions": "^8.6.4",
     "@storybook/addon-essentials": "^8.6.4",
     "@storybook/addon-interactions": "^8.6.4",
