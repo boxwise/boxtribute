@@ -145,6 +145,11 @@ def resolve_shipment_detail_box(detail_obj, info):
     return info.context["box_loader"].load(detail_obj.box_id)
 
 
+@shipment_detail.field("autoMatchingTargetProduct")
+def resolve_shipment_detail_auto_matching_target_product(detail_obj, info):
+    return info.context["shipment_detail_auto_matching_loader"].load(detail_obj.id)
+
+
 @shipment_detail.field("sourceSize")
 def resolve_shipment_detail_source_size(detail_obj, info):
     return info.context["size_loader"].load(detail_obj.source_size_id)

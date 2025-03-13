@@ -69,7 +69,7 @@ def public_api_server():
         return {"error": "No permission to access public API"}, 401
 
     log_request_to_gcloud(context=API_CONTEXT)
-    return execute_async(schema=public_api_schema, introspection=False)
+    return execute_async(schema=public_api_schema, introspection=True)
 
 
 @api_bp.post("/token")

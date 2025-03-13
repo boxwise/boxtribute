@@ -16,6 +16,8 @@ export function expandedMenuIndex() {
     case "shipments":
     case "agreements":
       return [2]
+    case "products":
+      return [5]
     default:
       return undefined
   }

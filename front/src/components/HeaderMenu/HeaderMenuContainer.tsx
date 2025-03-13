@@ -154,6 +154,13 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
+            link: `/bases/${baseId}/products`,
+            name: "ASSORT Products",
+            beta: true,
+            requiredAbps: ["manage_products"],
+            minBeta: 4,
+          },
+          {
             link: `${oldAppUrlWithBase}&action=locations`,
             name: "Edit Warehouses",
             requiredAbps: ["manage_warehouses"],

@@ -19,7 +19,6 @@ import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DateCell, DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
-import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
@@ -30,8 +29,11 @@ import {
   HStack,
   PopoverAnchor,
   useBoolean,
+  Box,
 } from "@chakra-ui/react";
 import { FaInfoCircle } from "react-icons/fa";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -120,8 +122,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
 );
 
 function Boxes() {
-  // using base ID from URL to have it available immediately for the queries
-  const { urlBaseId: baseId } = useLoadAndSetGlobalPreferences();
+  const baseId = useAtomValue(selectedBaseIdAtom);
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
@@ -251,7 +252,9 @@ function Boxes() {
                 <div>Age</div>
               </PopoverAnchor>
               <PopoverTrigger>
-                <FaInfoCircle height={8} width={8} />
+                <Box>
+                  <FaInfoCircle height={8} width={8} />
+                </Box>
               </PopoverTrigger>
             </HStack>
             <PopoverContent minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>

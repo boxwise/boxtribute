@@ -69,9 +69,9 @@ def test_query_created_boxes(
     data = assert_successful_request(read_only_client, query, endpoint="graphql")
     facts = data.pop("facts")
     assert len(facts) == 4
-    assert facts[0]["boxesCount"] == 12
+    assert facts[0]["boxesCount"] == 11
     assert facts[1]["boxesCount"] == 1
-    assert facts[2]["boxesCount"] == 1
+    assert facts[2]["boxesCount"] == 2
     assert facts[3]["boxesCount"] == 1
     assert data == {
         "dimensions": {
@@ -337,10 +337,10 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
         },
         {
             "boxState": BoxState.MarkedForShipment.name,
-            "boxesCount": 3,
+            "boxesCount": 2,
             "categoryId": 1,
             "gender": "Women",
-            "itemsCount": 30,
+            "itemsCount": 20,
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
@@ -409,6 +409,19 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
             "locationId": 1,
             "productName": "jackets",
             "sizeId": 2,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.MarkedForShipment.name,
+            "boxesCount": 1,
+            "categoryId": 12,
+            "gender": "Boy",
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": "joggers",
+            "sizeId": 1,
             "absoluteMeasureValue": None,
             "dimensionId": None,
             "tagIds": [],

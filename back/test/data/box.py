@@ -77,6 +77,8 @@ def marked_for_shipment_box_data():
 def another_marked_for_shipment_box_data():
     data = marked_for_shipment_box_data()
     data["id"] = 7
+    # Product matches standard product in base 3
+    data["product"] = product_data()[4]["id"]
     data["label_identifier"] = "67890123"
     data["last_modified_on"] = datetime(2021, 2, 2)
     return data

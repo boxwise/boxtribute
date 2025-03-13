@@ -2,7 +2,10 @@ import enum
 from datetime import date
 
 import pytest
-from boxtribute_server.enums import BoxState, ProductGender, ProductType
+from boxtribute_server.business_logic.warehouse.product.crud import (
+    STATES_OF_ACTIVELY_USED_BOXES,
+)
+from boxtribute_server.enums import ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
     HISTORY_CREATION_MESSAGE,
@@ -80,7 +83,7 @@ def test_product_query(
                 b["number_of_items"]
                 for b in default_boxes
                 if b["product"] == product_id
-                and b["state"] == BoxState.InStock
+                and b["state"] in STATES_OF_ACTIVELY_USED_BOXES
                 and not b["deleted_on"]
             ]
         ),
@@ -367,7 +370,8 @@ def test_custom_product_mutations(
     assert response["labelIdentifiers"] == [
         b["label_identifier"]
         for b in default_boxes[1:-1]
-        if b["id"] not in [12, 13, 17]  # test boxes with product IDs 5, 3, and 8
+        if b["id"] not in [7, 12, 13, 17]  # test boxes with product IDs 5, 3, and 8
+        and b["state"] in STATES_OF_ACTIVELY_USED_BOXES
     ]
 
     # Test case 8.2.59a
@@ -700,7 +704,9 @@ def test_standard_product_instantiation_mutations(
                     ...on BoxesStillAssignedToProductError {{ labelIdentifiers }}
                 }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response["labelIdentifiers"] == [default_boxes[9]["label_identifier"]]
+    assert response["labelIdentifiers"] == [
+        default_boxes[5]["label_identifier"],
+    ]
 
     history_entries = list(
         DbChangeHistory.select(

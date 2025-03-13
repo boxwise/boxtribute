@@ -340,7 +340,8 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with level 3 can additionally access statviz data
+    # User with level 3 can additionally access statviz data,
+    # and execute Box bulk actions
     current_user._max_beta_level = 3
     for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
@@ -355,9 +356,9 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with level 4 can additionally execute Box bulk actions
+    # User with level 4 can additionally access Product pages
     current_user._max_beta_level = 4
-    for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
+    for mutation in ["createShareableLink", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
@@ -370,7 +371,7 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with level 5 can additionally access Product pages
+    # User with level 5 can additionally access create links
     current_user._max_beta_level = 5
     for mutation in ["createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"

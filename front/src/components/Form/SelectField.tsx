@@ -23,6 +23,10 @@ export interface ISelectFieldProps {
   showLabel?: boolean;
   showError?: boolean;
   onChangeProp?: ((event) => void) | undefined;
+  formatOptionLabel?: (
+    data: IDropdownOption,
+    context: { context: "menu" | "value" },
+  ) => React.ReactNode;
 }
 
 // The examples from chakra-react-select were super helpful:
@@ -40,6 +44,7 @@ function SelectField({
   isMulti = false,
   isRequired = true,
   onChangeProp = undefined,
+  formatOptionLabel,
 }: ISelectFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
@@ -68,6 +73,7 @@ function SelectField({
             value={value}
             options={options}
             placeholder={placeholder}
+            formatOptionLabel={formatOptionLabel}
             isSearchable
             tagVariant="outline"
             tagColorScheme="black"
@@ -75,7 +81,7 @@ function SelectField({
             focusBorderColor="blue.500"
             menuPortalTarget={document.body}
             styles={{
-              menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+              menuPortal: (provided) => ({ ...provided, zIndex: 3 }),
             }}
             chakraStyles={{
               control: (provided) => ({

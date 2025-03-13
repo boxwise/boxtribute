@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from faker import Faker, providers
+from faker import Faker
 from flask import g
 from freezegun import freeze_time
 from peewee import fn
@@ -133,11 +133,6 @@ class Generator:
         """
         self.fake = Faker()
         Faker.seed(4321)
-        self.fake.add_provider(providers.color)
-        self.fake.add_provider(providers.date_time)
-        self.fake.add_provider(providers.lorem)
-        self.fake.add_provider(providers.misc)
-        self.fake.add_provider(providers.python)
 
         self.base_ids = None
         self.qr_codes = None
