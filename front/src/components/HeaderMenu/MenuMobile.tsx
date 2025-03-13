@@ -57,10 +57,10 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const availableBases = useAtomValue(availableBasesAtom);
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
-    (availableBases?.filter((base) => base.id !== baseId).length || 0) >= 1;
+    (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
 
   return (
-    <Flex as="nav" py={4} zIndex="3">
+    <Flex as="nav" py={4} zIndex="4">
       <BaseSwitcher isOpen={isOpen} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
@@ -74,7 +74,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
             _hover={{ bg: "transparent" }}
             _expanded={{ bg: "transparent" }}
           />
-          <MenuList zIndex={3} py={0}>
+          <MenuList zIndex={4} py={0}>
             <MenuItem
               key="qr-code-menu"
               aria-label="Scan QR code"

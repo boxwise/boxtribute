@@ -4,7 +4,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { generateMockShipment } from "mocks/shipments";
-import { organisation1 } from "mocks/organisations";
 import { cache, boxReconciliationOverlayVar, IBoxReconciliationOverlayVar } from "queries/cache";
 import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
@@ -73,14 +72,6 @@ it("4.7.2 - Query for shipment, box, available products, sizes and locations ret
     initialUrl: "/bases/1",
     mocks: [failedQueryShipmentDetailForBoxReconciliation],
     cache,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: organisation1.bases[0],
-      },
-    },
   });
 
   // toast shown
@@ -159,14 +150,6 @@ describe("No Delivery Tests", () => {
           initialUrl: "/bases/1",
           mocks,
           cache,
-          globalPreferences: {
-            dispatch: vi.fn(),
-            globalPreferences: {
-              organisation: { id: organisation1.id, name: organisation1.name },
-              availableBases: organisation1.bases,
-              selectedBase: organisation1.bases[0],
-            },
-          },
         });
 
         // BoxReconciliation is visible
@@ -232,14 +215,6 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
     initialUrl: "/bases/1",
     mocks: [queryShipmentDetailForBoxReconciliation],
     cache,
-    globalPreferences: {
-      dispatch: vi.fn(),
-      globalPreferences: {
-        organisation: { id: organisation1.id, name: organisation1.name },
-        availableBases: organisation1.bases,
-        selectedBase: organisation1.bases[0],
-      },
-    },
   });
 
   expect((await screen.findAllByText(/box 123/i)).length).toBeGreaterThanOrEqual(1);

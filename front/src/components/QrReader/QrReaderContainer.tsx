@@ -14,7 +14,6 @@ import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
 import { QrReaderSkeleton } from "components/Skeletons";
-import { Alert, CloseButton, useDisclosure } from "@chakra-ui/react";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 interface IQrReaderContainerProps {
@@ -25,12 +24,6 @@ const CAMERA_NOT_PERMITED_TEXT =
   "Camera access was denied. Please unblock camera access in the address bar and reload the page.";
 const CAMERA_NOT_PERMITED_TEXT_SAFARI_IOS =
   'Camera access was denied. Please allow camera access in the address bar by selecting AA > Website Settings > Camera > "Allow". Then, reload the page.';
-const IOS_PSA_TEXT = (
-  <p>
-    Issues with Multi-Box scanning were caused by an Apple update which we have fixed. If you
-    continue to experience problems, please contact us.
-  </p>
-);
 
 function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
@@ -40,7 +33,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
-  const { isOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
@@ -56,7 +48,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   );
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const showIOSAlert = isIOS && isOpen;
 
   const checkCameraPermission = () => {
     navigator.mediaDevices
@@ -91,7 +82,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       switch (qrResolvedValue.kind) {
         case IQrResolverResultKind.NOT_AUTHORIZED_FOR_BASE: {
           setBoxNotOwned(
-            `This box it at base ${qrResolvedValue.box?.baseName}, which belongs to organization ${qrResolvedValue.box?.organisationName}.`,
+            `This box is at base ${qrResolvedValue.box?.baseName}, which belongs to organization ${qrResolvedValue.box?.organisationName}.`,
           );
           setIsProcessingQrCode(false);
           break;
@@ -184,21 +175,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   return (
     <>
-      {showIOSAlert && (
-        <>
-          <Alert status="success">
-            {IOS_PSA_TEXT}
-            <CloseButton
-              alignSelf="flex-start"
-              position="relative"
-              right={-1}
-              top={-1}
-              onClick={onClose}
-            />
-          </Alert>
-          <br />
-        </>
-      )}
       {isCameraNotPermited && (
         <>
           <AlertWithoutAction

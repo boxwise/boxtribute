@@ -12,17 +12,18 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { availableBasesAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const navigate = useNavigate();
+  const { baseId: urlBaseId } = useParams();
   const { pathname } = useLocation();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const availableBases = useAtomValue(availableBasesAtom);
-  const currentOrganisationBases = availableBases?.filter((base) => base.id !== baseId);
-  const firstAvailableBaseId = currentOrganisationBases?.find((base) => base)?.id;
+  const currentOrganisationBases = availableBases.filter((base) => base.id !== baseId);
+  const firstAvailableBaseId = currentOrganisationBases.find((base) => base)?.id;
   const [value, setValue] = useState(firstAvailableBaseId);
 
   // Need to set this as soon as we have this value available to set the default radio selection.
@@ -31,7 +32,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   }, [firstAvailableBaseId, baseId]);
 
   const switchBase = () => {
-    const currentPath = pathname.split("/bases/")[1].substring(1);
+    const currentPath = pathname.split(`/bases/${urlBaseId}`)[1];
 
     navigate(`/bases/${value}${currentPath}`);
     onClose();
