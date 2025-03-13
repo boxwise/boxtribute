@@ -29,6 +29,7 @@ import {
   HStack,
   PopoverAnchor,
   useBoolean,
+  Box,
 } from "@chakra-ui/react";
 import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
@@ -251,7 +252,9 @@ function Boxes() {
                 <div>Age</div>
               </PopoverAnchor>
               <PopoverTrigger>
-                <FaInfoCircle height={8} width={8} />
+                <Box>
+                  <FaInfoCircle height={8} width={8} />
+                </Box>
               </PopoverTrigger>
             </HStack>
             <PopoverContent minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>

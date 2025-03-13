@@ -21,11 +21,11 @@ export const useLoadAndSetGlobalPreferences = () => {
   const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
   const selectedBaseId = useAtomValue(selectedBaseIdAtom);
 
-  // validate if base Ids are set in auth0 id token
-  if (!user || !user[JWT_AVAILABLE_BASES]?.length) setError("You do not have access to any bases.");
-
   // Boxtribute God user
   const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
+
+  // validate if base Ids are set in auth0 id token
+  if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length)) setError("You do not have access to any bases.");
 
   const [
     runOrganisationAndBasesQuery,
@@ -58,7 +58,10 @@ export const useLoadAndSetGlobalPreferences = () => {
       // - the selected base ID is part of the available base IDs from Auth0 or
       // - that the user is a Boxtribute God
       if (urlBaseId) {
-        if (isGod || user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+        if (isGod) {
+          setSelectedBase({ id: urlBaseId });
+        }
+        else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
           if (selectedBaseId !== urlBaseId) {
             // only overwrite the selected base ID if the id is different from the existing one.
             setSelectedBase({ id: urlBaseId });

@@ -2,20 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import { CellProps, Column } from "react-table";
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Button,
-  Heading,
-  Skeleton,
-  Tab,
-  TabList,
-  Tabs,
-  Text,
-} from "@chakra-ui/react";
+import { Badge, Button, Heading, Skeleton, Tab, TabList, Tabs, Text } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 
 import { graphql } from "../../../../graphql/graphql";
@@ -60,6 +47,9 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
             instantiation {
               id
               instockItemsCount
+              price
+              inShop
+              comment
               createdOn
               createdBy {
                 id
@@ -97,37 +87,6 @@ export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
   [PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
 
-function InStockProductAlert({
-  instockItemsCount,
-  productName,
-}: {
-  instockItemsCount?: number;
-  productName?: string;
-  // locations?: string, // TODO: should be derived from product locations somehow
-}) {
-  return (
-    <Alert status="error" data-testid="ErrorAlertProduct">
-      <>
-        <AlertIcon />
-        <Box display="flex" flexDirection="column">
-          <AlertTitle>Disabling Product with Active Stock</AlertTitle>
-          <AlertDescription>
-            You are attempting to disable the product {productName} with {instockItemsCount}{" "}
-            <Text fontWeight="600" color="#659A7E" display="inline">
-              InStock
-            </Text>{" "}
-            items in one or more locations. To continue, you must first reclassify all{" "}
-            <Text fontWeight="600" color="#659A7E" display="inline">
-              InStock
-            </Text>{" "}
-            boxes as a different product.
-          </AlertDescription>
-        </Box>
-      </>
-    </Alert>
-  );
-}
-
 function Products() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
   const baseId = useAtomValue(selectedBaseIdAtom);
@@ -146,15 +105,25 @@ function Products() {
         { id: "enabled", desc: false },
         { id: "name", desc: false },
       ],
-      hiddenColumns: ["version", "enabledOn", "enabledBy", "disabledOn", "id"],
+      hiddenColumns: [
+        "price",
+        "inShop",
+        "comment",
+        "version",
+        "enabledOn",
+        "enabledBy",
+        "disabledOn",
+        "id",
+      ],
     },
   });
 
   // fetch Standard Products data
-  const { loading: isStandardProductsQueryLoading, data: standardProductsRawData } = useQuery(
-    STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY,
-    { variables: { baseId } },
-  );
+  const {
+    loading: isStandardProductsQueryLoading,
+    data: standardProductsRawData,
+    error,
+  } = useQuery(STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, { variables: { baseId } });
 
   const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
     useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
@@ -163,10 +132,34 @@ function Products() {
     (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
       if (instockItemsCount !== undefined && instockItemsCount > 0) {
         createToast({
-          duration: 6000,
-          render: () => (
-            <InStockProductAlert instockItemsCount={instockItemsCount} productName={productName} />
+          title: "Disabling Product with Active Stock",
+          message: (
+            <>
+              You are attempting to disable the product {productName} with {instockItemsCount}{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                InStock
+              </Text>
+              ,{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                MarkedForShipment
+              </Text>
+              ,{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                InTransit
+              </Text>
+              , or{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                Receiving
+              </Text>{" "}
+              items in one or more locations. To continue, you must first reclassify all{" "}
+              <Text fontWeight="600" color="#659A7E" display="inline">
+                InStock
+              </Text>{" "}
+              boxes as a different product, or complete your shipments.
+            </>
           ),
+          type: "error",
+          duration: 10000,
         });
       } else if (instantiationId) {
         disableStandardProductMutation({
@@ -226,7 +219,8 @@ function Products() {
   );
 
   const handleEnableProduct = useCallback(
-    () => navigate(`/bases/${baseId}/products/create`),
+    (standardProductId: string) =>
+      navigate(`/bases/${baseId}/products/enable/${standardProductId}`),
     [navigate, baseId],
   );
 
@@ -270,7 +264,7 @@ function Products() {
                 Disable
               </Button>
             ) : (
-              <Button onClick={handleEnableProduct} size="sm">
+              <Button onClick={() => handleEnableProduct(row.original.id)} size="sm">
                 Enable
               </Button>
             )}
@@ -306,9 +300,34 @@ function Products() {
         filter: "includesOneOfMultipleStrings",
       },
       {
-        Header: "inStock Items",
+        Header: "Items in Use",
         accessor: "instockItemsCount",
         id: "instockItemsCount",
+        disableFilters: true,
+      },
+      {
+        Header: "Price",
+        accessor: "price",
+        id: "price",
+        disableFilters: true,
+      },
+      {
+        Header: "In Shop?",
+        accessor: "inShop",
+        id: "inShop",
+        disableFilters: true,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.inShop;
+          const b = rowB.values.inShop;
+          return a === b ? 0 : a ? -1 : 1;
+        },
+        Cell: ({ value }: CellProps<ProductRow, boolean>) =>
+          value && <Badge colorScheme="green">Yes</Badge>,
+      },
+      {
+        Header: "Description",
+        accessor: "comment",
+        id: "comment",
         disableFilters: true,
       },
       {
@@ -345,6 +364,14 @@ function Products() {
     ],
     [disableStandardProductMutationLoading, handleEnableProduct, handleDisableProduct],
   );
+
+  if (error) {
+    throw error;
+  }
+
+  if (!standardProductsRawData) {
+    return <TableSkeleton />;
+  }
 
   return (
     <>
