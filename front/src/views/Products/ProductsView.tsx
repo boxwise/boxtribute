@@ -373,12 +373,6 @@ function Products() {
     return <TableSkeleton />;
   }
 
-  console.log("standardProductsRawData", standardProductsRawData);
-  console.log(
-    "transformedData",
-    standardProductsRawDataToTableDataTransformer(standardProductsRawData),
-  );
-
   return (
     <>
       <BreadcrumbNavigation
