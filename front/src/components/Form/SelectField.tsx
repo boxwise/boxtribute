@@ -81,7 +81,8 @@ function SelectField({
             focusBorderColor="blue.500"
             menuPortalTarget={document.body}
             styles={{
-              menuPortal: (provided) => ({ ...provided, zIndex: 3 }),
+              // zIndex needs to be higher than 1500 to appear in modals and popovers, but not higher so that menues and toasts are above them.
+              menuPortal: (provided) => ({ ...provided, zIndex: 1550 }),
             }}
             chakraStyles={{
               control: (provided) => ({
