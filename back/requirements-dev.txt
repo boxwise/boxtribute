@@ -9,6 +9,6 @@ pytest-clarity==1.0.1
 mypy==1.15.0
 types-Flask-Cors==5.0.0.20240902
 types-peewee==3.17.9.20250308
-types-setuptools==75.8.2.20250305
+types-setuptools==76.0.0.20250313
 types-PyMySQL==1.1.0.20241103
 flake8-bugbear==24.12.12
