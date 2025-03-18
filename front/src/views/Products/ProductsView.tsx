@@ -4,6 +4,10 @@ import { useAtomValue } from "jotai";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
 import StandardProductsContainer from "./components/StandardProductsContainer";
 import ProductsContainer from "./components/ProductsContainer";
+import { ErrorBoundary } from "@sentry/react";
+import { AlertWithoutAction } from "components/Alerts";
+import { TableSkeleton } from "components/Skeletons";
+import { Suspense } from "react";
 
 function Products() {
   const selectedBase = useAtomValue(selectedBaseAtom);
@@ -28,10 +32,24 @@ function Products() {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <ProductsContainer />
+            <ErrorBoundary
+              fallback={
+                <AlertWithoutAction alertText="Could not fetch products data! Please try reloading the page." />
+              }
+            >
+              <Suspense fallback={<TableSkeleton />}>
+                <ProductsContainer />
+              </Suspense>
+            </ErrorBoundary>
           </TabPanel>
           <TabPanel>
-            <StandardProductsContainer />
+            <ErrorBoundary
+              fallback={
+                <AlertWithoutAction alertText="Could not fetch standard products data! Please try reloading the page." />
+              }
+            >
+              <StandardProductsContainer />
+            </ErrorBoundary>
           </TabPanel>
         </TabPanels>
       </Tabs>
