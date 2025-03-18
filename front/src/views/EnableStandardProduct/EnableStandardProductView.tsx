@@ -17,9 +17,9 @@ import { useMutation, useSuspenseQuery } from "@apollo/client";
 import { standardProductRawToFormDataTransformer } from "./components/transformer";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/ProductsView";
 import { useNotification } from "hooks/useNotification";
 import { useErrorHandling } from "hooks/useErrorHandling";
+import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
 
 export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
   `

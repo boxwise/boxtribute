@@ -31,13 +31,13 @@ import {
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 
-type ProductTableProps = {
+type StandardProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
   columns: Column<ProductRow>[];
 };
 
-function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
+function StandardProductsTable({ tableConfig, tableData, columns }: StandardProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -173,4 +173,4 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
   );
 }
 
-export default ProductsTable;
+export default StandardProductsTable;
