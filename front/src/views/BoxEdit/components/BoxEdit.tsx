@@ -76,9 +76,7 @@ export const BoxEditFormDataSchema = z.object({
       invalid_type_error: "Please enter an integer number",
     })
     .int()
-    .nonnegative()
-    .nullable()
-    .transform((num) => num || z.NEVER),
+    .nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { message: "Please select a location" })
