@@ -47,6 +47,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
             instantiation {
               id
               instockItemsCount
+              transferItemsCount
               price
               inShop
               comment
@@ -129,8 +130,8 @@ function Products() {
     useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
 
   const handleDisableProduct = useCallback(
-    (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
-      if (instockItemsCount !== undefined && instockItemsCount > 0) {
+    (instantiationId?: string, instockItemsCount?: number, transferItemsCount?: number, productName?: string) => {
+      if ((instockItemsCount !== undefined && instockItemsCount > 0) || (transferItemsCount !== undefined && transferItemsCount > 0)) {
         createToast({
           title: "Disabling Product with Active Stock",
           message: (
@@ -139,7 +140,7 @@ function Products() {
               <Text fontWeight="600" color="#659A7E" display="inline">
                 InStock
               </Text>
-              ,{" "}
+              , and with {transferItemsCount}{" "}
               <Text fontWeight="600" color="#659A7E" display="inline">
                 MarkedForShipment
               </Text>
@@ -254,6 +255,7 @@ function Products() {
                   handleDisableProduct(
                     row.original.instantiationId,
                     row.original.instockItemsCount,
+                    row.original.transferItemsCount,
                     row.original.name,
                   )
                 }
