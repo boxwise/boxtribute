@@ -6,8 +6,8 @@ from aiodataloader import DataLoader as _DataLoader
 from peewee import SQL, Case, NodeList, fn
 
 from ..authz import authorize, authorized_bases_filter
-from ..business_logic.warehouse.product.crud import STATES_OF_ACTIVELY_USED_BOXES
 from ..db import db
+from ..enums import BoxState as BoxStateEnum
 from ..enums import TaggableObjectType
 from ..models.definitions.base import Base
 from ..models.definitions.box import Box
@@ -495,6 +495,8 @@ class ShipmentDetailForBoxLoader(DataLoader):
 
 
 class ItemsCountForProductLoader(DataLoader):
+    box_states: list[BoxStateEnum] | None = None
+
     async def batch_load_fn(self, product_ids):
         counts = {
             product.product_id: product.total_number_of_items
@@ -504,12 +506,24 @@ class ItemsCountForProductLoader(DataLoader):
             )
             .where(
                 Box.product << product_ids,
-                Box.state << STATES_OF_ACTIVELY_USED_BOXES,
+                Box.state << self.box_states,
                 (Box.deleted_on.is_null() | ~Box.deleted_on),
             )
             .group_by(Box.product)
         }
         return [counts.get(i, 0) for i in product_ids]
+
+
+class InstockItemsCountForProductLoader(ItemsCountForProductLoader):
+    box_states = [BoxStateEnum.InStock]
+
+
+class TransferItemsCountForProductLoader(ItemsCountForProductLoader):
+    box_states = [
+        BoxStateEnum.MarkedForShipment,
+        BoxStateEnum.InTransit,
+        BoxStateEnum.Receiving,
+    ]
 
 
 class SizesForSizeRangeLoader(DataLoader):

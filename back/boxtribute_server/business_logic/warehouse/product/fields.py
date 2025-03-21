@@ -41,8 +41,13 @@ def resolve_product_type(product_obj, _):
 
 
 @product.field("instockItemsCount")
-def resolve_items_count(product_obj, info):
-    return info.context["items_count_for_product_loader"].load(product_obj.id)
+def resolve_instock_items_count(product_obj, info):
+    return info.context["instock_items_count_for_product_loader"].load(product_obj.id)
+
+
+@product.field("transferItemsCount")
+def resolve_transfer_items_count(product_obj, info):
+    return info.context["transfer_items_count_for_product_loader"].load(product_obj.id)
 
 
 @product.field("createdBy")

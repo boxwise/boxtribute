@@ -96,6 +96,8 @@ type Product {
   comment: String
   " Number of items of all non-deleted InStock boxes containing the product. "
   instockItemsCount: Int!
+  " Number of items of all transfer boxes containing the product. "
+  transferItemsCount: Int!
   inShop: Boolean!
   createdBy: User
   createdOn: Datetime
