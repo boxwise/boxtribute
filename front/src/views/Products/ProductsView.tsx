@@ -306,6 +306,9 @@ function Products() {
         accessor: "instockItemsCount",
         id: "instockItemsCount",
         disableFilters: true,
+        Cell: ({ row }: CellProps<ProductRow, any>) => (
+          <>{(row.original.instockItemsCount || 0) + (row.original.transferItemsCount || 0)}</>
+        )
       },
       {
         Header: "Price",
