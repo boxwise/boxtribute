@@ -11,6 +11,7 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
+import { AllProductsCell } from "./TableCells";
 
 export const PRODUCTS_QUERY = graphql(
   `
@@ -76,6 +77,7 @@ function ProductsContainer() {
         id: "name",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
+        Cell: AllProductsCell,
       },
       {
         Header: "Category",

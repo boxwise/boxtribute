@@ -20,6 +20,7 @@ export type StandardProductRow = {
 
 export type ProductRow = {
   name: string;
+  isStandard: boolean;
   category: string;
   gender: string;
   sizeRange: string;
@@ -70,6 +71,7 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
     ({
       id,
       name,
+      type,
       category,
       gender,
       sizeRange,
@@ -85,6 +87,7 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
       return {
         id,
         name,
+        isStandard: type === "StandardInstantiation",
         category: category.name,
         gender: gender === "none" || !gender ? "-" : gender,
         sizeRange: sizeRange.label,
