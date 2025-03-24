@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/hooks";
-import { ProductRow } from "./transformers";
+import { StandardProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -34,7 +34,7 @@ import { GlobalFilter } from "components/Table/GlobalFilter";
 type StandardProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
-  columns: Column<ProductRow>[];
+  columns: Column<StandardProductRow>[];
 };
 
 function StandardProductsTable({ tableConfig, tableData, columns }: StandardProductTableProps) {
@@ -115,7 +115,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
         overflowY="auto"
         whiteSpace="nowrap"
       >
-        <Table key="products-table">
+        <Table key="standard-products-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
             {page.map((row) => {

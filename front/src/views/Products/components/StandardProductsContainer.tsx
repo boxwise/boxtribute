@@ -15,7 +15,7 @@ import {
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
 import StandardProductsTable from "./StandardProductsTable";
-import { ProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
+import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
@@ -87,7 +87,7 @@ function StandardProductsContainer() {
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
 
-  const tableConfigKey = `bases/${baseId}/products`;
+  const tableConfigKey = `bases/${baseId}/standardproducts`;
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
@@ -215,7 +215,7 @@ function StandardProductsContainer() {
     [navigate, baseId],
   );
 
-  const availableColumns: Column<ProductRow>[] = useMemo(
+  const availableColumns: Column<StandardProductRow>[] = useMemo(
     () => [
       {
         Header: "Enabled",
@@ -227,7 +227,7 @@ function StandardProductsContainer() {
           const b = rowB.values.enabled;
           return a === b ? 0 : a ? -1 : 1;
         },
-        Cell: ({ value }: CellProps<ProductRow, any>) => (
+        Cell: ({ value }: CellProps<StandardProductRow, any>) => (
           <>{value && <FaCheckCircle style={{ margin: "auto" }} color="#659A7E" />}</>
         ),
       },
@@ -237,7 +237,7 @@ function StandardProductsContainer() {
         id: "actionButton",
         disableFilters: true,
         disableSortBy: true,
-        Cell: ({ row }: CellProps<ProductRow, any>) => (
+        Cell: ({ row }: CellProps<StandardProductRow, any>) => (
           <>
             {row.original.enabled ? (
               <Button
@@ -312,7 +312,7 @@ function StandardProductsContainer() {
           const b = rowB.values.inShop;
           return a === b ? 0 : a ? -1 : 1;
         },
-        Cell: ({ value }: CellProps<ProductRow, boolean>) =>
+        Cell: ({ value }: CellProps<StandardProductRow, boolean>) =>
           value && <Badge colorScheme="green">Yes</Badge>,
       },
       {
