@@ -285,7 +285,7 @@ function StandardProductsContainer() {
       },
       {
         Header: "Size Range",
-        accessor: "size",
+        accessor: "sizeRange",
         id: "size",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
