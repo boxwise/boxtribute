@@ -67,39 +67,41 @@ export const standardProductsRawDataToTableDataTransformer = (
 };
 
 export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery) => {
-  return productsRawData.products.elements.map(
-    ({
-      id,
-      name,
-      type,
-      category,
-      gender,
-      sizeRange,
-      instockItemsCount,
-      price,
-      inShop,
-      comment,
-      lastModifiedOn,
-      lastModifiedBy,
-      createdOn,
-      createdBy,
-    }) => {
-      return {
+  return productsRawData.products.elements
+    .filter(({ deletedOn }) => !deletedOn)
+    .map(
+      ({
         id,
         name,
-        isStandard: type === "StandardInstantiation",
-        category: category.name,
-        gender: gender === "none" || !gender ? "-" : gender,
-        sizeRange: sizeRange.label,
-        instockItemsCount: instockItemsCount,
-        price: price,
-        inShop: inShop,
-        comment: comment,
-        lastModified: lastModifiedOn,
-        lastModifiedBy: lastModifiedBy?.name,
-        created: createdOn,
-        createdBy: createdBy?.name,
-      } satisfies ProductRow;
-    },
-  );
+        type,
+        category,
+        gender,
+        sizeRange,
+        instockItemsCount,
+        price,
+        inShop,
+        comment,
+        lastModifiedOn,
+        lastModifiedBy,
+        createdOn,
+        createdBy,
+      }) => {
+        return {
+          id,
+          name,
+          isStandard: type === "StandardInstantiation",
+          category: category.name,
+          gender: gender === "none" || !gender ? "-" : gender,
+          sizeRange: sizeRange.label,
+          instockItemsCount: instockItemsCount,
+          price: price,
+          inShop: inShop,
+          comment: comment,
+          lastModified: lastModifiedOn,
+          lastModifiedBy: lastModifiedBy?.name,
+          created: createdOn,
+          createdBy: createdBy?.name,
+        } satisfies ProductRow;
+      },
+    );
 };

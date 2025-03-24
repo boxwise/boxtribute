@@ -9,15 +9,13 @@ import { useCallback, useMemo } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Column, CellProps } from "react-table";
-import {
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
-  STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
-} from "../../../../../graphql/fragments";
+import { STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
 import StandardProductsTable from "./StandardProductsTable";
 import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { PRODUCTS_QUERY } from "./ProductsContainer";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -66,7 +64,12 @@ export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
       disableStandardProduct(instantiationId: $instantiationId) {
         __typename
         ... on Product {
-          ...ProductBasicFields
+          id
+          type
+          standardProduct {
+            id
+          }
+          deletedOn
         }
         ... on UnauthorizedForBaseError {
           name
@@ -78,7 +81,7 @@ export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
       }
     }
   `,
-  [PRODUCT_BASIC_FIELDS_FRAGMENT],
+  [],
 );
 
 function StandardProductsContainer() {
@@ -159,6 +162,7 @@ function StandardProductsContainer() {
           },
           refetchQueries: [
             { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
+            { query: PRODUCTS_QUERY },
           ],
         })
           .then(({ data }) => {
