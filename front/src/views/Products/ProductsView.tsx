@@ -20,7 +20,7 @@ function Products() {
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Products
       </Heading>
-      <Tabs variant="enclosed-colored" mb={4} defaultIndex={1}>
+      <Tabs variant="enclosed-colored" mb={4} defaultIndex={0}>
         <TabList>
           <Tab fontWeight="bold" flex={1}>
             {baseName ? baseName?.toUpperCase() : <Skeleton height={6} width={20} mr={2} />}{" "}

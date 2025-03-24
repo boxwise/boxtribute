@@ -149,13 +149,13 @@ function HeaderMenuContainer() {
           },
           {
             link: `${oldAppUrlWithBase}&action=products`,
-            name: "Manage Products",
+            name: "Classic Manage Products",
             requiredAbps: ["manage_products"],
             external: true,
           },
           {
             link: `/bases/${baseId}/products`,
-            name: "ASSORT Products",
+            name: "Manage Products",
             beta: true,
             requiredAbps: ["manage_products"],
             minBeta: 4,
