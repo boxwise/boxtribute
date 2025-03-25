@@ -7,7 +7,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
     "@boxtribute/shared-components": "workspace:*",
-    "@sentry/react": "^9.2.0",
+    "@sentry/react": "^9.9.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "jotai": "^2.12.2",
