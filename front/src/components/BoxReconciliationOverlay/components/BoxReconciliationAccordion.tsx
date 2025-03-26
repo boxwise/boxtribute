@@ -58,10 +58,8 @@ export function BoxReconcilationAccordion({
     productId: isProductAutoMatched
       ? parseInt(shipmentDetail.autoMatchingTargetProduct?.id ?? "0")
       : undefined,
-    sizeId: isProductAutoMatched
-      ? parseInt(shipmentDetail.autoMatchingTargetProduct?.sizeRange.id ?? "0")
-      : undefined,
-    numberOfItems: isProductAutoMatched ? (shipmentDetail?.sourceQuantity ?? 0) : undefined,
+    sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
+    numberOfItems: isProductAutoMatched ? (shipmentDetail.sourceQuantity ?? 0) : undefined,
   });
   const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
   const accordionHeaderText = productManuallyMatched

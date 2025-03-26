@@ -80,7 +80,7 @@ export function MatchProductsForm({
     },
     sizeId: {
       label: "Save Size As...",
-      value: shipmentDetail?.autoMatchingTargetProduct?.sizeRange.id ?? "",
+      value: shipmentDetail.sourceSize?.id ?? "",
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
