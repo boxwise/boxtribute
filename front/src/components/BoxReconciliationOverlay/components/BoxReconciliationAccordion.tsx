@@ -6,6 +6,11 @@ import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationVie
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
 import { ShipmentDetail } from "queries/types";
+import { useSetAtom } from "jotai";
+import {
+  reconciliationMatchProductAtom,
+  reconciliationReceiveLocationAtom,
+} from "stores/globalPreferenceStore";
 
 interface IBoxReconcilationAccordionProps {
   shipmentDetail: ShipmentDetail;
@@ -48,6 +53,8 @@ export function BoxReconcilationAccordion({
     sizeId: undefined,
     numberOfItems: undefined,
   });
+  const setReconciliationMatchProductCache = useSetAtom(reconciliationMatchProductAtom);
+  const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
 
   return (
     <Accordion allowToggle index={accordionIndex}>
@@ -76,6 +83,7 @@ export function BoxReconcilationAccordion({
             onSubmitMatchProductsForm={(matchedProductsFormData: IMatchProductsFormData) => {
               setProductMatched(true);
               setAccordionIndex(1);
+              setReconciliationMatchProductCache(matchedProductsFormData);
               setProductFormData({
                 sizeId: parseInt(matchedProductsFormData.sizeId.value, 10),
                 productId: parseInt(matchedProductsFormData.productId.value, 10),
@@ -109,6 +117,7 @@ export function BoxReconcilationAccordion({
             onSubmitReceiveLocationForm={(receiveLocationFormData: IReceiveLocationFormData) => {
               setLocationSpecified(true);
               setAccordionIndex(-1);
+              setReconciliationReceiveLocationCache(receiveLocationFormData);
 
               onBoxDelivered(
                 shipmentDetail.box.labelIdentifier,

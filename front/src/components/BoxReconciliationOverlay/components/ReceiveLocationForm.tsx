@@ -7,6 +7,8 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
 import { z } from "zod";
 import { ILocationData } from "./BoxReconciliationView";
+import { useAtomValue } from "jotai";
+import { reconciliationReceiveLocationAtom } from "stores/globalPreferenceStore";
 
 // Definitions for form validation with zod
 
@@ -42,9 +44,14 @@ export function ReceiveLocationForm({
     value: location.id,
   }));
 
+  const cachedReconciliationReceiveLocation = useAtomValue(reconciliationReceiveLocationAtom);
+
   // Form Default Values
   const defaultValues: IReceiveLocationFormData = {
-    locationId: { label: "Select Location", value: "" },
+    locationId: {
+      label: cachedReconciliationReceiveLocation.locationId.label,
+      value: cachedReconciliationReceiveLocation.locationId.value,
+    },
   };
 
   // react-hook-form

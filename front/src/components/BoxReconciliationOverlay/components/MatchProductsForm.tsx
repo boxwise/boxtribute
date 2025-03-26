@@ -10,6 +10,8 @@ import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentDetail } from "queries/types";
+import { useAtomValue } from "jotai";
+import { reconciliationMatchProductAtom } from "stores/globalPreferenceStore";
 
 export interface ICategoryData {
   name: string;
@@ -72,13 +74,18 @@ export function MatchProductsForm({
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
+  const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: "Save Product As...",
-      value: "",
+      label: cachedReconciliationMatchProduct.productId.label,
+      value: cachedReconciliationMatchProduct.productId.value,
     },
-    sizeId: { label: "Save Size As...", value: "" },
+    sizeId: {
+      label: cachedReconciliationMatchProduct.sizeId.label,
+      value: cachedReconciliationMatchProduct.sizeId.value,
+    },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
 
@@ -123,12 +130,14 @@ export function MatchProductsForm({
         // if there is only one option select it directly
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
+        } else if (cachedReconciliationMatchProduct.sizeId.value) {
+          return;
         } else {
           resetField("sizeId", { defaultValue: { value: "", label: "Save Size As..." } });
         }
       }
     }
-  }, [productId, productAndSizesData, resetField]);
+  }, [productId, productAndSizesData, resetField, cachedReconciliationMatchProduct.sizeId.value]);
 
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
