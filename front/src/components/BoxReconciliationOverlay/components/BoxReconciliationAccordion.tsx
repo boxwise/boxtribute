@@ -60,11 +60,11 @@ export function BoxReconcilationAccordion({
     numberOfItems: undefined,
   });
   const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
-  const accordionHeaderText = isProductAutoMatched
-    ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
-    : !productManuallyMatched
-      ? "MATCH PRODUCTS"
-      : "PRODUCTS DELIVERED";
+  const accordionHeaderText = productManuallyMatched
+    ? "PRODUCTS DELIVERED"
+    : isProductAutoMatched
+      ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
+      : "MATCH PRODUCTS";
 
   return (
     <Accordion allowToggle index={accordionIndex}>
@@ -84,7 +84,7 @@ export function BoxReconcilationAccordion({
               <BsFillCheckCircleFill color="#659A7E" size={18} />
             )}
           </Box>
-          {isProductAutoMatched && accordionIndex !== 0 && (
+          {isProductAutoMatched && accordionIndex !== 0 && !productManuallyMatched && (
             <Text as="i" fontSize="xs" position="absolute" bottom={0.5} left={8}>
               Click here to view auto-matched items
             </Text>
