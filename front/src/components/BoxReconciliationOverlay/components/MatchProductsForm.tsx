@@ -76,11 +76,18 @@ export function MatchProductsForm({
   const defaultValues: IMatchProductsFormData = {
     productId: {
       label: "Save Product As...",
-      value: "",
+      value: shipmentDetail?.autoMatchingTargetProduct?.id ?? "",
     },
-    sizeId: { label: "Save Size As...", value: "" },
+    sizeId: {
+      label: "Save Size As...",
+      value: shipmentDetail?.autoMatchingTargetProduct?.sizeRange.id ?? "",
+    },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
+
+  const submitButtonText = shipmentDetail.autoMatchingTargetProduct
+    ? "Save Changes"
+    : "Confirm Delivered Items";
 
   // react-hook-form
   const {
@@ -241,7 +248,7 @@ export function MatchProductsForm({
             color="white"
             isDisabled={isSubmitting || productId.value === "" || sizeId.value === ""}
           >
-            Confirm Delivered Items
+            {submitButtonText}
           </Button>
           <Button
             isLoading={isSubmitting || loading}

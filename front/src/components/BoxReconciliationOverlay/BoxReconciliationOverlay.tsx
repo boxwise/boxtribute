@@ -210,7 +210,7 @@ export function BoxReconciliationOverlay({
         onClose={onOverlayClose}
         onBoxUndelivered={setBoxUndeliveredAYSState}
         onBoxDelivered={onBoxDelivered}
-        shipmentDetail={shipmentDetail as ShipmentDetail}
+        shipmentDetail={shipmentDetail! satisfies ShipmentDetail}
         allLocations={allLocations as ILocationData[]}
         productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
         closeOnOverlayClick={closeOnOverlayClick}
