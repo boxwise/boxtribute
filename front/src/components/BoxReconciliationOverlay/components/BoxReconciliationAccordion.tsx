@@ -55,9 +55,13 @@ export function BoxReconcilationAccordion({
   const [productManuallyMatched, setProductManuallyMatched] = useState(false);
   const [locationSpecified, setLocationSpecified] = useState(false);
   const [productFormData, setProductFormData] = useState<IProductFormData>({
-    productId: undefined,
-    sizeId: undefined,
-    numberOfItems: undefined,
+    productId: isProductAutoMatched
+      ? parseInt(shipmentDetail.autoMatchingTargetProduct?.id ?? "0")
+      : undefined,
+    sizeId: isProductAutoMatched
+      ? parseInt(shipmentDetail.autoMatchingTargetProduct?.sizeRange.id ?? "0")
+      : undefined,
+    numberOfItems: isProductAutoMatched ? (shipmentDetail?.sourceQuantity ?? 0) : undefined,
   });
   const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
   const accordionHeaderText = productManuallyMatched
