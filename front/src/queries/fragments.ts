@@ -219,15 +219,6 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(
       receivedBy {
         ...UserBasicFields
       }
-      autoMatchingTargetProduct {
-        id
-        name
-        gender
-        sizeRange {
-          id
-          label
-        }
-      }
     }
   `,
   [
@@ -237,6 +228,20 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(
     SIZE_BASIC_FIELDS_FRAGMENT,
   ],
 );
+
+export const SHIPMENT_DETAIL_AUTOMATCH_TARGET_PRODUCT_FRAGMENT = graphql(`
+  fragment ShipmentDetailAutomatchTargetProductFragment on ShipmentDetail @_unmask {
+    autoMatchingTargetProduct {
+      id
+      name
+      gender
+      sizeRange {
+        id
+        label
+      }
+    }
+  }
+`);
 
 export const SHIPMENT_FIELDS_FRAGMENT = graphql(
   `

@@ -15,10 +15,10 @@ import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 interface IBoxReconcilationAccordionProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   loading: boolean;

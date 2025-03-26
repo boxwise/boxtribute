@@ -9,7 +9,7 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 export interface ICategoryData {
   name: string;
@@ -58,7 +58,7 @@ export const MatchProductsFormDataSchema = z.object({
 export type IMatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   loading: boolean;
   onSubmitMatchProductsForm: (matchedProductsFormData: IMatchProductsFormData) => void;

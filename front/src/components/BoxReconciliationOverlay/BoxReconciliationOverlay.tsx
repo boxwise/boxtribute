@@ -9,7 +9,7 @@ import { chakra } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { AreYouSureDialog as BoxUndeliveredAYS } from "components/AreYouSure";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 import {
   BoxReconciliationView,
   ILocationData,
@@ -18,7 +18,7 @@ import {
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface IBoxReconciliationOverlayData {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
 }
 
 export function BoxReconciliationOverlay({
@@ -210,7 +210,8 @@ export function BoxReconciliationOverlay({
         onClose={onOverlayClose}
         onBoxUndelivered={setBoxUndeliveredAYSState}
         onBoxDelivered={onBoxDelivered}
-        shipmentDetail={shipmentDetail! satisfies ShipmentDetail}
+        // TODO: improve inference for this type
+        shipmentDetail={shipmentDetail as ShipmentDetailWithAutomatchProduct}
         allLocations={allLocations as ILocationData[]}
         productAndSizesData={productAndSizesData as IProductWithSizeRangeData[]}
         closeOnOverlayClick={closeOnOverlayClick}
