@@ -76,7 +76,7 @@ export function MatchProductsForm({
 }: IMatchProductsFormProps) {
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
   /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
-  const matchingProductSourceId = shipmentDetail.sourceProduct?.id || "0";
+  const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
   const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
   /** Object key to match in the store to fetch the input values. */
   const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
