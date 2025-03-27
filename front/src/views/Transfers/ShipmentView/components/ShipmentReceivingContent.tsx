@@ -19,6 +19,7 @@ function ShipmentReceivingContent({ items, onReconciliationBox }: IShipmentRecei
       gender: shipmentDetail.sourceProduct?.gender,
       size: shipmentDetail.sourceSize?.label,
       items: shipmentDetail?.sourceQuantity || 0,
+      autoMatchingTargetProduct: shipmentDetail?.autoMatchingTargetProduct,
     }),
   );
 

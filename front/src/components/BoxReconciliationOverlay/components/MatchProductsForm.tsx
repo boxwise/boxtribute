@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { useAtomValue } from "jotai";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { groupBy } from "lodash";
@@ -9,9 +10,8 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { ShipmentDetail } from "queries/types";
-import { useAtomValue } from "jotai";
 import { reconciliationMatchProductAtom } from "stores/globalCacheStore";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 export interface ICategoryData {
   name: string;
@@ -60,7 +60,7 @@ export const MatchProductsFormDataSchema = z.object({
 export type IMatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   loading: boolean;
   onSubmitMatchProductsForm: (matchedProductsFormData: IMatchProductsFormData) => void;
@@ -74,6 +74,7 @@ export function MatchProductsForm({
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
+  const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
   /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
   const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
@@ -81,18 +82,31 @@ export function MatchProductsForm({
   /** Object key to match in the store to fetch the input values. */
   const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
 
-  // default Values
+  // Default Values
+  // Automatched Products take precedence over cached products.
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: cachedReconciliationMatchProduct[cacheId].productId.label,
-      value: cachedReconciliationMatchProduct[cacheId].productId.value,
+      label:
+        shipmentDetail?.autoMatchingTargetProduct?.name ??
+        cachedReconciliationMatchProduct[cacheId].productId.label,
+      value:
+        shipmentDetail?.autoMatchingTargetProduct?.id ??
+        cachedReconciliationMatchProduct[cacheId].productId.value,
     },
     sizeId: {
-      label: cachedReconciliationMatchProduct[cacheId].sizeId.label,
-      value: cachedReconciliationMatchProduct[cacheId].sizeId.value,
+      label: isProductAutoMatched
+        ? (shipmentDetail.sourceSize?.label ?? "")
+        : cachedReconciliationMatchProduct[cacheId].sizeId.label,
+      value: isProductAutoMatched
+        ? (shipmentDetail.sourceSize?.id ?? "")
+        : cachedReconciliationMatchProduct[cacheId].sizeId.value,
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
+
+  const submitButtonText = shipmentDetail.autoMatchingTargetProduct
+    ? "Save Changes"
+    : "Confirm Delivered Items";
 
   // react-hook-form
   const {
@@ -267,7 +281,7 @@ export function MatchProductsForm({
             color="white"
             isDisabled={isSubmitting || productId.value === "" || sizeId.value === ""}
           >
-            Confirm Delivered Items
+            {submitButtonText}
           </Button>
           <Button
             isLoading={isSubmitting || loading}
