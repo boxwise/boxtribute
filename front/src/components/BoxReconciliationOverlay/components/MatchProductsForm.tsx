@@ -11,7 +11,7 @@ import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentDetail } from "queries/types";
 import { useAtomValue } from "jotai";
-import { reconciliationMatchProductAtom } from "stores/globalPreferenceStore";
+import { reconciliationMatchProductAtom } from "stores/globalCacheStore";
 
 export interface ICategoryData {
   name: string;
@@ -191,7 +191,10 @@ export function MatchProductsForm({
             errors={errors}
             control={control}
           />
-          <BsFillCheckCircleFill color={productId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
+          <BsFillCheckCircleFill
+            color={control.getFieldState("productId").isDirty ? "#659A7E" : "#fff"}
+            size={18}
+          />
         </Flex>
         <Box>
           <Text fontSize={16} fontWeight="bold">
@@ -218,7 +221,10 @@ export function MatchProductsForm({
             errors={errors}
             control={control}
           />
-          <BsFillCheckCircleFill color={sizeId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
+          <BsFillCheckCircleFill
+            color={control.getFieldState("sizeId").isDirty ? "#659A7E" : "#fff"}
+            size={18}
+          />
         </Flex>
         <Flex alignContent="center" alignItems="center">
           <Wrap alignItems="center">
