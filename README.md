@@ -124,23 +124,23 @@ A collection of various QR labels (associated/not associated with existing boxes
 
 Box in base 1
 
-![box in base 1](./docs/qr/code-with-box-base-1-8d795aa39fff6d41a402d29dd7ddc409.png)
+![box in base 1](./docs/qr/code-with-box-base-1-f515148a5a1b0dbb5a150563f593ce0b.png)
 
 Box in base 2
 
-![box in base 2](./docs/qr/code-with-box-base-2-1ba9993ca89b95d9706b057d12172539.png.png)
+![box in base 2](./docs/qr/code-with-box-base-2-1b46ff4d8399d481c1498b815605d868.png)
 
 Box in base 3
 
-![box in base 3](./docs/qr/code-with-box-base-3-daf8d5728fa2c88311654b6700f5222c.png)
+![box in base 3](./docs/qr/code-with-box-base-3-c49d2bc8aa34ef77c20179a6ad001afb.png)
 
 Box in base 4
 
-![box in base 4](./docs/qr/code-with-box-base-4-297718bf01b931938f55918dd2469c87.png)
+![box in base 4](./docs/qr/code-with-box-base-4-b8d2865e8629f4a07640613c7f7b1d7c.png)
 
 ### QR labels not associated with any boxes
 
-![x0](./docs/qr/without-box/00d5c0e6492257a9f86203417071bbb6.png)
+![x0](./docs/qr/without-box/0159bdee5ace105482989775c591f1af.png)
 
 ![x1](./docs/qr/without-box/02292cfdb2f54e0e496c56b764507fb3.png)
 
