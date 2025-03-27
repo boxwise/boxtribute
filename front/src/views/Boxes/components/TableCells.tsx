@@ -20,7 +20,7 @@ import { colorIsBright } from "utils/helpers";
 
 export function ProductCell({ value, cell }: CellProps<any>) {
   return (
-    <chakra.span as="b" display="flex" gap={2} position="relative">
+    <chakra.span display="flex" gap={2} position="relative">
       {value}{" "}
       {cell.row.original.holdsStandardProduct && (
         <Popover closeOnEsc closeOnBlur isLazy>
