@@ -1,14 +1,24 @@
-import { Accordion, AccordionButton, AccordionItem, AccordionPanel, Box } from "@chakra-ui/react";
+import {
+  Accordion,
+  AccordionButton,
+  AccordionItem,
+  AccordionPanel,
+  Alert,
+  AlertIcon,
+  Box,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 interface IBoxReconcilationAccordionProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   loading: boolean;
@@ -40,41 +50,68 @@ export function BoxReconcilationAccordion({
   onBoxUndelivered,
   onBoxDelivered,
 }: IBoxReconcilationAccordionProps) {
-  const [accordionIndex, setAccordionIndex] = useState(0);
-  const [productMatched, setProductMatched] = useState<boolean>(false);
-  const [locationSpecified, setLocationSpecified] = useState<boolean>(false);
+  const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
+  const [accordionIndex, setAccordionIndex] = useState(isProductAutoMatched ? 1 : 0);
+  const [productManuallyMatched, setProductManuallyMatched] = useState(false);
+  const [locationSpecified, setLocationSpecified] = useState(false);
   const [productFormData, setProductFormData] = useState<IProductFormData>({
-    productId: undefined,
-    sizeId: undefined,
-    numberOfItems: undefined,
+    productId: isProductAutoMatched
+      ? parseInt(shipmentDetail.autoMatchingTargetProduct?.id ?? "0")
+      : undefined,
+    sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
+    numberOfItems: isProductAutoMatched ? (shipmentDetail.sourceQuantity ?? 0) : undefined,
   });
+  const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
+  const accordionHeaderText = productManuallyMatched
+    ? "PRODUCTS DELIVERED"
+    : isProductAutoMatched
+      ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
+      : "MATCH PRODUCTS";
 
   return (
     <Accordion allowToggle index={accordionIndex}>
       <AccordionItem>
-        <h2>
-          <AccordionButton
-            p={4}
-            borderBottomWidth={1}
-            onClick={() => setAccordionIndex(0)}
-            color={!productMatched ? "#000" : "#659A7E"}
-          >
-            <Box flex="1" textAlign="left" fontWeight="bold">
-              1. {!productMatched && "MATCH PRODUCTS"}
-              {productMatched && "PRODUCTS DELIVERED"}
-            </Box>
-            {!productMatched && <RiQuestionFill size={20} />}
-            {productMatched && <BsFillCheckCircleFill color="#659A7E" size={18} />}
-          </AccordionButton>
-        </h2>
-        <AccordionPanel p={6}>
+        <AccordionButton
+          p={4}
+          borderBottomWidth={1}
+          onClick={() => setAccordionIndex(0)}
+          position="relative"
+        >
+          <Box flex="1" textAlign="left" fontWeight="bold" color={accordionHeaderColor}>
+            <h2>1. {accordionHeaderText}</h2>
+          </Box>
+          <Box>
+            {!(productManuallyMatched || isProductAutoMatched) && <RiQuestionFill size={20} />}
+            {(productManuallyMatched || isProductAutoMatched) && (
+              <BsFillCheckCircleFill color="#659A7E" size={18} />
+            )}
+          </Box>
+          {isProductAutoMatched && accordionIndex !== 0 && !productManuallyMatched && (
+            <Text as="i" fontSize="xs" position="absolute" bottom={0.5} left={8}>
+              Click here to view auto-matched items
+            </Text>
+          )}
+        </AccordionButton>
+        <AccordionPanel p={6} position="relative">
+          {isProductAutoMatched && !productManuallyMatched && (
+            <>
+              <Alert status="info" left={0} top={0} position="absolute">
+                <AlertIcon />
+                <Text as="i" fontSize="sm" lineHeight={8}>
+                  Items were pre-matched using your enabled ASSORT products. To modify, change the
+                  values below.
+                </Text>
+              </Alert>
+              <Spacer height="88px" />
+            </>
+          )}
           <MatchProductsForm
             loading={loading}
             shipmentDetail={shipmentDetail}
             productAndSizesData={productAndSizesData}
             onBoxUndelivered={onBoxUndelivered}
             onSubmitMatchProductsForm={(matchedProductsFormData: IMatchProductsFormData) => {
-              setProductMatched(true);
+              setProductManuallyMatched(true);
               setAccordionIndex(1);
               setProductFormData({
                 sizeId: parseInt(matchedProductsFormData.sizeId.value, 10),
