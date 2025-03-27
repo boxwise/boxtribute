@@ -20,6 +20,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           location: element.location!.name,
           tags: element.tags,
           shipment: element.shipmentDetail?.shipment,
+          matchingAssortProduct: element.product?.type === "Custom",
           comment: element.comment,
           age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
           lastModified: element.lastModifiedOn
