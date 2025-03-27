@@ -93,7 +93,7 @@ export function BoxReconcilationAccordion({
           )}
         </AccordionButton>
         <AccordionPanel p={6} position="relative">
-          {isProductAutoMatched && (
+          {isProductAutoMatched && !productManuallyMatched && (
             <>
               <Alert status="info" left={0} top={0} position="absolute">
                 <AlertIcon />
