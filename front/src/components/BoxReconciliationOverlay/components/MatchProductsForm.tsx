@@ -72,15 +72,18 @@ export function MatchProductsForm({
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
+  const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: "Save Product As...",
+      // TODO: Handle caching when https://github.com/boxwise/boxtribute/pull/2049 is merged
+      label: shipmentDetail?.autoMatchingTargetProduct?.name ?? "Save Product As...",
       value: shipmentDetail?.autoMatchingTargetProduct?.id ?? "",
     },
     sizeId: {
-      label: "Save Size As...",
-      value: shipmentDetail.sourceSize?.id ?? "",
+      // TODO: Handle caching when https://github.com/boxwise/boxtribute/pull/2049 is merged
+      label: isProductAutoMatched ? (shipmentDetail.sourceSize?.label ?? "") : "Save Size As...",
+      value: isProductAutoMatched ? (shipmentDetail.sourceSize?.id ?? "") : "",
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
