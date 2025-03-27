@@ -22,7 +22,7 @@ export function ProductCell({ value, cell }: CellProps<any>) {
   return (
     <chakra.span as="b" display="flex" gap={2} position="relative">
       {value}{" "}
-      {cell.row.original.matchingAssortProduct && (
+      {cell.row.original.holdsStandardProduct && (
         <Popover closeOnEsc closeOnBlur isLazy>
           <PopoverTrigger>
             <BsFillCheckCircleFill color="#659A7E" size={18} onClick={(e) => e.stopPropagation()} />
