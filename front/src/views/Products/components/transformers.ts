@@ -28,9 +28,9 @@ export type ProductRow = {
   price?: number | null;
   inShop?: boolean | null;
   comment?: string | null;
-  lastModified?: string | null;
+  lastModified?: Date | null;
   lastModifiedBy?: string | null;
-  created?: string | null;
+  created?: Date | null;
   createdBy?: string | null;
   id: string;
 };
@@ -97,9 +97,13 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
           price: price,
           inShop: inShop,
           comment: comment,
-          lastModified: lastModifiedOn,
+          lastModified: lastModifiedOn
+            ? new Date(lastModifiedOn)
+            : createdOn
+              ? new Date(createdOn)
+              : null,
           lastModifiedBy: lastModifiedBy?.name,
-          created: createdOn,
+          created: !createdOn ? new Date() : null,
           createdBy: createdBy?.name,
         } satisfies ProductRow;
       },
