@@ -87,11 +87,9 @@ export function BoxReconcilationAccordion({
               setAccordionIndex(1);
 
               if (shipmentDetail.sourceProduct?.id) {
-                const newProductCache = {
-                  ...reconciliationMatchProductCache,
-                };
-                newProductCache[shipmentDetail.sourceProduct.id] = matchedProductsFormData;
-                setReconciliationMatchProductCache(newProductCache);
+                reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
+                  matchedProductsFormData;
+                setReconciliationMatchProductCache(reconciliationMatchProductCache);
               }
 
               setProductFormData({
