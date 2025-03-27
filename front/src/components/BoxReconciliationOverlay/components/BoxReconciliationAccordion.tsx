@@ -10,7 +10,7 @@ import { useSetAtom } from "jotai";
 import {
   reconciliationMatchProductAtom,
   reconciliationReceiveLocationAtom,
-} from "stores/globalPreferenceStore";
+} from "stores/globalCacheStore";
 
 interface IBoxReconcilationAccordionProps {
   shipmentDetail: ShipmentDetail;
