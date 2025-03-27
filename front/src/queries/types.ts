@@ -9,7 +9,7 @@ import {
   SHIPMENT_DETAIL_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
-  SHIPMENT_DETAIL_AUTOMATCH_TARGET_PRODUCT_FRAGMENT,
+  AUTOMATCH_TARGET_PRODUCT_FRAGMENT,
 } from "./fragments";
 
 export type DistributionEventState = FragmentOf<typeof DISTRO_EVENT_FIELDS_FRAGMENT>["state"];
@@ -26,7 +26,7 @@ export type ShipmentDetail = FragmentOf<typeof SHIPMENT_DETAIL_FIELDS_FRAGMENT>;
 export type ShipmentDetailWithAutomatchProduct = FragmentOf<
   typeof SHIPMENT_DETAIL_FIELDS_FRAGMENT
 > &
-  FragmentOf<typeof SHIPMENT_DETAIL_AUTOMATCH_TARGET_PRODUCT_FRAGMENT>;
+  FragmentOf<typeof AUTOMATCH_TARGET_PRODUCT_FRAGMENT>;
 export type TransferAgreements = FragmentOf<typeof TRANSFER_AGREEMENT_FIELDS_FRAGMENT>;
 export type UpdateBoxMutation = ResultOf<typeof UPDATE_BOX_MUTATION>["updateBox"];
 export type BoxesForBoxesViewQuery = ResultOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;

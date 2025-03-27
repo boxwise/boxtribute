@@ -229,8 +229,8 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(
   ],
 );
 
-export const SHIPMENT_DETAIL_AUTOMATCH_TARGET_PRODUCT_FRAGMENT = graphql(`
-  fragment ShipmentDetailAutomatchTargetProductFragment on ShipmentDetail @_unmask {
+export const AUTOMATCH_TARGET_PRODUCT_FRAGMENT = graphql(`
+  fragment AutomatchTargetProduct on ShipmentDetail @_unmask {
     autoMatchingTargetProduct {
       id
       name
