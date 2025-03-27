@@ -6,7 +6,7 @@ import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationVie
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
 import { ShipmentDetail } from "queries/types";
-import { useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import {
   reconciliationMatchProductAtom,
   reconciliationReceiveLocationAtom,
@@ -53,7 +53,9 @@ export function BoxReconcilationAccordion({
     sizeId: undefined,
     numberOfItems: undefined,
   });
-  const setReconciliationMatchProductCache = useSetAtom(reconciliationMatchProductAtom);
+  const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
+    reconciliationMatchProductAtom,
+  );
   const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
 
   return (
@@ -83,7 +85,15 @@ export function BoxReconcilationAccordion({
             onSubmitMatchProductsForm={(matchedProductsFormData: IMatchProductsFormData) => {
               setProductMatched(true);
               setAccordionIndex(1);
-              setReconciliationMatchProductCache(matchedProductsFormData);
+
+              if (shipmentDetail.sourceProduct?.id) {
+                const newProductCache = {
+                  ...reconciliationMatchProductCache,
+                };
+                newProductCache[shipmentDetail.sourceProduct.id] = matchedProductsFormData;
+                setReconciliationMatchProductCache(newProductCache);
+              }
+
               setProductFormData({
                 sizeId: parseInt(matchedProductsFormData.sizeId.value, 10),
                 productId: parseInt(matchedProductsFormData.productId.value, 10),

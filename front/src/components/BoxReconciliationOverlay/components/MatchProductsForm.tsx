@@ -75,16 +75,21 @@ export function MatchProductsForm({
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+  /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
+  const matchingProductSourceId = shipmentDetail.sourceProduct?.id || "0";
+  const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
+  /** Object key to match in the store to fetch the input values. */
+  const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
 
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: cachedReconciliationMatchProduct.productId.label,
-      value: cachedReconciliationMatchProduct.productId.value,
+      label: cachedReconciliationMatchProduct[cacheId].productId.label,
+      value: cachedReconciliationMatchProduct[cacheId].productId.value,
     },
     sizeId: {
-      label: cachedReconciliationMatchProduct.sizeId.label,
-      value: cachedReconciliationMatchProduct.sizeId.value,
+      label: cachedReconciliationMatchProduct[cacheId].sizeId.label,
+      value: cachedReconciliationMatchProduct[cacheId].sizeId.value,
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
@@ -130,14 +135,20 @@ export function MatchProductsForm({
         // if there is only one option select it directly
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
-        } else if (cachedReconciliationMatchProduct.sizeId.value) {
+        } else if (cachedReconciliationMatchProduct[matchingProductSourceId]?.sizeId?.value) {
           return;
         } else {
           resetField("sizeId", { defaultValue: { value: "", label: "Save Size As..." } });
         }
       }
     }
-  }, [productId, productAndSizesData, resetField, cachedReconciliationMatchProduct.sizeId.value]);
+  }, [
+    productId,
+    productAndSizesData,
+    resetField,
+    cachedReconciliationMatchProduct,
+    matchingProductSourceId,
+  ]);
 
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
