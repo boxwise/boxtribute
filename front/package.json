@@ -21,19 +21,19 @@
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
     "@sentry/types": "^9.9.0",
-    "@storybook/addon-actions": "^8.6.9",
-    "@storybook/addon-essentials": "^8.6.9",
-    "@storybook/addon-interactions": "^8.6.9",
-    "@storybook/addon-links": "^8.6.9",
-    "@storybook/node-logger": "^8.6.9",
-    "@storybook/react": "^8.6.9",
-    "@storybook/react-vite": "^8.6.9",
-    "@storybook/test": "^8.6.9",
+    "@storybook/addon-actions": "^8.6.10",
+    "@storybook/addon-essentials": "^8.6.10",
+    "@storybook/addon-interactions": "^8.6.10",
+    "@storybook/addon-links": "^8.6.10",
+    "@storybook/node-logger": "^8.6.10",
+    "@storybook/react": "^8.6.10",
+    "@storybook/react-vite": "^8.6.10",
+    "@storybook/test": "^8.6.10",
     "@types/react-big-calendar": "^1.16.1",
     "@types/react-table": "^7.7.20",
     "msw": "^2.7.3",
     "mutationobserver-shim": "^0.3.7",
-    "storybook": "^8.6.9"
+    "storybook": "^8.6.10"
   },
   "scripts": {
     "build": "tsc && vite build",
