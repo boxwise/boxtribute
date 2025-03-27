@@ -122,9 +122,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
               prepareRow(row);
               return (
                 <Tr
-                  backgroundColor={
-                    row.values.instockItemsCount !== undefined ? "inherit" : "#D9D9D9"
-                  }
+                  backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
                   {...row.getRowProps()}
                   key={row.values.id}
                 >

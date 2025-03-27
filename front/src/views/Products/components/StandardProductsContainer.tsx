@@ -306,8 +306,8 @@ function StandardProductsContainer() {
       },
       {
         Header: "Items in Use",
-        accessor: "instockItemsCount",
-        id: "instockItemsCount",
+        accessor: "inUseItemsCount",
+        id: "inUseItemsCount",
         disableFilters: true,
       },
       {

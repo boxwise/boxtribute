@@ -30,6 +30,7 @@ export const PRODUCTS_QUERY = graphql(
             id
           }
           instockItemsCount
+          transferItemsCount
           price
           comment
           inShop
@@ -98,8 +99,8 @@ function ProductsContainer() {
       },
       {
         Header: "Items in Use",
-        accessor: "instockItemsCount",
-        id: "instockItemsCount",
+        accessor: "inUseItemsCount",
+        id: "inUseItemsCount",
         disableFilters: true,
       },
       {

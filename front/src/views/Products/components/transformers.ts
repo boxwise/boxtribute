@@ -8,6 +8,7 @@ export type StandardProductRow = {
   sizeRange: string;
   instockItemsCount?: number;
   transferItemsCount?: number;
+  inUseItemsCount?: number;
   price?: number | null;
   inShop?: boolean | null;
   comment?: string | null;
@@ -26,6 +27,8 @@ export type ProductRow = {
   gender: string;
   sizeRange: string;
   instockItemsCount: number;
+  transferItemsCount: number;
+  inUseItemsCount: number;
   price?: number | null;
   inShop?: boolean | null;
   comment?: string | null;
@@ -52,6 +55,9 @@ export const standardProductsRawDataToTableDataTransformer = (
           sizeRange: sizeRange.label,
           instockItemsCount: nonDeletedInstantiation?.instockItemsCount,
           transferItemsCount: nonDeletedInstantiation?.transferItemsCount,
+          inUseItemsCount: nonDeletedInstantiation
+            ? nonDeletedInstantiation.instockItemsCount + nonDeletedInstantiation.transferItemsCount
+            : 0,
           price: nonDeletedInstantiation?.price,
           inShop: nonDeletedInstantiation?.inShop,
           comment: nonDeletedInstantiation?.comment,
@@ -80,6 +86,7 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
         gender,
         sizeRange,
         instockItemsCount,
+        transferItemsCount,
         price,
         inShop,
         comment,
@@ -95,10 +102,12 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
           category: category.name,
           gender: gender === "none" || !gender ? "-" : gender,
           sizeRange: sizeRange.label,
-          instockItemsCount: instockItemsCount,
-          price: price,
-          inShop: inShop,
-          comment: comment,
+          instockItemsCount,
+          transferItemsCount,
+          inUseItemsCount: instockItemsCount + transferItemsCount,
+          price,
+          inShop,
+          comment,
           lastModified: lastModifiedOn
             ? new Date(lastModifiedOn)
             : createdOn
