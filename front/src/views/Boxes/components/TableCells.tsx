@@ -18,11 +18,11 @@ import { Style } from "victory";
 
 import { colorIsBright } from "utils/helpers";
 
-export function ProductCell(data: CellProps<any>) {
+export function ProductCell({ value, cell }: CellProps<any>) {
   return (
     <chakra.span as="b" display="flex" gap={2} position="relative">
-      {data.value}{" "}
-      {data.cell.row.original.matchingAssortProduct && (
+      {value}{" "}
+      {cell.row.original.matchingAssortProduct && (
         <Popover closeOnEsc closeOnBlur isLazy>
           <PopoverTrigger>
             <BsFillCheckCircleFill color="#659A7E" size={18} onClick={(e) => e.stopPropagation()} />
