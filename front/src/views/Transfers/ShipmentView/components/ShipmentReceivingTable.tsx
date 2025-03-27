@@ -17,8 +17,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
-import { BsFillChatDotsFill } from "react-icons/bs";
+import { BsFillChatDotsFill, BsFillCheckCircleFill } from "react-icons/bs";
 
 import { Column, useTable, useSortBy } from "react-table";
 import { TriangleDownIcon, TriangleUpIcon, ArrowUpDownIcon } from "@chakra-ui/icons";
@@ -31,11 +30,9 @@ interface IShipmentReceivingTablePros {
 
 function ShipmentReceivingTable({
   columns,
-  data,
+  data: tableData,
   onReconciliationBox,
 }: IShipmentReceivingTablePros) {
-  const tableData = useMemo(() => data, [data]);
-
   const tableInstance = useTable(
     {
       columns,
@@ -143,13 +140,18 @@ function ShipmentReceivingTable({
                           </Wrap>
                         </Box>
                         <Box fontWeight={row.cells[1].column.isSorted ? "bold" : "normal"}>
-                          <Wrap spacing={1}>
+                          <Wrap spacing={2}>
                             <WrapItem>
                               <Text fontSize={16}>{row.cells[0].row.original.product}</Text>
                             </WrapItem>
                             <WrapItem>
                               <Text fontSize={12}>({row.cells[0].row.original.items}x)</Text>
                             </WrapItem>
+                            {row.cells[0].row.original.autoMatchingTargetProduct && (
+                              <WrapItem>
+                                <BsFillCheckCircleFill color="#659A7E" size={18} />
+                              </WrapItem>
+                            )}
                           </Wrap>
                         </Box>
                       </Flex>
