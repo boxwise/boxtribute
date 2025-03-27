@@ -27,6 +27,7 @@ import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
 import RemoveTagsButton from "./RemoveTagsButton";
+import { useUnassignTags } from "hooks/useUnassignTags";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -249,12 +250,25 @@ function BoxesActionsAndTable({
     [assignTags, selectedBoxes],
   );
 
+  // Unassign tags from boxes
+  const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
+  const onUnassignTags = useCallback(
+    async (tagIds: string[]) => {
+      await unassignTags(
+        selectedBoxes.map((box) => box.values.labelIdentifier),
+        tagIds.map((id) => parseInt(id, 10)),
+      );
+    },
+    [unassignTags, selectedBoxes],
+  );
+
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
     isDeleteBoxesLoading ||
-    isAssignTagsLoading;
+    isAssignTagsLoading ||
+    isUnassignTagsLoading;
 
   const actionButtons = useMemo(
     () => [
@@ -303,7 +317,7 @@ function BoxesActionsAndTable({
             <RemoveTagsButton
               selectedBoxes={selectedBoxes}
               key="remove-tags"
-              onRemoveTags={onAssignTags}
+              onRemoveTags={onUnassignTags}
               allTagOptions={tagOptions}
               currentTagOptions={getSelectedBoxTags}
             />
@@ -335,6 +349,7 @@ function BoxesActionsAndTable({
       onUnassignBoxesToShipment,
       onAssignTags,
       getSelectedBoxTags,
+      onUnassignTags,
     ],
   );
 
