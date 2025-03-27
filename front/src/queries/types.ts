@@ -8,6 +8,7 @@ import {
   SHIPMENT_DETAIL_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
+  AUTOMATCH_TARGET_PRODUCT_FRAGMENT,
 } from "./fragments";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
@@ -23,6 +24,10 @@ export type BoxByLabelIdentifier = ResultOf<
 >["box"];
 export type Shipment = FragmentOf<typeof SHIPMENT_FIELDS_FRAGMENT>;
 export type ShipmentDetail = FragmentOf<typeof SHIPMENT_DETAIL_FIELDS_FRAGMENT>;
+export type ShipmentDetailWithAutomatchProduct = FragmentOf<
+  typeof SHIPMENT_DETAIL_FIELDS_FRAGMENT
+> &
+  FragmentOf<typeof AUTOMATCH_TARGET_PRODUCT_FRAGMENT>;
 export type TransferAgreements = FragmentOf<typeof TRANSFER_AGREEMENT_FIELDS_FRAGMENT>;
 export type UpdateBoxMutation = ResultOf<typeof UPDATE_BOX_MUTATION>["updateBox"];
 export type BoxesForBoxesViewQuery = ResultOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;

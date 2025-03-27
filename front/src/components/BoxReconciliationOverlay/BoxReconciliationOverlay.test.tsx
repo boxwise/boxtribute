@@ -247,3 +247,7 @@ it("4.7.1 - Query for shipment, box, available products, sizes and locations is 
   await user.click(selectLocationControlInput);
   expect(await screen.findByRole("option", { name: /WH Men/i })).toBeInTheDocument();
 }, 20000);
+
+// Test case 4.7.2
+
+it("4.7.2 - Match product if both sides are using ASSORT products", async () => {});
