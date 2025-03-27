@@ -35,6 +35,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
             instantiation {
               id
               instockItemsCount
+              transferItemsCount
               price
               inShop
               comment
@@ -119,8 +120,16 @@ function StandardProductsContainer() {
     useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
 
   const handleDisableProduct = useCallback(
-    (instantiationId?: string, instockItemsCount?: number, productName?: string) => {
-      if (instockItemsCount !== undefined && instockItemsCount > 0) {
+    (
+      instantiationId?: string,
+      instockItemsCount?: number,
+      transferItemsCount?: number,
+      productName?: string,
+    ) => {
+      if (
+        (instockItemsCount !== undefined && instockItemsCount > 0) ||
+        (transferItemsCount !== undefined && transferItemsCount > 0)
+      ) {
         createToast({
           title: "Disabling Product with Active Stock",
           message: (
@@ -129,23 +138,27 @@ function StandardProductsContainer() {
               <Text fontWeight="600" color="#659A7E" display="inline">
                 InStock
               </Text>
-              ,{" "}
-              <Text fontWeight="600" color="#659A7E" display="inline">
-                MarkedForShipment
-              </Text>
-              ,{" "}
-              <Text fontWeight="600" color="#659A7E" display="inline">
-                InTransit
-              </Text>
-              , or{" "}
-              <Text fontWeight="600" color="#659A7E" display="inline">
-                Receiving
-              </Text>{" "}
+              {!!transferItemsCount && (
+                <>
+                  , and with {transferItemsCount}{" "}
+                  <Text fontWeight="600" color="#659A7E" display="inline">
+                    MarkedForShipment
+                  </Text>
+                  ,{" "}
+                  <Text fontWeight="600" color="#659A7E" display="inline">
+                    InTransit
+                  </Text>
+                  , or{" "}
+                  <Text fontWeight="600" color="#659A7E" display="inline">
+                    Receiving
+                  </Text>
+                </>
+              )}{" "}
               items in one or more locations. To continue, you must first reclassify all{" "}
               <Text fontWeight="600" color="#659A7E" display="inline">
                 InStock
               </Text>{" "}
-              boxes as a different product, or complete your shipments.
+              boxes as a different product{!!transferItemsCount && " and complete your shipments"}.
             </>
           ),
           type: "error",
@@ -245,6 +258,7 @@ function StandardProductsContainer() {
                   handleDisableProduct(
                     row.original.instantiationId,
                     row.original.instockItemsCount,
+                    row.original.transferItemsCount,
                     row.original.name,
                   )
                 }

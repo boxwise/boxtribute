@@ -7,6 +7,7 @@ export type StandardProductRow = {
   gender: string;
   sizeRange: string;
   instockItemsCount?: number;
+  transferItemsCount?: number;
   price?: number | null;
   inShop?: boolean | null;
   comment?: string | null;
@@ -50,6 +51,7 @@ export const standardProductsRawDataToTableDataTransformer = (
           gender: gender === "none" ? "-" : gender,
           sizeRange: sizeRange.label,
           instockItemsCount: nonDeletedInstantiation?.instockItemsCount,
+          transferItemsCount: nonDeletedInstantiation?.transferItemsCount,
           price: nonDeletedInstantiation?.price,
           inShop: nonDeletedInstantiation?.inShop,
           comment: nonDeletedInstantiation?.comment,

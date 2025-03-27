@@ -12,6 +12,7 @@ import { Suspense } from "react";
 function Products() {
   const selectedBase = useAtomValue(selectedBaseAtom);
   const baseName = selectedBase?.name;
+
   return (
     <>
       <BreadcrumbNavigation

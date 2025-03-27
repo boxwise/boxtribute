@@ -5,7 +5,7 @@ import pytest
 from boxtribute_server.business_logic.warehouse.product.crud import (
     STATES_OF_ACTIVELY_USED_BOXES,
 )
-from boxtribute_server.enums import ProductGender, ProductType
+from boxtribute_server.enums import BoxState, ProductGender, ProductType
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
     HISTORY_CREATION_MESSAGE,
@@ -45,6 +45,7 @@ def test_product_query(
                     gender
                     comment
                     instockItemsCount
+                    transferItemsCount
                     createdBy {{ id }}
                     lastModifiedOn
                     lastModifiedBy {{ id }}
@@ -83,7 +84,17 @@ def test_product_query(
                 b["number_of_items"]
                 for b in default_boxes
                 if b["product"] == product_id
+                and b["state"] == BoxState.InStock
+                and not b["deleted_on"]
+            ]
+        ),
+        "transferItemsCount": sum(
+            [
+                b["number_of_items"]
+                for b in default_boxes
+                if b["product"] == product_id
                 and b["state"] in STATES_OF_ACTIVELY_USED_BOXES
+                and b["state"] != BoxState.InStock
                 and not b["deleted_on"]
             ]
         ),
@@ -97,12 +108,14 @@ def test_product_query(
     query = f"""query {{
                 product(id: {disabled_standard_product["id"]}) {{
                     instockItemsCount
+                    transferItemsCount
                     type
                     standardProduct {{ id }}
                 }} }}"""
     queried_product = assert_successful_request(read_only_client, query)
     assert queried_product == {
         "instockItemsCount": 0,
+        "transferItemsCount": 0,
         "type": ProductType.StandardInstantiation.name,
         "standardProduct": {"id": str(disabled_standard_product["standard_product"])},
     }
