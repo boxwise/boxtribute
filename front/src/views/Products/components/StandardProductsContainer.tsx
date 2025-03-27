@@ -9,7 +9,10 @@ import { useCallback, useMemo } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Column, CellProps } from "react-table";
-import { STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
+import {
+  SIZE_RANGE_FIELDS_FRAGMENT,
+  STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
+} from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
 import StandardProductsTable from "./StandardProductsTable";
 import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
@@ -27,14 +30,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
           elements {
             ...StandardProductBasicFields
             sizeRange {
-              id
-              name
-              label
-              sizes {
-                id
-                name
-                label
-              }
+              ...SizeRangeFields
             }
             instantiation {
               id
@@ -55,7 +51,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
       }
     }
   `,
-  [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT],
+  [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT],
 );
 
 export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(

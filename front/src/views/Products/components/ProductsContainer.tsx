@@ -4,7 +4,10 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { useTableConfig } from "hooks/hooks";
 import { useMemo } from "react";
 import { Column, CellProps } from "react-table";
-import { PRODUCT_BASIC_FIELDS_FRAGMENT } from "../../../../../graphql/fragments";
+import {
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  SIZE_RANGE_FIELDS_FRAGMENT,
+} from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
 import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
 import { useAtomValue } from "jotai";
@@ -21,14 +24,7 @@ export const PRODUCTS_QUERY = graphql(
         elements {
           ...ProductBasicFields
           sizeRange {
-            id
-            name
-            label
-            sizes {
-              id
-              name
-              label
-            }
+            ...SizeRangeFields
           }
           base {
             id
@@ -51,7 +47,7 @@ export const PRODUCTS_QUERY = graphql(
       }
     }
   `,
-  [PRODUCT_BASIC_FIELDS_FRAGMENT],
+  [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT],
 );
 
 function ProductsContainer() {
