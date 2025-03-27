@@ -8,7 +8,7 @@ from .loaders import (
     BaseLoader,
     BoxLoader,
     HistoryForBoxLoader,
-    ItemsCountForProductLoader,
+    InstockItemsCountForProductLoader,
     LocationLoader,
     OrganisationLoader,
     ProductCategoryLoader,
@@ -24,6 +24,7 @@ from .loaders import (
     StandardProductLoader,
     TagsForBoxLoader,
     TransferAgreementLoader,
+    TransferItemsCountForProductLoader,
     UnitLoader,
     UnitsForDimensionLoader,
     UserLoader,
@@ -43,7 +44,8 @@ def execute_async(*, schema, introspection=None):
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
             "history_for_box_loader": HistoryForBoxLoader(),
-            "items_count_for_product_loader": ItemsCountForProductLoader(),
+            "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
+            "transfer_items_count_for_product_loader": TransferItemsCountForProductLoader(),  # noqa
             "location_loader": LocationLoader(),
             "organisation_loader": OrganisationLoader(),
             "product_category_loader": ProductCategoryLoader(),
