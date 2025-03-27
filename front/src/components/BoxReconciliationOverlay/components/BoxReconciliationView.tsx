@@ -14,7 +14,7 @@ import { BiTrash } from "react-icons/bi";
 
 import { BoxReconcilationAccordion } from "./BoxReconciliationAccordion";
 import { ProductGender } from "../../../../../graphql/types";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 export interface ICategoryData {
   name: string;
@@ -45,7 +45,7 @@ export interface ILocationData {
 }
 
 interface IBoxReconciliationViewProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   isOpen: boolean;

@@ -19,7 +19,7 @@ import { useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { AUTOMATCH_TARGET_PRODUCT_FRAGMENT, SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
@@ -55,10 +55,13 @@ export const SHIPMENT_BY_ID_QUERY = graphql(
     query ShipmentById($id: ID!) {
       shipment(id: $id) {
         ...ShipmentFields
+        details {
+          ...AutomatchTargetProduct
+        }
       }
     }
   `,
-  [SHIPMENT_FIELDS_FRAGMENT],
+  [SHIPMENT_FIELDS_FRAGMENT, AUTOMATCH_TARGET_PRODUCT_FRAGMENT],
 );
 
 export const REMOVE_BOX_FROM_SHIPMENT = graphql(

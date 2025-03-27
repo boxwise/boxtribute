@@ -9,7 +9,7 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 export interface ICategoryData {
   name: string;
@@ -58,7 +58,7 @@ export const MatchProductsFormDataSchema = z.object({
 export type IMatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
-  shipmentDetail: ShipmentDetail;
+  shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   loading: boolean;
   onSubmitMatchProductsForm: (matchedProductsFormData: IMatchProductsFormData) => void;
@@ -72,15 +72,25 @@ export function MatchProductsForm({
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
+  const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   // default Values
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      label: "Save Product As...",
-      value: "",
+      // TODO: Handle caching when https://github.com/boxwise/boxtribute/pull/2049 is merged
+      label: shipmentDetail?.autoMatchingTargetProduct?.name ?? "Save Product As...",
+      value: shipmentDetail?.autoMatchingTargetProduct?.id ?? "",
     },
-    sizeId: { label: "Save Size As...", value: "" },
+    sizeId: {
+      // TODO: Handle caching when https://github.com/boxwise/boxtribute/pull/2049 is merged
+      label: isProductAutoMatched ? (shipmentDetail.sourceSize?.label ?? "") : "Save Size As...",
+      value: isProductAutoMatched ? (shipmentDetail.sourceSize?.id ?? "") : "",
+    },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
+
+  const submitButtonText = shipmentDetail.autoMatchingTargetProduct
+    ? "Save Changes"
+    : "Confirm Delivered Items";
 
   // react-hook-form
   const {
@@ -241,7 +251,7 @@ export function MatchProductsForm({
             color="white"
             isDisabled={isSubmitting || productId.value === "" || sizeId.value === ""}
           >
-            Confirm Delivered Items
+            {submitButtonText}
           </Button>
           <Button
             isLoading={isSubmitting || loading}
