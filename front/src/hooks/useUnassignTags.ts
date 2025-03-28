@@ -2,15 +2,7 @@ import { useMutation } from "@apollo/client";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
-
-export enum IUnassignTagsResultKind {
-  SUCCESS = "success",
-  FAIL = "fail",
-  NETWORK_FAIL = "networkFail",
-  BAD_USER_INPUT = "badUserInput",
-  INVALID_IDENTIFIERS = "invalidIdentifiers",
-  INVALID_TAGS = "invalidaTags",
-}
+import { useNotification } from "./useNotification";
 
 export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
   mutation UnassignTagsFromBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
@@ -34,6 +26,7 @@ export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
 
 export const useUnassignTags = () => {
   const { triggerError } = useErrorHandling();
+  const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [unassignTagsMutation] = useMutation(UNASSIGN_TAGS_FROM_BOXES);
@@ -65,10 +58,9 @@ export const useUnassignTags = () => {
 
           if (invalidBoxLabelIdentifiers && invalidBoxLabelIdentifiers.length > 0) {
             if (showToasts) {
-              invalidBoxLabelIdentifiers.map((identifier) => {
-                triggerError({
-                  message: `Box ${identifier} not affected because it doesn't have the requested tag(s) assigned.`,
-                });
+              createToast({
+                type: "warning",
+                message: `Box(s) ${invalidBoxLabelIdentifiers} not affected because it/they don't have the requested tag(s) assigned.`,
               });
             }
           }
@@ -91,7 +83,7 @@ export const useUnassignTags = () => {
           }
         });
     },
-    [unassignTagsMutation, triggerError],
+    [unassignTagsMutation, triggerError, createToast],
   );
 
   return {
