@@ -13,9 +13,9 @@ export type StandardProductRow = {
   inShop?: boolean | null;
   comment?: string | null;
   version: number;
-  enabledOn?: string | null;
+  enabledOn?: Date | null;
   enabledBy?: string | null;
-  disabledOn?: string | null;
+  disabledOn?: Date | null;
   id: string;
   instantiationId?: string;
 };
@@ -61,9 +61,13 @@ export const standardProductsRawDataToTableDataTransformer = (
           price: nonDeletedInstantiation?.price,
           inShop: nonDeletedInstantiation?.inShop,
           comment: nonDeletedInstantiation?.comment,
-          enabledOn: nonDeletedInstantiation?.createdOn,
+          enabledOn: nonDeletedInstantiation?.createdOn
+            ? new Date(nonDeletedInstantiation.createdOn)
+            : null,
           enabledBy: nonDeletedInstantiation?.createdBy?.name,
-          disabledOn: nonDeletedInstantiation?.deletedOn,
+          disabledOn: nonDeletedInstantiation?.deletedOn
+            ? new Date(nonDeletedInstantiation.deletedOn)
+            : null,
           version,
           instantiationId: nonDeletedInstantiation?.id,
         } satisfies StandardProductRow;

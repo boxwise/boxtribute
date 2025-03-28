@@ -19,6 +19,7 @@ import { StandardProductRow, standardProductsRawDataToTableDataTransformer } fro
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { PRODUCTS_QUERY } from "./ProductsContainer";
+import { DateCell } from "components/Table/Cells";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -346,6 +347,7 @@ function StandardProductsContainer() {
         accessor: "enabledOn",
         id: "enabledOn",
         disableFilters: true,
+        Cell: DateCell,
       },
       {
         Header: "Enabled By",
@@ -359,6 +361,7 @@ function StandardProductsContainer() {
         accessor: "disabledOn",
         id: "disabledOn",
         disableFilters: true,
+        Cell: DateCell,
       },
       {
         Header: "ID",
