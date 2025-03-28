@@ -114,7 +114,7 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
               ? new Date(createdOn)
               : null,
           lastModifiedBy: lastModifiedBy?.name,
-          created: !createdOn ? new Date() : null,
+          created: createdOn ? new Date(createdOn) : null,
           createdBy: createdBy?.name,
         } satisfies ProductRow;
       },
