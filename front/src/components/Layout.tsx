@@ -20,7 +20,7 @@ function Layout() {
       <Container m="inherit" p="inherit" maxWidth="inherit">
         <Flex direction="row" height="100vh" overflowY="scroll">
           <HeaderMenuContainer />
-          <Box flex={1} mt={8} mx={4}>
+          <Box flex={1} mt={8} mx={4} overflowX="auto">
             <Outlet />
           </Box>
         </Flex>
