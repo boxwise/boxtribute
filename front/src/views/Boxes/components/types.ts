@@ -13,6 +13,7 @@ export type BoxRow = {
   state: string;
   tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[];
   shipment: Shipment | null;
+  holdsStandardProduct: boolean;
   comment: string | null;
   age: number;
   lastModified: Date | null;

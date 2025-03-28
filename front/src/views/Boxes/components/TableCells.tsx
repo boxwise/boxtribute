@@ -1,8 +1,43 @@
-import { VStack, Tag, TagLabel, Wrap, WrapItem, chakra } from "@chakra-ui/react";
-import { isDate } from "date-fns";
 import { CellProps } from "react-table";
-import { colorIsBright } from "utils/helpers";
+import { isDate } from "date-fns";
+import {
+  VStack,
+  Tag,
+  TagLabel,
+  Wrap,
+  WrapItem,
+  chakra,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+} from "@chakra-ui/react";
+import { BsFillCheckCircleFill } from "react-icons/bs";
 import { Style } from "victory";
+
+import { colorIsBright } from "utils/helpers";
+
+export function ProductCell({ value, cell }: CellProps<any>) {
+  return (
+    <chakra.span display="flex" gap={2} position="relative">
+      {value}{" "}
+      {cell.row.original.holdsStandardProduct && (
+        <Popover closeOnEsc closeOnBlur isLazy>
+          <PopoverTrigger>
+            <BsFillCheckCircleFill color="#659A7E" size={18} onClick={(e) => e.stopPropagation()} />
+          </PopoverTrigger>
+          <PopoverContent top={6} w={"100%"}>
+            <PopoverArrow />
+            <PopoverBody onClick={(e) => e.stopPropagation()}>
+              This product is part of the ASSORT standard
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
+      )}
+    </chakra.span>
+  );
+}
 
 export function StateCell({ value }: CellProps<any>) {
   let color = "inherit";
