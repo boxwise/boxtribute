@@ -64,7 +64,7 @@ export function BoxReconcilationAccordion({
       ? parseInt(shipmentDetail.autoMatchingTargetProduct?.id ?? "0")
       : undefined,
     sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
-    numberOfItems: isProductAutoMatched ? (shipmentDetail.sourceQuantity ?? 0) : undefined,
+    numberOfItems: shipmentDetail?.sourceQuantity ?? undefined,
   });
   const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
     reconciliationMatchProductAtom,
