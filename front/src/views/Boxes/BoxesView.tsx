@@ -16,7 +16,7 @@ import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fra
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
-import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import { DaysCell, ShipmentCell, StateCell, TagsCell, ProductCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
@@ -49,6 +49,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
           id
           labelIdentifier
           product {
+            type
             ...ProductBasicFields
           }
           numberOfItems
@@ -170,6 +171,7 @@ function Boxes() {
         Header: "Product",
         accessor: "product",
         id: "product",
+        Cell: ProductCell,
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
