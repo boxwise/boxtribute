@@ -7,41 +7,19 @@ export enum IUnassignTagsResultKind {
   SUCCESS = "success",
   FAIL = "fail",
   NETWORK_FAIL = "networkFail",
-  BAD_USER_INPUT = "badUserInput", // no Boxes were pased to the function
+  BAD_USER_INPUT = "badUserInput",
   INVALID_IDENTIFIERS = "invalidIdentifiers",
+  INVALID_TAGS = "invalidaTags",
 }
-
-export interface IUnassignTagsResult {
-  kind: IUnassignTagsResultKind;
-  requestedLabelIdentifiers: string[];
-  requestedTagIds: number[];
-  // TODO: Might not need
-  // successfulLabelIdentifiers?: string[];
-  // invalidIdentifiers?: string[];
-  error?: any;
-}
-
-/**
- * 
- * @returns 
- * {
-  "data": {
-    "unassignTagsFromBoxes": {
-      "invalidBoxLabelIdentifiers": [
-        "123"
-      ],
-      "tagErrorInfo": [],
-      "updatedBoxes": []
-    }
-  }
-}
- */
 
 export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
   mutation UnassignTagsFromBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
     unassignTagsFromBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
       updatedBoxes {
         labelIdentifier
+        tags {
+          id
+        }
       }
       invalidBoxLabelIdentifiers
       tagErrorInfo {
@@ -79,42 +57,38 @@ export const useUnassignTags = () => {
                 message: "Could not unassign boxes. Try again?",
               });
             }
-            return {
-              kind: IUnassignTagsResultKind.FAIL,
-              error: errors[0],
-            } as IUnassignTagsResult;
           }
 
           const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
+          const invalidBoxLabelIdentifiers =
+            data?.unassignTagsFromBoxes?.invalidBoxLabelIdentifiers;
+
+          if (invalidBoxLabelIdentifiers && invalidBoxLabelIdentifiers.length > 0) {
+            if (showToasts) {
+              invalidBoxLabelIdentifiers.map((identifier) => {
+                triggerError({
+                  message: `Box ${identifier} not affected because it doesn't have the requested tag(s) assigned.`,
+                });
+              });
+            }
+          }
 
           if (tagErrorInfoArray && tagErrorInfoArray.length > 0) {
             if (showToasts) {
               triggerError({
-                message: "Errors in tags unassignment",
+                message:
+                  "Error: Tag(s) can't be removed because they are either deleted, a wrong type, or in a different base",
               });
             }
-            return {
-              kind: IUnassignTagsResultKind.INVALID_IDENTIFIERS,
-            } as IUnassignTagsResult;
           }
-
-          return {
-            kind: IUnassignTagsResultKind.FAIL,
-          } as IUnassignTagsResult;
         })
         .catch((err) => {
           setIsLoading(false);
           if (showToasts) {
             triggerError({
-              message: "Could not unassign boxes. Try again?",
+              message: err + "Could not unassign tags from boxes. Try again?",
             });
           }
-          return {
-            kind: IUnassignTagsResultKind.NETWORK_FAIL,
-            requestedLabelIdentifiers: labelIdentifiers,
-            requestedTagIds: tagIds,
-            error: err,
-          } as IUnassignTagsResult;
         });
     },
     [unassignTagsMutation, triggerError],
