@@ -88,18 +88,18 @@ export function MatchProductsForm({
     productId: {
       label:
         shipmentDetail?.autoMatchingTargetProduct?.name ??
-        cachedReconciliationMatchProduct[cacheId].productId.label,
+        cachedReconciliationMatchProduct[cacheId]?.productId.label,
       value:
         shipmentDetail?.autoMatchingTargetProduct?.id ??
-        cachedReconciliationMatchProduct[cacheId].productId.value,
+        cachedReconciliationMatchProduct[cacheId]?.productId.value,
     },
     sizeId: {
       label: isProductAutoMatched
         ? (shipmentDetail.sourceSize?.label ?? "")
-        : cachedReconciliationMatchProduct[cacheId].sizeId.label,
+        : cachedReconciliationMatchProduct[cacheId]?.sizeId.label,
       value: isProductAutoMatched
         ? (shipmentDetail.sourceSize?.id ?? "")
-        : cachedReconciliationMatchProduct[cacheId].sizeId.value,
+        : cachedReconciliationMatchProduct[cacheId]?.sizeId.value,
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
