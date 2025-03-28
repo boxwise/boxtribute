@@ -66,7 +66,6 @@ from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unit import Unit
-from ..models.definitions.user import User
 from ..models.utils import convert_ids, utcnow
 
 NR_BASES = 4
@@ -216,8 +215,10 @@ class Generator:
         with freeze_time(newest_resource_modified_on, auto_tick_seconds=about_one_hour):
             self._generate_transactions()
 
-        newest_resource_created_on = _max_value(Base.created, User.created)
-        with freeze_time(newest_resource_created_on, auto_tick_seconds=about_ten_hours):
+        earliest_link_creation_date = utcnow() - timedelta(weeks=3)
+        with freeze_time(
+            earliest_link_creation_date, auto_tick_seconds=about_ten_hours
+        ):
             self._generate_shareable_links()
 
     def _fetch_bases_and_users(self):
