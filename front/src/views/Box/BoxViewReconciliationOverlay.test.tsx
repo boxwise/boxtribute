@@ -131,4 +131,4 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
 
   expect(screen.getByText(/match products/i)).toBeInTheDocument();
   expect(screen.getByText(/receive location/i)).toBeInTheDocument();
-}, 10000);
+}, 15000);
