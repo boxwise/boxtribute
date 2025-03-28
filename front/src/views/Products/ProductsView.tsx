@@ -1,4 +1,13 @@
-import { Heading, Skeleton, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
+import {
+  Button,
+  Heading,
+  Skeleton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from "@chakra-ui/react";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { useAtomValue } from "jotai";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
@@ -8,6 +17,8 @@ import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
+import { Link } from "react-router-dom";
+import { AddIcon } from "@chakra-ui/icons";
 
 function Products() {
   const selectedBase = useAtomValue(selectedBaseAtom);
@@ -33,6 +44,11 @@ function Products() {
         </TabList>
         <TabPanels>
           <TabPanel>
+            <Link to="create">
+              <Button leftIcon={<AddIcon />} borderRadius="0">
+                Add New Product
+              </Button>
+            </Link>
             <ErrorBoundary
               fallback={
                 <AlertWithoutAction alertText="Could not fetch products data! Please try reloading the page." />
