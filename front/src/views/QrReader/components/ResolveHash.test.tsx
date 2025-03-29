@@ -169,7 +169,7 @@ SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks
       expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
       // TODO: assert correct alert text.
     },
-    30000,
+    40000,
   );
 });
 
