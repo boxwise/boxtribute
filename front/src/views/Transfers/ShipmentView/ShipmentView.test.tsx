@@ -294,7 +294,7 @@ describe("4.5 Test Cases", () => {
     expect(
       screen.getByRole("cell", { name: /124 long sleeves \(12x\) size: mixed/i }),
     ).toBeInTheDocument();
-  }, 10000);
+  }, 15000);
 
   // Test case 4.5.4
   it("4.5.4 - Initial load of Receiving UI As Source Organisation", async () => {

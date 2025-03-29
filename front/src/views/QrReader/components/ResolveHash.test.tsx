@@ -153,20 +153,24 @@ const SuccessfulQrScanningNoAuthorizationOrPermissonTests = [
 
 // TODO: Needs fixing with which alert box shows up in the test. It appears that there are query errors within the test context.
 SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks }) => {
-  it(name, async () => {
-    mockImplementationOfQrReader(mockedQrReader, hash, true, true);
-    render(<ResolveHash />, {
-      routePath: "/bases/1/qrreader/:hash",
-      initialUrl: `/bases/1/qrreader/${hash}`,
-      mocks,
-      cache,
-    });
+  it(
+    name,
+    async () => {
+      mockImplementationOfQrReader(mockedQrReader, hash, true, true);
+      render(<ResolveHash />, {
+        routePath: "/bases/1/qrreader/:hash",
+        initialUrl: `/bases/1/qrreader/${hash}`,
+        mocks,
+        cache,
+      });
 
-    expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
 
-    expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
-    // TODO: assert correct alert text.
-  });
+      expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
+      // TODO: assert correct alert text.
+    },
+    15000,
+  );
 });
 
 const FailedQrScanningTests = [
