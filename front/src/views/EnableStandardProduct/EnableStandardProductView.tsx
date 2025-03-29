@@ -1,10 +1,7 @@
 import { Box, Center, Heading } from "@chakra-ui/react";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import { graphql, ResultOf } from "../../../../graphql/graphql";
-import {
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
-  STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
-} from "../../../../graphql/fragments";
+import { STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT } from "../../../../graphql/fragments";
 import EnableStandardProductForm, {
   IEnableStandardProductFormOutput,
 } from "./components/EnableStandardProductForm";
@@ -17,9 +14,10 @@ import { useMutation, useSuspenseQuery } from "@apollo/client";
 import { standardProductRawToFormDataTransformer } from "./components/transformer";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/ProductsView";
 import { useNotification } from "hooks/useNotification";
 import { useErrorHandling } from "hooks/useErrorHandling";
+import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
+import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 
 export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
   `
@@ -68,12 +66,24 @@ export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
       ) {
         __typename
         ... on Product {
-          ...ProductBasicFields
+          id
+          type
+          standardProduct {
+            id
+          }
+          comment
+          inShop
+          price
+          createdOn
+          createdBy {
+            id
+            name
+          }
         }
       }
     }
   `,
-  [PRODUCT_BASIC_FIELDS_FRAGMENT],
+  [],
 );
 
 function EnableStandardProductFormContainer() {
@@ -100,7 +110,10 @@ function EnableStandardProductFormContainer() {
           price: enableStandardProductFormOutput.price,
           inShop: enableStandardProductFormOutput.inShop,
         },
-        refetchQueries: [{ query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } }],
+        refetchQueries: [
+          { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
+          { query: PRODUCTS_QUERY },
+        ],
       })
         .then(({ data }) => {
           const result = data?.enableStandardProduct;

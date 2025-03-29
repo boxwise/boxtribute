@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/hooks";
-import { ProductRow } from "./transformers";
+import { StandardProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -31,13 +31,13 @@ import {
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 
-type ProductTableProps = {
+type StandardProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
-  columns: Column<ProductRow>[];
+  columns: Column<StandardProductRow>[];
 };
 
-function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
+function StandardProductsTable({ tableConfig, tableData, columns }: StandardProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -115,15 +115,19 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
         overflowY="auto"
         whiteSpace="nowrap"
       >
-        <Table key="products-table">
+        <Table key="standard-products-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} />
           <Tbody>
             {page.map((row) => {
               prepareRow(row);
               return (
-                <Tr {...row.getRowProps()} key={row.values.id}>
+                <Tr
+                  backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
+                  {...row.getRowProps()}
+                  key={row.values.id}
+                >
                   {row.cells.map((cell) => (
-                    <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
+                    <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>
                       {cell.render("Cell")}
                     </Td>
                   ))}
@@ -167,4 +171,4 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
   );
 }
 
-export default ProductsTable;
+export default StandardProductsTable;

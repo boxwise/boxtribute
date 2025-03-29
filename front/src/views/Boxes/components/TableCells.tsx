@@ -1,5 +1,4 @@
 import { CellProps } from "react-table";
-import { isDate } from "date-fns";
 import {
   VStack,
   Tag,
@@ -101,21 +100,4 @@ export function DaysCell({ value }: CellProps<any>) {
     return <chakra.span>1 day</chakra.span>;
   }
   return <chakra.span>{value} days</chakra.span>;
-}
-
-export function DateCell({ value }: CellProps<any>) {
-  return (
-    <chakra.span>
-      {isDate(value) &&
-        value.getTime() > new Date(0).getTime() &&
-        value.toLocaleString("en-GB", {
-          weekday: "short",
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-    </chakra.span>
-  );
 }

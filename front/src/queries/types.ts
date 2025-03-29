@@ -2,7 +2,6 @@ import { FragmentOf, ResultOf, VariablesOf } from "gql.tada";
 import { BOX_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "./queries";
 import { UPDATE_BOX_MUTATION } from "views/Box/BoxView";
 import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
-import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/ProductsView";
 import {
   BOX_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
@@ -11,6 +10,8 @@ import {
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
   AUTOMATCH_TARGET_PRODUCT_FRAGMENT,
 } from "./fragments";
+import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
+import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
 
 export type DistributionEventState = FragmentOf<typeof DISTRO_EVENT_FIELDS_FRAGMENT>["state"];
 export type BoxState = FragmentOf<typeof BOX_FIELDS_FRAGMENT>["state"];
@@ -37,3 +38,4 @@ export type StandardProductsforProductsViewQuery = ResultOf<
 export type StandardProductsforProductsViewVariables = VariablesOf<
   typeof STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY
 >;
+export type ProductsQuery = ResultOf<typeof PRODUCTS_QUERY>;
