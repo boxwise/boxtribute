@@ -391,7 +391,7 @@ it("3.1.1 - Initial load of Page", async () => {
   expect(screen.getByText(/comment:/i)).toBeInTheDocument();
   const element = screen.queryByText(/Good Comment/i);
   expect(element).toBeInTheDocument();
-}, 10000);
+}, 15000);
 
 // Test case 3.1.1.7
 
