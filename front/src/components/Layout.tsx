@@ -18,9 +18,9 @@ function Layout() {
   if (isLargeScreen)
     return (
       <Container m="inherit" p="inherit" maxWidth="inherit">
-        <Flex direction="row" height="100vh" overflowY="scroll">
+        <Flex direction="row" height="100vh">
           <HeaderMenuContainer />
-          <Box flex={1} mt={8} mx={4}>
+          <Box flex={1} mt={8} mx={4} overflowX="auto">
             <Outlet />
           </Box>
         </Flex>

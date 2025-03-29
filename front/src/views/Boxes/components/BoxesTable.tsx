@@ -12,7 +12,6 @@ import {
   IconButton,
   ButtonGroup,
   HStack,
-  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -173,65 +172,51 @@ function BoxesTable({
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-      {/*
-      see https://chakra-ui.com/docs/components/table/usage#table-container
-      I added overflowY and flex={1} to make the table scrollable vertically scrollable and
-      took the other settings from <TableContainer>
-      */}
-      <Box
-        flex={1}
-        display="block"
-        maxWidth="100%"
-        overflowX="auto"
-        overflowY="auto"
-        whiteSpace="nowrap"
-      >
-        <Table key="boxes-table">
-          <FilteringSortingTableHeader headerGroups={headerGroups} />
-          <Tbody>
-            {refetchBoxesIsPending && (
-              <Tr key="refetchIsPending1">
-                <Td colSpan={columns.length + 1}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            )}
-            {refetchBoxesIsPending && (
-              <Tr key="refetchIsPending2">
-                <Td colSpan={columns.length + 1}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            )}
-            {page.map((row) => {
-              prepareRow(row);
-              if (row.isSelected && selectedRowsArePending) {
-                return (
-                  <Tr key={row.original.labelIdentifier}>
-                    <Td colSpan={columns.length + 1}>
-                      <Skeleton height={5} />
-                    </Td>
-                  </Tr>
-                );
-              }
+      <Table key="boxes-table">
+        <FilteringSortingTableHeader headerGroups={headerGroups} />
+        <Tbody>
+          {refetchBoxesIsPending && (
+            <Tr key="refetchIsPending1">
+              <Td colSpan={columns.length + 1}>
+                <Skeleton height={5} />
+              </Td>
+            </Tr>
+          )}
+          {refetchBoxesIsPending && (
+            <Tr key="refetchIsPending2">
+              <Td colSpan={columns.length + 1}>
+                <Skeleton height={5} />
+              </Td>
+            </Tr>
+          )}
+          {page.map((row) => {
+            prepareRow(row);
+            if (row.isSelected && selectedRowsArePending) {
               return (
-                <Tr
-                  cursor="pointer"
-                  {...row.getRowProps()}
-                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                  key={row.original.labelIdentifier}
-                >
-                  {row.cells.map((cell) => (
-                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                      {cell.render("Cell")}
-                    </Td>
-                  ))}
+                <Tr key={row.original.labelIdentifier}>
+                  <Td colSpan={columns.length + 1}>
+                    <Skeleton height={5} />
+                  </Td>
                 </Tr>
               );
-            })}
-          </Tbody>
-        </Table>
-      </Box>
+            }
+            return (
+              <Tr
+                cursor="pointer"
+                {...row.getRowProps()}
+                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                key={row.original.labelIdentifier}
+              >
+                {row.cells.map((cell) => (
+                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                    {cell.render("Cell")}
+                  </Td>
+                ))}
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
