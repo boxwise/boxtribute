@@ -10,13 +10,13 @@ type IdOptionalNameTuple = {
   name?: string;
 };
 
-// the base name is only optional since it is also set through auth0 which only include ids
+/** The base name is only optional since it is also set through auth0 which only include ids. */
 export const selectedBaseAtom = atom<IdOptionalNameTuple>();
-// the base names are only optional since it is also set through auth0 which only include ids
+/** The base names are only optional since it is also set through auth0 which only include ids. */
 export const availableBasesAtom = atom<IdOptionalNameTuple[]>([]);
 export const organisationAtom = atom<IdNameTuple>();
 
-// read only atom to get the selected base id
+/** Read only atom to get the selected base id. */
 export const selectedBaseIdAtom = atom((get) => {
   const selectedBase = get(selectedBaseAtom) ?? { id: undefined };
   // return the stored selected base id if it exists

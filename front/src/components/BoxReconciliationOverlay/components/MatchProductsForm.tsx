@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { useAtomValue } from "jotai";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { groupBy } from "lodash";
@@ -9,6 +10,7 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
+import { reconciliationMatchProductAtom } from "stores/globalCacheStore";
 import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 export interface ICategoryData {
@@ -73,17 +75,31 @@ export function MatchProductsForm({
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
   const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
-  // default Values
+  const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+  /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
+  const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
+  const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
+  /** Object key to match in the store to fetch the input values. */
+  const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
+
+  // Default Values
+  // Automatched Products take precedence over cached products.
   const defaultValues: IMatchProductsFormData = {
     productId: {
-      // TODO: Handle caching when https://github.com/boxwise/boxtribute/pull/2049 is merged
-      label: shipmentDetail?.autoMatchingTargetProduct?.name ?? "Save Product As...",
-      value: shipmentDetail?.autoMatchingTargetProduct?.id ?? "",
+      label:
+        shipmentDetail?.autoMatchingTargetProduct?.name ??
+        cachedReconciliationMatchProduct[cacheId]?.productId.label,
+      value:
+        shipmentDetail?.autoMatchingTargetProduct?.id ??
+        cachedReconciliationMatchProduct[cacheId]?.productId.value,
     },
     sizeId: {
-      // TODO: Handle caching when https://github.com/boxwise/boxtribute/pull/2049 is merged
-      label: isProductAutoMatched ? (shipmentDetail.sourceSize?.label ?? "") : "Save Size As...",
-      value: isProductAutoMatched ? (shipmentDetail.sourceSize?.id ?? "") : "",
+      label: isProductAutoMatched
+        ? (shipmentDetail.sourceSize?.label ?? "")
+        : cachedReconciliationMatchProduct[cacheId]?.sizeId.label,
+      value: isProductAutoMatched
+        ? (shipmentDetail.sourceSize?.id ?? "")
+        : cachedReconciliationMatchProduct[cacheId]?.sizeId.value,
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
@@ -133,12 +149,20 @@ export function MatchProductsForm({
         // if there is only one option select it directly
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
+        } else if (cachedReconciliationMatchProduct[matchingProductSourceId]?.sizeId?.value) {
+          return;
         } else {
           resetField("sizeId", { defaultValue: { value: "", label: "Save Size As..." } });
         }
       }
     }
-  }, [productId, productAndSizesData, resetField]);
+  }, [
+    productId,
+    productAndSizesData,
+    resetField,
+    cachedReconciliationMatchProduct,
+    matchingProductSourceId,
+  ]);
 
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
@@ -192,7 +216,10 @@ export function MatchProductsForm({
             errors={errors}
             control={control}
           />
-          <BsFillCheckCircleFill color={productId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
+          <BsFillCheckCircleFill
+            color={control.getFieldState("productId").isDirty ? "#659A7E" : "#fff"}
+            size={18}
+          />
         </Flex>
         <Box>
           <Text fontSize={16} fontWeight="bold">
@@ -219,7 +246,10 @@ export function MatchProductsForm({
             errors={errors}
             control={control}
           />
-          <BsFillCheckCircleFill color={sizeId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
+          <BsFillCheckCircleFill
+            color={control.getFieldState("sizeId").isDirty ? "#659A7E" : "#fff"}
+            size={18}
+          />
         </Flex>
         <Flex alignContent="center" alignItems="center">
           <Wrap alignItems="center">
