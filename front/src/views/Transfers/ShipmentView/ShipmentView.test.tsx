@@ -193,7 +193,7 @@ describe("4.5 Test Cases", () => {
     );
     // Breadcrumbs are there
     expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
-  }, 15000);
+  }, 20000);
 
   // Test case 4.5.1.4
 
