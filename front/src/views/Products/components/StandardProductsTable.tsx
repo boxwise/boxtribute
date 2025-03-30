@@ -8,10 +8,21 @@ import {
   useRowSelect,
   usePagination,
 } from "react-table";
-import { Table, Tr, Tbody, Td, Spacer, Flex, Text, IconButton, HStack } from "@chakra-ui/react";
+import {
+  Table,
+  Tr,
+  Tbody,
+  Td,
+  Spacer,
+  Flex,
+  Text,
+  IconButton,
+  HStack,
+  Box,
+} from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/hooks";
-import { ProductRow } from "./transformers";
+import { StandardProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -20,13 +31,13 @@ import {
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 
-type ProductTableProps = {
+type StandardProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
-  columns: Column<ProductRow>[];
+  columns: Column<StandardProductRow>[];
 };
 
-function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
+function StandardProductsTable({ tableConfig, tableData, columns }: StandardProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -84,7 +95,7 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
   }, [filters, globalFilter, hiddenColumns, sortBy, tableConfig]);
 
   return (
-    <Flex direction="column" overflowX="auto">
+    <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Spacer />
         <HStack spacing={2} mb={2}>
@@ -94,23 +105,38 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-      <Table key="products-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
-        <Tbody>
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()} key={row.values.id}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+      {/* overflowY and flex={1} make the table scrollable vertically and took the other settings from <TableContainer>
+      See https://chakra-ui.com/docs/components/table/usage#table-container */}
+      <Box
+        flex={1}
+        display="block"
+        maxWidth="100%"
+        overflowX="auto"
+        overflowY="auto"
+        whiteSpace="nowrap"
+      >
+        <Table key="standard-products-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} />
+          <Tbody>
+            {page.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr
+                  backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
+                  {...row.getRowProps()}
+                  key={row.values.id}
+                >
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </Box>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
@@ -145,4 +171,4 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
   );
 }
 
-export default ProductsTable;
+export default StandardProductsTable;

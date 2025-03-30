@@ -254,15 +254,7 @@ function App() {
               index
               element={
                 <Protected
-                  component={
-                    <ErrorBoundary
-                      fallback={
-                        <AlertWithoutAction alertText="Could not fetch products data! Please try reloading the page." />
-                      }
-                    >
-                      <Products />
-                    </ErrorBoundary>
-                  }
+                  component={<Products />}
                   redirectPath={prevLocation}
                   requiredAbps={["manage_products"]}
                   minBeta={4}
