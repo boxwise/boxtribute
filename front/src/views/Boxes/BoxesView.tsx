@@ -228,8 +228,8 @@ function Boxes() {
         accessor: "tags",
         id: "tags",
         Cell: TagsCell,
-        disableFilters: true,
-        disableSortBy: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSome",
       },
       {
         Header: "Shipment",

@@ -33,7 +33,8 @@ export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
-  tagOptions: IDropdownOption[];
+  tagOptions: { label: string; value: string }[];
+  // tagOptions: IDropdownOption[];
   availableColumns: Column<BoxRow>[];
 }
 

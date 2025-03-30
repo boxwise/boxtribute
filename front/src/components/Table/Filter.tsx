@@ -90,6 +90,8 @@ export function SelectColumnFilter({
     id: string;
   };
 }) {
+  const selected = preFilteredRows[3].values[id];
+  console.log(selected);
   // Calculate the options for filtering
   // using the preFilteredRows
   const options = useMemo(() => {
