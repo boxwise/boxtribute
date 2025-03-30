@@ -28,8 +28,10 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
   const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
 
   useEffect(() => {
-    if (currentTagOptions.length > 0) {
+    if (currentTagOptions.length >= 1) {
       setSelectedTagOptions(currentTagOptions);
+    } else {
+      setSelectedTagOptions([]);
     }
   }, [currentTagOptions]);
 
