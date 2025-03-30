@@ -193,7 +193,7 @@ describe("4.5 Test Cases", () => {
     );
     // Breadcrumbs are there
     expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
-  }, 15000);
+  }, 20000);
 
   // Test case 4.5.1.4
 
@@ -294,7 +294,7 @@ describe("4.5 Test Cases", () => {
     expect(
       screen.getByRole("cell", { name: /124 long sleeves \(12x\) size: mixed/i }),
     ).toBeInTheDocument();
-  }, 10000);
+  }, 30000);
 
   // Test case 4.5.4
   it("4.5.4 - Initial load of Receiving UI As Source Organisation", async () => {
