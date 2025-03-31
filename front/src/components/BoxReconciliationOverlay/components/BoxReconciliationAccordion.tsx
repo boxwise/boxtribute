@@ -15,6 +15,11 @@ import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
+import { useAtom, useSetAtom } from "jotai";
+import {
+  reconciliationMatchProductAtom,
+  reconciliationReceiveLocationAtom,
+} from "stores/globalCacheStore";
 import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 interface IBoxReconcilationAccordionProps {
@@ -59,8 +64,12 @@ export function BoxReconcilationAccordion({
       ? parseInt(shipmentDetail.autoMatchingTargetProduct?.id ?? "0")
       : undefined,
     sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
-    numberOfItems: isProductAutoMatched ? (shipmentDetail.sourceQuantity ?? 0) : undefined,
+    numberOfItems: shipmentDetail?.sourceQuantity ?? undefined,
   });
+  const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
+    reconciliationMatchProductAtom,
+  );
+  const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
   const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
   const accordionHeaderText = productManuallyMatched
     ? "PRODUCTS DELIVERED"
@@ -113,6 +122,13 @@ export function BoxReconcilationAccordion({
             onSubmitMatchProductsForm={(matchedProductsFormData: IMatchProductsFormData) => {
               setProductManuallyMatched(true);
               setAccordionIndex(1);
+
+              if (shipmentDetail.sourceProduct?.id) {
+                reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
+                  matchedProductsFormData;
+                setReconciliationMatchProductCache(reconciliationMatchProductCache);
+              }
+
               setProductFormData({
                 sizeId: parseInt(matchedProductsFormData.sizeId.value, 10),
                 productId: parseInt(matchedProductsFormData.productId.value, 10),
@@ -146,6 +162,7 @@ export function BoxReconcilationAccordion({
             onSubmitReceiveLocationForm={(receiveLocationFormData: IReceiveLocationFormData) => {
               setLocationSpecified(true);
               setAccordionIndex(-1);
+              setReconciliationReceiveLocationCache(receiveLocationFormData);
 
               onBoxDelivered(
                 shipmentDetail.box.labelIdentifier,
