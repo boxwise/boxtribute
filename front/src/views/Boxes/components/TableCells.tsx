@@ -1,5 +1,4 @@
 import { CellProps } from "react-table";
-import { isDate } from "date-fns";
 import {
   VStack,
   Tag,
@@ -12,6 +11,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Box,
 } from "@chakra-ui/react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { Style } from "victory";
@@ -20,14 +20,16 @@ import { colorIsBright } from "utils/helpers";
 
 export function ProductCell({ value, cell }: CellProps<any>) {
   return (
-    <chakra.span display="flex" gap={2} position="relative">
+    <chakra.span display="flex" gap={2}>
       {value}{" "}
       {cell.row.original.holdsStandardProduct && (
         <Popover closeOnEsc closeOnBlur isLazy>
           <PopoverTrigger>
-            <BsFillCheckCircleFill color="#659A7E" size={18} onClick={(e) => e.stopPropagation()} />
+            <Box onClick={(e) => e.stopPropagation()}>
+              <BsFillCheckCircleFill color="#659A7E" size={18} />
+            </Box>
           </PopoverTrigger>
-          <PopoverContent top={6} w={"100%"}>
+          <PopoverContent w={"100%"}>
             <PopoverArrow />
             <PopoverBody onClick={(e) => e.stopPropagation()}>
               This product is part of the ASSORT standard
@@ -101,21 +103,4 @@ export function DaysCell({ value }: CellProps<any>) {
     return <chakra.span>1 day</chakra.span>;
   }
   return <chakra.span>{value} days</chakra.span>;
-}
-
-export function DateCell({ value }: CellProps<any>) {
-  return (
-    <chakra.span>
-      {isDate(value) &&
-        value.getTime() > new Date(0).getTime() &&
-        value.toLocaleString("en-GB", {
-          weekday: "short",
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-    </chakra.span>
-  );
 }

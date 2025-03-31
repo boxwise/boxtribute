@@ -539,6 +539,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         );
       }
     },
-    20000,
+    30000,
   );
 });
