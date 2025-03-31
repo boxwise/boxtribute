@@ -349,8 +349,8 @@ function BoxesActionsAndTable({
       tagOptions,
       onUnassignBoxesToShipment,
       onAssignTags,
-      getSelectedBoxTags,
-      onUnassignTags,
+      // getSelectedBoxTags,
+      // onUnassignTags,
     ],
   );
 
