@@ -29,9 +29,12 @@ const SingleSelectOptionSchema = z.object({
 });
 
 const CreateCustomProductFormSchema = z.object({
-  name: z.string().refine((name) => !!name, {
-    message: "Please enter a product name.",
-  }),
+  name: z
+    .string()
+    .trim()
+    .refine((name) => !!name, {
+      message: "Please enter a product name.",
+    }),
   // see https://github.com/colinhacks/zod?tab=readme-ov-file#validating-during-transform
   category: z
     .object({ value: z.string() }, { required_error: categoryErrorText })
