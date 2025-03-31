@@ -15,7 +15,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
                     baseId: {base_id}
                     view: {view}
                 }}) {{ ...on ShareableLink {{
-                    baseId
+                    base {{ id name }}
                     urlParameters
                     view
                     validUntil
@@ -24,7 +24,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
     valid_until = datetime.fromisoformat(link.pop("validUntil"))
     assert (valid_until - today.astimezone()).days == 7
     assert link == {
-        "baseId": base_id,
+        "base": {"id": str(base_id), "name": default_base["name"]},
         "urlParameters": None,
         "view": view,
     }
@@ -43,7 +43,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
                     validUntil: "{valid_until}"
                 }}) {{ ...on ShareableLink {{
                     code
-                    baseId
+                    base {{ id }}
                     urlParameters
                     view
                     validUntil
@@ -55,7 +55,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
     assert len(first_link_code) == 64
     assert link.pop("createdOn").startswith(today.date().isoformat())
     assert link == {
-        "baseId": base_id,
+        "base": {"id": str(base_id)},
         "urlParameters": url_parameters,
         "view": view,
         "validUntil": valid_until_utc,

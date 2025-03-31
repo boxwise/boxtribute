@@ -1181,7 +1181,7 @@ type ShareableLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  base: Base!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime
