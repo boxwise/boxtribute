@@ -313,7 +313,8 @@ function BoxesActionsAndTable({
               allTagOptions={tagOptions}
             />
           </Menu>
-          <Menu>
+          {/* Hide this button till remove tags functionality is ready for release */}
+          {/* <Menu>
             <RemoveTagsButton
               selectedBoxes={selectedBoxes}
               key="remove-tags"
@@ -321,7 +322,7 @@ function BoxesActionsAndTable({
               allTagOptions={tagOptions}
               currentTagOptions={getSelectedBoxTags}
             />
-          </Menu>
+          </Menu> */}
           <MenuItem as="div">
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
