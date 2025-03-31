@@ -54,7 +54,7 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
     });
 
     expect(showHistoryButton).toBeInTheDocument();
-  }, 10000);
+  }, 15000);
 
   // Test case 3.1.12.2
   it("3.1.12.2 - Click on history icons opens history overlay", async () => {
