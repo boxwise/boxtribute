@@ -7,15 +7,17 @@ import { Suspense, useCallback } from "react";
 import CreateCustomProductForm, {
   ICreateCustomProductFormOutput,
 } from "./components/CreateCustomProductForm";
-// import { useNavigate } from "react-router-dom";
-// import { useAtomValue } from "jotai";
-// import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-// import { useErrorHandling } from "hooks/useErrorHandling";
-// import { useNotification } from "hooks/useNotification";
-import { useSuspenseQuery } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { useErrorHandling } from "hooks/useErrorHandling";
+import { useNotification } from "hooks/useNotification";
+import { useMutation, useSuspenseQuery } from "@apollo/client";
 import { ResultOf } from "gql.tada";
 import { customProductRawToFormOptionsTransformer } from "./components/transformer";
 import { graphql } from "../../../../graphql/graphql";
+import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
+import { NonNullProductGender } from "../../../../graphql/types";
 
 const createCustomProductQueryErrorText = "Something went wrong! Please try reloading the page.";
 
@@ -37,89 +39,125 @@ const CUSTOM_PRODUCT_FORM_OPTIONS_QUERY = graphql(
 
 export type ICustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
 
+const CREATE_CUSTOM_PRODUCT_MUTATION = graphql(
+  `
+    mutation CreateCustomProduct(
+      $baseId: Int!
+      $name: String!
+      $categoryId: Int!
+      $sizeRangeId: Int!
+      $gender: ProductGender!
+      $price: Int
+      $inShop: Boolean
+      $comment: String
+    ) {
+      createCustomProduct(
+        creationInput: {
+          baseId: $baseId
+          name: $name
+          categoryId: $categoryId
+          sizeRangeId: $sizeRangeId
+          gender: $gender
+          price: $price
+          inShop: $inShop
+          comment: $comment
+        }
+      ) {
+        __typename
+        ... on Product {
+          id
+        }
+      }
+    }
+  `,
+  [],
+);
+
+const createCustomProductErrorToastText = "Could not create this custom product! Try again?";
+
 function CreateCustomProductFormContainer() {
-  //   const navigate = useNavigate();
-  //   const baseId = useAtomValue(selectedBaseIdAtom);
-  //   const { createToast } = useNotification();
-  //   const { triggerError } = useErrorHandling();
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const { createToast } = useNotification();
+  const { triggerError } = useErrorHandling();
   const { data: customProductFormRawOptions, error } = useSuspenseQuery(
     CUSTOM_PRODUCT_FORM_OPTIONS_QUERY,
   );
 
-  //   const [enableStandardProduct, { loading: isEnableStandardProductLoading }] = useMutation(
-  //     ENABLE_STANDARD_PRODUCT_MUTATION,
-  //   );
+  const [createCustomProduct, { loading: isCreateCustomProductLoading }] = useMutation(
+    CREATE_CUSTOM_PRODUCT_MUTATION,
+  );
 
-  //   const onSubmit = useCallback(
-  //     (enableStandardProductFormOutput: IEnableStandardProductFormOutput) => {
-  //       enableStandardProduct({
-  //         variables: {
-  //           standardProductId: parseInt(enableStandardProductFormOutput.standardProduct.value, 10),
-  //           baseId: parseInt(baseId, 10),
-  //           comment: enableStandardProductFormOutput.comment,
-  //           price: enableStandardProductFormOutput.price,
-  //           inShop: enableStandardProductFormOutput.inShop,
-  //         },
-  //         refetchQueries: [
-  //           { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
-  //           { query: PRODUCTS_QUERY },
-  //         ],
-  //       })
-  //         .then(({ data }) => {
-  //           const result = data?.enableStandardProduct;
-  //           if (!result) return;
+  const onSubmit = useCallback(
+    (createProductFormOutput: ICreateCustomProductFormOutput) => {
+      createCustomProduct({
+        variables: {
+          baseId: parseInt(baseId, 10),
+          name: createProductFormOutput.name,
+          categoryId: createProductFormOutput.category,
+          sizeRangeId: createProductFormOutput.sizeRange,
+          gender: createProductFormOutput.gender as NonNullProductGender, // this is not a validation, but a work-around to make ts happy
+          price: createProductFormOutput.price,
+          inShop: createProductFormOutput.inShop,
+          comment: createProductFormOutput.comment,
+        },
+        refetchQueries: [{ query: PRODUCTS_QUERY }],
+      })
+        .then(({ data }) => {
+          const result = data?.createCustomProduct;
+          if (!result) {
+            triggerError({
+              message: createCustomProductErrorToastText,
+            });
+            return;
+          }
 
-  //           switch (result.__typename) {
-  //             case "Product":
-  //               createToast({
-  //                 message: `The ASSORT standard product was successfully enabled.`,
-  //               });
-  //               navigate(`../../`);
+          switch (result.__typename) {
+            case "Product":
+              createToast({
+                message: `The custom product was successfully created.`,
+              });
+              navigate(`..`);
 
-  //               break;
-  //             case "InsufficientPermissionError":
-  //               triggerError({
-  //                 message: "You don't have permission to enable this ASSORT standard product!",
-  //               });
-  //               break;
-  //             case "InvalidPriceError":
-  //               triggerError({
-  //                 message: "Price must be a positive integer number.",
-  //               });
-  //               break;
-  //             case "OutdatedStandardProductVersionError":
-  //               triggerError({
-  //                 message: "This standard product is outdated and cannot be enabled. ",
-  //               });
-  //               break;
-  //             case "StandardProductAlreadyEnabledForBaseError":
-  //               triggerError({
-  //                 message: "This standard product is already enabled for this base.",
-  //               });
-  //               break;
+              break;
+            case "InsufficientPermissionError":
+            case "UnauthorizedForBaseError":
+              triggerError({
+                message: "You don't have permission to create a custom product!",
+              });
+              break;
+            case "InvalidPriceError":
+              triggerError({
+                message: "Price must be a positive integer number.",
+              });
+              break;
+            case "EmptyNameError":
+              triggerError({
+                message: "The name of the product cannot be empty.",
+              });
+              break;
+            case "ResourceDoesNotExistError":
+              triggerError({
+                message: "The selected options do not exist.",
+              });
+              break;
 
-  //             default:
-  //               triggerError({
-  //                 message: "Could not enable this ASSORT standard product! Try again?",
-  //               });
-  //               break;
-  //           }
-  //         })
-  //         .catch(() => {
-  //           // Handle network or other errors
-  //           triggerError({
-  //             message: "Could not enable this ASSORT standard product! Try again?",
-  //           });
-  //         });
-  //     },
-  //     [enableStandardProduct, baseId, createToast, navigate, triggerError],
-  //   );
-
-  const onSubmit = useCallback((createProductFormOutput: ICreateCustomProductFormOutput) => {
-    // Handle form submission logic here
-    console.log("Form submitted with data:", createProductFormOutput);
-    // You can call an API or perform any other actions with the form data
-  }, []);
+            default:
+              triggerError({
+                message: createCustomProductErrorToastText,
+              });
+              break;
+          }
+        })
+        .catch(() => {
+          // Handle network or other errors
+          triggerError({
+            message: createCustomProductErrorToastText,
+          });
+        });
+    },
+    [createCustomProduct, baseId, createToast, navigate, triggerError],
+  );
 
   // If Apollo encountered an error (like network error), throw it
   if (error) {
@@ -135,7 +173,7 @@ function CreateCustomProductFormContainer() {
       sizeRangeOptions={sizeRangeOptions}
       genderOptions={genderOptions}
       onSubmit={onSubmit}
-      isLoading={false}
+      isLoading={isCreateCustomProductLoading}
     />
   );
 }
