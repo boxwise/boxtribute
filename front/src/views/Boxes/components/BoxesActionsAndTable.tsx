@@ -27,7 +27,7 @@ import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
 // import RemoveTagsButton from "./RemoveTagsButton";
-import { useUnassignTags } from "hooks/useUnassignTags";
+// import { useUnassignTags } from "hooks/useUnassignTags";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -68,12 +68,12 @@ function BoxesActionsAndTable({
   );
 
   // Used for remove tags
-  const getSelectedBoxTags = useMemo(() => {
-    const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
-    const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
-    const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
-    return commonTags;
-  }, [selectedBoxes, tagOptions]);
+  // const getSelectedBoxTags = useMemo(() => {
+  //   const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
+  //   const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
+  //   const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
+  //   return commonTags;
+  // }, [selectedBoxes, tagOptions]);
 
   // Move Boxes
   const moveBoxesAction = useMoveBoxes();
@@ -251,24 +251,24 @@ function BoxesActionsAndTable({
   );
 
   // Unassign tags from boxes
-  const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
-  const onUnassignTags = useCallback(
-    async (tagIds: string[]) => {
-      await unassignTags(
-        selectedBoxes.map((box) => box.values.labelIdentifier),
-        tagIds.map((id) => parseInt(id, 10)),
-      );
-    },
-    [unassignTags, selectedBoxes],
-  );
+  // const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
+  // const onUnassignTags = useCallback(
+  //   async (tagIds: string[]) => {
+  //     await unassignTags(
+  //       selectedBoxes.map((box) => box.values.labelIdentifier),
+  //       tagIds.map((id) => parseInt(id, 10)),
+  //     );
+  //   },
+  //   [unassignTags, selectedBoxes],
+  // );
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
     isDeleteBoxesLoading ||
-    isAssignTagsLoading ||
-    isUnassignTagsLoading;
+    isAssignTagsLoading;
+    // isUnassignTagsLoading;
 
   const actionButtons = useMemo(
     () => [
