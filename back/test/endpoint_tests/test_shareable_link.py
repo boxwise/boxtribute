@@ -76,14 +76,17 @@ def test_shareable_link_mutations(client, default_base, mocker):
     assert link == {"date": past_valid_until + "T00:00:00+00:00"}
 
 
-def test_shareable_link_queries(read_only_client, shareable_link, expired_link):
+def test_shareable_link_queries(
+    read_only_client, shareable_link, expired_link, default_base, default_organisation
+):
     code = shareable_link["code"]
     query = f"""query {{ resolveLink(code: "{code}") {{
                 ...on ResolvedLink {{
                     code
                     validUntil
                     view
-                    baseId
+                    baseName
+                    organisationName
                     urlParameters
                     data {{
                         ...on BeneficiaryDemographicsData {{
@@ -106,7 +109,8 @@ def test_shareable_link_queries(read_only_client, shareable_link, expired_link):
         "code": code,
         "validUntil": shareable_link["valid_until"].isoformat(),
         "view": ShareableView.StatvizDashboard.name,
-        "baseId": shareable_link["base_id"],
+        "baseName": default_base["name"],
+        "organisationName": default_organisation["name"],
         "urlParameters": shareable_link["url_parameters"],
     }
     assert len(data[0]["demographicsFacts"]) > 0
