@@ -70,24 +70,31 @@ const CreateCustomProductFormSchema = z.object({
     .optional(),
 });
 
-type ICreateCustomProductFormInput = z.input<typeof CreateCustomProductFormSchema>;
-// type ICreateCustomProductFormOutput = z.output<typeof CreateCustomProductFormSchema>;
+export type ICreateCustomProductFormInput = z.input<typeof CreateCustomProductFormSchema>;
+export type ICreateCustomProductFormOutput = z.output<typeof CreateCustomProductFormSchema>;
 
 export type ICreateCustomProductFormProps = {
   isLoading: boolean;
-  //   standardProductData: IEnableStandardProductFormInput[];
-  //   defaultValues: IEnableStandardProductFormInput;
-  onSubmit: (createCustomProductFormOutput: ICreateCustomProductFormInput) => void;
+  categoryOptions: z.infer<typeof SingleSelectOptionSchema>[];
+  sizeRangeOptions: z.infer<typeof SingleSelectOptionSchema>[];
+  genderOptions: z.infer<typeof SingleSelectOptionSchema>[];
+  onSubmit: (createCustomProductFormOutput: ICreateCustomProductFormOutput) => void;
 };
 
-function CreateCustomProductForm({ isLoading, onSubmit }: ICreateCustomProductFormProps) {
+function CreateCustomProductForm({
+  isLoading,
+  categoryOptions,
+  sizeRangeOptions,
+  genderOptions,
+  onSubmit,
+}: ICreateCustomProductFormProps) {
   const navigate = useNavigate();
   const {
     handleSubmit,
     control,
     register,
     formState: { errors },
-  } = useForm<ICreateCustomProductFormInput>({
+  } = useForm<ICreateCustomProductFormOutput>({
     resolver: zodResolver(CreateCustomProductFormSchema),
   });
 
@@ -125,8 +132,7 @@ function CreateCustomProductForm({ isLoading, onSubmit }: ICreateCustomProductFo
             fieldId="category"
             fieldLabel="Category"
             placeholder="Please select a category."
-            options={[]}
-            // options={sortedProductOptions}
+            options={categoryOptions}
             errors={errors}
             control={control}
           />
@@ -134,8 +140,7 @@ function CreateCustomProductForm({ isLoading, onSubmit }: ICreateCustomProductFo
             fieldId="gender"
             fieldLabel="Gender"
             placeholder="Please select a gender."
-            options={[]}
-            // options={sortedProductOptions}
+            options={genderOptions}
             errors={errors}
             control={control}
           />
@@ -143,8 +148,7 @@ function CreateCustomProductForm({ isLoading, onSubmit }: ICreateCustomProductFo
             fieldId="sizeRange"
             fieldLabel="Size Range"
             placeholder="Please select a size range."
-            options={[]}
-            // options={sortedProductOptions}
+            options={sizeRangeOptions}
             errors={errors}
             control={control}
           />
