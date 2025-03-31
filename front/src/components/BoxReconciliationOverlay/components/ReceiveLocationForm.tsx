@@ -7,6 +7,8 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
 import { z } from "zod";
 import { ILocationData } from "./BoxReconciliationView";
+import { useAtomValue } from "jotai";
+import { reconciliationReceiveLocationAtom } from "stores/globalCacheStore";
 
 // Definitions for form validation with zod
 
@@ -42,9 +44,14 @@ export function ReceiveLocationForm({
     value: location.id,
   }));
 
+  const cachedReconciliationReceiveLocation = useAtomValue(reconciliationReceiveLocationAtom);
+
   // Form Default Values
   const defaultValues: IReceiveLocationFormData = {
-    locationId: { label: "Select Location", value: "" },
+    locationId: {
+      label: cachedReconciliationReceiveLocation.locationId.label,
+      value: cachedReconciliationReceiveLocation.locationId.value,
+    },
   };
 
   // react-hook-form
@@ -61,10 +68,14 @@ export function ReceiveLocationForm({
   const locationId = watch("locationId");
 
   useEffect(() => {
-    if (locationId != null && locationId.value !== "") {
+    if (
+      locationId != null &&
+      locationId.value !== "" &&
+      control.getFieldState("locationId").isDirty
+    ) {
       onLocationSpecified(true);
     }
-  }, [locationId, onLocationSpecified]);
+  }, [control, locationId, onLocationSpecified]);
 
   return (
     <form onSubmit={handleSubmit(onSubmitReceiveLocationForm)}>
@@ -81,7 +92,10 @@ export function ReceiveLocationForm({
             errors={errors}
             control={control}
           />
-          <BsFillCheckCircleFill color={locationId?.value !== "" ? "#659A7E" : "#fff"} size={18} />
+          <BsFillCheckCircleFill
+            color={control.getFieldState("locationId").isDirty ? "#659A7E" : "#fff"}
+            size={18}
+          />
         </Flex>
 
         <Flex alignContent="center" alignItems="center">

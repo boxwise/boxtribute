@@ -12,6 +12,10 @@ export const useHandleLogout = () => {
   const { user, logout } = useAuth0();
 
   const handleLogout = () => {
+    // Clear reconciliation view form input cache.
+    localStorage.removeItem("reconciliationMatchProduct");
+    localStorage.removeItem("reconciliationReceiveLocation");
+
     // only redirect in staging and production environments
     if (import.meta.env.FRONT_ENVIRONMENT !== "development") {
       window.location.href = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/index.php?action=logoutfromv2`;

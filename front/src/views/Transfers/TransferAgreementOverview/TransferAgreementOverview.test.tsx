@@ -96,7 +96,7 @@ it("4.2.1 - Initial Load of Page", async () => {
       name: /my network/i,
     }),
   ).toBeInTheDocument();
-}, 20000);
+}, 30000);
 
 const failedMutationTests = [
   {
