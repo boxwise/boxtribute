@@ -26,7 +26,7 @@ import MakeLabelsButton from "./MakeLabelsButton";
 import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
-import RemoveTagsButton from "./RemoveTagsButton";
+// import RemoveTagsButton from "./RemoveTagsButton";
 import { useUnassignTags } from "hooks/useUnassignTags";
 
 export interface IBoxesActionsAndTableProps {
