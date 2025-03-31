@@ -113,10 +113,7 @@ function CreateCustomProductForm({
     resolver: zodResolver(CreateCustomProductFormSchema),
   });
 
-  console.log("errors", errors);
-
   return (
-    //   <form onSubmit={handleSubmit(onSubmit)}>
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box border="2px" mb={4} p={2}>
         <HStack borderBottom="2px" pb={2} px={2}>
@@ -127,7 +124,7 @@ function CreateCustomProductForm({
         <VStack spacing={4} p={2} mt={2}>
           <FormControl>
             <HStack>
-              <Switch id="type-switch" mr={2} isChecked={true} />
+              <Switch id="type-switch" mr={2} isChecked onChange={() => navigate("../enable")} />
               <Text fontWeight="medium" fontSize="md">
                 Custom Product (Base Specific)
               </Text>

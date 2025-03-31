@@ -11,7 +11,10 @@ import { FormSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
-import { standardProductRawToFormDataTransformer } from "./components/transformer";
+import {
+  findDefaultValues,
+  standardProductRawToFormDataTransformer,
+} from "./components/transformer";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useNotification } from "hooks/useNotification";
@@ -89,7 +92,7 @@ export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
 function EnableStandardProductFormContainer() {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId!;
+  const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId;
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { data: standardProductsRawData, error } = useSuspenseQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
@@ -178,14 +181,8 @@ function EnableStandardProductFormContainer() {
   }
 
   const standardProductData = standardProductRawToFormDataTransformer(standardProductsRawData);
-  const defaultValues = standardProductData.find(
-    (standardProduct) => standardProduct.standardProduct.value === requestedStandardProductId,
-  );
 
-  // Handle the case where the requested standard product is not found
-  if (!defaultValues) {
-    throw new Error("Requested ASSORT standard product not found!");
-  }
+  const defaultValues = findDefaultValues(standardProductData, requestedStandardProductId);
 
   return (
     <EnableStandardProductForm

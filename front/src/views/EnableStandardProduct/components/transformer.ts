@@ -35,3 +35,21 @@ export const standardProductRawToFormDataTransformer = (
     throw new Error(enableStandardProductQueryErrorText);
   }
 };
+
+export const findDefaultValues = (
+  standardProductData: IEnableStandardProductFormInput[],
+  requestedStandardProductId: string | undefined,
+) => {
+  if (!requestedStandardProductId) {
+    return undefined;
+  }
+  const defaultValues = standardProductData.find(
+    (standardProduct) => standardProduct.standardProduct.value === requestedStandardProductId,
+  );
+
+  // Handle the case where the requested standard product is not found
+  if (!defaultValues) {
+    throw new Error("Requested ASSORT standard product not found!");
+  }
+  return defaultValues;
+};

@@ -264,6 +264,16 @@ function App() {
             />
             <Route path="enable">
               <Route
+                index
+                element={
+                  <Protected
+                    component={<EnableStandardProductView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_products"]}
+                  />
+                }
+              />
+              <Route
                 path=":standardProductId"
                 element={
                   <Protected

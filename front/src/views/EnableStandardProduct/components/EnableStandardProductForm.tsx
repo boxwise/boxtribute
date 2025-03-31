@@ -10,6 +10,7 @@ import {
   FormLabel,
   VStack,
   Input,
+  Switch,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertWithoutAction } from "components/Alerts";
@@ -30,9 +31,10 @@ const SingleSelectOptionSchema = z.object({
 
 export const EnableStandardProductFormSchema = z.object({
   // see BoxEdit.tsx how to validate a select field
-  standardProduct: SingleSelectOptionSchema.refine(Boolean, {
-    message: "Please select a standard product",
-  }).transform((selectedOption) => selectedOption || z.NEVER),
+  standardProduct: z.object(
+    { value: z.string(), label: z.string() },
+    { required_error: "Please select a standard product." },
+  ),
   category: SingleSelectOptionSchema.optional(),
   gender: z.string().optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
@@ -57,7 +59,7 @@ export type IEnableStandardProductFormProps = {
   showAlert: boolean;
   isLoading: boolean;
   standardProductData: IEnableStandardProductFormInput[];
-  defaultValues: IEnableStandardProductFormInput;
+  defaultValues: IEnableStandardProductFormInput | undefined;
   onSubmit: (enableStandardProductFormData: IEnableStandardProductFormOutput) => void;
 };
 
@@ -80,16 +82,19 @@ function EnableStandardProductForm({
     formState: { errors },
   } = useForm<IEnableStandardProductFormInput>({
     resolver: zodResolver(EnableStandardProductFormSchema),
-    defaultValues,
+    ...(defaultValues ? { defaultValues } : {}),
   });
 
   const selectedStandardProduct = watch("standardProduct");
 
   useEffect(() => {
-    if (selectedStandardProduct.value !== defaultValues.standardProduct.value) {
+    if (defaultValues && selectedStandardProduct.value !== defaultValues.standardProduct.value) {
       navigate(`../${selectedStandardProduct.value}`);
     }
-  }, [defaultValues.standardProduct.value, navigate, selectedStandardProduct]);
+    if (!defaultValues && !!selectedStandardProduct) {
+      navigate(`${selectedStandardProduct.value}`);
+    }
+  }, [defaultValues, navigate, selectedStandardProduct]);
 
   const sortedProductOptions = useMemo(() => {
     return [...standardProductData]
@@ -122,6 +127,21 @@ function EnableStandardProductForm({
             </Text>
           </HStack>
           <VStack>
+            <FormControl px={2} mt={4}>
+              <HStack>
+                <Switch
+                  id="type-switch"
+                  mr={2}
+                  isChecked={false}
+                  onChange={() =>
+                    navigate(`${selectedStandardProduct ? "../../create" : "../create"}`)
+                  }
+                />
+                <Text fontWeight="medium" fontSize="md">
+                  Custom Product (Base Specific)
+                </Text>
+              </HStack>
+            </FormControl>
             <VStack p={2} w="full" bg="gray.100" borderRadius={10} mt={2}>
               <SelectField
                 fieldId="standardProduct"
@@ -151,42 +171,42 @@ function EnableStandardProductForm({
               <FormControl>
                 <FormLabel>Category</FormLabel>
                 <Select
-                  value={defaultValues.category?.value}
+                  value={defaultValues?.category?.value}
                   isReadOnly
                   isDisabled
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >
-                  <option value={defaultValues.category?.value}>
-                    {defaultValues.category?.label}
+                  <option value={defaultValues?.category?.value}>
+                    {defaultValues?.category?.label}
                   </option>
                 </Select>
               </FormControl>
               <FormControl>
                 <FormLabel>Gender</FormLabel>
                 <Select
-                  value={defaultValues.gender}
+                  value={defaultValues?.gender}
                   isReadOnly
                   isDisabled
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >
-                  <option value={defaultValues.gender}>
-                    {defaultValues.gender === "none" ? "-" : defaultValues.gender}
+                  <option value={defaultValues?.gender}>
+                    {defaultValues?.gender === "none" ? "-" : defaultValues?.gender}
                   </option>
                 </Select>
               </FormControl>
               <FormControl>
                 <FormLabel>Size Range</FormLabel>
                 <Select
-                  value={defaultValues.sizeRange?.value}
+                  value={defaultValues?.sizeRange?.value}
                   isReadOnly
                   isDisabled
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >
-                  <option value={defaultValues.sizeRange?.value}>
-                    {defaultValues.sizeRange?.label}
+                  <option value={defaultValues?.sizeRange?.value}>
+                    {defaultValues?.sizeRange?.label}
                   </option>
                 </Select>
               </FormControl>
