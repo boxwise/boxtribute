@@ -1,7 +1,14 @@
-import { FragmentOf, ResultOf } from "gql.tada"
+import { FragmentOf, ResultOf } from "gql.tada";
 
 import { introspection_types } from "./generated/graphql-env";
-import { BENEFICIARY_DEMOGRAPHICS_FRAGMENT, CREATED_BOXES_FRAGMENT, MOVED_BOXES_FRAGMENT, PRODUCT_FRAGMENT, STOCK_OVERVIEW_FRAGMENT, USER_FRAGMENT } from "./fragments";
+import {
+  BENEFICIARY_DEMOGRAPHICS_FRAGMENT,
+  CREATED_BOXES_FRAGMENT,
+  MOVED_BOXES_FRAGMENT,
+  PRODUCT_FRAGMENT,
+  STOCK_OVERVIEW_FRAGMENT,
+  USER_FRAGMENT,
+} from "./fragments";
 import { CREATED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
 import { STOCK_QUERY } from "../shared-components/statviz/components/visualizations/stock/StockDataContainer";
@@ -10,6 +17,7 @@ import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visua
 /** @todo Make a fragment to infer this type. */
 export type TargetType = introspection_types["TargetType"]["enumValues"];
 export type ProductGender = Product["gender"];
+export type NonNullProductGender = Exclude<ProductGender, null>;
 
 export type User = FragmentOf<typeof USER_FRAGMENT>;
 export type Product = FragmentOf<typeof PRODUCT_FRAGMENT>;

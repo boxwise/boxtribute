@@ -1,18 +1,9 @@
 import { ICustomProductFormQueryResult } from "../CreateCustomProductView";
+import { NonNullProductGender } from "../../../../../graphql/types";
 
 type IGendersOptions = {
   label: string;
-  value:
-    | "Men"
-    | "Women"
-    | "UnisexAdult"
-    | "UnisexKid"
-    | "UnisexBaby"
-    | "TeenGirl"
-    | "TeenBoy"
-    | "Girl"
-    | "Boy"
-    | "none";
+  value: NonNullProductGender;
 };
 
 const genders: IGendersOptions[] = [

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   HStack,
   Input,
@@ -18,44 +19,58 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
+const categoryErrorText = "Please select a category.";
+const sizeRangeErrorText = "Please select a size range.";
+const genderErrorText = "Please select a gender.";
+
 const SingleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
 });
 
 const CreateCustomProductFormSchema = z.object({
-  name: z.string(),
+  name: z.string().refine((name) => !!name, {
+    message: "Please enter a product name.",
+  }),
   // see https://github.com/colinhacks/zod?tab=readme-ov-file#validating-during-transform
-  category: SingleSelectOptionSchema.transform((selectedOption, ctx) => {
-    if (selectedOption.value) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please select a category.",
-      });
-      return z.NEVER;
-    }
-    return parseInt(selectedOption.value, 10);
-  }),
-  gender: SingleSelectOptionSchema.transform((selectedOption, ctx) => {
-    if (selectedOption.value) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please select a gender.",
-      });
-      return z.NEVER;
-    }
-    return selectedOption.value;
-  }),
-  sizeRange: SingleSelectOptionSchema.transform((selectedOption, ctx) => {
-    if (selectedOption.value) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please select a size range.",
-      });
-      return z.NEVER;
-    }
-    return parseInt(selectedOption.value, 10);
-  }),
+  category: z
+    .object({ value: z.string() }, { required_error: categoryErrorText })
+    .transform((selectedOption, ctx) => {
+      const valueInInt = parseInt(selectedOption.value, 10);
+      if (isNaN(valueInInt)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: categoryErrorText,
+        });
+        return z.NEVER;
+      }
+      return valueInInt;
+    }),
+  gender: z
+    .object({ value: z.string() }, { required_error: genderErrorText })
+    .transform((selectedOption, ctx) => {
+      if (!selectedOption.value) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: genderErrorText,
+        });
+        return z.NEVER;
+      }
+      return selectedOption.value;
+    }),
+  sizeRange: z
+    .object({ value: z.string() }, { required_error: sizeRangeErrorText })
+    .transform((selectedOption, ctx) => {
+      const valueInInt = parseInt(selectedOption.value, 10);
+      if (isNaN(valueInInt)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: sizeRangeErrorText,
+        });
+        return z.NEVER;
+      }
+      return valueInInt;
+    }),
   comment: z
     .string()
     .optional()
@@ -98,6 +113,8 @@ function CreateCustomProductForm({
     resolver: zodResolver(CreateCustomProductFormSchema),
   });
 
+  console.log("errors", errors);
+
   return (
     //   <form onSubmit={handleSubmit(onSubmit)}>
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -116,17 +133,24 @@ function CreateCustomProductForm({
               </Text>
             </HStack>
           </FormControl>
-          <FormControl>
-            <FormLabel htmlFor="name">Name</FormLabel>
+          <FormControl isInvalid={!!errors.name}>
+            <FormLabel htmlFor="name">
+              Name{" "}
+              <Text as="span" color="red.500">
+                *
+              </Text>
+            </FormLabel>
             <Input
               borderColor="black"
               border="2px"
               borderRadius={0}
               _focus={{ borderColor: "blue.500" }}
               _hover={{ borderColor: "gray.300" }}
+              placeholder="Please enter a product name."
               type="string"
               {...register("name")}
             />
+            {!!errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}
           </FormControl>
           <SelectField
             fieldId="category"
