@@ -34,6 +34,16 @@ def data():
             "created_on": now - timedelta(weeks=2),
             "created_by": default_user_data()["id"],
         },
+        {
+            "id": 3,
+            "code": hashlib.sha256(b"3").hexdigest(),
+            "valid_until": one_week_from_now,
+            "view": ShareableView.StockOverview,
+            "base_id": 1,
+            "url_parameters": None,
+            "created_on": now,
+            "created_by": default_user_data()["id"],
+        },
     ]
 
 
@@ -45,6 +55,11 @@ def shareable_link():
 @pytest.fixture
 def expired_link():
     return data()[1]
+
+
+@pytest.fixture
+def stock_overview_link():
+    return data()[2]
 
 
 def create():

@@ -77,7 +77,12 @@ def test_shareable_link_mutations(client, default_base, mocker):
 
 
 def test_shareable_link_queries(
-    read_only_client, shareable_link, expired_link, default_base, default_organisation
+    read_only_client,
+    shareable_link,
+    stock_overview_link,
+    expired_link,
+    default_base,
+    default_organisation,
 ):
     code = shareable_link["code"]
     query = f"""query {{ resolveLink(code: "{code}") {{
@@ -117,6 +122,32 @@ def test_shareable_link_queries(
     assert len(data[1]["createdBoxesFacts"]) > 0
     assert len(data[2]["movedBoxesFacts"]) > 0
     assert len(data[3]["stockOverviewFacts"]) > 0
+
+    code = stock_overview_link["code"]
+    query = f"""query {{ resolveLink(code: "{code}") {{
+                ...on ResolvedLink {{
+                    code
+                    data {{
+                        ...on BeneficiaryDemographicsData {{
+                            demographicsFacts: facts {{ age }}
+                        }}
+                        ...on CreatedBoxesData {{
+                            createdBoxesFacts: facts {{ createdOn }}
+                        }}
+                        ...on MovedBoxesData {{
+                            movedBoxesFacts: facts {{ movedOn }}
+                        }}
+                        ...on StockOverviewData {{
+                            stockOverviewFacts: facts {{ boxState }}
+                        }}
+                    }}
+                }} }} }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    data = response.pop("data")
+    assert response == {"code": code}
+    assert len(data) == 1
+    assert len(data[0]) == 1
+    assert len(data[0]["stockOverviewFacts"]) > 0
 
     code = expired_link["code"]
     query = f"""query {{ resolveLink(code: "{code}") {{
