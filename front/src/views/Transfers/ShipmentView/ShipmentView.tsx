@@ -35,7 +35,7 @@ import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { availableBasesAtom } from "stores/globalPreferenceStore";
 import { User } from "../../../../../graphql/types";
-import { ShipmentDetail, ShipmentState } from "queries/types";
+import { ShipmentDetail, ShipmentDetailWithAutomatchProduct, ShipmentState } from "queries/types";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
@@ -354,7 +354,7 @@ function ShipmentView() {
   const shipmentData = data?.shipment!;
 
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
-    []) as ShipmentDetail[];
+    []) as ShipmentDetailWithAutomatchProduct[];
 
   const changesLabel = (history: any): string => {
     let changes = "";
@@ -473,7 +473,7 @@ function ShipmentView() {
 
   const isSender =
     availableBases && data?.shipment && data?.shipment?.sourceBase?.id
-      ? availableBases.some((b) => b.id === data.shipment.sourceBase.id)
+      ? availableBases.some((b) => b.id === data.shipment!.sourceBase.id)
       : undefined;
 
   let shipmentTitle = <Heading>View Shipment</Heading>;
