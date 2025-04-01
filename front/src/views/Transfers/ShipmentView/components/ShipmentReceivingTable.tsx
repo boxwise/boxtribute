@@ -39,12 +39,6 @@ function ShipmentReceivingTable({
       data: tableData,
 
       initialState: {
-        sortBy: [
-          {
-            id: "labelIdentifier",
-            desc: true,
-          },
-        ],
         hiddenColumns: columns
           .filter((col: any) => col.show === false)
           .map((col) => col.id || col.accessor) as any,

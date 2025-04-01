@@ -1,27 +1,27 @@
 import _ from "lodash";
 import { useMemo } from "react";
 import ShipmentReceivingTable from "./ShipmentReceivingTable";
-import { ShipmentDetail } from "queries/types";
+import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 interface IShipmentReceivingContentProps {
-  items: ShipmentDetail[];
+  items: ShipmentDetailWithAutomatchProduct[];
   onReconciliationBox: (id: string) => void;
 }
 
 function ShipmentReceivingContent({ items, onReconciliationBox }: IShipmentReceivingContentProps) {
-  const boxes = _.map(
-    items.filter((b) => b.box.state === "Receiving"),
-    (shipmentDetail) => ({
+  const boxes = _(items.filter((b) => b.box.state === "Receiving"))
+    .map((shipmentDetail) => ({
       id: shipmentDetail?.sourceProduct?.id,
       labelIdentifier: shipmentDetail?.box?.labelIdentifier,
       product: shipmentDetail.sourceProduct?.name,
       comment: shipmentDetail?.box?.comment,
       gender: shipmentDetail.sourceProduct?.gender,
-      size: shipmentDetail.sourceSize?.label,
+      size: shipmentDetail?.sourceSize?.label,
       items: shipmentDetail?.sourceQuantity || 0,
       autoMatchingTargetProduct: shipmentDetail?.autoMatchingTargetProduct,
-    }),
-  );
+    }))
+    .sortBy([(b) => !b.autoMatchingTargetProduct, (b) => b.product])
+    .value();
 
   // Define columns
   const columns = useMemo(
