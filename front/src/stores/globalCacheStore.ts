@@ -1,6 +1,5 @@
 import { MatchProductsFormData } from "components/BoxReconciliationOverlay/components/MatchProductsForm";
 import { IReceiveLocationFormData } from "components/BoxReconciliationOverlay/components/ReceiveLocationForm";
-import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 type ReconciliationMatchProductFields = Record<
@@ -37,8 +36,4 @@ export const reconciliationReceiveLocationAtom = atomWithStorage<IReceiveLocatio
   },
   undefined,
   { getOnInit: true },
-);
-
-export const hasReconciliationMatchProductAtomCached = atom(
-  (get) => Object.keys(get(reconciliationMatchProductAtom)).length > 1,
 );

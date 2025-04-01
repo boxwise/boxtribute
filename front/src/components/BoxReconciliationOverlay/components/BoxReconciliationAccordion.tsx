@@ -17,7 +17,6 @@ import { MatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
-  hasReconciliationMatchProductAtomCached,
   reconciliationMatchProductAtom,
   reconciliationReceiveLocationAtom,
 } from "stores/globalCacheStore";
@@ -59,10 +58,13 @@ export function BoxReconcilationAccordion({
   const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
     reconciliationMatchProductAtom,
   );
-  const hasProductCache = useAtomValue(hasReconciliationMatchProductAtomCached);
+  const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+  /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
+  const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
+  const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
   const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   const [accordionIndex, setAccordionIndex] = useState(
-    hasProductCache ? 0 : isProductAutoMatched ? 1 : 0,
+    isProductIdMatchedInCache ? 0 : isProductAutoMatched ? 1 : 0,
   );
   const [productManuallyMatched, setProductManuallyMatched] = useState(false);
   const [locationSpecified, setLocationSpecified] = useState(false);
