@@ -13,9 +13,9 @@ import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
-import { IMatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
+import { MatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   reconciliationMatchProductAtom,
   reconciliationReceiveLocationAtom,
@@ -55,8 +55,17 @@ export function BoxReconcilationAccordion({
   onBoxUndelivered,
   onBoxDelivered,
 }: IBoxReconcilationAccordionProps) {
+  const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
+    reconciliationMatchProductAtom,
+  );
+  const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+  /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
+  const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
+  const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
   const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
-  const [accordionIndex, setAccordionIndex] = useState(isProductAutoMatched ? 1 : 0);
+  const [accordionIndex, setAccordionIndex] = useState(
+    isProductIdMatchedInCache ? 0 : isProductAutoMatched ? 1 : 0,
+  );
   const [productManuallyMatched, setProductManuallyMatched] = useState(false);
   const [locationSpecified, setLocationSpecified] = useState(false);
   const [productFormData, setProductFormData] = useState<IProductFormData>({
@@ -66,9 +75,6 @@ export function BoxReconcilationAccordion({
     sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
     numberOfItems: shipmentDetail?.sourceQuantity ?? undefined,
   });
-  const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
-    reconciliationMatchProductAtom,
-  );
   const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
   const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
   const accordionHeaderText = productManuallyMatched
@@ -119,7 +125,7 @@ export function BoxReconcilationAccordion({
             shipmentDetail={shipmentDetail}
             productAndSizesData={productAndSizesData}
             onBoxUndelivered={onBoxUndelivered}
-            onSubmitMatchProductsForm={(matchedProductsFormData: IMatchProductsFormData) => {
+            onSubmitMatchProductsForm={(matchedProductsFormData: MatchProductsFormData) => {
               setProductManuallyMatched(true);
               setAccordionIndex(1);
 

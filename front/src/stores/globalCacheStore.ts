@@ -1,10 +1,10 @@
-import { IMatchProductsFormData } from "components/BoxReconciliationOverlay/components/MatchProductsForm";
+import { MatchProductsFormData } from "components/BoxReconciliationOverlay/components/MatchProductsForm";
 import { IReceiveLocationFormData } from "components/BoxReconciliationOverlay/components/ReceiveLocationForm";
 import { atomWithStorage } from "jotai/utils";
 
 type ReconciliationMatchProductFields = Record<
   `${number}`,
-  Pick<IMatchProductsFormData, "productId" | "sizeId">
+  Pick<MatchProductsFormData, "productId" | "sizeId">
 >;
 
 /** Persisted atom to cache the value for the Match Product form input in the Box Reconciliation View. */

@@ -57,13 +57,13 @@ export const MatchProductsFormDataSchema = z.object({
     .nonnegative(),
 });
 
-export type IMatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
+export type MatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
   shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   loading: boolean;
-  onSubmitMatchProductsForm: (matchedProductsFormData: IMatchProductsFormData) => void;
+  onSubmitMatchProductsForm: (matchedProductsFormData: MatchProductsFormData) => void;
   onBoxUndelivered: (labelIdentifier: string) => void;
 }
 
@@ -81,25 +81,37 @@ export function MatchProductsForm({
   const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
   /** Object key to match in the store to fetch the input values. */
   const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
+  const cachedProductLabel = cachedReconciliationMatchProduct[cacheId]?.productId.label;
+  const cachedProductValue = cachedReconciliationMatchProduct[cacheId]?.productId.value;
+  const cachedProductSizeIdLabel = cachedReconciliationMatchProduct[cacheId]?.sizeId.label;
+  const cachedProductSizeIdValue = cachedReconciliationMatchProduct[cacheId]?.sizeId.value;
 
   // Default Values
-  // Automatched Products take precedence over cached products.
-  const defaultValues: IMatchProductsFormData = {
+  // Cached products take precedence over automatched products.
+  const defaultValues: MatchProductsFormData = {
     productId: {
       label:
-        shipmentDetail?.autoMatchingTargetProduct?.name ??
-        cachedReconciliationMatchProduct[cacheId]?.productId.label,
+        cachedProductLabel !== "Save Product As..."
+          ? cachedProductLabel
+          : (shipmentDetail?.autoMatchingTargetProduct?.name ?? "Save Product As..."),
       value:
-        shipmentDetail?.autoMatchingTargetProduct?.id ??
-        cachedReconciliationMatchProduct[cacheId]?.productId.value,
+        cachedProductValue !== ""
+          ? cachedProductValue
+          : (shipmentDetail?.autoMatchingTargetProduct?.id ?? ""),
     },
     sizeId: {
-      label: isProductAutoMatched
-        ? (shipmentDetail.sourceSize?.label ?? "")
-        : cachedReconciliationMatchProduct[cacheId]?.sizeId.label,
-      value: isProductAutoMatched
-        ? (shipmentDetail.sourceSize?.id ?? "")
-        : cachedReconciliationMatchProduct[cacheId]?.sizeId.value,
+      label:
+        cachedProductSizeIdLabel !== "Save Size As..."
+          ? cachedProductSizeIdLabel
+          : isProductAutoMatched
+            ? (shipmentDetail.sourceSize?.label ?? "")
+            : "Save Size As...",
+      value:
+        cachedProductSizeIdValue !== ""
+          ? cachedProductSizeIdValue
+          : isProductAutoMatched
+            ? (shipmentDetail.sourceSize?.id ?? "")
+            : "",
     },
     numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
   };
@@ -116,7 +128,7 @@ export function MatchProductsForm({
     resetField,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<IMatchProductsFormData>({
+  } = useForm<MatchProductsFormData>({
     resolver: zodResolver(MatchProductsFormDataSchema),
     defaultValues,
   });
