@@ -18,8 +18,8 @@ import { AllProductsCell } from "./TableCells";
 
 export const PRODUCTS_QUERY = graphql(
   `
-    query ProductsForProductsView {
-      products(paginationInput: { first: 10000 }) {
+    query ProductsForProductsView($baseId: ID!) {
+      products(baseId: $baseId, paginationInput: { first: 10000 }) {
         totalCount
         elements {
           ...ProductBasicFields
@@ -64,7 +64,11 @@ function ProductsContainer() {
   });
 
   // fetch Products data
-  const { data: productsRawData, error } = useSuspenseQuery(PRODUCTS_QUERY);
+  const { data: productsRawData, error } = useSuspenseQuery(PRODUCTS_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
 
   const availableColumns: Column<ProductRow>[] = useMemo(
     () => [
