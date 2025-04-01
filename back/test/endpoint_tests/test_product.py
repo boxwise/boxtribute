@@ -142,14 +142,18 @@ def test_product_query_filtering(read_only_client, default_base, filter_input, i
     assert products == [{"id": str(i)} for i in ids]
 
 
-def test_products_query(read_only_client, mocker, base1_products):
+def test_products_query(read_only_client, mocker, base1_products, base3_products):
     # Test case 8.1.20
     query = """query { products { elements { name } } }"""
     products = assert_successful_request(read_only_client, query)["elements"]
     assert products == [{"name": p["name"]} for p in base1_products]
 
-    mock_user_for_request(mocker, base_ids=[1, 2])
+    mock_user_for_request(mocker, base_ids=[1, 3])
     query = """query { products { totalCount } }"""
+    products = assert_successful_request(read_only_client, query)
+    assert products == {"totalCount": len(base1_products) + len(base3_products)}
+
+    query = """query { products(baseId: 1) { totalCount } }"""
     products = assert_successful_request(read_only_client, query)
     assert products == {"totalCount": len(base1_products)}
 
