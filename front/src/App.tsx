@@ -26,6 +26,7 @@ import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard
 import ErrorView from "views/ErrorView/ErrorView";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -263,6 +264,16 @@ function App() {
             />
             <Route path="enable">
               <Route
+                index
+                element={
+                  <Protected
+                    component={<EnableStandardProductView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_products"]}
+                  />
+                }
+              />
+              <Route
                 path=":standardProductId"
                 element={
                   <Protected
@@ -273,6 +284,16 @@ function App() {
                 }
               />
             </Route>
+            <Route
+              path="create"
+              element={
+                <Protected
+                  component={<CreateCustomProductView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_products"]}
+                />
+              }
+            />
           </Route>
         </Route>
       </Route>
