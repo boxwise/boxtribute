@@ -175,7 +175,7 @@ function ProductsContainer() {
   return (
     <ProductsTable
       tableConfig={tableConfig}
-      tableData={productsRawToTableDataTransformer(productsRawData)}
+      tableData={productsRawToTableDataTransformer(productsRawData, baseId)}
       columns={availableColumns}
     />
   );

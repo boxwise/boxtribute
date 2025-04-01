@@ -78,9 +78,13 @@ export const standardProductsRawDataToTableDataTransformer = (
   }
 };
 
-export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery) => {
+export const productsRawToTableDataTransformer = (
+  productsRawData: ProductsQuery,
+  currentBaseId: string,
+) => {
   return productsRawData.products.elements
     .filter(({ deletedOn }) => !deletedOn)
+    .filter(({ base }) => base?.id === currentBaseId)
     .map(
       ({
         id,
