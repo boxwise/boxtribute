@@ -35,7 +35,7 @@ import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { availableBasesAtom } from "stores/globalPreferenceStore";
 import { User } from "../../../../../graphql/types";
-import { ShipmentDetail, ShipmentState } from "queries/types";
+import { ShipmentDetail, ShipmentDetailWithAutomatchProduct, ShipmentState } from "queries/types";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
@@ -354,7 +354,7 @@ function ShipmentView() {
   const shipmentData = data?.shipment!;
 
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
-    []) as ShipmentDetail[];
+    []) as ShipmentDetailWithAutomatchProduct[];
 
   const changesLabel = (history: any): string => {
     let changes = "";
@@ -471,10 +471,14 @@ function ShipmentView() {
     .orderBy((entry) => new Date(entry.date), "desc")
     .value();
 
+  const isSender =
+    availableBases && data?.shipment && data?.shipment?.sourceBase?.id
+      ? availableBases.some((b) => b.id === data.shipment!.sourceBase.id)
+      : undefined;
+
   let shipmentTitle = <Heading>View Shipment</Heading>;
   let shipmentTab;
   let shipmentCard;
-  let isSender;
   let canUpdateShipment = false;
   let canCancelShipment = false;
   let canLooseShipment = false;
@@ -487,15 +491,12 @@ function ShipmentView() {
         Could not fetch Shipment data! Please try reloading the page.
       </Alert>
     );
-  } else if (loading || isGlobalStateLoading) {
+  } else if (loading || isGlobalStateLoading || isSender === undefined) {
     shipmentTitle = <Skeleton height="50px" width="200px" data-testid="loader" />;
     shipmentCard = <ShipmentCardSkeleton />;
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
-    isSender =
-      typeof availableBases?.find((b) => b.id === data?.shipment?.sourceBase?.id) !== "undefined";
-
     if ("Preparing" === shipmentState && isSender) {
       canUpdateShipment = true;
       canCancelShipment = true;
@@ -554,7 +555,7 @@ function ShipmentView() {
 
   let shipmentViewComponents;
 
-  if (shipmentState === "Receiving" && !isSender) {
+  if (shipmentState === "Receiving" && !isSender && isSender !== undefined) {
     shipmentViewComponents = (
       <>
         <Flex direction="column" gap={2} paddingBottom={5}>

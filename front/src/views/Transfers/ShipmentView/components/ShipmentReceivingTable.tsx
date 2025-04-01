@@ -39,12 +39,6 @@ function ShipmentReceivingTable({
       data: tableData,
 
       initialState: {
-        sortBy: [
-          {
-            id: "labelIdentifier",
-            desc: true,
-          },
-        ],
         hiddenColumns: columns
           .filter((col: any) => col.show === false)
           .map((col) => col.id || col.accessor) as any,
@@ -112,7 +106,11 @@ function ShipmentReceivingTable({
                 <Tr
                   {...row.getRowProps()}
                   key={idx}
-                  style={{ border: "1px solid black" }}
+                  style={{
+                    border: "1px solid black",
+                    // chakra ui default green.50
+                    backgroundColor: row.original.autoMatchingTargetProduct ? "#F0FFF4" : "inherit",
+                  }}
                   onClick={() => onReconciliationBox(row.original.labelIdentifier)}
                 >
                   <Td
