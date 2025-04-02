@@ -158,7 +158,8 @@ function CreateTransferAgreement({
       );
     } else {
       // Use today as default for "validFrom"
-      setValue("validFrom", new Date());
+      // @ts-expect-error TODO: Dates might not be validated properly.
+      setValue("validFrom", new Date().toISOString().substring(0, 10));
     }
   }, [
     partnerOrganisation,
