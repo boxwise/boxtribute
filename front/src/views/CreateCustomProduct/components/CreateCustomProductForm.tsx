@@ -112,7 +112,7 @@ function CreateCustomProductForm({
     control,
     register,
     formState: { errors },
-  } = useForm<ICreateCustomProductFormOutput>({
+  } = useForm({
     resolver: zodResolver(CreateCustomProductFormSchema),
   });
 

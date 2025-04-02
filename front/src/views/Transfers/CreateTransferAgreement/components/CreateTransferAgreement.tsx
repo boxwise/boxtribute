@@ -106,7 +106,7 @@ function CreateTransferAgreement({
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ITransferAgreementFormData>({
+  } = useForm({
     resolver: zodResolver(TransferAgreementFormDataSchema),
   });
 
@@ -158,7 +158,7 @@ function CreateTransferAgreement({
       );
     } else {
       // Use today as default for "validFrom"
-      setValue("validFrom", new Date().toISOString().substring(0, 10));
+      setValue("validFrom", new Date());
     }
   }, [
     partnerOrganisation,

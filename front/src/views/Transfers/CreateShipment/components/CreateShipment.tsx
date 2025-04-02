@@ -106,7 +106,7 @@ function CreateShipment({
     setValue,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<ICreateShipmentFormData>({
+  } = useForm({
     resolver: zodResolver(ShipmentFormSchema),
   });
 
@@ -116,7 +116,7 @@ function CreateShipment({
     setValue: setValueIntraOrg,
     register: registerIntraOrg,
     formState: { errors: errorsIntraOrg, isSubmitting: isSubmittingIntraOrg },
-  } = useForm<ICreateShipmentFormData>({
+  } = useForm({
     resolver: zodResolver(ShipmentFormSchema),
   });
 

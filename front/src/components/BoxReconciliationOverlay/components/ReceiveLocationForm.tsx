@@ -47,7 +47,7 @@ export function ReceiveLocationForm({
   const cachedReconciliationReceiveLocation = useAtomValue(reconciliationReceiveLocationAtom);
 
   // Form Default Values
-  const defaultValues: IReceiveLocationFormData = {
+  const defaultValues = {
     locationId: {
       label: cachedReconciliationReceiveLocation.locationId.label,
       value: cachedReconciliationReceiveLocation.locationId.value,
@@ -60,7 +60,7 @@ export function ReceiveLocationForm({
     watch,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<IReceiveLocationFormData>({
+  } = useForm({
     resolver: zodResolver(ReceiveLocationFormDataSchema),
     defaultValues,
   });
@@ -106,7 +106,7 @@ export function ReceiveLocationForm({
             w="full"
             bgColor="blue.500"
             color="white"
-            isDisabled={isSubmitting || locationId.value === ""}
+            isDisabled={isSubmitting || locationId?.value === ""}
           >
             Save and Move Instock
           </Button>
