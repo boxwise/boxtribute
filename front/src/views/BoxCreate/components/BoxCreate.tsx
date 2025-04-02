@@ -140,7 +140,7 @@ function BoxCreate({
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ICreateBoxFormData>({
+  } = useForm({
     resolver: zodResolver(CreateBoxFormDataSchema),
   });
 

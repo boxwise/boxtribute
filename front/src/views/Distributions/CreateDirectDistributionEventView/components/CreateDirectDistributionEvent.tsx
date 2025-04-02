@@ -64,7 +64,7 @@ const CreateDirectDistroEvent = ({
     handleSubmit,
     formState: { isSubmitting },
     formState: { errors },
-  } = useForm<CreateDistroEventFormData>({
+  } = useForm({
     resolver: zodResolver(CreateDirectDistributionEventFormDataSchema),
     defaultValues: {
       duration: 2,

@@ -32,7 +32,7 @@ export default function TimeRangeSelect() {
     control,
     setValue,
     formState: { errors },
-  } = useForm<ITimeRangeSelection>({
+  } = useForm({
     resolver: zodResolver(FilterCreatedOnFormScheme),
   });
 
@@ -48,11 +48,11 @@ export default function TimeRangeSelect() {
     const to = searchParams.get("to")!;
 
     if (toFormValue === undefined) {
-      setValue("to", to);
+      setValue("to", new Date(to));
     }
 
     if (fromFormValue === undefined) {
-      setValue("from", from);
+      setValue("from", new Date(from));
     }
 
     if (toFormValue && date2String(new Date(toFormValue)) !== to) {

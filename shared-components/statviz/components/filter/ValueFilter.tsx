@@ -42,7 +42,8 @@ export default function ValueFilter({
     control,
     setValue,
     formState: { errors },
-  } = useForm({
+    // TODO: fix types
+  } = useForm<any>({
     resolver: zodResolver(ValueFilterSchema),
     defaultValues: values,
   });
@@ -51,7 +52,6 @@ export default function ValueFilter({
     const filterValue = searchParams.get(filterId);
     const filterOption = values.find((value) => value.urlId === filterValue);
     if (filterOption) {
-      // @ts-expect-error
       setValue(filterId, filterOption);
     }
   }, [filterId, searchParams, setValue, values]);

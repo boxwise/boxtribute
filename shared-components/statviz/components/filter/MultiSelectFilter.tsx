@@ -42,14 +42,14 @@ export default function MultiSelectFilter({
     setValue,
     control,
     formState: { errors },
-  } = useForm({
+    // TODO: fix types
+  } = useForm<any>({
     resolver: zodResolver(ValueFilterSchema),
     defaultValues: values,
   });
 
   useEffect(() => {
     if (filterValue) {
-      // @ts-expect-error ts(2345)
       setValue(filterId, filterValue);
     }
   }, [filterId, filterValue, setValue]);
