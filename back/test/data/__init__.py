@@ -72,7 +72,7 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
-from .shareable_link import expired_link, shareable_link
+from .shareable_link import expired_link, shareable_link, stock_overview_link
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -210,6 +210,7 @@ __all__ = [
     "shipments",
     "size_ranges",
     "standard_products",
+    "stock_overview_link",
     "superceding_measure_standard_product",
     "tags",
     "transfer_agreements",

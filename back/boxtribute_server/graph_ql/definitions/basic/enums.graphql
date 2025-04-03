@@ -108,6 +108,7 @@ enum TargetType {
 
 enum ShareableView {
   StatvizDashboard
+  StockOverview
 }
 
 """

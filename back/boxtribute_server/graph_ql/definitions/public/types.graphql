@@ -185,7 +185,8 @@ type ResolvedLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  baseName: String!
+  organisationName: String!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime

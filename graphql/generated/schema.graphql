@@ -108,6 +108,7 @@ enum TargetType {
 
 enum ShareableView {
   StatvizDashboard
+  StockOverview
 }
 
 """
@@ -1181,7 +1182,7 @@ type ShareableLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  base: Base!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime
@@ -1487,7 +1488,8 @@ type ResolvedLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  baseName: String!
+  organisationName: String!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime
