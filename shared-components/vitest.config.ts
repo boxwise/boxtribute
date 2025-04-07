@@ -12,7 +12,6 @@ export default defineProject({
     },
     coverage: {
       exclude: [
-        ".storybook/**",
         "build/**",
         "coverage/**",
         "dist/**",

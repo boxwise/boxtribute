@@ -17,5 +17,3 @@ pnpm-debug.log*
 junit.xml
 
 /NOTES
-storybook-static/
-build-storybook.log

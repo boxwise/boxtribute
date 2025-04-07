@@ -176,7 +176,6 @@ The folder structure is as follows:
 │   ├── components
 │   │   ├── <NameOfComponent>
 │   │   |    ├── <NameOfComponent>Container.tsx
-│   |   |    └── <NameOfComponent>.stories.tsx #storybook component definition
 │   |   └── Layout.tsx # main layout
 │   ├── mocks
 │   ├── providers #context providers
@@ -192,7 +191,6 @@ The folder structure is as follows:
 │           ├── test-utils.ts
 │           └── hooks.ts
 ├── node_modules
-├── .storybook
 ├── public
 ├── test
 ├── App.tsx

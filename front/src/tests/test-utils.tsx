@@ -1,7 +1,7 @@
 /* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
-import React, { ReactNode } from "react";
+import React from "react";
 import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
 import { onError } from "@apollo/client/link/error";
@@ -9,14 +9,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { theme } from "utils/theme";
 import { ChakraProvider } from "@chakra-ui/react";
 import "mutationobserver-shim";
-import {
-  ApolloClient,
-  ApolloLink,
-  InMemoryCache,
-  HttpLink,
-  ApolloProvider,
-  DefaultOptions,
-} from "@apollo/client";
+import { ApolloLink, InMemoryCache, DefaultOptions } from "@apollo/client";
 import { useHydrateAtoms } from "jotai/utils";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 import { Provider } from "jotai";
@@ -163,19 +156,5 @@ function render(
   });
 }
 
-function StorybookApolloProvider({ children }: { children: ReactNode }) {
-  const httpLink = new HttpLink({
-    uri: "http://localhost:6006/MOCKED-graphql",
-  });
-
-  const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    defaultOptions,
-    link: httpLink,
-  });
-
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
-}
-
 export * from "@testing-library/react";
-export { render, StorybookApolloProvider };
+export { render };
