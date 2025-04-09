@@ -138,3 +138,4 @@ class ProductType(enum.IntEnum):
 
 class ShareableView(enum.IntEnum):
     StatvizDashboard = 1
+    StockOverview = enum.auto()

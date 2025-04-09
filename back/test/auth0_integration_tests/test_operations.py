@@ -259,10 +259,10 @@ def test_mutations(auth0_client, mocker):
     mutation = """mutation { createShareableLink (
             creationInput: { baseId: 100000000, view: StatvizDashboard }
         ) { ...on ShareableLink {
-            baseId
+            base { id }
             createdOn
             createdBy { id }
         } } }"""
     response = assert_successful_request(auth0_client, mutation)
     assert response.pop("createdOn").startswith(today)
-    assert response == {"baseId": 100000000, "createdBy": {"id": user_id}}
+    assert response == {"base": {"id": "100000000"}, "createdBy": {"id": user_id}}
