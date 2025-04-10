@@ -276,13 +276,28 @@ def test_beneficiary_mutations(
                         {{
                             firstName: "{first_name}"
                             groupIdentifier: "{group_id}"
+                        }},
+                        {{
+                            firstName: "{first_name}"
+                            lastName: "{last_name}"
+                            groupIdentifier: "{group_id}"
+                            dateOfBirth: "{dob}"
+                            gender: {gender.name}
+                            isVolunteer: false
+                            registered: false
                         }}
                     ] }} ) {{
                         ...on BeneficiariesResult {{
                             results {{
                                 ...on Beneficiary {{
                                     id
+                                    firstName
+                                    lastName
                                     groupIdentifier
+                                    dateOfBirth
+                                    gender
+                                    isVolunteer
+                                    registered
                                     familyHead {{ id }}
                                     base {{ id }}
                                 }}
@@ -294,12 +309,31 @@ def test_beneficiary_mutations(
         "results": [
             {
                 "id": str(int(beneficiary_id) + 1),
+                "firstName": first_name,
+                "lastName": "",
                 "groupIdentifier": group_id,
+                "dateOfBirth": None,
+                "gender": None,
+                "isVolunteer": False,
+                "registered": True,
+                "familyHead": None,
+                "base": {"id": base_id},
+            },
+            {
+                "id": str(int(beneficiary_id) + 2),
+                "firstName": first_name,
+                "lastName": last_name,
+                "groupIdentifier": group_id,
+                "dateOfBirth": dob,
+                "gender": gender.name,
+                "isVolunteer": False,
+                "registered": False,
                 "familyHead": None,
                 "base": {"id": base_id},
             },
         ]
     }
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
