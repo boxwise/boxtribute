@@ -1,3 +1,5 @@
+from peewee import fn
+
 from ...db import db
 from ...enums import TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
@@ -198,24 +200,23 @@ def create_beneficiaries(
     base_id,
     beneficiary_data,
 ):
-    now = utcnow()
-
-    class Beneficiary(dict):
-        pass
-
+    common_elements = {
+        "base": base_id,
+        "created_on": utcnow(),
+        "created_by": user_id,
+    }
+    complete_data = [
+        {**beneficiary_entry, **common_elements}
+        for beneficiary_entry in beneficiary_data
+    ]
+    max_id = Beneficiary.select(fn.MAX(Beneficiary.id)).scalar()
+    nr_rows = Beneficiary.insert_many(complete_data).execute()
     return BeneficiariesResult(
         {
-            "results": [
-                Beneficiary(
-                    {
-                        "id": 0,
-                        "group_identifier": b["group_identifier"],
-                        "created_on": now,
-                        "family_head": None,
-                        "base": {"id": str(base_id)},
-                    }
+            "results": list(
+                Beneficiary.select().where(
+                    Beneficiary.id > max_id, Beneficiary.id <= max_id + nr_rows
                 )
-                for b in beneficiary_data
-            ]
+            )
         }
     )
