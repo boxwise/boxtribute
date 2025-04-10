@@ -1,7 +1,7 @@
 from ariadne import MutationType
 from flask import g
 
-from ...authz import authorize
+from ...authz import authorize, handle_unauthorized
 from ...models.definitions.beneficiary import Beneficiary
 from .crud import (
     create_beneficiaries,
@@ -23,6 +23,7 @@ def resolve_create_beneficiary(*_, creation_input):
 
 
 @mutation.field("createBeneficiaries")
+@handle_unauthorized
 def resolve_create_beneficiaries(*_, creation_input):
     authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
     authorize(permission="tag:read", base_id=creation_input["base_id"])
