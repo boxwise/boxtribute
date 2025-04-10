@@ -3,7 +3,12 @@ from flask import g
 
 from ...authz import authorize
 from ...models.definitions.beneficiary import Beneficiary
-from .crud import create_beneficiary, deactivate_beneficiary, update_beneficiary
+from .crud import (
+    create_beneficiaries,
+    create_beneficiary,
+    deactivate_beneficiary,
+    update_beneficiary,
+)
 
 mutation = MutationType()
 
@@ -15,6 +20,15 @@ def resolve_create_beneficiary(*_, creation_input):
     authorize(permission="beneficiary_language:assign")
     authorize(permission="tag_relation:assign")
     return create_beneficiary(**creation_input, user_id=g.user.id)
+
+
+@mutation.field("createBeneficiaries")
+def resolve_create_beneficiaries(*_, creation_input):
+    authorize(permission="beneficiary:create", base_id=creation_input["base_id"])
+    authorize(permission="tag:read", base_id=creation_input["base_id"])
+    authorize(permission="beneficiary_language:assign")
+    authorize(permission="tag_relation:assign")
+    return create_beneficiaries(**creation_input, user_id=g.user.id)
 
 
 @mutation.field("updateBeneficiary")
