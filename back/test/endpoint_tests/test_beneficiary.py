@@ -270,6 +270,36 @@ def test_beneficiary_mutations(
     response = assert_successful_request(client, query)
     assert not response["active"]
 
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: {base_id}
+                    beneficiaryData: [
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
+                        }}
+                    ] }} ) {{
+                        ...on BeneficiariesResult {{
+                            results {{
+                                ...on Beneficiary {{
+                                    id
+                                    groupIdentifier
+                                    familyHead {{ id }}
+                                    # base {{ id }}
+                                }}
+                            }}
+                        }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "results": [
+            {
+                "id": "0",
+                "groupIdentifier": group_id,
+                "familyHead": None,
+                # "base": {"id": base_id},
+            },
+        ]
+    }
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,

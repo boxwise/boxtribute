@@ -186,3 +186,36 @@ def create_transaction(
         created_on=utcnow(),
         created_by=user_id,
     )
+
+
+class BeneficiariesResult(dict):
+    pass
+
+
+def create_beneficiaries(
+    *,
+    user_id,
+    base_id,
+    beneficiary_data,
+):
+    now = utcnow()
+
+    class Beneficiary(dict):
+        pass
+
+    return BeneficiariesResult(
+        {
+            "results": [
+                Beneficiary(
+                    {
+                        "id": 0,
+                        "group_identifier": b["group_identifier"],
+                        "created_on": now,
+                        "family_head": None,
+                        "base": {"id": str(base_id)},
+                    }
+                )
+                for b in beneficiary_data
+            ]
+        }
+    )
