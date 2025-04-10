@@ -116,7 +116,7 @@ input BeneficiaryUpdateInput {
 
 input BeneficiariesCreationInput {
   baseId: Int!
-  beneficiaryData: [BeneficiaryBulkCreationInput!]
+  beneficiaryData: [BeneficiaryBulkCreationInput!]!
 }
 
 input BeneficiaryBulkCreationInput {
