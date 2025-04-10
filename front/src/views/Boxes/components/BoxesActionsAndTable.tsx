@@ -254,10 +254,12 @@ function BoxesActionsAndTable({
   const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
   const onUnassignTags = useCallback(
     async (tagIds: string[]) => {
-      await unassignTags(
-        selectedBoxes.map((box) => box.values.labelIdentifier),
-        tagIds.map((id) => parseInt(id, 10)),
-      );
+      if (tagIds.length > 0) {
+        await unassignTags(
+          selectedBoxes.map((box) => box.values.labelIdentifier),
+          tagIds.map((id) => parseInt(id, 10)),
+        );
+      }
     },
     [unassignTags, selectedBoxes],
   );
