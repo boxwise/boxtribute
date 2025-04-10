@@ -1,7 +1,7 @@
 from peewee import fn
 
 from ...db import db
-from ...enums import TaggableObjectType
+from ...enums import HumanGender, TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
@@ -194,20 +194,40 @@ class BeneficiariesResult(dict):
     pass
 
 
+def sanitize_input(data):
+    sanitized_data = []
+    for entry in data:
+        if isinstance(entry.get("gender"), HumanGender):
+            # move to input conversion?
+            entry["gender"] = entry["gender"].value
+        if "registered" in entry:
+            entry["not_registered"] = not entry["registered"]
+        sanitized_data.append(entry)
+    return sanitized_data
+
+
 def create_beneficiaries(
     *,
     user_id,
     base_id,
     beneficiary_data,
 ):
-    common_elements = {
+    sanitized_data = sanitize_input(beneficiary_data)
+    default_and_common_elements = {
+        # defaults
+        "last_name": "",
+        "date_of_birth": None,
+        "gender": "",
+        "is_volunteer": False,
+        "not_registered": False,
+        # common data
         "base": base_id,
         "created_on": utcnow(),
         "created_by": user_id,
     }
     complete_data = [
-        {**beneficiary_entry, **common_elements}
-        for beneficiary_entry in beneficiary_data
+        {**default_and_common_elements, **beneficiary_entry}
+        for beneficiary_entry in sanitized_data
     ]
     max_id = Beneficiary.select(fn.MAX(Beneficiary.id)).scalar()
     nr_rows = Beneficiary.insert_many(complete_data).execute()
