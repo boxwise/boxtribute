@@ -8,10 +8,13 @@ query = QueryType()
 
 
 @query.field("products")
-def resolve_products(*_, pagination_input=None):
+def resolve_products(*_, base_id=None, pagination_input=None):
+    conditions = [authorized_bases_filter(Product)]
+    if base_id is not None:
+        conditions.append(Product.base == base_id)
     return load_into_page(
         Product,
-        authorized_bases_filter(Product),
+        *conditions,
         pagination_input=pagination_input,
     )
 
