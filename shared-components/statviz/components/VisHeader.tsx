@@ -74,17 +74,7 @@ const CREATE_SHAREABLE_LINK = graphql(`
       ... on ShareableLink {
         __typename
         code
-        urlParameters
-        view
         validUntil
-        id
-        base {
-          id
-        }
-        createdOn
-        createdBy {
-          name
-        }
       }
     }
   }
