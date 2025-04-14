@@ -194,6 +194,8 @@ union_types = (
     UnionType("BoxResult", resolve_type_by_class_name),
     UnionType("ShareableLinkCreationResult", resolve_type_by_class_name),
     UnionType("TagError", resolve_type_by_class_name),
+    UnionType("CreateBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("CreateBeneficiaryResult", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

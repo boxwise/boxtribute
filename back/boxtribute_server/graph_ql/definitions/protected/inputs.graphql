@@ -114,6 +114,25 @@ input BeneficiaryUpdateInput {
   dateOfSignature: Date
 }
 
+input BeneficiariesCreationInput {
+  baseId: Int!
+  beneficiaryData: [BeneficiaryBulkCreationInput!]!
+}
+
+input BeneficiaryBulkCreationInput {
+  firstName: String!
+  lastName: String
+  groupIdentifier: String!
+  dateOfBirth: Date
+  comment: String
+  gender: HumanGender
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean
+  registered: Boolean
+  tagIds: [Int!]
+}
+
 input TransferAgreementCreationInput {
   initiatingOrganisationId: Int!
   partnerOrganisationId: Int!

@@ -355,11 +355,16 @@ MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "updateTag",
     "deleteTag",
 )
+MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[5] + (
+    # Level 5 + bulk-beneficiary creation
+    "createBeneficiaries",
+)
 MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[6] + (
     # !!!
     # Any new mutation should be added here
     # !!!
     "createBeneficiary",
+    "createBeneficiaries",
     "updateBeneficiary",
     "deactivateBeneficiary",
     "assignTag",
