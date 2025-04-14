@@ -1,5 +1,3 @@
-from peewee import fn
-
 from ...db import db
 from ...enums import HumanGender, TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
@@ -229,13 +227,14 @@ def create_beneficiaries(
         {**default_and_common_elements, **beneficiary_entry}
         for beneficiary_entry in sanitized_data
     ]
-    max_id = Beneficiary.select(fn.MAX(Beneficiary.id)).scalar()
-    nr_rows = Beneficiary.insert_many(complete_data).execute()
+
+    first_inserted_id = Beneficiary.insert_many(complete_data).execute()
     return BeneficiariesResult(
         {
             "results": list(
                 Beneficiary.select().where(
-                    Beneficiary.id > max_id, Beneficiary.id <= max_id + nr_rows
+                    Beneficiary.id >= first_inserted_id,
+                    Beneficiary.id < first_inserted_id + len(complete_data),
                 )
             )
         }
