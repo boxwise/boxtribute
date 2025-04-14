@@ -518,8 +518,8 @@ type Query {
   locations: [ClassicLocation!]!
   " Return [`Product`]({{Types.Product}}) with specified ID. Accessible for clients who are members of the product's base "
   product(id: ID!): Product
-  " Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view. "
-  products(paginationInput: PaginationInput): ProductPage!
+  " Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view. If `baseId` specified, return only the products registered in the requested base "
+  products(baseId: ID, paginationInput: PaginationInput): ProductPage!
   " Return [`StandardProduct`]({{Types.StandardProduct}}) with specified ID, or an error in case of insufficient permission or missing resource. "
   standardProduct(id: ID!): StandardProductResult
   " Return standard products of latest version. Optionally include all standard products enabled for specified base. "
