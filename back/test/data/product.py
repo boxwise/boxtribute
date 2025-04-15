@@ -180,6 +180,14 @@ def base1_products(products):
 
 
 @pytest.fixture
+def base3_products(products):
+    return [
+        products[1],
+        products[6],
+    ]
+
+
+@pytest.fixture
 def base1_undeleted_products(products):
     return [products[0], products[2], products[4], products[7], products[8]]
 
