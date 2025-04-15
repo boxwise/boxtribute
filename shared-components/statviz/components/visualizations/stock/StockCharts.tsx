@@ -10,7 +10,7 @@ interface IStockChartProps {
 
 export default function StockCharts({ stockOverview, boxesOrItems }: IStockChartProps) {
   return (
-    <Wrap gap={6}>
+    <Wrap gap={6} overflowX="auto">
       <WrapItem>
         <StockOverviewPie
           width="800px"

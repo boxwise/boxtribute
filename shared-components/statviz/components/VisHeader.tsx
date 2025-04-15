@@ -27,20 +27,15 @@ import {
   AlertIcon,
 } from "@chakra-ui/react";
 import { CopyIcon, DownloadIcon } from "@chakra-ui/icons";
-import { useCallback, useState } from "react";
-import { useMutation, useReactiveVar } from "@apollo/client";
+import { useState } from "react";
+import { useReactiveVar } from "@apollo/client";
 import useTimerange from "../hooks/useTimerange";
-import { useAuthorization } from "../../../front/src/hooks/useAuthorization";
-import { useNotification } from "../../../front/src/hooks/useNotification";
 import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
 import { trackDownloadByGraph } from "../utils/analytics/heap";
-import { graphql } from "../../../graphql/graphql";
-import { useParams } from "react-router-dom";
+import useShareableLink from "../hooks/useShareableLink";
 
-/** @todo To be configurable through ENV */
-const BASE_PUBLIC_LINK_SHARING_URL = "localhost:3000";
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
 interface IVisHeaderProps {
@@ -66,20 +61,6 @@ interface IVisHeaderProps {
   enableLinkSharing?: boolean;
 }
 
-const CREATE_SHAREABLE_LINK = graphql(`
-  mutation CreateShareableLink($baseId: Int!, $urlParameters: String, $view: ShareableView!) {
-    createShareableLink(
-      creationInput: { baseId: $baseId, urlParameters: $urlParameters, view: $view }
-    ) {
-      ... on ShareableLink {
-        __typename
-        code
-        validUntil
-      }
-    }
-  }
-`);
-
 export default function VisHeader({
   heading,
   maxWidthPx,
@@ -90,59 +71,17 @@ export default function VisHeader({
   customIncludes = [],
   enableLinkSharing = false,
 }: IVisHeaderProps) {
-  const authorize = useAuthorization();
-  const { baseId } = useParams();
-  const { createToast } = useNotification();
-  const [shareableLink, setShareableLink] = useState("");
-  const [shareableLinkExpiry, setShareableLinkExpiry] = useState("");
   const [inputWidth, setInputWidth] = useState(defaultWidth);
   const [inputHeight, setInputHeight] = useState(defaultHeight);
   const isExporting = useReactiveVar(isChartExporting);
-
-  const shareableLinkURL = `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${shareableLink}`;
-  const isLinkSharingEnabled =
-    enableLinkSharing && authorize({ requiredAbps: ["create_shared_link"] });
-
-  const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
-
-  const copyLinkToClipboard = useCallback(
-    (code = "") => {
-      // Use retrieved code from mutation right away, otherwise use the computed state value.
-      const linkTobeCopied = code
-        ? `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${code}`
-        : shareableLinkURL;
-
-      navigator.clipboard.writeText(linkTobeCopied);
-      createToast({
-        type: "success",
-        message: "Link copied to clipboard!",
-      });
-    },
-    [createToast, shareableLinkURL],
-  );
-
-  const handleShareLinkClick = useCallback(
-    () =>
-      createShareableLinkMutation({
-        variables: {
-          baseId: parseInt(baseId || "0"),
-          view: "StockOverview",
-          urlParameters: document.location.search.slice(1),
-        },
-      }).then(({ data }) => {
-        if (data?.createShareableLink?.__typename === "ShareableLink") {
-          setShareableLink(data.createShareableLink.code);
-          setShareableLinkExpiry(data.createShareableLink.validUntil || "");
-          copyLinkToClipboard(data.createShareableLink.code);
-        } else {
-          createToast({
-            type: "error",
-            message: "An error has occurred. Try again later, or contact us.",
-          });
-        }
-      }),
-    [baseId, copyLinkToClipboard, createShareableLinkMutation, createToast],
-  );
+  const {
+    shareableLink,
+    shareableLinkURL,
+    shareableLinkExpiry,
+    isLinkSharingEnabled,
+    copyLinkToClipboard,
+    handleShareLinkClick,
+  } = useShareableLink({ enableLinkSharing });
 
   const { timerange } = useTimerange();
 
@@ -192,9 +131,8 @@ export default function VisHeader({
     <CardHeader maxWidth={getMaxWidth()}>
       <Accordion allowMultiple>
         <AccordionItem border="none">
-          <Flex>
+          <Flex justifyContent="space-between" flexDirection={["column", "row"]}>
             <Heading size="md">{heading}</Heading>
-            <Spacer />
             <AccordionButton w="150px">
               <Box as="span" flex="1" textAlign="left">
                 Download
@@ -310,7 +248,7 @@ export default function VisHeader({
         <Accordion allowMultiple>
           <AccordionItem border="none">
             <Flex>
-              <Spacer />
+              <Spacer display={["none", "block"]} />
               <AccordionButton w="150px">
                 <Box as="span" flex="1" textAlign="left">
                   Share Link
@@ -320,19 +258,23 @@ export default function VisHeader({
             </Flex>
             <AccordionPanel display="flex" flexDirection="column" gap={8}>
               <Flex justifyContent="space-between">
-                <Alert status="warning" width="330px">
+                <Alert status="warning" maxWidth="330px">
                   <AlertIcon />
                   Warning: current filters are applied.
                 </Alert>
                 <Button onClick={handleShareLinkClick}>Create Link</Button>
               </Flex>
               {shareableLink && (
-                <Flex flexDirection="column" gap={2}>
-                  <Alert status="info">
+                <Flex flexDirection="column" gap={4}>
+                  <Alert status="info" maxWidth="max-content">
                     <AlertIcon />
                     Message: link expires on {new Date(shareableLinkExpiry).toUTCString()}
                   </Alert>
-                  <Button onClick={() => copyLinkToClipboard()}>
+                  <Button
+                    onClick={() => copyLinkToClipboard()}
+                    alignSelf="flex-start"
+                    maxWidth="max-content"
+                  >
                     <CopyIcon mr={2} /> {shareableLinkURL}
                   </Button>
                 </Flex>
