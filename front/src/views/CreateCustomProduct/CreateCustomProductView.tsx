@@ -101,7 +101,14 @@ function CreateCustomProductFormContainer() {
           inShop: createProductFormOutput.inShop,
           comment: createProductFormOutput.comment,
         },
-        refetchQueries: [{ query: PRODUCTS_QUERY }],
+        refetchQueries: [
+          {
+            query: PRODUCTS_QUERY,
+            variables: {
+              baseId,
+            },
+          },
+        ],
       })
         .then(({ data }) => {
           const result = data?.createCustomProduct;

@@ -172,7 +172,7 @@ function StandardProductsContainer() {
           },
           refetchQueries: [
             { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
-            { query: PRODUCTS_QUERY },
+            { query: PRODUCTS_QUERY, variables: { baseId } },
           ],
         })
           .then(({ data }) => {
