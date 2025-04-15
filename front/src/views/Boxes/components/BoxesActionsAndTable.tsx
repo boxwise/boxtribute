@@ -251,7 +251,7 @@ function BoxesActionsAndTable({
   );
 
   // Unassign tags from boxes
-  const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
+  const { unassignTags, isLoading: isUnassignTagsLoading, updatedBoxes } = useUnassignTags();
   const onUnassignTags = useCallback(
     async (tagIds: string[]) => {
       if (tagIds.length > 0) {
@@ -315,7 +315,6 @@ function BoxesActionsAndTable({
               allTagOptions={tagOptions}
             />
           </Menu>
-          {/* Hide this button till remove tags functionality is ready for release */}
           <Menu>
             <RemoveTagsButton
               selectedBoxes={selectedBoxes}
