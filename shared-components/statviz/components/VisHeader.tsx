@@ -81,7 +81,7 @@ export default function VisHeader({
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-  } = useShareableLink({ enableLinkSharing });
+  } = useShareableLink({ enableLinkSharing, view: "StockOverview" });
 
   const { timerange } = useTimerange();
 

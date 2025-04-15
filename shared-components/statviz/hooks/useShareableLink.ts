@@ -33,8 +33,14 @@ const CREATE_SHAREABLE_LINK = graphql(`
  * Shareable Link utilities and hooks to use across the Dashboard/Statviz views.
  */
 export default function useShareableLink({
+  view,
   enableLinkSharing,
 }: {
+  /**
+   * View to share public through the generated link.
+   * @todo Add other views once they are elegible for link sharing.
+   * */
+  view: "StockOverview";
   /** @todo This should be removed once link sharing is implemented for all views. */
   enableLinkSharing?: boolean;
 }) {
@@ -69,7 +75,7 @@ export default function useShareableLink({
       createShareableLinkMutation({
         variables: {
           baseId: parseInt(baseId || "0"),
-          view: "StockOverview",
+          view,
           urlParameters: document.location.search.slice(1),
         },
       }).then(({ data }) => {
@@ -84,14 +90,14 @@ export default function useShareableLink({
           });
         }
       }),
-    [baseId, copyLinkToClipboard, createShareableLinkMutation, createToast],
+    [baseId, copyLinkToClipboard, createShareableLinkMutation, createToast, view],
   );
 
   return {
     shareableLink,
     shareableLinkURL,
-    isLinkSharingEnabled,
     shareableLinkExpiry,
+    isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
   };
