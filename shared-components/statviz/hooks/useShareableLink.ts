@@ -60,7 +60,7 @@ export default function useShareableLink({
     async (code?: string) => {
       // Use retrieved code from mutation right away, otherwise use the computed state value.
       const linkTobeCopied = code
-        ? `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${code ?? shareableLinkURL}`
+        ? `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${code}`
         : shareableLinkURL;
 
       try {
