@@ -7,7 +7,8 @@ import { theme } from "@boxtribute/shared-components/utils/theme";
 import App from "./App";
 
 const client = new ApolloClient({
-  uri: import.meta.env.STATVIZ_GRAPHQL_SERVER,
+  // TODO: get URI from ENV.
+  uri: "http://localhost:5005/public",
   cache: new InMemoryCache({
     typePolicies: {
       DimensionInfo: {
