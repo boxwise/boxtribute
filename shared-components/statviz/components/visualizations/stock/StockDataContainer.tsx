@@ -50,14 +50,9 @@ export default function StockDataContainer() {
     variables: { baseId: parseInt(baseId!, 10) },
   });
 
-  if (error) {
-    return <Box>An unexpected error happened {error.message}</Box>;
-  }
-  if (loading) {
-    return <Spinner />;
-  }
-  if (data === undefined) {
-    return <ErrorCard error={predefinedErrors.noData} />;
-  }
-  return <StockDataFilter stockOverview={data.stockOverview!} />;
+  if (error) return <Box>An unexpected error happened {error.message}</Box>;
+  if (loading) return <Spinner />;
+  if (data === undefined) return <ErrorCard error={predefinedErrors.noData} />;
+
+  return <StockDataFilter stockOverview={data.stockOverview} />;
 }
