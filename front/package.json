@@ -10,7 +10,7 @@
     "@sentry/react": "^9.12.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
-    "jotai": "^2.12.2",
+    "jotai": "^2.12.3",
     "react-big-calendar": "^1.18.0",
     "react-csv": "^2.2.2",
     "react-icons": "^5.5.0",
