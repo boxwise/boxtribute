@@ -48,11 +48,11 @@ export default function TimeRangeSelect() {
     const to = searchParams.get("to")!;
 
     if (toFormValue === undefined) {
-      setValue("to", new Date(to));
+      setValue("to", to as unknown as Date);
     }
 
     if (fromFormValue === undefined) {
-      setValue("from", new Date(from));
+      setValue("from", from as unknown as Date);
     }
 
     if (toFormValue && date2String(new Date(toFormValue)) !== to) {
