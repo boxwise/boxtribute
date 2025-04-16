@@ -57,11 +57,20 @@ export default function useShareableLink({
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
   const copyLinkToClipboard = useCallback(
-    (code?: string) => {
+    async (code?: string) => {
       // Use retrieved code from mutation right away, otherwise use the computed state value.
-      const linkTobeCopied = `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${code ?? shareableLinkURL}`;
+      const linkTobeCopied = code
+        ? `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${code ?? shareableLinkURL}`
+        : shareableLinkURL;
 
-      navigator.clipboard.writeText(linkTobeCopied);
+      try {
+        await navigator.clipboard.writeText(linkTobeCopied);
+      } catch (error) {
+        createToast({
+          type: "error",
+          message: "Failed to copy to clipboard.",
+        });
+      }
       createToast({
         type: "success",
         message: "Link copied to clipboard!",
