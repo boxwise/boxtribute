@@ -9,6 +9,7 @@ import ErrorCard, {
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
+    # TODO: Configure generated gql.tada for the public schema.
     resolveLink(code: $code) {
       __typename
       ... on ResolvedLink {
@@ -56,6 +57,15 @@ const RESOLVE_LINK = gql(`
   }
 `);
 
+function matchErrorMessage(errorMsg: string) {
+  switch (true) {
+    case errorMsg.includes("Expired"):
+      return `The link has expired.`;
+    default:
+      return `An unexpected error happened: ${errorMsg}`;
+  }
+}
+
 function App() {
   const searchParams = new URLSearchParams(window.location.search);
   const codeParam = searchParams.get("code");
@@ -70,7 +80,7 @@ function App() {
     return (
       <Alert status="error">
         <AlertIcon />
-        An unexpected error happened {error.message}
+        {matchErrorMessage(error.message)}
       </Alert>
     );
   }
