@@ -6,8 +6,7 @@ import { useAuthorization } from "../../../front/src/hooks/useAuthorization";
 import { useNotification } from "../../../front/src/hooks/useNotification";
 import { useMutation } from "@apollo/client";
 
-/** @todo To be configurable through ENV */
-const BASE_PUBLIC_LINK_SHARING_URL = "localhost:3000";
+const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
 
 const CREATE_SHAREABLE_LINK = graphql(`
   mutation CreateShareableLink($baseId: Int!, $urlParameters: String, $view: ShareableView!) {
