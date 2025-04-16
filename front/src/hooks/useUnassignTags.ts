@@ -2,9 +2,6 @@ import { useMutation } from "@apollo/client";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
-import { useNotification } from "./useNotification";
-import { Row } from "react-table";
-import { BoxRow } from "views/Boxes/components/types";
 
 export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
   mutation UnassignTagsFromBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
@@ -29,7 +26,6 @@ export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
 export const useUnassignTags = () => {
   const { triggerError } = useErrorHandling();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [updatedBoxes, setUpdatedBoxes] = useState<Row<BoxRow>[]>([]);
   const [unassignTagsMutation] = useMutation(UNASSIGN_TAGS_FROM_BOXES);
 
   const unassignTags = useCallback(
@@ -42,7 +38,7 @@ export const useUnassignTags = () => {
           tagIds,
         },
       })
-        .then(({ data, errors }) => {
+        .then(({ errors }) => {
           setIsLoading(false);
 
           if (errors?.length) {
@@ -51,21 +47,6 @@ export const useUnassignTags = () => {
                 message: "Could not unassign boxes. Try again?",
               });
             }
-          }
-
-          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
-          const invalidBoxLabelIdentifiers =
-            data?.unassignTagsFromBoxes?.invalidBoxLabelIdentifiers;
-          const updatedBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
-
-          const allBoxesSuccessfullyUnassigned =
-            tagErrorInfoArray?.length === 0 &&
-            invalidBoxLabelIdentifiers?.length === 0 &&
-            updatedBoxes &&
-            updatedBoxes.length > 0;
-
-          if (allBoxesSuccessfullyUnassigned) {
-            setUpdatedBoxes(updatedBoxes);
           }
         })
         .catch((err) => {
@@ -83,6 +64,5 @@ export const useUnassignTags = () => {
   return {
     unassignTags,
     isLoading,
-    updatedBoxes,
   };
 };

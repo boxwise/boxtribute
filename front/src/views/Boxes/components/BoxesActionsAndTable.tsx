@@ -52,6 +52,7 @@ function BoxesActionsAndTable({
   const baseId = useAtomValue(selectedBaseIdAtom);
 
   const { createToast } = useNotification();
+  const [autoResetSelectedRows, setAutoResetSelectedRows] = useState(true);
 
   // Action when clicking on a row
   const onBoxRowClick = (labelIdentifier: string) =>
@@ -242,6 +243,7 @@ function BoxesActionsAndTable({
   const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const onAssignTags = useCallback(
     async (tagIds: string[]) => {
+      setAutoResetSelectedRows(false);
       await assignTags(
         selectedBoxes.map((box) => box.values.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
@@ -251,10 +253,12 @@ function BoxesActionsAndTable({
   );
 
   // Unassign tags from boxes
-  const { unassignTags, isLoading: isUnassignTagsLoading, updatedBoxes } = useUnassignTags();
+  const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
   const onUnassignTags = useCallback(
     async (tagIds: string[]) => {
       if (tagIds.length > 0) {
+        setAutoResetSelectedRows(false);
+
         await unassignTags(
           selectedBoxes.map((box) => box.values.labelIdentifier),
           tagIds.map((id) => parseInt(id, 10)),
@@ -365,6 +369,7 @@ function BoxesActionsAndTable({
       setSelectedBoxes={setSelectedBoxes}
       onBoxRowClick={onBoxRowClick}
       selectedRowsArePending={actionsAreLoading}
+      autoResetSelectedRows={autoResetSelectedRows}
     />
   );
 }
