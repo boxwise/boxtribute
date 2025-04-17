@@ -12,9 +12,8 @@ import { graphql } from "../../../../../graphql/graphql";
 import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { DateCell } from "components/Table/Cells";
+import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
-import { AllProductsCell } from "./TableCells";
 
 export const PRODUCTS_QUERY = graphql(
   `
@@ -78,7 +77,12 @@ function ProductsContainer() {
         id: "name",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
-        Cell: AllProductsCell,
+        Cell: ProductWithSPCheckmarkCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.name.toLowerCase();
+          const b = rowB.values.name.toLowerCase();
+          return a.localeCompare(b);
+        },
       },
       {
         Header: "Category",
