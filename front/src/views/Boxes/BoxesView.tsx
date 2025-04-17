@@ -172,6 +172,11 @@ function Boxes() {
         accessor: "product",
         id: "product",
         Cell: ProductCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.product?.toLowerCase() ?? "";
+          const b = rowB.values.product?.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
