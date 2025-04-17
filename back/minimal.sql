@@ -2438,6 +2438,78 @@ INSERT INTO `qr` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `services`
+--
+
+DROP TABLE IF EXISTS `services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `label` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `camp_id` int(11) unsigned NOT NULL,
+  `deleted` datetime DEFAULT NULL,
+  `deleted_by` int(11) unsigned DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(11) unsigned DEFAULT NULL,
+  `seq` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `camp_id` (`camp_id`),
+  KEY `deleted_by` (`deleted_by`),
+  KEY `created_by` (`created_by`),
+  KEY `modified_by` (`modified_by`),
+  CONSTRAINT `services_ibfk_1` FOREIGN KEY (`camp_id`) REFERENCES `camps` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `services_ibfk_2` FOREIGN KEY (`deleted_by`) REFERENCES `cms_users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `services_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `services_ibfk_4` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `services`
+--
+
+LOCK TABLES `services` WRITE;
+/*!40000 ALTER TABLE `services` DISABLE KEYS */;
+/*!40000 ALTER TABLE `services` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `services_relations`
+--
+
+DROP TABLE IF EXISTS `services_relations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services_relations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `people_id` int(11) unsigned NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `people_id` (`people_id`),
+  KEY `service_id` (`service_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `services_relations_ibfk_1` FOREIGN KEY (`people_id`) REFERENCES `people` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `services_relations_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `services_relations_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `services_relations`
+--
+
+LOCK TABLES `services_relations` WRITE;
+/*!40000 ALTER TABLE `services_relations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `services_relations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `shareable_link`
 --
 
