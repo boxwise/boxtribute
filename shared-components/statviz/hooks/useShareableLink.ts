@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 
+// TODO: Move common utils to shared-components, use alias for imports.
 import { graphql } from "../../../graphql/graphql";
 import { useAuthorization } from "../../../front/src/hooks/useAuthorization";
 import { useNotification } from "../../../front/src/hooks/useNotification";
@@ -13,16 +14,10 @@ const CREATE_SHAREABLE_LINK = graphql(`
     createShareableLink(
       creationInput: { baseId: $baseId, urlParameters: $urlParameters, view: $view }
     ) {
+      __typename
       ... on ShareableLink {
-        __typename
         code
         validUntil
-      }
-      ... on InsufficientPermissionError {
-        __typename
-      }
-      ... on UnauthorizedForBaseError {
-        __typename
       }
     }
   }
@@ -33,15 +28,12 @@ const CREATE_SHAREABLE_LINK = graphql(`
  */
 export default function useShareableLink({
   view,
-  enableLinkSharing,
 }: {
   /**
    * View to share public through the generated link.
    * @todo Add other views once they are elegible for link sharing.
    * */
   view: "StockOverview";
-  /** @todo This should be removed once link sharing is implemented for all views. */
-  enableLinkSharing?: boolean;
 }) {
   const authorize = useAuthorization();
   const { baseId } = useParams();
@@ -50,8 +42,9 @@ export default function useShareableLink({
   const [shareableLinkExpiry, setShareableLinkExpiry] = useState("");
 
   const shareableLinkURL = `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${shareableLink}`;
+  // TODO: Only check for ABP once link sharing is implemented for all views.
   const isLinkSharingEnabled =
-    authorize({ requiredAbps: ["create_shared_link"] }) && enableLinkSharing;
+    authorize({ requiredAbps: ["create_shareable_link"] }) && view === "StockOverview";
 
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
@@ -92,6 +85,7 @@ export default function useShareableLink({
           setShareableLinkExpiry(data.createShareableLink.validUntil || "");
           copyLinkToClipboard(data.createShareableLink.code);
         } else {
+          // TODO: Use triggerError and move it to shared-components?
           createToast({
             type: "error",
             message: "An error has occurred. Try again later, or contact us.",

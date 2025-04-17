@@ -57,8 +57,6 @@ interface IVisHeaderProps {
     prop: object;
     value: string;
   }[];
-  /** @todo This should be removed once link sharing is implemented for all views. */
-  enableLinkSharing?: boolean;
 }
 
 export default function VisHeader({
@@ -69,7 +67,6 @@ export default function VisHeader({
   defaultHeight,
   chartProps,
   customIncludes = [],
-  enableLinkSharing = false,
 }: IVisHeaderProps) {
   const [inputWidth, setInputWidth] = useState(defaultWidth);
   const [inputHeight, setInputHeight] = useState(defaultHeight);
@@ -81,7 +78,7 @@ export default function VisHeader({
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-  } = useShareableLink({ enableLinkSharing, view: "StockOverview" });
+  } = useShareableLink({ view: "StockOverview" });
 
   const { timerange } = useTimerange();
 
@@ -244,6 +241,7 @@ export default function VisHeader({
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
+      {/* TODO: Move this to self contained component once more views are implemented. */}
       {isLinkSharingEnabled && (
         <Accordion allowMultiple>
           <AccordionItem border="none">
@@ -258,7 +256,7 @@ export default function VisHeader({
             </Flex>
             <AccordionPanel display="flex" flexDirection="column" gap={8}>
               <Flex justifyContent="space-between">
-                <Alert status="warning" maxWidth="330px">
+                <Alert status="info" maxWidth="330px">
                   <AlertIcon />
                   Warning: current filters are applied.
                 </Alert>

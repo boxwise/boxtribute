@@ -257,7 +257,6 @@ export default function StockOverviewPie({
         chartProps={chartProps}
         maxWidthPx={1000}
         customIncludes={[{ prop: { centerData: centerDataProp }, value: "include center data" }]}
-        enableLinkSharing
       />
       <CardBody>
         <Wrap align="end">
