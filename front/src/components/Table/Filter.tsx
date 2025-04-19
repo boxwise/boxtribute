@@ -170,3 +170,18 @@ export const includesOneOfMultipleStringsFilterFn = (rows, ids, filterValue) =>
     }),
   );
 includesOneOfMultipleStringsFilterFn.autoRemove = (val) => !val || !val.length;
+
+// This is a custom filter function for tags only.
+export const includesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
+  rows.filter((row) =>
+    ids.some((id) => {
+      const rowTags = row.values[id];
+
+      if (filterValue.every((tagFilter) => tagFilter.name)) {
+        return filterValue.some((tagFilter) => rowTags.some((tag) => tag.name === tagFilter.name));
+      }
+      return filterValue.some((tagName) => rowTags.some((tag) => tag.name === tagName));
+    }),
+  );
+
+includesSomeTagObjectFilterFn.autoRemove = (val) => !val || !val.length;

@@ -223,7 +223,7 @@ function Boxes() {
         id: "tags",
         Cell: TagsCell,
         Filter: SelectColumnFilter,
-        filter: "includesSome",
+        filter: "includesSomeTagObject",
       },
       {
         Header: "Shipment",
