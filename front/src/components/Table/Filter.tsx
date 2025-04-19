@@ -24,6 +24,11 @@ function ObjectToString(object: Object) {
   return Object.values(object).join(" - ");
 }
 
+function ObjectToReadableName(object: Object, key: string) {
+  const values = Object.values(object);
+  return values.map((item) => item[key]);
+}
+
 export function SelectColumnFilterUI({
   options,
   render,
@@ -97,11 +102,18 @@ export function SelectColumnFilter({
     const optionValues = {};
     preFilteredRows.forEach((row) => {
       const value = row.values[id];
-      // if the data passed to the table is more complex than a string we need to pass the data as value
-      if (typeof value === "object" && value !== null) {
+      // if the data passed to the table is more complex than a string we need to pass the data as value.
+      // This excludes the case for tags filtering where we introduce a second condition in the second if hook.
+      if (typeof value === "object" && value !== null && id.toLowerCase() !== "tags") {
         const objectToString = ObjectToString(value);
         groupedOptionLabels.add(objectToString);
         optionValues[objectToString] = value;
+      } else if (typeof value === "object" && value !== null && id.toLowerCase() === "tags") {
+        const makeTagNames = ObjectToReadableName(value, "name");
+        makeTagNames.forEach((tagName) => {
+          groupedOptionLabels.add(tagName);
+          optionValues[tagName] = tagName;
+        });
       } else if (value !== undefined) {
         groupedOptionLabels.add(value);
         optionValues[value] = value;
@@ -117,6 +129,8 @@ export function SelectColumnFilter({
       )
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [id, preFilteredRows]);
+
+  console.log({ filterValue });
 
   return (
     <SelectColumnFilterUI
