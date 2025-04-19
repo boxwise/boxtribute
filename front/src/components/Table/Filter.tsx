@@ -24,11 +24,6 @@ function ObjectToString(object: Object) {
   return Object.values(object).join(" - ");
 }
 
-function ObjectToReadableName(object: Object, key: string) {
-  const values = Object.values(object);
-  return values.map((item) => item[key]);
-}
-
 export function SelectColumnFilterUI({
   options,
   render,
@@ -109,10 +104,11 @@ export function SelectColumnFilter({
         groupedOptionLabels.add(objectToString);
         optionValues[objectToString] = value;
       } else if (typeof value === "object" && value !== null && id.toLowerCase() === "tags") {
-        const makeTagNames = ObjectToReadableName(value, "name");
-        makeTagNames.forEach((tagName) => {
-          groupedOptionLabels.add(tagName);
-          optionValues[tagName] = tagName;
+        value.forEach((tag: { name: string }) => {
+          if (tag?.name) {
+            groupedOptionLabels.add(tag.name);
+            optionValues[tag.name] = tag;
+          }
         });
       } else if (value !== undefined) {
         groupedOptionLabels.add(value);
@@ -129,8 +125,6 @@ export function SelectColumnFilter({
       )
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [id, preFilteredRows]);
-
-  console.log({ filterValue });
 
   return (
     <SelectColumnFilterUI
