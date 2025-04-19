@@ -30,6 +30,7 @@ import { QueryRef, useReadQuery } from "@apollo/client";
 import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
+  includesSomeTagObjectFilterFn,
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import IndeterminateCheckbox from "./Checkbox";
@@ -75,6 +76,7 @@ function BoxesTable({
     () => ({
       includesSomeObject: includesSomeObjectFilterFn,
       includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
+      includesSomeTagObject: includesSomeTagObjectFilterFn,
     }),
     [],
   );
