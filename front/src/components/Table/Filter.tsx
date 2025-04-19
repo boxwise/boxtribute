@@ -57,6 +57,9 @@ export function SelectColumnFilterUI({
             value={
               filterValue &&
               filterValue.map((value) => {
+                if (value.__typename === "Tag" && typeof value === "object" && value !== null) {
+                  return { value, label: value.name };
+                }
                 if (typeof value === "object" && value !== null) {
                   return { value, label: ObjectToString(value) };
                 }
@@ -115,6 +118,7 @@ export function SelectColumnFilter({
         optionValues[value] = value;
       }
     });
+
     return Array.from(groupedOptionLabels.values())
       .map(
         (label) =>
