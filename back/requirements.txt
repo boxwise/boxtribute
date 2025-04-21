@@ -1,7 +1,7 @@
 ariadne==0.26.1
 Flask==3.1.0
 Flask-Cors==5.0.1
-sentry-sdk[flask]==2.25.1
+sentry-sdk[flask]==2.26.1
 PyMySQL==1.1.1
 peewee==3.17.9
 peewee-moves==2.1.0
