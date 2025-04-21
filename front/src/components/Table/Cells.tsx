@@ -1,6 +1,15 @@
 import { CellProps } from "react-table";
 import { isDate } from "date-fns";
-import { chakra } from "@chakra-ui/react";
+import {
+  Box,
+  chakra,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+} from "@chakra-ui/react";
+import { BsFillCheckCircleFill } from "react-icons/bs";
 
 export function DateCell({ value }: CellProps<any>) {
   return (
@@ -15,6 +24,29 @@ export function DateCell({ value }: CellProps<any>) {
           hour: "2-digit",
           minute: "2-digit",
         })}
+    </chakra.span>
+  );
+}
+
+export function ProductWithSPCheckmarkCell({ value, row }: CellProps<any>) {
+  return (
+    <chakra.span display="flex" gap={2}>
+      {value}{" "}
+      {(row.original.holdsStandardProduct || row.original.isStandard) && (
+        <Popover closeOnEsc closeOnBlur isLazy>
+          <PopoverTrigger>
+            <Box onClick={(e) => e.stopPropagation()}>
+              <BsFillCheckCircleFill color="#659A7E" size={18} />
+            </Box>
+          </PopoverTrigger>
+          <PopoverContent w={"100%"}>
+            <PopoverArrow />
+            <PopoverBody onClick={(e) => e.stopPropagation()}>
+              This product is part of the ASSORT standard
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
+      )}
     </chakra.span>
   );
 }
