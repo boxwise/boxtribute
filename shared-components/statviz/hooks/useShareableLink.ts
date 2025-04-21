@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 
 // TODO: Move common utils to shared-components, use alias for imports.
 import { graphql } from "../../../graphql/graphql";
@@ -38,8 +38,10 @@ export default function useShareableLink({
   const authorize = useAuthorization();
   const { baseId } = useParams();
   const { createToast } = useNotification();
+  const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
-  const [shareableLinkExpiry, setShareableLinkExpiry] = useState("");
+  const [warningMsg, setWarningMsg] = useState("Warning: current filters are applied.");
+  const [globalParams, setGlobalParams] = useState(useSearchParams()[0].toString());
 
   const shareableLinkURL = `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${shareableLink}`;
   // TODO: Only check for ABP once link sharing is implemented for all views.
@@ -47,6 +49,15 @@ export default function useShareableLink({
     authorize({ requiredAbps: ["create_shareable_link"] }) && view === "StockOverview";
 
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
+
+  useEffect(() => {
+    if (searchParams.toString() !== globalParams) {
+      setGlobalParams(searchParams.toString());
+      setWarningMsg(
+        "Warning: filters were changed, click Create Link to generate a link with the new changes.",
+      );
+    }
+  }, [searchParams, globalParams]);
 
   const copyLinkToClipboard = useCallback(
     async (code?: string) => {
@@ -82,7 +93,9 @@ export default function useShareableLink({
       }).then(({ data }) => {
         if (data?.createShareableLink?.__typename === "ShareableLink") {
           setShareableLink(data.createShareableLink.code);
-          setShareableLinkExpiry(data.createShareableLink.validUntil || "");
+          setWarningMsg(
+            `Message: link expires on ${new Date(data.createShareableLink.validUntil || "").toUTCString()}`,
+          );
           copyLinkToClipboard(data.createShareableLink.code);
         } else {
           // TODO: Use triggerError and move it to shared-components?
@@ -98,7 +111,7 @@ export default function useShareableLink({
   return {
     shareableLink,
     shareableLinkURL,
-    shareableLinkExpiry,
+    warningMsg,
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,

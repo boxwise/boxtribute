@@ -23,10 +23,8 @@ import {
   HStack,
   Wrap,
   useCheckboxGroup,
-  Alert,
-  AlertIcon,
 } from "@chakra-ui/react";
-import { CopyIcon, DownloadIcon } from "@chakra-ui/icons";
+import { DownloadIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { useReactiveVar } from "@apollo/client";
 import useTimerange from "../hooks/useTimerange";
@@ -34,7 +32,7 @@ import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
 import { trackDownloadByGraph } from "../utils/analytics/heap";
-import useShareableLink from "../hooks/useShareableLink";
+import LinkSharing from "./LinkSharing";
 
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
@@ -71,14 +69,6 @@ export default function VisHeader({
   const [inputWidth, setInputWidth] = useState(defaultWidth);
   const [inputHeight, setInputHeight] = useState(defaultHeight);
   const isExporting = useReactiveVar(isChartExporting);
-  const {
-    shareableLink,
-    shareableLinkURL,
-    shareableLinkExpiry,
-    isLinkSharingEnabled,
-    copyLinkToClipboard,
-    handleShareLinkClick,
-  } = useShareableLink({ view: "StockOverview" });
 
   const { timerange } = useTimerange();
 
@@ -241,46 +231,7 @@ export default function VisHeader({
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
-      {/* TODO: Move this to self contained component once more views are implemented. */}
-      {isLinkSharingEnabled && (
-        <Accordion allowMultiple>
-          <AccordionItem border="none">
-            <Flex>
-              <Spacer display={["none", "block"]} />
-              <AccordionButton w="150px">
-                <Box as="span" flex="1" textAlign="left">
-                  Share Link
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </Flex>
-            <AccordionPanel display="flex" flexDirection="column" gap={8}>
-              <Flex justifyContent="space-between">
-                <Alert status="info" maxWidth="330px">
-                  <AlertIcon />
-                  Warning: current filters are applied.
-                </Alert>
-                <Button onClick={handleShareLinkClick}>Create Link</Button>
-              </Flex>
-              {shareableLink && (
-                <Flex flexDirection="column" gap={4}>
-                  <Alert status="info" maxWidth="max-content">
-                    <AlertIcon />
-                    Message: link expires on {new Date(shareableLinkExpiry).toUTCString()}
-                  </Alert>
-                  <Button
-                    onClick={() => copyLinkToClipboard()}
-                    alignSelf="flex-start"
-                    maxWidth="max-content"
-                  >
-                    <CopyIcon mr={2} /> {shareableLinkURL}
-                  </Button>
-                </Flex>
-              )}
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
-      )}
+      <LinkSharing view="StockOverview" />
     </CardHeader>
   );
 }
