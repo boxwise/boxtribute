@@ -113,8 +113,8 @@ function App() {
     );
   }
 
-  if (["ExpiredLinkError", "UnknownLinkError"].includes(data?.resolveLink?._typename)) {
-    return <ErrorPage>{matchErrorMessage(data.resolveLink._typename ?? "")}</ErrorPage>;
+  if (["ExpiredLinkError", "UnknownLinkError"].includes(data?.resolveLink?.__typename)) {
+    return <ErrorPage>{matchErrorMessage(data.resolveLink.__typename ?? "")}</ErrorPage>;
   }
 
   // Replace Search Params with fetched link data params and reload the page while displaying a skeleton loader.
