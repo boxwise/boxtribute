@@ -42,15 +42,22 @@ export const useUnassignTags = () => {
       })
         .then(({ data, errors }) => {
           const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
+          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
 
           setIsLoading(false);
 
-          if (errors?.length) {
-            if (showToasts) {
-              triggerError({
-                message: "Could not unassign boxes. Try again?",
-              });
-            }
+          // unassign fails since one ore more tags causes an error
+          if (tagErrorInfoArray && tagErrorInfoArray.length > 0 && showToasts) {
+            triggerError({
+              message: `Could not unassign ${tagErrorInfoArray.length === 1 ? "one tag" : "multiple tags"} from boxes. Try again?`,
+            });
+          }
+
+          // unexpected graphQL error
+          if (errors?.length && showToasts) {
+            triggerError({
+              message: "Could not unassign tags from boxes. Try again?",
+            });
           }
 
           if (showToasts && successfulBoxes && successfulBoxes.length > 0) {
