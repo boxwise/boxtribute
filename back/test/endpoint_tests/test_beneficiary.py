@@ -275,10 +275,6 @@ def test_beneficiary_mutations(
                     beneficiaryData: [
                         {{
                             firstName: "{first_name}"
-                            groupIdentifier: "{group_id}"
-                        }},
-                        {{
-                            firstName: "{first_name}"
                             lastName: "{last_name}"
                             groupIdentifier: "{group_id}"
                             dateOfBirth: "{dob}"
@@ -286,6 +282,10 @@ def test_beneficiary_mutations(
                             isVolunteer: false
                             registered: false
                             tagIds: [1, 3]
+                        }},
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
                         }}
                     ] }} ) {{
                         ...on BeneficiariesResult {{
@@ -312,19 +312,6 @@ def test_beneficiary_mutations(
             {
                 "id": str(int(beneficiary_id) + 1),
                 "firstName": first_name,
-                "lastName": "",
-                "groupIdentifier": group_id,
-                "dateOfBirth": None,
-                "gender": None,
-                "isVolunteer": False,
-                "registered": True,
-                "familyHead": None,
-                "base": {"id": base_id},
-                "tags": [],
-            },
-            {
-                "id": str(int(beneficiary_id) + 2),
-                "firstName": first_name,
                 "lastName": last_name,
                 "groupIdentifier": group_id,
                 "dateOfBirth": dob,
@@ -334,6 +321,19 @@ def test_beneficiary_mutations(
                 "familyHead": None,
                 "base": {"id": base_id},
                 "tags": [{"id": "1"}, {"id": "3"}],
+            },
+            {
+                "id": str(int(beneficiary_id) + 2),
+                "firstName": first_name,
+                "lastName": "",
+                "groupIdentifier": group_id,
+                "dateOfBirth": None,
+                "gender": None,
+                "isVolunteer": False,
+                "registered": True,
+                "familyHead": None,
+                "base": {"id": base_id},
+                "tags": [],
             },
         ]
     }
