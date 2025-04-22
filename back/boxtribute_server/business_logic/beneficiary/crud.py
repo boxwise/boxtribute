@@ -1,5 +1,5 @@
 from ...db import db
-from ...enums import HumanGender, TaggableObjectType
+from ...enums import TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
@@ -41,7 +41,7 @@ def create_beneficiary(
         base=base_id,
         group_identifier=group_identifier,
         date_of_birth=date_of_birth,
-        gender=gender.value,  # convert to gender abbreviation
+        gender=gender,
         is_volunteer=is_volunteer,
         not_registered=not registered,
         signed=signature is not None,  # set depending on signature
@@ -123,7 +123,7 @@ def update_beneficiary(
     """
     # Handle any items with keys not matching the Model fields
     if gender is not None:
-        beneficiary.gender = gender.value
+        beneficiary.gender = gender
 
     if family_head_id is not None:
         beneficiary.family_head = family_head_id
@@ -196,9 +196,6 @@ def sanitize_input(data):
     sanitized_data = []
     all_tag_ids = []
     for entry in data:
-        if isinstance(entry.get("gender"), HumanGender):
-            # move to input conversion?
-            entry["gender"] = entry["gender"].value
         if "registered" in entry:
             entry["not_registered"] = not entry["registered"]
         # Remove tag IDs from input because they're inserted into a different table
@@ -221,7 +218,7 @@ def create_beneficiaries(
         # defaults
         "last_name": "",
         "date_of_birth": None,
-        "gender": "",
+        "gender": None,  # will be converted to '' on DB level
         "is_volunteer": False,
         "not_registered": False,
         # common data
