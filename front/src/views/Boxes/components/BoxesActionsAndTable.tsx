@@ -26,8 +26,8 @@ import MakeLabelsButton from "./MakeLabelsButton";
 import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
-// import RemoveTagsButton from "./RemoveTagsButton";
-// import { useUnassignTags } from "hooks/useUnassignTags";
+import RemoveTagsButton from "./RemoveTagsButton";
+import { useUnassignTags } from "hooks/useUnassignTags";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -52,6 +52,7 @@ function BoxesActionsAndTable({
   const baseId = useAtomValue(selectedBaseIdAtom);
 
   const { createToast } = useNotification();
+  const [autoResetSelectedRows, setAutoResetSelectedRows] = useState(true);
 
   // Action when clicking on a row
   const onBoxRowClick = (labelIdentifier: string) =>
@@ -68,12 +69,12 @@ function BoxesActionsAndTable({
   );
 
   // Used for remove tags
-  // const getSelectedBoxTags = useMemo(() => {
-  //   const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
-  //   const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
-  //   const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
-  //   return commonTags;
-  // }, [selectedBoxes, tagOptions]);
+  const getSelectedBoxTags = useMemo(() => {
+    const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
+    const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
+    const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
+    return commonTags;
+  }, [selectedBoxes, tagOptions]);
 
   // Move Boxes
   const moveBoxesAction = useMoveBoxes();
@@ -242,33 +243,40 @@ function BoxesActionsAndTable({
   const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const onAssignTags = useCallback(
     async (tagIds: string[]) => {
+      setAutoResetSelectedRows(false);
       await assignTags(
         selectedBoxes.map((box) => box.values.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
       );
+      setAutoResetSelectedRows(true);
     },
     [assignTags, selectedBoxes],
   );
 
   // Unassign tags from boxes
-  // const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
-  // const onUnassignTags = useCallback(
-  //   async (tagIds: string[]) => {
-  //     await unassignTags(
-  //       selectedBoxes.map((box) => box.values.labelIdentifier),
-  //       tagIds.map((id) => parseInt(id, 10)),
-  //     );
-  //   },
-  //   [unassignTags, selectedBoxes],
-  // );
+  const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
+  const onUnassignTags = useCallback(
+    (tagIds: string[]) => {
+      if (tagIds.length > 0) {
+        setAutoResetSelectedRows(false);
+        unassignTags(
+          selectedBoxes.map((box) => box.values.labelIdentifier),
+          tagIds.map((id) => parseInt(id, 10)),
+        ).then(() => {
+          setAutoResetSelectedRows(true);
+        });
+      }
+    },
+    [unassignTags, selectedBoxes],
+  );
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
     isDeleteBoxesLoading ||
-    isAssignTagsLoading;
-    // isUnassignTagsLoading;
+    isAssignTagsLoading ||
+    isUnassignTagsLoading;
 
   const actionButtons = useMemo(
     () => [
@@ -313,16 +321,15 @@ function BoxesActionsAndTable({
               allTagOptions={tagOptions}
             />
           </Menu>
-          {/* Hide this button till remove tags functionality is ready for release */}
-          {/* <Menu>
+          <Menu>
             <RemoveTagsButton
               selectedBoxes={selectedBoxes}
               key="remove-tags"
               onRemoveTags={onUnassignTags}
-              allTagOptions={tagOptions}
+              allTagOptions={getSelectedBoxTags}
               currentTagOptions={getSelectedBoxTags}
             />
-          </Menu> */}
+          </Menu>
           <MenuItem as="div">
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
@@ -349,8 +356,8 @@ function BoxesActionsAndTable({
       tagOptions,
       onUnassignBoxesToShipment,
       onAssignTags,
-      // getSelectedBoxTags,
-      // onUnassignTags,
+      getSelectedBoxTags,
+      onUnassignTags,
     ],
   );
 
@@ -364,6 +371,7 @@ function BoxesActionsAndTable({
       setSelectedBoxes={setSelectedBoxes}
       onBoxRowClick={onBoxRowClick}
       selectedRowsArePending={actionsAreLoading}
+      autoResetSelectedRows={autoResetSelectedRows}
     />
   );
 }
