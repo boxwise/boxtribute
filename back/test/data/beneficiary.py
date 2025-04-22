@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 import pytest
+from boxtribute_server.enums import HumanGender
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 
 from .base import data as base_data
@@ -20,7 +21,7 @@ def default_beneficiary_data():
         "seq": 1,
         "group_identifier": "1234",
         "comment": "comment for fun",
-        "gender": "M",
+        "gender": HumanGender.Male,
     }
 
 
@@ -54,7 +55,7 @@ def another_beneficiary_data():
         "family_id": 11,
         "seq": 1,
         "group_identifier": "5678",
-        "gender": "F",
+        "gender": HumanGender.Female,
     }
 
 
@@ -69,7 +70,7 @@ def org2_base3_beneficiary_data():
         "family_id": 12,
         "seq": 1,
         "group_identifier": "999",
-        "gender": "F",
+        "gender": HumanGender.Female,
     }
 
 

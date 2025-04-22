@@ -13,6 +13,7 @@ from .definitions.history import DbChangeHistory
 from .definitions.product_category import ProductCategory
 from .definitions.size_range import SizeRange
 from .definitions.unit import Unit
+from .fields import EnumCharField
 
 # Batch size for bulk insert/update operations
 BATCH_SIZE = 100
@@ -202,6 +203,10 @@ def create_history_entries(*, old_resource, new_resource, fields, change_date):
         entry.user = g.user.id
         entry.ip = None
         entry.change_date = change_date
+
+        if issubclass(field_class, EnumCharField):
+            old_value = old_value.value
+            new_value = new_value.value
 
         if issubclass(field_class, (IntegerField, ForeignKeyField)):
             entry.from_int = old_value
