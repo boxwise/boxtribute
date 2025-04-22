@@ -197,7 +197,7 @@ def sanitize_input(data):
     all_tag_ids = []
     for entry in data:
         if "registered" in entry:
-            entry["not_registered"] = not entry["registered"]
+            entry["not_registered"] = not entry.pop("registered")
         # Remove tag IDs from input because they're inserted into a different table
         tag_ids = set(entry.pop("tag_ids", []))  # remove duplicated IDs
         all_tag_ids.append(tag_ids)
