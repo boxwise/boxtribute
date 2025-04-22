@@ -248,6 +248,7 @@ function BoxesActionsAndTable({
         selectedBoxes.map((box) => box.values.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
       );
+      setAutoResetSelectedRows(true);
     },
     [assignTags, selectedBoxes],
   );
@@ -255,14 +256,15 @@ function BoxesActionsAndTable({
   // Unassign tags from boxes
   const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
   const onUnassignTags = useCallback(
-    async (tagIds: string[]) => {
+    (tagIds: string[]) => {
       if (tagIds.length > 0) {
         setAutoResetSelectedRows(false);
-
-        await unassignTags(
+        unassignTags(
           selectedBoxes.map((box) => box.values.labelIdentifier),
           tagIds.map((id) => parseInt(id, 10)),
-        );
+        ).then(() => {
+          setAutoResetSelectedRows(true);
+        });
       }
     },
     [unassignTags, selectedBoxes],
