@@ -553,6 +553,10 @@ workflows:
           context: STAGING
           requires:
             - install-node-packages
+      - build-statviz:
+          context: STAGING
+          requires:
+            - install-node-packages
       - test-front:
           context: STAGING
           requires:
@@ -586,12 +590,31 @@ workflows:
             branches:
               only:
                 - master
+      - build-statviz:
+          name: build-statviz-staging
+          context: STAGING
+          requires:
+            - install-node-packages
+          filters:
+            branches:
+              only:
+                - master
       - deploy:
           name: deploy-staging
           context: STAGING
           serviceName: v2-staging
           requires:
             - build-front-staging
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-statviz:
+          name: deploy-statviz-staging
+          context: STAGING
+          serviceName: statviz-staging
+          requires:
+            - build-statviz-staging
           filters:
             branches:
               only:
@@ -681,12 +704,33 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - build-statviz:
+          name: build-statviz-production
+          context: PRODUCTION
+          requires:
+            - install-node-packages-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - deploy:
           name: deploy-production
           context: PRODUCTION
           serviceName: v2-production
           requires:
             - build-front-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - deploy-statviz:
+          name: deploy-statviz-production
+          context: PRODUCTION
+          serviceName: v2-production
+          requires:
+            - build-statviz-production
           filters:
             tags:
               only: /^v.*/
