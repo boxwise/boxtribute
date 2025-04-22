@@ -70,7 +70,7 @@ export const useUnassignTags = () => {
           }
         });
     },
-    [unassignTagsMutation, triggerError],
+    [unassignTagsMutation, triggerError, createToast],
   );
 
   return {
