@@ -138,6 +138,42 @@ jobs:
           paths:
             - front/dist
 
+  build-statviz:
+    executor: node-executor
+    working_directory: ~/statviz
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Generate .env File
+          command: |
+            echo "
+              STATVIZ_GRAPHQL_SERVER=${STATVIZ_GRAPHQL_SERVER}
+              STATVIZ_SENTRY_FE_DSN=${SENTRY_FE_DSN}
+              STATVIZ_SENTRY_ENVIRONMENT=${ENVIRONMENT}
+              STATVIZ_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              STATVIZ_ENVIRONMENT=${ENVIRONMENT}
+            " > .env
+      # TODO: Integrate checks and formating from monorepo.
+      # - run:
+      #     name: Run style checks
+      #     command: |
+      #       pnpm lint:fix:all
+      #       pnpm format:write:all
+      #       pnpm -C .. graphql-gen
+      - run:
+          name: Build statviz
+          command: |
+            pnpm build
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+      # Add build to workspace
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - statviz/dist
+
   test-front:
     executor: node-executor
     working_directory: ~/front
@@ -272,13 +308,21 @@ jobs:
       - gcp-cli/install:
           version: "latest"
       - run:
-          name: Inject Heap Analytics Script to index.html
+          name: Inject Heap Analytics Script to index.html in /front
           command: |
             sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../front/dist/heapanalytics.js
             sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../front/dist/index.html
       - run:
-          name: Copy react build into flask app for deployment
+          name: Inject Heap Analytics Script to index.html in /statviz
+          command: |
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../statviz/dist/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../statviz/dist/index.html
+      - run:
+          name: Copy /front react build into flask app for deployment
           command: mv ../front/dist front-build
+      - run:
+          name: Copy /statviz react build into flask app for deployment
+          command: mv ../statviz/dist statviz-build
       - run:
           name: Create version.txt
           command: |

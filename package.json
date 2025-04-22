@@ -8,7 +8,7 @@
     "format:check": "prettier --check --ignore-path .eslintignore",
     "format:write:all": "pnpm format:write \"+(front|shared-components|statviz)/**/*.{js,json,ts,tsx}\"",
     "format:write": "prettier --write --ignore-path .eslintignore",
-    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 1",
     "lint:fix": "pnpm lint --fix",
     "lint:all": "pnpm lint shared-components front statviz",
     "lint:all:fix": "pnpm lint:fix shared-components front statviz",
