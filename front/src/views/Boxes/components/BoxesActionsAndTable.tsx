@@ -273,8 +273,8 @@ function BoxesActionsAndTable({
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
     isDeleteBoxesLoading ||
-    isAssignTagsLoading;
-  isUnassignTagsLoading;
+    isAssignTagsLoading ||
+    isUnassignTagsLoading;
 
   const actionButtons = useMemo(
     () => [
