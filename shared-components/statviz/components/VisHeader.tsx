@@ -69,6 +69,8 @@ export default function VisHeader({
   const [inputHeight, setInputHeight] = useState(defaultHeight);
   const isExporting = useReactiveVar(isChartExporting);
 
+  const isPublicView = !!localStorage.getItem("code");
+
   const { timerange } = useTimerange();
 
   const { value, getCheckboxProps } = useCheckboxGroup({
@@ -116,120 +118,124 @@ export default function VisHeader({
   return (
     <CardHeader maxWidth={getMaxWidth()}>
       <Accordion allowMultiple>
-        <AccordionItem border="none">
-          <Flex>
-            <Heading size="md">{heading}</Heading>
-            <Spacer />
-            <AccordionButton w="150px">
-              <Box as="span" flex="1" textAlign="left">
-                Download
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-          </Flex>
-          <AccordionPanel>
-            <FormControl>
-              <Wrap>
-                <Box width="100px">
-                  <FormLabel>Width</FormLabel>
-                  <NumberInput
-                    id={randomId()}
-                    max={5000}
-                    min={100}
-                    step={10}
-                    size="sm"
-                    value={inputWidth}
-                    onChange={(_valueString, valueNumber) => setInputWidth(valueNumber)}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
+        {!isPublicView && (
+          <AccordionItem border="none">
+            <Flex>
+              <Heading size="md">{heading}</Heading>
+              <Spacer />
+              <AccordionButton w="150px">
+                <Box as="span" flex="1" textAlign="left">
+                  Download
                 </Box>
-                <Box width="100px">
-                  <FormLabel>Height</FormLabel>
-                  <NumberInput
-                    id={randomId()}
-                    max={5000}
-                    min={100}
-                    step={10}
-                    size="sm"
-                    value={inputHeight}
-                    onChange={(_valueString, valueNumber) => setInputHeight(valueNumber)}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </Box>
-                <Spacer />
-                <Center>
-                  <CheckboxGroup defaultValue={["heading", "timerange"]}>
-                    <Box>
-                      <FormLabel>Options</FormLabel>
-                      <HStack spacing="24px">
-                        <Checkbox
-                          id={randomId()}
-                          checked
-                          {...getCheckboxProps({ value: "heading" })}
-                        >
-                          Heading
-                        </Checkbox>
-                        <Checkbox id={randomId()} {...getCheckboxProps({ value: "timerange" })}>
-                          Time Range
-                        </Checkbox>
-                        <Checkbox {...getCheckboxProps({ value: "timestamp" })}>Timestamp</Checkbox>
-                        {customIncludes!.map((option) => (
+                <AccordionIcon />
+              </AccordionButton>
+            </Flex>
+            <AccordionPanel>
+              <FormControl>
+                <Wrap>
+                  <Box width="100px">
+                    <FormLabel>Width</FormLabel>
+                    <NumberInput
+                      id={randomId()}
+                      max={5000}
+                      min={100}
+                      step={10}
+                      size="sm"
+                      value={inputWidth}
+                      onChange={(_valueString, valueNumber) => setInputWidth(valueNumber)}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </Box>
+                  <Box width="100px">
+                    <FormLabel>Height</FormLabel>
+                    <NumberInput
+                      id={randomId()}
+                      max={5000}
+                      min={100}
+                      step={10}
+                      size="sm"
+                      value={inputHeight}
+                      onChange={(_valueString, valueNumber) => setInputHeight(valueNumber)}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </Box>
+                  <Spacer />
+                  <Center>
+                    <CheckboxGroup defaultValue={["heading", "timerange"]}>
+                      <Box>
+                        <FormLabel>Options</FormLabel>
+                        <HStack spacing="24px">
                           <Checkbox
                             id={randomId()}
-                            {...getCheckboxProps({ value: option.value })}
-                            key={option.value}
+                            checked
+                            {...getCheckboxProps({ value: "heading" })}
                           >
-                            {option.value}
+                            Heading
                           </Checkbox>
-                        ))}
+                          <Checkbox id={randomId()} {...getCheckboxProps({ value: "timerange" })}>
+                            Time Range
+                          </Checkbox>
+                          <Checkbox {...getCheckboxProps({ value: "timestamp" })}>
+                            Timestamp
+                          </Checkbox>
+                          {customIncludes!.map((option) => (
+                            <Checkbox
+                              id={randomId()}
+                              {...getCheckboxProps({ value: option.value })}
+                              key={option.value}
+                            >
+                              {option.value}
+                            </Checkbox>
+                          ))}
+                        </HStack>
+                      </Box>
+                    </CheckboxGroup>
+                  </Center>
+                  <Spacer />
+                  <Center>
+                    <Box>
+                      <FormLabel>Downloads</FormLabel>
+                      <HStack>
+                        <Button
+                          borderRadius="0px"
+                          border="2px"
+                          isLoading={isExporting}
+                          backgroundColor="white"
+                          value="jpg"
+                          onClick={download}
+                        >
+                          JPG
+                          <DownloadIcon marginLeft="10px" />
+                        </Button>
+                        <Button
+                          borderRadius="0px"
+                          border="2px"
+                          isLoading={isExporting}
+                          backgroundColor="white"
+                          value="svg"
+                          onClick={download}
+                        >
+                          SVG
+                          <DownloadIcon marginLeft="10px" />
+                        </Button>
                       </HStack>
                     </Box>
-                  </CheckboxGroup>
-                </Center>
-                <Spacer />
-                <Center>
-                  <Box>
-                    <FormLabel>Downloads</FormLabel>
-                    <HStack>
-                      <Button
-                        borderRadius="0px"
-                        border="2px"
-                        isLoading={isExporting}
-                        backgroundColor="white"
-                        value="jpg"
-                        onClick={download}
-                      >
-                        JPG
-                        <DownloadIcon marginLeft="10px" />
-                      </Button>
-                      <Button
-                        borderRadius="0px"
-                        border="2px"
-                        isLoading={isExporting}
-                        backgroundColor="white"
-                        value="svg"
-                        onClick={download}
-                      >
-                        SVG
-                        <DownloadIcon marginLeft="10px" />
-                      </Button>
-                    </HStack>
-                  </Box>
-                </Center>
-              </Wrap>
-            </FormControl>
-          </AccordionPanel>
-        </AccordionItem>
+                  </Center>
+                </Wrap>
+              </FormControl>
+            </AccordionPanel>
+          </AccordionItem>
+        )}
       </Accordion>
     </CardHeader>
   );
