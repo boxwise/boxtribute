@@ -16,10 +16,11 @@ import { CopyIcon } from "@chakra-ui/icons";
 import useShareableLink from "../hooks/useShareableLink";
 
 // TODO: Add other views to type once they are implemented.
-export default function LinkSharing({ view }: { view: "StockOverview" }) {
+export default function LinkSharingSection({ view }: { view: "StockOverview" }) {
   const {
     shareableLink,
     shareableLinkURL,
+    alertType,
     warningMsg,
     isLinkSharingEnabled,
     copyLinkToClipboard,
@@ -43,7 +44,7 @@ export default function LinkSharing({ view }: { view: "StockOverview" }) {
             {/* TODO: Improve responsiveness for the info box and shareable link button. */}
             <AccordionPanel display="flex" flexDirection="column" gap={8}>
               <Flex justifyContent="space-between">
-                <Alert status="info" maxWidth={["300px", "500px", "max-content"]}>
+                <Alert status={alertType} maxWidth={["300px", "500px", "max-content"]}>
                   <AlertIcon />
                   {warningMsg}
                 </Alert>

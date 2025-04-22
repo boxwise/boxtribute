@@ -40,6 +40,7 @@ export default function useShareableLink({
   const { createToast } = useNotification();
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
+  const [alertType, setAlertType] = useState<"info" | "warning">("info");
   const [warningMsg, setWarningMsg] = useState("Warning: current filters are applied.");
   const [globalParams, setGlobalParams] = useState(useSearchParams()[0].toString());
 
@@ -53,6 +54,7 @@ export default function useShareableLink({
   useEffect(() => {
     if (searchParams.toString() !== globalParams) {
       setGlobalParams(searchParams.toString());
+      setAlertType("warning");
       setWarningMsg(
         "Warning: filters were changed, click Create Link to generate a link with the new changes.",
       );
@@ -93,6 +95,7 @@ export default function useShareableLink({
       }).then(({ data }) => {
         if (data?.createShareableLink?.__typename === "ShareableLink") {
           setShareableLink(data.createShareableLink.code);
+          setAlertType("info");
           setWarningMsg(
             `Message: link expires on ${new Date(data.createShareableLink.validUntil || "").toUTCString()}`,
           );
@@ -111,6 +114,7 @@ export default function useShareableLink({
   return {
     shareableLink,
     shareableLinkURL,
+    alertType,
     warningMsg,
     isLinkSharingEnabled,
     copyLinkToClipboard,
