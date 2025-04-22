@@ -41,6 +41,9 @@ importers:
       '@nivo/sunburst':
         specifier: 0.89.0
         version: 0.89.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@sentry/react':
+        specifier: ^9.12.0
+        version: 9.13.0(react@18.3.1)
       '@tidyjs/tidy':
         specifier: ^2.5.2
         version: 2.5.2
