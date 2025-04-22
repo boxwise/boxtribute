@@ -194,14 +194,18 @@ class BeneficiariesResult(dict):
 
 def sanitize_input(data):
     sanitized_data = []
+    all_tag_ids = []
     for entry in data:
         if isinstance(entry.get("gender"), HumanGender):
             # move to input conversion?
             entry["gender"] = entry["gender"].value
         if "registered" in entry:
             entry["not_registered"] = not entry["registered"]
+        # Remove tag IDs from input because they're inserted into a different table
+        tag_ids = set(entry.pop("tag_ids", []))  # remove duplicated IDs
+        all_tag_ids.append(tag_ids)
         sanitized_data.append(entry)
-    return sanitized_data
+    return sanitized_data, all_tag_ids
 
 
 def create_beneficiaries(
@@ -210,7 +214,9 @@ def create_beneficiaries(
     base_id,
     beneficiary_data,
 ):
-    sanitized_data = sanitize_input(beneficiary_data)
+    """Insert multiple beneficiaries and their tags into the database."""
+    sanitized_data, all_tag_ids = sanitize_input(beneficiary_data)
+    now = utcnow()
     default_and_common_elements = {
         # defaults
         "last_name": "",
@@ -220,7 +226,7 @@ def create_beneficiaries(
         "not_registered": False,
         # common data
         "base": base_id,
-        "created_on": utcnow(),
+        "created_on": now,
         "created_by": user_id,
     }
     complete_data = [
@@ -229,13 +235,24 @@ def create_beneficiaries(
     ]
 
     first_inserted_id = Beneficiary.insert_many(complete_data).execute()
-    return BeneficiariesResult(
-        {
-            "results": list(
-                Beneficiary.select().where(
-                    Beneficiary.id >= first_inserted_id,
-                    Beneficiary.id < first_inserted_id + len(complete_data),
-                )
-            )
-        }
+    beneficiaries = list(
+        Beneficiary.select().where(
+            Beneficiary.id >= first_inserted_id,
+            Beneficiary.id < first_inserted_id + len(complete_data),
+        )
     )
+
+    tags_relations = [
+        {
+            "object_id": beneficiary.id,
+            "object_type": TaggableObjectType.Beneficiary,
+            "tag": tag_id,
+            "created_on": now,
+            "created_by": user_id,
+        }
+        for beneficiary, tag_ids in zip(beneficiaries, all_tag_ids)
+        for tag_id in tag_ids
+    ]
+    TagsRelation.insert_many(tags_relations).execute()
+
+    return BeneficiariesResult({"results": beneficiaries})

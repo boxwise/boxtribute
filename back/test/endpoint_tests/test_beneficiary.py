@@ -285,6 +285,7 @@ def test_beneficiary_mutations(
                             gender: {gender.name}
                             isVolunteer: false
                             registered: false
+                            tagIds: [1, 3]
                         }}
                     ] }} ) {{
                         ...on BeneficiariesResult {{
@@ -300,6 +301,7 @@ def test_beneficiary_mutations(
                                     registered
                                     familyHead {{ id }}
                                     base {{ id }}
+                                    tags {{ id }}
                                 }}
                             }}
                         }}
@@ -318,6 +320,7 @@ def test_beneficiary_mutations(
                 "registered": True,
                 "familyHead": None,
                 "base": {"id": base_id},
+                "tags": [],
             },
             {
                 "id": str(int(beneficiary_id) + 2),
@@ -330,6 +333,7 @@ def test_beneficiary_mutations(
                 "registered": False,
                 "familyHead": None,
                 "base": {"id": base_id},
+                "tags": [{"id": "1"}, {"id": "3"}],
             },
         ]
     }
