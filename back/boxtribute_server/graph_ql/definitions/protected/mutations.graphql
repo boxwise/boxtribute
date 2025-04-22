@@ -22,6 +22,8 @@ type Mutation {
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
   " Deactivate beneficiary with specified ID. "
   deactivateBeneficiary(id: ID!): Beneficiary
+  " Create multiple beneficiaries at once in one base. "
+  createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): Tag

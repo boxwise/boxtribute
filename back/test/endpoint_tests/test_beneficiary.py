@@ -120,7 +120,7 @@ def test_beneficiary_mutations(
     dob_year = 2000
     dob = f"{dob_year}-01-01"
     dos = "2022-07-16"
-    base_id = 1
+    base_id = "1"
     group_id = "1234"
     gender = HumanGender.Diverse
     languages = ["en", "ar"]
@@ -176,7 +176,7 @@ def test_beneficiary_mutations(
     assert created_beneficiary["dateOfBirth"] == dob
     assert created_beneficiary["age"] == date.today().year - dob_year
     assert created_beneficiary["comment"] == comment
-    assert int(created_beneficiary["base"]["id"]) == base_id
+    assert created_beneficiary["base"]["id"] == base_id
     assert created_beneficiary["groupIdentifier"] == group_id
     assert created_beneficiary["gender"] == gender.name
     assert created_beneficiary["languages"] == languages
@@ -242,7 +242,7 @@ def test_beneficiary_mutations(
         "dateOfBirth": new_formatted_dob,
         "age": compute_age(new_dob),
         "comment": new_comment,
-        "base": {"id": str(base_id)},
+        "base": {"id": base_id},
         "groupIdentifier": new_group_id,
         "gender": new_gender.name,
         "languages": [language],
@@ -269,6 +269,74 @@ def test_beneficiary_mutations(
     query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ active }} }}"
     response = assert_successful_request(client, query)
     assert not response["active"]
+
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: {base_id}
+                    beneficiaryData: [
+                        {{
+                            firstName: "{first_name}"
+                            lastName: "{last_name}"
+                            groupIdentifier: "{group_id}"
+                            dateOfBirth: "{dob}"
+                            gender: {gender.name}
+                            isVolunteer: false
+                            registered: false
+                            tagIds: [1, 3]
+                        }},
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
+                        }}
+                    ] }} ) {{
+                        ...on BeneficiariesResult {{
+                            results {{
+                                ...on Beneficiary {{
+                                    id
+                                    firstName
+                                    lastName
+                                    groupIdentifier
+                                    dateOfBirth
+                                    gender
+                                    isVolunteer
+                                    registered
+                                    familyHead {{ id }}
+                                    base {{ id }}
+                                    tags {{ id }}
+                                }}
+                            }}
+                        }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "results": [
+            {
+                "id": str(int(beneficiary_id) + 1),
+                "firstName": first_name,
+                "lastName": last_name,
+                "groupIdentifier": group_id,
+                "dateOfBirth": dob,
+                "gender": gender.name,
+                "isVolunteer": False,
+                "registered": False,
+                "familyHead": None,
+                "base": {"id": base_id},
+                "tags": [{"id": "1"}, {"id": "3"}],
+            },
+            {
+                "id": str(int(beneficiary_id) + 2),
+                "firstName": first_name,
+                "lastName": "",
+                "groupIdentifier": group_id,
+                "dateOfBirth": None,
+                "gender": None,
+                "isVolunteer": False,
+                "registered": True,
+                "familyHead": None,
+                "base": {"id": base_id},
+                "tags": [],
+            },
+        ]
+    }
 
     history_entries = list(
         DbChangeHistory.select(
