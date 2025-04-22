@@ -41,7 +41,7 @@ def create_beneficiary(
         base=base_id,
         group_identifier=group_identifier,
         date_of_birth=date_of_birth,
-        gender=gender.value,  # convert to gender abbreviation
+        gender=gender,
         is_volunteer=is_volunteer,
         not_registered=not registered,
         signed=signature is not None,  # set depending on signature
@@ -123,7 +123,7 @@ def update_beneficiary(
     """
     # Handle any items with keys not matching the Model fields
     if gender is not None:
-        beneficiary.gender = gender.value
+        beneficiary.gender = gender
 
     if family_head_id is not None:
         beneficiary.family_head = family_head_id
@@ -186,3 +186,70 @@ def create_transaction(
         created_on=utcnow(),
         created_by=user_id,
     )
+
+
+class BeneficiariesResult(dict):
+    pass
+
+
+def sanitize_input(data):
+    sanitized_data = []
+    all_tag_ids = []
+    for entry in data:
+        if "registered" in entry:
+            entry["not_registered"] = not entry["registered"]
+        # Remove tag IDs from input because they're inserted into a different table
+        tag_ids = set(entry.pop("tag_ids", []))  # remove duplicated IDs
+        all_tag_ids.append(tag_ids)
+        sanitized_data.append(entry)
+    return sanitized_data, all_tag_ids
+
+
+def create_beneficiaries(
+    *,
+    user_id,
+    base_id,
+    beneficiary_data,
+):
+    """Insert multiple beneficiaries and their tags into the database."""
+    sanitized_data, all_tag_ids = sanitize_input(beneficiary_data)
+    now = utcnow()
+    default_and_common_elements = {
+        # defaults
+        "last_name": "",
+        "date_of_birth": None,
+        "gender": None,  # will be converted to '' on DB level
+        "is_volunteer": False,
+        "not_registered": False,
+        # common data
+        "base": base_id,
+        "created_on": now,
+        "created_by": user_id,
+    }
+    complete_data = [
+        {**default_and_common_elements, **beneficiary_entry}
+        for beneficiary_entry in sanitized_data
+    ]
+
+    first_inserted_id = Beneficiary.insert_many(complete_data).execute()
+    beneficiaries = list(
+        Beneficiary.select().where(
+            Beneficiary.id >= first_inserted_id,
+            Beneficiary.id < first_inserted_id + len(complete_data),
+        )
+    )
+
+    tags_relations = [
+        {
+            "object_id": beneficiary.id,
+            "object_type": TaggableObjectType.Beneficiary,
+            "tag": tag_id,
+            "created_on": now,
+            "created_by": user_id,
+        }
+        for beneficiary, tag_ids in zip(beneficiaries, all_tag_ids)
+        for tag_id in tag_ids
+    ]
+    TagsRelation.insert_many(tags_relations).execute()
+
+    return BeneficiariesResult({"results": beneficiaries})

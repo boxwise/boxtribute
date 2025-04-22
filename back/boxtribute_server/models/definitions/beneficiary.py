@@ -1,9 +1,34 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
 from ...db import db
-from ..fields import UIntForeignKeyField, ZeroDateField, ZeroDateTimeField
+from ...enums import HumanGender
+from ..fields import (
+    EnumCharField,
+    UIntForeignKeyField,
+    ZeroDateField,
+    ZeroDateTimeField,
+)
 from .base import Base
 from .user import User
+
+
+class HumanGenderField(EnumCharField):
+    """Custom class to convert the legacy default value '' on DB level to None on
+    application level.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, choices=HumanGender, **kwargs)
+
+    def db_value(self, value):
+        if value is None:
+            return ""
+        return value.value
+
+    def python_value(self, name):
+        if name == "":
+            return
+        return self.enum_class(name)
 
 
 class Beneficiary(db.Model):  # type: ignore
@@ -46,7 +71,7 @@ class Beneficiary(db.Model):  # type: ignore
     )
     family_id = IntegerField()
     first_name = CharField(column_name="firstname", constraints=[SQL("DEFAULT ''")])
-    gender = CharField(constraints=[SQL("DEFAULT ''")])
+    gender = HumanGenderField(constraints=[SQL("DEFAULT ''")])
     language = IntegerField(constraints=[SQL("DEFAULT 5")])
     last_name = CharField(column_name="lastname", constraints=[SQL("DEFAULT ''")])
     laundry_block = IntegerField(
