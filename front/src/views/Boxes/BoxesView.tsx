@@ -16,7 +16,7 @@ import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fra
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
 import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
-import { DaysCell, ShipmentCell, StateCell, TagsCell, ProductCell } from "./components/TableCells";
+import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
@@ -34,7 +34,7 @@ import {
 import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { DateCell } from "components/Table/Cells";
+import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -171,7 +171,12 @@ function Boxes() {
         Header: "Product",
         accessor: "product",
         id: "product",
-        Cell: ProductCell,
+        Cell: ProductWithSPCheckmarkCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.product?.toLowerCase() ?? "";
+          const b = rowB.values.product?.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
