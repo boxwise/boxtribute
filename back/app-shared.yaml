@@ -2,6 +2,25 @@ runtime: python312
 service: shared-staging
 entrypoint: gunicorn -b :$PORT boxtribute_server.shared_main:app
 handlers:
-- url: /public
-  script: auto
-  secure: always
+  - url: /public
+    script: auto
+    secure: always
+  - url: /statviz
+    secure: always
+    static_files: statviz-build/index.html
+    upload: statviz-build/index.html
+  - url: /manifest.json
+    static_files: statviz-build/manifest.json
+    upload: statviz-build/manifest.json
+  - url: /heapanalytics.js
+    static_files: statviz-build/heapanalytics.js
+    upload: statviz-build/heapanalytics.js
+  # TODO: Configure this once this is setup on the project/monorepo level.
+  # - url: /assets/(.*)
+  #   secure: always
+  #   static_files: statviz-build/assets/\1
+  #   upload: statviz-build/assets/(.*)
+  # - url: /(.*\.(ico|png|svg|woff2))$
+  #   secure: always
+  #   static_files: statviz-build/\1
+  #   upload: statviz-build/(.*\.(ico|png|svg|woff2))$

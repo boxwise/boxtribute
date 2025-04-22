@@ -21,9 +21,6 @@ handlers:
   - url: /heapanalytics.js
     static_files: front-build/heapanalytics.js
     upload: front-build/heapanalytics.js
-  - url: /heapanalytics.js
-    static_files: statviz-build/heapanalytics.js
-    upload: statviz-build/heapanalytics.js
   - url: /assets/(.*)
     secure: always
     static_files: front-build/assets/\1
