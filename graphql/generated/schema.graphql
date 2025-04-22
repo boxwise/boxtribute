@@ -108,6 +108,7 @@ enum TargetType {
 
 enum ShareableView {
   StatvizDashboard
+  StockOverview
 }
 
 """
@@ -257,6 +258,25 @@ input BeneficiaryUpdateInput {
   dateOfSignature: Date
 }
 
+input BeneficiariesCreationInput {
+  baseId: Int!
+  beneficiaryData: [BeneficiaryBulkCreationInput!]!
+}
+
+input BeneficiaryBulkCreationInput {
+  firstName: String!
+  lastName: String
+  groupIdentifier: String!
+  dateOfBirth: Date
+  comment: String
+  gender: HumanGender
+  languages: [Language!]
+  familyHeadId: Int
+  isVolunteer: Boolean
+  registered: Boolean
+  tagIds: [Int!]
+}
+
 input TransferAgreementCreationInput {
   initiatingOrganisationId: Int!
   partnerOrganisationId: Int!
@@ -376,6 +396,8 @@ type Mutation {
   updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
   " Deactivate beneficiary with specified ID. "
   deactivateBeneficiary(id: ID!): Beneficiary
+  " Create multiple beneficiaries at once in one base. "
+  createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): Tag
@@ -517,8 +539,8 @@ type Query {
   locations: [ClassicLocation!]!
   " Return [`Product`]({{Types.Product}}) with specified ID. Accessible for clients who are members of the product's base "
   product(id: ID!): Product
-  " Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view. "
-  products(paginationInput: PaginationInput): ProductPage!
+  " Return all [`Products`]({{Types.Product}}) (incl. deleted) that the client is authorized to view. If `baseId` specified, return only the products registered in the requested base "
+  products(baseId: ID, paginationInput: PaginationInput): ProductPage!
   " Return [`StandardProduct`]({{Types.StandardProduct}}) with specified ID, or an error in case of insufficient permission or missing resource. "
   standardProduct(id: ID!): StandardProductResult
   " Return standard products of latest version. Optionally include all standard products enabled for specified base. "
@@ -822,6 +844,12 @@ type BoxesResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
 }
+
+type BeneficiariesResult {
+  results: [CreateBeneficiaryResult!]!
+}
+
+union CreateBeneficiaryResult = Beneficiary | ResourceDoesNotExistError #FamilyHeadDoesNotExist
 
 """
 Representation of a base.
@@ -1181,7 +1209,7 @@ type ShareableLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  base: Base!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime
@@ -1254,6 +1282,9 @@ type DeletedLocationError {
 type DeletedTagError {
   name: String!
 }
+type DeletedBaseError {
+  name: String!
+}
 type InvalidDateError {
   date: Datetime!
 }
@@ -1267,6 +1298,7 @@ union EnableStandardProductResult = Product | InsufficientPermissionError | Reso
 union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError
 
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
@@ -1487,7 +1519,8 @@ type ResolvedLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  baseName: String!
+  organisationName: String!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime

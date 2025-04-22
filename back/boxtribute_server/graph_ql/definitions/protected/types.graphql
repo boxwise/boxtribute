@@ -255,6 +255,12 @@ type BoxesResult {
   invalidBoxLabelIdentifiers: [String!]!
 }
 
+type BeneficiariesResult {
+  results: [CreateBeneficiaryResult!]!
+}
+
+union CreateBeneficiaryResult = Beneficiary | ResourceDoesNotExistError #FamilyHeadDoesNotExist
+
 """
 Representation of a base.
 The base is managed by a specific [`Organisation`]({{Types.Organisation}}).
@@ -613,7 +619,7 @@ type ShareableLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
   code: String!
-  baseId: Int!
+  base: Base!
   urlParameters: String
   view: ShareableView!
   validUntil: Datetime
@@ -686,6 +692,9 @@ type DeletedLocationError {
 type DeletedTagError {
   name: String!
 }
+type DeletedBaseError {
+  name: String!
+}
 type InvalidDateError {
   date: Datetime!
 }
@@ -699,6 +708,7 @@ union EnableStandardProductResult = Product | InsufficientPermissionError | Reso
 union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
+union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError
 
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError

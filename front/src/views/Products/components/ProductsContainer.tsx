@@ -12,14 +12,13 @@ import { graphql } from "../../../../../graphql/graphql";
 import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { DateCell } from "components/Table/Cells";
+import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
-import { AllProductsCell } from "./TableCells";
 
 export const PRODUCTS_QUERY = graphql(
   `
-    query ProductsForProductsView {
-      products(paginationInput: { first: 10000 }) {
+    query ProductsForProductsView($baseId: ID!) {
+      products(baseId: $baseId, paginationInput: { first: 10000 }) {
         totalCount
         elements {
           ...ProductBasicFields
@@ -64,7 +63,11 @@ function ProductsContainer() {
   });
 
   // fetch Products data
-  const { data: productsRawData, error } = useSuspenseQuery(PRODUCTS_QUERY);
+  const { data: productsRawData, error } = useSuspenseQuery(PRODUCTS_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
 
   const availableColumns: Column<ProductRow>[] = useMemo(
     () => [
@@ -74,7 +77,12 @@ function ProductsContainer() {
         id: "name",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
-        Cell: AllProductsCell,
+        Cell: ProductWithSPCheckmarkCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.name.toLowerCase();
+          const b = rowB.values.name.toLowerCase();
+          return a.localeCompare(b);
+        },
       },
       {
         Header: "Category",
@@ -175,7 +183,7 @@ function ProductsContainer() {
   return (
     <ProductsTable
       tableConfig={tableConfig}
-      tableData={productsRawToTableDataTransformer(productsRawData, baseId)}
+      tableData={productsRawToTableDataTransformer(productsRawData)}
       columns={availableColumns}
     />
   );

@@ -59,6 +59,7 @@ from .product import (
     another_product,
     base1_products,
     base1_undeleted_products,
+    base3_products,
     default_product,
     disabled_standard_product,
     products,
@@ -72,7 +73,7 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
-from .shareable_link import expired_link, shareable_link
+from .shareable_link import expired_link, shareable_link, stock_overview_link
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -136,6 +137,7 @@ __all__ = [
     "base1_products",
     "base1_undeleted_classic_locations",
     "base1_undeleted_products",
+    "base3_products",
     "box_without_qr_code",
     "canceled_shipment",
     "completed_shipment",
@@ -210,6 +212,7 @@ __all__ = [
     "shipments",
     "size_ranges",
     "standard_products",
+    "stock_overview_link",
     "superceding_measure_standard_product",
     "tags",
     "transfer_agreements",

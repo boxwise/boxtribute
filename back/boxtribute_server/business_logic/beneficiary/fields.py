@@ -2,7 +2,7 @@ from ariadne import ObjectType
 from peewee import fn
 
 from ...authz import authorize
-from ...enums import HumanGender, TaggableObjectType
+from ...enums import TaggableObjectType
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
@@ -57,13 +57,6 @@ def resolve_beneficiary_languages(beneficiary_obj, _):
             XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
         )
     ]
-
-
-@beneficiary.field("gender")
-def resolve_beneficiary_gender(beneficiary_obj, _):
-    if beneficiary_obj.gender == "":
-        return
-    return HumanGender(beneficiary_obj.gender)
 
 
 @beneficiary.field("age")

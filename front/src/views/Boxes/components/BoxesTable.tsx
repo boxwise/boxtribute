@@ -53,6 +53,7 @@ interface IBoxesTableProps {
   onBoxRowClick: (labelIdentified: string) => void;
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
   selectedRowsArePending: boolean;
+  autoResetSelectedRows: boolean;
 }
 
 function BoxesTable({
@@ -64,6 +65,7 @@ function BoxesTable({
   onBoxRowClick,
   setSelectedBoxes,
   selectedRowsArePending,
+  autoResetSelectedRows = true,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -109,6 +111,7 @@ function BoxesTable({
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
+      autoResetSelectedRows: autoResetSelectedRows,
     },
     useFilters,
     useGlobalFilter,

@@ -9,7 +9,7 @@ from typing import Any
 from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import BoxState, HumanGender, TaggableObjectType, TargetType
+from ...enums import BoxState, TaggableObjectType, TargetType
 from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -126,7 +126,7 @@ def compute_beneficiary_demographics(base_id):
     results as list.
     """
     _validate_existing_base(base_id)
-    gender = fn.IF(Beneficiary.gender == "", "D", Beneficiary.gender)
+    gender = SQL("IF(gender = '', 'D', gender)")
     created_on = Beneficiary.created_on.truncate("day")
     deleted_on = fn.IF(
         Beneficiary.deleted_on > 0, Beneficiary.deleted_on.truncate("day"), None
@@ -138,7 +138,7 @@ def compute_beneficiary_demographics(base_id):
 
     demographics = (
         Beneficiary.select(
-            gender.python_value(HumanGender).alias("gender"),
+            gender.alias("gender"),
             fn.DATE(created_on).alias("created_on"),
             fn.DATE(deleted_on).alias("deleted_on"),
             age.alias("age"),
@@ -164,6 +164,7 @@ def compute_beneficiary_demographics(base_id):
             deleted_on,
         )
         .dicts()
+        .execute()
     )
 
     dimensions = _generate_dimensions("tag", facts=demographics)
