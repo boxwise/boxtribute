@@ -32,6 +32,7 @@ import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";
 import { date2String } from "../utils/chart";
 import { trackDownloadByGraph } from "../utils/analytics/heap";
+import LinkSharingSection from "./LinkSharingSection";
 
 const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
@@ -237,6 +238,7 @@ export default function VisHeader({
           </AccordionItem>
         )}
       </Accordion>
+      <LinkSharingSection view="StockOverview" />
     </CardHeader>
   );
 }
