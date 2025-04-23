@@ -26,9 +26,11 @@ export const useLoadAndSetGlobalPreferences = () => {
   // Boxtribute God user
   const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
 
-  // Can Share Public Dashboard Views;
-  if (authorize({ requiredAbps: ["create_shareable_link"] }))
-    localStorage.setItem("canShareLink", "true");
+  // Set in localStore if current user can Share Public Dashboard Views
+  localStorage.setItem(
+    "canShareLink",
+    authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
+  );
 
   // validate if base Ids are set in auth0 id token
   if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length))
