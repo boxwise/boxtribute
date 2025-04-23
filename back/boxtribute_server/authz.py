@@ -307,7 +307,7 @@ def authorize_cross_organisation_access(
 # functionality, while each of the larger levels additively builds up on the previous
 # one. The user's maximum beta-level defines the functionality range that the user can
 # access.
-DEFAULT_MAX_BETA_LEVEL = 5
+DEFAULT_MAX_BETA_LEVEL = 3
 MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
@@ -338,6 +338,7 @@ MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + (
     "moveBoxesToLocation",
     "assignTagsToBoxes",
     "unassignTagsFromBoxes",
+    "createShareableLink",
 )
 # Beta-level 4 also exists for FE display of ManageProducts
 MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
@@ -348,18 +349,17 @@ MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
-MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + ("createShareableLink",)
-MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
+MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     # + mutations needed for bulk box creation
     "createTag",
     "updateTag",
     "deleteTag",
 )
-MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[5] + (
-    # Level 5 + bulk-beneficiary creation
+MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
+    # Level 4 + bulk-beneficiary creation
     "createBeneficiaries",
 )
-MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[6] + (
+MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     # !!!
     # Any new mutation should be added here
     # !!!
