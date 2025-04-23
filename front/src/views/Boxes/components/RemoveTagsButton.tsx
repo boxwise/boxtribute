@@ -48,7 +48,8 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
   };
 
   const handleConfirmRemoveTags = () => {
-    onRemoveTags(selectedTagOptions.map((tag) => tag.value));
+    const tagsToUnassign = currentTagOptions.filter((tag) => !selectedTagOptions.includes(tag));
+    onRemoveTags(tagsToUnassign.map((tag) => tag.value));
     setIsInputOpen(false);
     setSelectedTagOptions([]);
   };
