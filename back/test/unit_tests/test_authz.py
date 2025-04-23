@@ -340,7 +340,7 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with level 3 can additionally access statviz data,
+    # User with level 3 can additionally access statviz data, create shareable link,
     # and execute Box bulk actions
     current_user._max_beta_level = 3
     for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
@@ -358,7 +358,7 @@ def test_check_beta_feature_access(mocker):
 
     # User with level 4 can additionally access Product pages
     current_user._max_beta_level = 4
-    for mutation in ["createShareableLink", "createTag", "createBeneficiary"]:
+    for mutation in ["createTag", "createBeneficiary", "createBeneficiaries"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
@@ -371,24 +371,9 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with level 5 can additionally access create links
+    # User with level 5 can additionally run tag mutations
     current_user._max_beta_level = 5
-    for mutation in ["createTag", "createBeneficiary"]:
-        payload = f"mutation {{ {mutation} }}"
-        assert not check_user_beta_level(payload, current_user=current_user)
-    for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
-        payload = f"mutation {{ {mutation} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
-    assert check_user_beta_level(
-        "query { base(id: 1) { name } }", current_user=current_user
-    )
-
-    # User with level 6 can additionally run tag mutations
-    current_user._max_beta_level = 6
-    for mutation in ["createBeneficiary"]:
+    for mutation in ["createBeneficiary", "createBeneficiaries"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
