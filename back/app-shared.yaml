@@ -5,22 +5,25 @@ handlers:
   - url: /public
     script: auto
     secure: always
-  - url: /statviz
+  - url: /
     secure: always
-    static_files: statviz-build/index.html
-    upload: statviz-build/index.html
+    static_files: shared-build/index.html
+    upload: shared-build/index.html
   - url: /manifest.json
-    static_files: statviz-build/manifest.json
-    upload: statviz-build/manifest.json
+    static_files: shared-build/manifest.json
+    upload: shared-build/manifest.json
   - url: /heapanalytics.js
-    static_files: statviz-build/heapanalytics.js
-    upload: statviz-build/heapanalytics.js
-  # TODO: Configure this once this is setup on the project/monorepo level.
-  # - url: /assets/(.*)
-  #   secure: always
-  #   static_files: statviz-build/assets/\1
-  #   upload: statviz-build/assets/(.*)
-  # - url: /(.*\.(ico|png|svg|woff2))$
-  #   secure: always
-  #   static_files: statviz-build/\1
-  #   upload: statviz-build/(.*\.(ico|png|svg|woff2))$
+    static_files: shared-build/heapanalytics.js
+    upload: shared-build/heapanalytics.js
+  - url: /assets/(.*)
+    secure: always
+    static_files: shared-build/assets/\1
+    upload: shared-build/assets/(.*)
+  - url: /(.*\.(ico|png|svg|woff2))$
+    secure: always
+    static_files: shared-build/\1
+    upload: shared-build/(.*\.(ico|png|svg|woff2))$
+  - url: /(.*)
+    secure: always
+    static_files: shared-build/index.html
+    upload: shared-build/index.html
