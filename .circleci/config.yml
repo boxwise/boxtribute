@@ -138,6 +138,41 @@ jobs:
           paths:
             - front/dist
 
+  build-shared:
+    executor: node-executor
+    working_directory: ~/statviz
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Generate .env File
+          command: |
+            echo "
+              STATVIZ_GRAPHQL_SERVER=${STATVIZ_GRAPHQL_SERVER}
+              STATVIZ_SENTRY_FE_DSN=${STATVIZ_SENTRY_FE_DSN}
+              STATVIZ_SENTRY_ENVIRONMENT=${ENVIRONMENT}
+              STATVIZ_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              STATVIZ_ENVIRONMENT=${ENVIRONMENT}
+            " > .env
+      - run:
+          name: Run style checks
+          command: |
+            pnpm lint:fix:all
+            pnpm format:write:all
+            pnpm -C .. graphql-gen
+      - run:
+          name: Build statviz
+          command: |
+            pnpm build
+      - slack/notify-on-failure:
+          only_for_branches: master,production
+      # Add build to workspace
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - statviz/dist
+
   test-front:
     executor: node-executor
     working_directory: ~/front
@@ -272,12 +307,12 @@ jobs:
       - gcp-cli/install:
           version: "latest"
       - run:
-          name: Inject Heap Analytics Script to index.html
+          name: Inject Heap Analytics Script to index.html in /front
           command: |
             sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../front/dist/heapanalytics.js
             sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../front/dist/index.html
       - run:
-          name: Copy react build into flask app for deployment
+          name: Copy /front react build into flask app for deployment
           command: mv ../front/dist front-build
       - run:
           name: Create version.txt
@@ -443,6 +478,14 @@ jobs:
       # install gcloud orb
       - gcp-cli/install
       - run:
+          name: Inject Heap Analytics Script to index.html in /statviz
+          command: |
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../statviz/dist/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../statviz/dist/index.html
+      - run:
+          name: Copy /statviz react build into flask app for deployment
+          command: mv ../statviz/dist shared-build
+      - run:
           name: Create version.txt
           command: |
             echo "CircleCI build number:${CIRCLE_BUILD_NUM}
@@ -509,6 +552,10 @@ workflows:
           context: STAGING
           requires:
             - install-node-packages
+      - build-shared:
+          context: STAGING
+          requires:
+            - install-node-packages
       - test-front:
           context: STAGING
           requires:
@@ -542,6 +589,15 @@ workflows:
             branches:
               only:
                 - master
+      - build-shared:
+          name: build-shared-staging
+          context: STAGING
+          requires:
+            - install-node-packages
+          filters:
+            branches:
+              only:
+                - master
       - deploy:
           name: deploy-staging
           context: STAGING
@@ -567,7 +623,7 @@ workflows:
           context: STAGING
           serviceName: shared-staging
           requires:
-            - checkout-to-workspace
+            - build-shared-staging
           filters:
             branches:
               only:
@@ -576,6 +632,17 @@ workflows:
       # demo - runs on any commit to the production branch
       - build-front:
           name: build-front-demo
+          context: DEMO
+          requires:
+            - install-node-packages
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only:
+                - production
+      - build-shared:
+          name: build-shared-demo
           context: DEMO
           requires:
             - install-node-packages
@@ -603,6 +670,18 @@ workflows:
           serviceName: api-demo
           requires:
             - checkout-to-workspace
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only:
+                - production
+      - deploy-shared:
+          name: deploy-shared-demo
+          context: DEMO
+          serviceName: shared-demo
+          requires:
+            - build-shared-demo
           filters:
             tags:
               ignore: /.*/
@@ -637,6 +716,16 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - build-shared:
+          name: build-shared-production
+          context: PRODUCTION
+          requires:
+            - install-node-packages-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - deploy:
           name: deploy-production
           context: PRODUCTION
@@ -654,6 +743,17 @@ workflows:
           serviceName: api-production
           requires:
             - checkout-to-workspace-production
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - deploy-shared:
+          name: deploy-shared-production
+          context: PRODUCTION
+          serviceName: shared-production
+          requires:
+            - build-shared-production
           filters:
             tags:
               only: /^v.*/

@@ -2,6 +2,28 @@ runtime: python312
 service: shared-staging
 entrypoint: gunicorn -b :$PORT boxtribute_server.shared_main:app
 handlers:
-- url: /public
-  script: auto
-  secure: always
+  - url: /public
+    script: auto
+    secure: always
+  - url: /
+    secure: always
+    static_files: shared-build/index.html
+    upload: shared-build/index.html
+  - url: /manifest.json
+    static_files: shared-build/manifest.json
+    upload: shared-build/manifest.json
+  - url: /heapanalytics.js
+    static_files: shared-build/heapanalytics.js
+    upload: shared-build/heapanalytics.js
+  - url: /assets/(.*)
+    secure: always
+    static_files: shared-build/assets/\1
+    upload: shared-build/assets/(.*)
+  - url: /(.*\.(ico|png|svg|woff2))$
+    secure: always
+    static_files: shared-build/\1
+    upload: shared-build/(.*\.(ico|png|svg|woff2))$
+  - url: /(.*)
+    secure: always
+    static_files: shared-build/index.html
+    upload: shared-build/index.html
