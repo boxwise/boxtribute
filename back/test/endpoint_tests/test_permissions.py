@@ -607,6 +607,12 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "shareable_link:create"},
         ],
+        [
+            "createBeneficiaries",
+            "creationInput: { baseId: 1, beneficiaryData: []}",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:create"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -695,6 +701,12 @@ def test_mutate_insufficient_permission(
         [
             "createShareableLink",
             'creationInput: { baseId: 3, view: StatvizDashboard, validUntil: "2100-01-01"}',  # noqa
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+        [
+            "createBeneficiaries",
+            "creationInput: { baseId: 3, beneficiaryData: []}",
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],
