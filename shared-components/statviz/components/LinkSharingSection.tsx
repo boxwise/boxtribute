@@ -7,13 +7,11 @@ import {
   Box,
   AccordionIcon,
   AccordionPanel,
-  Alert,
-  AlertIcon,
   Button,
 } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
-
 import useShareableLink from "../hooks/useShareableLink";
+import { ShareableLinkAlert } from "./ShareableLinkAlert";
 
 // TODO: Add other views to type once they are implemented.
 export default function LinkSharingSection({ view }: { view: "StockOverview" }) {
@@ -21,10 +19,12 @@ export default function LinkSharingSection({ view }: { view: "StockOverview" }) 
     shareableLink,
     shareableLinkURL,
     alertType,
-    warningMsg,
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
+    filteredTags,
+    boi,
+    expirationDate,
   } = useShareableLink({ view });
 
   return (
@@ -43,11 +43,13 @@ export default function LinkSharingSection({ view }: { view: "StockOverview" }) 
             </Flex>
             {/* TODO: Improve responsiveness for the info box and shareable link button. */}
             <AccordionPanel display="flex" flexDirection="column" gap={8}>
-              <Flex justifyContent="space-between">
-                <Alert status={alertType} maxWidth={["300px", "500px", "max-content"]}>
-                  <AlertIcon />
-                  {warningMsg}
-                </Alert>
+              <Flex justifyContent="space-between" gap={2}>
+                <ShareableLinkAlert
+                  alertType={alertType}
+                  boi={boi}
+                  filteredTags={filteredTags}
+                  expirationDate={expirationDate}
+                />
                 <Button onClick={handleShareLinkClick}>Create Link</Button>
               </Flex>
               {shareableLink && (

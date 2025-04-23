@@ -5,7 +5,17 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { graphql } from "../../../graphql/graphql";
 import { useAuthorization } from "../../../front/src/hooks/useAuthorization";
 import { useNotification } from "../../../front/src/hooks/useNotification";
-import { useMutation } from "@apollo/client";
+import { useMutation, useReactiveVar } from "@apollo/client";
+import useValueFilter from "./useValueFilter";
+import {
+  boxesOrItemsFilterValues,
+  boxesOrItemsUrlId,
+  defaultBoxesOrItems,
+  IBoxesOrItemsFilter,
+} from "../components/filter/BoxesOrItemsSelect";
+import { tagFilterId } from "../components/filter/TagFilter";
+import { tagFilterValuesVar } from "../state/filter";
+import useMultiSelectFilter from "./useMultiSelectFilter";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
 
@@ -40,10 +50,18 @@ export default function useShareableLink({
   const { createToast } = useNotification();
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
-  const [alertType, setAlertType] = useState<"info" | "warning">("info");
-  const [warningMsg, setWarningMsg] = useState("Warning: current filters are applied.");
+  const [alertType, setAlertType] = useState<"info" | "warning" | undefined>();
   const [globalParams, setGlobalParams] = useState(useSearchParams()[0].toString());
+  const { filterValue: boi } = useValueFilter<IBoxesOrItemsFilter>(
+    boxesOrItemsFilterValues,
+    defaultBoxesOrItems,
+    boxesOrItemsUrlId,
+  );
+  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
+  const [expirationDate, setExpirationDate] = useState<string | undefined>();
 
+  // Remove the JSX from the hook
   const shareableLinkURL = `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${shareableLink}`;
   // TODO: Only check for ABP once link sharing is implemented for all views.
   const isLinkSharingEnabled =
@@ -55,9 +73,6 @@ export default function useShareableLink({
     if (searchParams.toString() !== globalParams) {
       setGlobalParams(searchParams.toString());
       setAlertType("warning");
-      setWarningMsg(
-        "Warning: filters were changed, click Create Link to generate a link with the new changes.",
-      );
     }
   }, [searchParams, globalParams]);
 
@@ -96,9 +111,7 @@ export default function useShareableLink({
         if (data?.createShareableLink?.__typename === "ShareableLink") {
           setShareableLink(data.createShareableLink.code);
           setAlertType("info");
-          setWarningMsg(
-            `Message: link expires on ${new Date(data.createShareableLink.validUntil || "").toUTCString()}`,
-          );
+          setExpirationDate(new Date(data.createShareableLink.validUntil || "").toUTCString());
           copyLinkToClipboard(data.createShareableLink.code);
         } else {
           // TODO: Use triggerError and move it to shared-components?
@@ -115,9 +128,11 @@ export default function useShareableLink({
     shareableLink,
     shareableLinkURL,
     alertType,
-    warningMsg,
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
+    filteredTags,
+    boi,
+    expirationDate,
   };
 }
