@@ -7,7 +7,6 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
     "@boxtribute/shared-components": "workspace:*",
-    "@sentry/react": "^9.13.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "jotai": "^2.12.3",
@@ -20,7 +19,6 @@
   },
   "devDependencies": {
     "@chakra-ui/storybook-addon": "^5.2.5",
-    "@sentry/types": "^9.12.0",
     "@storybook/addon-actions": "^8.6.12",
     "@storybook/addon-essentials": "^8.6.12",
     "@storybook/addon-interactions": "^8.6.12",
