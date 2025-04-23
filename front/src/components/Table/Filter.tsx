@@ -57,6 +57,9 @@ export function SelectColumnFilterUI({
             value={
               filterValue &&
               filterValue.map((value) => {
+                if (value.__typename === "Tag" && typeof value === "object" && value !== null) {
+                  return { value, label: value.name };
+                }
                 if (typeof value === "object" && value !== null) {
                   return { value, label: ObjectToString(value) };
                 }
@@ -97,16 +100,25 @@ export function SelectColumnFilter({
     const optionValues = {};
     preFilteredRows.forEach((row) => {
       const value = row.values[id];
-      // if the data passed to the table is more complex than a string we need to pass the data as value
-      if (typeof value === "object" && value !== null) {
+      // if the data passed to the table is more complex than a string we need to pass the data as value.
+      // This excludes the case for tags filtering where we introduce a second condition in the second if hook.
+      if (typeof value === "object" && value !== null && id.toLowerCase() !== "tags") {
         const objectToString = ObjectToString(value);
         groupedOptionLabels.add(objectToString);
         optionValues[objectToString] = value;
+      } else if (typeof value === "object" && value !== null && id.toLowerCase() === "tags") {
+        value.forEach((tag: { name: string }) => {
+          if (tag?.name) {
+            groupedOptionLabels.add(tag.name);
+            optionValues[tag.name] = tag;
+          }
+        });
       } else if (value !== undefined) {
         groupedOptionLabels.add(value);
         optionValues[value] = value;
       }
     });
+
     return Array.from(groupedOptionLabels.values())
       .map(
         (label) =>
@@ -158,3 +170,18 @@ export const includesOneOfMultipleStringsFilterFn = (rows, ids, filterValue) =>
     }),
   );
 includesOneOfMultipleStringsFilterFn.autoRemove = (val) => !val || !val.length;
+
+// This is a custom filter function for tags only.
+export const includesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
+  rows.filter((row) =>
+    ids.some((id) => {
+      const rowTags = row.values[id];
+
+      if (filterValue.every((tagFilter) => tagFilter.name)) {
+        return filterValue.some((tagFilter) => rowTags.some((tag) => tag.name === tagFilter.name));
+      }
+      return filterValue.some((tagName) => rowTags.some((tag) => tag.name === tagName));
+    }),
+  );
+
+includesSomeTagObjectFilterFn.autoRemove = (val) => !val || !val.length;

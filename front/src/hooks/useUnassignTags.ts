@@ -28,7 +28,6 @@ export const useUnassignTags = () => {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [unassignTagsMutation] = useMutation(UNASSIGN_TAGS_FROM_BOXES);
 
   const unassignTags = useCallback(
@@ -42,36 +41,31 @@ export const useUnassignTags = () => {
         },
       })
         .then(({ data, errors }) => {
+          const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
+          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
+
           setIsLoading(false);
 
-          if (errors?.length) {
-            if (showToasts) {
-              triggerError({
-                message: "Could not unassign boxes. Try again?",
-              });
-            }
+          // unassign fails since one ore more tags causes an error
+          if (tagErrorInfoArray && tagErrorInfoArray.length > 0 && showToasts) {
+            triggerError({
+              message: `Could not unassign ${tagErrorInfoArray.length === 1 ? "one tag" : "multiple tags"} from boxes. Try again?`,
+            });
           }
 
-          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
-          const invalidBoxLabelIdentifiers =
-            data?.unassignTagsFromBoxes?.invalidBoxLabelIdentifiers;
-
-          if (invalidBoxLabelIdentifiers && invalidBoxLabelIdentifiers.length > 0) {
-            if (showToasts) {
-              createToast({
-                type: "warning",
-                message: `Box(s) ${invalidBoxLabelIdentifiers} not affected because it/they don't have the requested tag(s) assigned.`,
-              });
-            }
+          // unexpected graphQL error
+          if (errors?.length && showToasts) {
+            triggerError({
+              message: "Could not unassign tags from boxes. Try again?",
+            });
           }
 
-          if (tagErrorInfoArray && tagErrorInfoArray.length > 0) {
-            if (showToasts) {
-              triggerError({
-                message:
-                  "Error: Tag(s) can't be removed because they are either deleted, a wrong type, or in a different base",
-              });
-            }
+          if (showToasts && successfulBoxes && successfulBoxes.length > 0) {
+            createToast({
+              message: `${
+                successfulBoxes.length === 1 ? "A Box was" : `${successfulBoxes.length} Boxes were`
+              } successfully unassigned tags.`,
+            });
           }
         })
         .catch((err) => {
