@@ -307,7 +307,7 @@ def authorize_cross_organisation_access(
 # functionality, while each of the larger levels additively builds up on the previous
 # one. The user's maximum beta-level defines the functionality range that the user can
 # access.
-DEFAULT_MAX_BETA_LEVEL = 3
+DEFAULT_MAX_BETA_LEVEL = 5
 MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
     # Mutations for BoxView/BoxEdit pages
     0: ("updateBox",),
