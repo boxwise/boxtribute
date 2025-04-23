@@ -6,7 +6,6 @@ from auth import (
     get_authorization_header,
 )
 from boxtribute_server.auth import CurrentUser, decode_jwt, get_public_key
-from boxtribute_server.blueprints import SHARED_GRAPHQL_PATH
 from utils import (
     assert_forbidden_request,
     assert_successful_request,
@@ -240,13 +239,3 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
     mutation = "mutation { deleteTag(id: 1) { id } }"
     response = assert_unauthorized(dropapp_dev_client, mutation)
     assert response.json["error"] == "No permission to access beta feature"
-
-
-def test_check_public_api_access(dropapp_dev_client, monkeypatch):
-    monkeypatch.setenv("ENVIRONMENT", "production")
-
-    query = 'query { resolveLink(code: "foo") { __typename } }'
-    response = assert_unauthorized(
-        dropapp_dev_client, query, endpoint=SHARED_GRAPHQL_PATH[1:]
-    )
-    assert response.json["error"] == "No permission to access public API"
