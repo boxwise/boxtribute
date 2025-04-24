@@ -3,7 +3,6 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 // TODO: Move common utils to shared-components, use alias for imports.
 import { graphql } from "../../../graphql/graphql";
-import { useAuthorization } from "../../../front/src/hooks/useAuthorization";
 import { useNotification } from "../../../front/src/hooks/useNotification";
 import { useMutation, useReactiveVar } from "@apollo/client";
 import useValueFilter from "./useValueFilter";
@@ -43,9 +42,8 @@ export default function useShareableLink({
    * View to share public through the generated link.
    * @todo Add other views once they are elegible for link sharing.
    * */
-  view: "StockOverview";
+  view?: "StockOverview";
 }) {
-  const authorize = useAuthorization();
   const { baseId } = useParams();
   const { createToast } = useNotification();
   const [searchParams] = useSearchParams();
@@ -65,7 +63,7 @@ export default function useShareableLink({
   const shareableLinkURL = `${BASE_PUBLIC_LINK_SHARING_URL}/?code=${shareableLink}`;
   // TODO: Only check for ABP once link sharing is implemented for all views.
   const isLinkSharingEnabled =
-    authorize({ requiredAbps: ["create_shareable_link"] }) && view === "StockOverview";
+    JSON.parse(localStorage.getItem("canShareLink") || "false") && view === "StockOverview";
 
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
@@ -104,7 +102,7 @@ export default function useShareableLink({
       createShareableLinkMutation({
         variables: {
           baseId: parseInt(baseId || "0"),
-          view,
+          view: view ?? "StockOverview",
           urlParameters: document.location.search.slice(1),
         },
       }).then(({ data }) => {

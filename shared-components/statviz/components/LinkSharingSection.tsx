@@ -14,7 +14,7 @@ import useShareableLink from "../hooks/useShareableLink";
 import { ShareableLinkAlert } from "./ShareableLinkAlert";
 
 // TODO: Add other views to type once they are implemented.
-export default function LinkSharingSection({ view }: { view: "StockOverview" }) {
+export default function LinkSharingSection({ view }: { view?: "StockOverview" }) {
   const {
     shareableLink,
     shareableLinkURL,
