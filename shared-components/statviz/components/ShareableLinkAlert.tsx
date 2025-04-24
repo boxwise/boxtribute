@@ -1,11 +1,11 @@
 import React from "react";
-import { Alert, AlertIcon, Box } from "@chakra-ui/react";
+import { Alert, AlertIcon } from "@chakra-ui/react";
 import { IBoxesOrItemsFilter } from "./filter/BoxesOrItemsSelect";
 import { ITagFilterValue } from "../state/filter";
 import { IFilterValue } from "./filter/ValueFilter";
 
 interface ShareableLinkAlertProps {
-  alertType: "info" | "warning" | undefined;
+  alertType?: "info" | "warning";
   boi?: IFilterValue & IBoxesOrItemsFilter;
   filteredTags?: (IFilterValue & ITagFilterValue)[];
   expirationDate?: string;
@@ -17,13 +17,13 @@ export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
   filteredTags = [],
   expirationDate,
 }) => {
-  if (!alertType) return <Box></Box>;
+  if (!alertType) return <></>;
 
   const boiText = boi?.label;
 
   const tagText =
     filteredTags.length > 0
-      ? `{filtered by tags: ${filteredTags.map(({ label }) => label).join(", ")}}`
+      ? `, filtered by tags: ${filteredTags.map(({ label }) => label).join(", ")}`
       : "";
 
   const expirationText = expirationDate ? `Link will expire on ${expirationDate}.` : "";
@@ -35,7 +35,8 @@ export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
         <p>
           <strong>Shareable Link Created</strong>
           <br />
-          This link will show your inventory in {boiText} {tagText}.
+          This link will show your inventory in {boiText}
+          {tagText}.
           <br />
           {expirationText}
         </p>
