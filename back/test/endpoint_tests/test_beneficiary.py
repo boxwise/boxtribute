@@ -338,6 +338,15 @@ def test_beneficiary_mutations(
         ]
     }
 
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: {base_id}
+                    beneficiaryData: []
+                }}) {{
+                    ...on BeneficiariesResult {{ results {{ __typename }} }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"results": []}
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,

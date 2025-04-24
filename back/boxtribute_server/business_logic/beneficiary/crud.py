@@ -212,6 +212,9 @@ def create_beneficiaries(
     beneficiary_data,
 ):
     """Insert multiple beneficiaries and their tags into the database."""
+    if len(beneficiary_data) == 0:
+        return BeneficiariesResult({"results": []})
+
     sanitized_data, all_tag_ids = sanitize_input(beneficiary_data)
     now = utcnow()
     default_and_common_elements = {
