@@ -55,6 +55,7 @@ interface IVisHeaderProps {
     prop: object;
     value: string;
   }[];
+  view?: "StockOverview";
 }
 
 export default function VisHeader({
@@ -65,6 +66,7 @@ export default function VisHeader({
   defaultHeight,
   chartProps,
   customIncludes = [],
+  view,
 }: IVisHeaderProps) {
   const [inputWidth, setInputWidth] = useState(defaultWidth);
   const [inputHeight, setInputHeight] = useState(defaultHeight);
@@ -238,7 +240,7 @@ export default function VisHeader({
           </AccordionItem>
         )}
       </Accordion>
-      <LinkSharingSection view="StockOverview" />
+      <LinkSharingSection view={view} />
     </CardHeader>
   );
 }

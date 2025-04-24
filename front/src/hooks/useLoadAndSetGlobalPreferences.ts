@@ -11,9 +11,11 @@ import {
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
 import { JWT_AVAILABLE_BASES, JWT_ROLE } from "utils/constants";
+import { useAuthorization } from "./useAuthorization";
 
 export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
+  const authorize = useAuthorization();
   const location = useLocation();
   const [error, setError] = useState<string>();
   const setOrganisation = useSetAtom(organisationAtom);
@@ -24,8 +26,15 @@ export const useLoadAndSetGlobalPreferences = () => {
   // Boxtribute God user
   const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
 
+  // Set in localStore if current user can Share Public Dashboard Views
+  localStorage.setItem(
+    "canShareLink",
+    authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
+  );
+
   // validate if base Ids are set in auth0 id token
-  if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length)) setError("You do not have access to any bases.");
+  if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length))
+    setError("You do not have access to any bases.");
 
   const [
     runOrganisationAndBasesQuery,
@@ -60,8 +69,7 @@ export const useLoadAndSetGlobalPreferences = () => {
       if (urlBaseId) {
         if (isGod) {
           setSelectedBase({ id: urlBaseId });
-        }
-        else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+        } else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
           if (selectedBaseId !== urlBaseId) {
             // only overwrite the selected base ID if the id is different from the existing one.
             setSelectedBase({ id: urlBaseId });
