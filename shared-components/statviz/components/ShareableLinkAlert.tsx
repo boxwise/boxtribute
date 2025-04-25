@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, AlertIcon } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box } from "@chakra-ui/react";
 import { IBoxesOrItemsFilter } from "./filter/BoxesOrItemsSelect";
 import { ITagFilterValue } from "../state/filter";
 import { IFilterValue } from "./filter/ValueFilter";
@@ -17,7 +17,7 @@ export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
   filteredTags = [],
   expirationDate,
 }) => {
-  if (!alertType) return <></>;
+  if (!alertType) return <Box></Box>;
 
   const boiText = boi?.label;
 
