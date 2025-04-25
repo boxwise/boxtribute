@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Alert, AlertIcon, Flex, Heading, Skeleton } from "@chakra-ui/react";
 
@@ -7,6 +7,8 @@ import StockDataFilter from "@boxtribute/shared-components/statviz/components/vi
 import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
+import { tagFilterValuesVar } from "@boxtribute/shared-components/statviz/state/filter";
+import { tagToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/TagFilter";
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
@@ -91,6 +93,12 @@ function App() {
   const code = codeParam ?? localStorage.getItem("code");
 
   const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
+
+  // Get tag filters.
+  useEffect(() => {
+    const tags = data?.resolveLink?.data[0].dimensions?.tag?.map((t) => tagToFilterValue(t!));
+    if (tags?.length) tagFilterValuesVar(tags);
+  }, [data?.resolveLink?.data]);
 
   if (error) {
     return <ErrorPage>{matchErrorMessage(error.message)}</ErrorPage>;
