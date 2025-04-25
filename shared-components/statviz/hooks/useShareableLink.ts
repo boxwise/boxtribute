@@ -49,7 +49,7 @@ export default function useShareableLink({
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
   const [alertType, setAlertType] = useState<"info" | "warning" | undefined>();
-  const [globalParams, setGlobalParams] = useState(useSearchParams()[0].toString());
+  const [submittedGlobalParams, setSubmittedGlobalParams] = useState<string | undefined>();
   const { filterValue: boi } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
     defaultBoxesOrItems,
@@ -68,11 +68,14 @@ export default function useShareableLink({
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
   useEffect(() => {
-    if (searchParams.toString() !== globalParams) {
-      setGlobalParams(searchParams.toString());
-      setAlertType("warning");
+    if (submittedGlobalParams) {
+      if (searchParams.toString() !== submittedGlobalParams) {
+        setAlertType("warning");
+      } else {
+        setAlertType("info");
+      }
     }
-  }, [searchParams, globalParams]);
+  }, [searchParams, submittedGlobalParams]);
 
   const copyLinkToClipboard = useCallback(
     async (code?: string) => {
@@ -110,6 +113,7 @@ export default function useShareableLink({
           setShareableLink(data.createShareableLink.code);
           setAlertType("info");
           setExpirationDate(new Date(data.createShareableLink.validUntil || "").toUTCString());
+          setSubmittedGlobalParams(searchParams.toString());
           copyLinkToClipboard(data.createShareableLink.code);
         } else {
           // TODO: Use triggerError and move it to shared-components?
@@ -119,7 +123,7 @@ export default function useShareableLink({
           });
         }
       }),
-    [baseId, copyLinkToClipboard, createShareableLinkMutation, createToast, view],
+    [baseId, copyLinkToClipboard, createShareableLinkMutation, createToast, searchParams, view],
   );
 
   return {
