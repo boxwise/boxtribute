@@ -356,6 +356,7 @@ MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + (
 # ### BETA-LEVEL 4 ###
 # In addition to level 3,
 # - display of and actions in ManageProducts
+# - dropapp: display of ManageBaseSettings, enable service usage prototype
 MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "createCustomProduct",
     "editCustomProduct",
