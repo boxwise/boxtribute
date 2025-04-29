@@ -86,11 +86,8 @@ function matchErrorMessage(errorMsg: string) {
 
 function App() {
   const searchParams = new URLSearchParams(window.location.search);
-  const codeParam = searchParams.get("code");
-
-  if (codeParam) localStorage.setItem("code", codeParam);
-
-  const code = codeParam ?? localStorage.getItem("code");
+  const code = searchParams.get("code");
+  const view = searchParams.get("view");
 
   const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
 
@@ -125,9 +122,9 @@ function App() {
     return <ErrorPage>{matchErrorMessage(data.resolveLink.__typename ?? "")}</ErrorPage>;
   }
 
-  // Replace Search Params with fetched link data params and reload the page while displaying a skeleton loader.
-  if (codeParam) {
-    location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${data?.resolveLink?.urlParameters ?? "nofilters=true"}`;
+  // Prepend Search Params with fetched link data params and reload the page while displaying a skeleton loader.
+  if (!view) {
+    location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${data?.resolveLink?.urlParameters ?? "nofilters=true"}&code=${code}`;
 
     return (
       <>
