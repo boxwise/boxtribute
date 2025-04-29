@@ -523,3 +523,7 @@ For using memray,
 We use the [Auth0](https://auth0.com) web service to provide the app client with user authentication and authorization data (for short, auth and authz, resp.).
 
 The user has to authenticate using their password, and is then issued a JSON Web Token (JWT) carrying authz information (e.g. permissions to access certain resources). Every request that the client sends to a private endpoint must hold the JWT as `bearer` in the authorization header. When handling the request, the server decodes the JWT, extracts the authz information, and keeps it available for the duration of the request (the implementation is in `boxtribute_server.auth.require_auth`). Check the relevant sections in the [authorization specification document](../docs/adr/adr_authorization-specification.md#boxtribute-20-back-end) for details.
+
+### Beta-level mechanism
+
+Please read the corresponding [section in the authorization ADR](../docs/adr/adr_authorization-specification.md#beta-level). The code that lists the current beta-levels is referenced there.

@@ -75,8 +75,12 @@ The ground truth for permissions management are the Auth0 Action scripts. Any up
 
 There are two scenarios that require an additional guarding mechanism in boxtribute v2. We introduce a series of levels, each associated with certain available app functionality. The lowest level provides the least functionality, while each of the larger levels additively builds up on the previous one. We can now assign beta-level values to individual users to control their access to certain functionality because a user can only access functionality of a beta-level smaller or equal to the user's beta-level value.
 
-The default beta-level value is 3 (Nov 2024). On the back-end side, this is controlled in the [`authz` module](https://github.com/boxwise/boxtribute/blob/master/back/boxtribute_server/authz.py#L298-L299). On the user-management service side, an Auth0 Action script adds the beta-level value to the user's JWT.
-God users are not affected by beta-level checks. The beta-level mechanism is not used in dropapp.
+**The default beta-level value is 3 (April 2025)**. On the back-end side, this is controlled in the `authz` module:
+- on [staging](https://github.com/boxwise/boxtribute/blob/master/back/boxtribute_server/authz.py#L310)
+- on [production](https://github.com/boxwise/boxtribute/blob/production/back/boxtribute_server/authz.py#L310)
+
+On the user-management service side, an Auth0 Action script adds the beta-level value to the user's JWT.
+God users are not affected by beta-level checks. The beta-level mechanism is also used in dropapp.
 
 Details on the two scenarios:
 1. **Prevent use of functionality not yet accessible via the FE**. During the development cycle for v2, the back-end is usual extended with new functionality (e.g. a new mutation) before the UI implementation follows. This creates a gap during which the new mutation is already present in the GraphQL schema (and technically can be executed by users who pretend to be the front-end). However we don't want the mutation to be used, and hence associate it with a beta-level higher than the default beta-level value. Example: the `createTag` mutation is part of the GraphQL schema, hence any user with `tag:write` RBP (corresponding to `manage_tags` ABP, or at least coordinator role) could execute it. However the mutation is assigned to beta-level 6 which is larger than the default beta-level.

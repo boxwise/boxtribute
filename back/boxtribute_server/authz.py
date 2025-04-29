@@ -309,30 +309,42 @@ def authorize_cross_organisation_access(
 # access.
 DEFAULT_MAX_BETA_LEVEL = 3
 MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
-    # Mutations for BoxView/BoxEdit pages
+    # ### BETA-LEVEL 0 ###
+    # - actions for BoxView/BoxEdit pages
     0: ("updateBox",),
-    # + mutations for BoxCreate/ScanBox pages
-    1: ("updateBox", "createBox", "createQrCode"),
-    # + mutations for box-transfer pages
-    2: (
-        "updateBox",
-        "createBox",
-        "createQrCode",
-        "createTransferAgreement",
-        "acceptTransferAgreement",
-        "rejectTransferAgreement",
-        "cancelTransferAgreement",
-        "createShipment",
-        "updateShipmentWhenPreparing",
-        "updateShipmentWhenReceiving",
-        "cancelShipment",
-        "sendShipment",
-        "startReceivingShipment",
-        "markShipmentAsLost",
-        "moveNotDeliveredBoxesInStock",
-    ),
 }
-# Beta-level 3 also exists for statistics queries (see below)
+
+# ### BETA-LEVEL 1 ###
+# In addition to level 0,
+# - actions for BoxCreate/ScanBox pages
+MUTATIONS_FOR_BETA_LEVEL[1] = MUTATIONS_FOR_BETA_LEVEL[0] + (
+    "createBox",
+    "createQrCode",
+)
+
+# ### BETA-LEVEL 2 ###
+# In addition to level 1,
+# - actions for box-transfer (agreements and shipments) pages
+MUTATIONS_FOR_BETA_LEVEL[2] = MUTATIONS_FOR_BETA_LEVEL[1] + (
+    "createTransferAgreement",
+    "acceptTransferAgreement",
+    "rejectTransferAgreement",
+    "cancelTransferAgreement",
+    "createShipment",
+    "updateShipmentWhenPreparing",
+    "updateShipmentWhenReceiving",
+    "cancelShipment",
+    "sendShipment",
+    "startReceivingShipment",
+    "markShipmentAsLost",
+    "moveNotDeliveredBoxesInStock",
+)
+
+# ### BETA-LEVEL 3 ###
+# In addition to level 2,
+# - bulk-actions in ManageBoxes
+# - statviz dashboard and statistics queries
+# - create shareable link
 MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + (
     "deleteBoxes",
     "moveBoxesToLocation",
@@ -340,7 +352,11 @@ MUTATIONS_FOR_BETA_LEVEL[3] = MUTATIONS_FOR_BETA_LEVEL[2] + (
     "unassignTagsFromBoxes",
     "createShareableLink",
 )
-# Beta-level 4 also exists for FE display of ManageProducts
+
+# ### BETA-LEVEL 4 ###
+# In addition to level 3,
+# - display of and actions in ManageProducts
+# - dropapp: display of ManageBaseSettings, enable service usage prototype
 MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "createCustomProduct",
     "editCustomProduct",
@@ -349,20 +365,28 @@ MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
+
+# ### BETA-LEVEL 5 ###
+# In addition to level 4,
+# - actions for managing tags
 MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
-    # + mutations needed for bulk box creation
     "createTag",
     "updateTag",
     "deleteTag",
 )
-MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
-    # Level 4 + bulk-beneficiary creation
-    "createBeneficiaries",
-)
+
+# ### BETA-LEVEL 6 ###
+# In addition to level 4,
+# - bulk-create beneficiaries (esp. for Google-Sheets add-on)
+MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + ("createBeneficiaries",)
+
+# ### BETA-LEVEL 98 ###
+# In addition to level 5,
+# - actions for managing beneficiaries
+# !!!
+# Any new mutation should be added here
+# !!!
 MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
-    # !!!
-    # Any new mutation should be added here
-    # !!!
     "createBeneficiary",
     "createBeneficiaries",
     "updateBeneficiary",
@@ -370,6 +394,11 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "assignTag",
     "unassignTag",
 )
+
+# ### BETA-LEVEL 99 ###
+# In addition to level 98,
+# - actions for mobile-distribution
+# THIS IS USED FOR THE TEST USER (test/auth.py) AND GOD USERS
 MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
     # + mutations for mobile distribution pages
     "createDistributionSpot",
