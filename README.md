@@ -128,15 +128,15 @@ Box in base 1
 
 Box in base 2
 
-![box in base 2](./docs/qr/code-with-box-base-2-1b46ff4d8399d481c1498b815605d868.png)
+![box in base 2](./docs/qr/code-with-box-base-2-59727c6c6275dad1efdc2288947ee859.png)
 
 Box in base 3
 
-![box in base 3](./docs/qr/code-with-box-base-3-c49d2bc8aa34ef77c20179a6ad001afb.png)
+![box in base 3](./docs/qr/code-with-box-base-3-0139dce214b51c5283fe2463275321ab.png)
 
 Box in base 4
 
-![box in base 4](./docs/qr/code-with-box-base-4-b8d2865e8629f4a07640613c7f7b1d7c.png)
+![box in base 4](./docs/qr/code-with-box-base-4-582705537df045804474a3ba05cc8792.png)
 
 ### QR labels not associated with any boxes
 
@@ -144,7 +144,7 @@ Box in base 4
 
 ![x1](./docs/qr/without-box/02292cfdb2f54e0e496c56b764507fb3.png)
 
-![x2](./docs/qr/without-box/0d1cdc5c1291f08086b434271587d583.png)
+![x2](./docs/qr/without-box/089ce84d7180e68b6153d949af90bfed.png)
 
 More boxes can be found [here](./docs/qr/without-box).
 
