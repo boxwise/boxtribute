@@ -270,6 +270,7 @@ def test_beneficiary_mutations(
     response = assert_successful_request(client, query)
     assert not response["active"]
 
+    phone_number = "+491234567"
     mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
                     baseId: {base_id}
                     beneficiaryData: [
@@ -282,6 +283,7 @@ def test_beneficiary_mutations(
                             isVolunteer: false
                             registered: false
                             tagIds: [1, 3]
+                            phoneNumber: "{phone_number}"
                         }},
                         {{
                             firstName: "{first_name}"
@@ -299,6 +301,7 @@ def test_beneficiary_mutations(
                                     gender
                                     isVolunteer
                                     registered
+                                    phoneNumber
                                     familyHead {{ id }}
                                     base {{ id }}
                                     tags {{ id }}
@@ -321,6 +324,7 @@ def test_beneficiary_mutations(
                 "familyHead": None,
                 "base": {"id": base_id},
                 "tags": [{"id": "1"}, {"id": "3"}],
+                "phoneNumber": phone_number,
             },
             {
                 "id": str(int(beneficiary_id) + 2),
@@ -334,9 +338,19 @@ def test_beneficiary_mutations(
                 "familyHead": None,
                 "base": {"id": base_id},
                 "tags": [],
+                "phoneNumber": None,
             },
         ]
     }
+
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: {base_id}
+                    beneficiaryData: []
+                }}) {{
+                    ...on BeneficiariesResult {{ results {{ __typename }} }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"results": []}
 
     history_entries = list(
         DbChangeHistory.select(

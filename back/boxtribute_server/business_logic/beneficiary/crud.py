@@ -101,7 +101,7 @@ def create_beneficiary(
         Beneficiary.gender,
         Beneficiary.signed,
         Beneficiary.family_head_id,
-        Beneficiary.phone,
+        Beneficiary.phone_number,
     ],
 )
 def update_beneficiary(
@@ -212,6 +212,9 @@ def create_beneficiaries(
     beneficiary_data,
 ):
     """Insert multiple beneficiaries and their tags into the database."""
+    if len(beneficiary_data) == 0:
+        return BeneficiariesResult({"results": []})
+
     sanitized_data, all_tag_ids = sanitize_input(beneficiary_data)
     now = utcnow()
     default_and_common_elements = {
@@ -221,6 +224,7 @@ def create_beneficiaries(
         "gender": None,  # will be converted to '' on DB level
         "is_volunteer": False,
         "not_registered": False,
+        "phone_number": None,
         # common data
         "base": base_id,
         "created_on": now,

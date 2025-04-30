@@ -425,6 +425,7 @@ type Beneficiary {
   isVolunteer: Boolean!
   signed: Boolean!
   registered: Boolean!
+  phoneNumber: String
   signature: String
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "

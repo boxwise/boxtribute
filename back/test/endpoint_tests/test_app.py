@@ -347,6 +347,12 @@ def test_update_non_existent_resource(
             "...on UnauthorizedForBaseError { id name organisationName }",
             {"id": "0", "name": "", "organisationName": ""},
         ],
+        [
+            "createBeneficiaries",
+            "creationInput: { baseId: 0, beneficiaryData: [] }",
+            "...on UnauthorizedForBaseError { id name organisationName }",
+            {"id": "0", "name": "", "organisationName": ""},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(

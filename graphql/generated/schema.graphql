@@ -272,6 +272,7 @@ input BeneficiaryBulkCreationInput {
   gender: HumanGender
   languages: [Language!]
   familyHeadId: Int
+  phoneNumber: String
   isVolunteer: Boolean
   registered: Boolean
   tagIds: [Int!]
@@ -1015,6 +1016,7 @@ type Beneficiary {
   isVolunteer: Boolean!
   signed: Boolean!
   registered: Boolean!
+  phoneNumber: String
   signature: String
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "
