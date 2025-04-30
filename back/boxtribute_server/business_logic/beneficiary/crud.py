@@ -101,7 +101,7 @@ def create_beneficiary(
         Beneficiary.gender,
         Beneficiary.signed,
         Beneficiary.family_head_id,
-        Beneficiary.phone,
+        Beneficiary.phone_number,
     ],
 )
 def update_beneficiary(
@@ -224,6 +224,7 @@ def create_beneficiaries(
         "gender": None,  # will be converted to '' on DB level
         "is_volunteer": False,
         "not_registered": False,
+        "phone_number": None,
         # common data
         "base": base_id,
         "created_on": now,

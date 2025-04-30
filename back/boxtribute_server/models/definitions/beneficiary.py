@@ -101,7 +101,7 @@ class Beneficiary(db.Model):  # type: ignore
         object_id_name="family_head_id",
     )
     pass_ = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
-    phone = CharField(null=True)
+    phone_number = CharField(column_name="phone", null=True)
     reset_password = CharField(column_name="resetpassword", null=True)
     seq = IntegerField()
     signature = TextField(column_name="signaturefield", null=True)
