@@ -53,7 +53,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@sentry/types": "^9.14.0",
+    "@sentry/types": "^9.15.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.5.2",
@@ -79,7 +79,7 @@
     "prettier": "^3.5.3",
     "tsc-files": "^1.1.4",
     "typescript": "^5.8.3",
-    "vite": "^6.3.3",
+    "vite": "^6.3.4",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.2"
   },
