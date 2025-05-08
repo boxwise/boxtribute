@@ -580,6 +580,33 @@ def test_standard_product_instantiation_mutations(
     assert response["lastModifiedOn"] is None
     assert response["lastModifiedBy"] is None
 
+    # Test case 8.2.60: Re-enable previously disabled instantiation
+    mutation = _enable_mutation(enable_input)
+    created_product = assert_successful_request(client, mutation)
+    assert created_product.pop("createdOn").startswith(today)
+    assert created_product.pop("lastModifiedOn").startswith(today)
+    assert created_product == {
+        "id": product_id,
+        "name": another_standard_product["name"],
+        "type": ProductType.StandardInstantiation.name,
+        "category": {"id": str(another_standard_product["category"])},
+        "sizeRange": {"id": str(another_standard_product["size_range"])},
+        "gender": ProductGender(another_standard_product["gender"]).name,
+        "base": {"id": base_id},
+        "price": 0.0,
+        "comment": None,
+        "inShop": False,
+        "createdBy": {"id": user_id},
+        "lastModifiedBy": {"id": user_id},
+        "deletedOn": None,
+    }
+    # Disable again such that test case 8.2.61 doesn't fail due to
+    # StandardProductAlreadyEnabledForBaseError
+    mutation = f"""mutation {{ disableStandardProduct(instantiationId: {product_id}) {{
+                    ...on Product {{ deletedOn }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"].startswith(today)
+
     # Test case 8.2.85
     custom_product_id = str(default_product["id"])
     mutation = f"""mutation {{
@@ -603,9 +630,10 @@ def test_standard_product_instantiation_mutations(
             }}"""
     mutation = _enable_mutation(enable_input)
     created_product = assert_successful_request(client, mutation)
-    another_product_id = created_product.pop("id")
     assert created_product.pop("createdOn").startswith(today)
+    assert created_product.pop("lastModifiedOn").startswith(today)
     assert created_product == {
+        "id": product_id,
         "name": another_standard_product["name"],
         "type": ProductType.StandardInstantiation.name,
         "category": {"id": str(another_standard_product["category"])},
@@ -616,8 +644,7 @@ def test_standard_product_instantiation_mutations(
         "comment": comment,
         "inShop": in_shop,
         "createdBy": {"id": user_id},
-        "lastModifiedBy": None,
-        "lastModifiedOn": None,
+        "lastModifiedBy": {"id": user_id},
         "deletedOn": None,
     }
 
@@ -661,7 +688,7 @@ def test_standard_product_instantiation_mutations(
         if isinstance(value, bool):
             value = "true" if value else "false"
 
-        update_input = f"id: {another_product_id}, {field}: {value}"
+        update_input = f"id: {product_id}, {field}: {value}"
         if field.endswith("Id"):
             field = f"{field.rstrip('Id')} {{ id }}"
         return f"""mutation {{
@@ -691,7 +718,7 @@ def test_standard_product_instantiation_mutations(
     assert response == {"inShop": in_shop}
 
     # Verify update of last_modified_* fields
-    query = f"""query {{ product(id: {another_product_id}) {{
+    query = f"""query {{ product(id: {product_id}) {{
                     lastModifiedOn
                     lastModifiedBy {{ id }}
                 }} }}"""
@@ -759,31 +786,43 @@ def test_standard_product_instantiation_mutations(
         },
         {
             "changes": HISTORY_CREATION_MESSAGE,
-            "record_id": int(another_product_id),
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": HISTORY_DELETION_MESSAGE,
+            "record_id": int(product_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
             "changes": "sizegroup_id",
-            "record_id": int(another_product_id),
+            "record_id": int(product_id),
             "from_int": 1,
             "to_int": 2,
         },
         {
             "changes": "value",
-            "record_id": int(another_product_id),
+            "record_id": int(product_id),
             "from_int": 12,
             "to_int": 40,
         },
         {
             "changes": 'comments changed from "new" to "from Germany";',
-            "record_id": int(another_product_id),
+            "record_id": int(product_id),
             "from_int": None,
             "to_int": None,
         },
         {
             "changes": "stockincontainer",
-            "record_id": int(another_product_id),
+            "record_id": int(product_id),
             "from_int": 1,
             "to_int": 0,
         },
