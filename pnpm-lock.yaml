@@ -109,8 +109,8 @@ importers:
         version: 3.24.3
     devDependencies:
       '@sentry/types':
-        specifier: ^9.15.0
-        version: 9.15.0
+        specifier: ^9.16.1
+        version: 9.16.1
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -145,8 +145,8 @@ importers:
         specifier: ^8.56.0
         version: 8.57.1
       eslint-config-prettier:
-        specifier: ^10.1.2
-        version: 10.1.2(eslint@8.57.1)
+        specifier: ^10.1.3
+        version: 10.1.3(eslint@8.57.1)
       eslint-import-resolver-typescript:
         specifier: ^4.3.4
         version: 4.3.4(eslint-plugin-import@2.31.0)(eslint@8.57.1)
@@ -1588,8 +1588,8 @@ packages:
     resolution: {integrity: sha512-OLfucnP3LAL5bxVNWc2RVOHCX7fk9Er5bWPCS+O5cPjqNUUz0HQHhVh2Vhei5C0kYZZM4vy4BQit5T9LrlOaNA==}
     engines: {node: '>=18'}
 
-  '@sentry/core@9.15.0':
-    resolution: {integrity: sha512-lBmo3bzzaYUesdzc2H5K3fajfXyUNuj5koqyFoCAI8rnt9CBl7SUc/P07+E5eipF8mxgiU3QtkI7ALzRQN8pqQ==}
+  '@sentry/core@9.16.1':
+    resolution: {integrity: sha512-Eja9zItnrY6SyvbaecI5TxQvgqxeaOZkTt8niKGpo9HbvhvZwY4lvuoEpuL0Ihwz5MVZaM6yTySKKX+guMBlvg==}
     engines: {node: '>=18'}
 
   '@sentry/react@9.14.0':
@@ -1598,8 +1598,8 @@ packages:
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
 
-  '@sentry/types@9.15.0':
-    resolution: {integrity: sha512-txQhb39vySyfiOo5w132lGylip0hyFZU5q4hgdILm2DbDVtvQN+MrXS1ocjlw9VyxhkT6Q/6W/q0pwkMRv6rIg==}
+  '@sentry/types@9.16.1':
+    resolution: {integrity: sha512-QUovE/EQQ819llwf0HgX2kol7YgvptqugFuaBLAReofN0xV/hDk34dLJuo04OLaAVIbwy2jIElljvGKNaa5ZXg==}
     engines: {node: '>=18'}
 
   '@standard-schema/utils@0.3.0':
@@ -3015,8 +3015,8 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  eslint-config-prettier@10.1.2:
-    resolution: {integrity: sha512-Epgp/EofAUeEpIdZkW60MHKvPyru1ruQJxPL+WIycnaPApuseK0Zpkrh/FwL9oIpQvIhJwV7ptOy0DWUjTlCiA==}
+  eslint-config-prettier@10.1.3:
+    resolution: {integrity: sha512-vDo4d9yQE+cS2tdIT4J02H/16veRvkHgiLDRpej+WL67oCfbOb97itZXn8wMPJ/GsiEBVjrjs//AVNw2Cp1EcA==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -6783,7 +6783,7 @@ snapshots:
 
   '@sentry/core@9.14.0': {}
 
-  '@sentry/core@9.15.0': {}
+  '@sentry/core@9.16.1': {}
 
   '@sentry/react@9.14.0(react@18.3.1)':
     dependencies:
@@ -6792,9 +6792,9 @@ snapshots:
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
 
-  '@sentry/types@9.15.0':
+  '@sentry/types@9.16.1':
     dependencies:
-      '@sentry/core': 9.15.0
+      '@sentry/core': 9.16.1
 
   '@standard-schema/utils@0.3.0': {}
 
@@ -8553,7 +8553,7 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-config-prettier@10.1.2(eslint@8.57.1):
+  eslint-config-prettier@10.1.3(eslint@8.57.1):
     dependencies:
       eslint: 8.57.1
 
