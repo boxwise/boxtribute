@@ -194,20 +194,32 @@ def enable_standard_product(
     if standard_product.superceded_by_product_id is not None:
         return OutdatedStandardProductVersion(standard_product.superceded_by_product_id)
 
-    product = Product()
-    product.base = base_id
-    product.category = standard_product.category_id
-    product.gender = standard_product.gender_id
-    product.name = standard_product.name
+    # If available, re-use most recent disabled instantiation. This will create another
+    # "Record created" history entry for the same product ID
+    if previous_instantiations:
+        product = previous_instantiations[0]
+        product.deleted_on = None
+        product.last_modified_on = now
+        product.last_modified_by = user_id
+
+    else:
+        product = Product()
+        product.base = base_id
+        product.category = standard_product.category_id
+        product.gender = standard_product.gender_id
+        product.name = standard_product.name
+        product.created_on = now
+        product.created_by = user_id
+        product.standard_product = standard_product
+
+    # When re-enabling a previous instantiation, re-set input values
     product.size_range = (
         standard_product.size_range_id if size_range_id is None else size_range_id
     )
     product.price = price
     product.comment = comment
     product.in_shop = in_shop
-    product.created_on = now
-    product.created_by = user_id
-    product.standard_product = standard_product
+
     with db.database.atomic():
         product.save()
         return product
