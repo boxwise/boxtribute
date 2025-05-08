@@ -198,8 +198,6 @@ def enable_standard_product(
     if previous_instantiations:
         product = previous_instantiations[0]
         product.deleted_on = None
-        product.last_modified_on = now
-        product.last_modified_by = user_id
 
     else:
         product = Product()
@@ -207,8 +205,6 @@ def enable_standard_product(
         product.category = standard_product.category_id
         product.gender = standard_product.gender_id
         product.name = standard_product.name
-        product.created_on = now
-        product.created_by = user_id
         product.standard_product = standard_product
 
     # When re-enabling a previous instantiation, re-set input values
@@ -218,6 +214,8 @@ def enable_standard_product(
     product.price = price
     product.comment = comment
     product.in_shop = in_shop
+    product.created_on = now
+    product.created_by = user_id
 
     with db.database.atomic():
         product.save()

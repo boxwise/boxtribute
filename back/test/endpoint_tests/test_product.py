@@ -584,7 +584,6 @@ def test_standard_product_instantiation_mutations(
     mutation = _enable_mutation(enable_input)
     created_product = assert_successful_request(client, mutation)
     assert created_product.pop("createdOn").startswith(today)
-    assert created_product.pop("lastModifiedOn").startswith(today)
     assert created_product == {
         "id": product_id,
         "name": another_standard_product["name"],
@@ -597,7 +596,8 @@ def test_standard_product_instantiation_mutations(
         "comment": None,
         "inShop": False,
         "createdBy": {"id": user_id},
-        "lastModifiedBy": {"id": user_id},
+        "lastModifiedBy": None,
+        "lastModifiedOn": None,
         "deletedOn": None,
     }
     # Disable again such that test case 8.2.61 doesn't fail due to
@@ -631,7 +631,6 @@ def test_standard_product_instantiation_mutations(
     mutation = _enable_mutation(enable_input)
     created_product = assert_successful_request(client, mutation)
     assert created_product.pop("createdOn").startswith(today)
-    assert created_product.pop("lastModifiedOn").startswith(today)
     assert created_product == {
         "id": product_id,
         "name": another_standard_product["name"],
@@ -644,7 +643,8 @@ def test_standard_product_instantiation_mutations(
         "comment": comment,
         "inShop": in_shop,
         "createdBy": {"id": user_id},
-        "lastModifiedBy": {"id": user_id},
+        "lastModifiedBy": None,
+        "lastModifiedOn": None,
         "deletedOn": None,
     }
 
