@@ -171,25 +171,43 @@ def enable_standard_product(
     if price < 0:
         return InvalidPrice(value=price)
 
-    if (
-        product_id := Product.get_or_none(
+    # Find previous instantiations
+    previous_instantiations = (
+        Product.select()
+        .where(
             Product.base == base_id,
-            Product.deleted_on.is_null(),
             Product.standard_product == standard_product_id,
         )
-    ) is not None:
-        return StandardProductAlreadyEnabledForBase(product_id=product_id)
+        .order_by(Product.deleted_on.desc())
+    )
+    # Check if there's still an enabled one
+    enabled_instantiation_ids = [
+        p.id for p in previous_instantiations if p.deleted_on is None
+    ]
+    if enabled_instantiation_ids:
+        return StandardProductAlreadyEnabledForBase(
+            product_id=enabled_instantiation_ids[0]
+        )
 
     standard_product = StandardProduct.get_by_id(standard_product_id)
 
     if standard_product.superceded_by_product_id is not None:
         return OutdatedStandardProductVersion(standard_product.superceded_by_product_id)
 
-    product = Product()
-    product.base = base_id
-    product.category = standard_product.category_id
-    product.gender = standard_product.gender_id
-    product.name = standard_product.name
+    # If available, re-use most recent disabled instantiation
+    if previous_instantiations:
+        product = previous_instantiations[0]
+        product.deleted_on = None
+
+    else:
+        product = Product()
+        product.base = base_id
+        product.category = standard_product.category_id
+        product.gender = standard_product.gender_id
+        product.name = standard_product.name
+        product.standard_product = standard_product
+
+    # When re-enabling a previous instantiation, re-set input values
     product.size_range = (
         standard_product.size_range_id if size_range_id is None else size_range_id
     )
@@ -198,7 +216,7 @@ def enable_standard_product(
     product.in_shop = in_shop
     product.created_on = now
     product.created_by = user_id
-    product.standard_product = standard_product
+
     with db.database.atomic():
         product.save()
         return product
