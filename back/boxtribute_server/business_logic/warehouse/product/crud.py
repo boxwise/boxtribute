@@ -171,14 +171,23 @@ def enable_standard_product(
     if price < 0:
         return InvalidPrice(value=price)
 
-    if (
-        product_id := Product.get_or_none(
+    # Find previous instantiations
+    previous_instantiations = (
+        Product.select()
+        .where(
             Product.base == base_id,
-            Product.deleted_on.is_null(),
             Product.standard_product == standard_product_id,
         )
-    ) is not None:
-        return StandardProductAlreadyEnabledForBase(product_id=product_id)
+        .order_by(Product.deleted_on.desc())
+    )
+    # Check if there's still an enabled one
+    enabled_instantiation_ids = [
+        p.id for p in previous_instantiations if p.deleted_on is None
+    ]
+    if enabled_instantiation_ids:
+        return StandardProductAlreadyEnabledForBase(
+            product_id=enabled_instantiation_ids[0]
+        )
 
     standard_product = StandardProduct.get_by_id(standard_product_id)
 
