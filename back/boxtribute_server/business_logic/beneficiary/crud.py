@@ -238,37 +238,38 @@ def create_beneficiaries(
         for beneficiary_entry in sanitized_data
     ]
 
-    first_inserted_id = Beneficiary.insert_many(complete_data).execute()
-    beneficiaries = list(
-        Beneficiary.select().where(
-            Beneficiary.id >= first_inserted_id,
-            Beneficiary.id < first_inserted_id + len(complete_data),
+    with db.database.atomic():
+        first_inserted_id = Beneficiary.insert_many(complete_data).execute()
+        beneficiaries = list(
+            Beneficiary.select().where(
+                Beneficiary.id >= first_inserted_id,
+                Beneficiary.id < first_inserted_id + len(complete_data),
+            )
         )
-    )
 
-    history_entries = [
-        DbChangeHistory(
-            changes=HISTORY_CREATION_MESSAGE,
-            table_name=Beneficiary._meta.table_name,
-            record_id=beneficiary.id,
-            user=user_id,
-            change_date=now,
-        )
-        for beneficiary in beneficiaries
-    ]
-    DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+        history_entries = [
+            DbChangeHistory(
+                changes=HISTORY_CREATION_MESSAGE,
+                table_name=Beneficiary._meta.table_name,
+                record_id=beneficiary.id,
+                user=user_id,
+                change_date=now,
+            )
+            for beneficiary in beneficiaries
+        ]
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
-    tags_relations = [
-        {
-            "object_id": beneficiary.id,
-            "object_type": TaggableObjectType.Beneficiary,
-            "tag": tag_id,
-            "created_on": now,
-            "created_by": user_id,
-        }
-        for beneficiary, tag_ids in zip(beneficiaries, all_tag_ids)
-        for tag_id in tag_ids
-    ]
-    TagsRelation.insert_many(tags_relations).execute()
+        tags_relations = [
+            {
+                "object_id": beneficiary.id,
+                "object_type": TaggableObjectType.Beneficiary,
+                "tag": tag_id,
+                "created_on": now,
+                "created_by": user_id,
+            }
+            for beneficiary, tag_ids in zip(beneficiaries, all_tag_ids)
+            for tag_id in tag_ids
+        ]
+        TagsRelation.insert_many(tags_relations).execute()
 
-    return BeneficiariesResult({"results": beneficiaries})
+        return BeneficiariesResult({"results": beneficiaries})
