@@ -1,6 +1,6 @@
 import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import { FaDollyFlatbed } from "react-icons/fa";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -28,6 +28,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useUnassignTags } from "hooks/useUnassignTags";
+import { AddIcon } from "@chakra-ui/icons";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -296,6 +297,11 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
+      <Link to="create">
+        <Button leftIcon={<AddIcon />} borderRadius="0">
+          Create Box
+        </Button>
+      </Link>,
       <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
