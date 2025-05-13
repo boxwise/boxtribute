@@ -1,10 +1,13 @@
 from ...db import db
 from ...enums import TaggableObjectType
 from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
+    BATCH_SIZE,
+    HISTORY_CREATION_MESSAGE,
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
@@ -242,6 +245,18 @@ def create_beneficiaries(
             Beneficiary.id < first_inserted_id + len(complete_data),
         )
     )
+
+    history_entries = [
+        DbChangeHistory(
+            changes=HISTORY_CREATION_MESSAGE,
+            table_name=Beneficiary._meta.table_name,
+            record_id=beneficiary.id,
+            user=user_id,
+            change_date=now,
+        )
+        for beneficiary in beneficiaries
+    ]
+    DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
     tags_relations = [
         {

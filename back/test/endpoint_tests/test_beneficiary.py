@@ -452,6 +452,18 @@ def test_beneficiary_mutations(
             "from_int": None,
             "to_int": None,
         },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "record_id": int(beneficiary_id) + 1,
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "record_id": int(beneficiary_id) + 2,
+            "from_int": None,
+            "to_int": None,
+        },
     ]
 
 
