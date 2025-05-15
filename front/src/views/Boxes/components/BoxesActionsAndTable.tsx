@@ -297,7 +297,7 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
-      <Link to="create">
+      <Link to="create" key="box-create">
         <Button leftIcon={<AddIcon />} borderRadius="0">
           Create Box
         </Button>
