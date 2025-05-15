@@ -84,7 +84,7 @@ export const findDefaultValues = (
   return {
     name: defaultValues.name,
     category: { value: defaultValues.category.id, label: defaultValues.category.name },
-    gender: { value: defaultValues.gender || "none", label: defaultValues.gender || "none" },
+    gender: { value: defaultValues.gender || "-", label: defaultValues.gender || "-" },
     sizeRange: { value: defaultValues.sizeRange.id, label: defaultValues.sizeRange.label },
     comment: defaultValues.comment || "",
     inShop: defaultValues.inShop,
