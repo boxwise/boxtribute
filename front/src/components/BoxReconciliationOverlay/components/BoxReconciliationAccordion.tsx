@@ -83,6 +83,9 @@ export function BoxReconcilationAccordion({
       ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
       : "MATCH PRODUCTS";
 
+  // If auto matched products have a size range mismatch, force the user to pick a size.
+  const forceUserToPickSize = () => setAccordionIndex(0);
+
   return (
     <Accordion allowToggle index={accordionIndex}>
       <AccordionItem>
@@ -125,6 +128,7 @@ export function BoxReconcilationAccordion({
             shipmentDetail={shipmentDetail}
             productAndSizesData={productAndSizesData}
             onBoxUndelivered={onBoxUndelivered}
+            forceUserToPickSize={forceUserToPickSize}
             onSubmitMatchProductsForm={(matchedProductsFormData: MatchProductsFormData) => {
               setProductManuallyMatched(true);
               setAccordionIndex(1);
