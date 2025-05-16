@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from sentry_sdk import capture_message as emit_sentry_message
+
 from ....db import db
 from ....enums import BoxState, ProductType
 from ....errors import (
@@ -180,6 +182,20 @@ def enable_standard_product(
         )
         .order_by(Product.deleted_on.desc())
     )
+    # Add data integrity check
+    if len(previous_instantiations) > 1:  # pragma: no cover
+        emit_sentry_message(
+            "Invalid standard product instantiation data",
+            level="warning",
+            extras={
+                "base_id": base_id,
+                "standard_product_id": standard_product_id,
+                "instantiations": [
+                    {"id": p.id, "deleted_on": p.deleted_on}
+                    for p in previous_instantiations
+                ],
+            },
+        )
     # Check if there's still an enabled one
     enabled_instantiation_ids = [
         p.id for p in previous_instantiations if p.deleted_on is None
