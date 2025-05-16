@@ -65,6 +65,7 @@ interface IMatchProductsFormProps {
   loading: boolean;
   onSubmitMatchProductsForm: (matchedProductsFormData: MatchProductsFormData) => void;
   onBoxUndelivered: (labelIdentifier: string) => void;
+  forceUserToPickSize: () => void;
 }
 
 export function MatchProductsForm({
@@ -73,6 +74,7 @@ export function MatchProductsForm({
   loading,
   onSubmitMatchProductsForm,
   onBoxUndelivered,
+  forceUserToPickSize,
 }: IMatchProductsFormProps) {
   const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
@@ -138,6 +140,12 @@ export function MatchProductsForm({
   const sizeId = watch("sizeId");
   const productRef = useRef<string | undefined>();
 
+  // If auto matched products have a size range mismatch, force the user to pick a size.
+  useEffect(() => {
+    if (sizeId?.value === "") forceUserToPickSize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // sizes reset depending on selected product
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
     IDropdownOption[]
@@ -155,7 +163,7 @@ export function MatchProductsForm({
         })) || [];
       setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
 
-      // Reset size if the product referenec is different than the currently selected product
+      // Reset size if the product reference is different than the currently selected product
       if (productRef.current !== productId.value) {
         productRef.current = productId.value;
         // if there is only one option select it directly
