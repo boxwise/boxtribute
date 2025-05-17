@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@chakra-ui/react";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { useTableConfig } from "hooks/hooks";
@@ -51,6 +52,7 @@ export const PRODUCTS_QUERY = graphql(
 );
 
 function ProductsContainer() {
+  const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const tableConfigKey = `bases/${baseId}/products`;
   const tableConfig = useTableConfig({
@@ -61,6 +63,12 @@ function ProductsContainer() {
       hiddenColumns: ["inShop", "createdBy", "created", "lastModifiedBy", "lastModified", "id"],
     },
   });
+
+  const onRowClick = (productId: string, isStandard = false) => {
+    // TODO: handle standard product edit
+    const path = isStandard ? "edit/standard" : "edit";
+    navigate(`/bases/${baseId}/products/${path}/${productId}`);
+  };
 
   // fetch Products data
   const { data: productsRawData, error } = useSuspenseQuery(PRODUCTS_QUERY, {
@@ -185,6 +193,7 @@ function ProductsContainer() {
       tableConfig={tableConfig}
       tableData={productsRawToTableDataTransformer(productsRawData)}
       columns={availableColumns}
+      onRowClick={onRowClick}
     />
   );
 }

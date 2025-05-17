@@ -27,6 +27,7 @@ import ErrorView from "views/ErrorView/ErrorView";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
+import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -294,6 +295,28 @@ function App() {
                 />
               }
             />
+            <Route path="edit">
+              <Route
+                index
+                element={
+                  <Protected
+                    component={<EnableStandardProductView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_products"]}
+                  />
+                }
+              />
+              <Route
+                path=":customProductId"
+                element={
+                  <Protected
+                    component={<EditCustomProductView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_products"]}
+                  />
+                }
+              />
+            </Route>
           </Route>
         </Route>
       </Route>
