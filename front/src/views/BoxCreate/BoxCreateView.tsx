@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -93,9 +93,26 @@ function BoxCreateView() {
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
   // Query the QR-Code
-  const qrCodeExists = useQuery(CHECK_IF_QR_EXISTS_IN_DB, {
+  const [
+    runCheckIfQRExistsInDB,
+    { loading: qrCodeExistsLoading, error: qrCodeExistsError, data: qrCodeExistsData },
+  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB, {
     variables: { qrCode },
   });
+
+  // Check the QR Code if there is a qrCode param (user read a box QR-Code)
+  useEffect(() => {
+    if (qrCode) runCheckIfQRExistsInDB();
+
+    if (qrCode && qrCodeExistsData?.qrExists === false) {
+      createToast({
+        title: "Error",
+        type: "error",
+        message: "The QR-Code is not from Boxtribute!",
+      });
+    }
+    // TODO: Add check if Qr-Code is associated to a Box
+  }, [qrCode, createToast, runCheckIfQRExistsInDB, qrCodeExistsData?.qrExists]);
 
   // Query Data for the Form
   const allFormOptions = useQuery(ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, {
@@ -104,18 +121,6 @@ function BoxCreateView() {
 
   // Mutation after form submission
   const [createBoxMutation, createBoxMutationState] = useMutation(CREATE_BOX_MUTATION);
-
-  // Check the QR Code
-  useEffect(() => {
-    if (qrCodeExists.data?.qrExists === false) {
-      createToast({
-        title: "Error",
-        type: "error",
-        message: "The QR-Code is not from Boxtribute!",
-      });
-    }
-    // TODO: Add check if Qr-Code is associated to a Box
-  }, [createToast, qrCodeExists]);
 
   // Prep data for Form
   const allTags = allFormOptions.data?.base?.tags;
@@ -213,12 +218,11 @@ function BoxCreateView() {
   };
 
   // Handle Loading State
-  if (qrCodeExists.loading || allFormOptions.loading || createBoxMutationState.loading)
+  if ((qrCode && qrCodeExistsLoading) || allFormOptions.loading || createBoxMutationState.loading)
     return <APILoadingIndicator />;
 
   if (
-    !qrCodeExists.data?.qrExists ||
-    qrCodeExists.error ||
+    (qrCode && (!qrCodeExistsData?.qrExists || qrCodeExistsError)) ||
     allFormOptions.error ||
     !allFormOptions.data?.base
   )
