@@ -240,6 +240,22 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
   [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_ORG_FIELDS_FRAGMENT],
 );
 
+export const CUSTOM_PRODUCT_FORM_OPTIONS_QUERY = graphql(
+  `
+    query CustomProductFormOptions {
+      productCategories {
+        id
+        name
+      }
+      sizeRanges {
+        id
+        label
+      }
+    }
+  `,
+  [],
+);
+
 export const BOX_QUERY = graphql(`
   query Box($labelIdentifier: String!) {
     box(labelIdentifier: $labelIdentifier) {

@@ -4,27 +4,31 @@ import { AlertWithoutAction } from "components/Alerts";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import { FormSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
-import CreateCustomProductForm, {
-  ICreateCustomProductFormOutput,
-} from "./components/CreateCustomProductForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
-import { customProductRawToFormOptionsTransformer } from "./components/transformer";
 import { graphql } from "../../../../graphql/graphql";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { NonNullProductGender } from "../../../../graphql/types";
+// TODO: move this to common folder in components?
+import {
+  customProductRawToFormOptionsTransformer,
+  findDefaultValues,
+} from "views/CreateCustomProduct/components/transformer";
+import EditCustomProductForm, {
+  EditCustomProductFormOutput,
+} from "./components/EditCustomProductForm";
 import { CUSTOM_PRODUCT_FORM_OPTIONS_QUERY } from "queries/queries";
 
-const createCustomProductQueryErrorText = "Something went wrong! Please try reloading the page.";
+const editCustomProductQueryErrorText = "Something went wrong! Please try reloading the page.";
 
-const CREATE_CUSTOM_PRODUCT_MUTATION = graphql(
+const EDIT_CUSTOM_PRODUCT_MUTATION = graphql(
   `
-    mutation CreateCustomProduct(
-      $baseId: Int!
+    mutation EditCustomProduct(
+      $id: ID!
       $name: String!
       $categoryId: Int!
       $sizeRangeId: Int!
@@ -33,9 +37,9 @@ const CREATE_CUSTOM_PRODUCT_MUTATION = graphql(
       $inShop: Boolean
       $comment: String
     ) {
-      createCustomProduct(
-        creationInput: {
-          baseId: $baseId
+      editCustomProduct(
+        editInput: {
+          id: $id
           name: $name
           categoryId: $categoryId
           sizeRangeId: $sizeRangeId
@@ -48,6 +52,19 @@ const CREATE_CUSTOM_PRODUCT_MUTATION = graphql(
         __typename
         ... on Product {
           id
+          name
+          category {
+            id
+            name
+          }
+          sizeRange {
+            id
+            label
+          }
+          gender
+          price
+          inShop
+          comment
         }
       }
     }
@@ -55,48 +72,47 @@ const CREATE_CUSTOM_PRODUCT_MUTATION = graphql(
   [],
 );
 
-const createCustomProductErrorToastText = "Could not create this custom product! Try again?";
+const editCustomProductErrorToastText = "Could not edit this custom product! Try again?";
 
-function CreateCustomProductFormContainer() {
+function EditCustomProductFormContainer() {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const customProductId = useParams<{ customProductId: string }>().customProductId;
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const { data: customProductFormRawOptions, error } = useSuspenseQuery(
     CUSTOM_PRODUCT_FORM_OPTIONS_QUERY,
   );
 
-  const [createCustomProduct, { loading: isCreateCustomProductLoading }] = useMutation(
-    CREATE_CUSTOM_PRODUCT_MUTATION,
+  const { data: productsRawData, error: prodError } = useSuspenseQuery(PRODUCTS_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
+
+  const [editCustomProduct, { loading: isEditCustomProductLoading }] = useMutation(
+    EDIT_CUSTOM_PRODUCT_MUTATION,
   );
 
   const onSubmit = useCallback(
-    (createProductFormOutput: ICreateCustomProductFormOutput) => {
-      createCustomProduct({
+    (editProductFormOutput: EditCustomProductFormOutput) => {
+      editCustomProduct({
         variables: {
-          baseId: parseInt(baseId, 10),
-          name: createProductFormOutput.name,
-          categoryId: createProductFormOutput.category,
-          sizeRangeId: createProductFormOutput.sizeRange,
-          gender: createProductFormOutput.gender as NonNullProductGender, // this is not a validation, but a work-around to make ts happy
-          price: createProductFormOutput.price,
-          inShop: createProductFormOutput.inShop,
-          comment: createProductFormOutput.comment,
+          id: customProductId!,
+          name: editProductFormOutput.name,
+          categoryId: parseInt(editProductFormOutput.category?.value!),
+          sizeRangeId: parseInt(editProductFormOutput.sizeRange?.value!),
+          gender: editProductFormOutput.gender?.value as NonNullProductGender,
+          price: editProductFormOutput.price,
+          inShop: editProductFormOutput.inShop,
+          comment: editProductFormOutput.comment,
         },
-        refetchQueries: [
-          {
-            query: PRODUCTS_QUERY,
-            variables: {
-              baseId,
-            },
-          },
-        ],
       })
         .then(({ data }) => {
-          const result = data?.createCustomProduct;
+          const result = data?.editCustomProduct;
           if (!result) {
             triggerError({
-              message: createCustomProductErrorToastText,
+              message: editCustomProductErrorToastText,
             });
             return;
           }
@@ -104,15 +120,15 @@ function CreateCustomProductFormContainer() {
           switch (result.__typename) {
             case "Product":
               createToast({
-                message: `The custom product was successfully created.`,
+                message: `The custom product was successfully edited.`,
               });
-              navigate(`..`);
+              navigate(`../..`);
 
               break;
             case "InsufficientPermissionError":
             case "UnauthorizedForBaseError":
               triggerError({
-                message: "You don't have permission to create a custom product!",
+                message: "You don't have permission to edit a custom product!",
               });
               break;
             case "InvalidPriceError":
@@ -133,7 +149,7 @@ function CreateCustomProductFormContainer() {
 
             default:
               triggerError({
-                message: createCustomProductErrorToastText,
+                message: editCustomProductErrorToastText,
               });
               break;
           }
@@ -141,51 +157,53 @@ function CreateCustomProductFormContainer() {
         .catch(() => {
           // Handle network or other errors
           triggerError({
-            message: createCustomProductErrorToastText,
+            message: editCustomProductErrorToastText,
           });
         });
     },
-    [createCustomProduct, baseId, createToast, navigate, triggerError],
+    [editCustomProduct, customProductId, triggerError, createToast, navigate],
   );
 
   // If Apollo encountered an error (like network error), throw it
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+  if (prodError) throw prodError;
 
   const { categoryOptions, sizeRangeOptions, genderOptions } =
     customProductRawToFormOptionsTransformer(customProductFormRawOptions);
 
+  const defaultValues = findDefaultValues(productsRawData, customProductId);
+
   return (
-    <CreateCustomProductForm
+    <EditCustomProductForm
       categoryOptions={categoryOptions}
       sizeRangeOptions={sizeRangeOptions}
       genderOptions={genderOptions}
       onSubmit={onSubmit}
-      isLoading={isCreateCustomProductLoading}
+      isLoading={isEditCustomProductLoading}
+      defaultValues={defaultValues}
     />
   );
 }
 
-function CreateCustomProductView() {
+function EditCustomProductView() {
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Products" linkPath=".." />
+      <MobileBreadcrumbButton label="Back to Manage Products" linkPath="../.." />
       <Center>
         <Box w={["100%", "100%", "60%", "40%"]}>
           <Heading fontWeight="bold" mb={8} as="h1">
-            Add New Product
+            Edit Custom Product
           </Heading>
           <ErrorBoundary
             fallback={({ error }) => (
               <AlertWithoutAction
                 type="error"
-                alertText={error?.toString() || createCustomProductQueryErrorText}
+                alertText={error?.toString() || editCustomProductQueryErrorText}
               />
             )}
           >
             <Suspense fallback={<FormSkeleton />}>
-              <CreateCustomProductFormContainer />
+              <EditCustomProductFormContainer />
             </Suspense>
           </ErrorBoundary>
         </Box>
@@ -194,4 +212,4 @@ function CreateCustomProductView() {
   );
 }
 
-export default CreateCustomProductView;
+export default EditCustomProductView;

@@ -28,7 +28,7 @@ export const standardProductRawToFormDataTransformer = (
           comment: nonDeletedInstantiation?.comment ? nonDeletedInstantiation.comment : undefined,
           inShop: nonDeletedInstantiation?.inShop ? nonDeletedInstantiation.inShop : undefined,
           price: nonDeletedInstantiation?.price ? nonDeletedInstantiation.price : undefined,
-        } as IEnableStandardProductFormInput;
+        } satisfies IEnableStandardProductFormInput;
       },
     );
   } else {
