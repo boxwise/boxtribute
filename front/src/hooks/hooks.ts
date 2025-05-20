@@ -81,7 +81,7 @@ export interface ITableConfig {
 
 interface IUseTableConfigProps {
   tableConfigKey: string;
-  defaultTableConfig: ITableConfig;
+  defaultTableConfig?: ITableConfig;
 }
 
 export interface IUseTableConfigReturnType {
@@ -109,7 +109,7 @@ export const useTableConfig = ({
   const [searchParams] = useSearchParams();
 
   // Intialization
-  if (!tableConfigsState.has(tableConfigKey)) {
+  if (!tableConfigsState.has(tableConfigKey) && defaultTableConfig) {
     const tableConfig: ITableConfig = {
       globalFilter: defaultTableConfig.globalFilter,
       columnFilters: searchParams.get("columnFilters")
