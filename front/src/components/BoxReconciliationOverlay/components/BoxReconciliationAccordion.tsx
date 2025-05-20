@@ -59,12 +59,18 @@ export function BoxReconcilationAccordion({
     reconciliationMatchProductAtom,
   );
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+  const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
+
   /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
   const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
   const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
   const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
+  /** Object key to match in the store to fetch the input values. */
+  const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
+  const cachedProductSizeIdValue = cachedReconciliationMatchProduct[cacheId]?.sizeId.value;
+
   const [accordionIndex, setAccordionIndex] = useState(
-    isProductIdMatchedInCache ? 0 : isProductAutoMatched ? 1 : 0,
+    isProductIdMatchedInCache || cachedProductSizeIdValue === "" ? 0 : isProductAutoMatched ? 1 : 0,
   );
   const [productManuallyMatched, setProductManuallyMatched] = useState(false);
   const [locationSpecified, setLocationSpecified] = useState(false);
@@ -75,16 +81,13 @@ export function BoxReconcilationAccordion({
     sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
     numberOfItems: shipmentDetail?.sourceQuantity ?? undefined,
   });
-  const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
+
   const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
   const accordionHeaderText = productManuallyMatched
     ? "PRODUCTS DELIVERED"
     : isProductAutoMatched
       ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
       : "MATCH PRODUCTS";
-
-  // If auto matched products have a size range mismatch, force the user to pick a size.
-  const forceUserToPickSize = () => setAccordionIndex(0);
 
   return (
     <Accordion allowToggle index={accordionIndex}>
@@ -128,7 +131,6 @@ export function BoxReconcilationAccordion({
             shipmentDetail={shipmentDetail}
             productAndSizesData={productAndSizesData}
             onBoxUndelivered={onBoxUndelivered}
-            forceUserToPickSize={forceUserToPickSize}
             onSubmitMatchProductsForm={(matchedProductsFormData: MatchProductsFormData) => {
               setProductManuallyMatched(true);
               setAccordionIndex(1);
