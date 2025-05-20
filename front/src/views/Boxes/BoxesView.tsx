@@ -227,6 +227,11 @@ function Boxes() {
         accessor: "tags",
         id: "tags",
         Cell: TagsCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.tags?.length ?? 0;
+          const b = rowB.values.tags?.length ?? 0;
+          return a - b;
+        },
         Filter: SelectColumnFilter,
         filter: "includesSomeTagObject",
       },
