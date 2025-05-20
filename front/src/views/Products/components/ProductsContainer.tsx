@@ -67,7 +67,7 @@ function ProductsContainer() {
   const onRowClick = (productId: string, isStandard = false) => {
     // TODO: handle standard product edit
     const path = isStandard ? "edit/standard" : "edit";
-    navigate(`/bases/${baseId}/products/${path}/${productId}`);
+    if (!isStandard) navigate(`/bases/${baseId}/products/${path}/${productId}`);
   };
 
   // fetch Products data

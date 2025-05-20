@@ -307,7 +307,6 @@ function App() {
             />
             <Route path="edit">
               <Route
-                index
                 element={
                   <Protected
                     component={<EnableStandardProductView />}

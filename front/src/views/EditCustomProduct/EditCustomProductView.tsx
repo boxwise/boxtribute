@@ -10,7 +10,6 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
-import { ResultOf } from "gql.tada";
 import { graphql } from "../../../../graphql/graphql";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { NonNullProductGender } from "../../../../graphql/types";
@@ -22,26 +21,9 @@ import {
 import EditCustomProductForm, {
   EditCustomProductFormOutput,
 } from "./components/EditCustomProductForm";
+import { CUSTOM_PRODUCT_FORM_OPTIONS_QUERY } from "queries/queries";
 
 const editCustomProductQueryErrorText = "Something went wrong! Please try reloading the page.";
-
-const CUSTOM_PRODUCT_FORM_OPTIONS_QUERY = graphql(
-  `
-    query CustomProductFormOptions {
-      productCategories {
-        id
-        name
-      }
-      sizeRanges {
-        id
-        label
-      }
-    }
-  `,
-  [],
-);
-
-export type ICustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
 
 const EDIT_CUSTOM_PRODUCT_MUTATION = graphql(
   `
@@ -70,6 +52,19 @@ const EDIT_CUSTOM_PRODUCT_MUTATION = graphql(
         __typename
         ... on Product {
           id
+          name
+          category {
+            id
+            name
+          }
+          sizeRange {
+            id
+            label
+          }
+          gender
+          price
+          inShop
+          comment
         }
       }
     }
@@ -112,14 +107,6 @@ function EditCustomProductFormContainer() {
           inShop: editProductFormOutput.inShop,
           comment: editProductFormOutput.comment,
         },
-        refetchQueries: [
-          {
-            query: PRODUCTS_QUERY,
-            variables: {
-              baseId,
-            },
-          },
-        ],
       })
         .then(({ data }) => {
           const result = data?.editCustomProduct;
@@ -174,7 +161,7 @@ function EditCustomProductFormContainer() {
           });
         });
     },
-    [editCustomProduct, customProductId, baseId, triggerError, createToast, navigate],
+    [editCustomProduct, customProductId, triggerError, createToast, navigate],
   );
 
   // If Apollo encountered an error (like network error), throw it

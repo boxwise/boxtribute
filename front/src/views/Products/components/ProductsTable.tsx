@@ -105,6 +105,8 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
                 {...row.getRowProps()}
                 key={row.values.id}
                 onClick={() => onRowClick(row.original.id, row.original.isStandard)}
+                // TODO: handle standard product edit
+                cursor={row.original.isStandard ? "inherit" : "pointer"}
               >
                 {row.cells.map((cell) => (
                   <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>

@@ -68,7 +68,6 @@ function EditCustomProductForm({
   defaultValues,
   onSubmit,
 }: IEditCustomProductFormProps) {
-  console.log("defaultValues", defaultValues);
   const navigate = useNavigate();
   const {
     handleSubmit,

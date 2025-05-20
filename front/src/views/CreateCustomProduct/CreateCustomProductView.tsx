@@ -13,31 +13,13 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
-import { ResultOf } from "gql.tada";
 import { customProductRawToFormOptionsTransformer } from "./components/transformer";
 import { graphql } from "../../../../graphql/graphql";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { NonNullProductGender } from "../../../../graphql/types";
+import { CUSTOM_PRODUCT_FORM_OPTIONS_QUERY } from "queries/queries";
 
 const createCustomProductQueryErrorText = "Something went wrong! Please try reloading the page.";
-
-const CUSTOM_PRODUCT_FORM_OPTIONS_QUERY = graphql(
-  `
-    query CustomProductFormOptions {
-      productCategories {
-        id
-        name
-      }
-      sizeRanges {
-        id
-        label
-      }
-    }
-  `,
-  [],
-);
-
-export type ICustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
 
 const CREATE_CUSTOM_PRODUCT_MUTATION = graphql(
   `
