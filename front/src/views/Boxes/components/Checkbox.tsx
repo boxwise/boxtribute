@@ -38,7 +38,13 @@ const IndeterminateCheckbox = forwardRef<HTMLInputElement, IProps>(
     }, [combinedRef, indeterminate]);
 
     return (
-      <input type="checkbox" ref={combinedRef} onClick={(e) => e.stopPropagation()} {...rest} />
+      <input
+        type="checkbox"
+        ref={combinedRef}
+        onClick={(e) => e.stopPropagation()}
+        {...rest}
+        style={{ cursor: "pointer", width: "1.25rem", height: "1.25rem" }}
+      />
     );
   },
 );
