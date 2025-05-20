@@ -12,6 +12,9 @@ import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 import { AlertWithoutAction } from "components/Alerts";
 import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useAtomValue } from "jotai";
+import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
+import { prepareBoxesForBoxesViewQueryVariables } from "views/Boxes/components/transformers";
+import { useTableConfig } from "hooks/hooks";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
@@ -159,6 +162,8 @@ function BoxCreateView() {
   }, [triggerError, allFormOptions.loading, allLocations, allProducts]);
 
   // Handle Submission
+  const tableConfigKey = `bases/${baseId}/boxes`;
+  const tableConfig = useTableConfig({tableConfigKey})
   const onSubmitBoxCreateForm = (createBoxData: ICreateBoxFormData) => {
     const tagIds = createBoxData?.tags
       ? createBoxData?.tags?.map((tag) => parseInt(tag.value, 10))
@@ -174,6 +179,12 @@ function BoxCreateView() {
         tagIds,
         qrCode,
       },
+      refetchQueries: [
+        {
+          query: BOXES_FOR_BOXESVIEW_QUERY,
+          variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+        },
+      ],
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {
