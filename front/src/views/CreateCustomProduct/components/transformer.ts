@@ -1,5 +1,9 @@
-import { ICustomProductFormQueryResult } from "../CreateCustomProductView";
+import { ResultOf } from "gql.tada";
+
 import { NonNullProductGender } from "../../../../../graphql/types";
+import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
+import { EditCustomProductFormInput } from "views/EditCustomProduct/components/EditCustomProductForm";
+import { CustomProductFormQueryResult } from "queries/types";
 
 type IGendersOptions = {
   label: string;
@@ -50,7 +54,7 @@ const genders: IGendersOptions[] = [
 ];
 
 export const customProductRawToFormOptionsTransformer = (
-  customProductRawOptions: ICustomProductFormQueryResult,
+  customProductRawOptions: CustomProductFormQueryResult,
 ) => {
   return {
     categoryOptions: customProductRawOptions.productCategories.map((category) => ({
@@ -63,4 +67,27 @@ export const customProductRawToFormOptionsTransformer = (
     })),
     genderOptions: genders,
   };
+};
+
+export const findDefaultValues = (
+  customProductData: ResultOf<typeof PRODUCTS_QUERY>,
+  customProductId?: string,
+) => {
+  if (!customProductId) return undefined;
+
+  const defaultValues = customProductData.products.elements.find(
+    (customProduct) => customProduct.id === customProductId,
+  );
+
+  if (!defaultValues) throw new Error("Custom product not found!");
+
+  return {
+    name: defaultValues.name,
+    category: { value: defaultValues.category.id, label: defaultValues.category.name },
+    gender: { value: defaultValues.gender || "none", label: defaultValues.gender || "-" },
+    sizeRange: { value: defaultValues.sizeRange.id, label: defaultValues.sizeRange.label },
+    comment: defaultValues.comment || "",
+    inShop: defaultValues.inShop,
+    price: defaultValues.price || 0,
+  } satisfies EditCustomProductFormInput;
 };

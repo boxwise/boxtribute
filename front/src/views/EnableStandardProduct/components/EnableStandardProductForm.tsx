@@ -59,7 +59,7 @@ export type IEnableStandardProductFormProps = {
   showAlert: boolean;
   isLoading: boolean;
   standardProductData: IEnableStandardProductFormInput[];
-  defaultValues: IEnableStandardProductFormInput | undefined;
+  defaultValues?: IEnableStandardProductFormInput;
   onSubmit: (enableStandardProductFormData: IEnableStandardProductFormOutput) => void;
 };
 

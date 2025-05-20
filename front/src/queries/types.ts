@@ -1,5 +1,9 @@
 import { FragmentOf, ResultOf, VariablesOf } from "gql.tada";
-import { BOX_QUERY, BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "./queries";
+import {
+  BOX_QUERY,
+  BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+  CUSTOM_PRODUCT_FORM_OPTIONS_QUERY,
+} from "./queries";
 import { UPDATE_BOX_MUTATION } from "views/Box/BoxView";
 import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 import {
@@ -39,3 +43,5 @@ export type StandardProductsforProductsViewVariables = VariablesOf<
   typeof STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY
 >;
 export type ProductsQuery = ResultOf<typeof PRODUCTS_QUERY>;
+
+export type CustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
