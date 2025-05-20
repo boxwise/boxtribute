@@ -1,13 +1,13 @@
 import { Column, Row } from "react-table";
 import { useMoveBoxes } from "hooks/useMoveBoxes";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import { FaDollyFlatbed } from "react-icons/fa";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { Button, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import { Button, Menu, MenuButton, MenuList, MenuItem, useMediaQuery } from "@chakra-ui/react";
 import { useAtomValue } from "jotai";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
@@ -28,6 +28,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { useAssignTags } from "hooks/useAssignTags";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useUnassignTags } from "hooks/useUnassignTags";
+import { AddIcon } from "@chakra-ui/icons";
 
 export interface IBoxesActionsAndTableProps {
   tableConfig: IUseTableConfigReturnType;
@@ -278,6 +279,7 @@ function BoxesActionsAndTable({
     isAssignTagsLoading ||
     isUnassignTagsLoading;
 
+  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   const actionButtons = useMemo(
     () => [
       <SelectButton
@@ -296,6 +298,15 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
+      <Link to="create" key="box-create">
+        <Button
+          leftIcon={<AddIcon />}
+          borderRadius="0"
+          iconSpacing={isLargerThan768 ? 2 : 0}
+        >
+          {isLargerThan768 && "Create Box"}
+        </Button>
+      </Link>,
       <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
@@ -358,6 +369,7 @@ function BoxesActionsAndTable({
       onAssignTags,
       getSelectedBoxTags,
       onUnassignTags,
+      isLargerThan768,
     ],
   );
 

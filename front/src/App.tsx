@@ -159,6 +159,16 @@ function App() {
             />
             <Route path="create">
               <Route
+                index
+                element={
+                  <Protected
+                    component={<BoxCreateView />}
+                    redirectPath={prevLocation}
+                    requiredAbps={["manage_inventory"]}
+                  />
+                }
+              />
+              <Route
                 path=":qrCode"
                 element={
                   <Protected
