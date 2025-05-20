@@ -24,9 +24,10 @@ type ProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
   columns: Column<ProductRow>[];
+  onRowClick: (productId: string, isStandard: boolean) => void;
 };
 
-function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
+function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -100,7 +101,13 @@ function ProductsTable({ tableConfig, tableData, columns }: ProductTableProps) {
           {page.map((row) => {
             prepareRow(row);
             return (
-              <Tr {...row.getRowProps()} key={row.values.id}>
+              <Tr
+                {...row.getRowProps()}
+                key={row.values.id}
+                onClick={() => onRowClick(row.original.id, row.original.isStandard)}
+                // TODO: handle standard product edit
+                cursor={row.original.isStandard ? "inherit" : "pointer"}
+              >
                 {row.cells.map((cell) => (
                   <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
                     {cell.render("Cell")}
