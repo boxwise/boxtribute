@@ -7,7 +7,6 @@ import {
   HStack,
   Input,
   Stack,
-  // Switch,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -139,7 +138,6 @@ function EditCustomProductForm({
             errors={errors}
             control={control}
           />
-
           <FormControl>
             <FormLabel htmlFor="comment">Description</FormLabel>
             <Input

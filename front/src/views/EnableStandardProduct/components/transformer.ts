@@ -1,17 +1,50 @@
-import {
-  enableStandardProductQueryErrorText,
-  IEnableStandardProductQueryResultType,
-} from "../EnableStandardProductView";
-import { IEnableStandardProductFormInput } from "./EnableStandardProductForm";
+import { z } from "zod";
+
+import { StandardProductQueryResultType } from "queries/types";
+import { enableStandardProductQueryErrorText } from "../EnableStandardProductView";
+import { EnableStandardProductFormInput } from "./EnableStandardProductForm";
+
+const SingleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+export const StandardProductFormSchema = z.object({
+  // see BoxEdit.tsx how to validate a select field
+  instantiation: z.object({ value: z.string(), label: z.string() }),
+  standardProduct: z.object(
+    { value: z.string(), label: z.string() },
+    { required_error: "Please select a standard product." },
+  ),
+  category: SingleSelectOptionSchema.optional(),
+  gender: z.string().optional(),
+  sizeRange: SingleSelectOptionSchema.optional(),
+  comment: z
+    .string()
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
+  inShop: z.boolean().optional(),
+  price: z
+    .number({
+      invalid_type_error: "Please enter a positive integer number.",
+    })
+    .int()
+    .nonnegative()
+    .optional(),
+});
 
 export const standardProductRawToFormDataTransformer = (
-  standardProductRawData: IEnableStandardProductQueryResultType,
+  standardProductRawData: StandardProductQueryResultType,
 ) => {
   if (standardProductRawData.standardProducts?.__typename === "StandardProductPage") {
     return standardProductRawData.standardProducts.elements.map(
       ({ id, name, category, gender, sizeRange, instantiation }) => {
         const nonDeletedInstantiation = instantiation?.deletedOn ? undefined : instantiation;
         return {
+          instantiation: {
+            label: name,
+            value: instantiation?.id || "",
+          },
           standardProduct: {
             label: name,
             value: id,
@@ -28,7 +61,7 @@ export const standardProductRawToFormDataTransformer = (
           comment: nonDeletedInstantiation?.comment ? nonDeletedInstantiation.comment : undefined,
           inShop: nonDeletedInstantiation?.inShop ? nonDeletedInstantiation.inShop : undefined,
           price: nonDeletedInstantiation?.price ? nonDeletedInstantiation.price : undefined,
-        } satisfies IEnableStandardProductFormInput;
+        } satisfies EnableStandardProductFormInput;
       },
     );
   } else {
@@ -37,19 +70,17 @@ export const standardProductRawToFormDataTransformer = (
 };
 
 export const findDefaultValues = (
-  standardProductData: IEnableStandardProductFormInput[],
+  standardProductData: EnableStandardProductFormInput[],
   requestedStandardProductId: string | undefined,
 ) => {
-  if (!requestedStandardProductId) {
-    return undefined;
-  }
+  if (!requestedStandardProductId) return undefined;
+
   const defaultValues = standardProductData.find(
     (standardProduct) => standardProduct.standardProduct.value === requestedStandardProductId,
   );
 
   // Handle the case where the requested standard product is not found
-  if (!defaultValues) {
-    throw new Error("Requested ASSORT standard product not found!");
-  }
+  if (!defaultValues) throw new Error("Requested ASSORT standard product not found!");
+
   return defaultValues;
 };

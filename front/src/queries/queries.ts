@@ -2,6 +2,7 @@ import { graphql } from "../../../graphql/graphql";
 import {
   BOX_BASIC_FIELDS_FRAGMENT,
   PRODUCT_BASIC_FIELDS_FRAGMENT,
+  STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
 } from "../../../graphql/fragments";
 import {
   PRODUCT_FIELDS_FRAGMENT,
@@ -238,6 +239,29 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
     }
   `,
   [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_ORG_FIELDS_FRAGMENT],
+);
+
+export const STANDARD_PRODUCT_QUERY = graphql(
+  `
+    query StandardProductQuery($baseId: ID!) {
+      standardProducts(baseId: $baseId) {
+        __typename
+        ... on StandardProductPage {
+          elements {
+            ...StandardProductBasicFields
+            instantiation {
+              id
+              price
+              comment
+              inShop
+              deletedOn
+            }
+          }
+        }
+      }
+    }
+  `,
+  [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
 
 export const CUSTOM_PRODUCT_FORM_OPTIONS_QUERY = graphql(

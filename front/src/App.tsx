@@ -28,6 +28,7 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
 import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
+import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -307,15 +308,6 @@ function App() {
             />
             <Route path="edit">
               <Route
-                element={
-                  <Protected
-                    component={<EnableStandardProductView />}
-                    redirectPath={prevLocation}
-                    requiredAbps={["manage_products"]}
-                  />
-                }
-              />
-              <Route
                 path=":customProductId"
                 element={
                   <Protected
@@ -325,6 +317,18 @@ function App() {
                   />
                 }
               />
+              <Route path="standard">
+                <Route
+                  path=":standardProductId"
+                  element={
+                    <Protected
+                      component={<EditStandardProductView />}
+                      redirectPath={prevLocation}
+                      requiredAbps={["manage_products"]}
+                    />
+                  }
+                />
+              </Route>
             </Route>
           </Route>
         </Route>
