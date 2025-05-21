@@ -3,6 +3,7 @@ import {
   BOX_QUERY,
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
   CUSTOM_PRODUCT_FORM_OPTIONS_QUERY,
+  STANDARD_PRODUCT_QUERY,
 } from "./queries";
 import { UPDATE_BOX_MUTATION } from "views/Box/BoxView";
 import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
@@ -45,3 +46,4 @@ export type StandardProductsforProductsViewVariables = VariablesOf<
 export type ProductsQuery = ResultOf<typeof PRODUCTS_QUERY>;
 
 export type CustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
+export type StandardProductQueryResultType = ResultOf<typeof STANDARD_PRODUCT_QUERY>;

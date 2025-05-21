@@ -23,6 +23,9 @@ export const PRODUCTS_QUERY = graphql(
         totalCount
         elements {
           ...ProductBasicFields
+          standardProduct {
+            id
+          }
           sizeRange {
             ...SizeRangeFields
           }
@@ -65,16 +68,13 @@ function ProductsContainer() {
   });
 
   const onRowClick = (productId: string, isStandard = false) => {
-    // TODO: handle standard product edit
     const path = isStandard ? "edit/standard" : "edit";
-    if (!isStandard) navigate(`/bases/${baseId}/products/${path}/${productId}`);
+    navigate(`/bases/${baseId}/products/${path}/${productId}`);
   };
 
   // fetch Products data
   const { data: productsRawData, error } = useSuspenseQuery(PRODUCTS_QUERY, {
-    variables: {
-      baseId,
-    },
+    variables: { baseId },
   });
 
   const availableColumns: Column<ProductRow>[] = useMemo(

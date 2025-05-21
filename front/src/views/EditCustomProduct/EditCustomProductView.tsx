@@ -65,6 +65,11 @@ const EDIT_CUSTOM_PRODUCT_MUTATION = graphql(
           price
           inShop
           comment
+          lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
         }
       }
     }
