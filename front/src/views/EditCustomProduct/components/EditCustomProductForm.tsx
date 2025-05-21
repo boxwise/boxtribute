@@ -83,7 +83,7 @@ function EditCustomProductForm({
       <Box border="2px" mb={4} p={2}>
         <HStack borderBottom="2px" pb={2} px={2}>
           <Text fontWeight="bold" fontSize="md">
-            PRODUCT SETUP
+            PRODUCT DETAILS
           </Text>
         </HStack>
         <VStack spacing={4} p={2} mt={2}>
