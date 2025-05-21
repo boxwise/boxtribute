@@ -125,7 +125,7 @@ function BoxEditView() {
         numberOfItems: boxEditFormData.numberOfItems,
         locationId: parseInt(boxEditFormData.locationId.value, 10),
         tagIds,
-        comment: boxEditFormData?.comment || null,
+        comment: boxEditFormData?.comment,
       },
     })
       .then((mutationResult) => {
