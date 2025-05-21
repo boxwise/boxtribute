@@ -45,8 +45,8 @@ export const EDIT_STANDARD_PRODUCT_MUTATION = graphql(
           comment
           inShop
           price
-          createdOn
-          createdBy {
+          lastModifiedOn
+          lastModifiedBy {
             id
             name
           }
@@ -76,7 +76,7 @@ function EditStandardProductFormContainer() {
       editStandardProduct({
         variables: {
           id: editStandardProductFormOutput.instantiation.value,
-          comment: editStandardProductFormOutput.comment,
+          comment: editStandardProductFormOutput.comment || "",
           price: editStandardProductFormOutput.price,
           inShop: editStandardProductFormOutput.inShop,
         },

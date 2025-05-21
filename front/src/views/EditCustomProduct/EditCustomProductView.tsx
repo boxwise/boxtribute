@@ -65,6 +65,11 @@ const EDIT_CUSTOM_PRODUCT_MUTATION = graphql(
           price
           inShop
           comment
+          lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
         }
       }
     }
@@ -105,7 +110,7 @@ function EditCustomProductFormContainer() {
           gender: editProductFormOutput.gender?.value as NonNullProductGender,
           price: editProductFormOutput.price,
           inShop: editProductFormOutput.inShop,
-          comment: editProductFormOutput.comment,
+          comment: editProductFormOutput.comment || "",
         },
       })
         .then(({ data }) => {
