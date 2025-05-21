@@ -82,7 +82,7 @@ export const BoxEditFormDataSchema = z.object({
     .refine(Boolean, { message: "Please select a location" })
     .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
-  comment: z.string().optional().nullable(),
+  comment: z.string().optional(),
 });
 
 export type IBoxEditFormDataInput = z.input<typeof BoxEditFormDataSchema>;
