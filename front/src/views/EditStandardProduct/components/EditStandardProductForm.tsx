@@ -103,6 +103,7 @@ function EditStandardProductForm({
             <VStack p={2} w="full" bg="gray.100" borderRadius={10} mt={2}>
               <SelectField
                 fieldId="standardProduct"
+                isReadOnly
                 fieldLabel="Name"
                 placeholder="Please select a standard product."
                 options={sortedProductOptions}
