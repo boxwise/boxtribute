@@ -110,7 +110,7 @@ function EditCustomProductFormContainer() {
           gender: editProductFormOutput.gender?.value as NonNullProductGender,
           price: editProductFormOutput.price,
           inShop: editProductFormOutput.inShop,
-          comment: editProductFormOutput.comment || "",
+          comment: editProductFormOutput.comment,
         },
       })
         .then(({ data }) => {

@@ -19,10 +19,7 @@ export const StandardProductFormSchema = z.object({
   category: SingleSelectOptionSchema.optional(),
   gender: z.string().optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
-  comment: z
-    .string()
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
+  comment: z.string().optional(),
   inShop: z.boolean().optional(),
   price: z
     .number({

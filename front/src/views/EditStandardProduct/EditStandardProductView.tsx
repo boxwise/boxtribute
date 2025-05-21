@@ -76,7 +76,7 @@ function EditStandardProductFormContainer() {
       editStandardProduct({
         variables: {
           id: editStandardProductFormOutput.instantiation.value,
-          comment: editStandardProductFormOutput.comment || "",
+          comment: editStandardProductFormOutput.comment,
           price: editStandardProductFormOutput.price,
           inShop: editStandardProductFormOutput.inShop,
         },

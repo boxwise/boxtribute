@@ -33,10 +33,7 @@ const EditCustomProductFormSchema = z.object({
   category: SingleSelectOptionSchema.optional(),
   gender: SingleSelectOptionSchema.optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
-  comment: z
-    .string()
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
+  comment: z.string().optional(),
   inShop: z.boolean().optional(),
   price: z
     .number({
