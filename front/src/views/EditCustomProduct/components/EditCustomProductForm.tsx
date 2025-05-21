@@ -7,7 +7,6 @@ import {
   HStack,
   Input,
   Stack,
-  // Switch,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -34,10 +33,7 @@ const EditCustomProductFormSchema = z.object({
   category: SingleSelectOptionSchema.optional(),
   gender: SingleSelectOptionSchema.optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
-  comment: z
-    .string()
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
+  comment: z.string().optional(),
   inShop: z.boolean().optional(),
   price: z
     .number({
@@ -84,7 +80,7 @@ function EditCustomProductForm({
       <Box border="2px" mb={4} p={2}>
         <HStack borderBottom="2px" pb={2} px={2}>
           <Text fontWeight="bold" fontSize="md">
-            PRODUCT SETUP
+            PRODUCT DETAILS
           </Text>
         </HStack>
         <VStack spacing={4} p={2} mt={2}>
@@ -139,7 +135,6 @@ function EditCustomProductForm({
             errors={errors}
             control={control}
           />
-
           <FormControl>
             <FormLabel htmlFor="comment">Description</FormLabel>
             <Input

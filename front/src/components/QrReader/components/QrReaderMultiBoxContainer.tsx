@@ -94,8 +94,15 @@ function QrReaderMultiBoxContainer() {
       );
       // To show in the UI which boxes failed
       setFailedBoxesFromAssignToShipment(assignBoxesToShipmentResult?.failedBoxes ?? []);
+      removeBoxesFromScannedBoxesByLabelIdentifier(
+        assignBoxesToShipmentResult.assignedBoxes?.map((box) => box.labelIdentifier) ?? [],
+      );
     },
-    [assignBoxesToShipment, scannedBoxesQueryResult.data?.scannedBoxes],
+    [
+      assignBoxesToShipment,
+      removeBoxesFromScannedBoxesByLabelIdentifier,
+      scannedBoxesQueryResult.data?.scannedBoxes,
+    ],
   );
 
   // Data preparation

@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useAtomValue } from "jotai";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   HStack,
   Stack,
@@ -14,36 +15,34 @@ import {
   FormLabel,
   VStack,
   Input,
-  Switch,
 } from "@chakra-ui/react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useAtomValue } from "jotai";
 
 import { AlertWithoutAction } from "components/Alerts";
 import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
-import { StandardProductFormSchema } from "./transformer";
+import { StandardProductFormSchema } from "views/EnableStandardProduct/components/transformer";
 
-export type EnableStandardProductFormInput = z.input<typeof StandardProductFormSchema>;
-export type EnableStandardProductFormOutput = z.output<typeof StandardProductFormSchema>;
+export type EditStandardProductFormInput = z.input<typeof StandardProductFormSchema>;
+export type EditStandardProductFormOutput = z.output<typeof StandardProductFormSchema>;
 
-export type IEnableStandardProductFormProps = {
+export type EditStandardProductFormProps = {
   showAlert: boolean;
   isLoading: boolean;
-  standardProductData: EnableStandardProductFormInput[];
-  defaultValues?: EnableStandardProductFormInput;
-  onSubmit: (enableStandardProductFormData: EnableStandardProductFormOutput) => void;
+  standardProductData: EditStandardProductFormInput[];
+  defaultValues?: EditStandardProductFormInput;
+  onSubmit: (editStandardProductFormData: EditStandardProductFormOutput) => void;
 };
 
-function EnableStandardProductForm({
+function EditStandardProductForm({
   showAlert,
   isLoading,
   standardProductData,
   defaultValues,
   onSubmit,
-}: IEnableStandardProductFormProps) {
+}: EditStandardProductFormProps) {
   const navigate = useNavigate();
   const selectedBase = useAtomValue(selectedBaseAtom);
   const baseName = selectedBase?.name;
@@ -54,7 +53,7 @@ function EnableStandardProductForm({
     register,
     watch,
     formState: { errors },
-  } = useForm<EnableStandardProductFormInput>({
+  } = useForm<EditStandardProductFormInput>({
     resolver: zodResolver(StandardProductFormSchema),
     ...(defaultValues ? { defaultValues } : {}),
   });
@@ -101,24 +100,10 @@ function EnableStandardProductForm({
             </Text>
           </HStack>
           <VStack>
-            <FormControl px={2} mt={4}>
-              <HStack>
-                <Switch
-                  id="type-switch"
-                  mr={2}
-                  isChecked={false}
-                  onChange={() =>
-                    navigate(`${selectedStandardProduct ? "../../create" : "../create"}`)
-                  }
-                />
-                <Text fontWeight="medium" fontSize="md">
-                  Custom Product (Base Specific)
-                </Text>
-              </HStack>
-            </FormControl>
             <VStack p={2} w="full" bg="gray.100" borderRadius={10} mt={2}>
               <SelectField
                 fieldId="standardProduct"
+                isReadOnly
                 fieldLabel="Name"
                 placeholder="Please select a standard product."
                 options={sortedProductOptions}
@@ -223,14 +208,14 @@ function EnableStandardProductForm({
             w="full"
             variant="submit"
           >
-            Enable Product
+            Edit Product
           </Button>
           <Button
             size="md"
             type="button"
             w="full"
             variant="cancel"
-            onClick={() => navigate("../../")}
+            onClick={() => navigate("../../../")}
           >
             Nevermind
           </Button>
@@ -240,4 +225,4 @@ function EnableStandardProductForm({
   );
 }
 
-export default EnableStandardProductForm;
+export default EditStandardProductForm;

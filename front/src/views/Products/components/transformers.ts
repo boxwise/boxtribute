@@ -37,6 +37,7 @@ export type ProductRow = {
   created?: Date | null;
   createdBy?: string | null;
   id: string;
+  standardInstantiationId?: string;
 };
 
 export const standardProductsRawDataToTableDataTransformer = (
@@ -98,9 +99,11 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
         lastModifiedBy,
         createdOn,
         createdBy,
+        standardProduct,
       }) => {
         return {
           id,
+          standardInstantiationId: standardProduct?.id,
           name,
           isStandard: type === "StandardInstantiation",
           category: category.name,

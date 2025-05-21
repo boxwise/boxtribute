@@ -1,93 +1,67 @@
-import { Box, Center, Heading } from "@chakra-ui/react";
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
-import { graphql, ResultOf } from "../../../../graphql/graphql";
-import { STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT } from "../../../../graphql/fragments";
-import EnableStandardProductForm, {
-  IEnableStandardProductFormOutput,
-} from "./components/EnableStandardProductForm";
-import { ErrorBoundary } from "@sentry/react";
-import { AlertWithoutAction } from "components/Alerts";
-import { FormSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
+import { useAtomValue } from "jotai";
+import { ErrorBoundary } from "@sentry/react";
+import { Box, Center, Heading } from "@chakra-ui/react";
+
+import { graphql } from "../../../../graphql/graphql";
+import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import EnableStandardProductForm, {
+  EnableStandardProductFormOutput,
+} from "./components/EnableStandardProductForm";
+import { AlertWithoutAction } from "components/Alerts";
+import { FormSkeleton } from "components/Skeletons";
 import {
   findDefaultValues,
   standardProductRawToFormDataTransformer,
 } from "./components/transformer";
-import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useNotification } from "hooks/useNotification";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
+import { STANDARD_PRODUCT_QUERY } from "queries/queries";
 
-export const ENABLE_STANDARD_PRODUCT_QUERY = graphql(
-  `
-    query EnableStandardProductQuery($baseId: ID!) {
-      standardProducts(baseId: $baseId) {
-        __typename
-        ... on StandardProductPage {
-          elements {
-            ...StandardProductBasicFields
-            instantiation {
-              id
-              price
-              comment
-              inShop
-              deletedOn
-            }
-          }
-        }
-      }
-    }
-  `,
-  [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT],
-);
-
-export type IEnableStandardProductQueryResultType = ResultOf<typeof ENABLE_STANDARD_PRODUCT_QUERY>;
 export const enableStandardProductQueryErrorText =
   "Could not fetch ASSORT standard data! Please try reloading the page.";
 
-export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(
-  `
-    mutation EnableStandardProductMutation(
-      $baseId: Int!
-      $standardProductId: Int!
-      $comment: String
-      $inShop: Boolean
-      $price: Int
+export const ENABLE_STANDARD_PRODUCT_MUTATION = graphql(`
+  mutation EnableStandardProductMutation(
+    $baseId: Int!
+    $standardProductId: Int!
+    $comment: String
+    $inShop: Boolean
+    $price: Int
+  ) {
+    enableStandardProduct(
+      enableInput: {
+        baseId: $baseId
+        standardProductId: $standardProductId
+        comment: $comment
+        inShop: $inShop
+        price: $price
+      }
     ) {
-      enableStandardProduct(
-        enableInput: {
-          baseId: $baseId
-          standardProductId: $standardProductId
-          comment: $comment
-          inShop: $inShop
-          price: $price
-        }
-      ) {
-        __typename
-        ... on Product {
+      __typename
+      ... on Product {
+        id
+        type
+        standardProduct {
           id
-          type
-          standardProduct {
-            id
-          }
-          comment
-          inShop
-          price
-          createdOn
-          createdBy {
-            id
-            name
-          }
+        }
+        comment
+        inShop
+        price
+        createdOn
+        createdBy {
+          id
+          name
         }
       }
     }
-  `,
-  [],
-);
+  }
+`);
 
 function EnableStandardProductFormContainer() {
   const navigate = useNavigate();
@@ -95,7 +69,7 @@ function EnableStandardProductFormContainer() {
   const requestedStandardProductId = useParams<{ standardProductId: string }>().standardProductId;
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
-  const { data: standardProductsRawData, error } = useSuspenseQuery(ENABLE_STANDARD_PRODUCT_QUERY, {
+  const { data: standardProductsRawData, error } = useSuspenseQuery(STANDARD_PRODUCT_QUERY, {
     variables: { baseId },
   });
 
@@ -104,7 +78,7 @@ function EnableStandardProductFormContainer() {
   );
 
   const onSubmit = useCallback(
-    (enableStandardProductFormOutput: IEnableStandardProductFormOutput) => {
+    (enableStandardProductFormOutput: EnableStandardProductFormOutput) => {
       enableStandardProduct({
         variables: {
           standardProductId: parseInt(enableStandardProductFormOutput.standardProduct.value, 10),
