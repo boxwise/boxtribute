@@ -166,7 +166,7 @@ def test_mutations(auth0_client, mocker):
         "name": "bags",
         "base": {"id": "100000000"},
         "price": 0.0,
-        "comment": None,
+        "comment": "",
         "inShop": False,
         "createdBy": {"id": user_id},
     }
