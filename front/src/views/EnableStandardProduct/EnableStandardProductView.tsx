@@ -171,9 +171,12 @@ function EnableStandardProductFormContainer() {
 }
 
 function EnableStandardProductView() {
+  const baseId = useAtomValue(selectedBaseIdAtom);
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Products" linkPath=".." />
+    {/* If a standard product is selected, the view path becomes /products/enable/X, if none is
+    selected yet, the view path is /products/enable. In both cases return to ProductsView */}
+      <MobileBreadcrumbButton label="Back to Manage Products" linkPath={`/bases/${baseId}/products`} />
       <Center>
         {/* <form action=""> */}
         <Box w={["100%", "100%", "60%", "40%"]}>
