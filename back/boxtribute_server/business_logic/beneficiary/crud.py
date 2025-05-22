@@ -1,6 +1,6 @@
 from ...db import db
 from ...enums import TaggableObjectType
-from ...errors import DeletedBase
+from ...errors import DeletedBase, ResourceDoesNotExist
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
@@ -221,7 +221,10 @@ def create_beneficiaries(
         return BeneficiariesResult({"results": []})
 
     # If the base doesn't exist, the authz checks in the parent resolver will fail.
+    # But let's check again anyways in case this function is called elsewhere
     base = Base.get_or_none(base_id)
+    if base is None:
+        return ResourceDoesNotExist(name="Base", id=base_id)
     if base.deleted_on is not None:
         return DeletedBase(name=base.name)
 
