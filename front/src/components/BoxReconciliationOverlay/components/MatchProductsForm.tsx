@@ -76,6 +76,7 @@ export function MatchProductsForm({
 }: IMatchProductsFormProps) {
   const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+
   /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
   const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
   const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
@@ -155,7 +156,7 @@ export function MatchProductsForm({
         })) || [];
       setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
 
-      // Reset size if the product referenec is different than the currently selected product
+      // Reset size if the product reference is different than the currently selected product
       if (productRef.current !== productId.value) {
         productRef.current = productId.value;
         // if there is only one option select it directly

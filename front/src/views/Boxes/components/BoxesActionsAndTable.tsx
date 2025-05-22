@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { Button, Menu, MenuButton, MenuList, MenuItem, useMediaQuery } from "@chakra-ui/react";
+import { Button, Menu, MenuButton, MenuList, MenuItem, Text } from "@chakra-ui/react";
 import { useAtomValue } from "jotai";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
@@ -279,7 +279,6 @@ function BoxesActionsAndTable({
     isAssignTagsLoading ||
     isUnassignTagsLoading;
 
-  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   const actionButtons = useMemo(
     () => [
       <SelectButton
@@ -299,12 +298,8 @@ function BoxesActionsAndTable({
         key="assign-to-shipment"
       />,
       <Link to="create" key="box-create">
-        <Button
-          leftIcon={<AddIcon />}
-          borderRadius="0"
-          iconSpacing={isLargerThan768 ? 2 : 0}
-        >
-          {isLargerThan768 && "Create Box"}
+        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={[0, 0, 2]}>
+          <Text display={["none", "none", "block"]}>Create Box</Text>
         </Button>
       </Link>,
       <Menu key="box-actions" closeOnSelect={false}>
@@ -369,7 +364,6 @@ function BoxesActionsAndTable({
       onAssignTags,
       getSelectedBoxTags,
       onUnassignTags,
-      isLargerThan768,
     ],
   );
 
