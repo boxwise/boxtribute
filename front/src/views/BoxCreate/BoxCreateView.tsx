@@ -163,7 +163,25 @@ function BoxCreateView() {
 
   // Handle Submission
   const tableConfigKey = `bases/${baseId}/boxes`;
-  const tableConfig = useTableConfig({tableConfigKey})
+  const tableConfig = useTableConfig({
+    tableConfigKey,
+    defaultTableConfig: {
+      columnFilters: [{ id: "state", value: ["InStock"] }],
+      sortBy: [{ id: "lastModified", desc: true }],
+      hiddenColumns: [
+        "gender",
+        "size",
+        "shipment",
+        "comment",
+        "age",
+        "lastModified",
+        "lastModifiedBy",
+        "createdBy",
+        "productCategory",
+        "id",
+      ],
+    },
+  });
   const onSubmitBoxCreateForm = (createBoxData: ICreateBoxFormData) => {
     const tagIds = createBoxData?.tags
       ? createBoxData?.tags?.map((tag) => parseInt(tag.value, 10))
