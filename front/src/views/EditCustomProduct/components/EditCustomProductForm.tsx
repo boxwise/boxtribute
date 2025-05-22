@@ -84,14 +84,6 @@ function EditCustomProductForm({
           </Text>
         </HStack>
         <VStack spacing={4} p={2} mt={2}>
-          <FormControl>
-            <HStack>
-              {/* <Switch id="type-switch" mr={2} isChecked onChange={() => navigate("../enable")} /> */}
-              <Text fontWeight="medium" fontSize="md">
-                Custom Product (Base Specific)
-              </Text>
-            </HStack>
-          </FormControl>
           <FormControl isInvalid={!!errors.name}>
             <FormLabel htmlFor="name">
               Name{" "}

@@ -173,7 +173,7 @@ function EnableStandardProductFormContainer() {
 function EnableStandardProductView() {
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Products" linkPath="../../" />
+      <MobileBreadcrumbButton label="Back to Manage Products" linkPath=".." />
       <Center>
         {/* <form action=""> */}
         <Box w={["100%", "100%", "60%", "40%"]}>
