@@ -377,6 +377,22 @@ def test_beneficiary_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"name": deleted_base["name"]}
 
+    # Testing with god user to make all authz checks in the resolver pass albeit
+    # non-existing base
+    mock_user_for_request(mocker, is_god=True)
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: 0
+                    beneficiaryData: [
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
+                        }}
+                    ] }} ) {{
+                        ...on ResourceDoesNotExistError {{ id name }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": "Base", "id": "0"}
+
     history_entries = list(
         DbChangeHistory.select(
             DbChangeHistory.changes,
