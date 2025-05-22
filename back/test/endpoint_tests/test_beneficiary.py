@@ -282,6 +282,7 @@ def test_beneficiary_mutations(
                             gender: {gender.name}
                             isVolunteer: false
                             registered: false
+                            comment: "{new_comment}"
                             tagIds: [1, 3]
                             phoneNumber: "{phone_number}"
                         }},
@@ -299,6 +300,7 @@ def test_beneficiary_mutations(
                                     groupIdentifier
                                     dateOfBirth
                                     gender
+                                    comment
                                     isVolunteer
                                     registered
                                     phoneNumber
@@ -319,6 +321,7 @@ def test_beneficiary_mutations(
                 "groupIdentifier": group_id,
                 "dateOfBirth": dob,
                 "gender": gender.name,
+                "comment": new_comment,
                 "isVolunteer": False,
                 "registered": False,
                 "familyHead": None,
@@ -333,6 +336,7 @@ def test_beneficiary_mutations(
                 "groupIdentifier": group_id,
                 "dateOfBirth": None,
                 "gender": None,
+                "comment": "",
                 "isVolunteer": False,
                 "registered": True,
                 "familyHead": None,
