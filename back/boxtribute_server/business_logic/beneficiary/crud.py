@@ -225,6 +225,7 @@ def create_beneficiaries(
         "last_name": "",
         "date_of_birth": None,
         "gender": None,  # will be converted to '' on DB level
+        "comment": "",
         "is_volunteer": False,
         "not_registered": False,
         "phone_number": None,
