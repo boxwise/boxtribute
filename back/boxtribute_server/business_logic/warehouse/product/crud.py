@@ -51,7 +51,7 @@ def create_custom_product(
     base_id,
     name,
     price=0,
-    comment=None,
+    comment="",
     in_shop=False,
     now,
 ):
@@ -166,7 +166,7 @@ def enable_standard_product(
     base_id,
     size_range_id=None,
     price=0,
-    comment=None,
+    comment="",
     in_shop=False,
     now,
 ):
@@ -281,7 +281,7 @@ def enable_standard_products(
             name=sp.name,
             size_range=sp.size_range_id,
             price=0,
-            comment=None,
+            comment="",
             in_shop=False,
             created_on=now,
             created_by=user_id,
