@@ -79,6 +79,11 @@ class DeletedLocation(UserError):
         self.name = name
 
 
+class DeletedBase(UserError):
+    def __init__(self, *, name):
+        self.name = name
+
+
 class ExpiredLink(UserError):
     def __init__(self, *, valid_until):
         self.valid_until = valid_until
