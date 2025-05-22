@@ -1,5 +1,7 @@
 from ...db import db
 from ...enums import TaggableObjectType
+from ...errors import DeletedBase
+from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.tags_relation import TagsRelation
@@ -217,6 +219,11 @@ def create_beneficiaries(
     """Insert multiple beneficiaries and their tags into the database."""
     if len(beneficiary_data) == 0:
         return BeneficiariesResult({"results": []})
+
+    # If the base doesn't exist, the authz checks in the parent resolver will fail.
+    base = Base.get_or_none(base_id)
+    if base.deleted_on is not None:
+        return DeletedBase(name=base.name)
 
     sanitized_data, all_tag_ids = sanitize_input(beneficiary_data)
     now = utcnow()
