@@ -1,15 +1,17 @@
 from datetime import date
+from unittest import mock
 
 import pytest
 from auth import mock_user_for_request
 from boxtribute_server.enums import HumanGender
+from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
     HISTORY_CREATION_MESSAGE,
     HISTORY_DELETION_MESSAGE,
     compute_age,
 )
-from utils import assert_successful_request
+from utils import assert_internal_server_error, assert_successful_request
 
 
 def _generate_beneficiary_query(id):
@@ -392,6 +394,41 @@ def test_beneficiary_mutations(
                     }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"name": "Base", "id": "0"}
+
+    # Mock the Beneficiary.select method in the create_beneficiaries function
+    BeneficiaryMock = mocker.patch(
+        "boxtribute_server.business_logic.beneficiary.crud.Beneficiary"
+    )
+    SelectMock = mock.MagicMock()
+    SelectMock.where.return_value = [
+        Beneficiary(
+            first_name=first_name,
+            last_name="",
+            comment="",
+            # These values are simulated to be off for some reason
+            group_identifier="X",
+            base=0,
+        )
+    ]
+    BeneficiaryMock.select.return_value = SelectMock
+    BeneficiaryMock.id.__ge__ = lambda *_: None
+    BeneficiaryMock.id.__lt__ = lambda *_: None
+    BeneficiaryMock.id.__add__ = lambda *_: 0
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: 1
+                    beneficiaryData: [
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
+                        }}
+                    ] }} ) {{
+                       ...on BeneficiariesResult {{ results {{ __typename }} }}
+                    }} }}"""
+    response = assert_internal_server_error(client, mutation)
+    assert response.json["data"] == {"createBeneficiaries": None}
+    assert response.json["errors"][0]["extensions"]["invalid_fields"] == {
+        "0": [{"group_identifier": [group_id, "X"]}, {"base": [1, 0]}]
+    }
 
     history_entries = list(
         DbChangeHistory.select(
