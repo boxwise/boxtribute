@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest
+from auth import mock_user_for_request
 from boxtribute_server.enums import HumanGender
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
@@ -112,7 +113,12 @@ def test_beneficiary_query(
 
 
 def test_beneficiary_mutations(
-    client, default_beneficiary, another_relative_beneficiary, tags
+    client,
+    mocker,
+    default_beneficiary,
+    another_relative_beneficiary,
+    tags,
+    deleted_base,
 ):
     # Test case 9.2.1
     first_name = "Some"
@@ -282,6 +288,7 @@ def test_beneficiary_mutations(
                             gender: {gender.name}
                             isVolunteer: false
                             registered: false
+                            comment: "{new_comment}"
                             tagIds: [1, 3]
                             phoneNumber: "{phone_number}"
                         }},
@@ -299,6 +306,7 @@ def test_beneficiary_mutations(
                                     groupIdentifier
                                     dateOfBirth
                                     gender
+                                    comment
                                     isVolunteer
                                     registered
                                     phoneNumber
@@ -319,6 +327,7 @@ def test_beneficiary_mutations(
                 "groupIdentifier": group_id,
                 "dateOfBirth": dob,
                 "gender": gender.name,
+                "comment": new_comment,
                 "isVolunteer": False,
                 "registered": False,
                 "familyHead": None,
@@ -333,6 +342,7 @@ def test_beneficiary_mutations(
                 "groupIdentifier": group_id,
                 "dateOfBirth": None,
                 "gender": None,
+                "comment": "",
                 "isVolunteer": False,
                 "registered": True,
                 "familyHead": None,
@@ -351,6 +361,37 @@ def test_beneficiary_mutations(
                     }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"results": []}
+
+    deleted_base_id = deleted_base["id"]
+    mock_user_for_request(mocker, organisation_id=3, base_ids=[deleted_base_id])
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: {deleted_base_id}
+                    beneficiaryData: [
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
+                        }}
+                    ] }} ) {{
+                        ...on DeletedBaseError {{ name }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": deleted_base["name"]}
+
+    # Testing with god user to make all authz checks in the resolver pass albeit
+    # non-existing base
+    mock_user_for_request(mocker, is_god=True)
+    mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
+                    baseId: 0
+                    beneficiaryData: [
+                        {{
+                            firstName: "{first_name}"
+                            groupIdentifier: "{group_id}"
+                        }}
+                    ] }} ) {{
+                        ...on ResourceDoesNotExistError {{ id name }}
+                    }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": "Base", "id": "0"}
 
     history_entries = list(
         DbChangeHistory.select(

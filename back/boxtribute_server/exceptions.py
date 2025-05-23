@@ -270,3 +270,12 @@ class ServiceError(Exception):
     def __init__(self, *, code, message):
         self.code = code
         self.message = message
+
+
+class InvalidBeneficiaryImport(Exception):
+    def __init__(self, *args, invalid_fields, **kwargs):
+        self.extensions = {
+            "code": "INTERNAL_SERVER_ERROR",
+            "description": "Unexpected error when importing beneficiaries",
+            "invalid_fields": invalid_fields,
+        }

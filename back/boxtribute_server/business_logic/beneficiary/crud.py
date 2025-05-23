@@ -1,5 +1,10 @@
+from collections import defaultdict
+
 from ...db import db
 from ...enums import TaggableObjectType
+from ...errors import DeletedBase, ResourceDoesNotExist
+from ...exceptions import InvalidBeneficiaryImport
+from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.tags_relation import TagsRelation
@@ -208,6 +213,28 @@ def sanitize_input(data):
     return sanitized_data, all_tag_ids
 
 
+def validate_imported_beneficiaries(input_data, imported_entries):
+    fields = [
+        "first_name",
+        "last_name",
+        "date_of_birth",
+        "gender",
+        "is_volunteer",
+        "not_registered",
+        "phone_number",
+        "group_identifier",
+        "comment",
+    ]
+    invalid_fields = defaultdict(list)
+    for input_element, imported_entry in zip(input_data, imported_entries):
+        for field in fields:
+            if input_element[field] != getattr(imported_entry, field):
+                invalid_fields[imported_entry.id].append(field)
+        if input_element["base"] != imported_entry.base_id:
+            invalid_fields[imported_entry.id].append("base")
+    return invalid_fields
+
+
 def create_beneficiaries(
     *,
     user_id,
@@ -218,6 +245,14 @@ def create_beneficiaries(
     if len(beneficiary_data) == 0:
         return BeneficiariesResult({"results": []})
 
+    # If the base doesn't exist, the authz checks in the parent resolver will fail.
+    # But let's check again anyways in case this function is called elsewhere
+    base = Base.get_or_none(base_id)
+    if base is None:
+        return ResourceDoesNotExist(name="Base", id=base_id)
+    if base.deleted_on is not None:
+        return DeletedBase(name=base.name)
+
     sanitized_data, all_tag_ids = sanitize_input(beneficiary_data)
     now = utcnow()
     default_and_common_elements = {
@@ -225,6 +260,7 @@ def create_beneficiaries(
         "last_name": "",
         "date_of_birth": None,
         "gender": None,  # will be converted to '' on DB level
+        "comment": "",
         "is_volunteer": False,
         "not_registered": False,
         "phone_number": None,
@@ -246,6 +282,10 @@ def create_beneficiaries(
                 Beneficiary.id < first_inserted_id + len(complete_data),
             )
         )
+        if invalid_fields := validate_imported_beneficiaries(
+            complete_data, beneficiaries
+        ):
+            raise InvalidBeneficiaryImport(invalid_fields=invalid_fields)
 
         history_entries = [
             DbChangeHistory(
