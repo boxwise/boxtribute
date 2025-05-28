@@ -1,25 +1,25 @@
-import { useQuery, useMutation } from "@apollo/client";
-import { Button, Badge, Text } from "@chakra-ui/react";
+import { useQuery } from "@apollo/client";
+import { Button, Badge } from "@chakra-ui/react";
 import { TableSkeleton } from "components/Skeletons";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { useTableConfig } from "hooks/hooks";
-import { useErrorHandling } from "hooks/useErrorHandling";
-import { useNotification } from "hooks/useNotification";
 import { useCallback, useMemo } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Column, CellProps } from "react-table";
+import { useAtomValue } from "jotai";
+
 import {
   SIZE_RANGE_FIELDS_FRAGMENT,
   STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
-import StandardProductsTable from "./StandardProductsTable";
-import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
-import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { PRODUCTS_QUERY } from "./ProductsContainer";
+import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
+import StandardProductsTable from "./StandardProductsTable";
 import { DateCell } from "components/Table/Cells";
+import { useDisableOrDeleteProducts } from "../../../hooks/useDisableOrDeleteProducts";
+import DisableStandardProductAlert from "./DisableStandardProductAlert";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -56,37 +56,11 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   [STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_RANGE_FIELDS_FRAGMENT],
 );
 
-export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
-  `
-    mutation DisableStandardProduct($instantiationId: ID!) {
-      disableStandardProduct(instantiationId: $instantiationId) {
-        __typename
-        ... on Product {
-          id
-          type
-          standardProduct {
-            id
-          }
-          deletedOn
-        }
-        ... on UnauthorizedForBaseError {
-          name
-          organisationName
-        }
-        ... on BoxesStillAssignedToProductError {
-          labelIdentifiers
-        }
-      }
-    }
-  `,
-  [],
-);
-
 function StandardProductsContainer() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const navigate = useNavigate();
-  const { createToast } = useNotification();
-  const { triggerError } = useErrorHandling();
+  const { disableStandardProductMutationLoading, handleDisableProduct } =
+    useDisableOrDeleteProducts();
 
   const tableConfigKey = `bases/${baseId}/standardproducts`;
   const tableConfig = useTableConfig({
@@ -116,112 +90,6 @@ function StandardProductsContainer() {
     data: standardProductsRawData,
     error,
   } = useQuery(STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, { variables: { baseId } });
-
-  const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
-    useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
-
-  const handleDisableProduct = useCallback(
-    (
-      instantiationId?: string,
-      instockItemsCount?: number,
-      transferItemsCount?: number,
-      productName?: string,
-    ) => {
-      if (
-        (instockItemsCount !== undefined && instockItemsCount > 0) ||
-        (transferItemsCount !== undefined && transferItemsCount > 0)
-      ) {
-        createToast({
-          title: "Disabling Product with Active Stock",
-          message: (
-            <>
-              You are attempting to disable the product {productName} with {instockItemsCount}{" "}
-              <Text fontWeight="600" color="#659A7E" display="inline">
-                InStock
-              </Text>
-              {!!transferItemsCount && (
-                <>
-                  , and with {transferItemsCount}{" "}
-                  <Text fontWeight="600" color="#659A7E" display="inline">
-                    MarkedForShipment
-                  </Text>
-                  ,{" "}
-                  <Text fontWeight="600" color="#659A7E" display="inline">
-                    InTransit
-                  </Text>
-                  , or{" "}
-                  <Text fontWeight="600" color="#659A7E" display="inline">
-                    Receiving
-                  </Text>
-                </>
-              )}{" "}
-              items in one or more locations. To continue, you must first reclassify all{" "}
-              <Text fontWeight="600" color="#659A7E" display="inline">
-                InStock
-              </Text>{" "}
-              boxes as a different product{!!transferItemsCount && " and complete your shipments"}.
-            </>
-          ),
-          type: "error",
-          duration: 10000,
-        });
-      } else if (instantiationId) {
-        disableStandardProductMutation({
-          variables: {
-            instantiationId,
-          },
-          refetchQueries: [
-            { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
-            { query: PRODUCTS_QUERY, variables: { baseId } },
-          ],
-        })
-          .then(({ data }) => {
-            const result = data?.disableStandardProduct;
-            if (!result) return;
-
-            switch (result.__typename) {
-              case "Product":
-                createToast({
-                  message: `The ASSORT standard product was successfully disabled.`,
-                });
-                break;
-              case "InsufficientPermissionError":
-                triggerError({
-                  message: "You don't have permission to disable this ASSORT standard product!",
-                });
-                break;
-              case "UnauthorizedForBaseError":
-                triggerError({
-                  message: `This product belongs to organization ${result?.organisationName}.`,
-                });
-                break;
-              case "BoxesStillAssignedToProductError":
-                triggerError({
-                  message: `This product is still assigned to the following boxes: ${result?.labelIdentifiers.join(", ")}.`,
-                });
-                break;
-              default:
-                triggerError({
-                  message: "Could not disable this ASSORT standard product! Try again?",
-                });
-                break;
-            }
-          })
-          .catch(() => {
-            // Handle network or other errors
-            triggerError({
-              message: "Could not disable this ASSORT standard product! Try again?",
-            });
-          });
-      } else {
-        triggerError({
-          message: "No instantiationId provided for disabling product.",
-          userMessage: "Something went wrong.",
-        });
-      }
-    },
-    [createToast, disableStandardProductMutation, baseId, triggerError],
-  );
 
   const handleEnableProduct = useCallback(
     (standardProductId: string) =>
@@ -257,10 +125,14 @@ function StandardProductsContainer() {
               <Button
                 onClick={() =>
                   handleDisableProduct(
+                    <DisableStandardProductAlert
+                      productName={row.original.name}
+                      instockItemsCount={row.original.instockItemsCount + ""}
+                      transferItemsCount={row.original.transferItemsCount + ""}
+                    />,
                     row.original.instantiationId,
                     row.original.instockItemsCount,
                     row.original.transferItemsCount,
-                    row.original.name,
                   )
                 }
                 size="sm"
@@ -373,13 +245,9 @@ function StandardProductsContainer() {
     [disableStandardProductMutationLoading, handleEnableProduct, handleDisableProduct],
   );
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  if (!standardProductsRawData || isStandardProductsQueryLoading) {
-    return <TableSkeleton />;
-  }
+  if (!standardProductsRawData || isStandardProductsQueryLoading) return <TableSkeleton />;
 
   return (
     <StandardProductsTable

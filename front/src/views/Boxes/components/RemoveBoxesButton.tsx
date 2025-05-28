@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Row } from "react-table";
-
 import { Button } from "@chakra-ui/react";
-import RemoveBoxesOverlay from "./RemoveBoxesOverlay";
 import { BoxRow } from "./types";
-import { useNotification } from "hooks/useNotification";
 import { BiTrash } from "react-icons/bi";
+
+import { useNotification } from "hooks/useNotification";
+import RemoveBoxesOverlay from "./RemoveBoxesOverlay";
 
 interface RemoveBoxesButtonProps {
   onDeleteBoxes: () => void;
@@ -14,32 +14,29 @@ interface RemoveBoxesButtonProps {
   labelIdentifier: string;
 }
 
-const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
+const RemoveBoxesButton = ({
   onDeleteBoxes,
   actionsAreLoading,
   selectedBoxes,
   labelIdentifier,
-}) => {
+}: RemoveBoxesButtonProps) => {
   const { createToast } = useNotification();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleOpenDialog = () => {
-    if (selectedBoxes.length === 0) {
+    if (selectedBoxes.length === 0)
       createToast({
         type: "warning",
         message: `Please select a box to delete`,
       });
-    }
-    if (!actionsAreLoading && selectedBoxes.length !== 0) {
-      setIsDialogOpen(true);
-    }
+
+    if (!actionsAreLoading && selectedBoxes.length !== 0) setIsDialogOpen(true);
   };
-  const handleCloseDialog = () => setIsDialogOpen(false);
 
   const handleConfirmRemove = () => {
     onDeleteBoxes();
-    handleCloseDialog();
+    setIsDialogOpen(false);
   };
 
   return (
@@ -59,7 +56,9 @@ const RemoveBoxesButton: React.FC<RemoveBoxesButtonProps> = ({
         isLoading={actionsAreLoading}
         isOpen={isDialogOpen}
         selectedBoxes={selectedBoxes}
-        onClose={handleCloseDialog}
+        onClose={() => {
+          setIsDialogOpen(false);
+        }}
         onRemove={handleConfirmRemove}
       />
     </>
