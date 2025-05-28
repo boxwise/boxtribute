@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@chakra-ui/react";
+import { Badge, Button } from "@chakra-ui/react";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { useTableConfig } from "hooks/hooks";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Column, CellProps } from "react-table";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
@@ -15,6 +15,9 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
+import DisableStandardProductAlert from "./DisableStandardProductAlert";
+import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
+import DeleteProductOverlay from "./DeleteProductOverlay";
 
 export const PRODUCTS_QUERY = graphql(
   `
@@ -57,6 +60,16 @@ export const PRODUCTS_QUERY = graphql(
 function ProductsContainer() {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const {
+    disableStandardProductMutationLoading,
+    deleteProductMutationLoading,
+    handleDisableProduct,
+    handleDeleteProduct,
+  } = useDisableOrDeleteProducts();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [productIdToDelete, setProductIdToDelete] = useState("");
+  const [productToDelete, setProductToDelete] = useState("");
+
   const tableConfigKey = `bases/${baseId}/products`;
   const tableConfig = useTableConfig({
     tableConfigKey,
@@ -91,6 +104,51 @@ function ProductsContainer() {
           const b = rowB.values.name.toLowerCase();
           return a.localeCompare(b);
         },
+      },
+      {
+        Header: "",
+        id: "actionButton",
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: ({ row }: CellProps<ProductRow, any>) => (
+          <>
+            {row.original.isStandard ? (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  handleDisableProduct(
+                    <DisableStandardProductAlert
+                      productName={row.original.name}
+                      instockItemsCount={row.original.instockItemsCount + ""}
+                      transferItemsCount={row.original.transferItemsCount + ""}
+                    />,
+                    row.original.standardInstantiationId,
+                    row.original.instockItemsCount,
+                    row.original.transferItemsCount,
+                  );
+                }}
+                size="sm"
+                disabled={disableStandardProductMutationLoading}
+                isLoading={disableStandardProductMutationLoading}
+              >
+                Disable
+              </Button>
+            ) : (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProductIdToDelete(row.original.id);
+                  setProductToDelete(row.original.name);
+                  setIsDialogOpen(true);
+                }}
+                size="sm"
+              >
+                Delete
+              </Button>
+            )}
+          </>
+        ),
       },
       {
         Header: "Category",
@@ -181,7 +239,7 @@ function ProductsContainer() {
         disableFilters: true,
       },
     ],
-    [],
+    [disableStandardProductMutationLoading, handleDisableProduct],
   );
 
   if (error) {
@@ -189,12 +247,24 @@ function ProductsContainer() {
   }
 
   return (
-    <ProductsTable
-      tableConfig={tableConfig}
-      tableData={productsRawToTableDataTransformer(productsRawData)}
-      columns={availableColumns}
-      onRowClick={onRowClick}
-    />
+    <>
+      <ProductsTable
+        tableConfig={tableConfig}
+        tableData={productsRawToTableDataTransformer(productsRawData)}
+        columns={availableColumns}
+        onRowClick={onRowClick}
+      />
+      <DeleteProductOverlay
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        productName={productToDelete}
+        isLoading={deleteProductMutationLoading}
+        onRemove={() => {
+          handleDeleteProduct(productIdToDelete);
+          setIsDialogOpen(false);
+        }}
+      />
+    </>
   );
 }
 
