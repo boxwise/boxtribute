@@ -38,13 +38,13 @@ interface IBoxReconcilationAccordionProps {
 }
 
 export interface IProductFormData {
-  productId: number | undefined;
-  sizeId: number | undefined;
+  productId: string | undefined;
+  sizeId: string | undefined;
   numberOfItems: number | undefined;
 }
 
 export interface ILocationFormData {
-  locationId: number | undefined;
+  locationId: string | undefined;
 }
 
 export function BoxReconcilationAccordion({
@@ -73,21 +73,31 @@ export function BoxReconcilationAccordion({
 
   // target side
   const isTargetProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
+  const targetProductName = isSourceProductInCache
+    ? cachedReconciliationMatchProduct[sourceProductId].productId.label
+    : isTargetProductAutoMatched && shipmentDetail?.autoMatchingTargetProduct
+      ? shipmentDetail.autoMatchingTargetProduct.name
+      : undefined;
   const targetProductId = isSourceProductInCache
-    ? parseInt(cachedReconciliationMatchProduct[sourceProductId].productId.value, 10)
-    : isTargetProductAutoMatched && shipmentDetail.autoMatchingTargetProduct
-      ? parseInt(shipmentDetail.autoMatchingTargetProduct.id, 10)
+    ? cachedReconciliationMatchProduct[sourceProductId].productId.value
+    : isTargetProductAutoMatched && shipmentDetail?.autoMatchingTargetProduct
+      ? shipmentDetail.autoMatchingTargetProduct.id
       : undefined;
   const isSourceSizeInRangeOfTargetProduct = productAndSizesData
-    .filter((product) => parseInt(product.id, 10) === targetProductId)
+    .filter((product) => product.id === targetProductId)
     .every((product) => {
       const possibleSizeIds = product.sizeRange.sizes.map((size) => size.id);
       return sourceSizeId && possibleSizeIds.includes(sourceSizeId);
     });
+  const targetSizeName = isSourceProductInCache
+    ? cachedReconciliationMatchProduct[sourceProductId].sizeId.label
+    : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail?.sourceSize
+      ? shipmentDetail.sourceSize.label
+      : undefined;
   const targetSizeId = isSourceProductInCache
-    ? parseInt(cachedReconciliationMatchProduct[sourceProductId].sizeId.value, 10)
-    : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail.sourceSize
-      ? parseInt(shipmentDetail.sourceSize.id, 10)
+    ? cachedReconciliationMatchProduct[sourceProductId].sizeId.value
+    : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail?.sourceSize
+      ? shipmentDetail.sourceSize.id
       : undefined;
 
   console.log("targetProductId", targetProductId);
@@ -163,25 +173,40 @@ export function BoxReconcilationAccordion({
             </>
           )}
           <MatchProductsForm
+            defaultValues={
+              shipmentDetail?.sourceQuantity
+                ? {
+                    productId: targetProductName
+                      ? { value: targetProductId, label: targetProductName }
+                      : undefined,
+                    sizeId: targetSizeName
+                      ? { value: targetSizeId, label: targetSizeName }
+                      : undefined,
+                    numberOfItems: shipmentDetail?.sourceQuantity,
+                  }
+                : undefined
+            }
             loading={loading}
             shipmentDetail={shipmentDetail}
             productAndSizesData={productAndSizesData}
             onBoxUndelivered={onBoxUndelivered}
             onSubmitMatchProductsForm={(matchedProductsFormData: MatchProductsFormData) => {
-              setProductManuallyMatched(true);
-              setAccordionIndex(1);
+              if (matchedProductsFormData.productId && matchedProductsFormData.sizeId) {
+                setProductManuallyMatched(true);
+                setAccordionIndex(1);
 
-              if (shipmentDetail.sourceProduct?.id) {
-                reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
-                  matchedProductsFormData;
-                setReconciliationMatchProductCache(reconciliationMatchProductCache);
+                if (shipmentDetail.sourceProduct?.id) {
+                  reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
+                    matchedProductsFormData;
+                  setReconciliationMatchProductCache(reconciliationMatchProductCache);
+                }
+
+                setProductFormData({
+                  sizeId: matchedProductsFormData.sizeId.value,
+                  productId: matchedProductsFormData.productId.value,
+                  numberOfItems: matchedProductsFormData.numberOfItems,
+                });
               }
-
-              setProductFormData({
-                sizeId: parseInt(matchedProductsFormData.sizeId.value, 10),
-                productId: parseInt(matchedProductsFormData.productId.value, 10),
-                numberOfItems: matchedProductsFormData.numberOfItems,
-              });
             }}
           />
         </AccordionPanel>
@@ -223,8 +248,8 @@ export function BoxReconcilationAccordion({
                 onBoxDelivered(
                   shipmentDetail.box.labelIdentifier,
                   parseInt(receiveLocationFormData.locationId.value, 10),
-                  productFormData.productId,
-                  productFormData.sizeId,
+                  parseInt(productFormData.productId, 10),
+                  parseInt(productFormData.sizeId, 10),
                   productFormData.numberOfItems,
                 );
               }

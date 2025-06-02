@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
-import { useAtomValue } from "jotai";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { groupBy } from "lodash";
@@ -10,7 +9,6 @@ import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { reconciliationMatchProductAtom } from "stores/globalCacheStore";
 import { ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 export interface ICategoryData {
@@ -28,26 +26,13 @@ export interface ISizeRangeData {
 }
 
 // Definitions for form validation with zod
-
-const singleSelectOptionSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-});
-
 export const MatchProductsFormDataSchema = z.object({
-  // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
-  // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
-  productId: singleSelectOptionSchema
-    // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
-    // .nullable()
-    // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
-    .refine(Boolean, { message: "Please select a product" })
-    // since the expected return type is an object of strings we have to add this transform at the end.
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
-  sizeId: singleSelectOptionSchema
-    // .nullable()
-    .refine(Boolean, { message: "Please select a size" })
-    .transform((selectedOption) => selectedOption || { label: "", value: "" }),
+  productId: z
+    .object({ label: z.string(), value: z.string() }, { required_error: "Save Product as ..." })
+    .optional(),
+  sizeId: z
+    .object({ label: z.string(), value: z.string() }, { required_error: "Save Size as ..." })
+    .optional(),
   numberOfItems: z
     .number({
       required_error: "Please enter a number of items",
@@ -60,6 +45,7 @@ export const MatchProductsFormDataSchema = z.object({
 export type MatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;
 
 interface IMatchProductsFormProps {
+  defaultValues?: MatchProductsFormData;
   shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   loading: boolean;
@@ -68,59 +54,13 @@ interface IMatchProductsFormProps {
 }
 
 export function MatchProductsForm({
+  defaultValues,
   shipmentDetail,
   productAndSizesData,
   loading,
   onSubmitMatchProductsForm,
   onBoxUndelivered,
 }: IMatchProductsFormProps) {
-  const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
-  const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
-
-  /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
-  const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
-  const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
-  /** Object key to match in the store to fetch the input values. */
-  const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
-  const cachedProductLabel = cachedReconciliationMatchProduct[cacheId]?.productId.label;
-  const cachedProductValue = cachedReconciliationMatchProduct[cacheId]?.productId.value;
-  const cachedProductSizeIdLabel = cachedReconciliationMatchProduct[cacheId]?.sizeId.label;
-  const cachedProductSizeIdValue = cachedReconciliationMatchProduct[cacheId]?.sizeId.value;
-
-  // Default Values
-  // Cached products take precedence over automatched products.
-  const defaultValues: MatchProductsFormData = {
-    productId: {
-      label:
-        cachedProductLabel !== "Save Product As..."
-          ? cachedProductLabel
-          : (shipmentDetail?.autoMatchingTargetProduct?.name ?? "Save Product As..."),
-      value:
-        cachedProductValue !== ""
-          ? cachedProductValue
-          : (shipmentDetail?.autoMatchingTargetProduct?.id ?? ""),
-    },
-    sizeId: {
-      label:
-        cachedProductSizeIdLabel !== "Save Size As..."
-          ? cachedProductSizeIdLabel
-          : isProductAutoMatched
-            ? (shipmentDetail.sourceSize?.label ?? "")
-            : "Save Size As...",
-      value:
-        cachedProductSizeIdValue !== ""
-          ? cachedProductSizeIdValue
-          : isProductAutoMatched
-            ? (shipmentDetail.sourceSize?.id ?? "")
-            : "",
-    },
-    numberOfItems: shipmentDetail?.sourceQuantity ?? 0,
-  };
-
-  const submitButtonText = shipmentDetail.autoMatchingTargetProduct
-    ? "Save Changes"
-    : "Confirm Delivered Items";
-
   // react-hook-form
   const {
     handleSubmit,
@@ -162,20 +102,12 @@ export function MatchProductsForm({
         // if there is only one option select it directly
         if (prepSizesOptionsForCurrentProduct.length === 1) {
           resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
-        } else if (cachedReconciliationMatchProduct[matchingProductSourceId]?.sizeId?.value) {
-          return;
         } else {
-          resetField("sizeId", { defaultValue: { value: "", label: "Save Size As..." } });
+          resetField("sizeId", { defaultValue: undefined });
         }
       }
     }
-  }, [
-    productId,
-    productAndSizesData,
-    resetField,
-    cachedReconciliationMatchProduct,
-    matchingProductSourceId,
-  ]);
+  }, [productId, productAndSizesData, resetField]);
 
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
@@ -207,9 +139,9 @@ export function MatchProductsForm({
           </Text>
           <Text
             fontSize={16}
-            fontWeight={productId?.value === "" ? "semibold" : ""}
+            fontWeight={!productId?.value ? "semibold" : ""}
             fontStyle="italic"
-            style={{ color: productId?.value === "" ? "#FF0000" : "#000" }}
+            style={{ color: !productId?.value ? "#FF0000" : "#000" }}
           >
             {shipmentDetail?.sourceProduct?.name}{" "}
             {shipmentDetail?.sourceProduct?.gender !== "none"
@@ -240,9 +172,9 @@ export function MatchProductsForm({
           </Text>
           <Text
             fontSize={16}
-            fontWeight={sizeId?.value === "" ? "semibold" : ""}
+            fontWeight={!sizeId?.value ? "semibold" : ""}
             fontStyle="italic"
-            style={{ color: sizeId?.value === "" ? "#FF0000" : "#000" }}
+            style={{ color: !sizeId?.value ? "#FF0000" : "#000" }}
           >
             {shipmentDetail?.sourceSize?.label}{" "}
           </Text>
@@ -292,9 +224,9 @@ export function MatchProductsForm({
             w="full"
             bgColor="green.500"
             color="white"
-            isDisabled={isSubmitting || productId.value === "" || sizeId.value === ""}
+            isDisabled={isSubmitting || loading}
           >
-            {submitButtonText}
+            Confirm Delivered Items
           </Button>
           <Button
             isLoading={isSubmitting || loading}
