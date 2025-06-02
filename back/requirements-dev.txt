@@ -3,12 +3,12 @@ flake8==7.2.0
 isort==6.0.1
 pre-commit==4.2.0
 pytest>=6.2.5
-pytest-mock==3.14.0
+pytest-mock==3.14.1
 pytest-cov==6.1.1
 pytest-clarity==1.0.1
-mypy==1.15.0
-types-Flask-Cors==5.0.0.20250413
-types-peewee==3.18.1.20250516
-types-setuptools==80.7.0.20250516
+mypy==1.16.0
+types-Flask-Cors==6.0.0.20250520
+types-peewee==3.18.1.20250601
+types-setuptools==80.9.0.20250529
 types-PyMySQL==1.1.0.20250516
 flake8-bugbear==24.12.12
