@@ -61,33 +61,54 @@ export function BoxReconcilationAccordion({
   const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
   const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
 
-  /** Matching Source Product ID to look up a matching product in the cache store to prefill the form input. */
-  const matchingProductSourceId = (shipmentDetail.sourceProduct?.id as `${number}`) || "0";
-  const isProductIdMatchedInCache = !!cachedReconciliationMatchProduct[matchingProductSourceId];
-  const isProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
-  /** Object key to match in the store to fetch the input values. */
-  const cacheId = isProductIdMatchedInCache ? matchingProductSourceId : "0";
-  const cachedProductSizeIdValue = cachedReconciliationMatchProduct[cacheId]?.sizeId.value;
+  // source side
+  const sourceProductId = shipmentDetail.sourceProduct?.id;
+  const sourceSizeId = shipmentDetail.sourceSize?.id;
+  const isSourceProductInCache =
+    sourceProductId && !!cachedReconciliationMatchProduct[sourceProductId];
 
-  const [accordionIndex, setAccordionIndex] = useState(
-    isProductIdMatchedInCache || cachedProductSizeIdValue === "" ? 0 : isProductAutoMatched ? 1 : 0,
-  );
-  const [productManuallyMatched, setProductManuallyMatched] = useState(false);
-  const [locationSpecified, setLocationSpecified] = useState(false);
+  console.log("sourceProductId", sourceProductId);
+  console.log("sourceSizeId", sourceSizeId);
+  console.log("isSourceProductInCache", isSourceProductInCache);
+
+  // target side
+  const isTargetProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
+  const targetProductId = isSourceProductInCache
+    ? parseInt(cachedReconciliationMatchProduct[sourceProductId].productId.value, 10)
+    : isTargetProductAutoMatched && shipmentDetail.autoMatchingTargetProduct
+      ? parseInt(shipmentDetail.autoMatchingTargetProduct.id, 10)
+      : undefined;
+  const isSourceSizeInRangeOfTargetProduct = productAndSizesData
+    .filter((product) => parseInt(product.id, 10) === targetProductId)
+    .every((product) => {
+      const possibleSizeIds = product.sizeRange.sizes.map((size) => size.id);
+      return sourceSizeId && possibleSizeIds.includes(sourceSizeId);
+    });
+  const targetSizeId = isSourceProductInCache
+    ? parseInt(cachedReconciliationMatchProduct[sourceProductId].sizeId.value, 10)
+    : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail.sourceSize
+      ? parseInt(shipmentDetail.sourceSize.id, 10)
+      : undefined;
+
+  console.log("targetProductId", targetProductId);
+  console.log("targetSizeId", targetSizeId);
+  console.log("isTargetProductAutoMatched", isTargetProductAutoMatched);
+  console.log("isSourceSizeInRangeOfTargetProduct", isSourceSizeInRangeOfTargetProduct);
+
+  // form states
   const [productFormData, setProductFormData] = useState<IProductFormData>({
-    productId: isProductAutoMatched
-      ? parseInt(shipmentDetail.autoMatchingTargetProduct?.id ?? "0")
-      : undefined,
-    sizeId: isProductAutoMatched ? parseInt(shipmentDetail.sourceSize?.id ?? "0") : undefined,
+    productId: targetProductId,
+    sizeId: targetSizeId,
     numberOfItems: shipmentDetail?.sourceQuantity ?? undefined,
   });
+  const [productManuallyMatched, setProductManuallyMatched] = useState(false);
+  const [locationSpecified, setLocationSpecified] = useState(false);
 
-  const accordionHeaderColor = isProductAutoMatched || productManuallyMatched ? "#659A7E" : "#000";
-  const accordionHeaderText = productManuallyMatched
-    ? "PRODUCTS DELIVERED"
-    : isProductAutoMatched
-      ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
-      : "MATCH PRODUCTS";
+  // accordion states
+  const isProductAccordionInitiallyNotOpen =
+    !isSourceProductInCache && isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct;
+  const [accordionIndex, setAccordionIndex] = useState(isProductAccordionInitiallyNotOpen ? 1 : 0);
+  const successfullyMatched = productManuallyMatched || isProductAccordionInitiallyNotOpen;
 
   return (
     <Accordion allowToggle index={accordionIndex}>
@@ -98,23 +119,38 @@ export function BoxReconcilationAccordion({
           onClick={() => setAccordionIndex(0)}
           position="relative"
         >
-          <Box flex="1" textAlign="left" fontWeight="bold" color={accordionHeaderColor}>
-            <h2>1. {accordionHeaderText}</h2>
+          <Box
+            flex="1"
+            textAlign="left"
+            fontWeight="bold"
+            color={successfullyMatched ? "#659A7E" : "#000"}
+          >
+            <h2>
+              1.{" "}
+              {productManuallyMatched
+                ? "PRODUCTS DELIVERED"
+                : !isSourceProductInCache && isTargetProductAutoMatched
+                  ? `PRODUCT AUTO-MATCHED (${shipmentDetail?.sourceQuantity}x)`
+                  : "MATCH PRODUCTS"}
+            </h2>
           </Box>
           <Box>
-            {!(productManuallyMatched || isProductAutoMatched) && <RiQuestionFill size={20} />}
-            {(productManuallyMatched || isProductAutoMatched) && (
+            {successfullyMatched ? (
               <BsFillCheckCircleFill color="#659A7E" size={18} />
+            ) : (
+              <RiQuestionFill size={20} />
             )}
           </Box>
-          {isProductAutoMatched && accordionIndex !== 0 && !productManuallyMatched && (
-            <Text as="i" fontSize="xs" position="absolute" bottom={0.5} left={8}>
-              Click here to view auto-matched items
-            </Text>
-          )}
+          {isProductAccordionInitiallyNotOpen &&
+            accordionIndex !== 0 &&
+            !productManuallyMatched && (
+              <Text as="i" fontSize="xs" position="absolute" bottom={0.5} left={8}>
+                Click here to view auto-matched items
+              </Text>
+            )}
         </AccordionButton>
         <AccordionPanel p={6} position="relative">
-          {isProductAutoMatched && !productManuallyMatched && (
+          {!isSourceProductInCache && isTargetProductAutoMatched && !productManuallyMatched && (
             <>
               <Alert status="info" left={0} top={0} position="absolute">
                 <AlertIcon />
@@ -172,17 +208,26 @@ export function BoxReconcilationAccordion({
             onLocationSpecified={setLocationSpecified}
             allLocations={allLocations}
             onSubmitReceiveLocationForm={(receiveLocationFormData: IReceiveLocationFormData) => {
-              setLocationSpecified(true);
-              setAccordionIndex(-1);
-              setReconciliationReceiveLocationCache(receiveLocationFormData);
-
-              onBoxDelivered(
-                shipmentDetail.box.labelIdentifier,
-                parseInt(receiveLocationFormData.locationId.value, 10),
-                productFormData.productId!,
-                productFormData.sizeId!,
-                productFormData.numberOfItems!,
-              );
+              if (
+                !productFormData.productId ||
+                !productFormData.sizeId ||
+                !productFormData.numberOfItems
+              ) {
+                setAccordionIndex(0);
+              } else if (receiveLocationFormData.locationId.value === "") {
+                setAccordionIndex(1);
+              } else {
+                setAccordionIndex(-1);
+                setLocationSpecified(true);
+                setReconciliationReceiveLocationCache(receiveLocationFormData);
+                onBoxDelivered(
+                  shipmentDetail.box.labelIdentifier,
+                  parseInt(receiveLocationFormData.locationId.value, 10),
+                  productFormData.productId,
+                  productFormData.sizeId,
+                  productFormData.numberOfItems,
+                );
+              }
             }}
           />
         </AccordionPanel>
