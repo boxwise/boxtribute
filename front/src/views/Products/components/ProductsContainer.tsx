@@ -115,7 +115,7 @@ function ProductsContainer() {
                   transferItemsCount={row.original.transferItemsCount + ""}
                   disableOrDelete={row.original.isStandard ? "disable" : "delete"}
                 />,
-                row.original.standardInstantiationId,
+                row.original.id,
                 row.original.instockItemsCount,
                 row.original.transferItemsCount,
               );

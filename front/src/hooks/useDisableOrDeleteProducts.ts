@@ -63,16 +63,60 @@ export const useDisableOrDeleteProducts = () => {
 
   const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
     useMutation(DISABLE_STANDARD_PRODUCT_MUTATION);
-  const [, { loading: deleteProductMutationLoading }] = useMutation(DELETE_PRODUCT_MUTATION);
+  const [deleteProductMutation, { loading: deleteProductMutationLoading }] =
+    useMutation(DELETE_PRODUCT_MUTATION);
 
   const handleDisableOrDeleteProduct = useCallback(
     (
       disableOrDelete: "disable" | "delete",
       message: JSX.Element,
-      instantiationId?: string,
+      customProductOrinstantiationId?: string,
       instockItemsCount?: number,
       transferItemsCount?: number,
     ) => {
+      const displayMessageToUser = (
+        typename: string,
+        organisationName: string,
+        labelIdentifiers: string[],
+      ) => {
+        switch (typename) {
+          case "Product":
+            createToast({
+              message:
+                disableOrDelete === "disable"
+                  ? "The ASSORT standard product was successfully disabled."
+                  : "The product was successfully deleted.",
+            });
+            break;
+          case "InsufficientPermissionError":
+            triggerError({
+              message:
+                disableOrDelete === "disable"
+                  ? "You don't have permission to disable this ASSORT standard product!"
+                  : "You don't have permission to delete this product!",
+            });
+            break;
+          case "UnauthorizedForBaseError":
+            triggerError({
+              message: `This product belongs to organization ${organisationName}.`,
+            });
+            break;
+          case "BoxesStillAssignedToProductError":
+            triggerError({
+              message: `This product is still assigned to the following boxes: ${labelIdentifiers.join(", ")}.`,
+            });
+            break;
+          default:
+            triggerError({
+              message:
+                disableOrDelete === "disable"
+                  ? "Could not disable this ASSORT standard product! Try again?"
+                  : "Could not delete this product! Try again?",
+            });
+            break;
+        }
+      };
+
       if (
         (instockItemsCount !== undefined && instockItemsCount > 0) ||
         (transferItemsCount !== undefined && transferItemsCount > 0)
@@ -83,60 +127,50 @@ export const useDisableOrDeleteProducts = () => {
           type: "error",
           duration: 10000,
         });
-      } else if (instantiationId) {
+      } else if (customProductOrinstantiationId && disableOrDelete === "disable") {
         disableStandardProductMutation({
           variables: {
-            instantiationId,
+            instantiationId: customProductOrinstantiationId,
           },
         })
           .then(({ data }) => {
             const result = data?.disableStandardProduct;
             if (!result) return;
 
-            switch (result.__typename) {
-              case "Product":
-                createToast({
-                  message:
-                    disableOrDelete === "disable"
-                      ? "The ASSORT standard product was successfully disabled."
-                      : "The product was successfully deleted.",
-                });
-                break;
-              case "InsufficientPermissionError":
-                triggerError({
-                  message:
-                    disableOrDelete === "disable"
-                      ? "You don't have permission to disable this ASSORT standard product!"
-                      : "You don't have permission to delete this product!",
-                });
-                break;
-              case "UnauthorizedForBaseError":
-                triggerError({
-                  message: `This product belongs to organization ${result?.organisationName}.`,
-                });
-                break;
-              case "BoxesStillAssignedToProductError":
-                triggerError({
-                  message: `This product is still assigned to the following boxes: ${result?.labelIdentifiers.join(", ")}.`,
-                });
-                break;
-              default:
-                triggerError({
-                  message:
-                    disableOrDelete === "disable"
-                      ? "Could not disable this ASSORT standard product! Try again?"
-                      : "Could not delete this product! Try again?",
-                });
-                break;
-            }
+            displayMessageToUser(
+              result.__typename,
+              (result.__typename === "UnauthorizedForBaseError" && result.organisationName) || "",
+              (result.__typename === "BoxesStillAssignedToProductError" &&
+                result.labelIdentifiers) || [""],
+            );
           })
           .catch(() => {
             // Handle network or other errors
             triggerError({
-              message:
-                disableOrDelete === "disable"
-                  ? "Could not disable this ASSORT standard product! Try again?"
-                  : "Could not delete this product! Try again?",
+              message: "Could not disable this ASSORT standard product! Try again?",
+            });
+          });
+      } else if (customProductOrinstantiationId && disableOrDelete === "delete") {
+        deleteProductMutation({
+          variables: {
+            productId: customProductOrinstantiationId,
+          },
+        })
+          .then(({ data }) => {
+            const result = data?.deleteProduct;
+            if (!result) return;
+
+            displayMessageToUser(
+              result.__typename,
+              (result.__typename === "UnauthorizedForBaseError" && result.organisationName) || "",
+              (result.__typename === "BoxesStillAssignedToProductError" &&
+                result.labelIdentifiers) || [""],
+            );
+          })
+          .catch(() => {
+            // Handle network or other errors
+            triggerError({
+              message: "Could not delete this product! Try again?",
             });
           });
       } else {
@@ -149,7 +183,7 @@ export const useDisableOrDeleteProducts = () => {
         });
       }
     },
-    [createToast, disableStandardProductMutation, triggerError],
+    [createToast, deleteProductMutation, disableStandardProductMutation, triggerError],
   );
 
   return {
