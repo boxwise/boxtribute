@@ -1,17 +1,19 @@
 import { Text } from "@chakra-ui/react";
 
-function DisableStandardProductAlert({
+function DisableOrDeleteProductAlert({
   productName,
   instockItemsCount,
   transferItemsCount,
+  disableOrDelete = "disable",
 }: {
   productName: string;
   instockItemsCount: string;
   transferItemsCount: string;
+  disableOrDelete: "disable" | "delete";
 }) {
   return (
     <>
-      You are attempting to disable the product {productName} with {instockItemsCount}{" "}
+      You are attempting to {disableOrDelete} the product {productName} with {instockItemsCount}{" "}
       <Text fontWeight="600" color="#659A7E" display="inline">
         InStock
       </Text>
@@ -40,4 +42,4 @@ function DisableStandardProductAlert({
   );
 }
 
-export default DisableStandardProductAlert;
+export default DisableOrDeleteProductAlert;

@@ -19,7 +19,7 @@ import { StandardProductRow, standardProductsRawDataToTableDataTransformer } fro
 import StandardProductsTable from "./StandardProductsTable";
 import { DateCell } from "components/Table/Cells";
 import { useDisableOrDeleteProducts } from "../../../hooks/useDisableOrDeleteProducts";
-import DisableStandardProductAlert from "./DisableStandardProductAlert";
+import DisableOrDeleteProductAlert from "./DisableOrDeleteProductAlert";
 
 export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
   `
@@ -59,7 +59,7 @@ export const STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY = graphql(
 function StandardProductsContainer() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const navigate = useNavigate();
-  const { disableStandardProductMutationLoading, handleDisableProduct } =
+  const { disableStandardProductMutationLoading, handleDisableOrDeleteProduct } =
     useDisableOrDeleteProducts();
 
   const tableConfigKey = `bases/${baseId}/standardproducts`;
@@ -124,11 +124,13 @@ function StandardProductsContainer() {
             {row.original.enabled ? (
               <Button
                 onClick={() =>
-                  handleDisableProduct(
-                    <DisableStandardProductAlert
+                  handleDisableOrDeleteProduct(
+                    "disable",
+                    <DisableOrDeleteProductAlert
                       productName={row.original.name}
                       instockItemsCount={row.original.instockItemsCount + ""}
                       transferItemsCount={row.original.transferItemsCount + ""}
+                      disableOrDelete="disable"
                     />,
                     row.original.instantiationId,
                     row.original.instockItemsCount,
@@ -242,7 +244,7 @@ function StandardProductsContainer() {
         disableFilters: true,
       },
     ],
-    [disableStandardProductMutationLoading, handleEnableProduct, handleDisableProduct],
+    [disableStandardProductMutationLoading, handleDisableOrDeleteProduct, handleEnableProduct],
   );
 
   if (error) throw error;

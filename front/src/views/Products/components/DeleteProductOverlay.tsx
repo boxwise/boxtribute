@@ -2,7 +2,7 @@ import { VStack, chakra } from "@chakra-ui/react";
 import { AreYouSureDialog } from "components/AreYouSure";
 import { FaTrashAlt } from "react-icons/fa";
 
-interface IRemoveBoxesOverlayProps {
+interface RemoveProductOverlayProps {
   isLoading: boolean;
   isOpen: boolean;
   productName: string;
@@ -16,7 +16,7 @@ function DeleteProductOverlay({
   productName,
   onClose,
   onRemove,
-}: IRemoveBoxesOverlayProps) {
+}: RemoveProductOverlayProps) {
   const title = "Delete Product";
   const body = (
     <VStack align="start" spacing={8}>

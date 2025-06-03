@@ -2,22 +2,21 @@ import { useSuspenseQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { Badge, Button } from "@chakra-ui/react";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { useTableConfig } from "hooks/hooks";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Column, CellProps } from "react-table";
+import { useAtomValue } from "jotai";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_RANGE_FIELDS_FRAGMENT,
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
+import { useTableConfig } from "hooks/hooks";
+import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
 import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
-import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
-import DisableStandardProductAlert from "./DisableStandardProductAlert";
-import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
-import DeleteProductOverlay from "./DeleteProductOverlay";
+import DisableOrDeleteProductAlert from "./DisableOrDeleteProductAlert";
 
 export const PRODUCTS_QUERY = graphql(
   `
@@ -60,15 +59,8 @@ export const PRODUCTS_QUERY = graphql(
 function ProductsContainer() {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const {
-    disableStandardProductMutationLoading,
-    deleteProductMutationLoading,
-    handleDisableProduct,
-    handleDeleteProduct,
-  } = useDisableOrDeleteProducts();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [productIdToDelete, setProductIdToDelete] = useState("");
-  const [productToDelete, setProductToDelete] = useState("");
+  const { disableStandardProductMutationLoading, handleDisableOrDeleteProduct } =
+    useDisableOrDeleteProducts();
 
   const tableConfigKey = `bases/${baseId}/products`;
   const tableConfig = useTableConfig({
@@ -111,43 +103,29 @@ function ProductsContainer() {
         disableFilters: true,
         disableSortBy: true,
         Cell: ({ row }: CellProps<ProductRow, any>) => (
-          <>
-            {row.original.isStandard ? (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
 
-                  handleDisableProduct(
-                    <DisableStandardProductAlert
-                      productName={row.original.name}
-                      instockItemsCount={row.original.instockItemsCount + ""}
-                      transferItemsCount={row.original.transferItemsCount + ""}
-                    />,
-                    row.original.standardInstantiationId,
-                    row.original.instockItemsCount,
-                    row.original.transferItemsCount,
-                  );
-                }}
-                size="sm"
-                disabled={disableStandardProductMutationLoading}
-                isLoading={disableStandardProductMutationLoading}
-              >
-                Disable
-              </Button>
-            ) : (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setProductIdToDelete(row.original.id);
-                  setProductToDelete(row.original.name);
-                  setIsDialogOpen(true);
-                }}
-                size="sm"
-              >
-                Delete
-              </Button>
-            )}
-          </>
+              handleDisableOrDeleteProduct(
+                row.original.isStandard ? "disable" : "delete",
+                <DisableOrDeleteProductAlert
+                  productName={row.original.name}
+                  instockItemsCount={row.original.instockItemsCount + ""}
+                  transferItemsCount={row.original.transferItemsCount + ""}
+                  disableOrDelete={row.original.isStandard ? "disable" : "delete"}
+                />,
+                row.original.standardInstantiationId,
+                row.original.instockItemsCount,
+                row.original.transferItemsCount,
+              );
+            }}
+            size="sm"
+            disabled={disableStandardProductMutationLoading}
+            isLoading={disableStandardProductMutationLoading}
+          >
+            {row.original.isStandard ? "Disable" : "Delete"}
+          </Button>
         ),
       },
       {
@@ -239,12 +217,10 @@ function ProductsContainer() {
         disableFilters: true,
       },
     ],
-    [disableStandardProductMutationLoading, handleDisableProduct],
+    [disableStandardProductMutationLoading, handleDisableOrDeleteProduct],
   );
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return (
     <>
@@ -253,16 +229,6 @@ function ProductsContainer() {
         tableData={productsRawToTableDataTransformer(productsRawData)}
         columns={availableColumns}
         onRowClick={onRowClick}
-      />
-      <DeleteProductOverlay
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        productName={productToDelete}
-        isLoading={deleteProductMutationLoading}
-        onRemove={() => {
-          handleDeleteProduct(productIdToDelete);
-          setIsDialogOpen(false);
-        }}
       />
     </>
   );
