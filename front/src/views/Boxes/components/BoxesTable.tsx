@@ -74,8 +74,6 @@ function BoxesTable({
   const boxesCount = tableData.length;
   const itemsCount = tableData.reduce((total, row) => total + row.numberOfItems, 0);
 
-  console.log("tableData", tableData);
-
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
