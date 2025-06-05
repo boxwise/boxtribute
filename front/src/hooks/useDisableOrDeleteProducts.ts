@@ -5,48 +5,56 @@ import { graphql } from "../../../graphql/graphql";
 import { useNotification } from "./useNotification";
 import { useErrorHandling } from "./useErrorHandling";
 
-export const DISABLE_OR_DELETE_PRODUCT_FRAGMENT = graphql(`
-  # We might want to dedupe this if DeleteProductResult and DisableStandardProductResult ever deviate from one another.
-  fragment DisableOrDeleteProduct on DeleteProductResult @_unmask {
-    __typename
-    ... on Product {
-      id
-      type
-      standardProduct {
-        id
-      }
-      deletedOn
-    }
-    ... on UnauthorizedForBaseError {
-      name
-      organisationName
-    }
-    ... on BoxesStillAssignedToProductError {
-      labelIdentifiers
-    }
-  }
-`);
-
 export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
   `
     mutation DisableStandardProduct($instantiationId: ID!) {
       disableStandardProduct(instantiationId: $instantiationId) {
-        ...DisableOrDeleteProduct
+        __typename
+        ... on Product {
+          id
+          type
+          standardProduct {
+            id
+          }
+          deletedOn
+        }
+        ... on UnauthorizedForBaseError {
+          name
+          organisationName
+        }
+        ... on BoxesStillAssignedToProductError {
+          labelIdentifiers
+        }
       }
     }
   `,
-  [DISABLE_OR_DELETE_PRODUCT_FRAGMENT],
+  [],
 );
 
 export const DELETE_PRODUCT_MUTATION = graphql(
   `
     mutation DeleteProduct($productId: ID!) {
       deleteProduct(id: $productId) {
-        ...DisableOrDeleteProduct
+        __typename
+        ... on Product {
+          id
+          type
+          standardProduct {
+            id
+          }
+          deletedOn
+        }
+        ... on UnauthorizedForBaseError {
+          name
+          organisationName
+        }
+        ... on BoxesStillAssignedToProductError {
+          labelIdentifiers
+        }
       }
     }
   `,
-  [DISABLE_OR_DELETE_PRODUCT_FRAGMENT],
+  [],
 );
 
 export const useDisableOrDeleteProducts = () => {
