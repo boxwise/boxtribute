@@ -39,7 +39,7 @@ import { BoxState } from "queries/types";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(`
-  fragment BoxesQueryElementField on Box {
+  fragment BoxesQueryElementField on Box @_unmask {
     id
     labelIdentifier
     product {
