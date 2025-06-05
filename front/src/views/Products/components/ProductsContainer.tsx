@@ -1,20 +1,22 @@
 import { useSuspenseQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@chakra-ui/react";
+import { Badge, Button } from "@chakra-ui/react";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { useTableConfig } from "hooks/hooks";
 import { useMemo } from "react";
 import { Column, CellProps } from "react-table";
+import { useAtomValue } from "jotai";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_RANGE_FIELDS_FRAGMENT,
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
+import { useTableConfig } from "hooks/hooks";
+import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
 import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
-import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
+import DisableOrDeleteProductAlert from "./DisableOrDeleteProductAlert";
 
 export const PRODUCTS_QUERY = graphql(
   `
@@ -57,6 +59,9 @@ export const PRODUCTS_QUERY = graphql(
 function ProductsContainer() {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const { disableStandardProductMutationLoading, handleDisableOrDeleteProduct } =
+    useDisableOrDeleteProducts();
+
   const tableConfigKey = `bases/${baseId}/products`;
   const tableConfig = useTableConfig({
     tableConfigKey,
@@ -91,6 +96,42 @@ function ProductsContainer() {
           const b = rowB.values.name.toLowerCase();
           return a.localeCompare(b);
         },
+      },
+      {
+        Header: "",
+        id: "actionButton",
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: ({ row }: CellProps<ProductRow, any>) => (
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+
+              handleDisableOrDeleteProduct(
+                row.original.isStandard ? "disable" : "delete",
+                <DisableOrDeleteProductAlert
+                  productName={row.original.name}
+                  instockItemsCount={row.original.instockItemsCount!}
+                  transferItemsCount={row.original.transferItemsCount!}
+                  disableOrDelete={row.original.isStandard ? "disable" : "delete"}
+                />,
+                row.original.id,
+                row.original.instockItemsCount,
+                row.original.transferItemsCount,
+              );
+            }}
+            size="sm"
+            disabled={disableStandardProductMutationLoading}
+            isLoading={disableStandardProductMutationLoading}
+            bgColor={row.original.isStandard ? "gray.200" : "red.500"}
+            _hover={{
+              bgColor: row.original.isStandard ? "gray.100" : "red.300",
+            }}
+            color={row.original.isStandard ? "inherit" : "white"}
+          >
+            {row.original.isStandard ? "Disable" : "Delete"}
+          </Button>
+        ),
       },
       {
         Header: "Category",
@@ -181,20 +222,20 @@ function ProductsContainer() {
         disableFilters: true,
       },
     ],
-    [],
+    [disableStandardProductMutationLoading, handleDisableOrDeleteProduct],
   );
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return (
-    <ProductsTable
-      tableConfig={tableConfig}
-      tableData={productsRawToTableDataTransformer(productsRawData)}
-      columns={availableColumns}
-      onRowClick={onRowClick}
-    />
+    <>
+      <ProductsTable
+        tableConfig={tableConfig}
+        tableData={productsRawToTableDataTransformer(productsRawData)}
+        columns={availableColumns}
+        onRowClick={onRowClick}
+      />
+    </>
   );
 }
 
