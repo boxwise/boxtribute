@@ -71,8 +71,6 @@ function BoxesTable({
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
-  const boxesCount = tableData.length;
-  const itemsCount = tableData.reduce((total, row) => total + row.numberOfItems, 0);
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -92,6 +90,7 @@ function BoxesTable({
     state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     page,
+    rows,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -135,6 +134,8 @@ function BoxesTable({
       ]);
     },
   );
+  const boxCount = rows.length;
+  const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
 
   useEffect(() => {
     setSelectedBoxes(selectedFlatRows.map((row) => row));
@@ -196,7 +197,14 @@ function BoxesTable({
               </Td>
             </Tr>
           )}
-          {page.map((row, idx) => {
+
+          <Tr key={"boxes-count-row"}>
+            <Td key={"product-total"}>Total</Td>
+            <Td key={"boxes-count"}>{boxCount} boxes</Td>
+            <Td key={"item-count"}>{itemsCount} items</Td>
+          </Tr>
+
+          {page.map((row) => {
             prepareRow(row);
             if (row.isSelected && selectedRowsArePending) {
               return (
@@ -207,15 +215,6 @@ function BoxesTable({
                 </Tr>
               );
             }
-
-            if (idx === 0)
-              return (
-                <Tr {...row.getRowProps()} key={"boxes-count-row"}>
-                  <Td key={"product-total"}>Total</Td>
-                  <Td key={"boxes-count"}>{boxesCount} boxes</Td>
-                  <Td key={"item-count"}>{itemsCount} items</Td>
-                </Tr>
-              );
 
             return (
               <Tr
