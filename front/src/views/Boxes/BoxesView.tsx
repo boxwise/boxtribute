@@ -128,7 +128,11 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
   [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
-function Boxes() {
+function Boxes({
+  hasExecutedInitialFetchOfBoxes,
+}: {
+  hasExecutedInitialFetchOfBoxes: { current: boolean };
+}) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
@@ -160,9 +164,21 @@ function Boxes() {
     },
   });
 
-  // Only on initial mount, query 20 boxes of the most used other than InStock state to preload
-  // the data into Apollo cache.
+  // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
+  // The rest of the boxes are fetched in the background in the following useEffect.
+  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
+    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 20),
+  });
+  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
+    !hasExecutedInitialFetchOfBoxes.current,
+  );
   useEffect(() => {
+    if (hasExecutedInitialFetchOfBoxes.current) {
+      return;
+    }
+
+    // Only on very initial mount, query 20 boxes of the most used other than InStock state to
+    // preload the data into Apollo cache.
     const states = ["Donated", "Scrap"] satisfies Partial<BoxState>[];
     for (const state of states) {
       apolloClient.query({
@@ -177,17 +193,7 @@ function Boxes() {
         fetchPolicy: "network-only",
       });
     }
-    // only on initial mount, so no dependencies needed.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
-  // The rest of the boxes are fetched in the background in the following useEffect.
-  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
-    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 20),
-  });
-  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(true);
-  useEffect(() => {
     apolloClient
       .query({
         query: BOXES_FOR_BOXESVIEW_QUERY,
@@ -196,6 +202,7 @@ function Boxes() {
       })
       .finally(() => {
         setIsBackgroundFetchOfBoxesLoading(false);
+        hasExecutedInitialFetchOfBoxes.current = true;
       });
     // only on initial mount, so no dependencies needed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
