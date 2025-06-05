@@ -38,48 +38,6 @@ import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 
 // TODO: Implement Pagination and Filtering
-export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(`
-  fragment BoxesQueryElementField on Box @_unmask {
-    id
-    labelIdentifier
-    product {
-      type
-      ...ProductBasicFields
-    }
-    numberOfItems
-    size {
-      ...SizeBasicFields
-    }
-    state
-    location {
-      id
-      name
-    }
-    tags {
-      ...TagBasicFields
-    }
-    shipmentDetail {
-      id
-      shipment {
-        id
-        labelIdentifier
-      }
-    }
-    comment
-    createdOn
-    lastModifiedOn
-    deletedOn
-    createdBy {
-      id
-      name
-    }
-    lastModifiedBy {
-      id
-      name
-    }
-  }
-`);
-
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
   `
     query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput, $paginationInput: Int) {
@@ -93,17 +51,48 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
           hasNextPage
         }
         elements {
-          ...BoxesQueryElementField
+          id
+          labelIdentifier
+          product {
+            type
+            ...ProductBasicFields
+          }
+          numberOfItems
+          size {
+            ...SizeBasicFields
+          }
+          state
+          location {
+            id
+            name
+          }
+          tags {
+            ...TagBasicFields
+          }
+          shipmentDetail {
+            id
+            shipment {
+              id
+              labelIdentifier
+            }
+          }
+          comment
+          createdOn
+          lastModifiedOn
+          deletedOn
+          createdBy {
+            id
+            name
+          }
+          lastModifiedBy {
+            id
+            name
+          }
         }
       }
     }
   `,
-  [
-    PRODUCT_BASIC_FIELDS_FRAGMENT,
-    SIZE_BASIC_FIELDS_FRAGMENT,
-    TAG_BASIC_FIELDS_FRAGMENT,
-    BOXES_QUERY_ELEMENT_FIELD_FRAGMENT,
-  ],
+  [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
 export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
