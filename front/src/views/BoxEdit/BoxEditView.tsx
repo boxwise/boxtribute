@@ -29,6 +29,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
       }
 
       base(id: $baseId) {
+        id
         tags(resourceType: Box) {
           ...TagOptions
         }
