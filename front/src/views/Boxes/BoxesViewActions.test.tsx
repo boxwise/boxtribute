@@ -462,7 +462,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           }
         >
           <Suspense fallback={<TableSkeleton />}>
-            <Boxes />
+            <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
           </Suspense>
         </ErrorBoundary>,
         {
