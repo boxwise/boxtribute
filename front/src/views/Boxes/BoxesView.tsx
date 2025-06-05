@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useEffect, useMemo } from "react";
+import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
@@ -35,6 +35,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
+import { BoxState } from "queries/types";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
@@ -129,6 +130,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
 
 function Boxes() {
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
@@ -162,6 +164,27 @@ function Boxes() {
       baseId,
     },
   });
+
+  // Query 20 boxes of the most used states to preload the data into Apollo cache.
+  useEffect(() => {
+    const states = ["Donated", "Scrap"] satisfies Partial<BoxState>[];
+
+    for (const state of states) {
+      apolloClient.query({
+        query: BOXES_FOR_BOXESVIEW_QUERY,
+        variables: {
+          baseId,
+          filterInput: {
+            states: [state],
+          },
+          paginationInput: 20,
+        },
+        fetchPolicy: "network-only",
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [

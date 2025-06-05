@@ -6,6 +6,7 @@ import { GET_SCANNED_BOXES } from "./local-only";
 export const cache = new InMemoryCache({
   typePolicies: {
     Box: {
+      keyFields: ["labelIdentifier"],
       merge: true,
     },
     QrCode: {
