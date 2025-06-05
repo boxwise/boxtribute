@@ -39,8 +39,12 @@ import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 // TODO: Implement Pagination and Filtering
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
   `
-    query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput) {
-      boxes(baseId: $baseId, filterInput: $filterInput, paginationInput: { first: 100000 }) {
+    query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput, $paginationInput: Int) {
+      boxes(
+        baseId: $baseId
+        filterInput: $filterInput
+        paginationInput: { first: $paginationInput }
+      ) {
         totalCount
         pageInfo {
           hasNextPage

@@ -44,7 +44,11 @@ export const prepareBoxesForBoxesViewQueryVariables = (
   baseId: string,
   columnFilters: Filters<any>,
 ): BoxesForBoxesViewVariables => {
-  const variables: BoxesForBoxesViewVariables = { baseId, filterInput: {} };
+  const variables: BoxesForBoxesViewVariables = {
+    baseId,
+    filterInput: {},
+    paginationInput: 100000,
+  };
   const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
   if (refetchFilters.length > 0) {
     const filterInput = refetchFilters.reduce(

@@ -6,8 +6,7 @@ import { GET_SCANNED_BOXES } from "./local-only";
 export const cache = new InMemoryCache({
   typePolicies: {
     Box: {
-      // Boxes should be normalized by labelIdentifier
-      keyFields: ["labelIdentifier"],
+      merge: true,
     },
     QrCode: {
       // QR-Codes should be normalized by their hash
@@ -28,7 +27,7 @@ cache.writeQuery({
   query: GET_SCANNED_BOXES,
   data: {
     scannedBoxes: [],
-  } as IScannedBoxesData,
+  } satisfies IScannedBoxesData,
 });
 
 // apollo reactive variable for BoxReconciliationOverlay

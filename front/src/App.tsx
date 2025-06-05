@@ -3,7 +3,7 @@ import { ReactElement, Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
-import Boxes from "views/Boxes/BoxesView";
+import Boxes, { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
@@ -25,10 +25,12 @@ import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 import ErrorView from "views/ErrorView/ErrorView";
 import { useAtomValue } from "jotai";
-import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { availableBasesAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
 import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
 import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
+import { useApolloClient } from "@apollo/client";
+import { BoxState } from "queries/types";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -97,6 +99,8 @@ function App() {
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
+  const availableBases = useAtomValue(availableBasesAtom);
+  const apolloClient = useApolloClient();
 
   // store previous location to return to if you are not authorized
   useEffect(() => {
@@ -104,6 +108,38 @@ function App() {
     // only store previous location if a base is selected
     if (regex.test(location.pathname)) setPrevLocation(location.pathname);
   }, [location]);
+
+  // Query in each available base 20 boxes of every state to preload the data into Apollo cache.
+  useEffect(() => {
+    const states = [
+      "InStock",
+      "Lost",
+      "MarkedForShipment",
+      "Receiving",
+      "Donated",
+      "Scrap",
+      "InTransit",
+      "NotDelivered",
+    ] satisfies Partial<BoxState>[];
+
+    for (const base of availableBases) {
+      for (const state of states) {
+        apolloClient.query({
+          query: BOXES_FOR_BOXESVIEW_QUERY,
+          variables: {
+            baseId: base.id,
+            filterInput: {
+              states: [state],
+            },
+            paginationInput: 20,
+          },
+          fetchPolicy: "network-only",
+        });
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableBases]);
 
   if (error) {
     return <ErrorView error={error} />;
