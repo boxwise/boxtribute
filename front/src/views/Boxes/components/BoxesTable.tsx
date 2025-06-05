@@ -199,9 +199,9 @@ function BoxesTable({
           )}
 
           <Tr key={"boxes-count-row"}>
-            <Td key={"product-total"}>Total</Td>
-            <Td key={"boxes-count"}>{boxCount} boxes</Td>
-            <Td key={"item-count"}>{itemsCount} items</Td>
+            <Td fontWeight="bold" key={"product-total"}>Total</Td>
+            <Td fontWeight="bold" key={"boxes-count"}>{boxCount} boxes</Td>
+            <Td fontWeight="bold" key={"item-count"}>{itemsCount} items</Td>
           </Tr>
 
           {page.map((row) => {
