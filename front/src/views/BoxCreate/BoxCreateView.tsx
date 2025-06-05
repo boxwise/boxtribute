@@ -6,12 +6,21 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
-import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
+import {
+  TAG_BASIC_FIELDS_FRAGMENT,
+  TAG_OPTIONS_FRAGMENT,
+  PRODUCT_FIELDS_FRAGMENT,
+} from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 import { AlertWithoutAction } from "components/Alerts";
 import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useAtomValue } from "jotai";
+import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
+import {
+  PRODUCT_BASIC_FIELDS_FRAGMENT,
+  SIZE_BASIC_FIELDS_FRAGMENT,
+} from "../../../../graphql/fragments";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
@@ -41,40 +50,48 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
   [TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT],
 );
 
-export const CREATE_BOX_MUTATION = graphql(`
-  mutation CreateBox(
-    $locationId: Int!
-    $productId: Int!
-    $sizeId: Int!
-    $numberOfItems: Int!
-    $comment: String
-    $tagIds: [Int!]
-    $qrCode: String
-  ) {
-    createBox(
-      creationInput: {
-        locationId: $locationId
-        productId: $productId
-        numberOfItems: $numberOfItems
-        sizeId: $sizeId
-        qrCode: $qrCode
-        comment: $comment
-        tagIds: $tagIds
-      }
+export const CREATE_BOX_MUTATION = graphql(
+  `
+    mutation CreateBox(
+      $locationId: Int!
+      $productId: Int!
+      $sizeId: Int!
+      $numberOfItems: Int!
+      $comment: String
+      $tagIds: [Int!]
+      $qrCode: String
     ) {
-      labelIdentifier
-      # update Qr-Code in cache to be associated to this Box
-      qrCode {
-        code
-        box {
-          ... on Box {
-            labelIdentifier
+      createBox(
+        creationInput: {
+          locationId: $locationId
+          productId: $productId
+          numberOfItems: $numberOfItems
+          sizeId: $sizeId
+          qrCode: $qrCode
+          comment: $comment
+          tagIds: $tagIds
+        }
+      ) {
+        ...BoxesQueryElementField
+        # update Qr-Code in cache to be associated to this Box
+        qrCode {
+          code
+          box {
+            ... on Box {
+              labelIdentifier
+            }
           }
         }
       }
     }
-  }
-`);
+  `,
+  [
+    PRODUCT_BASIC_FIELDS_FRAGMENT,
+    SIZE_BASIC_FIELDS_FRAGMENT,
+    TAG_BASIC_FIELDS_FRAGMENT,
+    BOXES_QUERY_ELEMENT_FIELD_FRAGMENT,
+  ],
+);
 
 function BoxCreateView() {
   // Basics
@@ -120,7 +137,26 @@ function BoxCreateView() {
   });
 
   // Mutation after form submission
-  const [createBoxMutation, createBoxMutationState] = useMutation(CREATE_BOX_MUTATION);
+  const [createBoxMutation, createBoxMutationState] = useMutation(CREATE_BOX_MUTATION, {
+    update(cache, { data }) {
+      if (!data?.createBox) return;
+      const { createBox } = data;
+
+      cache.modify({
+        fields: {
+          boxes(existingBoxesRef = { totalCount: 0, elements: [] }) {
+            const newBoxRef = cache.identify(createBox);
+
+            return {
+              ...existingBoxesRef,
+              totalCount: existingBoxesRef.totalCount + 1,
+              elements: [{ __ref: newBoxRef }, ...existingBoxesRef.elements],
+            };
+          },
+        },
+      });
+    },
+  });
 
   // Prep data for Form
   const allTags = allFormOptions.data?.base?.tags;
