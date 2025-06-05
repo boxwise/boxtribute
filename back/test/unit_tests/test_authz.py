@@ -325,21 +325,6 @@ def test_check_beta_feature_access(mocker):
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # Level 3 is the default, hence users with unknown level have the same permissions
-    current_user._max_beta_level = 50
-    for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
-        payload = f"mutation {{ {mutation} }}"
-        assert not check_user_beta_level(payload, current_user=current_user)
-    for mutation in MUTATIONS_FOR_BETA_LEVEL[DEFAULT_MAX_BETA_LEVEL]:
-        payload = f"mutation {{ {mutation} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
-    assert check_user_beta_level(
-        "query { base(id: 1) { name } }", current_user=current_user
-    )
-
     # User with level 3 can additionally access statviz data, create shareable link,
     # and execute Box bulk actions
     current_user._max_beta_level = 3
@@ -362,6 +347,21 @@ def test_check_beta_feature_access(mocker):
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
+        payload = f"mutation {{ {mutation} }}"
+        assert check_user_beta_level(payload, current_user=current_user)
+    for query in statistics_queries():
+        payload = f"query {{ {query} }}"
+        assert check_user_beta_level(payload, current_user=current_user)
+    assert check_user_beta_level(
+        "query { base(id: 1) { name } }", current_user=current_user
+    )
+
+    # Level 4 is the default, hence users with unknown level have the same permissions
+    current_user._max_beta_level = 50
+    for mutation in ["createTag", "createBeneficiary", "createBeneficiaries"]:
+        payload = f"mutation {{ {mutation} }}"
+        assert not check_user_beta_level(payload, current_user=current_user)
+    for mutation in MUTATIONS_FOR_BETA_LEVEL[DEFAULT_MAX_BETA_LEVEL]:
         payload = f"mutation {{ {mutation} }}"
         assert check_user_beta_level(payload, current_user=current_user)
     for query in statistics_queries():
