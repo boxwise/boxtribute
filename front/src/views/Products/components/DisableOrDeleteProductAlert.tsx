@@ -7,8 +7,8 @@ function DisableOrDeleteProductAlert({
   disableOrDelete = "disable",
 }: {
   productName: string;
-  instockItemsCount: string;
-  transferItemsCount: string;
+  instockItemsCount: number;
+  transferItemsCount: number;
   disableOrDelete: "disable" | "delete";
 }) {
   return (

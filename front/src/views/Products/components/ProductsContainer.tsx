@@ -111,8 +111,8 @@ function ProductsContainer() {
                 row.original.isStandard ? "disable" : "delete",
                 <DisableOrDeleteProductAlert
                   productName={row.original.name}
-                  instockItemsCount={row.original.instockItemsCount + ""}
-                  transferItemsCount={row.original.transferItemsCount + ""}
+                  instockItemsCount={row.original.instockItemsCount!}
+                  transferItemsCount={row.original.transferItemsCount!}
                   disableOrDelete={row.original.isStandard ? "disable" : "delete"}
                 />,
                 row.original.id,
@@ -123,6 +123,8 @@ function ProductsContainer() {
             size="sm"
             disabled={disableStandardProductMutationLoading}
             isLoading={disableStandardProductMutationLoading}
+            bgColor={row.original.isStandard ? "gray.100" : "red.300"}
+            color={row.original.isStandard ? "inherit" : "white"}
           >
             {row.original.isStandard ? "Disable" : "Delete"}
           </Button>

@@ -128,8 +128,8 @@ function StandardProductsContainer() {
                     "disable",
                     <DisableOrDeleteProductAlert
                       productName={row.original.name}
-                      instockItemsCount={row.original.instockItemsCount + ""}
-                      transferItemsCount={row.original.transferItemsCount + ""}
+                      instockItemsCount={row.original.instockItemsCount!}
+                      transferItemsCount={row.original.transferItemsCount!}
                       disableOrDelete="disable"
                     />,
                     row.original.instantiationId,
