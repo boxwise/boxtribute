@@ -27,6 +27,7 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
   `
     query AllProductsAndLocationsForBase($baseId: ID!) {
       base(id: $baseId) {
+        id
         tags(resourceType: Box) {
           ...TagOptions
         }
