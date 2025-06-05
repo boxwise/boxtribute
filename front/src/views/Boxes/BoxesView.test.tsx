@@ -505,7 +505,7 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
         </Suspense>
       </ErrorBoundary>,
       {
@@ -529,7 +529,7 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
         </Suspense>
       </ErrorBoundary>,
       {
@@ -558,7 +558,7 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
         </Suspense>
       </ErrorBoundary>,
       {
@@ -588,7 +588,7 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
         </Suspense>
       </ErrorBoundary>,
       {
@@ -616,7 +616,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes />
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
         </Suspense>
       </ErrorBoundary>,
       {
