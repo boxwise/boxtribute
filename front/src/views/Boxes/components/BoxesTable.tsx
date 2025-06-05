@@ -193,17 +193,15 @@ function BoxesTable({
               {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : (
-                boxCount
-              )}{" "}
-              boxes
+                <Text as="span">{boxCount} boxes</Text>
+              )}
             </Td>
             <Td fontWeight="bold" key={"item-count"}>
               {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : (
-                itemsCount
-              )}{" "}
-              items
+                <Text as="span">{itemsCount} items</Text>
+              )}
             </Td>
           </Tr>
           {refetchBoxesIsPending && (
@@ -261,20 +259,20 @@ function BoxesTable({
         </Flex>
 
         <Flex justifyContent="center" m={4}>
-          <Text>
+          <Text as="span">
             Page{" "}
             <Text fontWeight="bold" as="span">
               {pageIndex + 1}
             </Text>{" "}
             of{" "}
-            <Text fontWeight="bold" as="span">
-              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
-                <Skeleton height={5} width={10} mr={2} />
-              ) : (
-                pageOptions.length
-              )}
-            </Text>
           </Text>
+          {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+            <Skeleton height={5} width={10} mr={2} />
+          ) : (
+            <Text fontWeight="bold" as="span">
+              {pageOptions.length}
+            </Text>
+          )}
         </Flex>
 
         <Flex>
