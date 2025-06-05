@@ -123,7 +123,10 @@ function ProductsContainer() {
             size="sm"
             disabled={disableStandardProductMutationLoading}
             isLoading={disableStandardProductMutationLoading}
-            bgColor={row.original.isStandard ? "gray.100" : "red.300"}
+            bgColor={row.original.isStandard ? "gray.200" : "red.500"}
+            _hover={{
+              bgColor: row.original.isStandard ? "gray.100" : "red.300",
+            }}
             color={row.original.isStandard ? "inherit" : "white"}
           >
             {row.original.isStandard ? "Disable" : "Delete"}
