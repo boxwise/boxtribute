@@ -90,6 +90,7 @@ function BoxesTable({
     state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     page,
+    rows,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -133,6 +134,8 @@ function BoxesTable({
       ]);
     },
   );
+  const boxCount = rows.length;
+  const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
 
   useEffect(() => {
     setSelectedBoxes(selectedFlatRows.map((row) => row));
@@ -194,6 +197,13 @@ function BoxesTable({
               </Td>
             </Tr>
           )}
+
+          <Tr key={"boxes-count-row"}>
+            <Td fontWeight="bold" key={"product-total"}>Total</Td>
+            <Td fontWeight="bold" key={"boxes-count"}>{boxCount} boxes</Td>
+            <Td fontWeight="bold" key={"item-count"}>{itemsCount} items</Td>
+          </Tr>
+
           {page.map((row) => {
             prepareRow(row);
             if (row.isSelected && selectedRowsArePending) {
@@ -205,6 +215,7 @@ function BoxesTable({
                 </Tr>
               );
             }
+
             return (
               <Tr
                 cursor="pointer"
