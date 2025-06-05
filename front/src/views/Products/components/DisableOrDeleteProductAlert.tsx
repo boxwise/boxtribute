@@ -33,7 +33,7 @@ function DisableOrDeleteProductAlert({
           </Text>
         </>
       )}{" "}
-      items in one or more locations.To continue, you must first reclassify all{" "}
+      items in one or more locations. To continue, you must first reclassify all{" "}
       <Text fontWeight="600" color="#659A7E" display="inline">
         InStock
       </Text>{" "}
