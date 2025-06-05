@@ -38,47 +38,50 @@ import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 
 // TODO: Implement Pagination and Filtering
-export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(`
-  fragment BoxesQueryElementField on Box @_unmask {
-    id
-    labelIdentifier
-    product {
-      type
-      ...ProductBasicFields
-    }
-    numberOfItems
-    size {
-      ...SizeBasicFields
-    }
-    state
-    location {
+export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
+  `
+    fragment BoxesQueryElementField on Box @_unmask {
       id
-      name
-    }
-    tags {
-      ...TagBasicFields
-    }
-    shipmentDetail {
-      id
-      shipment {
+      labelIdentifier
+      product {
+        type
+        ...ProductBasicFields
+      }
+      numberOfItems
+      size {
+        ...SizeBasicFields
+      }
+      state
+      location {
         id
-        labelIdentifier
+        name
+      }
+      tags {
+        ...TagBasicFields
+      }
+      shipmentDetail {
+        id
+        shipment {
+          id
+          labelIdentifier
+        }
+      }
+      comment
+      createdOn
+      lastModifiedOn
+      deletedOn
+      createdBy {
+        id
+        name
+      }
+      lastModifiedBy {
+        id
+        name
       }
     }
-    comment
-    createdOn
-    lastModifiedOn
-    deletedOn
-    createdBy {
-      id
-      name
-    }
-    lastModifiedBy {
-      id
-      name
-    }
-  }
-`);
+  `,
+  [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+);
 
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
   `
@@ -98,12 +101,7 @@ export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
       }
     }
   `,
-  [
-    PRODUCT_BASIC_FIELDS_FRAGMENT,
-    SIZE_BASIC_FIELDS_FRAGMENT,
-    TAG_BASIC_FIELDS_FRAGMENT,
-    BOXES_QUERY_ELEMENT_FIELD_FRAGMENT,
-  ],
+  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT],
 );
 
 export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(

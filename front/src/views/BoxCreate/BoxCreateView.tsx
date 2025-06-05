@@ -6,21 +6,13 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  TAG_BASIC_FIELDS_FRAGMENT,
-  TAG_OPTIONS_FRAGMENT,
-  PRODUCT_FIELDS_FRAGMENT,
-} from "queries/fragments";
+import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
 import { AlertWithoutAction } from "components/Alerts";
 import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useAtomValue } from "jotai";
 import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
-import {
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
-  SIZE_BASIC_FIELDS_FRAGMENT,
-} from "../../../../graphql/fragments";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
@@ -86,12 +78,7 @@ export const CREATE_BOX_MUTATION = graphql(
       }
     }
   `,
-  [
-    PRODUCT_BASIC_FIELDS_FRAGMENT,
-    SIZE_BASIC_FIELDS_FRAGMENT,
-    TAG_BASIC_FIELDS_FRAGMENT,
-    BOXES_QUERY_ELEMENT_FIELD_FRAGMENT,
-  ],
+  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT],
 );
 
 function BoxCreateView() {
