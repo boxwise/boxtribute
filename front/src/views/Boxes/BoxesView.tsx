@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
@@ -153,22 +153,17 @@ function Boxes() {
     },
   });
 
-  // fetch Boxes data in the background
-  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
-    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
-  });
-
-  // fetch options for actions on boxes
+  // fetch options for actions on boxes causing the suspense.
   const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
     variables: {
       baseId,
     },
   });
 
-  // Query 20 boxes of the most used states to preload the data into Apollo cache.
+  // Only on initial mount, query 20 boxes of the most used other than InStock state to preload
+  // the data into Apollo cache.
   useEffect(() => {
     const states = ["Donated", "Scrap"] satisfies Partial<BoxState>[];
-
     for (const state of states) {
       apolloClient.query({
         query: BOXES_FOR_BOXESVIEW_QUERY,
@@ -182,7 +177,27 @@ function Boxes() {
         fetchPolicy: "network-only",
       });
     }
+    // only on initial mount, so no dependencies needed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
+  // The rest of the boxes are fetched in the background in the following useEffect.
+  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
+    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 20),
+  });
+  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(true);
+  useEffect(() => {
+    apolloClient
+      .query({
+        query: BOXES_FOR_BOXESVIEW_QUERY,
+        variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+        fetchPolicy: "network-only",
+      })
+      .finally(() => {
+        setIsBackgroundFetchOfBoxesLoading(false);
+      });
+    // only on initial mount, so no dependencies needed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -351,6 +366,7 @@ function Boxes() {
         Manage Boxes
       </Heading>
       <BoxesActionsAndTable
+        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
         tableConfig={tableConfig}
         onRefetch={refetchBoxes}
         boxesQueryRef={boxesQueryRef}
