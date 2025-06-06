@@ -25,6 +25,7 @@ const boxesQuery = ({
   stateFilter = ["InStock"],
   shipmentDetail = null as any,
   labelIdentifier = "123",
+  paginationInput = 20,
 }) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
@@ -35,6 +36,7 @@ const boxesQuery = ({
             states: stateFilter,
           }
         : {},
+      paginationInput: paginationInput,
     },
   },
   result: {
@@ -200,6 +202,9 @@ const boxesViewActionsTests = [
     name: "4.8.5.2 - MoveBoxes Action is successful",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: moveBoxesGQLRequest,
@@ -233,6 +238,9 @@ const boxesViewActionsTests = [
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: moveBoxesGQLRequest,
@@ -247,6 +255,9 @@ const boxesViewActionsTests = [
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: moveBoxesGQLRequest,
@@ -259,7 +270,13 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
-    mocks: [boxesQuery({ state: "MarkedForShipment", stateFilter: [] }), actionsQuery()],
+    mocks: [
+      boxesQuery({ state: "MarkedForShipment", stateFilter: [] }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
+      actionsQuery()
+    ],
     clicks: [/move to/i, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
     searchParams: "?columnFilters=%5B%5D",
@@ -268,6 +285,9 @@ const boxesViewActionsTests = [
     name: "4.8.3.2 - Assign To Shipment Action is successful",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -285,6 +305,9 @@ const boxesViewActionsTests = [
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -299,6 +322,9 @@ const boxesViewActionsTests = [
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -311,7 +337,13 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
-    mocks: [boxesQuery({ state: "Donated", stateFilter: [] }), actionsQuery()],
+    mocks: [
+      boxesQuery({ state: "Donated", stateFilter: [] }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
+      actionsQuery()
+    ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
     searchParams: "?columnFilters=%5B%5D",
@@ -324,6 +356,9 @@ const boxesViewActionsTests = [
         shipmentDetail: shipmentDetail1(),
         stateFilter: [],
       }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
@@ -345,6 +380,9 @@ const boxesViewActionsTests = [
         shipmentDetail: shipmentDetail1(),
         stateFilter: [],
       }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
@@ -364,6 +402,9 @@ const boxesViewActionsTests = [
         shipmentDetail: shipmentDetail1(),
         stateFilter: [],
       }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
@@ -378,7 +419,13 @@ const boxesViewActionsTests = [
   // 4.8.6 - DeleteBoxes Action
   {
     name: "4.8.6.1 - DeleteBoxes Action is loading and shows Table skeleton",
-    mocks: [boxesQuery({}), actionsQuery()],
+    mocks: [
+      boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
+      actionsQuery()
+    ],
     clicks: [], // No action clicks since we're just testing the initial load
     toast: null, // No toast message expected
   },
@@ -386,6 +433,9 @@ const boxesViewActionsTests = [
     name: "4.8.6.2 - DeleteBoxes Action is successful",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -398,6 +448,9 @@ const boxesViewActionsTests = [
     name: "4.8.6.3 - DeleteBoxes Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -411,6 +464,9 @@ const boxesViewActionsTests = [
     name: "4.8.6.4 - DeleteBoxes Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -426,6 +482,9 @@ const boxesViewActionsTests = [
       boxesQuery({
         labelIdentifier: "456",
       }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["456"],
@@ -439,6 +498,9 @@ const boxesViewActionsTests = [
     name: "4.8.6.6 - DeleteBoxes Action fails due to insufficient permissions",
     mocks: [
       boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
