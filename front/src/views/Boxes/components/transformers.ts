@@ -43,7 +43,7 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
 export const prepareBoxesForBoxesViewQueryVariables = (
   baseId: string,
   columnFilters: Filters<any>,
-  paginationInput: number = 1000000,
+  paginationInput: number = 100000,
 ): BoxesForBoxesViewVariables => {
   const variables: BoxesForBoxesViewVariables = {
     baseId,
