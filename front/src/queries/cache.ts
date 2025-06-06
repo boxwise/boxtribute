@@ -7,6 +7,12 @@ export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
+        scannedBoxes: {
+          merge(_, incoming) {
+            // For a complete replacement (like in flushAllBoxes),
+            return incoming;
+          },
+        },
         boxes: {
           // Only use baseId for cache key generation for this field.
           // filterInput and paginationInput will be ignored in cache key generation.

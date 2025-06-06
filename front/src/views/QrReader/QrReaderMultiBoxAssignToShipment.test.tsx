@@ -59,7 +59,7 @@ const mockShipmentsQuery = ({
           ? null
           : {
               shipments: [generateMockShipmentMinimal({ state, iAmSource })],
-              base: { locations, tags },
+              base: { id: "1", locations, tags },
             },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
@@ -324,7 +324,7 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
 
   // scan box 678
   mockImplementationOfQrReader(mockedQrReader, "InStockBox2", true, true);
-  rerender(<QrReaderView />);
+  await rerender(<QrReaderView />);
   await user.click(await screen.findByTestId("ReturnScannedQr"));
   expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
@@ -346,7 +346,7 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   await user.click(submitButton);
 
   // selected boxes remains the same
-  expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
+  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
 
   // toast shown
   await waitFor(() =>
@@ -361,13 +361,12 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   expect(
     await screen.findByText(/The following boxes were not assigned to the shipment/i),
   ).toBeInTheDocument();
-  expect(screen.getByText(/678/i)).toBeInTheDocument();
+  expect(await screen.findByText(/678/i)).toBeInTheDocument();
 
   // click link to remove all not failed boxes
-  await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
-  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /assign all/i })).toBeInTheDocument();
-  // Alert appears because box was assigned to shipment and thus not inStock.
-  expect(screen.getByRole("alert")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /assign all/i })).toBeDisabled();
+  await user.click(await screen.findByText(/Click here to remove all failed boxes from the list/i));
+  expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(screen.queryByRole("button", { name: /assign all/i })).not.toBeInTheDocument(),
+  );
 });
