@@ -34,14 +34,13 @@ const jotaiAtoms = [
   [availableBasesAtom, organisation2.bases],
 ];
 
-const boxesQuery = {
+const boxesQuery = ({ state = "InStock", paginationInput = 100000 }) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: {
-        states: ["InStock"],
-      },
+      filterInput: { states: [state] },
+      paginationInput,
     },
   },
   result: {
@@ -49,243 +48,254 @@ const boxesQuery = {
       // TODO: the data should be placed in the mocks
       boxes: {
         __typename: "BoxPage",
-        elements: [
-          {
-            id: "1",
-            __typename: "Box",
-            comment: null,
-            history: [],
-            labelIdentifier: "4495955",
-            location: {
-              __typename: "ClassicLocation",
-              base: {
-                __typename: "Base",
-                id: "2",
-                name: "Thessaloniki",
-              },
-              defaultBoxState: "Scrap",
-              id: "15",
-              name: "SCRAP",
-            },
-            numberOfItems: 99,
-            product: {
-              __typename: "Product",
-              deletedOn: null,
-              category: {
-                id: "1",
-                name: "Bottoms",
-                __typename: "ProductCategory",
-              },
-              gender: "none",
-              id: "233",
-              name: "Toothbrush",
-            },
-            shipmentDetail: null,
-            size: {
-              __typename: "Size",
-              id: "68",
-              label: "One size",
-            },
-            state: "Scrap",
-            tags: [],
-            createdOn: "2021-10-29T15:02:40+00:00",
-            createdBy: {
-              __typename: "User",
-              id: "123",
-              name: "Some User",
-            },
-            lastModifiedBy: {
-              __typename: "User",
-              id: "1234",
-              name: "Another User",
-            },
-            lastModifiedOn: new Date().toISOString(),
-            deletedOn: null,
-          },
-          {
-            __typename: "Box",
-            id: "2",
-            comment: null,
-            history: [],
-            labelIdentifier: "1481666",
-            location: {
-              __typename: "ClassicLocation",
-              base: {
-                __typename: "Base",
-                id: "2",
-                name: "Thessaloniki",
-              },
-              defaultBoxState: "InStock",
-              id: "16",
-              name: "Stockroom",
-            },
-            numberOfItems: 23,
-            product: {
-              __typename: "Product",
-              deletedOn: null,
-              category: {
-                id: "1",
-                name: "Bottoms",
-                __typename: "ProductCategory",
-              },
-              gender: "Men",
-              id: "267",
-              name: "Sweatpants",
-            },
-            shipmentDetail: null,
-            size: {
-              __typename: "Size",
-              id: "52",
-              label: "Mixed",
-            },
-            state: "InStock",
-            tags: [
-              {
-                __typename: "Tag",
-                color: "#d89016",
-                description: "",
-                id: "11",
-                name: "new",
-                type: "All",
-              },
-            ],
-            createdOn: "2021-10-29T15:02:40+00:00",
-            createdBy: {
-              __typename: "User",
-              id: "123",
-              name: "Some User",
-            },
-            lastModifiedBy: {
-              __typename: "User",
-              id: "1234",
-              name: "Another User",
-            },
-            lastModifiedOn: new Date().toISOString(),
-            deletedOn: null,
-          },
-          {
-            __typename: "Box",
-            id: "3",
-            comment: null,
-            history: [
-              {
-                __typename: "HistoryEntry",
-                changeDate: "2023-10-29T15:02:58+00:00",
-                changes: "changed box state from Scrap to InStock",
-                id: "30946",
-                user: {
-                  __typename: "User",
-                  id: "17",
-                  name: "Dev Coordinator",
+        elements:
+          state === "InStock"
+            ? [
+                {
+                  __typename: "Box",
+                  id: "2",
+                  comment: null,
+                  history: [],
+                  labelIdentifier: "1481666",
+                  location: {
+                    __typename: "ClassicLocation",
+                    base: {
+                      __typename: "Base",
+                      id: "2",
+                      name: "Thessaloniki",
+                    },
+                    defaultBoxState: "InStock",
+                    id: "16",
+                    name: "Stockroom",
+                  },
+                  numberOfItems: 23,
+                  product: {
+                    __typename: "Product",
+                    type: "Custom",
+                    deletedOn: null,
+                    category: {
+                      id: "1",
+                      name: "Bottoms",
+                      __typename: "ProductCategory",
+                    },
+                    gender: "Men",
+                    id: "267",
+                    name: "Sweatpants",
+                  },
+                  shipmentDetail: null,
+                  size: {
+                    __typename: "Size",
+                    id: "52",
+                    label: "Mixed",
+                  },
+                  state: "InStock",
+                  tags: [
+                    {
+                      __typename: "Tag",
+                      color: "#d89016",
+                      description: "",
+                      id: "11",
+                      name: "new",
+                      type: "All",
+                    },
+                  ],
+                  createdOn: "2021-10-29T15:02:40+00:00",
+                  createdBy: {
+                    __typename: "User",
+                    id: "123",
+                    name: "Some User",
+                  },
+                  lastModifiedBy: {
+                    __typename: "User",
+                    id: "1234",
+                    name: "Another User",
+                  },
+                  lastModifiedOn: new Date().toISOString(),
+                  deletedOn: null,
                 },
-              },
-              {
-                __typename: "HistoryEntry",
-                changeDate: "2023-10-29T15:02:51+00:00",
-                changes: "changed box state from InStock to Scrap",
-                id: "30945",
-                user: {
-                  __typename: "User",
-                  id: "17",
-                  name: "Dev Coordinator",
+                {
+                  __typename: "Box",
+                  id: "3",
+                  comment: null,
+                  history: [
+                    {
+                      __typename: "HistoryEntry",
+                      changeDate: "2023-10-29T15:02:58+00:00",
+                      changes: "changed box state from Scrap to InStock",
+                      id: "30946",
+                      user: {
+                        __typename: "User",
+                        id: "17",
+                        name: "Dev Coordinator",
+                      },
+                    },
+                    {
+                      __typename: "HistoryEntry",
+                      changeDate: "2023-10-29T15:02:51+00:00",
+                      changes: "changed box state from InStock to Scrap",
+                      id: "30945",
+                      user: {
+                        __typename: "User",
+                        id: "17",
+                        name: "Dev Coordinator",
+                      },
+                    },
+                    {
+                      __typename: "HistoryEntry",
+                      changeDate: "2023-10-29T15:02:40+00:00",
+                      changes: "changed box state from Scrap to InStock",
+                      id: "30944",
+                      user: {
+                        __typename: "User",
+                        id: "17",
+                        name: "Dev Coordinator",
+                      },
+                    },
+                    {
+                      __typename: "HistoryEntry",
+                      changeDate: "2023-10-29T15:02:40+00:00",
+                      changes: "changed box location from SCRAP to WH2",
+                      id: "30943",
+                      user: {
+                        __typename: "User",
+                        id: "17",
+                        name: "Dev Coordinator",
+                      },
+                    },
+                  ],
+                  labelIdentifier: "8650860",
+                  location: {
+                    __typename: "ClassicLocation",
+                    base: {
+                      __typename: "Base",
+                      id: "2",
+                      name: "Thessaloniki",
+                    },
+                    defaultBoxState: "InStock",
+                    id: "18",
+                    name: "WH1",
+                  },
+                  numberOfItems: 33,
+                  product: {
+                    __typename: "Product",
+                    deletedOn: null,
+                    type: "Custom",
+                    category: {
+                      id: "1",
+                      name: "Bottoms",
+                      __typename: "ProductCategory",
+                    },
+                    gender: "UnisexKid",
+                    id: "350",
+                    name: "Robes",
+                  },
+                  shipmentDetail: null,
+                  size: {
+                    __typename: "Size",
+                    id: "52",
+                    label: "Mixed",
+                  },
+                  state: "InStock",
+                  tags: [
+                    {
+                      __typename: "Tag",
+                      color: "#f37167",
+                      description: "Donation from company x",
+                      id: "10",
+                      name: "company X",
+                      type: "Box",
+                    },
+                    {
+                      __typename: "Tag",
+                      color: "#d89016",
+                      description: "",
+                      id: "11",
+                      name: "new",
+                      type: "All",
+                    },
+                    {
+                      __typename: "Tag",
+                      color: "#0097ff",
+                      description: "Hold back for emergencies",
+                      id: "12",
+                      name: "emergency",
+                      type: "Box",
+                    },
+                  ],
+                  createdOn: "2021-10-29T15:02:40+00:00",
+                  createdBy: {
+                    __typename: "User",
+                    id: "123",
+                    name: "Some User",
+                  },
+                  lastModifiedBy: {
+                    __typename: "User",
+                    id: "1234",
+                    name: "Another User",
+                  },
+                  lastModifiedOn: new Date().toISOString(),
+                  deletedOn: null,
                 },
-              },
-              {
-                __typename: "HistoryEntry",
-                changeDate: "2023-10-29T15:02:40+00:00",
-                changes: "changed box state from Scrap to InStock",
-                id: "30944",
-                user: {
-                  __typename: "User",
-                  id: "17",
-                  name: "Dev Coordinator",
-                },
-              },
-              {
-                __typename: "HistoryEntry",
-                changeDate: "2023-10-29T15:02:40+00:00",
-                changes: "changed box location from SCRAP to WH2",
-                id: "30943",
-                user: {
-                  __typename: "User",
-                  id: "17",
-                  name: "Dev Coordinator",
-                },
-              },
-            ],
-            labelIdentifier: "8650860",
-            location: {
-              __typename: "ClassicLocation",
-              base: {
-                __typename: "Base",
-                id: "2",
-                name: "Thessaloniki",
-              },
-              defaultBoxState: "InStock",
-              id: "18",
-              name: "WH1",
-            },
-            numberOfItems: 33,
-            product: {
-              __typename: "Product",
-              deletedOn: null,
-              category: {
-                id: "1",
-                name: "Bottoms",
-                __typename: "ProductCategory",
-              },
-              gender: "UnisexKid",
-              id: "350",
-              name: "Robes",
-            },
-            shipmentDetail: null,
-            size: {
-              __typename: "Size",
-              id: "52",
-              label: "Mixed",
-            },
-            state: "InStock",
-            tags: [
-              {
-                __typename: "Tag",
-                color: "#f37167",
-                description: "Donation from company x",
-                id: "10",
-                name: "company X",
-                type: "Box",
-              },
-              {
-                __typename: "Tag",
-                color: "#d89016",
-                description: "",
-                id: "11",
-                name: "new",
-                type: "All",
-              },
-              {
-                __typename: "Tag",
-                color: "#0097ff",
-                description: "Hold back for emergencies",
-                id: "12",
-                name: "emergency",
-                type: "Box",
-              },
-            ],
-            createdOn: "2021-10-29T15:02:40+00:00",
-            createdBy: {
-              __typename: "User",
-              id: "123",
-              name: "Some User",
-            },
-            lastModifiedBy: {
-              __typename: "User",
-              id: "1234",
-              name: "Another User",
-            },
-            lastModifiedOn: new Date().toISOString(),
-            deletedOn: null,
-          },
-        ],
+              ]
+            : state === "Scrap"
+              ? [
+                  {
+                    id: "1",
+                    __typename: "Box",
+                    comment: null,
+                    history: [],
+                    labelIdentifier: "4495955",
+                    location: {
+                      __typename: "ClassicLocation",
+                      base: {
+                        __typename: "Base",
+                        id: "2",
+                        name: "Thessaloniki",
+                      },
+                      defaultBoxState: "Scrap",
+                      id: "15",
+                      name: "SCRAP",
+                    },
+                    numberOfItems: 99,
+                    product: {
+                      __typename: "Product",
+                      type: "Custom",
+                      deletedOn: null,
+                      category: {
+                        id: "1",
+                        name: "Bottoms",
+                        __typename: "ProductCategory",
+                      },
+                      gender: "none",
+                      id: "233",
+                      name: "Toothbrush",
+                    },
+                    shipmentDetail: null,
+                    size: {
+                      __typename: "Size",
+                      id: "68",
+                      label: "One size",
+                    },
+                    state: "Scrap",
+                    tags: [],
+                    createdOn: "2021-10-29T15:02:40+00:00",
+                    createdBy: {
+                      __typename: "User",
+                      id: "123",
+                      name: "Some User",
+                    },
+                    lastModifiedBy: {
+                      __typename: "User",
+                      id: "1234",
+                      name: "Another User",
+                    },
+                    lastModifiedOn: new Date().toISOString(),
+                    deletedOn: null,
+                  },
+                ]
+              : state === "Donated"
+                ? []
+                : [],
         pageInfo: {
           __typename: "PageInfo",
           hasNextPage: false,
@@ -294,7 +304,7 @@ const boxesQuery = {
       },
     },
   },
-};
+});
 
 const actionsQuery = {
   request: {
@@ -464,28 +474,26 @@ const moveBoxesMutation = {
   },
 };
 
-const initialQueryNetworkError = {
+const initialQueryNetworkError = ({ state = "InStock", paginationInput = 100000 }) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: {
-        states: ["InStock"],
-      },
+      filterInput: { states: [state] },
+      paginationInput,
     },
   },
 
   error: new FakeGraphQLNetworkError(),
-};
+});
 
-const initialQueryGraphQLError = {
+const initialQueryGraphQLError = ({ state = "InStock", paginationInput = 100000 }) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: {
-        states: ["InStock"],
-      },
+      filterInput: { states: [state] },
+      paginationInput,
     },
   },
   result: {
@@ -494,7 +502,7 @@ const initialQueryGraphQLError = {
     },
     errors: [new FakeGraphQLError()],
   },
-};
+});
 
 describe("4.8.1 - Initial load of Page", () => {
   it("4.8.1.1 - Is the Loading State Shown First?", async () => {
@@ -511,7 +519,13 @@ describe("4.8.1 - Initial load of Page", () => {
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes",
-        mocks: [boxesQuery, actionsQuery],
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ state: "InStock", paginationInput: 20 }),
+          boxesQuery({ state: "InStock" }),
+          actionsQuery,
+        ],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -521,63 +535,124 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(screen.getByTestId("TableSkeleton")).toBeInTheDocument();
   });
 
-  it("4.8.1.2 - Failed to Fetch Initial Data (GraphQL Error)", async () => {
-    render(
-      <ErrorBoundary
-        fallback={
-          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-        }
-      >
-        <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
-        </Suspense>
-      </ErrorBoundary>,
-      {
-        routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
-        mocks: [initialQueryGraphQLError, actionsQuery],
-        cache,
-        addTypename: true,
+  const failedInitialFetching = [
+    // {
+    //   name: "4.8.1.2.1 - Failed to Fetch Initial Data",
+    //   mocks: [
+    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
+    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
+    //     boxesQuery({ paginationInput: 20 }),
+    //     boxesQuery({ paginationInput: 20 }),
+    //     initialQueryGraphQLError({}),
+    //     actionsQuery,
+    //   ],
+    // },
+    {
+      name: "4.8.1.2.2 - Failed to Fetch Initial Data",
+      mocks: [
+        boxesQuery({ state: "Scrap", paginationInput: 20 }),
+        boxesQuery({ state: "Donated", paginationInput: 20 }),
+        initialQueryGraphQLError({ paginationInput: 20 }),
+        boxesQuery({}),
+        actionsQuery,
+      ],
+    },
+    // {
+    //   name: "4.8.1.2.3 - Failed to Fetch Initial Data",
+    //   mocks: [
+    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
+    //     initialQueryGraphQLError({ state: "Donated", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock" }),
+    //     actionsQuery,
+    //   ],
+    // },
+    // {
+    //   name: "4.8.1.2.4 - Failed to Fetch Initial Data",
+    //   mocks: [
+    //     initialQueryGraphQLError({ state: "Scrap", paginationInput: 20 }),
+    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock" }),
+    //     actionsQuery,
+    //   ],
+    // },
+    // {
+    //   name: "4.8.1.2.5 - Failed to Fetch Initial Data",
+    //   mocks: [
+    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
+    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
+    //     initialQueryNetworkError({ state: "InStock" }),
+    //     actionsQuery,
+    //   ],
+    // },
+    {
+      name: "4.8.1.2.6 - Failed to Fetch Initial Data",
+      mocks: [
+        boxesQuery({ state: "Scrap", paginationInput: 20 }),
+        boxesQuery({ state: "Donated", paginationInput: 20 }),
+        initialQueryNetworkError({ paginationInput: 20 }),
+        boxesQuery({}),
+        actionsQuery,
+      ],
+    },
+    // {
+    //   name: "4.8.1.2.7 - Failed to Fetch Initial Data",
+    //   mocks: [
+    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
+    //     initialQueryNetworkError({ state: "Donated", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock" }),
+    //     actionsQuery,
+    //   ],
+    // },
+    // {
+    //   name: "4.8.1.2.8 - Failed to Fetch Initial Data",
+    //   mocks: [
+    //     initialQueryNetworkError({ state: "Scrap", paginationInput: 20 }),
+    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
+    //     boxesQuery({ state: "InStock" }),
+    //     actionsQuery,
+    //   ],
+    // },
+  ];
+
+  failedInitialFetching.forEach(({ name, mocks }) => {
+    it(
+      name,
+      async () => {
+        render(
+          <ErrorBoundary
+            fallback={
+              <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+            }
+          >
+            <Suspense fallback={<TableSkeleton />}>
+              <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+            </Suspense>
+          </ErrorBoundary>,
+          {
+            routePath: "/bases/:baseId/boxes",
+            initialUrl: "/bases/2/boxes",
+            mocks,
+            cache,
+            addTypename: true,
+            jotaiAtoms,
+          },
+        );
+
+        expect(
+          await screen.findByText(
+            /could not fetch boxes data! Please try reloading the page./i,
+            {},
+            { timeout: 5000 },
+          ),
+        ).toBeInTheDocument();
       },
+      15000,
     );
-
-    expect(
-      await screen.findByText(
-        /could not fetch boxes data! Please try reloading the page./i,
-        {},
-        { timeout: 5000 },
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("4.8.1.2 - Failed to Fetch Initial Data (Network Error)", async () => {
-    render(
-      <ErrorBoundary
-        fallback={
-          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-        }
-      >
-        <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
-        </Suspense>
-      </ErrorBoundary>,
-      {
-        routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
-        mocks: [initialQueryNetworkError, actionsQuery],
-        cache,
-        addTypename: true,
-        jotaiAtoms,
-      },
-    );
-
-    expect(
-      await screen.findByText(
-        /could not fetch boxes data! Please try reloading the page./i,
-        {},
-        { timeout: 5000 },
-      ),
-    ).toBeInTheDocument();
   });
 
   it("4.8.1.3 - The Boxes Table is shown", async () => {
@@ -594,7 +669,13 @@ describe("4.8.1 - Initial load of Page", () => {
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes",
-        mocks: [boxesQuery, actionsQuery],
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -622,7 +703,14 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes",
-        mocks: [boxesQuery, actionsQuery, moveBoxesMutation],
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+          moveBoxesMutation,
+        ],
         cache,
         addTypename: true,
         jotaiAtoms,

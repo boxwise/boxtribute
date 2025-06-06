@@ -18,6 +18,9 @@ export const cache = new InMemoryCache({
           // filterInput and paginationInput will be ignored in cache key generation.
           keyArgs: ["baseId"],
           merge(existing, incoming, { readField }) {
+            if (!incoming) {
+              return existing;
+            }
             const existingElements = existing?.elements ?? [];
             const incomingElements = incoming.elements ?? [];
             // Use a Map to store elements by labelIdentifier, ensuring uniqueness and easy updates.
