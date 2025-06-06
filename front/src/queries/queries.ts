@@ -193,6 +193,7 @@ export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = graphql(
       }
 
       base(id: $baseId) {
+        id
         tags(resourceType: Box) {
           ...TagOptions
         }
@@ -218,6 +219,7 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
   `
     query MultiBoxActionOptionsForLocationsTagsAndShipments($baseId: ID!) {
       base(id: $baseId) {
+        id
         tags(resourceType: Box) {
           ...TagBasicFields
         }

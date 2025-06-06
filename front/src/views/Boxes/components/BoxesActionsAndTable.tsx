@@ -31,6 +31,7 @@ import { useUnassignTags } from "hooks/useUnassignTags";
 import { AddIcon } from "@chakra-ui/icons";
 
 export interface IBoxesActionsAndTableProps {
+  isBackgroundFetchOfBoxesLoading: boolean;
   tableConfig: IUseTableConfigReturnType;
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
@@ -41,6 +42,7 @@ export interface IBoxesActionsAndTableProps {
 }
 
 function BoxesActionsAndTable({
+  isBackgroundFetchOfBoxesLoading,
   tableConfig,
   onRefetch,
   boxesQueryRef,
@@ -369,6 +371,7 @@ function BoxesActionsAndTable({
 
   return (
     <BoxesTable
+      isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
       tableConfig={tableConfig}
       onRefetch={onRefetch}
       boxesQueryRef={boxesQueryRef}

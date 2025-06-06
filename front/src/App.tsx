@@ -1,5 +1,5 @@
 import "regenerator-runtime/runtime";
-import { ReactElement, Suspense, useEffect, useState } from "react";
+import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
@@ -97,6 +97,9 @@ function App() {
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
+  // For BoxesView to reduce number of expensive Boxes queries
+  // when navigating between boxes and other views.
+  const hasExecutedInitialFetchOfBoxes = useRef(false);
 
   // store previous location to return to if you are not authorized
   useEffect(() => {
@@ -149,7 +152,7 @@ function App() {
                       }
                     >
                       <Suspense fallback={<TableSkeleton />}>
-                        <Boxes />
+                        <Boxes hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes} />
                       </Suspense>
                     </ErrorBoundary>
                   }

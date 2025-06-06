@@ -45,6 +45,7 @@ import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/type
 import ColumnSelector from "components/Table/ColumnSelector";
 
 interface IBoxesTableProps {
+  isBackgroundFetchOfBoxesLoading: boolean;
   tableConfig: IUseTableConfigReturnType;
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
@@ -57,6 +58,7 @@ interface IBoxesTableProps {
 }
 
 function BoxesTable({
+  isBackgroundFetchOfBoxesLoading,
   tableConfig,
   onRefetch,
   boxesQueryRef,
@@ -183,6 +185,25 @@ function BoxesTable({
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
+          <Tr key={"boxes-count-row"}>
+            <Td fontWeight="bold" key={"product-total"}>
+              Total
+            </Td>
+            <Td fontWeight="bold" key={"boxes-count"}>
+              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+                <Skeleton height={5} width={10} mr={2} />
+              ) : (
+                <Text as="span">{boxCount} boxes</Text>
+              )}
+            </Td>
+            <Td fontWeight="bold" key={"item-count"}>
+              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+                <Skeleton height={5} width={10} mr={2} />
+              ) : (
+                <Text as="span">{itemsCount} items</Text>
+              )}
+            </Td>
+          </Tr>
           {refetchBoxesIsPending && (
             <Tr key="refetchIsPending1">
               <Td colSpan={columns.length + 1}>
@@ -197,12 +218,6 @@ function BoxesTable({
               </Td>
             </Tr>
           )}
-
-          <Tr key={"boxes-count-row"}>
-            <Td fontWeight="bold" key={"product-total"}>Total</Td>
-            <Td fontWeight="bold" key={"boxes-count"}>{boxCount} boxes</Td>
-            <Td fontWeight="bold" key={"item-count"}>{itemsCount} items</Td>
-          </Tr>
 
           {page.map((row) => {
             prepareRow(row);
@@ -244,16 +259,20 @@ function BoxesTable({
         </Flex>
 
         <Flex justifyContent="center" m={4}>
-          <Text>
+          <Text as="span">
             Page{" "}
             <Text fontWeight="bold" as="span">
               {pageIndex + 1}
             </Text>{" "}
             of{" "}
+          </Text>
+          {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+            <Skeleton height={5} width={10} mr={2} />
+          ) : (
             <Text fontWeight="bold" as="span">
               {pageOptions.length}
             </Text>
-          </Text>
+          )}
         </Flex>
 
         <Flex>

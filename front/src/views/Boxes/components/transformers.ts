@@ -43,8 +43,13 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
 export const prepareBoxesForBoxesViewQueryVariables = (
   baseId: string,
   columnFilters: Filters<any>,
+  paginationInput: number = 100000,
 ): BoxesForBoxesViewVariables => {
-  const variables: BoxesForBoxesViewVariables = { baseId, filterInput: {} };
+  const variables: BoxesForBoxesViewVariables = {
+    baseId,
+    filterInput: {},
+    paginationInput,
+  };
   const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
   if (refetchFilters.length > 0) {
     const filterInput = refetchFilters.reduce(

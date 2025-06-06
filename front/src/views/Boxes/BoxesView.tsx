@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useEffect, useMemo, useState } from "react";
+import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
@@ -35,59 +35,73 @@ import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
+import { BoxState } from "queries/types";
 
 // TODO: Implement Pagination and Filtering
+export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
+  `
+    fragment BoxesQueryElementField on Box @_unmask {
+      id
+      labelIdentifier
+      product {
+        type
+        ...ProductBasicFields
+      }
+      numberOfItems
+      size {
+        ...SizeBasicFields
+      }
+      state
+      location {
+        id
+        name
+      }
+      tags {
+        ...TagBasicFields
+      }
+      shipmentDetail {
+        id
+        shipment {
+          id
+          labelIdentifier
+        }
+      }
+      comment
+      createdOn
+      lastModifiedOn
+      deletedOn
+      createdBy {
+        id
+        name
+      }
+      lastModifiedBy {
+        id
+        name
+      }
+    }
+  `,
+  [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+);
+
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
   `
-    query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput) {
-      boxes(baseId: $baseId, filterInput: $filterInput, paginationInput: { first: 100000 }) {
+    query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput, $paginationInput: Int) {
+      boxes(
+        baseId: $baseId
+        filterInput: $filterInput
+        paginationInput: { first: $paginationInput }
+      ) {
         totalCount
         pageInfo {
           hasNextPage
         }
         elements {
-          id
-          labelIdentifier
-          product {
-            type
-            ...ProductBasicFields
-          }
-          numberOfItems
-          size {
-            ...SizeBasicFields
-          }
-          state
-          location {
-            id
-            name
-          }
-          tags {
-            ...TagBasicFields
-          }
-          shipmentDetail {
-            id
-            shipment {
-              id
-              labelIdentifier
-            }
-          }
-          comment
-          createdOn
-          lastModifiedOn
-          deletedOn
-          createdBy {
-            id
-            name
-          }
-          lastModifiedBy {
-            id
-            name
-          }
+          ...BoxesQueryElementField
         }
       }
     }
   `,
-  [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT],
 );
 
 export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
@@ -123,8 +137,13 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
   [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
-function Boxes() {
+function Boxes({
+  hasExecutedInitialFetchOfBoxes,
+}: {
+  hasExecutedInitialFetchOfBoxes: { current: boolean };
+}) {
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
@@ -147,17 +166,56 @@ function Boxes() {
     },
   });
 
-  // fetch Boxes data in the background
-  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
-    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
-  });
-
-  // fetch options for actions on boxes
+  // fetch options for actions on boxes causing the suspense.
   const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
     variables: {
       baseId,
     },
   });
+
+  // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
+  // The rest of the boxes are fetched in the background in the following useEffect.
+  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
+    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 20),
+  });
+  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
+    !hasExecutedInitialFetchOfBoxes.current,
+  );
+  useEffect(() => {
+    if (hasExecutedInitialFetchOfBoxes.current) {
+      return;
+    }
+
+    // Only on very initial mount, query 20 boxes of the most used other than InStock state to
+    // preload the data into Apollo cache.
+    const states = ["Donated", "Scrap"] satisfies Partial<BoxState>[];
+    for (const state of states) {
+      apolloClient.query({
+        query: BOXES_FOR_BOXESVIEW_QUERY,
+        variables: {
+          baseId,
+          filterInput: {
+            states: [state],
+          },
+          paginationInput: 20,
+        },
+        fetchPolicy: "network-only",
+      });
+    }
+
+    apolloClient
+      .query({
+        query: BOXES_FOR_BOXESVIEW_QUERY,
+        variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+        fetchPolicy: "network-only",
+      })
+      .finally(() => {
+        setIsBackgroundFetchOfBoxesLoading(false);
+        hasExecutedInitialFetchOfBoxes.current = true;
+      });
+    // only on initial mount, so no dependencies needed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
@@ -324,6 +382,7 @@ function Boxes() {
         Manage Boxes
       </Heading>
       <BoxesActionsAndTable
+        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
         tableConfig={tableConfig}
         onRefetch={refetchBoxes}
         boxesQueryRef={boxesQueryRef}
