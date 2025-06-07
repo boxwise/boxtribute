@@ -39,5 +39,6 @@ def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
         Box,
         filter_condition,
         selection=selection,
+        order_by_field=Box.last_modified_on.desc(),
         pagination_input=pagination_input,
     )
