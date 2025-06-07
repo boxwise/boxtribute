@@ -772,6 +772,7 @@ type Tag {
   " List of boxes and/or beneficiaries that have this tag assigned "
   taggedResources: [TaggableResource!]
   base: Base!
+  deletedOn: Datetime
 }
 
 """
