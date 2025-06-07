@@ -39,4 +39,8 @@ def resolve_unassign_tag(*_, unassignment_input):
 def resolve_delete_tag(*_, id):
     tag = Tag.get_by_id(id)
     authorize(permission="tag:write", base_id=tag.base_id)
+    if tag.deleted_on is not None:
+        # If already deleted, return tag without updating the deleted_on field, nor
+        # creating a history entry
+        return tag
     return delete_tag(user_id=g.user.id, tag=tag)

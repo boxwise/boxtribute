@@ -48,6 +48,11 @@ def resolve_deleted_product(*_, id):
         return ResourceDoesNotExist(name="Product", id=id)
     authorize(permission="product:write", base_id=product.base_id)
 
+    if product.deleted_on is not None:
+        # If already deleted, return product without updating the deleted_on field, nor
+        # creating a history entry
+        return product
+
     return delete_product(user_id=g.user.id, product=product)
 
 
@@ -89,5 +94,10 @@ def resolve_disable_standard_product(*_, instantiation_id):
     if (product := Product.get_or_none(int(instantiation_id))) is None:
         return ResourceDoesNotExist(name="Product", id=instantiation_id)
     authorize(permission="product:write", base_id=product.base_id)
+
+    if product.deleted_on is not None:
+        # If already disabled, return SP instantiation without updating the deleted_on
+        # field, nor creating a history entry
+        return product
 
     return disable_standard_product(user_id=g.user.id, product=product)
