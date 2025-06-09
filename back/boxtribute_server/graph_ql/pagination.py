@@ -186,11 +186,14 @@ def generate_page(*conditions, elements, cursor, selection, **page_info_kwargs):
     return page
 
 
-def load_into_page(model, *conditions, selection=None, pagination_input):
+def load_into_page(
+    model, *conditions, selection=None, order_by_field=None, pagination_input
+):
     """High-level convenience function to load result query of given model into a
     GraphQL page type.
     The query is constructed from the given selection (default: `model.select()`), and
-    optional conditions. The query results are ordered by model ID.
+    optional conditions. The query results are ordered by the given field (default:
+    model ID).
     """
     cursor, limit = pagination_parameters(pagination_input)
     pagination_condition = cursor.pagination_condition(model)
@@ -199,7 +202,7 @@ def load_into_page(model, *conditions, selection=None, pagination_input):
         selection = model.select()
     query_result = (
         selection.where(pagination_condition, *conditions)
-        .order_by(model.id)
+        .order_by(order_by_field or model.id)
         .limit(limit + 1)
     )
     return generate_page(

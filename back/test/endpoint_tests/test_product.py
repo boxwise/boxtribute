@@ -1,4 +1,5 @@
 import enum
+import time
 from datetime import date
 
 import pytest
@@ -380,9 +381,15 @@ def test_custom_product_mutations(
                     }}
                 }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response["deletedOn"].startswith(today)
+    deleted_on = response.pop("deletedOn")
+    assert deleted_on.startswith(today)
     assert response["lastModifiedOn"].startswith(today)
     assert response["lastModifiedBy"] == {"id": user_id}
+
+    # Test case 8.2.55a
+    time.sleep(1)
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"] == deleted_on
 
     # Test case 8.2.59
     product_with_boxes_id = default_product["id"]
@@ -576,9 +583,15 @@ def test_standard_product_instantiation_mutations(
                     }}
                 }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response["deletedOn"].startswith(today)
+    deleted_on = response.pop("deletedOn")
+    assert deleted_on.startswith(today)
     assert response["lastModifiedOn"] is None
     assert response["lastModifiedBy"] is None
+
+    # Test case 8.2.80a
+    time.sleep(1)
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"] == deleted_on
 
     # Test case 8.2.60: Re-enable previously disabled instantiation
     mutation = _enable_mutation(enable_input)

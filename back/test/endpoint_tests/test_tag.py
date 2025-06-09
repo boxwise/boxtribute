@@ -1,3 +1,4 @@
+import time
 from datetime import date
 
 import pytest
@@ -102,10 +103,12 @@ def test_tags_query(
 
 
 def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lost_box):
+    today = date.today().isoformat()
     # Test case 4.2.9
     deleted_tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {deleted_tag_id}) {{
                 name
+                deletedOn
                 taggedResources {{
                     ...on Beneficiary {{ id }}
                     ...on Box {{ id }}
@@ -113,12 +116,18 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
     deleted_tag = assert_successful_request(client, mutation)
     # Expect tag to be unassigned from any resource it was assigned to (see
     # test/data/tags_relation.py)
+    deleted_on = deleted_tag.pop("deletedOn")
+    assert deleted_on.startswith(today)
     assert deleted_tag == {"name": tags[0]["name"], "taggedResources": []}
 
     query = """query { tags { id } }"""
     all_tags = assert_successful_request(client, query)
     # Expect the deleted tag to not appear in the list of active tags of base
     assert all_tags == [{"id": str(t["id"])} for t in base1_active_tags[1:]]
+
+    time.sleep(1)
+    response = assert_successful_request(client, mutation)
+    assert response["deletedOn"] == deleted_on
 
     # Test case 4.2.1
     name = "Box Group 1"
@@ -259,7 +268,6 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         .where(DbChangeHistory.table_name == "tags")
         .dicts()
     )
-    today = date.today().isoformat()
     for i in range(len(history_entries)):
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
     assert history_entries == [
