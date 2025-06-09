@@ -536,17 +536,6 @@ describe("4.8.1 - Initial load of Page", () => {
   });
 
   const failedInitialFetching = [
-    // {
-    //   name: "4.8.1.2.1 - Failed to Fetch Initial Data",
-    //   mocks: [
-    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
-    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
-    //     boxesQuery({ paginationInput: 20 }),
-    //     boxesQuery({ paginationInput: 20 }),
-    //     initialQueryGraphQLError({}),
-    //     actionsQuery,
-    //   ],
-    // },
     {
       name: "4.8.1.2.2 - Failed to Fetch Initial Data",
       mocks: [
@@ -557,36 +546,6 @@ describe("4.8.1 - Initial load of Page", () => {
         actionsQuery,
       ],
     },
-    // {
-    //   name: "4.8.1.2.3 - Failed to Fetch Initial Data",
-    //   mocks: [
-    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
-    //     initialQueryGraphQLError({ state: "Donated", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock" }),
-    //     actionsQuery,
-    //   ],
-    // },
-    // {
-    //   name: "4.8.1.2.4 - Failed to Fetch Initial Data",
-    //   mocks: [
-    //     initialQueryGraphQLError({ state: "Scrap", paginationInput: 20 }),
-    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock" }),
-    //     actionsQuery,
-    //   ],
-    // },
-    // {
-    //   name: "4.8.1.2.5 - Failed to Fetch Initial Data",
-    //   mocks: [
-    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
-    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
-    //     initialQueryNetworkError({ state: "InStock" }),
-    //     actionsQuery,
-    //   ],
-    // },
     {
       name: "4.8.1.2.6 - Failed to Fetch Initial Data",
       mocks: [
@@ -597,26 +556,6 @@ describe("4.8.1 - Initial load of Page", () => {
         actionsQuery,
       ],
     },
-    // {
-    //   name: "4.8.1.2.7 - Failed to Fetch Initial Data",
-    //   mocks: [
-    //     boxesQuery({ state: "Scrap", paginationInput: 20 }),
-    //     initialQueryNetworkError({ state: "Donated", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock" }),
-    //     actionsQuery,
-    //   ],
-    // },
-    // {
-    //   name: "4.8.1.2.8 - Failed to Fetch Initial Data",
-    //   mocks: [
-    //     initialQueryNetworkError({ state: "Scrap", paginationInput: 20 }),
-    //     boxesQuery({ state: "Donated", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock", paginationInput: 20 }),
-    //     boxesQuery({ state: "InStock" }),
-    //     actionsQuery,
-    //   ],
-    // },
   ];
 
   failedInitialFetching.forEach(({ name, mocks }) => {
