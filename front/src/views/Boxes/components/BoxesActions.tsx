@@ -6,6 +6,7 @@ import RemoveBoxesButton from "./RemoveBoxesButton";
 import { Row } from "react-table";
 import { BoxRow } from "./types";
 import ExportToCsvButton from "./ExportToCsvButton";
+import MakeLabelsButton from "./MakeLabelsButton";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
