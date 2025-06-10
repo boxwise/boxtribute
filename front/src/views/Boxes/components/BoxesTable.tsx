@@ -44,6 +44,7 @@ import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/type
 import ColumnSelector from "components/Table/ColumnSelector";
 import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
+import { IDropdownOption } from "components/Form/SelectField";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -51,7 +52,8 @@ interface IBoxesTableProps {
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
-  locationOptions: { label: string; value: string }[];
+  locationOptions: IDropdownOption[];
+  tagOptions: IDropdownOption[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
@@ -65,6 +67,7 @@ function BoxesTable({
   boxesQueryRef,
   columns,
   locationOptions,
+  tagOptions,
   setSelectedBoxes,
   selectedRowsArePending,
 }: IBoxesTableProps) {
@@ -98,6 +101,7 @@ function BoxesTable({
     nextPage,
     previousPage,
     selectedFlatRows,
+    toggleRowSelected,
   } = useTable(
     {
       columns,
@@ -142,8 +146,8 @@ function BoxesTable({
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
-  const { onBoxRowClick, onMoveBoxes, onDeleteBoxes, actionsAreLoading } =
-    useBoxesActions(selectedFlatRows);
+  const { onBoxRowClick, onMoveBoxes, onDeleteBoxes, onAssignTags, actionsAreLoading } =
+    useBoxesActions(selectedFlatRows, toggleRowSelected);
 
   useEffect(() => {
     // refetch
@@ -178,6 +182,8 @@ function BoxesTable({
           onMoveBoxes={onMoveBoxes}
           locationOptions={locationOptions}
           onDeleteBoxes={onDeleteBoxes}
+          onAssignTags={onAssignTags}
+          tagOptions={tagOptions}
           actionsAreLoading={actionsAreLoading}
         />
         <Spacer />

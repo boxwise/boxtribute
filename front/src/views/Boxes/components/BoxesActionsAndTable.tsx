@@ -23,7 +23,7 @@ export interface IBoxesActionsAndTableProps {
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   locationOptions: { label: string; value: string }[];
   shipmentOptions: { label: string; value: string }[];
-  tagOptions?: IDropdownOption[];
+  tagOptions: IDropdownOption[];
   availableColumns: Column<BoxRow>[];
 }
 
@@ -33,6 +33,7 @@ function BoxesActionsAndTable({
   onRefetch,
   boxesQueryRef,
   locationOptions,
+  tagOptions,
   shipmentOptions,
   availableColumns,
 }: IBoxesActionsAndTableProps) {
@@ -168,18 +169,6 @@ function BoxesActionsAndTable({
     }
   }, [createToast, flushResult, unassignBoxesFromShipmentsResult, setSelectedBoxes]);
 
-  // Assign Tags to Boxes
-  // const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
-  // const onAssignTags = useCallback(
-  //   (tagIds: string[]) => {
-  //     assignTags(
-  //       selectedBoxes.map((box) => box.values.labelIdentifier),
-  //       tagIds.map((id) => parseInt(id, 10)),
-  //     );
-  //   },
-  //   [assignTags, selectedBoxes],
-  // );
-
   // Unassign tags from boxes
   // const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
   // const onUnassignTags = useCallback(
@@ -239,6 +228,7 @@ function BoxesActionsAndTable({
       boxesQueryRef={boxesQueryRef}
       columns={availableColumns}
       locationOptions={locationOptions}
+      tagOptions={tagOptions}
       actionButtons={actionButtons}
       selectedBoxes={selectedBoxes}
       setSelectedBoxes={setSelectedBoxes}

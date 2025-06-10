@@ -7,12 +7,16 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import ExportToCsvButton from "./ExportToCsvButton";
 import MakeLabelsButton from "./MakeLabelsButton";
+import AssignTagsButton from "./AssignTagsButton";
+import { IDropdownOption } from "components/Form/SelectField";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
   onMoveBoxes: (locationId: string) => void;
   locationOptions: { label: string; value: string }[];
   onDeleteBoxes: () => void;
+  onAssignTags: (tagIds: string[]) => void;
+  tagOptions: IDropdownOption[];
   actionsAreLoading: boolean;
 };
 
@@ -21,6 +25,8 @@ function BoxesActions({
   onMoveBoxes,
   locationOptions,
   onDeleteBoxes,
+  onAssignTags,
+  tagOptions,
   actionsAreLoading,
 }: BoxesActionsProps) {
   return (
@@ -50,15 +56,15 @@ function BoxesActions({
           <MenuItem as="div">
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
+          <Menu>
+            <AssignTagsButton
+              selectedBoxes={selectedBoxes}
+              key="assign-tags"
+              onAssignTags={onAssignTags}
+              allTagOptions={tagOptions}
+            />
+          </Menu>
           {/* <Menu>
-                  <AssignTagsButton
-                    selectedBoxes={selectedBoxes}
-                    key="assign-tags"
-                    onAssignTags={onAssignTags}
-                    allTagOptions={tagOptions}
-                  />
-                </Menu>
-                <Menu>
                   <RemoveTagsButton
                     selectedBoxes={selectedBoxes}
                     key="remove-tags"

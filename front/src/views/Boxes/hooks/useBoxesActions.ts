@@ -8,8 +8,12 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxRow } from "../components/types";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
+import { useAssignTags } from "hooks/useAssignTags";
 
-function useBoxesActions(selectedBoxes: Row<BoxRow>[]) {
+function useBoxesActions(
+  selectedBoxes: Row<BoxRow>[],
+  toggleRowSelected: (rowId: string, set?: boolean) => void,
+) {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const { createToast } = useNotification();
@@ -71,12 +75,29 @@ function useBoxesActions(selectedBoxes: Row<BoxRow>[]) {
     deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
   }, [deleteBoxes, selectedBoxes]);
 
-  const actionsAreLoading = moveBoxesAction.isLoading || isDeleteBoxesLoading;
+  // Assign Tags to Boxes
+  const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
+  const onAssignTags = useCallback(
+    async (tagIds: string[]) => {
+      await assignTags(
+        selectedBoxes.map((box) => box.values.labelIdentifier),
+        tagIds.map((id) => parseInt(id, 10)),
+      );
+      selectedBoxes.forEach((row) => {
+        toggleRowSelected(row.id, true);
+      });
+    },
+    [assignTags, selectedBoxes, toggleRowSelected],
+  );
+
+  const actionsAreLoading =
+    moveBoxesAction.isLoading || isDeleteBoxesLoading || isAssignTagsLoading;
 
   return {
     onBoxRowClick,
     onMoveBoxes,
     onDeleteBoxes,
+    onAssignTags,
     actionsAreLoading,
   };
 }
