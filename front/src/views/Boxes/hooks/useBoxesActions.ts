@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { Row } from "react-table";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxRow } from "../components/types";
+import { useDeleteBoxes } from "hooks/useDeleteBoxes";
+import { IBoxBasicFields } from "types/graphql-local-only";
 
 function useBoxesActions(selectedBoxes: Row<BoxRow>[]) {
   const navigate = useNavigate();
@@ -63,11 +65,18 @@ function useBoxesActions(selectedBoxes: Row<BoxRow>[]) {
     [createToast, moveBoxesAction, selectedBoxes],
   );
 
-  const actionsAreLoading = moveBoxesAction.isLoading;
+  // Delete Boxes
+  const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
+  const onDeleteBoxes = useCallback(() => {
+    deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
+  }, [deleteBoxes, selectedBoxes]);
+
+  const actionsAreLoading = moveBoxesAction.isLoading || isDeleteBoxesLoading;
 
   return {
     onBoxRowClick,
     onMoveBoxes,
+    onDeleteBoxes,
     actionsAreLoading,
   };
 }

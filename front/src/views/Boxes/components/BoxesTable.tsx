@@ -53,7 +53,7 @@ interface IBoxesTableProps {
   columns: Column<BoxRow>[];
   locationOptions: { label: string; value: string }[];
   actionButtons?: React.ReactNode[];
-  selectedBoxes: Row<BoxRow>[];
+  selectedBoxes?: Row<BoxRow>[];
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
   selectedRowsArePending: boolean;
 }
@@ -65,7 +65,6 @@ function BoxesTable({
   boxesQueryRef,
   columns,
   locationOptions,
-  selectedBoxes,
   setSelectedBoxes,
   selectedRowsArePending,
 }: IBoxesTableProps) {
@@ -84,16 +83,6 @@ function BoxesTable({
     }),
     [],
   );
-
-  const selectedRowIds = useMemo(() => {
-    return selectedBoxes.reduce(
-      (acc, row) => {
-        acc[row.id] = true;
-        return acc;
-      },
-      {} as Record<string, boolean>,
-    );
-  }, [selectedBoxes]);
 
   const {
     headerGroups,
@@ -115,7 +104,6 @@ function BoxesTable({
       data: tableData,
       filterTypes,
       initialState: {
-        selectedRowIds: selectedRowIds,
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
@@ -125,7 +113,7 @@ function BoxesTable({
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
-      autoResetSelectedRows: false,
+      autoResetSelectedRows: !isBackgroundFetchOfBoxesLoading,
     },
     useFilters,
     useGlobalFilter,
@@ -154,7 +142,8 @@ function BoxesTable({
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
-  const { onBoxRowClick, onMoveBoxes, actionsAreLoading } = useBoxesActions(selectedFlatRows);
+  const { onBoxRowClick, onMoveBoxes, onDeleteBoxes, actionsAreLoading } =
+    useBoxesActions(selectedFlatRows);
 
   useEffect(() => {
     // refetch
@@ -185,8 +174,10 @@ function BoxesTable({
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <BoxesActions
+          selectedBoxes={selectedFlatRows}
           onMoveBoxes={onMoveBoxes}
           locationOptions={locationOptions}
+          onDeleteBoxes={onDeleteBoxes}
           actionsAreLoading={actionsAreLoading}
         />
         <Spacer />
