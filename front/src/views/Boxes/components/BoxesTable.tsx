@@ -146,8 +146,14 @@ function BoxesTable({
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
 
-  const { onBoxRowClick, onMoveBoxes, onDeleteBoxes, onAssignTags, actionsAreLoading } =
-    useBoxesActions(selectedFlatRows, toggleRowSelected);
+  const {
+    onBoxRowClick,
+    onMoveBoxes,
+    onDeleteBoxes,
+    onAssignTags,
+    onUnassignTags,
+    actionsAreLoading,
+  } = useBoxesActions(selectedFlatRows, toggleRowSelected);
 
   useEffect(() => {
     // refetch
@@ -183,6 +189,7 @@ function BoxesTable({
           locationOptions={locationOptions}
           onDeleteBoxes={onDeleteBoxes}
           onAssignTags={onAssignTags}
+          onUnassignTags={onUnassignTags}
           tagOptions={tagOptions}
           actionsAreLoading={actionsAreLoading}
         />

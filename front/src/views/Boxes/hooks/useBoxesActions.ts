@@ -9,6 +9,7 @@ import { BoxRow } from "../components/types";
 import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useAssignTags } from "hooks/useAssignTags";
+import { useUnassignTags } from "hooks/useUnassignTags";
 
 function useBoxesActions(
   selectedBoxes: Row<BoxRow>[],
@@ -90,14 +91,36 @@ function useBoxesActions(
     [assignTags, selectedBoxes, toggleRowSelected],
   );
 
+  // Unassign tags from boxesMore actions
+  const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
+  const onUnassignTags = useCallback(
+    (tagIds: string[]) => {
+      if (tagIds.length > 0) {
+        unassignTags(
+          selectedBoxes.map((box) => box.values.labelIdentifier),
+          tagIds.map((id) => parseInt(id, 10)),
+        ).then(() => {
+          selectedBoxes.forEach((row) => {
+            toggleRowSelected(row.id, true);
+          });
+        });
+      }
+    },
+    [unassignTags, selectedBoxes, toggleRowSelected],
+  );
+
   const actionsAreLoading =
-    moveBoxesAction.isLoading || isDeleteBoxesLoading || isAssignTagsLoading;
+    moveBoxesAction.isLoading ||
+    isDeleteBoxesLoading ||
+    isAssignTagsLoading ||
+    isUnassignTagsLoading;
 
   return {
     onBoxRowClick,
     onMoveBoxes,
     onDeleteBoxes,
     onAssignTags,
+    onUnassignTags,
     actionsAreLoading,
   };
 }

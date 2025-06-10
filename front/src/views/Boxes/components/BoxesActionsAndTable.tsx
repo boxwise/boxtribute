@@ -49,14 +49,6 @@ function BoxesActionsAndTable({
     [selectedBoxes],
   );
 
-  // Used for remove tags
-  // const getSelectedBoxTags = useMemo(() => {
-  //   const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
-  //   const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
-  //   const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
-  //   return commonTags;
-  // }, [selectedBoxes, tagOptions]);
-
   // Assign to Shipment
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
     useAssignBoxesToShipment();
@@ -168,20 +160,6 @@ function BoxesActionsAndTable({
       setSelectedBoxes([]);
     }
   }, [createToast, flushResult, unassignBoxesFromShipmentsResult, setSelectedBoxes]);
-
-  // Unassign tags from boxes
-  // const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
-  // const onUnassignTags = useCallback(
-  //   (tagIds: string[]) => {
-  //     if (tagIds.length > 0) {
-  //       unassignTags(
-  //         selectedBoxes.map((box) => box.values.labelIdentifier),
-  //         tagIds.map((id) => parseInt(id, 10)),
-  //       );
-  //     }
-  //   },
-  //   [unassignTags, selectedBoxes],
-  // );
 
   const actionsAreLoading = isAssignBoxesToShipmentLoading || isUnassignBoxesFromShipmentsLoading;
   // isAssignTagsLoading ||
