@@ -1,0 +1,75 @@
+import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { useNotification } from "hooks/useNotification";
+import { useAtomValue } from "jotai";
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Row } from "react-table";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { BoxRow } from "../components/types";
+
+function useBoxesActions(selectedBoxes: Row<BoxRow>[]) {
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const { createToast } = useNotification();
+
+  // Action when clicking on a row
+  const onBoxRowClick = (labelIdentifier: string) =>
+    navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
+
+  // Move Boxes
+  const moveBoxesAction = useMoveBoxes();
+
+  const onMoveBoxes = useCallback(
+    (locationId: string) => {
+      if (selectedBoxes.length === 0) {
+        createToast({
+          type: "warning",
+          message: `Please select a box to move`,
+        });
+      }
+      const movableLabelIdentifiers = selectedBoxes
+        .filter(
+          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state),
+        )
+        .map((box) => box.values.labelIdentifier);
+
+      const boxCountInShipmentStates = selectedBoxes.length - movableLabelIdentifiers.length;
+      if (boxCountInShipmentStates > 0) {
+        createToast({
+          type: "info",
+          message: `Cannot move ${
+            boxCountInShipmentStates === 1 ? "a box" : `${boxCountInShipmentStates} boxes`
+          } in shipment states.`,
+        });
+      }
+      moveBoxesAction
+        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, false)
+        .then((moveBoxesResult) => {
+          if (
+            moveBoxesResult.failedLabelIdentifiers &&
+            moveBoxesResult.failedLabelIdentifiers.length > 0
+          ) {
+            createToast({
+              type: "error",
+              message: `Could not move ${
+                moveBoxesResult.failedLabelIdentifiers.length === 1
+                  ? "a box"
+                  : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
+              }. Try again?`,
+            });
+          }
+        });
+    },
+    [createToast, moveBoxesAction, selectedBoxes],
+  );
+
+  const actionsAreLoading = moveBoxesAction.isLoading;
+
+  return {
+    onBoxRowClick,
+    onMoveBoxes,
+    actionsAreLoading,
+  };
+}
+
+export default useBoxesActions;

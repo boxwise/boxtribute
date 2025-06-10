@@ -1,14 +1,10 @@
 import { Column, Row } from "react-table";
-import { useMoveBoxes } from "hooks/useMoveBoxes";
-import { useNavigate, Link } from "react-router-dom";
-
-import { FaDollyFlatbed } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
-import { useDeleteBoxes } from "hooks/useDeleteBoxes";
+import { IDeleteBoxResultKind, useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button, Menu, MenuButton, MenuList, MenuItem, Text } from "@chakra-ui/react";
-import { useAtomValue } from "jotai";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryRef } from "@apollo/client";
@@ -17,7 +13,6 @@ import { BoxRow } from "./types";
 import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import RemoveBoxesButton from "./RemoveBoxesButton";
-import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ExportToCsvButton from "./ExportToCsvButton";
 import { FaTruckArrowRight } from "react-icons/fa6";
@@ -51,15 +46,7 @@ function BoxesActionsAndTable({
   tagOptions,
   availableColumns,
 }: IBoxesActionsAndTableProps) {
-  const navigate = useNavigate();
-  const baseId = useAtomValue(selectedBaseIdAtom);
-
   const { createToast } = useNotification();
-  const [autoResetSelectedRows, setAutoResetSelectedRows] = useState(true);
-
-  // Action when clicking on a row
-  const onBoxRowClick = (labelIdentifier: string) =>
-    navigate(`/bases/${baseId}/boxes/${labelIdentifier}`);
 
   // --- Actions on selected Boxes
   const [selectedBoxes, setSelectedBoxes] = useState<Row<BoxRow>[]>([]);
@@ -78,53 +65,6 @@ function BoxesActionsAndTable({
     const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
     return commonTags;
   }, [selectedBoxes, tagOptions]);
-
-  // Move Boxes
-  const moveBoxesAction = useMoveBoxes();
-
-  const onMoveBoxes = useCallback(
-    (locationId: string) => {
-      if (selectedBoxes.length === 0) {
-        createToast({
-          type: "warning",
-          message: `Please select a box to move`,
-        });
-      }
-      const movableLabelIdentifiers = selectedBoxes
-        .filter(
-          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state),
-        )
-        .map((box) => box.values.labelIdentifier);
-
-      const boxCountInShipmentStates = selectedBoxes.length - movableLabelIdentifiers.length;
-      if (boxCountInShipmentStates > 0) {
-        createToast({
-          type: "info",
-          message: `Cannot move ${
-            boxCountInShipmentStates === 1 ? "a box" : `${boxCountInShipmentStates} boxes`
-          } in shipment states.`,
-        });
-      }
-      moveBoxesAction
-        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, false)
-        .then((moveBoxesResult) => {
-          if (
-            moveBoxesResult.failedLabelIdentifiers &&
-            moveBoxesResult.failedLabelIdentifiers.length > 0
-          ) {
-            createToast({
-              type: "error",
-              message: `Could not move ${
-                moveBoxesResult.failedLabelIdentifiers.length === 1
-                  ? "a box"
-                  : `${moveBoxesResult.failedLabelIdentifiers.length} boxes`
-              }. Try again?`,
-            });
-          }
-        });
-    },
-    [createToast, moveBoxesAction, selectedBoxes],
-  );
 
   // Assign to Shipment
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
@@ -172,9 +112,10 @@ function BoxesActionsAndTable({
             } to shipment. Try again?`,
           });
         }
+        setSelectedBoxes([]);
       });
     },
-    [createToast, assignBoxesToShipment, selectedBoxes],
+    [createToast, assignBoxesToShipment, selectedBoxes, setSelectedBoxes],
   );
 
   // Unassign to Shipment
@@ -233,25 +174,28 @@ function BoxesActionsAndTable({
         });
       }
       flushResult();
+      setSelectedBoxes([]);
     }
-  }, [createToast, flushResult, unassignBoxesFromShipmentsResult]);
+  }, [createToast, flushResult, unassignBoxesFromShipmentsResult, setSelectedBoxes]);
 
   // Delete Boxes
   const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
   const onDeleteBoxes = useCallback(() => {
-    deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
-  }, [deleteBoxes, selectedBoxes]);
+    deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields)).then(
+      (deleteBoxesResult) => {
+        if (deleteBoxesResult.kind === IDeleteBoxResultKind.SUCCESS) setSelectedBoxes([]);
+      },
+    );
+  }, [deleteBoxes, selectedBoxes, setSelectedBoxes]);
 
   // Assign Tags to Boxes
   const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const onAssignTags = useCallback(
-    async (tagIds: string[]) => {
-      setAutoResetSelectedRows(false);
-      await assignTags(
+    (tagIds: string[]) => {
+      assignTags(
         selectedBoxes.map((box) => box.values.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
       );
-      setAutoResetSelectedRows(true);
     },
     [assignTags, selectedBoxes],
   );
@@ -261,20 +205,16 @@ function BoxesActionsAndTable({
   const onUnassignTags = useCallback(
     (tagIds: string[]) => {
       if (tagIds.length > 0) {
-        setAutoResetSelectedRows(false);
         unassignTags(
           selectedBoxes.map((box) => box.values.labelIdentifier),
           tagIds.map((id) => parseInt(id, 10)),
-        ).then(() => {
-          setAutoResetSelectedRows(true);
-        });
+        );
       }
     },
     [unassignTags, selectedBoxes],
   );
 
   const actionsAreLoading =
-    moveBoxesAction.isLoading ||
     isAssignBoxesToShipmentLoading ||
     isUnassignBoxesFromShipmentsLoading ||
     isDeleteBoxesLoading ||
@@ -283,14 +223,6 @@ function BoxesActionsAndTable({
 
   const actionButtons = useMemo(
     () => [
-      <SelectButton
-        label="Move to ..."
-        options={locationOptions}
-        onSelect={onMoveBoxes}
-        icon={<FaDollyFlatbed />}
-        isDisabled={actionsAreLoading || locationOptions.length === 0}
-        key="move-to"
-      />,
       <SelectButton
         label="Assign to Shipment"
         options={shipmentOptions}
@@ -353,8 +285,6 @@ function BoxesActionsAndTable({
       </div>,
     ],
     [
-      locationOptions,
-      onMoveBoxes,
       actionsAreLoading,
       shipmentOptions,
       onAssignBoxesToShipment,
@@ -376,11 +306,11 @@ function BoxesActionsAndTable({
       onRefetch={onRefetch}
       boxesQueryRef={boxesQueryRef}
       columns={availableColumns}
+      locationOptions={locationOptions}
       actionButtons={actionButtons}
+      selectedBoxes={selectedBoxes}
       setSelectedBoxes={setSelectedBoxes}
-      onBoxRowClick={onBoxRowClick}
       selectedRowsArePending={actionsAreLoading}
-      autoResetSelectedRows={autoResetSelectedRows}
     />
   );
 }

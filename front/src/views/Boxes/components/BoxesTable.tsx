@@ -10,7 +10,6 @@ import {
   Flex,
   Text,
   IconButton,
-  ButtonGroup,
   HStack,
 } from "@chakra-ui/react";
 import {
@@ -43,6 +42,8 @@ import {
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ColumnSelector from "components/Table/ColumnSelector";
+import useBoxesActions from "../hooks/useBoxesActions";
+import BoxesActions from "./BoxesActions";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -50,11 +51,11 @@ interface IBoxesTableProps {
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
-  actionButtons: React.ReactNode[];
-  onBoxRowClick: (labelIdentified: string) => void;
+  locationOptions: { label: string; value: string }[];
+  actionButtons?: React.ReactNode[];
+  selectedBoxes: Row<BoxRow>[];
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
   selectedRowsArePending: boolean;
-  autoResetSelectedRows: boolean;
 }
 
 function BoxesTable({
@@ -63,11 +64,10 @@ function BoxesTable({
   onRefetch,
   boxesQueryRef,
   columns,
-  actionButtons,
-  onBoxRowClick,
+  locationOptions,
+  selectedBoxes,
   setSelectedBoxes,
   selectedRowsArePending,
-  autoResetSelectedRows = true,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -84,6 +84,16 @@ function BoxesTable({
     }),
     [],
   );
+
+  const selectedRowIds = useMemo(() => {
+    return selectedBoxes.reduce(
+      (acc, row) => {
+        acc[row.id] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
+  }, [selectedBoxes]);
 
   const {
     headerGroups,
@@ -105,6 +115,7 @@ function BoxesTable({
       data: tableData,
       filterTypes,
       initialState: {
+        selectedRowIds: selectedRowIds,
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
@@ -114,7 +125,7 @@ function BoxesTable({
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
-      autoResetSelectedRows: autoResetSelectedRows,
+      autoResetSelectedRows: false,
     },
     useFilters,
     useGlobalFilter,
@@ -142,6 +153,8 @@ function BoxesTable({
   useEffect(() => {
     setSelectedBoxes(selectedFlatRows.map((row) => row));
   }, [selectedFlatRows, setSelectedBoxes]);
+
+  const { onBoxRowClick, onMoveBoxes, actionsAreLoading } = useBoxesActions(selectedFlatRows);
 
   useEffect(() => {
     // refetch
@@ -171,7 +184,11 @@ function BoxesTable({
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
+        <BoxesActions
+          onMoveBoxes={onMoveBoxes}
+          locationOptions={locationOptions}
+          actionsAreLoading={actionsAreLoading}
+        />
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
