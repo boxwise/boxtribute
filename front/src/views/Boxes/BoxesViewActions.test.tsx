@@ -6,7 +6,7 @@ import { shipmentDetail1 } from "mocks/shipmentDetail";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
-import { render, screen, waitFor } from "tests/test-utils";
+import { render, screen, waitFor, within } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
 import { graphql } from "../../../../graphql/graphql";
@@ -31,11 +31,7 @@ const boxesQuery = ({
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "1",
-      filterInput: stateFilter.length
-        ? {
-            states: stateFilter,
-          }
-        : {},
+      filterInput: stateFilter.length ? { states: stateFilter } : {},
       paginationInput: paginationInput,
     },
   },
@@ -274,8 +270,8 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "MarkedForShipment", stateFilter: [] }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
-      actionsQuery()
+      boxesQuery({ state: "MarkedForShipment", stateFilter: [], paginationInput: 100000 }),
+      actionsQuery(),
     ],
     clicks: [/move to/i, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
@@ -341,8 +337,8 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: [] }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
-      actionsQuery()
+      boxesQuery({ state: "Donated", stateFilter: [], paginationInput: 100000 }),
+      actionsQuery(),
     ],
     clicks: [/assign to shipment/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
@@ -358,7 +354,12 @@ const boxesViewActionsTests = [
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
+      boxesQuery({
+        state: "MarkedForShipment",
+        shipmentDetail: shipmentDetail1(),
+        stateFilter: [],
+        paginationInput: 100000,
+      }),
       actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
@@ -382,7 +383,12 @@ const boxesViewActionsTests = [
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
+      boxesQuery({
+        state: "MarkedForShipment",
+        shipmentDetail: shipmentDetail1(),
+        stateFilter: [],
+        paginationInput: 100000,
+      }),
       actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
@@ -404,7 +410,12 @@ const boxesViewActionsTests = [
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ stateFilter: [], paginationInput: 100000 }),
+      boxesQuery({
+        state: "MarkedForShipment",
+        shipmentDetail: shipmentDetail1(),
+        stateFilter: [],
+        paginationInput: 100000,
+      }),
       actionsQuery(),
       mutation({
         gQLRequest: unassignFromShipmentGQLRequest,
@@ -416,7 +427,6 @@ const boxesViewActionsTests = [
     toast: /Could not remove a box/i,
     searchParams: "?columnFilters=%5B%5D",
   },
-  // 4.8.6 - DeleteBoxes Action
   {
     name: "4.8.6.1 - DeleteBoxes Action is loading and shows Table skeleton",
     mocks: [
@@ -424,7 +434,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
-      actionsQuery()
+      actionsQuery(),
     ],
     clicks: [], // No action clicks since we're just testing the initial load
     toast: null, // No toast message expected
@@ -484,7 +494,7 @@ const boxesViewActionsTests = [
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ labelIdentifier: "456", paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["456"],
@@ -530,6 +540,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         {
           routePath: "/bases/:baseId/boxes",
           initialUrl: `/bases/1/boxes${searchParams || ""}`,
+          addTypename: true,
           mocks,
           cache,
         },
@@ -539,15 +550,17 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       if (clicks.length > 0) {
+        await screen.findByText(/1 box/i, {}, { timeout: 5000 });
+
         // Select the first box
-        const checkboxes = await screen.findAllByRole(
-          "checkbox",
-          { name: /toggle row selected/i },
-          { timeout: 5000 },
-        );
-        expect(checkboxes.length).toBe(1);
-        await user.click(checkboxes[0]);
-        await waitFor(() => expect(checkboxes[0]).toBeChecked());
+        const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 5000 });
+        const checkbox1 = within(row1).getByRole("checkbox", {
+          name: /toggle row selected/i,
+        });
+        expect(checkbox1).not.toBeChecked();
+        user.click(checkbox1);
+        await waitFor(() => expect(checkbox1).toBeChecked());
+        // add a wait to ensure the checkbox state is updated
 
         // Conditional check for delete action confirmation
         if (name.toLowerCase().includes("delete")) {
