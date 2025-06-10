@@ -5,6 +5,7 @@ import { BsBox2HeartFill } from "react-icons/bs";
 import RemoveBoxesButton from "./RemoveBoxesButton";
 import { Row } from "react-table";
 import { BoxRow } from "./types";
+import ExportToCsvButton from "./ExportToCsvButton";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
@@ -45,10 +46,10 @@ function BoxesActions({
               key="remove-boxes"
             />
           </MenuItem>
-          {/* <MenuItem as="div">
-                  <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
-                </MenuItem>
-                <Menu>
+          <MenuItem as="div">
+            <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
+          </MenuItem>
+          {/* <Menu>
                   <AssignTagsButton
                     selectedBoxes={selectedBoxes}
                     key="assign-tags"
@@ -64,10 +65,10 @@ function BoxesActions({
                     allTagOptions={getSelectedBoxTags}
                     currentTagOptions={getSelectedBoxTags}
                   />
-                </Menu>
-                <MenuItem as="div">
-                  <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
-                </MenuItem> */}
+                </Menu> */}
+          <MenuItem as="div">
+            <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
+          </MenuItem>
         </MenuList>
       </Menu>
     </ButtonGroup>
