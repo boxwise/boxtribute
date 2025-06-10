@@ -1,9 +1,8 @@
 import { Column, Row } from "react-table";
-import { Link } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { Button, Text } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { useNotification } from "hooks/useNotification";
 import { QueryRef } from "@apollo/client";
@@ -14,7 +13,6 @@ import BoxesTable from "./BoxesTable";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import { FaTruckArrowRight } from "react-icons/fa6";
 import { IDropdownOption } from "components/Form/SelectField";
-import { AddIcon } from "@chakra-ui/icons";
 
 export interface IBoxesActionsAndTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -175,11 +173,6 @@ function BoxesActionsAndTable({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />,
-      <Link to="create" key="box-create">
-        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={[0, 0, 2]}>
-          <Text display={["none", "none", "block"]}>Create Box</Text>
-        </Button>
-      </Link>,
 
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (

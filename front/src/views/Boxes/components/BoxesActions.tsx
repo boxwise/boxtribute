@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList, Text } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
 import { BsBox2HeartFill } from "react-icons/bs";
@@ -11,6 +12,7 @@ import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
+import { AddIcon } from "@chakra-ui/icons";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
@@ -51,6 +53,11 @@ function BoxesActions({
         isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />
+      <Link to="create" key="box-create">
+        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={[0, 0, 2]}>
+          <Text display={["none", "none", "block"]}>Create Box</Text>
+        </Button>
+      </Link>
       <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
