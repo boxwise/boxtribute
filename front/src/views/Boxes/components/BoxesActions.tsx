@@ -25,6 +25,7 @@ type BoxesActionsProps = {
   tagOptions: IDropdownOption[];
   onAssignBoxesToShipment: (shipmentId: string) => void;
   shipmentOptions: { label: string; value: string }[];
+  onUnassignBoxesToShipment: () => void;
   actionsAreLoading: boolean;
 };
 
@@ -38,6 +39,7 @@ function BoxesActions({
   tagOptions,
   onAssignBoxesToShipment,
   shipmentOptions,
+  onUnassignBoxesToShipment,
   actionsAreLoading,
 }: BoxesActionsProps) {
   // Used for remove tags
@@ -47,6 +49,15 @@ function BoxesActions({
     const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
     return commonTags;
   }, [selectedBoxes, tagOptions]);
+
+  // Used for remove from shipment
+  const thereIsABoxMarkedForShipmentSelected = useMemo(
+    () =>
+      selectedBoxes.some(
+        (box) => box.values.shipment !== null && box.values.state === "MarkedForShipment",
+      ),
+    [selectedBoxes],
+  );
 
   return (
     <ButtonGroup mb={2}>
@@ -110,6 +121,13 @@ function BoxesActions({
           </MenuItem>
         </MenuList>
       </Menu>
+      <div key="unassign-from-shipment">
+        {thereIsABoxMarkedForShipmentSelected && (
+          <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
+            Remove from Shipment
+          </Button>
+        )}
+      </div>
     </ButtonGroup>
   );
 }

@@ -1,7 +1,7 @@
 import { useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNotification } from "hooks/useNotification";
 import { useAtomValue } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row } from "react-table";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -11,6 +11,7 @@ import { IBoxBasicFields } from "types/graphql-local-only";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useUnassignTags } from "hooks/useUnassignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 
 function useBoxesActions(
   selectedBoxes: Row<BoxRow>[],
@@ -161,12 +162,72 @@ function useBoxesActions(
     [createToast, assignBoxesToShipment, selectedBoxes],
   );
 
+  // Unassign to Shipment
+  const {
+    unassignBoxesFromShipments,
+    unassignBoxesFromShipmentsResult,
+    flushResult,
+    isLoading: isUnassignBoxesFromShipmentsLoading,
+  } = useUnassignBoxesFromShipments();
+
+  const onUnassignBoxesToShipment = useCallback(() => {
+    if (selectedBoxes.length === 0) {
+      createToast({
+        type: "warning",
+        message: `Please select a box to unassign from`,
+      });
+    }
+    unassignBoxesFromShipments(
+      selectedBoxes.map((box) => {
+        const { labelIdentifier, state, shipment } = box.original;
+        return {
+          labelIdentifier,
+          state,
+          shipmentDetail: shipment
+            ? {
+                shipment,
+              }
+            : null,
+        } as IBoxBasicFields;
+      }),
+    );
+  }, [unassignBoxesFromShipments, selectedBoxes, createToast]);
+
+  useEffect(() => {
+    if (unassignBoxesFromShipmentsResult) {
+      const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
+
+      if (notMarkedForShipmentBoxes.length > 0) {
+        createToast({
+          type: "info",
+          message: `Cannot remove ${
+            notMarkedForShipmentBoxes.length === 1
+              ? "a box"
+              : `${notMarkedForShipmentBoxes.length} boxes`
+          } that ${
+            notMarkedForShipmentBoxes.length === 1 ? "is" : "are"
+          } not assigned to any shipment.`,
+        });
+      }
+      if (failedBoxes && failedBoxes.length > 0) {
+        createToast({
+          type: "error",
+          message: `Could not remove ${
+            failedBoxes.length === 1 ? "a box" : `${failedBoxes.length} boxes`
+          } from shipment. Try again?`,
+        });
+      }
+      flushResult();
+    }
+  }, [createToast, flushResult, unassignBoxesFromShipmentsResult]);
+
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isDeleteBoxesLoading ||
     isAssignTagsLoading ||
     isUnassignTagsLoading ||
-    isAssignBoxesToShipmentLoading;
+    isAssignBoxesToShipmentLoading ||
+    isUnassignBoxesFromShipmentsLoading;
 
   return {
     onBoxRowClick,
@@ -175,6 +236,7 @@ function useBoxesActions(
     onAssignTags,
     onUnassignTags,
     onAssignBoxesToShipment,
+    onUnassignBoxesToShipment,
     actionsAreLoading,
   };
 }

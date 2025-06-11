@@ -1,9 +1,6 @@
 import { Column, Row } from "react-table";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { IBoxBasicFields } from "types/graphql-local-only";
-import { Button } from "@chakra-ui/react";
-import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
-import { useNotification } from "hooks/useNotification";
+import { useState } from "react";
+
 import { QueryRef } from "@apollo/client";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
@@ -32,92 +29,8 @@ function BoxesActionsAndTable({
   shipmentOptions,
   availableColumns,
 }: IBoxesActionsAndTableProps) {
-  const { createToast } = useNotification();
-
   // --- Actions on selected Boxes
   const [selectedBoxes, setSelectedBoxes] = useState<Row<BoxRow>[]>([]);
-  const thereIsABoxMarkedForShipmentSelected = useMemo(
-    () =>
-      selectedBoxes.some(
-        (box) => box.values.shipment !== null && box.values.state === "MarkedForShipment",
-      ),
-    [selectedBoxes],
-  );
-
-  // Unassign to Shipment
-  const {
-    unassignBoxesFromShipments,
-    unassignBoxesFromShipmentsResult,
-    flushResult,
-    isLoading: isUnassignBoxesFromShipmentsLoading,
-  } = useUnassignBoxesFromShipments();
-
-  const onUnassignBoxesToShipment = useCallback(() => {
-    if (selectedBoxes.length === 0) {
-      createToast({
-        type: "warning",
-        message: `Please select a box to unassign from`,
-      });
-    }
-    unassignBoxesFromShipments(
-      selectedBoxes.map((box) => {
-        const { labelIdentifier, state, shipment } = box.original;
-        return {
-          labelIdentifier,
-          state,
-          shipmentDetail: shipment
-            ? {
-                shipment,
-              }
-            : null,
-        } as IBoxBasicFields;
-      }),
-    );
-  }, [unassignBoxesFromShipments, selectedBoxes, createToast]);
-
-  useEffect(() => {
-    if (unassignBoxesFromShipmentsResult) {
-      const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
-
-      if (notMarkedForShipmentBoxes.length > 0) {
-        createToast({
-          type: "info",
-          message: `Cannot remove ${
-            notMarkedForShipmentBoxes.length === 1
-              ? "a box"
-              : `${notMarkedForShipmentBoxes.length} boxes`
-          } that ${
-            notMarkedForShipmentBoxes.length === 1 ? "is" : "are"
-          } not assigned to any shipment.`,
-        });
-      }
-      if (failedBoxes && failedBoxes.length > 0) {
-        createToast({
-          type: "error",
-          message: `Could not remove ${
-            failedBoxes.length === 1 ? "a box" : `${failedBoxes.length} boxes`
-          } from shipment. Try again?`,
-        });
-      }
-      flushResult();
-      setSelectedBoxes([]);
-    }
-  }, [createToast, flushResult, unassignBoxesFromShipmentsResult, setSelectedBoxes]);
-
-  const actionsAreLoading = isUnassignBoxesFromShipmentsLoading;
-
-  const actionButtons = useMemo(
-    () => [
-      <div key="unassign-from-shipment">
-        {thereIsABoxMarkedForShipmentSelected && (
-          <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
-            Remove from Shipment
-          </Button>
-        )}
-      </div>,
-    ],
-    [actionsAreLoading, thereIsABoxMarkedForShipmentSelected, onUnassignBoxesToShipment],
-  );
 
   return (
     <BoxesTable
@@ -129,10 +42,8 @@ function BoxesActionsAndTable({
       locationOptions={locationOptions}
       tagOptions={tagOptions}
       shipmentOptions={shipmentOptions}
-      actionButtons={actionButtons}
       selectedBoxes={selectedBoxes}
       setSelectedBoxes={setSelectedBoxes}
-      selectedRowsArePending={actionsAreLoading}
     />
   );
 }

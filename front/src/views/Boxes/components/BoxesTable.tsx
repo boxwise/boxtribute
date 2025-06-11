@@ -58,7 +58,6 @@ interface IBoxesTableProps {
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
-  selectedRowsArePending: boolean;
 }
 
 function BoxesTable({
@@ -71,7 +70,6 @@ function BoxesTable({
   tagOptions,
   shipmentOptions,
   setSelectedBoxes,
-  selectedRowsArePending,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -155,6 +153,7 @@ function BoxesTable({
     onAssignTags,
     onUnassignTags,
     onAssignBoxesToShipment,
+    onUnassignBoxesToShipment,
     actionsAreLoading,
   } = useBoxesActions(selectedFlatRows, toggleRowSelected);
 
@@ -196,6 +195,7 @@ function BoxesTable({
           tagOptions={tagOptions}
           onAssignBoxesToShipment={onAssignBoxesToShipment}
           shipmentOptions={shipmentOptions}
+          onUnassignBoxesToShipment={onUnassignBoxesToShipment}
           actionsAreLoading={actionsAreLoading}
         />
         <Spacer />
@@ -247,7 +247,7 @@ function BoxesTable({
 
           {page.map((row) => {
             prepareRow(row);
-            if (row.isSelected && selectedRowsArePending) {
+            if (row.isSelected && actionsAreLoading) {
               return (
                 <Tr key={row.original.labelIdentifier}>
                   <Td colSpan={columns.length + 1}>
