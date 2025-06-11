@@ -10,7 +10,6 @@ import {
   Flex,
   Text,
   IconButton,
-  ButtonGroup,
   HStack,
 } from "@chakra-ui/react";
 import {
@@ -43,31 +42,34 @@ import {
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
 import ColumnSelector from "components/Table/ColumnSelector";
+import useBoxesActions from "../hooks/useBoxesActions";
+import BoxesActions from "./BoxesActions";
+import { IDropdownOption } from "components/Form/SelectField";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
+  hasExecutedInitialFetchOfBoxes: { current: boolean };
   tableConfig: IUseTableConfigReturnType;
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
-  actionButtons: React.ReactNode[];
-  onBoxRowClick: (labelIdentified: string) => void;
-  setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
-  selectedRowsArePending: boolean;
-  autoResetSelectedRows: boolean;
+  locationOptions: { label: string; value: string }[];
+  tagOptions: IDropdownOption[];
+  shipmentOptions: { label: string; value: string }[];
+  actionButtons?: React.ReactNode[];
+  selectedBoxes?: Row<BoxRow>[];
 }
 
 function BoxesTable({
   isBackgroundFetchOfBoxesLoading,
+  hasExecutedInitialFetchOfBoxes,
   tableConfig,
   onRefetch,
   boxesQueryRef,
   columns,
-  actionButtons,
-  onBoxRowClick,
-  setSelectedBoxes,
-  selectedRowsArePending,
-  autoResetSelectedRows = true,
+  locationOptions,
+  tagOptions,
+  shipmentOptions,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -99,6 +101,7 @@ function BoxesTable({
     nextPage,
     previousPage,
     selectedFlatRows,
+    toggleRowSelected,
   } = useTable(
     {
       columns,
@@ -114,7 +117,7 @@ function BoxesTable({
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
-      autoResetSelectedRows: autoResetSelectedRows,
+      autoResetSelectedRows: !isBackgroundFetchOfBoxesLoading,
     },
     useFilters,
     useGlobalFilter,
@@ -139,9 +142,16 @@ function BoxesTable({
   const boxCount = rows.length;
   const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
 
-  useEffect(() => {
-    setSelectedBoxes(selectedFlatRows.map((row) => row));
-  }, [selectedFlatRows, setSelectedBoxes]);
+  const {
+    onBoxRowClick,
+    onMoveBoxes,
+    onDeleteBoxes,
+    onAssignTags,
+    onUnassignTags,
+    onAssignBoxesToShipment,
+    onUnassignBoxesToShipment,
+    actionsAreLoading,
+  } = useBoxesActions(selectedFlatRows, toggleRowSelected);
 
   useEffect(() => {
     // refetch
@@ -171,7 +181,19 @@ function BoxesTable({
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        <ButtonGroup mb={2}>{actionButtons}</ButtonGroup>
+        <BoxesActions
+          selectedBoxes={selectedFlatRows}
+          onMoveBoxes={onMoveBoxes}
+          locationOptions={locationOptions}
+          onDeleteBoxes={onDeleteBoxes}
+          onAssignTags={onAssignTags}
+          onUnassignTags={onUnassignTags}
+          tagOptions={tagOptions}
+          onAssignBoxesToShipment={onAssignBoxesToShipment}
+          shipmentOptions={shipmentOptions}
+          onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+          actionsAreLoading={actionsAreLoading}
+        />
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
@@ -192,15 +214,19 @@ function BoxesTable({
             <Td fontWeight="bold" key={"boxes-count"}>
               {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
                 <Skeleton height={5} width={10} mr={2} />
-              ) : (
+              ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{boxCount} boxes</Text>
+              ) : (
+                <Text as="span">Data unavailable</Text>
               )}
             </Td>
             <Td fontWeight="bold" key={"item-count"}>
               {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
                 <Skeleton height={5} width={10} mr={2} />
-              ) : (
+              ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{itemsCount} items</Text>
+              ) : (
+                <Text as="span">Data unavailable</Text>
               )}
             </Td>
           </Tr>
@@ -221,7 +247,7 @@ function BoxesTable({
 
           {page.map((row) => {
             prepareRow(row);
-            if (row.isSelected && selectedRowsArePending) {
+            if (row.isSelected && actionsAreLoading) {
               return (
                 <Tr key={row.original.labelIdentifier}>
                   <Td colSpan={columns.length + 1}>

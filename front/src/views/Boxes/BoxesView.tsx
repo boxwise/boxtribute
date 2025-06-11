@@ -15,7 +15,6 @@ import {
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
-import BoxesActionsAndTable from "./components/BoxesActionsAndTable";
 import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
@@ -36,6 +35,7 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
+import BoxesTable from "./components/BoxesTable";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
@@ -209,9 +209,13 @@ function Boxes({
         variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
         fetchPolicy: "network-only",
       })
+      .then(({ data, errors }) => {
+        if ((errors?.length || 0) === 0 && data?.boxes?.elements) {
+          hasExecutedInitialFetchOfBoxes.current = true;
+        }
+      })
       .finally(() => {
         setIsBackgroundFetchOfBoxesLoading(false);
-        hasExecutedInitialFetchOfBoxes.current = true;
       });
     // only on initial mount, so no dependencies needed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -381,12 +385,13 @@ function Boxes({
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Boxes
       </Heading>
-      <BoxesActionsAndTable
+      <BoxesTable
         isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
+        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
         tableConfig={tableConfig}
         onRefetch={refetchBoxes}
         boxesQueryRef={boxesQueryRef}
-        availableColumns={availableColumns}
+        columns={availableColumns}
         shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
         locationOptions={locationToDropdownOptionTransformer(
           actionOptionsData.base?.locations ?? [],

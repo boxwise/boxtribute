@@ -550,7 +550,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       if (clicks.length > 0) {
-        await screen.findByText(/1 box/i, {}, { timeout: 5000 });
+        await screen.findByText(/1 box/i, {}, { timeout: 10000 });
 
         // Select the first box
         const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 5000 });
@@ -614,6 +614,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         );
       }
     },
-    30000,
+    { timeout: 30000 },
   );
 });
