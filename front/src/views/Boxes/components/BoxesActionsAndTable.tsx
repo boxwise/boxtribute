@@ -1,6 +1,5 @@
 import { Column, Row } from "react-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { Button } from "@chakra-ui/react";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
@@ -8,10 +7,8 @@ import { useNotification } from "hooks/useNotification";
 import { QueryRef } from "@apollo/client";
 import { IUseTableConfigReturnType } from "hooks/hooks";
 import { BoxRow } from "./types";
-import { SelectButton } from "./ActionButtons";
 import BoxesTable from "./BoxesTable";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
-import { FaTruckArrowRight } from "react-icons/fa6";
 import { IDropdownOption } from "components/Form/SelectField";
 
 export interface IBoxesActionsAndTableProps {
@@ -45,58 +42,6 @@ function BoxesActionsAndTable({
         (box) => box.values.shipment !== null && box.values.state === "MarkedForShipment",
       ),
     [selectedBoxes],
-  );
-
-  // Assign to Shipment
-  const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
-    useAssignBoxesToShipment();
-
-  const onAssignBoxesToShipment = useCallback(
-    (shipmentId: string) => {
-      if (selectedBoxes.length === 0) {
-        createToast({
-          type: "warning",
-          message: `Please select a box to assign to shipment`,
-        });
-      }
-      assignBoxesToShipment(
-        shipmentId,
-        selectedBoxes.map((box) => box.values as IBoxBasicFields),
-        true,
-        false,
-      ).then((assignBoxesToShipmentResult) => {
-        if (
-          assignBoxesToShipmentResult.notInStockBoxes &&
-          assignBoxesToShipmentResult.notInStockBoxes.length > 0
-        ) {
-          createToast({
-            type: "info",
-            message: `Cannot assign ${
-              assignBoxesToShipmentResult.notInStockBoxes.length === 1
-                ? "a box"
-                : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
-            } to shipment that ${
-              assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
-            } not InStock.`,
-          });
-        }
-        if (
-          assignBoxesToShipmentResult.failedBoxes &&
-          assignBoxesToShipmentResult.failedBoxes.length > 0
-        ) {
-          createToast({
-            type: "error",
-            message: `Could not assign ${
-              assignBoxesToShipmentResult.failedBoxes.length === 1
-                ? "a box"
-                : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
-            } to shipment. Try again?`,
-          });
-        }
-        setSelectedBoxes([]);
-      });
-    },
-    [createToast, assignBoxesToShipment, selectedBoxes, setSelectedBoxes],
   );
 
   // Unassign to Shipment
@@ -159,21 +104,10 @@ function BoxesActionsAndTable({
     }
   }, [createToast, flushResult, unassignBoxesFromShipmentsResult, setSelectedBoxes]);
 
-  const actionsAreLoading = isAssignBoxesToShipmentLoading || isUnassignBoxesFromShipmentsLoading;
-  // isAssignTagsLoading ||
-  // isUnassignTagsLoading;
+  const actionsAreLoading = isUnassignBoxesFromShipmentsLoading;
 
   const actionButtons = useMemo(
     () => [
-      <SelectButton
-        label="Assign to Shipment"
-        options={shipmentOptions}
-        onSelect={onAssignBoxesToShipment}
-        icon={<FaTruckArrowRight />}
-        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
-        key="assign-to-shipment"
-      />,
-
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
           <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
@@ -182,13 +116,7 @@ function BoxesActionsAndTable({
         )}
       </div>,
     ],
-    [
-      actionsAreLoading,
-      shipmentOptions,
-      onAssignBoxesToShipment,
-      thereIsABoxMarkedForShipmentSelected,
-      onUnassignBoxesToShipment,
-    ],
+    [actionsAreLoading, thereIsABoxMarkedForShipmentSelected, onUnassignBoxesToShipment],
   );
 
   return (
@@ -200,6 +128,7 @@ function BoxesActionsAndTable({
       columns={availableColumns}
       locationOptions={locationOptions}
       tagOptions={tagOptions}
+      shipmentOptions={shipmentOptions}
       actionButtons={actionButtons}
       selectedBoxes={selectedBoxes}
       setSelectedBoxes={setSelectedBoxes}

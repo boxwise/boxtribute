@@ -13,6 +13,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
 import { AddIcon } from "@chakra-ui/icons";
+import { FaTruckArrowRight } from "react-icons/fa6";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
@@ -22,6 +23,8 @@ type BoxesActionsProps = {
   onAssignTags: (tagIds: string[]) => void;
   onUnassignTags: (tagIds: string[]) => void;
   tagOptions: IDropdownOption[];
+  onAssignBoxesToShipment: (shipmentId: string) => void;
+  shipmentOptions: { label: string; value: string }[];
   actionsAreLoading: boolean;
 };
 
@@ -33,6 +36,8 @@ function BoxesActions({
   onAssignTags,
   onUnassignTags,
   tagOptions,
+  onAssignBoxesToShipment,
+  shipmentOptions,
   actionsAreLoading,
 }: BoxesActionsProps) {
   // Used for remove tags
@@ -52,6 +57,14 @@ function BoxesActions({
         icon={<FaDollyFlatbed />}
         isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
+      />
+      <SelectButton
+        label="Assign to Shipment"
+        options={shipmentOptions}
+        onSelect={onAssignBoxesToShipment}
+        icon={<FaTruckArrowRight />}
+        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
+        key="assign-to-shipment"
       />
       <Link to="create" key="box-create">
         <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={[0, 0, 2]}>

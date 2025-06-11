@@ -10,6 +10,7 @@ import { useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useUnassignTags } from "hooks/useUnassignTags";
+import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 
 function useBoxesActions(
   selectedBoxes: Row<BoxRow>[],
@@ -109,11 +110,63 @@ function useBoxesActions(
     [unassignTags, selectedBoxes, toggleRowSelected],
   );
 
+  // Assign to Shipment
+  const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
+    useAssignBoxesToShipment();
+
+  const onAssignBoxesToShipment = useCallback(
+    (shipmentId: string) => {
+      if (selectedBoxes.length === 0) {
+        createToast({
+          type: "warning",
+          message: `Please select a box to assign to shipment`,
+        });
+      }
+      assignBoxesToShipment(
+        shipmentId,
+        selectedBoxes.map((box) => box.values as IBoxBasicFields),
+        true,
+        false,
+      ).then((assignBoxesToShipmentResult) => {
+        if (
+          assignBoxesToShipmentResult.notInStockBoxes &&
+          assignBoxesToShipmentResult.notInStockBoxes.length > 0
+        ) {
+          createToast({
+            type: "info",
+            message: `Cannot assign ${
+              assignBoxesToShipmentResult.notInStockBoxes.length === 1
+                ? "a box"
+                : `${assignBoxesToShipmentResult.notInStockBoxes.length} boxes`
+            } to shipment that ${
+              assignBoxesToShipmentResult.notInStockBoxes.length === 1 ? "is" : "are"
+            } not InStock.`,
+          });
+        }
+        if (
+          assignBoxesToShipmentResult.failedBoxes &&
+          assignBoxesToShipmentResult.failedBoxes.length > 0
+        ) {
+          createToast({
+            type: "error",
+            message: `Could not assign ${
+              assignBoxesToShipmentResult.failedBoxes.length === 1
+                ? "a box"
+                : `${assignBoxesToShipmentResult.failedBoxes.length} boxes`
+            } to shipment. Try again?`,
+          });
+        }
+      });
+    },
+    [createToast, assignBoxesToShipment, selectedBoxes],
+  );
+
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isDeleteBoxesLoading ||
     isAssignTagsLoading ||
-    isUnassignTagsLoading;
+    isUnassignTagsLoading ||
+    isAssignBoxesToShipmentLoading;
 
   return {
     onBoxRowClick,
@@ -121,6 +174,7 @@ function useBoxesActions(
     onDeleteBoxes,
     onAssignTags,
     onUnassignTags,
+    onAssignBoxesToShipment,
     actionsAreLoading,
   };
 }

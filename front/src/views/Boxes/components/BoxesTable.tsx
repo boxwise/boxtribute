@@ -52,8 +52,9 @@ interface IBoxesTableProps {
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
-  locationOptions: IDropdownOption[];
+  locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
+  shipmentOptions: { label: string; value: string }[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
   setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
@@ -68,6 +69,7 @@ function BoxesTable({
   columns,
   locationOptions,
   tagOptions,
+  shipmentOptions,
   setSelectedBoxes,
   selectedRowsArePending,
 }: IBoxesTableProps) {
@@ -152,6 +154,7 @@ function BoxesTable({
     onDeleteBoxes,
     onAssignTags,
     onUnassignTags,
+    onAssignBoxesToShipment,
     actionsAreLoading,
   } = useBoxesActions(selectedFlatRows, toggleRowSelected);
 
@@ -191,6 +194,8 @@ function BoxesTable({
           onAssignTags={onAssignTags}
           onUnassignTags={onUnassignTags}
           tagOptions={tagOptions}
+          onAssignBoxesToShipment={onAssignBoxesToShipment}
+          shipmentOptions={shipmentOptions}
           actionsAreLoading={actionsAreLoading}
         />
         <Spacer />
