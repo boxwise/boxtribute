@@ -3,6 +3,7 @@ import { size1, size2 } from "./sizeRanges";
 import { location1, generateMockLocationWithBase } from "./locations";
 import { tag1, tag2 } from "./tags";
 import { history1, history2 } from "./histories";
+import { user1 } from "./users";
 
 export const box123 = {
   labelIdentifier: "123",
@@ -45,7 +46,9 @@ export const generateMockBox = ({
   comment,
   history: histories,
   createdOn: "2023-11-09T17:24:29+00:00",
+  createdBy: user1,
   lastModifiedOn: "2023-11-19T10:24:29+00:00",
+  lastModifiedBy: user1,
   distributionEvent: null,
   deletedOn: null,
   __typename: "Box",

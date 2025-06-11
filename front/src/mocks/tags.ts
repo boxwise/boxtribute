@@ -23,6 +23,10 @@ export const tag2 = {
 export const tags = [
   tag1,
   {
+    id: "2",
+    name: "tag2",
+    type: "All",
+    description: "tag2",
     color: "#20969f",
     label: "tag2",
     value: "2",
