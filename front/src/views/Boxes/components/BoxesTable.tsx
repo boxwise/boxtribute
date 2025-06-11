@@ -57,7 +57,6 @@ interface IBoxesTableProps {
   shipmentOptions: { label: string; value: string }[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
-  setSelectedBoxes: (rows: Row<BoxRow>[]) => void;
 }
 
 function BoxesTable({
@@ -69,7 +68,6 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
-  setSelectedBoxes,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -141,10 +139,6 @@ function BoxesTable({
   );
   const boxCount = rows.length;
   const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
-
-  useEffect(() => {
-    setSelectedBoxes(selectedFlatRows.map((row) => row));
-  }, [selectedFlatRows, setSelectedBoxes]);
 
   const {
     onBoxRowClick,
