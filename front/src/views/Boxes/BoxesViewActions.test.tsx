@@ -614,6 +614,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         );
       }
     },
-    30000,
+    { timeout: 30000 },
   );
 });
