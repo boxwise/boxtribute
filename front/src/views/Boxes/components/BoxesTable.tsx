@@ -48,6 +48,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
+  hasExecutedInitialFetchOfBoxes: { current: boolean };
   tableConfig: IUseTableConfigReturnType;
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
@@ -61,6 +62,7 @@ interface IBoxesTableProps {
 
 function BoxesTable({
   isBackgroundFetchOfBoxesLoading,
+  hasExecutedInitialFetchOfBoxes,
   tableConfig,
   onRefetch,
   boxesQueryRef,
@@ -212,15 +214,19 @@ function BoxesTable({
             <Td fontWeight="bold" key={"boxes-count"}>
               {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
                 <Skeleton height={5} width={10} mr={2} />
-              ) : (
+              ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{boxCount} boxes</Text>
+              ) : (
+                <Text as="span">Data unavailable</Text>
               )}
             </Td>
             <Td fontWeight="bold" key={"item-count"}>
               {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
                 <Skeleton height={5} width={10} mr={2} />
-              ) : (
+              ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{itemsCount} items</Text>
+              ) : (
+                <Text as="span">Data unavailable</Text>
               )}
             </Td>
           </Tr>

@@ -209,9 +209,13 @@ function Boxes({
         variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
         fetchPolicy: "network-only",
       })
+      .then(({ data, errors }) => {
+        if ((errors?.length || 0) === 0 && data?.boxes?.elements) {
+          hasExecutedInitialFetchOfBoxes.current = true;
+        }
+      })
       .finally(() => {
         setIsBackgroundFetchOfBoxesLoading(false);
-        hasExecutedInitialFetchOfBoxes.current = true;
       });
     // only on initial mount, so no dependencies needed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -383,6 +387,7 @@ function Boxes({
       </Heading>
       <BoxesTable
         isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
+        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
         tableConfig={tableConfig}
         onRefetch={refetchBoxes}
         boxesQueryRef={boxesQueryRef}
