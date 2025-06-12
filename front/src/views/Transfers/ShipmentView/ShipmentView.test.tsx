@@ -269,6 +269,9 @@ describe("4.5 Test Cases", () => {
       name: /10/i,
     });
 
+    // check for shipment content grouped by product
+    expect(screen.getByText(/mixed women long sleeves/i)).toBeInTheDocument();
+    expect(screen.getByText(/s women long sleeves/i)).toBeInTheDocument();
     expect(screen.getByText(/30x/i)).toBeInTheDocument();
   }, 10000);
 

@@ -59,7 +59,7 @@ function ShipmentTabs({
           (detail) =>
             ({
               ...detail.box,
-              size: group[0]?.sourceSize,
+              size: detail.sourceSize,
               numberOfItems: detail.sourceQuantity,
               product: group[0]?.sourceProduct,
             }) as Box,
