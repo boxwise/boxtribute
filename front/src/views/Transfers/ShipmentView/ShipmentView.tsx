@@ -530,7 +530,7 @@ function ShipmentView() {
     shipmentTab = (
       <ShipmentTabs
         shipmentState={shipmentState}
-        detail={shipmentContents}
+        details={shipmentContents}
         histories={sortedGroupedHistoryEntries}
         isLoadingMutation={isLoadingFromMutation}
         onRemoveBox={onRemoveBox}
