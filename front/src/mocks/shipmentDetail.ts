@@ -77,5 +77,6 @@ export const generateMockShipmentDetail = ({
   lostBy: null,
   receivedOn: null,
   receivedBy: null,
+  autoMatchingTargetProduct: null,
   __typename: "ShipmentDetail",
 });
