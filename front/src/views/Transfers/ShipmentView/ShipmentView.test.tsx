@@ -2,6 +2,8 @@ import { beforeEach, it, describe, expect, vi } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { generateMockShipment, generateMockShipmentWithCustomDetails } from "mocks/shipments";
 import { generateMockBox } from "mocks/boxes";
+import { product1 } from "mocks/products";
+import { size1, size2 } from "mocks/sizeRanges";
 import { userEvent } from "@testing-library/user-event";
 import { FakeGraphQLError, mockMatchMediaQuery } from "mocks/functions";
 import { generateMockShipmentDetail } from "mocks/shipmentDetail";
@@ -32,6 +34,8 @@ const initialQuery = {
   },
 };
 
+const mockBox1 = generateMockBox({ labelIdentifier: "123", product: product1, size: size2, numberOfItems: 10 });
+const mockBox2 = generateMockBox({ labelIdentifier: "124", product: product1, size: size1, numberOfItems: 20 });
 const initialWithGroupedItemQuery = {
   request: {
     query: SHIPMENT_BY_ID_QUERY,
@@ -44,11 +48,19 @@ const initialWithGroupedItemQuery = {
       shipment: generateMockShipmentWithCustomDetails({
         state: "Preparing",
         details: [
-          generateMockShipmentDetail({ id: "1", box: generateMockBox({ labelIdentifier: "123" }) }),
+          generateMockShipmentDetail({
+            id: "1",
+            box: mockBox1,
+            sourceProduct: mockBox1.product,
+            sourceSize: mockBox1.size,
+            sourceQuantity: mockBox1.numberOfItems,
+          }),
           generateMockShipmentDetail({
             id: "2",
-            box: generateMockBox({ labelIdentifier: "124", numberOfItems: 20 }),
-            sourceQuantity: 20,
+            box: mockBox2,
+            sourceProduct: mockBox2.product,
+            sourceSize: mockBox2.size,
+            sourceQuantity: mockBox2.numberOfItems,
           }),
         ],
       }),
