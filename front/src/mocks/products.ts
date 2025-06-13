@@ -25,6 +25,7 @@ export const productBasic1 = {
   },
   gender: "Boy",
   type: "Custom",
+  sizeRange: sizeRange1,
   deletedOn: null,
   __typename: "Product",
 };

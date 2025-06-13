@@ -31,7 +31,7 @@ export interface IGroupedHistoryEntry {
 
 export interface IShipmentTabsProps {
   shipmentState: ShipmentState | undefined;
-  detail: ShipmentDetail[];
+  details: ShipmentDetail[];
   histories: IGroupedRecordEntry[];
   isLoadingMutation: boolean | undefined;
   showRemoveIcon: Boolean;
@@ -40,7 +40,7 @@ export interface IShipmentTabsProps {
 }
 function ShipmentTabs({
   showRemoveIcon,
-  detail,
+  details,
   histories,
   isLoadingMutation,
   onRemoveBox,
@@ -48,19 +48,19 @@ function ShipmentTabs({
   shipmentState,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
-    _(detail)
-      .groupBy((shipment) => `${shipment?.sourceProduct?.name}_${shipment?.sourceProduct?.gender}`)
+    _(details)
+      .groupBy((detail) => `${detail?.sourceProduct?.name}_${detail?.sourceProduct?.gender}`)
       .mapValues((group) => ({
         product: group[0]?.sourceProduct,
-        totalItems: _.sumBy(group, (shipment) => shipment?.sourceQuantity || 0),
+        totalItems: _.sumBy(group, (detail) => detail?.sourceQuantity || 0),
         totalBoxes: group.length,
-        totalLosts: group.filter((shipment) => shipment?.lostOn !== null).length,
+        totalLosts: group.filter((detail) => detail?.lostOn !== null).length,
         boxes: group.map(
-          (shipment) =>
+          (detail) =>
             ({
-              ...shipment.box,
-              size: group[0]?.sourceSize,
-              numberOfItems: shipment.sourceQuantity,
+              ...detail.box,
+              size: detail.sourceSize,
+              numberOfItems: detail.sourceQuantity,
               product: group[0]?.sourceProduct,
             }) as Box,
         ),
@@ -81,7 +81,7 @@ function ShipmentTabs({
       </TabList>
       <TabPanels>
         <TabPanel p={0}>
-          {(detail?.length || 0) === 0 && (
+          {(details?.length || 0) === 0 && (
             <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
           )}
           <ShipmentContent
