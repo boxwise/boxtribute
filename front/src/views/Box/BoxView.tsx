@@ -17,11 +17,7 @@ import {
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 import {
-  BOX_FIELDS_FRAGMENT,
-  DISTRO_EVENT_FIELDS_FRAGMENT,
   HISTORY_FIELDS_FRAGMENT,
-  PRODUCT_FIELDS_FRAGMENT,
-  TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -94,52 +90,22 @@ export const UPDATE_BOX_MUTATION = graphql(
   `
     mutation UpdateLocationOfBox($boxLabelIdentifier: String!, $newLocationId: Int!) {
       updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
-        ...BoxFields
-        product {
-          ...ProductFields
+        labelIdentifier
+        lastModifiedOn
+        history {
+          ...HistoryFields
         }
-        tags {
-          ...TagBasicFields
-        }
-        distributionEvent {
-          ...DistroEventFields
-        }
+        state
         location {
           __typename
           id
           name
-          ... on ClassicLocation {
-            defaultBoxState
-          }
-          base {
-            locations {
-              id
-              seq
-              name
-              ... on ClassicLocation {
-                defaultBoxState
-              }
-            }
-            distributionEventsBeforeReturnedFromDistributionState {
-              id
-              state
-              distributionSpot {
-                name
-              }
-              name
-              plannedStartDateTime
-              plannedEndDateTime
-            }
-          }
         }
       }
     }
   `,
   [
-    BOX_FIELDS_FRAGMENT,
-    PRODUCT_FIELDS_FRAGMENT,
-    TAG_BASIC_FIELDS_FRAGMENT,
-    DISTRO_EVENT_FIELDS_FRAGMENT,
+    HISTORY_FIELDS_FRAGMENT,
   ],
 );
 
