@@ -19,6 +19,7 @@ import {
 import {
   BOX_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
+  HISTORY_FIELDS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
   TAG_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
@@ -61,22 +62,32 @@ export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = graphql(
       updateBox(
         updateInput: { labelIdentifier: $boxLabelIdentifier, numberOfItems: $numberOfItems }
       ) {
-        ...BoxFields
+        labelIdentifier
+        lastModifiedOn
+        history {
+          ...HistoryFields
+        }
+        numberOfItems
       }
     }
   `,
-  [BOX_FIELDS_FRAGMENT],
+  [HISTORY_FIELDS_FRAGMENT],
 );
 
 export const UPDATE_STATE_IN_BOX_MUTATION = graphql(
   `
     mutation UpdateState($boxLabelIdentifier: String!, $newState: BoxState!) {
       updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
-        ...BoxFields
+        labelIdentifier
+        lastModifiedOn
+        history {
+          ...HistoryFields
+        }
+        state
       }
     }
   `,
-  [BOX_FIELDS_FRAGMENT],
+  [HISTORY_FIELDS_FRAGMENT],
 );
 
 export const UPDATE_BOX_MUTATION = graphql(
