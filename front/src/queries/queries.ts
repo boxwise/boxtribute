@@ -161,7 +161,18 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
         }
       }
       shipments {
-        ...ShipmentFields
+        id
+        state
+        labelIdentifier
+        sourceBase {
+          id
+        }
+        targetBase {
+          name
+          organisation {
+            name
+          }
+        }
       }
     }
   `,
@@ -170,7 +181,6 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
     BOX_FIELDS_FRAGMENT,
     TAG_BASIC_FIELDS_FRAGMENT,
     DISTRO_EVENT_FIELDS_FRAGMENT,
-    SHIPMENT_FIELDS_FRAGMENT,
   ],
 );
 
