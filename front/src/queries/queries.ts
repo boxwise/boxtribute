@@ -160,7 +160,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
           }
         }
       }
-      shipments {
+      shipments(states: [Preparing]) {
         id
         state
         labelIdentifier
