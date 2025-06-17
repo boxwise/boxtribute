@@ -107,6 +107,23 @@ def test_shipments_query(
         ]
     ]
 
+    query = "query { shipments(states: [Preparing]) { id } }"
+    shipments = assert_successful_request(read_only_client, query)
+    assert shipments == [
+        {"id": str(s["id"])}
+        for s in [
+            default_shipment,
+            another_shipment,
+            intra_org_shipment,
+        ]
+    ]
+
+    query = "query { shipments(states: [Canceled, Sent]) { id } }"
+    shipments = assert_successful_request(read_only_client, query)
+    assert shipments == [
+        {"id": str(s["id"])} for s in [canceled_shipment, sent_shipment]
+    ]
+
 
 def test_source_base_box_product_as_null_for_target_side(
     read_only_client, another_shipment, another_box
