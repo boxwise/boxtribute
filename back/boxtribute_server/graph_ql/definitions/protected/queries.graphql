@@ -54,8 +54,8 @@ type Query {
   transferAgreements(states: [TransferAgreementState!]): [TransferAgreement!]!
   " Return [`Shipment`]({{Types.Shipment}}) with specified ID. Clients are authorized to view a shipment if they're member of either the source or the target base "
   shipment(id: ID!): Shipment
-  " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. "
-  shipments: [Shipment!]!
+  " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. Optionally filter for shipments of certain state(s)."
+  shipments(states: [ShipmentState!]): [Shipment!]!
   " Return various metrics about stock and beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 

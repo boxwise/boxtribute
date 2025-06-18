@@ -17,8 +17,13 @@ def resolve_shipment(*_, id):
 
 
 @query.field("shipments")
-def resolve_shipments(*_):
-    return Shipment.select().orwhere(
-        authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
-        authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
+def resolve_shipments(*_, states=None):
+    # No state filter by default
+    state_filter = Shipment.state << states if states else True
+    return Shipment.select().where(
+        state_filter,
+        (
+            authorized_bases_filter(Shipment, base_fk_field_name="source_base")
+            | authorized_bases_filter(Shipment, base_fk_field_name="target_base")
+        ),
     )

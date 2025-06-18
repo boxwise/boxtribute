@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import {
   TAG_OPTIONS_FRAGMENT,
   PRODUCT_FIELDS_FRAGMENT,
-  BOX_FIELDS_FRAGMENT,
+  LOCATION_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -19,12 +19,25 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
   `
     query BoxByLabelIdentifierAndAllProductsWithBaseId($baseId: ID!, $labelIdentifier: String!) {
       box(labelIdentifier: $labelIdentifier) {
-        ...BoxFields
+        labelIdentifier
+        numberOfItems
+        comment
+        product {
+          id
+          name
+          gender
+          deletedOn
+        }
+        size {
+          id
+          label
+        }
+        location {
+          id
+          name
+        }
         tags {
           ...TagOptions
-        }
-        product {
-          ...ProductFields
         }
       }
 
@@ -34,14 +47,8 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
           ...TagOptions
         }
 
-        # TODO create location Fragment
         locations {
-          ... on ClassicLocation {
-            defaultBoxState
-          }
-          id
-          seq
-          name
+          ...LocationBasicFields
         }
 
         products {
@@ -50,7 +57,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
       }
     }
   `,
-  [TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, BOX_FIELDS_FRAGMENT],
+  [TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT],
 );
 
 export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
