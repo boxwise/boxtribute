@@ -63,23 +63,17 @@ function BoxCard({
 
   const product =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0].sourceProduct
+      ? boxData?.shipmentDetail?.sourceProduct
       : boxData?.product;
 
   const numberOfItems =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0].sourceQuantity
+      ? boxData?.shipmentDetail?.sourceQuantity
       : boxData?.numberOfItems;
 
   const size =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0]?.sourceSize
+      ? boxData?.shipmentDetail?.sourceSize
       : boxData?.size;
 
   return (

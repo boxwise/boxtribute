@@ -44,9 +44,7 @@ function BoxTabs({
 }: IBoxTabsProps) {
   const location =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0]?.sourceLocation
+      ? boxData?.shipmentDetail?.sourceLocation
       : boxData?.location;
   return (
     <Box alignContent="center" w="100%">
