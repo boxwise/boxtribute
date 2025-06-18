@@ -18,6 +18,7 @@ import {
 } from "views/Distributions/queries";
 import {
   HISTORY_FIELDS_FRAGMENT,
+  LOCATION_BASIC_FIELDS_FRAGMENT,
 } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
@@ -98,14 +99,19 @@ export const UPDATE_BOX_MUTATION = graphql(
         state
         location {
           __typename
-          id
-          name
+          ...LocationBasicFields
+          base {
+            locations {
+              ...LocationBasicFields
+            }
+          }
         }
       }
     }
   `,
   [
     HISTORY_FIELDS_FRAGMENT,
+    LOCATION_BASIC_FIELDS_FRAGMENT,
   ],
 );
 
