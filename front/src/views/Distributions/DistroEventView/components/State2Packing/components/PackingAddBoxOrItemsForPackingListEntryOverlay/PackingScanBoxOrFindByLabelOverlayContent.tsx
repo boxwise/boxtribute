@@ -1,3 +1,4 @@
+import { graphql } from "../../../../../../../../../graphql/graphql";
 import { useApolloClient } from "@apollo/client";
 import {
   Button,
@@ -14,10 +15,7 @@ import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner"
 
 import { useCallback, useState } from "react";
 import { extractQrCodeFromUrl } from "hooks/useQrResolver";
-import {
-  BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY,
-  GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE,
-} from "queries/queries";
+import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
@@ -28,6 +26,24 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
   // onAddBoxToDistributionEvent: (boxId: string) => void;
   // TODO: add correct signature / type here
 }
+
+const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = graphql(
+  `
+    query BoxDetails($labelIdentifier: String!) {
+      box(labelIdentifier: $labelIdentifier) {
+        labelIdentifier
+        product {
+          id
+        }
+        size {
+          id
+        }
+        numberOfItems
+        }
+      }
+    }
+  `,
+);
 
 type ValidateBoxByLabelForMatchingPackingListEntry = (
   boxLabel: string,

@@ -32,11 +32,15 @@ export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = graphql(
   `
     query BoxDetails($labelIdentifier: String!) {
       box(labelIdentifier: $labelIdentifier) {
-        ...BoxFields
+        labelIdentifier
+        location {
+          base {
+            id
+          }
+        }
       }
     }
   `,
-  [BOX_FIELDS_FRAGMENT],
 );
 
 export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = graphql(
