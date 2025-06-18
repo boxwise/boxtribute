@@ -28,10 +28,10 @@ import { NavLink } from "react-router-dom";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
+import { BoxByLabelIdentifier } from "queries/types";
 
 export interface IBoxCardProps {
-  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
+  boxData: BoxByLabelIdentifier;
   boxInTransit: boolean;
   onHistoryOpen: () => void;
   onPlusOpen: () => void;

@@ -3,11 +3,11 @@ import { IDropdownOption } from "components/Form/SelectField";
 import BoxCard from "./BoxCard";
 import BoxDistributionEvent from "./BoxDistributionEvent";
 import BoxTabs from "./BoxTabs";
-import { BoxByLabelIdentifier, BoxState, UpdateBoxMutation } from "queries/types";
+import { BoxByLabelIdentifier, BoxState } from "queries/types";
 
 interface IBoxDetailsProps {
   /** @todo Should this be optional peer the test spec? */
-  boxData?: BoxByLabelIdentifier | UpdateBoxMutation;
+  boxData?: BoxByLabelIdentifier;
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onHistoryOpen: () => void;

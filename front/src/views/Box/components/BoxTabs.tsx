@@ -21,10 +21,10 @@ import { FaDollyFlatbed, FaWarehouse } from "react-icons/fa";
 import AssignBoxToShipment from "./AssignBoxToShipment";
 
 import BoxMoveLocation from "./BoxMoveLocation";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
+import { BoxByLabelIdentifier } from "queries/types";
 
 export interface IBoxTabsProps {
-  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
+  boxData: BoxByLabelIdentifier;
   boxInTransit: boolean;
   onMoveToLocationClick: (locationId: string) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
