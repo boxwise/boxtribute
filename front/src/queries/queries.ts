@@ -1,7 +1,6 @@
 import { graphql } from "../../../graphql/graphql";
 import {
   BOX_BASIC_FIELDS_FRAGMENT,
-  PRODUCT_BASIC_FIELDS_FRAGMENT,
   STANDARD_PRODUCT_BASIC_FIELDS_FRAGMENT,
 } from "../../../graphql/fragments";
 import {
@@ -122,12 +121,6 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
     query BoxByLabelIdentifier($labelIdentifier: String!) {
       box(labelIdentifier: $labelIdentifier) {
         ...BoxFields
-        product {
-          ...ProductBasicFields
-        }
-        tags {
-          ...TagBasicFields
-        }
         distributionEvent {
           ...DistroEventFields
         }
@@ -177,9 +170,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
     }
   `,
   [
-    PRODUCT_BASIC_FIELDS_FRAGMENT,
     BOX_FIELDS_FRAGMENT,
-    TAG_BASIC_FIELDS_FRAGMENT,
     DISTRO_EVENT_FIELDS_FRAGMENT,
   ],
 );
