@@ -1,12 +1,12 @@
 black==25.1.0
-flake8==7.2.0
+flake8==7.3.0
 isort==6.0.1
 pre-commit==4.2.0
 pytest>=6.2.5
 pytest-mock==3.14.1
 pytest-cov==6.2.1
 pytest-clarity==1.0.1
-mypy==1.16.0
+mypy==1.16.1
 types-Flask-Cors==6.0.0.20250520
 types-peewee==3.18.1.20250601
 types-setuptools==80.9.0.20250529
