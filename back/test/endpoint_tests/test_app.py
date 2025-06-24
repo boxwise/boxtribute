@@ -1,7 +1,7 @@
 import peewee
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.logging import WEBAPP_CONTEXT
+from boxtribute_server.logging import API_CONTEXT, WEBAPP_CONTEXT
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -453,12 +453,17 @@ query IntrospectionQuery {
 
 def test_gcloud_logging(read_only_client, mocker):
     mocked_loggers = mocker.patch("boxtribute_server.logging.request_loggers")
-    mocked_loggers[WEBAPP_CONTEXT] = mocker.MagicMock()
+    # If __getitem__() is not explicitly mocked, then the calls to obtain dict values
+    # via request_loggers[WEBAPP_CONTEXT] and request_loggers[API_CONTEXT] will return
+    # the same mock which results in confusing behaviour
+    logger_for_context = {c: mocker.MagicMock() for c in [WEBAPP_CONTEXT, API_CONTEXT]}
+    mocked_loggers.__getitem__.side_effect = logger_for_context.__getitem__
     query = "query { bases { id } }"
 
     # Send request to /graphql endpoint of webapp blueprint
     bases = assert_successful_request(read_only_client, query)
 
+    # Expect one call to webapp logger including execution time
     mocked_log_struct = mocked_loggers[WEBAPP_CONTEXT].log_struct
     mocked_log_struct.assert_called_once()
     assert mocked_log_struct.call_args.kwargs == {"severity": "INFO"}
@@ -466,3 +471,16 @@ def test_gcloud_logging(read_only_client, mocker):
     assert call_args.pop("execution_time") < 10
     assert call_args == {"query": query}
     assert bases == [{"id": "1"}]
+    mocked_loggers[API_CONTEXT].log_struct.assert_not_called()
+
+    mocked_loggers[WEBAPP_CONTEXT].reset_mock()
+    # Send request to / endpoint of query-API blueprint
+    bases = assert_successful_request(read_only_client, query, endpoint="")
+
+    # Expect one call to api logger without execution time
+    mocked_log_struct = mocked_loggers[API_CONTEXT].log_struct
+    mocked_log_struct.assert_called_once()
+    assert mocked_log_struct.call_args.kwargs == {"severity": "INFO"}
+    assert mocked_log_struct.call_args.args == ({"query": query},)
+    assert bases == [{"id": "1"}]
+    mocked_loggers[WEBAPP_CONTEXT].log_struct.assert_not_called()
