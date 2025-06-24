@@ -4,10 +4,13 @@ from peewee import JOIN, fn
 from ....authz import authorize, handle_unauthorized
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.product import Product
+from ....models.definitions.product_category import ProductCategory
+from ....models.definitions.size_range import SizeRange
 from ....models.definitions.standard_product import StandardProduct
 from ....models.utils import handle_non_existing_resource
 
 query = QueryType()
+public_query = QueryType()
 
 
 class StandardProductPage(dict):
@@ -57,3 +60,21 @@ def resolve_standard_product(*_, id):
     authorize(permission="standard_product:read")
     standard_product = StandardProduct.get_by_id(id)
     return standard_product
+
+
+@public_query.field("standardProducts")
+def resolve_public_standard_products(*_):
+    return (
+        StandardProduct.select(
+            StandardProduct.id,
+            StandardProduct.name,
+            ProductCategory.name.alias("category_name"),
+            SizeRange.label.alias("size_range_name"),
+            StandardProduct.gender,
+            StandardProduct.version,
+        )
+        .join(ProductCategory)
+        .join(SizeRange, src=StandardProduct)
+        .dicts()
+        .iterator()
+    )
