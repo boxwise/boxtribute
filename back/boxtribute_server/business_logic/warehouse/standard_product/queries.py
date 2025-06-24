@@ -2,6 +2,7 @@ from ariadne import QueryType
 from peewee import JOIN, fn
 
 from ....authz import authorize, handle_unauthorized
+from ....db import use_db_replica
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.product import Product
 from ....models.definitions.product_category import ProductCategory
@@ -63,6 +64,7 @@ def resolve_standard_product(*_, id):
 
 
 @public_query.field("standardProducts")
+@use_db_replica
 def resolve_public_standard_products(*_):
     return (
         StandardProduct.select(
