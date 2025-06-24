@@ -1,6 +1,7 @@
 import peewee
 import pytest
 from auth import mock_user_for_request
+from boxtribute_server.logging import WEBAPP_CONTEXT
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -448,3 +449,20 @@ query IntrospectionQuery {
 
     monkeypatch.setenv("ENVIRONMENT", "production")
     assert_unauthorized(read_only_client, query)
+
+
+def test_gcloud_logging(read_only_client, mocker):
+    mocked_loggers = mocker.patch("boxtribute_server.logging.request_loggers")
+    mocked_loggers[WEBAPP_CONTEXT] = mocker.MagicMock()
+    query = "query { bases { id } }"
+
+    # Send request to /graphql endpoint of webapp blueprint
+    bases = assert_successful_request(read_only_client, query)
+
+    mocked_log_struct = mocked_loggers[WEBAPP_CONTEXT].log_struct
+    mocked_log_struct.assert_called_once()
+    assert mocked_log_struct.call_args.kwargs == {"severity": "INFO"}
+    call_args = mocked_log_struct.call_args.args[0]
+    assert call_args.pop("execution_time") < 10
+    assert call_args == {"query": query}
+    assert bases == [{"id": "1"}]

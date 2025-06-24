@@ -1,5 +1,8 @@
 """Setup for logging in Google Cloud."""
 
+import contextlib
+import time
+
 from flask import request
 
 from .utils import in_ci_environment, in_development_environment
@@ -29,12 +32,28 @@ else:  # pragma: no cover
     }
 
 
-def log_request_to_gcloud(*, context):
-    """Log the current request's JSON body to Google Cloud, depending on context."""
+def log_request_to_gcloud(*, context, **extra_info):
+    """Log the current request's JSON body to Google Cloud, depending on context.
+    Optionally add extra info fields to the log entry.
+    """
     if request_loggers is None:
         # Render function ineffective if loggers not defined
         return
 
-    request_loggers[context].log_struct(
-        request.get_json(), severity="INFO"
-    )  # pragma: no cover
+    content = request.get_json()
+    if extra_info:
+        content |= extra_info
+    request_loggers[context].log_struct(content, severity="INFO")
+
+
+@contextlib.contextmanager
+def log_profiled_request_to_gcloud(*, context):
+    """Log the current request's JSON body to Google Cloud, including measured execution
+    time.
+    """
+    start_time = time.perf_counter()
+    try:
+        yield
+    finally:
+        end_time = time.perf_counter()
+        log_request_to_gcloud(context=context, execution_time=end_time - start_time)
