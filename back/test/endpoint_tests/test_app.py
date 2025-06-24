@@ -1,7 +1,7 @@
 import peewee
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.logging import API_CONTEXT, WEBAPP_CONTEXT
+from boxtribute_server.logging import API_CONTEXT, SHARED_CONTEXT, WEBAPP_CONTEXT
 from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
@@ -456,7 +456,9 @@ def test_gcloud_logging(read_only_client, mocker):
     # If __getitem__() is not explicitly mocked, then the calls to obtain dict values
     # via request_loggers[WEBAPP_CONTEXT] and request_loggers[API_CONTEXT] will return
     # the same mock which results in confusing behaviour
-    logger_for_context = {c: mocker.MagicMock() for c in [WEBAPP_CONTEXT, API_CONTEXT]}
+    logger_for_context = {
+        c: mocker.MagicMock() for c in [WEBAPP_CONTEXT, API_CONTEXT, SHARED_CONTEXT]
+    }
     mocked_loggers.__getitem__.side_effect = logger_for_context.__getitem__
     query = "query { bases { id } }"
 
@@ -472,6 +474,7 @@ def test_gcloud_logging(read_only_client, mocker):
     assert call_args == {"query": query}
     assert bases == [{"id": "1"}]
     mocked_loggers[API_CONTEXT].log_struct.assert_not_called()
+    mocked_loggers[SHARED_CONTEXT].log_struct.assert_not_called()
 
     mocked_loggers[WEBAPP_CONTEXT].reset_mock()
     # Send request to / endpoint of query-API blueprint
@@ -484,3 +487,18 @@ def test_gcloud_logging(read_only_client, mocker):
     assert mocked_log_struct.call_args.args == ({"query": query},)
     assert bases == [{"id": "1"}]
     mocked_loggers[WEBAPP_CONTEXT].log_struct.assert_not_called()
+    mocked_loggers[SHARED_CONTEXT].log_struct.assert_not_called()
+
+    mocked_loggers[API_CONTEXT].reset_mock()
+    # Send request to /public endpoint of shared blueprint
+    query = 'query { resolveLink(code: "abc") { __typename } }'
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+
+    # Expect one call to shared logger without execution time
+    mocked_log_struct = mocked_loggers[SHARED_CONTEXT].log_struct
+    mocked_log_struct.assert_called_once()
+    assert mocked_log_struct.call_args.kwargs == {"severity": "INFO"}
+    assert mocked_log_struct.call_args.args == ({"query": query},)
+    assert response == {"__typename": "UnknownLinkError"}
+    mocked_loggers[WEBAPP_CONTEXT].log_struct.assert_not_called()
+    mocked_loggers[API_CONTEXT].log_struct.assert_not_called()

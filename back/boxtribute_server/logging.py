@@ -10,6 +10,7 @@ from .utils import in_ci_environment, in_development_environment
 # Context names
 API_CONTEXT = "api"
 WEBAPP_CONTEXT = "webapp"
+SHARED_CONTEXT = "shared"
 
 if in_ci_environment() or in_development_environment():
     # Skip logger initialization when running tests in CircleCI, or during local
@@ -28,7 +29,7 @@ else:  # pragma: no cover
     # Store logs in "projects/dropapp-******/logs/api-requests" or ".../webapp-requests"
     request_loggers = {
         context: _logging_client.logger(f"{context}-requests")
-        for context in [API_CONTEXT, WEBAPP_CONTEXT]
+        for context in [API_CONTEXT, WEBAPP_CONTEXT, SHARED_CONTEXT]
     }
 
 

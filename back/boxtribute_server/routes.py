@@ -23,6 +23,7 @@ from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import (
     API_CONTEXT,
+    SHARED_CONTEXT,
     WEBAPP_CONTEXT,
     log_profiled_request_to_gcloud,
     log_request_to_gcloud,
@@ -73,7 +74,7 @@ def query_api_server():
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
 def public_api_server():
-    log_request_to_gcloud(context=API_CONTEXT)
+    log_request_to_gcloud(context=SHARED_CONTEXT)
     return execute_async(schema=public_api_schema, introspection=True)
 
 
