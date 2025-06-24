@@ -54,7 +54,10 @@ class DatabaseManager(FlaskDB):
 
         # Provide fallback for non-JSON and non-GraphQL requests
         payload = request.get_json(silent=True) or {"query": []}
-        if self.replica and any([q in payload["query"] for q in statistics_queries()]):
+        if self.replica and (
+            any([q in payload["query"] for q in statistics_queries()])
+            or request.blueprint == shared_bp.name
+        ):
             self.replica.connect()
 
     def close_db(self, exc):
