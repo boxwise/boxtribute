@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import request
 from peewee import MySQLDatabase
 from playhouse.flask_utils import FlaskDB  # type: ignore
@@ -64,6 +66,20 @@ class DatabaseManager(FlaskDB):
 
 
 db = DatabaseManager()
+
+
+def use_db_replica(f):
+    """Decorator for a resolver that should use the DB replica for database selects."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if db.replica is not None:
+            with db.replica.bind_ctx(db.Model.__subclasses__()):
+                return f(*args, **kwargs)
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def create_db_interface(**mysql_kwargs):

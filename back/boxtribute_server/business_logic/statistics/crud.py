@@ -3,7 +3,6 @@ import random
 import string
 from dataclasses import dataclass
 from datetime import timedelta
-from functools import wraps
 from typing import Any
 
 from peewee import JOIN, SQL, fn
@@ -35,20 +34,6 @@ class DataCube:
     facts: list[dict[str, Any]]
     dimensions: list[dict[str, Any]]
     type: str  # Identical to GraphQL DataCube implementation type
-
-
-def use_db_replica(f):
-    """Decorator for a resolver that should use the DB replica for database selects."""
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if db.replica is not None:
-            with db.replica.bind_ctx(db.Model.__subclasses__()):
-                return f(*args, **kwargs)
-
-        return f(*args, **kwargs)
-
-    return decorated
 
 
 def _validate_existing_base(base_id):
