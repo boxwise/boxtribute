@@ -20,7 +20,8 @@ class DatabaseManager(FlaskDB):
     """Custom class to glue Flask and Peewee together.
     If configured accordingly, connect to a database replica for statistics-related
     GraphQL queries. To use the replica for database queries, wrap the calling code in
-    `with db.replica.bind_ctx`.
+    the `use_db_replica` decorator, and make sure the replica connection is set up in
+    the connect_db() method.
     """
 
     def __init__(self, *args, **kwargs):
