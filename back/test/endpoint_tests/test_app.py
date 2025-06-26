@@ -480,11 +480,13 @@ def test_gcloud_logging(read_only_client, mocker):
     # Send request to / endpoint of query-API blueprint
     bases = assert_successful_request(read_only_client, query, endpoint="")
 
-    # Expect one call to api logger without execution time
+    # Expect one call to api logger including execution time
     mocked_log_struct = mocked_loggers[API_CONTEXT].log_struct
     mocked_log_struct.assert_called_once()
     assert mocked_log_struct.call_args.kwargs == {"severity": "INFO"}
-    assert mocked_log_struct.call_args.args == ({"query": query},)
+    call_args = mocked_log_struct.call_args.args[0]
+    assert call_args.pop("execution_time") < 10
+    assert call_args == {"query": query}
     assert bases == [{"id": "1"}]
     mocked_loggers[WEBAPP_CONTEXT].log_struct.assert_not_called()
     mocked_loggers[SHARED_CONTEXT].log_struct.assert_not_called()

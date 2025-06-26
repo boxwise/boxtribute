@@ -53,8 +53,8 @@ def query_api_explorer():
 @api_bp.post(API_GRAPHQL_PATH)
 @requires_auth
 def query_api_server():
-    log_request_to_gcloud(context=API_CONTEXT)
-    return execute_async(schema=query_api_schema, introspection=True)
+    with log_profiled_request_to_gcloud(context=API_CONTEXT):
+        return execute_async(schema=query_api_schema, introspection=True)
 
 
 @shared_bp.post(SHARED_GRAPHQL_PATH)
