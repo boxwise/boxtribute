@@ -1536,3 +1536,15 @@ type ExpiredLinkError {
   validUntil: Datetime!
 }
 union ResolvedLinkResult = ResolvedLink | ExpiredLinkError | UnknownLinkError
+
+"""
+Condensed information about a standard product.
+"""
+type StandardProductInfo {
+  id: ID!
+  name: String!
+  categoryName: String!
+  sizeRangeName: String!
+  gender: ProductGender!
+  version: Int!
+}

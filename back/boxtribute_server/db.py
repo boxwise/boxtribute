@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import request
 from peewee import MySQLDatabase
 from playhouse.flask_utils import FlaskDB  # type: ignore
@@ -18,7 +20,8 @@ class DatabaseManager(FlaskDB):
     """Custom class to glue Flask and Peewee together.
     If configured accordingly, connect to a database replica for statistics-related
     GraphQL queries. To use the replica for database queries, wrap the calling code in
-    `with db.replica.bind_ctx`.
+    the `use_db_replica` decorator, and make sure the replica connection is set up in
+    the connect_db() method.
     """
 
     def __init__(self, *args, **kwargs):
@@ -52,7 +55,10 @@ class DatabaseManager(FlaskDB):
 
         # Provide fallback for non-JSON and non-GraphQL requests
         payload = request.get_json(silent=True) or {"query": []}
-        if self.replica and any([q in payload["query"] for q in statistics_queries()]):
+        if self.replica and (
+            any([q in payload["query"] for q in statistics_queries()])
+            or request.blueprint == shared_bp.name
+        ):
             self.replica.connect()
 
     def close_db(self, exc):
@@ -64,6 +70,20 @@ class DatabaseManager(FlaskDB):
 
 
 db = DatabaseManager()
+
+
+def use_db_replica(f):
+    """Decorator for a resolver that should use the DB replica for database selects."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if db.replica is not None:
+            with db.replica.bind_ctx(db.Model.__subclasses__()):
+                return f(*args, **kwargs)
+
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def create_db_interface(**mysql_kwargs):
