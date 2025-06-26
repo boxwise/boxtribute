@@ -21,7 +21,13 @@ from .bridges import authenticate_auth0_log_stream, send_transformed_logs_to_sla
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
-from .logging import API_CONTEXT, WEBAPP_CONTEXT, log_request_to_gcloud
+from .logging import (
+    API_CONTEXT,
+    SHARED_CONTEXT,
+    WEBAPP_CONTEXT,
+    log_profiled_request_to_gcloud,
+    log_request_to_gcloud,
+)
 from .utils import in_development_environment
 
 # Allowed headers for CORS
@@ -47,8 +53,8 @@ def query_api_explorer():
 @api_bp.post(API_GRAPHQL_PATH)
 @requires_auth
 def query_api_server():
-    log_request_to_gcloud(context=API_CONTEXT)
-    return execute_async(schema=query_api_schema, introspection=True)
+    with log_profiled_request_to_gcloud(context=API_CONTEXT):
+        return execute_async(schema=query_api_schema, introspection=True)
 
 
 @shared_bp.post(SHARED_GRAPHQL_PATH)
@@ -68,7 +74,7 @@ def query_api_server():
     allow_headers="*" if in_development_environment() else CORS_HEADERS,
 )
 def public_api_server():
-    log_request_to_gcloud(context=API_CONTEXT)
+    log_request_to_gcloud(context=SHARED_CONTEXT)
     return execute_async(schema=public_api_schema, introspection=True)
 
 
@@ -107,13 +113,12 @@ def api_token():
 )
 @requires_auth
 def graphql_server():
-    log_request_to_gcloud(context=WEBAPP_CONTEXT)
-
     if not check_user_beta_level(request.get_json()["query"]):
         return {"error": "No permission to access beta feature"}, 401
 
-    # Schema introspection is enabled for local development via current_app.debug
-    return execute_async(schema=full_api_schema)
+    with log_profiled_request_to_gcloud(context=WEBAPP_CONTEXT):
+        # Schema introspection is enabled for local development via current_app.debug
+        return execute_async(schema=full_api_schema)
 
 
 @app_bp.get(APP_GRAPHQL_PATH)

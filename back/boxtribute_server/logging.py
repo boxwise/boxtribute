@@ -1,5 +1,8 @@
 """Setup for logging in Google Cloud."""
 
+import contextlib
+import time
+
 from flask import request
 
 from .utils import in_ci_environment, in_development_environment
@@ -7,6 +10,7 @@ from .utils import in_ci_environment, in_development_environment
 # Context names
 API_CONTEXT = "api"
 WEBAPP_CONTEXT = "webapp"
+SHARED_CONTEXT = "shared"
 
 if in_ci_environment() or in_development_environment():
     # Skip logger initialization when running tests in CircleCI, or during local
@@ -25,16 +29,32 @@ else:  # pragma: no cover
     # Store logs in "projects/dropapp-******/logs/api-requests" or ".../webapp-requests"
     request_loggers = {
         context: _logging_client.logger(f"{context}-requests")
-        for context in [API_CONTEXT, WEBAPP_CONTEXT]
+        for context in [API_CONTEXT, WEBAPP_CONTEXT, SHARED_CONTEXT]
     }
 
 
-def log_request_to_gcloud(*, context):
-    """Log the current request's JSON body to Google Cloud, depending on context."""
+def log_request_to_gcloud(*, context, **extra_info):
+    """Log the current request's JSON body to Google Cloud, depending on context.
+    Optionally add extra info fields to the log entry.
+    """
     if request_loggers is None:
         # Render function ineffective if loggers not defined
         return
 
-    request_loggers[context].log_struct(
-        request.get_json(), severity="INFO"
-    )  # pragma: no cover
+    content = request.get_json()
+    if extra_info:
+        content |= extra_info
+    request_loggers[context].log_struct(content, severity="INFO")
+
+
+@contextlib.contextmanager
+def log_profiled_request_to_gcloud(*, context):
+    """Log the current request's JSON body to Google Cloud, including measured execution
+    time.
+    """
+    start_time = time.perf_counter()
+    try:
+        yield
+    finally:
+        end_time = time.perf_counter()
+        log_request_to_gcloud(context=context, execution_time=end_time - start_time)
