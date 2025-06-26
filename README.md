@@ -193,7 +193,16 @@ About the versioning scheme:
 ## Architecture overview
 
 All our architecture decisions are logged in ADRs which you can find [here](docs/adr/adr_template.md).
-Here, is a list of intro tutorials for each technologies / frameworks / languages below.
+
+### System landscape
+
+The follow diagram gives the system context for the boxtribute software acc. to the [C4 model](https://c4model.com/diagrams) architecture visualization method.
+
+![C4 system landscape](docs/c4-system-landscape.png)
+
+### Software stack
+
+Here is a list of intro tutorials for each technologies / frameworks / languages.
 
 #### Front-end
 
