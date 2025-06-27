@@ -187,7 +187,7 @@ def test_query_top_products(
 
 
 def test_query_moved_boxes(
-    read_only_client, default_location, another_base, another_organisation
+    read_only_client, default_location, another_base, another_organisation, mocker
 ):
     query = """query { movedBoxes(baseId: 1) {
         facts {
@@ -306,6 +306,46 @@ def test_query_moved_boxes(
                 },
             ],
         },
+    }
+
+    mock_user_for_request(mocker, organisation_id=2, base_ids=[4])
+    query = """query { movedBoxes(baseId: 4) {
+        facts {
+            movedOn targetId categoryId productName gender sizeId tagIds
+            absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
+        }
+        dimensions { target { id name type } }
+        } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    incoming_shipment_fact = None
+    for fact in data["facts"]:
+        if fact["organisationName"] == "CoolOrganisation":
+            incoming_shipment_fact = fact
+            break
+    print(incoming_shipment_fact)
+    assert data["dimensions"] == {
+        "target": [
+            {
+                "id": location_name,
+                "name": location_name,
+                "type": TargetType.OutgoingLocation.name,
+            },
+            {
+                "id": base_name,
+                "name": base_name,
+                "type": TargetType.Shipment.name,
+            },
+            {
+                "id": base_name,
+                "name": base_name,
+                "type": TargetType.IncomingShipment.name,
+            },
+            {
+                "id": BoxState.Lost.name,
+                "name": BoxState.Lost.name,
+                "type": TargetType.BoxState.name,
+            },
+        ]
     }
 
 
