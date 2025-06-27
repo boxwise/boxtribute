@@ -106,32 +106,20 @@ export const BOX_FIELDS_FRAGMENT = graphql(
       }
       shipmentDetail {
         id
+        sourceQuantity
+        sourceLocation {
+          ...LocationBasicFields
+        }
+        sourceProduct {
+          ...ProductBasicFields
+        }
+        sourceSize {
+          ...SizeBasicFields
+        }
         shipment {
           id
           labelIdentifier
           state
-          details {
-            id
-            box {
-              location {
-                ...LocationBasicFields
-                base {
-                  ...BaseBasicFields
-                }
-              }
-              labelIdentifier
-            }
-            sourceQuantity
-            sourceProduct {
-              ...ProductBasicFields
-            }
-            sourceSize {
-              ...SizeBasicFields
-            }
-            sourceLocation {
-              ...LocationBasicFields
-            }
-          }
           targetBase {
             id
             name

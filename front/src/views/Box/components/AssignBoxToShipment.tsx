@@ -3,10 +3,10 @@ import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chak
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentOption } from "components/Form/ShipmentOption";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
+import { BoxByLabelIdentifier } from "queries/types";
 
 export interface IAssignBoxToShipmentProps {
-  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
+  boxData: BoxByLabelIdentifier;
   shipmentOptions: IDropdownOption[];
   isAssignBoxesToShipmentLoading: boolean;
   onAssignBoxesToShipment: (shipmentId: string) => void;

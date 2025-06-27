@@ -1,8 +1,8 @@
 import { List, Text, Flex, WrapItem, Button, SkeletonText } from "@chakra-ui/react";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
+import { BoxByLabelIdentifier } from "queries/types";
 
 export interface IBoxMoveLocationProps {
-  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
+  boxData: BoxByLabelIdentifier;
   boxInTransit: boolean;
   isLoading: boolean;
   onMoveToLocationClick: (locationId: string) => void;
