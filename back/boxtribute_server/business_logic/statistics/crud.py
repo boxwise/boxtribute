@@ -8,7 +8,7 @@ from typing import Any
 from peewee import JOIN, SQL, fn
 
 from ...db import db
-from ...enums import BoxState, TaggableObjectType, TargetType
+from ...enums import BoxState, ShipmentState, TaggableObjectType, TargetType
 from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -374,6 +374,9 @@ def compute_moved_boxes(base_id):
         TargetType.OutgoingLocation.name,
         TargetType.Shipment.name,
         base_id,
+        TargetType.IncomingShipment.name,
+        base_id,
+        ShipmentState.Lost.name,
         TargetType.BoxState.name,
         base_id,
         database=db.replica or db.database,
