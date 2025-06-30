@@ -109,8 +109,8 @@ importers:
         version: 3.25.67
     devDependencies:
       '@sentry/types':
-        specifier: ^9.32.0
-        version: 9.32.0
+        specifier: ^9.33.0
+        version: 9.33.0
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -1598,10 +1598,6 @@ packages:
     resolution: {integrity: sha512-emlZlpE62lcpxMEzvrQzecnh0WeS36XLQlFLEUhGaYVOw7TBl5JPIoSB4mxPrzIn4GpW++3JrtKRpDAHQn/c4Q==}
     engines: {node: '>=18'}
 
-  '@sentry/core@9.32.0':
-    resolution: {integrity: sha512-1wAXMMmeY4Ny2MJBCuri3b4LMVPjqXdgbVgTxxipGW+gzPsjv+8+LCSnJAR/cRBr8JoXV+qGC2tE06rI1XDj3A==}
-    engines: {node: '>=18'}
-
   '@sentry/core@9.33.0':
     resolution: {integrity: sha512-0mtJAU+x10+q5aV/txyeuPjJ0TmObcD701R0tY0s71yJJOltqqMrmgNpqyuMI/VOASuzTZesiMYdbG6xb3zeSw==}
     engines: {node: '>=18'}
@@ -1612,8 +1608,8 @@ packages:
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
 
-  '@sentry/types@9.32.0':
-    resolution: {integrity: sha512-uJu770ClzCFXqd2zj2cBRa6v3PwnAx8jTwKkdA12/py3Tyn6OJ7RJhWsAXN5YRUhj2SDU1Uw1mRHS2GzuM2rLw==}
+  '@sentry/types@9.33.0':
+    resolution: {integrity: sha512-vYIq6dzWf8LDBERbXp+tB9i8L/BQU21RX6yts0SjajJkhwvgZoxhcnAzASnV9bxcvBr+HHL2i7DSFUcOsWHCog==}
     engines: {node: '>=18'}
 
   '@standard-schema/utils@0.3.0':
@@ -6849,8 +6845,6 @@ snapshots:
       '@sentry-internal/replay-canvas': 9.33.0
       '@sentry/core': 9.33.0
 
-  '@sentry/core@9.32.0': {}
-
   '@sentry/core@9.33.0': {}
 
   '@sentry/react@9.33.0(react@18.3.1)':
@@ -6860,9 +6854,9 @@ snapshots:
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
 
-  '@sentry/types@9.32.0':
+  '@sentry/types@9.33.0':
     dependencies:
-      '@sentry/core': 9.32.0
+      '@sentry/core': 9.33.0
 
   '@standard-schema/utils@0.3.0': {}
 
