@@ -220,7 +220,6 @@ function QrReaderMultiBox({
                       borderRadius: "0",
                     }),
                     multiValue: (provided, state) => {
-                      console.log(state);
                       return {
                         ...provided,
                         border: "1px",
