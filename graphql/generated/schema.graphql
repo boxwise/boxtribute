@@ -142,6 +142,188 @@ enum PackingListEntryState {
 }
 scalar Datetime
 scalar Date
+interface DataCube {
+  facts: [Result]
+  dimensions: Dimensions
+}
+
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
+
+type BeneficiaryDemographicsData implements DataCube {
+  facts: [BeneficiaryDemographicsResult]
+  dimensions: BeneficiaryDemographicsDimensions
+}
+
+type BeneficiaryDemographicsDimensions {
+  tag: [TagDimensionInfo]
+}
+
+type BeneficiaryDemographicsResult {
+  age: Int
+  gender: HumanGender
+  createdOn: Date
+  deletedOn: Date
+  tagIds: [Int!]
+  count: Int
+}
+
+type CreatedBoxesData implements DataCube {
+  facts: [CreatedBoxesResult]
+  dimensions: CreatedBoxDataDimensions
+}
+
+type CreatedBoxesResult {
+  createdOn: Date
+  categoryId: Int
+  productId: Int
+  gender: ProductGender
+  tagIds: [Int!]
+  boxesCount: Int
+  itemsCount: Int
+}
+
+type CreatedBoxDataDimensions {
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
+  tag: [TagDimensionInfo]
+}
+
+type TopProductsCheckedOutData implements DataCube {
+  facts: [TopProductsCheckedOutResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsCheckedOutResult {
+  checkedOutOn: Date
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDonatedData implements DataCube {
+  facts: [TopProductsDonatedResult]
+  dimensions: TopProductsDimensions
+}
+
+type TopProductsDonatedResult {
+  createdOn: Date
+  donatedOn: Date
+  sizeId: Int
+  productId: Int
+  categoryId: Int
+  rank: Int
+  itemsCount: Int
+}
+
+type TopProductsDimensions {
+  " Always null for topProductsCheckedOut query "
+  size: [DimensionInfo]
+  product: [ProductDimensionInfo]
+  category: [DimensionInfo]
+}
+
+type MovedBoxesData implements DataCube {
+  facts: [MovedBoxesResult]
+  dimensions: MovedBoxDataDimensions
+}
+
+"""
+A box can be moved in various ways:
+- within a base (location ID with InStock/Donated)
+- because it's lost (Lost)
+- because it becomes scrap (Scrap)
+- because it's about to be shipped (target base ID with MarkedForShipment)
+- because it's being shipped (target base ID with InTransit/Receiving)
+"""
+type MovedBoxesResult {
+  movedOn: Date!
+  targetId: ID!
+  categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  " Null for boxes with measure-product "
+  sizeId: Int
+  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
+  dimensionId: Int
+  " Null for boxes with size-product "
+  absoluteMeasureValue: Float
+  " Shipment target organisation name; null for BoxState/OutgoingLocation target types "
+  organisationName: String
+  tagIds: [Int!]
+  itemsCount: Int!
+  boxesCount: Int!
+}
+
+type MovedBoxDataDimensions {
+  category: [DimensionInfo]
+  size: [DimensionInfo]
+  tag: [TagDimensionInfo!]!
+  target: [TargetDimensionInfo]
+  " 'Dimension' in the sense of Mass or Volume "
+  dimension: [DimensionInfo!]!
+}
+
+type StockOverviewData implements DataCube {
+  facts: [StockOverviewResult!]!
+  dimensions: StockOverviewDataDimensions!
+}
+
+type StockOverviewResult {
+  categoryId: Int!
+  productName: String!
+  gender: ProductGender!
+  " Null for boxes with measure-product "
+  sizeId: Int
+  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
+  dimensionId: Int
+  " Null for boxes with size-product "
+  absoluteMeasureValue: Float
+  tagIds: [Int!]
+  locationId: Int!
+  boxState: BoxState!
+  itemsCount: Int!
+  boxesCount: Int!
+}
+
+type StockOverviewDataDimensions {
+  category: [DimensionInfo!]!
+  size: [DimensionInfo!]!
+  tag: [TagDimensionInfo!]!
+  location: [DimensionInfo!]!
+  " 'Dimension' in the sense of Mass or Volume "
+  dimension: [DimensionInfo!]!
+}
+
+interface BasicDimensionInfo {
+  id: Int
+  name: String
+}
+
+type DimensionInfo implements BasicDimensionInfo {
+  id: Int
+  name: String
+}
+
+type TagDimensionInfo implements BasicDimensionInfo {
+  id: Int
+  name: String
+  " Hex color code "
+  color: String
+}
+
+type ProductDimensionInfo implements BasicDimensionInfo {
+  id: Int
+  name: String
+  gender: ProductGender
+}
+
+type TargetDimensionInfo {
+  id: ID
+  name: String
+  type: TargetType
+}
 # GraphQL input types for mutations **only**.
 input BoxCreationInput {
   productId: Int!
@@ -1335,189 +1517,6 @@ type StockOverview {
   numberOfBoxes: Int
   numberOfItems: Int
 }
-interface DataCube {
-  facts: [Result]
-  dimensions: Dimensions
-}
-
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
-
-type BeneficiaryDemographicsData implements DataCube {
-  facts: [BeneficiaryDemographicsResult]
-  dimensions: BeneficiaryDemographicsDimensions
-}
-
-type BeneficiaryDemographicsDimensions {
-  tag: [TagDimensionInfo]
-}
-
-type BeneficiaryDemographicsResult {
-  age: Int
-  gender: HumanGender
-  createdOn: Date
-  deletedOn: Date
-  tagIds: [Int!]
-  count: Int
-}
-
-type CreatedBoxesData implements DataCube {
-  facts: [CreatedBoxesResult]
-  dimensions: CreatedBoxDataDimensions
-}
-
-type CreatedBoxesResult {
-  createdOn: Date
-  categoryId: Int
-  productId: Int
-  gender: ProductGender
-  tagIds: [Int!]
-  boxesCount: Int
-  itemsCount: Int
-}
-
-type CreatedBoxDataDimensions {
-  product: [ProductDimensionInfo]
-  category: [DimensionInfo]
-  tag: [TagDimensionInfo]
-}
-
-type TopProductsCheckedOutData implements DataCube {
-  facts: [TopProductsCheckedOutResult]
-  dimensions: TopProductsDimensions
-}
-
-type TopProductsCheckedOutResult {
-  checkedOutOn: Date
-  productId: Int
-  categoryId: Int
-  rank: Int
-  itemsCount: Int
-}
-
-type TopProductsDonatedData implements DataCube {
-  facts: [TopProductsDonatedResult]
-  dimensions: TopProductsDimensions
-}
-
-type TopProductsDonatedResult {
-  createdOn: Date
-  donatedOn: Date
-  sizeId: Int
-  productId: Int
-  categoryId: Int
-  rank: Int
-  itemsCount: Int
-}
-
-type TopProductsDimensions {
-  " Always null for topProductsCheckedOut query "
-  size: [DimensionInfo]
-  product: [ProductDimensionInfo]
-  category: [DimensionInfo]
-}
-
-type MovedBoxesData implements DataCube {
-  facts: [MovedBoxesResult]
-  dimensions: MovedBoxDataDimensions
-}
-
-"""
-A box can be moved in various ways:
-- within a base (location ID with InStock/Donated)
-- because it's lost (Lost)
-- because it becomes scrap (Scrap)
-- because it's about to be shipped (target base ID with MarkedForShipment)
-- because it's being shipped (target base ID with InTransit/Receiving)
-"""
-type MovedBoxesResult {
-  movedOn: Date!
-  targetId: ID!
-  categoryId: Int!
-  productName: String!
-  gender: ProductGender!
-  " Null for boxes with measure-product "
-  sizeId: Int
-  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
-  dimensionId: Int
-  " Null for boxes with size-product "
-  absoluteMeasureValue: Float
-  " Shipment target organisation name; null for BoxState/OutgoingLocation target types "
-  organisationName: String
-  tagIds: [Int!]
-  itemsCount: Int!
-  boxesCount: Int!
-}
-
-type MovedBoxDataDimensions {
-  category: [DimensionInfo]
-  size: [DimensionInfo]
-  tag: [TagDimensionInfo!]!
-  target: [TargetDimensionInfo]
-  " 'Dimension' in the sense of Mass or Volume "
-  dimension: [DimensionInfo!]!
-}
-
-type StockOverviewData implements DataCube {
-  facts: [StockOverviewResult!]!
-  dimensions: StockOverviewDataDimensions!
-}
-
-type StockOverviewResult {
-  categoryId: Int!
-  productName: String!
-  gender: ProductGender!
-  " Null for boxes with measure-product "
-  sizeId: Int
-  " 'Dimension' in the sense of Mass or Volume; null for boxes with size-product "
-  dimensionId: Int
-  " Null for boxes with size-product "
-  absoluteMeasureValue: Float
-  tagIds: [Int!]
-  locationId: Int!
-  boxState: BoxState!
-  itemsCount: Int!
-  boxesCount: Int!
-}
-
-type StockOverviewDataDimensions {
-  category: [DimensionInfo!]!
-  size: [DimensionInfo!]!
-  tag: [TagDimensionInfo!]!
-  location: [DimensionInfo!]!
-  " 'Dimension' in the sense of Mass or Volume "
-  dimension: [DimensionInfo!]!
-}
-
-interface BasicDimensionInfo {
-  id: Int
-  name: String
-}
-
-type DimensionInfo implements BasicDimensionInfo {
-  id: Int
-  name: String
-}
-
-type TagDimensionInfo implements BasicDimensionInfo {
-  id: Int
-  name: String
-  " Hex color code "
-  color: String
-}
-
-type ProductDimensionInfo implements BasicDimensionInfo {
-  id: Int
-  name: String
-  gender: ProductGender
-}
-
-type TargetDimensionInfo {
-  id: ID
-  name: String
-  type: TargetType
-}
-
 type ResolvedLink {
   id: ID!
   " A unique SHA256 hash (hex format of length 64) "
@@ -1537,3 +1536,15 @@ type ExpiredLinkError {
   validUntil: Datetime!
 }
 union ResolvedLinkResult = ResolvedLink | ExpiredLinkError | UnknownLinkError
+
+"""
+Condensed information about a standard product.
+"""
+type StandardProductInfo {
+  id: ID!
+  name: String!
+  categoryName: String!
+  sizeRangeName: String!
+  gender: ProductGender!
+  version: Int!
+}

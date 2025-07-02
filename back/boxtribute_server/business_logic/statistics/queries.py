@@ -3,6 +3,7 @@ from datetime import timezone
 from ariadne import QueryType
 
 from ...authz import authorize, authorize_cross_organisation_access
+from ...db import use_db_replica
 from ...errors import ExpiredLink, UnknownLink
 from ...models.definitions.shareable_link import ShareableLink
 from ...models.utils import utcnow
@@ -14,7 +15,6 @@ from .crud import (
     compute_stock_overview,
     compute_top_products_checked_out,
     compute_top_products_donated,
-    use_db_replica,
 )
 
 public_query = QueryType()

@@ -128,3 +128,34 @@ def test_standard_products_query(
         {"id": str(newest_standard_product["id"]), "instantiation": None},
         {"id": str(superceding_measure_standard_product["id"]), "instantiation": None},
     ]
+
+
+def test_public_standard_products_query(
+    read_only_client, standard_products, product_categories, size_ranges
+):
+    query = """query { standardProducts {
+                    id
+                    name
+                    categoryName
+                    sizeRangeName
+                    gender
+                    version
+                } }"""
+    std_products = assert_successful_request(read_only_client, query, endpoint="public")
+    assert std_products == [
+        {
+            "id": str(p["id"]),
+            "name": p["name"],
+            "categoryName": product_categories[i]["name"],
+            "sizeRangeName": size_ranges[j]["label"],
+            "gender": list(ProductGender)[k].name,
+            "version": p["version"],
+        }
+        for p, i, j, k in zip(
+            # indices from test/data/standard_product.py
+            standard_products,
+            [0, 0, 0, 1, 1],
+            [2, 3, 2, 4, 4],
+            [4, 0, 4, 7, 7],
+        )
+    ]

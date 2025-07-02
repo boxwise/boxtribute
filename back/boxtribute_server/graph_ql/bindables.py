@@ -89,6 +89,9 @@ from ..business_logic.warehouse.qr_code.mutations import mutation as qr_code_mut
 from ..business_logic.warehouse.qr_code.queries import query as qr_code_query
 from ..business_logic.warehouse.standard_product.fields import standard_product
 from ..business_logic.warehouse.standard_product.queries import (
+    public_query as public_standard_products_query,
+)
+from ..business_logic.warehouse.standard_product.queries import (
     query as standard_product_query,
 )
 from ..errors import UserError
@@ -205,6 +208,7 @@ interface_types = (
 
 # Types for public API
 public_api_types = (
+    public_standard_products_query,
     shareable_link_query,
     resolved_link,
     UnionType("ResolvedLinkResult", resolve_type_by_class_name),
