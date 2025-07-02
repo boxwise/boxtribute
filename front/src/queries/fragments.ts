@@ -100,6 +100,8 @@ export const BOX_FIELDS_FRAGMENT = graphql(
       state
       product {
         ...ProductBasicFields
+        instockItemsCount
+        transferItemsCount
       }
       size {
         ...SizeBasicFields
