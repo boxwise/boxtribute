@@ -67,10 +67,6 @@ export function BoxReconcilationAccordion({
   const isSourceProductInCache =
     sourceProductId && !!cachedReconciliationMatchProduct[sourceProductId];
 
-  console.log("sourceProductId", sourceProductId);
-  console.log("sourceSizeId", sourceSizeId);
-  console.log("isSourceProductInCache", isSourceProductInCache);
-
   // target side
   const isTargetProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   const targetProductName = isSourceProductInCache
@@ -99,11 +95,6 @@ export function BoxReconcilationAccordion({
     : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail?.sourceSize
       ? shipmentDetail.sourceSize.id
       : undefined;
-
-  console.log("targetProductId", targetProductId);
-  console.log("targetSizeId", targetSizeId);
-  console.log("isTargetProductAutoMatched", isTargetProductAutoMatched);
-  console.log("isSourceSizeInRangeOfTargetProduct", isSourceSizeInRangeOfTargetProduct);
 
   // form states
   const [productFormData, setProductFormData] = useState<IProductFormData>({

@@ -28,10 +28,10 @@ import { NavLink } from "react-router-dom";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
-import { BoxByLabelIdentifier, UpdateBoxMutation } from "queries/types";
+import { BoxByLabelIdentifier } from "queries/types";
 
 export interface IBoxCardProps {
-  boxData: BoxByLabelIdentifier | UpdateBoxMutation;
+  boxData: BoxByLabelIdentifier;
   boxInTransit: boolean;
   onHistoryOpen: () => void;
   onPlusOpen: () => void;
@@ -63,23 +63,17 @@ function BoxCard({
 
   const product =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0].sourceProduct
+      ? boxData?.shipmentDetail?.sourceProduct
       : boxData?.product;
 
   const numberOfItems =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0].sourceQuantity
+      ? boxData?.shipmentDetail?.sourceQuantity
       : boxData?.numberOfItems;
 
   const size =
     boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.shipment.details.filter(
-          (b) => b.box.labelIdentifier === boxData.labelIdentifier,
-        )[0]?.sourceSize
+      ? boxData?.shipmentDetail?.sourceSize
       : boxData?.size;
 
   return (
