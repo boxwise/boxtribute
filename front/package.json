@@ -31,7 +31,7 @@
     "@types/react-table": "^7.7.20",
     "msw": "^2.10.2",
     "mutationobserver-shim": "^0.3.7",
-    "storybook": "^8.6.14"
+    "storybook": "^9.0.15"
   },
   "scripts": {
     "build": "tsc && vite build",
