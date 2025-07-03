@@ -11,6 +11,8 @@ export const product1 = {
     __typename: "ProductCategory",
   },
   sizeRange: sizeRange1,
+  instockItemsCount: 5,
+  transferItemsCount: 1,
   deletedOn: null,
   __typename: "Product",
 };
@@ -27,6 +29,8 @@ export const productBasic1 = {
   type: "Custom",
   sizeRange: sizeRange1,
   deletedOn: null,
+  instockItemsCount: 5,
+  transferItemsCount: 1,
   __typename: "Product",
 };
 
@@ -41,6 +45,8 @@ export const product3 = {
     __typename: "ProductCategory",
   },
   sizeRange: sizeRange2,
+  instockItemsCount: 5,
+  transferItemsCount: 1,
   deletedOn: null,
   __typename: "Product",
 };
@@ -58,6 +64,8 @@ export const products = [
       __typename: "ProductCategory",
     },
     sizeRange: sizeRange2,
+    instockItemsCount: 5,
+    transferItemsCount: 1,
     deletedOn: null,
     __typename: "Product",
   },
