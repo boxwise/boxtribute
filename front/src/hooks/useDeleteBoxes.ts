@@ -34,6 +34,11 @@ export const DELETE_BOXES = graphql(`
         updatedBoxes {
           labelIdentifier
           deletedOn
+          product {
+            id
+            instockItemsCount
+            transferItemsCount
+          }
         }
         invalidBoxLabelIdentifiers
       }
