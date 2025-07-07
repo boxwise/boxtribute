@@ -632,7 +632,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           expect(confirmDialogButton).toBeInTheDocument();
           await user.click(confirmDialogButton);
         } else if (name.toLowerCase().includes("add tags")) {
-          const addTagsButton = await screen.findByRole("button", { name: clicks[0] });
+          const addTagsButton = await screen.findByTestId("assign-tags-button");
           await user.click(addTagsButton);
 
           const selectInput = await screen.findByRole("combobox");
@@ -641,7 +641,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           const tagOption = await screen.findByText(clicks[1]);
           await user.click(tagOption);
 
-          const applyButton = await screen.findByRole("button", { name: clicks[2] });
+          const applyButton = await screen.findByTestId("apply-assign-tags-button");
           await user.click(applyButton);
         } else {
           // Perform action based on the `clicks` parameter
