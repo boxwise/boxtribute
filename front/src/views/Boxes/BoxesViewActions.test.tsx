@@ -3,6 +3,7 @@ import { basicShipment, generateMockShipment } from "mocks/shipments";
 import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
 import { shipmentDetail1 } from "mocks/shipmentDetail";
+import { tag1 } from "mocks/tags";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
@@ -555,31 +556,23 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.7.1 - Add tags Action is successful",
-    mocks: (mockTag) => [
+    mocks: (tag) => [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery({
-        tags: [mockTag],
+        tags: [tag],
       }),
       assignTagsMutation({
         labelIdentifiers: ["123"],
-        tagIds: [parseInt(mockTag.id, 10)],
+        tagIds: [parseInt(tag.id, 10)],
       }),
     ],
-    clicks: [/add tags/i, "Some Tag", /apply/i],
+    clicks: [/add tags/i, "tag1", /apply/i],
     toast: /A Box was successfully assigned tags/i,
   },
 ];
-
-const mockTag = {
-  __typename: "Tag",
-  id: "1",
-  name: "Some Tag",
-  type: "All",
-  color: "red",
-};
 
 boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, triggerError }) => {
   it(
@@ -600,7 +593,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           routePath: "/bases/:baseId/boxes",
           initialUrl: `/bases/1/boxes${searchParams || ""}`,
           addTypename: true,
-          mocks: typeof mocks === "function" ? mocks(mockTag) : mocks,
+          mocks: typeof mocks === "function" ? mocks(tag1) : mocks,
           cache,
         },
       );
