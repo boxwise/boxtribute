@@ -58,7 +58,7 @@ const boxesQuery = ({
   },
 });
 
-const actionsQuery = ({ tags = [] } = {}) => ({
+const actionsQuery = () => ({
   request: {
     query: ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
     variables: {
@@ -71,7 +71,7 @@ const actionsQuery = ({ tags = [] } = {}) => ({
         __typename: "Base",
         id: "1",
         locations: [location1],
-        tags,
+        tags: [tag1],
       },
       shipments: [generateMockShipment({ hasBoxes: false })],
     },
@@ -556,17 +556,15 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.7.1 - Add tags Action is successful",
-    mocks: (tag) => [
+    mocks: [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
-      actionsQuery({
-        tags: [tag],
-      }),
+      actionsQuery(),
       assignTagsMutation({
         labelIdentifiers: ["123"],
-        tagIds: [parseInt(tag.id, 10)],
+        tagIds: [parseInt(tag1.id, 10)],
       }),
     ],
     clicks: [/add tags/i, "tag1", /apply/i],
@@ -593,7 +591,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           routePath: "/bases/:baseId/boxes",
           initialUrl: `/bases/1/boxes${searchParams || ""}`,
           addTypename: true,
-          mocks: typeof mocks === "function" ? mocks(tag1) : mocks,
+          mocks,
           cache,
         },
       );
