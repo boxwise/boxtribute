@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
-const ASSIGN_TAGS_TO_BOXES = gql`
+export const ASSIGN_TAGS_TO_BOXES = gql`
   mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
     assignTagsToBoxes(
       updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }
@@ -84,10 +84,12 @@ export const useAssignTags = () => {
         const successfulLabelIdentifiers: string[] = assignedBoxes.map(
           (box: any) => box.labelIdentifier,
         );
-        const failedLabelIdentifiers: string[] = [
-          ...invalidLabelIdentifiers,
-          ...labelIdentifiers.filter((id) => !successfulLabelIdentifiers.includes(id)),
-        ];
+        const failedLabelIdentifiers = Array.from(
+          new Set([
+            ...invalidLabelIdentifiers,
+            ...labelIdentifiers.filter((id) => !successfulLabelIdentifiers.includes(id)),
+          ])
+        );
 
         if (showToastMessage && successfulLabelIdentifiers.length > 0) {
           createToast({
