@@ -19,7 +19,7 @@ export interface IAssignTagsResult {
   error?: any;
 }
 
-const ASSIGN_TAGS_TO_BOXES_MUTATION = gql`
+export const ASSIGN_TAGS_TO_BOXES_MUTATION = gql`
   mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
     assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
       updatedBoxes {

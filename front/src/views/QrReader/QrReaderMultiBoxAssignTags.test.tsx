@@ -14,9 +14,9 @@ import { cache } from "queries/cache";
 import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
-import { gql } from "@apollo/client";
 import { tagsArray } from "mocks/tags";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
+import { ASSIGN_TAGS_TO_BOXES_MUTATION } from "hooks/useAssignTags";
 import QrReaderView from "./QrReaderView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
@@ -63,17 +63,6 @@ const mockTagsQuery = ({
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
-
-const ASSIGN_TAGS_TO_BOXES_MUTATION = gql`
-  mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
-    assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
-      updatedBoxes {
-        labelIdentifier
-      }
-      invalidBoxLabelIdentifiers
-    }
-  }
-`;
 
 const generateAssignTagsResponse = ({ labelIdentifiers, failLabelIdentifier }) => ({
   assignTagsToBoxes: {
