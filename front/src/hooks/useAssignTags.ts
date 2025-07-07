@@ -1,6 +1,5 @@
-import { useApolloClient } from "@apollo/client";
+import { gql, useApolloClient } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { IAssign, generateAssignTagsRequest, isAssign } from "queries/dynamic-mutations";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -19,6 +18,17 @@ export interface IAssignTagsResult {
   failedLabelIdentifiers?: string[];
   error?: any;
 }
+
+const ASSIGN_TAGS_TO_BOXES_MUTATION = gql`
+  mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
+    assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
+      updatedBoxes {
+        labelIdentifier
+      }
+      invalidBoxLabelIdentifiers
+    }
+  }
+`;
 
 export const useAssignTags = () => {
   const { triggerError } = useErrorHandling();
@@ -39,11 +49,12 @@ export const useAssignTags = () => {
         } as IAssignTagsResult;
       }
 
-      const gqlRequestPrep = generateAssignTagsRequest(labelIdentifiers, tagIds);
-
       // execute mutation
       return apolloClient
-        .mutate({ mutation: gqlRequestPrep.gqlRequest, variables: gqlRequestPrep.variables })
+        .mutate({
+          mutation: ASSIGN_TAGS_TO_BOXES_MUTATION,
+          variables: { labelIdentifiers, tagIds },
+        })
         .then(({ data, errors }) => {
           setIsLoading(false);
           if ((errors?.length || 0) > 0) {
@@ -62,25 +73,9 @@ export const useAssignTags = () => {
             } as IAssignTagsResult;
           }
 
-          const successfulLabelIdentifiers: string[] = Object.values(data).reduce(
-            (result: string[], response) => {
-              if (isAssign(response)) {
-                const typedAssign = response as IAssign;
-                if (typedAssign.tags.every((tag) => tagIds.includes(parseInt(tag.id, 10)))) {
-                  result.push(typedAssign.labelIdentifier);
-                }
-              }
-              return result;
-            },
-            [],
-          ) as string[];
-
-          const failedLabelIdentifiers: string[] = labelIdentifiers.filter(
-            (labelIdentifier) =>
-              !successfulLabelIdentifiers.some(
-                (successfulLabelIdentifier) => successfulLabelIdentifier === labelIdentifier,
-              ),
-          );
+          const { updatedBoxes, invalidBoxLabelIdentifiers } = data.assignTagsToBoxes;
+          const successfulLabelIdentifiers = updatedBoxes.map((box) => box.labelIdentifier);
+          const failedLabelIdentifiers = invalidBoxLabelIdentifiers;
 
           if (showToastMessage && successfulLabelIdentifiers.length > 0) {
             createToast({
