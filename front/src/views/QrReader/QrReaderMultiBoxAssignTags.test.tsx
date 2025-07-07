@@ -64,9 +64,35 @@ const mockTagsQuery = ({
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-const generateAssignTagsResponse = ({ labelIdentifiers, newTagId, failLabelIdentifier }) => {
-  const updatedBoxes = [];
-  const invalidBoxLabelIdentifiers = [];
+type AssignTagsBox = {
+  __typename: "Box";
+  labelIdentifier: string;
+  tags: {
+    __typename: "Tag";
+    id: string;
+  }[];
+};
+
+type AssignTagsToBoxesResponse = {
+  assignTagsToBoxes: {
+    updatedBoxes: AssignTagsBox[];
+    invalidBoxLabelIdentifiers: string[];
+  };
+};
+
+interface GenerateAssignTagsResponseProps {
+  labelIdentifiers: string[];
+  newTagId: number;
+  failLabelIdentifier?: string;
+}
+
+export const generateAssignTagsResponse = ({
+  labelIdentifiers,
+  newTagId,
+  failLabelIdentifier,
+}: GenerateAssignTagsResponseProps): AssignTagsToBoxesResponse => {
+  const updatedBoxes: AssignTagsBox[] = [];
+  const invalidBoxLabelIdentifiers: string[] = [];
   labelIdentifiers.forEach((labelIdentifier) => {
     if (labelIdentifier !== failLabelIdentifier) {
       updatedBoxes.push({
