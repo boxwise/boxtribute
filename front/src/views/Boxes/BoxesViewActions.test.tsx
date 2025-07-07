@@ -18,6 +18,7 @@ import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
+import { ASSIGN_TAGS_TO_BOXES_MUTATION } from "hooks/useAssignTags";
 import { TadaDocumentNode } from "gql.tada";
 
 const boxesQuery = ({
@@ -56,7 +57,7 @@ const boxesQuery = ({
   },
 });
 
-const actionsQuery = () => ({
+const actionsQuery = ({ tags = [] } = {}) => ({
   request: {
     query: ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
     variables: {
@@ -69,7 +70,7 @@ const actionsQuery = () => ({
         __typename: "Base",
         id: "1",
         locations: [location1],
-        tags: [],
+        tags,
       },
       shipments: [generateMockShipment({ hasBoxes: false })],
     },
@@ -93,6 +94,38 @@ const mutation = ({
     ? undefined
     : {
         data: graphQlError ? null : resultData,
+        errors: graphQlError ? [new FakeGraphQLError()] : undefined,
+      },
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
+});
+
+const assignTagsMutation = ({
+  labelIdentifiers = ["123"],
+  tagIds = [1],
+  networkError = false,
+  graphQlError = false,
+}) => ({
+  request: {
+    query: ASSIGN_TAGS_TO_BOXES_MUTATION,
+    variables: { labelIdentifiers, tagIds },
+  },
+  result: networkError
+    ? undefined
+    : {
+        data: graphQlError
+          ? null
+          : {
+              assignTagsToBoxes: {
+                __typename: "BoxesTagsOperationResult",
+                updatedBoxes: [
+                  {
+                    __typename: "Box",
+                    labelIdentifier: "123",
+                  },
+                ],
+                invalidBoxLabelIdentifiers: [],
+              },
+            },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
@@ -520,7 +553,33 @@ const boxesViewActionsTests = [
     clicks: [/delete box/i],
     triggerError: /You don't have the permissions to delete these boxes/i,
   },
+  {
+    name: "4.8.7.1 - Add tags Action is successful",
+    mocks: (mockTag) => [
+      boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
+      actionsQuery({
+        tags: [mockTag],
+      }),
+      assignTagsMutation({
+        labelIdentifiers: ["123"],
+        tagIds: [parseInt(mockTag.id, 10)],
+      }),
+    ],
+    clicks: [/add tags/i, "Some Tag", /apply/i],
+    toast: /A Box was successfully assigned tags/i,
+  },
 ];
+
+const mockTag = {
+  __typename: "Tag",
+  id: "1",
+  name: "Some Tag",
+  type: "All",
+  color: "red",
+};
 
 boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, triggerError }) => {
   it(
@@ -541,7 +600,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           routePath: "/bases/:baseId/boxes",
           initialUrl: `/bases/1/boxes${searchParams || ""}`,
           addTypename: true,
-          mocks,
+          mocks: typeof mocks === "function" ? mocks(mockTag) : mocks,
           cache,
         },
       );
@@ -562,33 +621,40 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         await waitFor(() => expect(checkbox1).toBeChecked());
         // add a wait to ensure the checkbox state is updated
 
-        // Conditional check for delete action confirmation
+        // Clicks logic
         if (name.toLowerCase().includes("delete")) {
           // Check for "Remove Box" button visibility
           const deleteBoxButton = await screen.findByTestId("delete-boxes-button");
           expect(deleteBoxButton).toBeInTheDocument();
           await user.click(deleteBoxButton);
+
           const confirmDialogButton = await screen.findByRole("button", { name: /delete/i });
           expect(confirmDialogButton).toBeInTheDocument();
           await user.click(confirmDialogButton);
+        } else if (name.toLowerCase().includes("add tags")) {
+          const addTagsButton = await screen.findByRole("button", { name: clicks[0] });
+          await user.click(addTagsButton);
+
+          const selectInput = await screen.findByRole("combobox");
+          await user.click(selectInput);
+
+          const tagOption = await screen.findByText(clicks[1]);
+          await user.click(tagOption);
+
+          const applyButton = await screen.findByRole("button", { name: clicks[2] });
+          await user.click(applyButton);
         } else {
           // Perform action based on the `clicks` parameter
           const actionButton = await screen.findByRole("button", { name: clicks[0] });
           expect(actionButton).toBeInTheDocument();
           await user.click(actionButton);
-        }
 
-        if (clicks[1]) {
-          // For other actions, click the sub-action button if specified
-          const subButton = await screen.findByText(clicks[1]);
-          expect(subButton).toBeInTheDocument();
-          await user.click(subButton);
-        }
-
-        // Only confirm deletion if the action is a delete operation
-        if (name.toLowerCase().includes("delete")) {
-          const confirmButton = await screen.findByRole("button", { name: /delete/i });
-          await user.click(confirmButton);
+          if (clicks[1]) {
+            // For other actions, click the sub-action button if specified
+            const subButton = await screen.findByText(clicks[1]);
+            expect(subButton).toBeInTheDocument();
+            await user.click(subButton);
+          }
         }
       }
 
