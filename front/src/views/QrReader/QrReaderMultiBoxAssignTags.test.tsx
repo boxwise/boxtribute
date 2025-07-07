@@ -1,4 +1,5 @@
 import { vi, beforeEach, it, expect } from "vitest";
+import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -14,7 +15,6 @@ import { cache } from "queries/cache";
 import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
-import { generateAssignTagsRequest } from "queries/dynamic-mutations";
 import { tagsArray } from "mocks/tags";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import QrReaderView from "./QrReaderView";
@@ -65,22 +65,30 @@ const mockTagsQuery = ({
 });
 
 const generateAssignTagsResponse = ({ labelIdentifiers, newTagId, failLabelIdentifier }) => {
-  const response = {};
+  const updatedBoxes = [];
+  const invalidBoxLabelIdentifiers = [];
   labelIdentifiers.forEach((labelIdentifier) => {
     if (labelIdentifier !== failLabelIdentifier) {
-      response[`assignTagsToBox${labelIdentifier}`] = {
+      updatedBoxes.push({
+        __typename: "Box",
         labelIdentifier,
         tags: [
           {
-            id: newTagId,
+            __typename: "Tag",
+            id: String(newTagId),
           },
         ],
-      };
+      });
     } else {
-      response[`assignTagsToBox${labelIdentifier}`] = null;
+      invalidBoxLabelIdentifiers.push(labelIdentifier);
     }
   });
-  return response;
+  return {
+    assignTagsToBoxes: {
+      updatedBoxes,
+      invalidBoxLabelIdentifiers,
+    },
+  };
 };
 
 const mockAssignTagsMutation = ({
@@ -91,8 +99,11 @@ const mockAssignTagsMutation = ({
   failLabelIdentifier = "678",
 }) => ({
   request: {
-    query: generateAssignTagsRequest(labelIdentifiers, [newTagId]).gqlRequest,
-    variables: generateAssignTagsRequest(labelIdentifiers, [newTagId]).variables,
+    query: ASSIGN_TAGS_TO_BOXES,
+    variables: {
+      labelIdentifiers,
+      tagIds: [newTagId],
+    },
   },
   result: networkError
     ? undefined
@@ -220,7 +231,6 @@ it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", as
   await user.click(await screen.findByTestId("ReturnScannedQr"));
   expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
-  // 3.4.5.5 - Query for locations returns two locations
   const assignTagsOption = await screen.findByTestId("AssignTags");
   await user.click(assignTagsOption);
   await selectOptionInSelectField(user, undefined, /tag1/i, /please select tags/i);
@@ -243,7 +253,7 @@ it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", as
   );
 
   // Alert appears
-  expect(await screen.findByText(/The following boxes were not assign/i)).toBeInTheDocument();
+  expect(await screen.findByText(/The following boxes were not assigned tags/i)).toBeInTheDocument();
   expect(screen.getByText(/678/i)).toBeInTheDocument();
 
   // click link to remove all not failed boxes
