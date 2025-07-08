@@ -456,7 +456,7 @@ function BTBox() {
           handelAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
         } else {
           createToast({
-            message: `Box has successfully assigned to the shipment ${shipmentId}.`,
+            message: `Box has been successfully assigned to the shipment ${shipmentId}.`,
             status: "success",
           });
         }
@@ -492,7 +492,7 @@ function BTBox() {
               handelAssignBoxToShipmentError(shipmentId, reassignedResult.kind, "reassign");
             } else {
               createToast({
-                message: `Box has successfully reassigned from shipment ${currentShipmentId} to the shipment ${shipmentId}`,
+                message: `Box has been successfully reassigned from shipment ${currentShipmentId} to the shipment ${shipmentId}`,
                 status: "success",
               });
             }
@@ -526,7 +526,7 @@ function BTBox() {
         handelAssignBoxToShipmentError(shipmentId, unassigmentResult.kind, "unassign");
       } else {
         createToast({
-          message: `Box has successfully unassigned from the shipment ${shipmentId}`,
+          message: `Box has been successfully unassigned from the shipment ${shipmentId}`,
           status: "success",
         });
       }
