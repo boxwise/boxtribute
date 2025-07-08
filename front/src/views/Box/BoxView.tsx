@@ -201,8 +201,8 @@ function BTBox() {
   useEffect(() => {
     setCurrentState(boxData?.state);
     const shipmentId = boxData?.shipmentDetail?.shipment.id;
-    // open reconciliation overlay if the box state is receiving
-    if (shipmentId && boxData?.state === "Receiving") {
+    // open reconciliation overlay if the box state is receiving and if we're on the receiving side
+    if (shipmentId && boxData?.state === "Receiving" && boxData?.shipmentDetail?.shipment.targetBase.id === baseId) {
       boxReconciliationOverlayVar({
         labelIdentifier: boxData.labelIdentifier,
         isOpen: true,
