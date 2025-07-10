@@ -91,7 +91,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
             />
           </Box>
           <Box marginRight="10px" alignSelf="end" marginBottom="20px">
-            <Button borderRadius={4} colorScheme="blue" onClick={handleConfirmAssignTags}>
+            <Button borderRadius={4} colorScheme="blue" data-testid="apply-assign-tags-button" onClick={handleConfirmAssignTags}>
               Apply
             </Button>
           </Box>

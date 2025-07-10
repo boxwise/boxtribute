@@ -14,9 +14,9 @@ import { cache } from "queries/cache";
 import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
-import { generateAssignTagsRequest } from "queries/dynamic-mutations";
 import { tagsArray } from "mocks/tags";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
+import { ASSIGN_TAGS_TO_BOXES_MUTATION } from "hooks/useAssignTags";
 import QrReaderView from "./QrReaderView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
@@ -64,24 +64,19 @@ const mockTagsQuery = ({
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-const generateAssignTagsResponse = ({ labelIdentifiers, newTagId, failLabelIdentifier }) => {
-  const response = {};
-  labelIdentifiers.forEach((labelIdentifier) => {
-    if (labelIdentifier !== failLabelIdentifier) {
-      response[`assignTagsToBox${labelIdentifier}`] = {
+const generateAssignTagsResponse = ({ labelIdentifiers, failLabelIdentifier, newTagId }) => ({
+  assignTagsToBoxes: {
+    __typename: "BoxesTagsOperationResult",
+    updatedBoxes: labelIdentifiers
+      .filter((id) => id !== failLabelIdentifier)
+      .map((labelIdentifier) => ({
+        __typename: "Box",
         labelIdentifier,
-        tags: [
-          {
-            id: newTagId,
-          },
-        ],
-      };
-    } else {
-      response[`assignTagsToBox${labelIdentifier}`] = null;
-    }
-  });
-  return response;
-};
+        tags: [{ __typename: "Tag", id: newTagId }],
+      })),
+    invalidBoxLabelIdentifiers: labelIdentifiers.filter((id) => id === failLabelIdentifier),
+  },
+});
 
 const mockAssignTagsMutation = ({
   networkError = false,
@@ -91,8 +86,8 @@ const mockAssignTagsMutation = ({
   failLabelIdentifier = "678",
 }) => ({
   request: {
-    query: generateAssignTagsRequest(labelIdentifiers, [newTagId]).gqlRequest,
-    variables: generateAssignTagsRequest(labelIdentifiers, [newTagId]).variables,
+    query: ASSIGN_TAGS_TO_BOXES_MUTATION,
+    variables: { labelIdentifiers, tagIds: [newTagId] },
   },
   result: networkError
     ? undefined
@@ -101,8 +96,8 @@ const mockAssignTagsMutation = ({
           ? null
           : generateAssignTagsResponse({
               labelIdentifiers,
-              newTagId,
               failLabelIdentifier,
+              newTagId,
             }),
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
