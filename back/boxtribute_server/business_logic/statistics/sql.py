@@ -364,11 +364,11 @@ UNION ALL
 -- Collect information about all boxes sent to the specified base as target, that
 -- were not removed from the shipment during preparation
 SELECT
-    DATE(dps.receiving_started_on) AS moved_on,
+    DATE(d.received_on) AS moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    dps.size_id,
+    d.target_size_id,
     -- neglect possible history of box's measure_value
     ROUND(b.measure_value, 3 - FLOOR(LOG10(b.measure_value) + 1)) AS absolute_measure_value,
     u.dimension_id,
@@ -376,38 +376,28 @@ SELECT
     c.name AS target_id, -- actually the SOURCE base !
     o.label AS organisation_name,
     %s AS target_type,
-    COUNT(dps.box_id) AS boxes_count,
-    SUM(dps.quantity) AS items_count
-FROM (
-    SELECT
-        d.box_id,
-        sh.source_base_id,
-        sh.receiving_started_on,
-        IF(d.target_size_id IS NULL, d.source_size_id, d.target_size_id) AS size_id,
-        IF(d.target_quantity IS NULL, d.source_quantity, d.target_quantity) AS quantity,
-        IF(tp.id IS NULL, sp.id, tp.id) AS product_id
-    FROM
-        shipment_detail d
-    JOIN
-        shipment sh
-    ON
-        d.shipment_id = sh.id AND
-        d.removed_on IS NULL AND
-        d.lost_on IS NULL AND
-        sh.target_base_id = %s AND
-        sh.receiving_started_on IS NOT NULL AND
-        sh.canceled_on IS NULL AND
-        sh.state != %s
-    JOIN products sp ON sp.id = d.source_product_id
-    LEFT JOIN products tp ON tp.id = d.target_product_id
-) dps  -- details/products/sizes
-JOIN camps c ON c.id = dps.source_base_id
+    COUNT(d.box_id) AS boxes_count,
+    SUM(d.target_quantity) AS items_count
+FROM
+    shipment_detail d
+JOIN
+    shipment sh
+ON
+    d.shipment_id = sh.id
+JOIN camps c ON c.id = sh.source_base_id
 JOIN organisations o on o.id = c.organisation_id
-JOIN products p ON p.id = dps.product_id
-JOIN stock b ON b.id = dps.box_id
+JOIN products p ON p.id = d.target_product_id
+JOIN stock b ON b.id = d.box_id
 LEFT OUTER JOIN units u ON u.id = b.display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = dps.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, dps.size_id, c.name, absolute_measure_value, dimension_id
+LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
+WHERE
+    d.removed_on IS NULL AND
+    d.lost_on IS NULL AND
+    sh.target_base_id = %s AND
+    sh.receiving_started_on IS NOT NULL AND
+    sh.canceled_on IS NULL AND
+    sh.state != %s
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.target_size_id, c.name, absolute_measure_value, dimension_id
 
 UNION ALL
 
