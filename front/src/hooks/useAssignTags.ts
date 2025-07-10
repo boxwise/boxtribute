@@ -1,16 +1,16 @@
-import { useApolloClient, gql } from "@apollo/client";
 import { useCallback, useState } from "react";
+import { gql, useApolloClient } from "@apollo/client";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
 export const ASSIGN_TAGS_TO_BOXES = gql`
   mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
-    assignTagsToBoxes(
-      updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }
-    ) {
+    assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
       updatedBoxes {
         labelIdentifier
-        tags { id }
+        tags {
+          id
+        }
         lastModifiedOn
       }
       invalidBoxLabelIdentifiers
@@ -23,7 +23,7 @@ export enum IAssignTagsResultKind {
   FAIL = "fail",
   NETWORK_FAIL = "networkFail",
   BAD_USER_INPUT = "badUserInput",
-  PARTIAL_FAIL = "partailFail",
+  PARTIAL_FAIL = "partialFail",
 }
 
 export interface IAssignTagsResult {
@@ -37,7 +37,7 @@ export interface IAssignTagsResult {
 export const useAssignTags = () => {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const apolloClient = useApolloClient();
 
   const assignTags = useCallback(
@@ -74,7 +74,7 @@ export const useAssignTags = () => {
           return {
             kind: IAssignTagsResultKind.FAIL,
             requestedLabelIdentifiers: labelIdentifiers,
-            error: errors ? errors[0] : undefined,
+            error: errors?.[0],
           };
         }
 
