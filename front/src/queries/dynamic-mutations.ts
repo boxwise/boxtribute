@@ -84,50 +84,6 @@ export function isAssign(obj: any): obj is IAssign {
   );
 }
 
-export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: number[]) => {
-  // prepare graphQL request
-  // It is using aliases and will be similar to:
-  // mutation AssignTags($tagIds: [Int!]!, $labelIdentifier0: String!) {
-  //  assignTagsToBox123456: updateBox(
-  //    updateInput: { labelIdentifier: $labelIdentifier0, tagIdsToBeAdded: $tagIds }
-  //  ) {
-  //   labelIdentifier
-  //   tags {
-  //     id
-  //   }
-  //   lastModifiedOn
-  //  }
-  // }
-  let mutationName = "mutation AssignTags($tagIds: [Int!]!";
-  let mutationString = "{";
-  const variables = { tagIds };
-
-  labelIdentifiers.forEach((labelIdentifier, index) => {
-    mutationName += `, $labelIdentifier${index}: String!`;
-    mutationString += `
-        assignTagsToBox${labelIdentifier}: updateBox(
-          updateInput: { labelIdentifier: $labelIdentifier${index}, tagIdsToBeAdded: $tagIds }
-        ) {
-          labelIdentifier
-          tags {
-            id
-          }
-          lastModifiedOn
-        } `;
-    variables[`labelIdentifier${index}`] = labelIdentifier;
-  });
-  mutationName += ")";
-  mutationString += "}";
-
-  return {
-    gqlRequest: gql`
-      ${mutationName}
-      ${mutationString}
-    `,
-    variables,
-  };
-};
-
 export interface IUnassignmentFromShipment {
   id: string;
   details: {
