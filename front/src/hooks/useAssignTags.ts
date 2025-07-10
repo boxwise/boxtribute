@@ -24,6 +24,9 @@ export const ASSIGN_TAGS_TO_BOXES_MUTATION = gql`
     assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
       updatedBoxes {
         labelIdentifier
+        tags {
+          id
+        }
       }
       invalidBoxLabelIdentifiers
     }

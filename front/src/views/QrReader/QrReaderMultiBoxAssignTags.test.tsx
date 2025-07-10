@@ -64,12 +64,16 @@ const mockTagsQuery = ({
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-const generateAssignTagsResponse = ({ labelIdentifiers, failLabelIdentifier }) => ({
+const generateAssignTagsResponse = ({ labelIdentifiers, failLabelIdentifier, newTagId }) => ({
   assignTagsToBoxes: {
     __typename: "BoxesTagsOperationResult",
     updatedBoxes: labelIdentifiers
       .filter((id) => id !== failLabelIdentifier)
-      .map((labelIdentifier) => ({ __typename: "Box", labelIdentifier })),
+      .map((labelIdentifier) => ({
+        __typename: "Box",
+        labelIdentifier,
+        tags: [{ __typename: "Tag", id: newTagId }],
+      })),
     invalidBoxLabelIdentifiers: labelIdentifiers.filter((id) => id === failLabelIdentifier),
   },
 });
@@ -93,6 +97,7 @@ const mockAssignTagsMutation = ({
           : generateAssignTagsResponse({
               labelIdentifiers,
               failLabelIdentifier,
+              newTagId,
             }),
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
