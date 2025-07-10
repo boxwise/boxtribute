@@ -12,6 +12,7 @@ export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
         tags {
           id
         }
+        lastModifiedOn
       }
       invalidBoxLabelIdentifiers
       tagErrorInfo {
