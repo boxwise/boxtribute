@@ -79,16 +79,9 @@ export const useAssignTags = () => {
         }
 
         const assignedBoxes = data?.assignTagsToBoxes?.updatedBoxes ?? [];
-        const invalidLabelIdentifiers = data?.assignTagsToBoxes?.invalidBoxLabelIdentifiers ?? [];
-
+        const failedLabelIdentifiers = data?.assignTagsToBoxes?.invalidBoxLabelIdentifiers ?? [];
         const successfulLabelIdentifiers: string[] = assignedBoxes.map(
           (box: any) => box.labelIdentifier,
-        );
-        const failedLabelIdentifiers = Array.from(
-          new Set([
-            ...invalidLabelIdentifiers,
-            ...labelIdentifiers.filter((id) => !successfulLabelIdentifiers.includes(id)),
-          ])
         );
 
         if (showToastMessage && successfulLabelIdentifiers.length > 0) {
