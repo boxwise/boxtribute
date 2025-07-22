@@ -119,12 +119,12 @@ const assignTagsMutation = ({
           : {
               assignTagsToBoxes: {
                 __typename: "BoxesTagsOperationResult",
-                updatedBoxes: [
-                  {
-                    __typename: "Box",
-                    labelIdentifier: "123",
-                  },
-                ],
+                updatedBoxes: labelIdentifiers.map((label) => ({
+                  __typename: "Box",
+                  labelIdentifier: label,
+                  lastModifiedOn: new Date().toISOString(),
+                  tags: tagIds.map((id) => ({ id: id.toString(), __typename: "Tag" })),
+                })),
                 invalidBoxLabelIdentifiers: [],
               },
             },
@@ -151,13 +151,14 @@ const unassignTagsMutation = ({
           : {
               unassignTagsFromBoxes: {
                 __typename: "BoxesTagsOperationResult",
-                updatedBoxes: [
-                  {
-                    __typename: "Box",
-                    labelIdentifier: "123",
-                  },
-                ],
+                updatedBoxes: labelIdentifiers.map((label) => ({
+                  __typename: "Box",
+                  labelIdentifier: label,
+                  lastModifiedOn: new Date().toISOString(),
+                  tags: [],
+                })),
                 invalidBoxLabelIdentifiers: [],
+                tagErrorInfo: [],
               },
             },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
