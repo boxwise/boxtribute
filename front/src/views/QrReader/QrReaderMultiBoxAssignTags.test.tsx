@@ -92,17 +92,18 @@ export const generateAssignTagsResponse = ({
             id: String(newTagId),
           },
         ],
-      });
+      } as AssignTagsBox);
     } else {
       invalidBoxLabelIdentifiers.push(labelIdentifier);
     }
   });
   return {
     assignTagsToBoxes: {
+      __typename: "BoxesTagsOperationResult",
       updatedBoxes,
       invalidBoxLabelIdentifiers,
     },
-  };
+  } as AssignTagsToBoxesResponse;
 };
 
 const mockAssignTagsMutation = ({
