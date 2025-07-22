@@ -457,10 +457,12 @@ function BTBox() {
             message: `Box has been successfully assigned to the shipment ${shipmentId}.`,
             status: "success",
           });
+          allData.refetch();
         }
       }
     },
     [
+      allData,
       assignBoxesToShipment,
       boxData,
       createToast,
