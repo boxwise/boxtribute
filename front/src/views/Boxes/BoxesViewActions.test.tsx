@@ -19,7 +19,8 @@ import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
-import { ASSIGN_TAGS_TO_BOXES, UNASSIGN_TAGS_FROM_BOXES } from "hooks/useAssignTags";
+import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
+import { UNASSIGN_TAGS_FROM_BOXES } from "hooks/useUnassignTags";
 import { TadaDocumentNode } from "gql.tada";
 
 const boxesQuery = ({
@@ -660,7 +661,7 @@ const boxesViewActionsTests = [
         }),
       ];
     })(),
-    clicks: [/remove tags/i, "Remove tag2", /apply/i],
+    clicks: [/remove tags/i, /remove test tag/i, /apply/i],
     toast: /A Box was successfully unassigned tags/i,
   },
 ];
@@ -731,10 +732,13 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           const removeTagsButton = await screen.findByTestId("remove-tags-button");
           await user.click(removeTagsButton);
 
+          const selectInput = await screen.findByRole("combobox");
+          await user.click(selectInput);
+
           const tagBadgeToRemove = await screen.findByLabelText(clicks[1] as string);
           await user.click(tagBadgeToRemove);
 
-          const applyButton = await screen.findByRole("button", { name: clicks[2] as RegExp });
+          const applyButton = await screen.findByTestId("apply-remove-tags-button");
           await user.click(applyButton);
         } else {
           // Perform action based on the `clicks` parameter
