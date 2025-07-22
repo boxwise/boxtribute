@@ -458,49 +458,10 @@ function BTBox() {
             status: "success",
           });
         }
-      } else {
-        const unassignedBoxResult = await unassignBoxesFromShipment(
-          currentShipmentId,
-          [boxData as IBoxBasicFields],
-          false,
-        );
-
-        if (
-          (unassignedBoxResult?.error?.length || 0) > 0 ||
-          unassignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
-        ) {
-          handelAssignBoxToShipmentError(shipmentId, unassignedBoxResult.kind, "unassign");
-        } else {
-          const updatedBoxData =
-            unassignedBoxResult.unassignedBoxes?.filter(
-              (box) => box.labelIdentifier === boxData.labelIdentifier,
-            )[0] || undefined;
-
-          if (updatedBoxData) {
-            const reassignedResult = (await assignBoxesToShipment(
-              shipmentId,
-              [updatedBoxData as IBoxBasicFields],
-              false,
-              false,
-            )) as IAssignBoxToShipmentResult;
-            if (
-              (reassignedResult?.error?.length || 0) > 0 ||
-              reassignedResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
-            ) {
-              handelAssignBoxToShipmentError(shipmentId, reassignedResult.kind, "reassign");
-            } else {
-              createToast({
-                message: `Box has been successfully reassigned from shipment ${currentShipmentId} to the shipment ${shipmentId}`,
-                status: "success",
-              });
-            }
-          }
-        }
       }
     },
     [
       assignBoxesToShipment,
-      unassignBoxesFromShipment,
       boxData,
       createToast,
       handelAssignBoxToShipmentError,
