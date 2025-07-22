@@ -3,7 +3,7 @@ import { basicShipment, generateMockShipment } from "mocks/shipments";
 import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
 import { shipmentDetail1 } from "mocks/shipmentDetail";
-import { tag1 } from "mocks/tags";
+import { tag1, tag2 } from "mocks/tags";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
@@ -19,7 +19,7 @@ import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
-import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
+import { ASSIGN_TAGS_TO_BOXES, UNASSIGN_TAGS_FROM_BOXES } from "hooks/useAssignTags";
 import { TadaDocumentNode } from "gql.tada";
 
 const boxesQuery = ({
@@ -117,6 +117,38 @@ const assignTagsMutation = ({
           ? null
           : {
               assignTagsToBoxes: {
+                __typename: "BoxesTagsOperationResult",
+                updatedBoxes: [
+                  {
+                    __typename: "Box",
+                    labelIdentifier: "123",
+                  },
+                ],
+                invalidBoxLabelIdentifiers: [],
+              },
+            },
+        errors: graphQlError ? [new FakeGraphQLError()] : undefined,
+      },
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
+});
+
+const unassignTagsMutation = ({
+  labelIdentifiers = ["123"],
+  tagIds = [1],
+  networkError = false,
+  graphQlError = false,
+}) => ({
+  request: {
+    query: UNASSIGN_TAGS_FROM_BOXES,
+    variables: { labelIdentifiers, tagIds },
+  },
+  result: networkError
+    ? undefined
+    : {
+        data: graphQlError
+          ? null
+          : {
+              unassignTagsFromBoxes: {
                 __typename: "BoxesTagsOperationResult",
                 updatedBoxes: [
                   {
@@ -604,6 +636,33 @@ const boxesViewActionsTests = [
     clicks: [/add tags/i, "tag1", /apply/i],
     triggerError: /network issue: could not assign tags to box/i,
   },
+  {
+    name: "4.8.7.4 - Remove tags Action is successful",
+    mocks: (() => {
+      const bq1 = boxesQuery({});
+      bq1.result.data.boxes.elements[0].tags = [tag2];
+
+      const bq2 = boxesQuery({ paginationInput: 100000 });
+      bq2.result.data.boxes.elements[0].tags = [tag2];
+
+      const aq = actionsQuery();
+      aq.result.data.base.tags = [tag1, tag2];
+
+      return [
+        bq1,
+        boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+        boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+        bq2,
+        aq,
+        unassignTagsMutation({
+          labelIdentifiers: ["123"],
+          tagIds: [parseInt(tag2.id, 10)],
+        }),
+      ];
+    })(),
+    clicks: [/remove tags/i, "Remove tag2", /apply/i],
+    toast: /A Box was successfully unassigned tags/i,
+  },
 ];
 
 boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, triggerError }) => {
@@ -667,6 +726,15 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           await user.click(tagOption);
 
           const applyButton = await screen.findByTestId("apply-assign-tags-button");
+          await user.click(applyButton);
+        } else if (name.toLowerCase().includes("remove tags")) {
+          const removeTagsButton = await screen.findByTestId("remove-tags-button");
+          await user.click(removeTagsButton);
+
+          const tagBadgeToRemove = await screen.findByLabelText(clicks[1] as string);
+          await user.click(tagBadgeToRemove);
+
+          const applyButton = await screen.findByRole("button", { name: clicks[2] as RegExp });
           await user.click(applyButton);
         } else {
           // Perform action based on the `clicks` parameter
