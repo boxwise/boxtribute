@@ -490,9 +490,10 @@ function BTBox() {
           message: `Box has been successfully unassigned from the shipment ${shipmentId}`,
           status: "success",
         });
+        allData.refetch();
       }
     },
-    [unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [allData, unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(
