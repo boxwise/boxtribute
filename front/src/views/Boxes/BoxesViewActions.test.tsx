@@ -570,6 +570,40 @@ const boxesViewActionsTests = [
     clicks: [/add tags/i, "tag1", /apply/i],
     toast: /A Box was successfully assigned tags/i,
   },
+  {
+    name: "4.8.7.2 - Add tags Action is failing due to GraphQL error",
+    mocks: [
+      boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
+      actionsQuery(),
+      assignTagsMutation({
+        labelIdentifiers: ["123"],
+        tagIds: [parseInt(tag1.id, 10)],
+        graphQlError: true,
+      }),
+    ],
+    clicks: [/add tags/i, "tag1", /apply/i],
+    triggerError: /could not assign tags to box/i,
+  },
+  {
+    name: "4.8.7.3 - Add tags Action is failing due to Network error",
+    mocks: [
+      boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
+      actionsQuery(),
+      assignTagsMutation({
+        labelIdentifiers: ["123"],
+        tagIds: [parseInt(tag1.id, 10)],
+        networkError: true,
+      }),
+    ],
+    clicks: [/add tags/i, "tag1", /apply/i],
+    triggerError: /network issue: could not assign tags to box/i,
+  },
 ];
 
 boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, triggerError }) => {
