@@ -1,4 +1,5 @@
 import { vi, beforeEach, it, expect } from "vitest";
+import { graphql, FragmentOf } from "gql.tada";
 import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
@@ -64,14 +65,18 @@ const mockTagsQuery = ({
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-type AssignTagsBox = {
-  __typename: "Box";
-  labelIdentifier: string;
-  tags: {
-    __typename: "Tag";
-    id: string;
-  }[];
-};
+const AssignTagsBoxFragment = graphql(`
+  fragment AssignTagsBox on Box {
+    __typename
+    labelIdentifier
+    tags {
+      __typename
+      id
+    }
+  }
+`);
+
+type AssignTagsBox = FragmentOf<typeof AssignTagsBoxFragment>;
 
 type AssignTagsToBoxesResponse = {
   assignTagsToBoxes: {
