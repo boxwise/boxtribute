@@ -66,68 +66,6 @@ export const generateMoveBoxRequest = (labelIdentifiers: string[], newLocationId
   };
 };
 
-export interface IAssign {
-  labelIdentifier: string;
-  tags: { id: string }[];
-}
-
-// // helper function to check type of dynamically created query
-export function isAssign(obj: any): obj is IAssign {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    obj !== undefined &&
-    "labelIdentifier" in obj &&
-    "tags" in obj &&
-    Array.isArray(obj.tags) &&
-    obj.tags.every((tag: any) => typeof tag === "object" && "id" in tag)
-  );
-}
-
-export const generateAssignTagsRequest = (labelIdentifiers: string[], tagIds: number[]) => {
-  // prepare graphQL request
-  // It is using aliases and will be similar to:
-  // mutation AssignTags($tagIds: [Int!]!, $labelIdentifier0: String!) {
-  //  assignTagsToBox123456: updateBox(
-  //    updateInput: { labelIdentifier: $labelIdentifier0, tagIdsToBeAdded: $tagIds }
-  //  ) {
-  //   labelIdentifier
-  //   tags {
-  //     id
-  //   }
-  //   lastModifiedOn
-  //  }
-  // }
-  let mutationName = "mutation AssignTags($tagIds: [Int!]!";
-  let mutationString = "{";
-  const variables = { tagIds };
-
-  labelIdentifiers.forEach((labelIdentifier, index) => {
-    mutationName += `, $labelIdentifier${index}: String!`;
-    mutationString += `
-        assignTagsToBox${labelIdentifier}: updateBox(
-          updateInput: { labelIdentifier: $labelIdentifier${index}, tagIdsToBeAdded: $tagIds }
-        ) {
-          labelIdentifier
-          tags {
-            id
-          }
-          lastModifiedOn
-        } `;
-    variables[`labelIdentifier${index}`] = labelIdentifier;
-  });
-  mutationName += ")";
-  mutationString += "}";
-
-  return {
-    gqlRequest: gql`
-      ${mutationName}
-      ${mutationString}
-    `,
-    variables,
-  };
-};
-
 export interface IUnassignmentFromShipment {
   id: string;
   details: {
