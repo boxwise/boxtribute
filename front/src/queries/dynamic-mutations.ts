@@ -66,24 +66,6 @@ export const generateMoveBoxRequest = (labelIdentifiers: string[], newLocationId
   };
 };
 
-export interface IAssign {
-  labelIdentifier: string;
-  tags: { id: string }[];
-}
-
-// // helper function to check type of dynamically created query
-export function isAssign(obj: any): obj is IAssign {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    obj !== undefined &&
-    "labelIdentifier" in obj &&
-    "tags" in obj &&
-    Array.isArray(obj.tags) &&
-    obj.tags.every((tag: any) => typeof tag === "object" && "id" in tag)
-  );
-}
-
 export interface IUnassignmentFromShipment {
   id: string;
   details: {
