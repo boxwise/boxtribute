@@ -144,8 +144,8 @@ function App() {
     <>
       <Flex gap={8} p={2} alignItems="center" flexDirection={["column", "row"]}>
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-        <Heading size="md">Organization: {data.resolveLink.organisationName.toUpperCase()}</Heading>
-        <Heading size="md">Base: {data.resolveLink.baseName.toUpperCase()}</Heading>
+        <Heading size="md">ORGANIZATION: {data.resolveLink.organisationName.toUpperCase()}</Heading>
+        <Heading size="md">BASE: {data.resolveLink.baseName.toUpperCase()}</Heading>
       </Flex>
       <Flex
         borderWidth="1"
