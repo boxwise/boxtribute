@@ -152,7 +152,7 @@ function App() {
         padding="15"
         marginBottom="15"
         shadow="md"
-        justifyContent="center"
+        justifyContent="left"
         background="white"
       >
         <WrapItem w="150">
