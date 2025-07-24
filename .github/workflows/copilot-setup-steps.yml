@@ -33,3 +33,22 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 9
+
+      # Cache dependencies installed with pnpm
+      # from https://github.com/cypress-io/github-action/issues/1040
+      - name: Expose pnpm config(s) through "$GITHUB_OUTPUT"
+        id: pnpm-config
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-config.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
