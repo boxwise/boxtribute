@@ -17,6 +17,8 @@ interface IValueFilterProps {
   onFilterChange: (event) => void;
   placeholder?: string;
   defaultFilterValue?: IFilterValue;
+  fieldLabel?: string;
+  inlineLabel?: boolean;
 }
 
 const singleSelectOptionSchema = z.object({
@@ -35,6 +37,8 @@ export default function ValueFilter({
   placeholder = undefined,
   onFilterChange,
   defaultFilterValue = undefined,
+  fieldLabel = "display by",
+  inlineLabel = false,
 }: IValueFilterProps) {
   const [searchParams] = useSearchParams();
 
@@ -59,7 +63,7 @@ export default function ValueFilter({
   return (
     <SelectField
       fieldId={filterId}
-      fieldLabel="display by"
+      fieldLabel={fieldLabel}
       placeholder={defaultFilterValue?.label ?? placeholder ?? ""}
       onChangeProp={onFilterChange}
       isRequired={false}
@@ -67,6 +71,7 @@ export default function ValueFilter({
       errors={errors}
       control={control}
       data-testid="value-filter"
+      inlineLabel={inlineLabel}
     />
   );
 }

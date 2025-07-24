@@ -157,7 +157,7 @@ function App() {
       >
         <WrapItem w="150">
           <Center>
-            <BoxesOrItemsSelect />
+            <BoxesOrItemsSelect fieldLabel="show as" inlineLabel={true} />
           </Center>
         </WrapItem>
       </Flex>
