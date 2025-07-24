@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Flex, Heading, Skeleton } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
 import StockDataFilter from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockDataFilter";
@@ -9,6 +9,9 @@ import ErrorCard, {
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
 import { tagFilterValuesVar } from "@boxtribute/shared-components/statviz/state/filter";
 import { tagToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/TagFilter";
+import BoxesOrItemsSelect, {
+  boxesOrItemsFilterValues,
+} from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
@@ -124,7 +127,10 @@ function App() {
 
   // Prepend Search Params with fetched link data params and reload the page while displaying a skeleton loader.
   if (!view) {
-    location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${data?.resolveLink?.urlParameters ?? "nofilters=true"}&code=${code}`;
+    const urlParams = data?.resolveLink?.urlParameters ?? "nofilters=true";
+    const hasBoiParam = urlParams.includes("boi=");
+    const boiParam = hasBoiParam ? "" : `&boi=${boxesOrItemsFilterValues[0].urlId}`;
+    location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${urlParams}${boiParam}&code=${code}`;
 
     return (
       <>
@@ -140,6 +146,20 @@ function App() {
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
         <Heading size="md">Organization: {data.resolveLink.organisationName}</Heading>
         <Heading size="md">Base: {data.resolveLink.baseName}</Heading>
+      </Flex>
+      <Flex
+        borderWidth="1"
+        padding="15"
+        marginBottom="15"
+        shadow="md"
+        justifyContent="center"
+        background="white"
+      >
+        <WrapItem w="150">
+          <Center>
+            <BoxesOrItemsSelect />
+          </Center>
+        </WrapItem>
       </Flex>
       {/* TODO: Match view with view returned from data once other views are implemented. */}
       <StockDataFilter stockOverview={data.resolveLink.data[0]} />
