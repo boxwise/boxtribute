@@ -11,12 +11,18 @@ import {
   defaultBoxesOrItems,
 } from "../../filter/BoxesOrItemsSelect";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { genderFilterId, genders, productFilterId } from "../../filter/GenderProductFilter";
+import {
+  genderFilterId,
+  genders,
+  productFilterId,
+  categoryFilterId,
+} from "../../filter/GenderProductFilter";
 import { tagFilterId } from "../../filter/TagFilter";
 import {
   targetFilterValuesVar,
   productFilterValuesVar,
   tagFilterValuesVar,
+  categoryFilterValuesVar,
 } from "../../../state/filter";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
@@ -37,6 +43,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   const productsFilterValues = useReactiveVar(productFilterValuesVar);
   const tagFilterValues = useReactiveVar(tagFilterValuesVar);
   const targetFilterValues = useReactiveVar(targetFilterValuesVar);
+  const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
 
   const { filterValue: productsFilter } = useMultiSelectFilter(
     productsFilterValues,
@@ -46,6 +53,10 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   const { filterValue: genderFilter } = useMultiSelectFilter(genders, genderFilterId);
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
   const { filterValue: excludedTargets } = useMultiSelectFilter(targetFilterValues, targetFilterId);
+  const { filterValue: filterCategories } = useMultiSelectFilter(
+    categoryFilterValues,
+    categoryFilterId,
+  );
 
   // fill target filter with data
   useEffect(() => {
@@ -82,6 +93,14 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
         ),
       );
     }
+    if (filterCategories.length > 0) {
+      filters.push(
+        filter(
+          (fact: MovedBoxesResult) =>
+            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
+        ),
+      );
+    }
     if (excludedTargets.length > 0) {
       filters.push(
         filter(
@@ -103,7 +122,14 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
       return tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
     return movedBoxesFacts satisfies MovedBoxesResult[];
-  }, [excludedTargets, filteredTags, genderFilter, movedBoxesFacts, productsFilter]);
+  }, [
+    excludedTargets,
+    filteredTags,
+    genderFilter,
+    movedBoxesFacts,
+    productsFilter,
+    filterCategories,
+  ]);
 
   const filteredMovedBoxesCube = {
     facts: filteredFacts,

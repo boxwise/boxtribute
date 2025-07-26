@@ -65,7 +65,7 @@ export default function Dashboard() {
             <BoxesOrItemsSelect />
           </Center>
         </WrapItem>
-        <WrapItem w="700">
+        <WrapItem w="850">
           <Center>
             <GenderProductFilter />
           </Center>

@@ -10,7 +10,8 @@ import {
 import useValueFilter from "../../../hooks/useValueFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId } from "../../filter/TagFilter";
-import { tagFilterValuesVar } from "../../../state/filter";
+import { categoryFilterId } from "../../filter/GenderProductFilter";
+import { tagFilterValuesVar, categoryFilterValuesVar } from "../../../state/filter";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 
 interface IStockDataFilterProps {
@@ -21,6 +22,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
   // currently not affected by the selected timerange
 
   const tagFilerValues = useReactiveVar(tagFilterValuesVar);
+  const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
 
   const { filterValue } = useValueFilter(
     boxesOrItemsFilterValues,
@@ -29,6 +31,10 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
   );
 
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilerValues, tagFilterId);
+  const { filterValue: filterCategories } = useMultiSelectFilter(
+    categoryFilterValues,
+    categoryFilterId,
+  );
 
   const filteredStockOverview = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
@@ -39,10 +45,18 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
         ),
       );
     }
+    if (filterCategories.length > 0) {
+      filters.push(
+        filter(
+          (fact: StockOverviewResult) =>
+            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
+        ),
+      );
+    }
 
     filters.push(filter((fact: StockOverviewResult) => fact.boxState === "InStock"));
 
-    if (filter.length > 0) {
+    if (filters.length > 0) {
       return {
         ...stockOverview,
         // @ts-expect-error ts(2556)
@@ -50,7 +64,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
       } as StockOverview;
     }
     return stockOverview;
-  }, [filteredTags, stockOverview]);
+  }, [filteredTags, filterCategories, stockOverview]);
 
   return <StockCharts stockOverview={filteredStockOverview} boxesOrItems={filterValue.value} />;
 }

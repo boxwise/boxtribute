@@ -15,11 +15,17 @@ import {
   genderFilterId,
   genders,
   productFilterId,
+  categoryFilterId,
   productToFilterValue,
+  categoryToFilterValue,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
-import { productFilterValuesVar, tagFilterValuesVar } from "../../../state/filter";
+import {
+  productFilterValuesVar,
+  tagFilterValuesVar,
+  categoryFilterValuesVar,
+} from "../../../state/filter";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
 
 interface ICreatedBoxesFilterContainerProps {
@@ -37,11 +43,16 @@ export default function CreatedBoxesFilterContainer({
     boxesOrItemsUrlId,
   );
   const productFilterValues = useReactiveVar(productFilterValuesVar);
+  const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
 
   const { filterValue: filterProductGenders } = useMultiSelectFilter(genders, genderFilterId);
   const { filterValue: filterProducts } = useMultiSelectFilter(
     productFilterValues,
     productFilterId,
+  );
+  const { filterValue: filterCategories } = useMultiSelectFilter(
+    categoryFilterValues,
+    categoryFilterId,
   );
 
   const tagFilterValues = useReactiveVar(tagFilterValuesVar);
@@ -62,6 +73,9 @@ export default function CreatedBoxesFilterContainer({
     } else {
       productFilterValuesVar(p);
     }
+
+    const c = createdBoxes?.dimensions!.category!.map((e) => categoryToFilterValue(e!));
+    categoryFilterValuesVar(c);
 
     const boxTags = createdBoxes?.dimensions!.tag!.map((e) => tagToFilterValue(e!));
     if (boxTags?.length) {
@@ -105,6 +119,14 @@ export default function CreatedBoxesFilterContainer({
         ),
       );
     }
+    if (filterCategories.length > 0) {
+      filters.push(
+        filter(
+          (fact: CreatedBoxesResult) =>
+            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
+        ),
+      );
+    }
     if (filteredTags.length > 0) {
       filters.push(
         filter((fact: CreatedBoxesResult) =>
@@ -118,7 +140,7 @@ export default function CreatedBoxesFilterContainer({
       return tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
     return createdBoxesFacts satisfies CreatedBoxesResult[];
-  }, [createdBoxesFacts, filterProductGenders, filterProducts, filteredTags]);
+  }, [createdBoxesFacts, filterProductGenders, filterProducts, filterCategories, filteredTags]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,
