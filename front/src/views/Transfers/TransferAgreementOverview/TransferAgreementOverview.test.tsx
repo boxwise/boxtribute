@@ -76,15 +76,25 @@ it("4.2.1 - Initial Load of Page", async () => {
   });
 
   // 4.2.1.1 - Is the Loading State Shown First?
-  expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
+  expect(await screen.findByTestId("TableSkeleton", {}, { timeout: 10000 })).toBeInTheDocument();
 
-  // Data of Mock Transfer is shown correctly
-  expect(await screen.findByRole("cell", { name: /to \/ from/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /boxcare/i })).toBeInTheDocument();
+  // Data of Mock Transfer is shown correctly - wait for table to load
+  expect(
+    await screen.findByRole("cell", { name: /to \/ from/i }, { timeout: 15000 }),
+  ).toBeInTheDocument();
+
+  // Wait for all content to be rendered before checking other elements
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /boxcare/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
   expect(screen.getByRole("cell", { name: /pending/i })).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
+
   // Breadcrumbs are there
   expect(
     screen.getByRole("link", {

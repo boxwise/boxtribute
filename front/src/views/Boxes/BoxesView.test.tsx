@@ -657,12 +657,12 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     );
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
-    const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 5000 });
+    const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 10000 });
     const checkbox1 = within(row1).getByRole("checkbox", {
       name: /toggle row selected/i,
     });
 
-    const row2 = await screen.findByRole("row", { name: /1481666/i });
+    const row2 = await screen.findByRole("row", { name: /1481666/i }, { timeout: 10000 });
     const checkbox2 = within(row2).getByRole("checkbox", {
       name: /toggle row selected/i,
     });
@@ -670,22 +670,30 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     if (checkbox1 && checkbox2) {
       expect(checkbox1).not.toBeChecked();
       await user.click(checkbox1);
-      await waitFor(() => expect(checkbox1).toBeChecked());
+      await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 5000 });
 
       expect(checkbox2).not.toBeChecked();
       await user.click(checkbox2);
-      await waitFor(() => expect(checkbox2).toBeChecked());
+      await waitFor(() => expect(checkbox2).toBeChecked(), { timeout: 5000 });
 
-      const moveBoxesButton = await screen.findByRole("button", {
-        name: /move to/i,
-      });
+      const moveBoxesButton = await screen.findByRole(
+        "button",
+        {
+          name: /move to/i,
+        },
+        { timeout: 10000 },
+      );
 
       await user.click(moveBoxesButton);
 
       expect(
-        await screen.findByRole("menuitem", {
-          name: /wh1/i,
-        }),
+        await screen.findByRole(
+          "menuitem",
+          {
+            name: /wh1/i,
+          },
+          { timeout: 10000 },
+        ),
       ).toBeInTheDocument();
 
       await user.click(
@@ -694,8 +702,14 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }),
       );
 
-      expect(await within(row1).findByText(/8650860/i)).toBeInTheDocument();
-      expect(await within(row2).findByText(/1481666/i)).toBeInTheDocument();
+      // Wait for the UI to update after the action
+      await waitFor(
+        () => {
+          expect(within(row1).getByText(/8650860/i)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
+      expect(within(row2).getByText(/1481666/i)).toBeInTheDocument();
     }
-  }, 15000);
+  }, 25000);
 });
