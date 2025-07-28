@@ -24,6 +24,7 @@ const initialQueryForBoxWithHistory = {
         state: "InStock",
         histories: [history1, history2, history3],
       }),
+      shipments: [],
     },
   },
 };
