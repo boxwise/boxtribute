@@ -2,9 +2,29 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import viteTsconfigPaths from "vite-tsconfig-paths";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths()],
+  plugins: [
+    react(), 
+    viteTsconfigPaths(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: '../shared-components/assets/fonts/*',
+          dest: 'fonts'
+        },
+        {
+          src: '../shared-components/assets/icons/*',
+          dest: '.'
+        },
+        {
+          src: '../shared-components/assets/manifest.json',
+          dest: '.'
+        }
+      ]
+    })
+  ],
   server: {
     host: true,
     port: 3000,
