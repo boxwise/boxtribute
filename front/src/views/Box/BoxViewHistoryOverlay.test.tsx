@@ -89,32 +89,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/jan 12, 2023/i)).toBeInTheDocument();
     expect(screen.getByText(/dev coordinator created record/i)).toBeInTheDocument();
-  }, 10000);
-
-  // Test case 3.1.12.3
-  it("3.1.12.3 - History entries are displayed in chronological order (newest first)", async () => {
-    const user = userEvent.setup();
-
-    render(<BTBox />, {
-      routePath: "/bases/:baseId/boxes/:labelIdentifier",
-      initialUrl: "/bases/1/boxes/123",
-      additionalRoute: "/bases/1/shipment/1",
-      mocks: [initialQueryForBoxWithHistory],
-      addTypename: true,
-      cache,
-    });
-
-    const heading = await screen.findByRole("heading", { name: /box 123/i });
-    expect(heading).toBeInTheDocument();
-
-    const historyButton = await screen.findByRole("button", {
-      name: /show detail history/i,
-    });
-
-    await user.click(historyButton);
-
-    const banner = await screen.findByRole("banner");
-    expect(banner).toBeInTheDocument();
 
     // Get all date elements in the overlay - they should be ordered chronologically (newest first)
     // Note: formatDateKey formats dates with newlines, so we need to check for the right pattern
