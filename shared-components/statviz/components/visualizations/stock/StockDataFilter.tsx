@@ -20,7 +20,7 @@ interface IStockDataFilterProps {
 export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
   // currently not affected by the selected timerange
 
-  const tagFilerValues = useReactiveVar(tagFilterValuesVar);
+  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
 
   const { filterValue } = useValueFilter(
     boxesOrItemsFilterValues,
@@ -28,7 +28,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
     boxesOrItemsUrlId,
   );
 
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilerValues, tagFilterId);
+  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
 
   const filteredStockOverview = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
