@@ -30,7 +30,7 @@ const mockSuccessfulTransferAgreementsQuery = ({
   type = "Bidirectional",
   isInitiator = true,
 }) => ({
-  delay: 30,
+  delay: 200,
   request: {
     query,
     variables,
