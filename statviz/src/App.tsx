@@ -7,12 +7,8 @@ import StockDataFilter from "@boxtribute/shared-components/statviz/components/vi
 import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
-import {
-  tagFilterValuesVar,
-  categoryFilterValuesVar,
-} from "@boxtribute/shared-components/statviz/state/filter";
+import { tagFilterValuesVar } from "@boxtribute/shared-components/statviz/state/filter";
 import { tagToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/TagFilter";
-import { categoryToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/GenderProductFilter";
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
@@ -99,14 +95,6 @@ function App() {
   useEffect(() => {
     const tags = data?.resolveLink?.data[0].dimensions?.tag?.map((t) => tagToFilterValue(t!));
     if (tags?.length) tagFilterValuesVar(tags);
-  }, [data?.resolveLink?.data]);
-
-  // Get category filters.
-  useEffect(() => {
-    const categories = data?.resolveLink?.data[0].dimensions?.category?.map((c) =>
-      categoryToFilterValue(c!),
-    );
-    if (categories?.length) categoryFilterValuesVar(categories);
   }, [data?.resolveLink?.data]);
 
   if (error) {
