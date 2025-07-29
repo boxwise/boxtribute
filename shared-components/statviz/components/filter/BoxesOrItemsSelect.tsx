@@ -24,7 +24,15 @@ export const boxesOrItemsUrlId = "boi";
 
 export const defaultBoxesOrItems = boxesOrItemsFilterValues[0];
 
-export default function BoxesOrItemsSelect() {
+interface IBoxesOrItemsSelectProps {
+  fieldLabel?: string;
+  inlineLabel?: boolean;
+}
+
+export default function BoxesOrItemsSelect({
+  fieldLabel = "display by",
+  inlineLabel = false,
+}: IBoxesOrItemsSelectProps = {}) {
   const { onFilterChange } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
     boxesOrItemsFilterValues[0],
@@ -38,6 +46,8 @@ export default function BoxesOrItemsSelect() {
       placeholder="Boxes"
       onFilterChange={onFilterChange}
       filterId={boxesOrItemsUrlId}
+      fieldLabel={fieldLabel}
+      inlineLabel={inlineLabel}
     />
   );
 }
