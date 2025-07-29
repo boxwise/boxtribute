@@ -59,7 +59,6 @@ interface IBoxesTableProps {
   shipmentOptions: { label: string; value: string }[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
-  selectedCounterType?: "inline" | "floating";
 }
 
 function BoxesTable({
@@ -72,7 +71,6 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
-  selectedCounterType = "floating",
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -233,19 +231,6 @@ function BoxesTable({
                 <Text as="span">Data unavailable</Text>
               )}
             </Td>
-            {/* Inline selected counter */}
-            {selectedCounterType === "inline" && selectedCount > 0 && (
-              <Td
-                fontWeight="bold"
-                key={"selected-count"}
-                textAlign="right"
-                data-testid="inline-selected-counter"
-              >
-                <Text as="span" color="blue.600">
-                  {selectedCount === 1 ? "one box selected" : `${selectedCount} boxes selected`}
-                </Text>
-              </Td>
-            )}
           </Tr>
           {refetchBoxesIsPending && (
             <Tr key="refetchIsPending1">
@@ -329,7 +314,7 @@ function BoxesTable({
       </Flex>
 
       {/* Floating selected boxes counter */}
-      {selectedCounterType === "floating" && selectedCount > 0 && (
+      {selectedCount > 0 && (
         <Box
           position="fixed"
           bottom={4}

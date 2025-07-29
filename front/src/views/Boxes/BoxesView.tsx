@@ -397,7 +397,6 @@ function Boxes({
           actionOptionsData.base?.locations ?? [],
         )}
         tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
-        selectedCounterType="floating"
       />
     </>
   );
