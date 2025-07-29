@@ -11,6 +11,7 @@ import {
   Text,
   IconButton,
   HStack,
+  Box,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -58,6 +59,7 @@ interface IBoxesTableProps {
   shipmentOptions: { label: string; value: string }[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
+  selectedCounterType?: "inline" | "floating";
 }
 
 function BoxesTable({
@@ -70,6 +72,7 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
+  selectedCounterType = "floating",
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -141,6 +144,7 @@ function BoxesTable({
   );
   const boxCount = rows.length;
   const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
+  const selectedCount = selectedFlatRows.length;
 
   const {
     onBoxRowClick,
@@ -229,6 +233,19 @@ function BoxesTable({
                 <Text as="span">Data unavailable</Text>
               )}
             </Td>
+            {/* Inline selected counter */}
+            {selectedCounterType === "inline" && selectedCount > 0 && (
+              <Td
+                fontWeight="bold"
+                key={"selected-count"}
+                textAlign="right"
+                data-testid="inline-selected-counter"
+              >
+                <Text as="span" color="blue.600">
+                  {selectedCount === 1 ? "one box selected" : `${selectedCount} boxes selected`}
+                </Text>
+              </Td>
+            )}
           </Tr>
           {refetchBoxesIsPending && (
             <Tr key="refetchIsPending1">
@@ -310,6 +327,27 @@ function BoxesTable({
           />
         </Flex>
       </Flex>
+
+      {/* Floating selected boxes counter */}
+      {selectedCounterType === "floating" && selectedCount > 0 && (
+        <Box
+          position="fixed"
+          bottom={4}
+          right={4}
+          bg="blue.600"
+          color="white"
+          px={4}
+          py={2}
+          borderRadius="md"
+          boxShadow="lg"
+          zIndex={1000}
+          data-testid="floating-selected-counter"
+        >
+          <Text fontSize="sm" fontWeight="bold">
+            {selectedCount === 1 ? "one box selected" : `${selectedCount} boxes selected`}
+          </Text>
+        </Box>
+      )}
     </Flex>
   );
 }
