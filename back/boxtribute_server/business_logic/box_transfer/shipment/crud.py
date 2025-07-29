@@ -474,7 +474,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id, now):
 
     # There must be least one NotDelivered detail because `all([])` would return true;
     # and hence make a shipment Lost that had all boxes removed before sending
-    not_delivered_details = [d.box.state_id == BoxState.NotDelivered for d in details]
+    not_delivered_details = [d.lost_on is not None for d in details]
     if not_delivered_details and all(not_delivered_details):
         shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
@@ -483,9 +483,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id, now):
             only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
         )
 
-    elif all(
-        d.box.state_id in [BoxState.InStock, BoxState.NotDelivered] for d in details
-    ):
+    elif all(d.lost_on is not None or d.received_on is not None for d in details):
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
         shipment.completed_on = now
