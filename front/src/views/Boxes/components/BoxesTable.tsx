@@ -317,7 +317,7 @@ function BoxesTable({
       {selectedCount > 0 && (
         <Box
           position="fixed"
-          bottom={4}
+          bottom={9}
           right={4}
           bg="blue.600"
           color="white"
