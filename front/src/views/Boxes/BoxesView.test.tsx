@@ -712,4 +712,76 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       expect(within(row2).getByText(/1481666/i)).toBeInTheDocument();
     }
   }, 25000);
+
+  it("4.8.2.2 - Shows selected boxes counter when boxes are selected", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 5000 });
+    const checkbox1 = within(row1).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
+
+    const row2 = await screen.findByRole("row", { name: /1481666/i });
+    const checkbox2 = within(row2).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
+
+    // Initially, no counter should be visible
+    expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
+
+    // Select one box
+    await user.click(checkbox1);
+    await waitFor(() => expect(checkbox1).toBeChecked());
+
+    // Counter should show "one box selected"
+    expect(await screen.findByTestId("floating-selected-counter")).toBeInTheDocument();
+    expect(screen.getByText("one box selected")).toBeInTheDocument();
+
+    // Select second box
+    await user.click(checkbox2);
+    await waitFor(() => expect(checkbox2).toBeChecked());
+
+    // Counter should show "2 boxes selected"
+    expect(screen.getByText("2 boxes selected")).toBeInTheDocument();
+
+    // Unselect one box
+    await user.click(checkbox1);
+    await waitFor(() => expect(checkbox1).not.toBeChecked());
+
+    // Counter should show "one box selected" again
+    expect(screen.getByText("one box selected")).toBeInTheDocument();
+
+    // Unselect the last box
+    await user.click(checkbox2);
+    await waitFor(() => expect(checkbox2).not.toBeChecked());
+
+    // Counter should disappear
+    expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
+  }, 15000);
 });
