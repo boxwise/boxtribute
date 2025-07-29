@@ -50,7 +50,7 @@ def _validate_bases_as_part_of_transfer_agreement(
 
     all_base_ids = base_ids["source"] + base_ids["target"]
     for kind in kinds:
-        base_id = locals()[f"{kind}_base_id"]
+        base_id = source_base_id if kind == "source" else target_base_id
         if base_id is None:
             continue
 
