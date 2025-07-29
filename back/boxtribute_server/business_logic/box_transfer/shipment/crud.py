@@ -337,6 +337,7 @@ def _remove_boxes_from_shipment(
         shipment_id,
         (Box.label_identifier << box_label_identifiers),
         Box.state << old_box_states,
+        ShipmentDetail.removed_on.is_null(),
     ):
         setattr(detail, fields[0].name, now)
         setattr(detail, fields[1].name, user_id)
