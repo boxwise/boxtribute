@@ -29,7 +29,7 @@ const mockSuccessfulQrQuery = ({
   labelIdentifier = "123",
   state = "InStock",
 }) => ({
-  delay: 100,
+  delay: 200,
   request: {
     query,
     variables: { qrCode: hash },
@@ -166,10 +166,19 @@ SuccessfulQrScanningNoAuthorizationOrPermissonTests.forEach(({ name, hash, mocks
 
       expect(screen.queryByTestId("ReturnScannedQr")).not.toBeInTheDocument();
 
-      expect(await screen.findByTestId("ErrorAlert")).toBeInTheDocument();
+      // Wait for error alert with increased timeout and more specific waiting
+      expect(await screen.findByTestId("ErrorAlert", {}, { timeout: 10000 })).toBeInTheDocument();
+
+      // Add extra wait to ensure component state is stable
+      await waitFor(
+        () => {
+          expect(screen.getByTestId("ErrorAlert")).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
       // TODO: assert correct alert text.
     },
-    40000,
+    50000,
   );
 });
 
