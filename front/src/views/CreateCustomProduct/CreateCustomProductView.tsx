@@ -18,6 +18,7 @@ import { graphql } from "../../../../graphql/graphql";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { NonNullProductGender } from "../../../../graphql/types";
 import { CUSTOM_PRODUCT_FORM_OPTIONS_QUERY } from "queries/queries";
+import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY } from "views/BoxCreate/BoxCreateView";
 
 const createCustomProductQueryErrorText = "Something went wrong! Please try reloading the page.";
 
@@ -86,6 +87,12 @@ function CreateCustomProductFormContainer() {
         refetchQueries: [
           {
             query: PRODUCTS_QUERY,
+            variables: {
+              baseId,
+            },
+          },
+          {
+            query: ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
             variables: {
               baseId,
             },
