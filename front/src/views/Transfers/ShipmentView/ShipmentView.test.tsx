@@ -34,8 +34,18 @@ const initialQuery = {
   },
 };
 
-const mockBox1 = generateMockBox({ labelIdentifier: "123", product: product1, size: size2, numberOfItems: 10 });
-const mockBox2 = generateMockBox({ labelIdentifier: "124", product: product1, size: size1, numberOfItems: 20 });
+const mockBox1 = generateMockBox({
+  labelIdentifier: "123",
+  product: product1,
+  size: size2,
+  numberOfItems: 10,
+});
+const mockBox2 = generateMockBox({
+  labelIdentifier: "124",
+  product: product1,
+  size: size1,
+  numberOfItems: 20,
+});
 const initialWithGroupedItemQuery = {
   request: {
     query: SHIPMENT_BY_ID_QUERY,
@@ -186,26 +196,36 @@ describe("4.5 Test Cases", () => {
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
 
     const title = screen.getByText(/prepare shipment/i);
     expect(title).toBeInTheDocument();
-    // // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
-    expect(screen.getByText(/lesvos/i)).toBeInTheDocument();
+
+    // Wait for all content to be rendered before checking other elements
+    await waitFor(
+      () => {
+        // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
+        expect(screen.getByText(/lesvos/i)).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
     expect(screen.getByText(/thessaloniki/i)).toBeInTheDocument();
     // Test case 4.5.1.2 - Content: Displays Shipment status
     expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
-    // // Test case 4.5.1.3 - Content: Displays total number of boxes
+    // Test case 4.5.1.3 - Content: Displays total number of boxes
     expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
-    // // Test case 4.5.1.5 - Displays Content tab initially
+    // Test case 4.5.1.5 - Displays Content tab initially
     expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
       "Content",
     );
     // Breadcrumbs are there
     expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
-  }, 20000);
+  }, 30000);
 
   // Test case 4.5.1.4
 

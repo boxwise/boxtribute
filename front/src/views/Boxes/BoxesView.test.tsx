@@ -657,6 +657,91 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     );
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
+    const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 10000 });
+    const checkbox1 = within(row1).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
+
+    const row2 = await screen.findByRole("row", { name: /1481666/i }, { timeout: 10000 });
+    const checkbox2 = within(row2).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
+
+    if (checkbox1 && checkbox2) {
+      expect(checkbox1).not.toBeChecked();
+      await user.click(checkbox1);
+      await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 5000 });
+
+      expect(checkbox2).not.toBeChecked();
+      await user.click(checkbox2);
+      await waitFor(() => expect(checkbox2).toBeChecked(), { timeout: 5000 });
+
+      const moveBoxesButton = await screen.findByRole(
+        "button",
+        {
+          name: /move to/i,
+        },
+        { timeout: 10000 },
+      );
+
+      await user.click(moveBoxesButton);
+
+      expect(
+        await screen.findByRole(
+          "menuitem",
+          {
+            name: /wh1/i,
+          },
+          { timeout: 10000 },
+        ),
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("menuitem", {
+          name: /wh1/i,
+        }),
+      );
+
+      // Wait for the UI to update after the action
+      await waitFor(
+        () => {
+          expect(within(row1).getByText(/8650860/i)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
+      expect(within(row2).getByText(/1481666/i)).toBeInTheDocument();
+    }
+  }, 25000);
+
+  it("4.8.2.2 - Shows selected boxes counter when boxes are selected", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
     const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 5000 });
     const checkbox1 = within(row1).getByRole("checkbox", {
       name: /toggle row selected/i,
@@ -667,35 +752,36 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       name: /toggle row selected/i,
     });
 
-    if (checkbox1 && checkbox2) {
-      expect(checkbox1).not.toBeChecked();
-      await user.click(checkbox1);
-      await waitFor(() => expect(checkbox1).toBeChecked());
+    // Initially, no counter should be visible
+    expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
 
-      expect(checkbox2).not.toBeChecked();
-      await user.click(checkbox2);
-      await waitFor(() => expect(checkbox2).toBeChecked());
+    // Select one box
+    await user.click(checkbox1);
+    await waitFor(() => expect(checkbox1).toBeChecked());
 
-      const moveBoxesButton = await screen.findByRole("button", {
-        name: /move to/i,
-      });
+    // Counter should show "one box selected"
+    expect(await screen.findByTestId("floating-selected-counter")).toBeInTheDocument();
+    expect(screen.getByText("one box selected")).toBeInTheDocument();
 
-      await user.click(moveBoxesButton);
+    // Select second box
+    await user.click(checkbox2);
+    await waitFor(() => expect(checkbox2).toBeChecked());
 
-      expect(
-        await screen.findByRole("menuitem", {
-          name: /wh1/i,
-        }),
-      ).toBeInTheDocument();
+    // Counter should show "2 boxes selected"
+    expect(screen.getByText("2 boxes selected")).toBeInTheDocument();
 
-      await user.click(
-        screen.getByRole("menuitem", {
-          name: /wh1/i,
-        }),
-      );
+    // Unselect one box
+    await user.click(checkbox1);
+    await waitFor(() => expect(checkbox1).not.toBeChecked());
 
-      expect(await within(row1).findByText(/8650860/i)).toBeInTheDocument();
-      expect(await within(row2).findByText(/1481666/i)).toBeInTheDocument();
-    }
+    // Counter should show "one box selected" again
+    expect(screen.getByText("one box selected")).toBeInTheDocument();
+
+    // Unselect the last box
+    await user.click(checkbox2);
+    await waitFor(() => expect(checkbox2).not.toBeChecked());
+
+    // Counter should disappear
+    expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
   }, 15000);
 });

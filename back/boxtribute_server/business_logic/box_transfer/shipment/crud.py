@@ -50,7 +50,7 @@ def _validate_bases_as_part_of_transfer_agreement(
 
     all_base_ids = base_ids["source"] + base_ids["target"]
     for kind in kinds:
-        base_id = locals()[f"{kind}_base_id"]
+        base_id = source_base_id if kind == "source" else target_base_id
         if base_id is None:
             continue
 
@@ -337,6 +337,7 @@ def _remove_boxes_from_shipment(
         shipment_id,
         (Box.label_identifier << box_label_identifiers),
         Box.state << old_box_states,
+        ShipmentDetail.removed_on.is_null(),
     ):
         setattr(detail, fields[0].name, now)
         setattr(detail, fields[1].name, user_id)
@@ -474,7 +475,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id, now):
 
     # There must be least one NotDelivered detail because `all([])` would return true;
     # and hence make a shipment Lost that had all boxes removed before sending
-    not_delivered_details = [d.box.state_id == BoxState.NotDelivered for d in details]
+    not_delivered_details = [d.lost_on is not None for d in details]
     if not_delivered_details and all(not_delivered_details):
         shipment.state = ShipmentState.Lost
         shipment.completed_by = user_id
@@ -483,9 +484,7 @@ def _complete_shipment_if_applicable(*, shipment, user_id, now):
             only=[Shipment.state, Shipment.completed_by, Shipment.completed_on]
         )
 
-    elif all(
-        d.box.state_id in [BoxState.InStock, BoxState.NotDelivered] for d in details
-    ):
+    elif all(d.lost_on is not None or d.received_on is not None for d in details):
         shipment.state = ShipmentState.Completed
         shipment.completed_by = user_id
         shipment.completed_on = now
