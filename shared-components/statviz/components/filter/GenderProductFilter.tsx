@@ -3,7 +3,12 @@ import { Wrap, WrapItem } from "@chakra-ui/react";
 import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
-import { IProductFilterValue, productFilterValuesVar } from "../../state/filter";
+import {
+  IProductFilterValue,
+  productFilterValuesVar,
+  ICategoryFilterValue,
+  categoryFilterValuesVar,
+} from "../../state/filter";
 import { Product } from "../../../../graphql/types";
 
 export const genders: IFilterValue[] = [
@@ -61,6 +66,7 @@ export const genders: IFilterValue[] = [
 
 export const genderFilterId = "gf";
 export const productFilterId = "pf";
+export const categoryFilterId = "cf";
 
 export const productToFilterValue = (product: Product): IProductFilterValue => ({
   id: product.id!,
@@ -71,13 +77,29 @@ export const productToFilterValue = (product: Product): IProductFilterValue => (
   gender: product.gender!,
 });
 
+export const categoryToFilterValue = (category: {
+  id: number | null;
+  name: string | null;
+}): ICategoryFilterValue => ({
+  id: category.id!,
+  value: category.id!.toString(),
+  name: category.name!,
+  label: category.name!,
+  urlId: category.id!.toString(),
+});
+
 export default function GenderProductFilter() {
   const productFilterValues = useReactiveVar(productFilterValuesVar);
+  const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
+
   const { onFilterChange: onProductFilterChange, filterValue: productFilterValue } =
     useMultiSelectFilter<IProductFilterValue>(productFilterValues, productFilterId);
 
   const { onFilterChange: onGenderFilterChange, filterValue: genderFilterValue } =
     useMultiSelectFilter(genders, genderFilterId);
+
+  const { onFilterChange: onCategoryFilterChange, filterValue: categoryFilterValue } =
+    useMultiSelectFilter<ICategoryFilterValue>(categoryFilterValues, categoryFilterId);
 
   return (
     <Wrap>
@@ -99,6 +121,16 @@ export default function GenderProductFilter() {
           filterId={productFilterId}
           fieldLabel="products"
           values={productFilterValues}
+        />
+      </WrapItem>
+      <WrapItem maxW="300">
+        <MultiSelectFilter
+          onFilterChange={onCategoryFilterChange}
+          filterValue={categoryFilterValue}
+          placeholder="product category"
+          filterId={categoryFilterId}
+          fieldLabel="product category"
+          values={categoryFilterValues}
         />
       </WrapItem>
     </Wrap>

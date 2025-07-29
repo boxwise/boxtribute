@@ -20,3 +20,9 @@ export interface ITargetFilterValue extends IFilterValue {
   type: TargetType;
 }
 export const targetFilterValuesVar = makeVar<ITargetFilterValue[]>([]);
+
+export interface ICategoryFilterValue extends IFilterValue {
+  id: number;
+  name: string;
+}
+export const categoryFilterValuesVar = makeVar<ICategoryFilterValue[]>([]);
