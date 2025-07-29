@@ -103,8 +103,8 @@ function ShipmentCard({
           )}
         </Flex>
 
-        <Flex border={0} alignContent="center" justifyContent="center" py={2}>
-          <Flex minWidth="max-content" alignItems="center" gap="4" alignContent="space-between">
+        <>
+          <Flex minWidth="max-content" justifyContent="center" alignItems="center" gap="4" alignContent="space-between">
             <Box>
               <List spacing={2}>
                 <ListItem>
@@ -147,19 +147,19 @@ function ShipmentCard({
               </List>
             </Box>
           </Flex>
-        </Flex>
-        {shipment.transferAgreement?.comment && (
-          <Flex border={0} alignContent="center" justifyContent="center" px={2} pb={2}>
-            <Stack direction="row" alignItems="center" bg="gray.100" width="100%">
-              <Spacer />
-              <RiFilePaperFill size={30} />
-              <Text fontStyle="italic" fontSize="sm" p={2}>
-                &quot;{shipment?.transferAgreement?.comment}&quot;
-              </Text>
-              <Spacer />
-            </Stack>
-          </Flex>
-        )}
+          {shipment.transferAgreement?.comment && (
+            <Flex border={0} alignContent="center" justifyContent="center" px={2} pb={2}>
+              <Stack direction="row" alignItems="center" bg="gray.100" width="100%">
+                <Spacer />
+                <RiFilePaperFill size={30} />
+                <Text fontStyle="italic" fontSize="sm" p={2}>
+                  &quot;{shipment?.transferAgreement?.comment}&quot;
+                </Text>
+                <Spacer />
+              </Stack>
+            </Flex>
+          )}
+        </>
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" p={0}>
