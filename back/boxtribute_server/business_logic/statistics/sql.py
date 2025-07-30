@@ -229,8 +229,8 @@ select
     "Deleted" AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    count(t.box_id) AS boxes_count,
-    sum(t.number_of_items) AS items_count
+    count(DISTINCT t.box_id) AS boxes_count,
+    CAST(sum(t.number_of_items) / count(t.box_id) * count(DISTINCT t.box_id) AS SIGNED) AS items_count
 FROM DeletedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
@@ -252,8 +252,8 @@ select
     "Deleted" AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    -count(t.box_id) AS boxes_count,
-    -sum(t.number_of_items) AS items_count
+    -count(DISTINCT t.box_id) AS boxes_count,
+    -CAST(sum(t.number_of_items) / count(t.box_id) * count(DISTINCT t.box_id) AS SIGNED) AS items_count
 FROM UndeletedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
@@ -276,8 +276,8 @@ SELECT
     loc.label AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    count(t.box_id) AS boxes_count,
-    sum(t.number_of_items) AS items_count
+    count(DISTINCT t.box_id) AS boxes_count,
+    CAST(sum(t.number_of_items) / count(t.box_id) * count(DISTINCT t.box_id) AS SIGNED) AS items_count
 FROM CreatedDonatedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
@@ -340,8 +340,8 @@ SELECT
     c.name AS target_id,
     o.label AS organisation_name,
     %s AS target_type,
-    COUNT(d.box_id) AS boxes_count,
-    SUM(d.source_quantity) AS items_count
+    COUNT(DISTINCT d.box_id) AS boxes_count,
+    CAST(SUM(d.source_quantity) / COUNT(d.box_id) * COUNT(DISTINCT d.box_id) AS SIGNED) AS items_count
 FROM
     shipment_detail d
 JOIN
@@ -376,8 +376,8 @@ SELECT
     bs.label AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    COUNT(h.id) AS boxes_count,
-    SUM(b.items) AS items_count
+    COUNT(DISTINCT h.id) AS boxes_count,
+    CAST(SUM(b.items) / COUNT(h.id) * COUNT(DISTINCT h.id) AS SIGNED) AS items_count
 FROM
     history h
 JOIN

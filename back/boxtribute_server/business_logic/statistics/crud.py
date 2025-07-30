@@ -233,23 +233,22 @@ def compute_created_boxes(base_id):
         )
     )
 
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
-    # Group and aggregate these results. No Box.alias() needed since `from_` is used
-    facts = (
+    # To properly handle boxes with multiple tags, use a two-step approach:
+    # 1. First subquery: aggregate tags per box (group by box id)
+    # 2. Second query: aggregate boxes by the desired dimensions
+
+    # Step 1: Get each box once with its tags as a comma-separated string
+    boxes_with_tags = (
         Box.select(
             boxes.c.created_on,
-            fn.COUNT(boxes.c.id).alias("boxes_count"),
-            fn.SUM(boxes.c.items).alias("items_count"),
-            Product.id.alias("product_id"),
-            Product.gender.alias("gender"),
-            Product.category.alias("category_id"),
-            tag_ids.alias("tag_ids"),
+            boxes.c.id,
+            boxes.c.items,
+            boxes.c.product_id,
+            fn.IFNULL(fn.GROUP_CONCAT(TagsRelation.tag.distinct()), "").alias(
+                "tag_ids_str"
+            ),
         )
         .from_(boxes)
-        .join(
-            Product,
-            on=(boxes.c.product_id == Product.id),
-        )
         .join(
             TagsRelation,
             JOIN.LEFT_OUTER,
@@ -259,6 +258,28 @@ def compute_created_boxes(base_id):
                 & (TagsRelation.deleted_on.is_null())
             ),
         )
+        .group_by(boxes.c.id)  # This ensures each box appears only once
+        .alias("boxes_with_tags")
+    )
+
+    # Step 2: Aggregate boxes by dimensions and collect all tags
+    facts = (
+        Box.select(
+            boxes_with_tags.c.created_on,
+            fn.COUNT(boxes_with_tags.c.id).alias("boxes_count"),
+            fn.SUM(boxes_with_tags.c.items).alias("items_count"),
+            Product.id.alias("product_id"),
+            Product.gender.alias("gender"),
+            Product.category.alias("category_id"),
+            fn.GROUP_CONCAT(
+                fn.NULLIF(boxes_with_tags.c.tag_ids_str, "").distinct()
+            ).alias("all_tag_ids_str"),
+        )
+        .from_(boxes_with_tags)
+        .join(
+            Product,
+            on=(boxes_with_tags.c.product_id == Product.id),
+        )
         .group_by(
             SQL("product_id"),
             SQL("category_id"),
@@ -267,6 +288,17 @@ def compute_created_boxes(base_id):
         )
         .with_cte(cte)
     ).dicts()
+
+    # Convert aggregated tag strings to lists
+    for fact in facts:
+        # Parse the nested comma-separated tag strings
+        all_tag_ids_str = fact.pop("all_tag_ids_str", "") or ""
+        tag_ids = set()
+        for tag_group in all_tag_ids_str.split(","):
+            for tag_id_str in tag_group.split(","):
+                if tag_id_str.strip():
+                    tag_ids.add(int(tag_id_str.strip()))
+        fact["tag_ids"] = sorted(list(tag_ids))
 
     dimensions = _generate_dimensions("category", "product", "tag", facts=facts)
     return DataCube(facts=facts, dimensions=dimensions, type="CreatedBoxesData")
