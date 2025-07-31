@@ -1,6 +1,7 @@
 from datetime import date
 
 from auth import mock_user_for_request
+from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.location import Location
@@ -146,6 +147,10 @@ def test_query_created_boxes(
             "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
         },
     }
+    # We used the DB implicitly through peewee's Box.select(), and have to manually
+    # close the connection, otherwise the next test running will face 'Connection
+    # already opened' errors
+    db.close_db(None)
 
 
 def test_query_top_products(
