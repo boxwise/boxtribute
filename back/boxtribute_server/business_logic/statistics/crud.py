@@ -438,7 +438,6 @@ def compute_stock_overview(base_id):
     category, product name, and product gender.
     """
     _validate_existing_base(base_id)
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     # Subquery to select distinct boxes with associated tags
     boxes = (
@@ -454,7 +453,7 @@ def compute_stock_overview(base_id):
             ).alias("absolute_measure_value"),
             Box.display_unit,
             Box.number_of_items.alias("number_of_items"),
-            tag_ids.alias("tag_ids"),
+            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
         )
         .join(
             TagsRelation,
@@ -503,6 +502,7 @@ def compute_stock_overview(base_id):
             SQL("absolute_measure_value"),
             SQL("dimension_id"),
             SQL("gender"),
+            SQL("tag_ids"),
         )
         .dicts()
     )
