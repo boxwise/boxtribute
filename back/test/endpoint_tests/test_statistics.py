@@ -69,10 +69,14 @@ def test_query_created_boxes(
     data = assert_successful_request(read_only_client, query, endpoint="graphql")
     facts = data.pop("facts")
     assert len(facts) == 4
-    assert facts[0]["boxesCount"] == 11
+    assert facts[0]["boxesCount"] == 10
+    assert facts[0]["itemsCount"] == 90
     assert facts[1]["boxesCount"] == 1
+    assert facts[1]["itemsCount"] == 12
     assert facts[2]["boxesCount"] == 2
+    assert facts[2]["itemsCount"] == 22
     assert facts[3]["boxesCount"] == 1
+    assert facts[3]["itemsCount"] == 10
     assert data == {
         "dimensions": {
             "product": [
