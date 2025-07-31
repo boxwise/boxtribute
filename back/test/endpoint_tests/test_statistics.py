@@ -455,36 +455,6 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
     ]
 
 
-
-def test_query_created_boxes_with_multiple_tags():
-    """
-    Test that boxes with multiple tags are not double-counted in createdBoxes query.
-    
-    This test specifically verifies that:
-    1. A box with multiple tags is counted as 1 box, not multiple boxes
-    2. The items in that box are counted correctly
-    
-    Based on test data:
-    - Box ID 2 (default_box_data) has tags 2 and 3 (from tags_relation.py)
-    - This box should be counted once, not twice
-    """
-    # This test should be enabled once database setup is available
-    # For now, this serves as documentation of the expected behavior
-    pass
-
-
-def test_query_moved_boxes_with_multiple_tags():
-    """
-    Test that boxes with multiple tags are not double-counted in movedBoxes query.
-    
-    This test specifically verifies that:
-    1. A box with multiple tags is counted as 1 box, not multiple boxes  
-    2. The items in that box are counted correctly
-    """
-    # Similar test for moved boxes
-    pass
-
-
 def test_authorization(read_only_client, mocker):
     # Test case 11.1.4
     # Current user is from base 1 of organisation 1.
