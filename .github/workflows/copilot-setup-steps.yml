@@ -60,5 +60,9 @@ jobs:
         with:
           mysql-version: "8.0"
           root-password: dropapp_root
+        env:
+          MYSQL_DATABASE: dropapp_dev
       - name: Seed database
-        run: mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < back/init.sql
+        run: |
+          mysql -h 127.0.0.1 -u root -pdropapp_root -e 'show databases;'
+          mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < back/init.sql
