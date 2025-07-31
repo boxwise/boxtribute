@@ -2,7 +2,9 @@ from datetime import date
 
 from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
-from boxtribute_server.models.utils import compute_age, execute_sql
+from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.definitions.location import Location
+from boxtribute_server.models.utils import compute_age
 from utils import assert_forbidden_request, assert_successful_request
 
 
@@ -67,31 +69,66 @@ def test_query_created_boxes(
             tag { id }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="graphql")
-    observed_facts = data.pop("facts")
-    expected_facts = execute_sql(
-        query="""
-select
-    g.label as gender,
-    product_id as productId,
-    count(s.id) as boxesCount,
-    sum(s.items) as itemsCount
-from stock s
-inner join locations l
-on l.id = location_id
-inner join products p
-on p.id = product_id
-inner join genders g
-on g.id = p.gender_id
-where l.camp_id = 1
-group by product_id, g.label
-order by product_id
-;"""
-    )
-    for observed_fact, expected_fact in zip(observed_facts, expected_facts):
-        for name in expected_fact:
-            assert observed_fact[name] == expected_fact[name]
-    assert len(observed_facts) == 4
+    # Sanity check
+    nr_created_boxes = Box.select().join(Location).where(Location.base == 1).count()
+    assert nr_created_boxes == sum(f["boxesCount"] for f in data["facts"])
     assert data == {
+        "facts": [
+            {
+                "boxesCount": 1,
+                "itemsCount": 0,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 1,
+                "tagIds": [2, 3],
+            },
+            {
+                "boxesCount": 2,
+                "itemsCount": 20,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 1,
+                "tagIds": [3],
+            },
+            {
+                "boxesCount": 7,
+                "itemsCount": 70,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 1,
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 1,
+                "itemsCount": 12,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 3,
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 2,
+                "itemsCount": 22,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 12,
+                "gender": "Boy",
+                "productId": 5,
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 1,
+                "itemsCount": 10,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 8,
+                "tagIds": [],
+            },
+        ],
         "dimensions": {
             "product": [
                 {
@@ -107,7 +144,7 @@ order by product_id
                 for c in sorted(product_categories, key=lambda c: c["id"])
             ],
             "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
-        }
+        },
     }
 
 
