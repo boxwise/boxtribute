@@ -234,9 +234,6 @@ def compute_created_boxes(base_id):
     )
 
     # To properly handle boxes with multiple tags, use a two-step approach:
-    # 1. First subquery: aggregate tags per box (group by box id)
-    # 2. Second query: aggregate boxes by the desired dimensions
-
     # Step 1: Get each box once with its tags as a comma-separated string
     boxes_with_tags = (
         Box.select(
@@ -244,9 +241,7 @@ def compute_created_boxes(base_id):
             boxes.c.id,
             boxes.c.items,
             boxes.c.product_id,
-            fn.IFNULL(fn.GROUP_CONCAT(TagsRelation.tag.distinct()), "").alias(
-                "tag_ids_str"
-            ),
+            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
         )
         .from_(boxes)
         .join(
@@ -262,7 +257,7 @@ def compute_created_boxes(base_id):
         .alias("boxes_with_tags")
     )
 
-    # Step 2: Aggregate boxes by dimensions and collect all tags
+    # Step 2: Aggregate boxes by dimensions
     facts = (
         Box.select(
             boxes_with_tags.c.created_on,
@@ -271,9 +266,7 @@ def compute_created_boxes(base_id):
             Product.id.alias("product_id"),
             Product.gender.alias("gender"),
             Product.category.alias("category_id"),
-            fn.GROUP_CONCAT(
-                fn.NULLIF(boxes_with_tags.c.tag_ids_str, "").distinct()
-            ).alias("all_tag_ids_str"),
+            boxes_with_tags.c.tag_ids,
         )
         .from_(boxes_with_tags)
         .join(
@@ -285,20 +278,13 @@ def compute_created_boxes(base_id):
             SQL("category_id"),
             SQL("gender"),
             SQL("created_on"),
+            SQL("tag_ids"),
         )
         .with_cte(cte)
     ).dicts()
 
-    # Convert aggregated tag strings to lists
     for fact in facts:
-        # Parse the nested comma-separated tag strings
-        all_tag_ids_str = fact.pop("all_tag_ids_str", "") or ""
-        tag_ids = set()
-        for tag_group in all_tag_ids_str.split(","):
-            for tag_id_str in tag_group.split(","):
-                if tag_id_str.strip():
-                    tag_ids.add(int(tag_id_str.strip()))
-        fact["tag_ids"] = sorted(list(tag_ids))
+        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
 
     dimensions = _generate_dimensions("category", "product", "tag", facts=facts)
     return DataCube(facts=facts, dimensions=dimensions, type="CreatedBoxesData")
