@@ -187,7 +187,13 @@ def test_query_top_products(
 
 
 def test_query_moved_boxes(
-    read_only_client, default_location, another_base, another_organisation
+    read_only_client,
+    default_location,
+    default_base,
+    default_organisation,
+    another_base,
+    another_organisation,
+    mocker,
 ):
     query = """query { movedBoxes(baseId: 1) {
         facts {
@@ -305,6 +311,45 @@ def test_query_moved_boxes(
                     "type": TargetType.BoxState.name,
                 },
             ],
+        },
+    }
+
+    mock_user_for_request(mocker, organisation_id=2, base_ids=[3])
+    query = """query { movedBoxes(baseId: 3) {
+        facts {
+            movedOn targetId categoryId productName gender sizeId tagIds
+            absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
+        }
+        dimensions { target { id name type } }
+        } }"""
+    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    base_name = default_base["name"]
+    org_name = default_organisation["name"]
+    assert data == {
+        "facts": [
+            {
+                "boxesCount": 1,
+                "itemsCount": 10,
+                "categoryId": 1,
+                "productName": "new product",
+                "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
+                "gender": "Women",
+                "targetId": base_name,
+                "organisationName": org_name,
+                "movedOn": date.today().isoformat(),
+                "tagIds": [],
+            },
+        ],
+        "dimensions": {
+            "target": [
+                {
+                    "id": base_name,
+                    "name": base_name,
+                    "type": TargetType.IncomingShipment.name,
+                },
+            ]
         },
     }
 
