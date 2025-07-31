@@ -2,7 +2,7 @@ from datetime import date
 
 from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
-from boxtribute_server.models.utils import compute_age
+from boxtribute_server.models.utils import compute_age, execute_sql
 from utils import assert_forbidden_request, assert_successful_request
 
 
@@ -67,16 +67,30 @@ def test_query_created_boxes(
             tag { id }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="graphql")
-    facts = data.pop("facts")
-    assert len(facts) == 4
-    assert facts[0]["boxesCount"] == 10
-    assert facts[0]["itemsCount"] == 90
-    assert facts[1]["boxesCount"] == 1
-    assert facts[1]["itemsCount"] == 12
-    assert facts[2]["boxesCount"] == 2
-    assert facts[2]["itemsCount"] == 22
-    assert facts[3]["boxesCount"] == 1
-    assert facts[3]["itemsCount"] == 10
+    observed_facts = data.pop("facts")
+    expected_facts = execute_sql(
+        query="""
+select
+    g.label as gender,
+    product_id as productId,
+    count(s.id) as boxesCount,
+    sum(s.items) as itemsCount
+from stock s
+inner join locations l
+on l.id = location_id
+inner join products p
+on p.id = product_id
+inner join genders g
+on g.id = p.gender_id
+where l.camp_id = 1
+group by product_id, g.label
+order by product_id
+;"""
+    )
+    for observed_fact, expected_fact in zip(observed_facts, expected_facts):
+        for name in expected_fact:
+            assert observed_fact[name] == expected_fact[name]
+    assert len(observed_facts) == 4
     assert data == {
         "dimensions": {
             "product": [
