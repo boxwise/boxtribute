@@ -17,12 +17,12 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
     age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
-            "age": None,
+            "age": age,
             "count": 1,
-            "createdOn": "2021-06-30",
+            "createdOn": "2020-06-30",
             "deletedOn": None,
-            "gender": "Diverse",
-            "tagIds": [],
+            "gender": "Male",
+            "tagIds": [1, 3],
         },
         {
             "age": None,
@@ -41,12 +41,12 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
             "tagIds": [],
         },
         {
-            "age": age,
+            "age": None,
             "count": 1,
-            "createdOn": "2020-06-30",
+            "createdOn": "2021-06-30",
             "deletedOn": None,
-            "gender": "Male",
-            "tagIds": [1, 3],
+            "gender": "Diverse",
+            "tagIds": [],
         },
     ]
     assert response["dimensions"] == {
