@@ -119,16 +119,17 @@ def compute_beneficiary_demographics(base_id):
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag)
 
-    demographics = (
+    # Subquery to select distinct beneficiaries with associated tags
+    beneficiaries = (
         Beneficiary.select(
+            Beneficiary.id,
             gender.alias("gender"),
             fn.DATE(created_on).alias("created_on"),
             fn.DATE(deleted_on).alias("deleted_on"),
             age.alias("age"),
             tag_ids.alias("tag_ids"),
-            fn.COUNT(Beneficiary.id.distinct()).alias("count"),
         )
         .join(
             TagsRelation,
@@ -140,21 +141,34 @@ def compute_beneficiary_demographics(base_id):
             ),
         )
         .where(Beneficiary.base == base_id)
+        .group_by(Beneficiary.id)
+    )
+    facts = (
+        Beneficiary.select(
+            beneficiaries.c.gender,
+            beneficiaries.c.created_on,
+            beneficiaries.c.deleted_on,
+            beneficiaries.c.age,
+            beneficiaries.c.tag_ids,
+            fn.COUNT(beneficiaries.c.id).alias("count"),
+        )
+        .from_(beneficiaries)
         .group_by(
             SQL("gender"),
             SQL("age"),
-            created_on,
-            # Don't use SQL("deleted_on") because it will be confused with
-            # TagsRelation.deleted_on, resulting in incorrect grouping
-            deleted_on,
+            SQL("created_on"),
+            SQL("deleted_on"),
+            SQL("tag_ids"),
         )
         .dicts()
         .execute()
     )
 
-    dimensions = _generate_dimensions("tag", facts=demographics)
+    for fact in facts:
+        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
+    dimensions = _generate_dimensions("tag", facts=facts)
     return DataCube(
-        facts=demographics, dimensions=dimensions, type="BeneficiaryDemographicsData"
+        facts=facts, dimensions=dimensions, type="BeneficiaryDemographicsData"
     )
 
 
