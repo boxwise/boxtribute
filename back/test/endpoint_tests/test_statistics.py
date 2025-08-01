@@ -48,6 +48,14 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
             "gender": "Diverse",
             "tagIds": [],
         },
+        {
+            "age": age,
+            "count": 1,
+            "createdOn": "2019-06-30",
+            "deletedOn": None,
+            "gender": "Male",
+            "tagIds": [1],
+        },
     ]
     assert response["dimensions"] == {
         "tag": [
