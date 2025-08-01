@@ -119,16 +119,17 @@ def compute_beneficiary_demographics(base_id):
     age = fn.IF(
         Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
     )
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
+    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag)
 
-    demographics = (
+    # Subquery to select distinct beneficiaries with associated tags
+    beneficiaries = (
         Beneficiary.select(
+            Beneficiary.id,
             gender.alias("gender"),
             fn.DATE(created_on).alias("created_on"),
             fn.DATE(deleted_on).alias("deleted_on"),
             age.alias("age"),
             tag_ids.alias("tag_ids"),
-            fn.COUNT(Beneficiary.id.distinct()).alias("count"),
         )
         .join(
             TagsRelation,
@@ -140,21 +141,34 @@ def compute_beneficiary_demographics(base_id):
             ),
         )
         .where(Beneficiary.base == base_id)
+        .group_by(Beneficiary.id)
+    )
+    facts = (
+        Beneficiary.select(
+            beneficiaries.c.gender,
+            beneficiaries.c.created_on,
+            beneficiaries.c.deleted_on,
+            beneficiaries.c.age,
+            beneficiaries.c.tag_ids,
+            fn.COUNT(beneficiaries.c.id).alias("count"),
+        )
+        .from_(beneficiaries)
         .group_by(
             SQL("gender"),
             SQL("age"),
-            created_on,
-            # Don't use SQL("deleted_on") because it will be confused with
-            # TagsRelation.deleted_on, resulting in incorrect grouping
-            deleted_on,
+            SQL("created_on"),
+            SQL("deleted_on"),
+            SQL("tag_ids"),
         )
         .dicts()
         .execute()
     )
 
-    dimensions = _generate_dimensions("tag", facts=demographics)
+    for fact in facts:
+        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
+    dimensions = _generate_dimensions("tag", facts=facts)
     return DataCube(
-        facts=demographics, dimensions=dimensions, type="BeneficiaryDemographicsData"
+        facts=facts, dimensions=dimensions, type="BeneficiaryDemographicsData"
     )
 
 
@@ -233,23 +247,17 @@ def compute_created_boxes(base_id):
         )
     )
 
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag.distinct()).python_value(convert_ids)
-    # Group and aggregate these results. No Box.alias() needed since `from_` is used
-    facts = (
+    # To properly handle boxes with multiple tags, use a two-step approach:
+    # Step 1: Get each box once with its tags as a comma-separated string
+    boxes_with_tags = (
         Box.select(
             boxes.c.created_on,
-            fn.COUNT(boxes.c.id).alias("boxes_count"),
-            fn.SUM(boxes.c.items).alias("items_count"),
-            Product.id.alias("product_id"),
-            Product.gender.alias("gender"),
-            Product.category.alias("category_id"),
-            tag_ids.alias("tag_ids"),
+            boxes.c.id,
+            boxes.c.items,
+            boxes.c.product_id,
+            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
         )
         .from_(boxes)
-        .join(
-            Product,
-            on=(boxes.c.product_id == Product.id),
-        )
         .join(
             TagsRelation,
             JOIN.LEFT_OUTER,
@@ -259,14 +267,38 @@ def compute_created_boxes(base_id):
                 & (TagsRelation.deleted_on.is_null())
             ),
         )
+        .group_by(boxes.c.id)  # This ensures each box appears only once
+        .alias("boxes_with_tags")
+    )
+
+    # Step 2: Aggregate boxes by dimensions
+    facts = (
+        Box.select(
+            boxes_with_tags.c.created_on,
+            fn.COUNT(boxes_with_tags.c.id).alias("boxes_count"),
+            fn.SUM(boxes_with_tags.c.items).alias("items_count"),
+            Product.id.alias("product_id"),
+            Product.gender.alias("gender"),
+            Product.category.alias("category_id"),
+            boxes_with_tags.c.tag_ids,
+        )
+        .from_(boxes_with_tags)
+        .join(
+            Product,
+            on=(boxes_with_tags.c.product_id == Product.id),
+        )
         .group_by(
             SQL("product_id"),
             SQL("category_id"),
             SQL("gender"),
             SQL("created_on"),
+            SQL("tag_ids"),
         )
         .with_cte(cte)
     ).dicts()
+
+    for fact in facts:
+        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
 
     dimensions = _generate_dimensions("category", "product", "tag", facts=facts)
     return DataCube(facts=facts, dimensions=dimensions, type="CreatedBoxesData")
@@ -406,7 +438,6 @@ def compute_stock_overview(base_id):
     category, product name, and product gender.
     """
     _validate_existing_base(base_id)
-    tag_ids = fn.GROUP_CONCAT(TagsRelation.tag).python_value(convert_ids)
 
     # Subquery to select distinct boxes with associated tags
     boxes = (
@@ -422,7 +453,7 @@ def compute_stock_overview(base_id):
             ).alias("absolute_measure_value"),
             Box.display_unit,
             Box.number_of_items.alias("number_of_items"),
-            tag_ids.alias("tag_ids"),
+            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
         )
         .join(
             TagsRelation,
@@ -471,6 +502,7 @@ def compute_stock_overview(base_id):
             SQL("absolute_measure_value"),
             SQL("dimension_id"),
             SQL("gender"),
+            SQL("tag_ids"),
         )
         .dicts()
     )

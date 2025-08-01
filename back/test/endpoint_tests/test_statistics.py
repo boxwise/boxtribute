@@ -1,7 +1,10 @@
 from datetime import date
 
 from auth import mock_user_for_request
+from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
+from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.definitions.location import Location
 from boxtribute_server.models.utils import compute_age
 from utils import assert_forbidden_request, assert_successful_request
 
@@ -14,12 +17,12 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
     age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
-            "age": None,
+            "age": age,
             "count": 1,
-            "createdOn": "2021-06-30",
+            "createdOn": "2020-06-30",
             "deletedOn": None,
-            "gender": "Diverse",
-            "tagIds": [],
+            "gender": "Male",
+            "tagIds": [1, 3],
         },
         {
             "age": None,
@@ -38,12 +41,20 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
             "tagIds": [],
         },
         {
+            "age": None,
+            "count": 1,
+            "createdOn": "2021-06-30",
+            "deletedOn": None,
+            "gender": "Diverse",
+            "tagIds": [],
+        },
+        {
             "age": age,
             "count": 1,
-            "createdOn": "2020-06-30",
+            "createdOn": "2019-06-30",
             "deletedOn": None,
             "gender": "Male",
-            "tagIds": [1, 3],
+            "tagIds": [1],
         },
     ]
     assert response["dimensions"] == {
@@ -67,13 +78,66 @@ def test_query_created_boxes(
             tag { id }
     } } }"""
     data = assert_successful_request(read_only_client, query, endpoint="graphql")
-    facts = data.pop("facts")
-    assert len(facts) == 4
-    assert facts[0]["boxesCount"] == 11
-    assert facts[1]["boxesCount"] == 1
-    assert facts[2]["boxesCount"] == 2
-    assert facts[3]["boxesCount"] == 1
+    # Sanity check
+    nr_created_boxes = Box.select().join(Location).where(Location.base == 1).count()
+    assert nr_created_boxes == sum(f["boxesCount"] for f in data["facts"])
     assert data == {
+        "facts": [
+            {
+                "boxesCount": 1,
+                "itemsCount": 0,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 1,
+                "tagIds": [2, 3],
+            },
+            {
+                "boxesCount": 2,
+                "itemsCount": 20,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 1,
+                "tagIds": [3],
+            },
+            {
+                "boxesCount": 7,
+                "itemsCount": 70,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 1,
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 1,
+                "itemsCount": 12,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 3,
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 2,
+                "itemsCount": 22,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 12,
+                "gender": "Boy",
+                "productId": 5,
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 1,
+                "itemsCount": 10,
+                "createdOn": "2020-11-27T00:00:00",
+                "categoryId": 1,
+                "gender": "Women",
+                "productId": 8,
+                "tagIds": [],
+            },
+        ],
         "dimensions": {
             "product": [
                 {
@@ -89,8 +153,12 @@ def test_query_created_boxes(
                 for c in sorted(product_categories, key=lambda c: c["id"])
             ],
             "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
-        }
+        },
     }
+    # We used the DB implicitly through peewee's Box.select(), and have to manually
+    # close the connection, otherwise the next test running will face 'Connection
+    # already opened' errors
+    db.close_db(None)
 
 
 def test_query_top_products(
@@ -203,20 +271,6 @@ def test_query_moved_boxes(
     assert data == {
         "facts": [
             {
-                "boxesCount": 1,
-                "itemsCount": 12,
-                "categoryId": 1,
-                "productName": "jackets",
-                "sizeId": 2,
-                "absoluteMeasureValue": None,
-                "dimensionId": None,
-                "gender": "Women",
-                "targetId": location_name,
-                "organisationName": None,
-                "movedOn": "2022-12-05",
-                "tagIds": [],
-            },
-            {
                 "boxesCount": 2,
                 "itemsCount": 20,
                 "categoryId": 1,
@@ -245,8 +299,36 @@ def test_query_moved_boxes(
                 "tagIds": [],
             },
             {
-                "boxesCount": 4,
-                "itemsCount": 40,
+                "boxesCount": 1,
+                "itemsCount": 12,
+                "categoryId": 1,
+                "productName": "jackets",
+                "sizeId": 2,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
+                "gender": "Women",
+                "targetId": location_name,
+                "organisationName": None,
+                "movedOn": "2022-12-05",
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 3,
+                "itemsCount": 30,
+                "categoryId": 1,
+                "productName": "indigestion tablets",
+                "sizeId": 1,
+                "absoluteMeasureValue": None,
+                "dimensionId": None,
+                "gender": "Women",
+                "targetId": base_name,
+                "organisationName": org_name,
+                "movedOn": date.today().isoformat(),
+                "tagIds": [],
+            },
+            {
+                "boxesCount": 1,
+                "itemsCount": 10,
                 "categoryId": 1,
                 "productName": "indigestion tablets",
                 "sizeId": 1,
@@ -337,10 +419,10 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
         },
         {
             "boxState": BoxState.MarkedForShipment.name,
-            "boxesCount": 2,
+            "boxesCount": 1,
             "categoryId": 1,
             "gender": "Women",
-            "itemsCount": 20,
+            "itemsCount": 10,
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
@@ -362,17 +444,43 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
             "tagIds": [],
         },
         {
-            "boxState": BoxState.InTransit.name,
-            "boxesCount": 2,
+            "boxState": BoxState.MarkedForShipment.name,
+            "boxesCount": 1,
             "categoryId": 1,
             "gender": "Women",
-            "itemsCount": 20,
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
+            "tagIds": [],
+        },
+        {
+            "boxState": BoxState.InTransit.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 10,
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
             "absoluteMeasureValue": None,
             "dimensionId": None,
             "tagIds": [3],
+        },
+        {
+            "boxState": BoxState.InTransit.name,
+            "boxesCount": 1,
+            "categoryId": 1,
+            "gender": "Women",
+            "itemsCount": 10,
+            "locationId": 1,
+            "productName": product_name,
+            "sizeId": 1,
+            "absoluteMeasureValue": None,
+            "dimensionId": None,
+            "tagIds": [],
         },
         {
             "boxState": BoxState.Donated.name,

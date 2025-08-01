@@ -166,51 +166,60 @@ BoxStateChangeVersions AS (
         h.product_id AS product,
         h.stock_display_unit_id,
         h.stock_measure_value,
-        h.size_id
+        h.size_id,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
     FROM HistoryReconstruction h
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = h.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
     WHERE h.changes = 'box_state_id'
+    GROUP BY h.box_id, date(h.changedate), h.product_id, h.size_id, h.stock_measure_value, h.stock_display_unit_id, h.location_id, h.items, h.box_state_id, if(h.from_int <> h.box_state_id, h.from_int, h.box_state_id)
 ),
 DeletedBoxes AS (
     SELECT
         h.box_id,
-        h.box_state_id,
         date(h.changedate) as moved_on,
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
         h.stock_display_unit_id,
         h.stock_measure_value,
-        h.size_id
+        h.size_id,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
     FROM HistoryReconstruction h
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = h.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
     WHERE h.changes = 'Record deleted'
+    GROUP BY h.box_id, date(h.changedate), h.product_id, h.size_id, h.stock_measure_value, h.stock_display_unit_id, h.location_id, h.items
 ),
 UndeletedBoxes AS (
     SELECT
         h.box_id,
-        h.box_state_id,
         date(h.changedate) as moved_on,
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
         h.stock_display_unit_id,
         h.stock_measure_value,
-        h.size_id
+        h.size_id,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
     FROM HistoryReconstruction h
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = h.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
     WHERE h.changes = 'Box was undeleted.'
+    GROUP BY h.box_id, date(h.changedate), h.product_id, h.size_id, h.stock_measure_value, h.stock_display_unit_id, h.location_id, h.items
 ),
 CreatedDonatedBoxes AS (
     SELECT
         h.box_id,
-        h.box_state_id,
         date(h.changedate) as moved_on,
         h.items AS number_of_items,
         h.location_id,
         h.product_id AS product,
         h.stock_display_unit_id,
         h.stock_measure_value,
-        h.size_id
+        h.size_id,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
     FROM HistoryReconstruction h
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = h.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
     WHERE h.changes = 'Record created' and h.box_state_id = 5
+    GROUP BY h.box_id, date(h.changedate), h.product_id, h.size_id, h.stock_measure_value, h.stock_display_unit_id, h.location_id, h.items
 )
 
 -- MAIN QUERY
@@ -218,110 +227,106 @@ CreatedDonatedBoxes AS (
 -- Collect information about deleted/undeleted boxes. Stats are labeled as "Deleted",
 -- with deleted boxes/items containing positive, and undeleted ones counting negative.
 select
-    t.moved_on,
+    db.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    t.size_id,
-    t.stock_measure_value AS absolute_measure_value,
+    db.size_id,
+    db.stock_measure_value AS absolute_measure_value,
     u.dimension_id,
-    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    db.tag_ids,
     "Deleted" AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    count(t.box_id) AS boxes_count,
-    sum(t.number_of_items) AS items_count
-FROM DeletedBoxes t
-JOIN products p ON p.id = t.product
-JOIN locations loc ON loc.id = t.location_id
-LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id
+    count(db.box_id) AS boxes_count,
+    sum(db.number_of_items) AS items_count
+FROM DeletedBoxes db
+JOIN products p ON p.id = db.product
+JOIN locations loc ON loc.id = db.location_id
+LEFT OUTER JOIN units u ON u.id = db.stock_display_unit_id
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, db.size_id, loc.label, absolute_measure_value, dimension_id, db.tag_ids
 
 UNION ALL
 
 select
-    t.moved_on,
+    ub.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    t.size_id,
-    t.stock_measure_value AS absolute_measure_value,
+    ub.size_id,
+    ub.stock_measure_value AS absolute_measure_value,
     u.dimension_id,
-    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    ub.tag_ids,
     "Deleted" AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    -count(t.box_id) AS boxes_count,
-    -sum(t.number_of_items) AS items_count
-FROM UndeletedBoxes t
-JOIN products p ON p.id = t.product
-JOIN locations loc ON loc.id = t.location_id
-LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id
+    -count(ub.box_id) AS boxes_count,
+    -sum(ub.number_of_items) AS items_count
+FROM UndeletedBoxes ub
+JOIN products p ON p.id = ub.product
+JOIN locations loc ON loc.id = ub.location_id
+LEFT OUTER JOIN units u ON u.id = ub.stock_display_unit_id
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, ub.size_id, loc.label, absolute_measure_value, dimension_id, ub.tag_ids
 
 UNION ALL
 
 -- Collect information about boxes created in donated state
 SELECT
-    t.moved_on,
+    cdb.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    t.size_id,
-    t.stock_measure_value AS absolute_measure_value,
+    cdb.size_id,
+    cdb.stock_measure_value AS absolute_measure_value,
     u.dimension_id,
-    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    cdb.tag_ids,
     loc.label AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    count(t.box_id) AS boxes_count,
-    sum(t.number_of_items) AS items_count
-FROM CreatedDonatedBoxes t
-JOIN products p ON p.id = t.product
-JOIN locations loc ON loc.id = t.location_id
-LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id
+    count(cdb.box_id) AS boxes_count,
+    sum(cdb.number_of_items) AS items_count
+FROM CreatedDonatedBoxes cdb
+JOIN products p ON p.id = cdb.product
+JOIN locations loc ON loc.id = cdb.location_id
+LEFT OUTER JOIN units u ON u.id = cdb.stock_display_unit_id
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, cdb.size_id, loc.label, absolute_measure_value, dimension_id, cdb.tag_ids
 
 UNION ALL
 
 -- Collect information about boxes being moved between states InStock and Donated
 SELECT
-    t.moved_on,
+    bscv.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    t.size_id,
-    t.stock_measure_value AS absolute_measure_value,
+    bscv.size_id,
+    bscv.stock_measure_value AS absolute_measure_value,
     u.dimension_id,
-    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    bscv.tag_ids,
     loc.label AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
     sum(
         CASE
-            WHEN t.prev_box_state_id = 1 AND t.box_state_id = 5 THEN 1
-            WHEN t.prev_box_state_id = 5 AND t.box_state_id = 1 THEN -1
+            WHEN bscv.prev_box_state_id = 1 AND bscv.box_state_id = 5 THEN 1
+            WHEN bscv.prev_box_state_id = 5 AND bscv.box_state_id = 1 THEN -1
             ELSE 0
         END
     ) AS boxes_count,
     sum(
         CASE
-            WHEN t.prev_box_state_id = 1 AND t.box_state_id = 5 THEN 1 * t.number_of_items
-            WHEN t.prev_box_state_id = 5 AND t.box_state_id = 1 THEN -1 * t.number_of_items
+            WHEN bscv.prev_box_state_id = 1 AND bscv.box_state_id = 5 THEN 1 * bscv.number_of_items
+            WHEN bscv.prev_box_state_id = 5 AND bscv.box_state_id = 1 THEN -1 * bscv.number_of_items
             ELSE 0
         END
     ) AS items_count
-FROM BoxStateChangeVersions t
-JOIN products p ON p.id = t.product
-JOIN locations loc ON loc.id = t.location_id
-LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = t.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-WHERE (t.prev_box_state_id = 1 AND t.box_state_id = 5) OR
-      (t.prev_box_state_id = 5 AND t.box_state_id = 1)
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id
+FROM BoxStateChangeVersions bscv
+JOIN products p ON p.id = bscv.product
+JOIN locations loc ON loc.id = bscv.location_id
+LEFT OUTER JOIN units u ON u.id = bscv.stock_display_unit_id
+WHERE (bscv.prev_box_state_id = 1 AND bscv.box_state_id = 5) OR
+      (bscv.prev_box_state_id = 5 AND bscv.box_state_id = 1)
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, bscv.size_id, loc.label, absolute_measure_value, dimension_id, bscv.tag_ids
 
 UNION ALL
 
@@ -332,32 +337,41 @@ SELECT
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    d.source_size_id AS size_id,
+    t.source_size_id AS size_id,
     -- neglect possible history of box's measure_value
     ROUND(b.measure_value, 3 - FLOOR(LOG10(b.measure_value) + 1)) AS absolute_measure_value,
     u.dimension_id,
-    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    t.tag_ids,
     c.name AS target_id,
     o.label AS organisation_name,
     %s AS target_type,
-    COUNT(d.box_id) AS boxes_count,
-    SUM(d.source_quantity) AS items_count
-FROM
-    shipment_detail d
+    COUNT(t.box_id) AS boxes_count,
+    SUM(t.source_quantity) AS items_count
+FROM (
+    SELECT
+        d.shipment_id,
+        d.box_id,
+        d.source_product_id,
+        d.source_size_id,
+        d.source_quantity,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
+    FROM shipment_detail d
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
+    WHERE d.removed_on IS NULL
+    GROUP BY d.box_id, d.shipment_id, d.source_product_id, d.source_size_id, d.source_quantity
+) t
 JOIN
     shipment sh
 ON
-    d.shipment_id = sh.id AND
-    d.removed_on IS NULL AND
+    t.shipment_id = sh.id AND
     sh.source_base_id = %s AND
     sh.sent_on IS NOT NULL
 JOIN camps c ON c.id = sh.target_base_id
 JOIN organisations o on o.id = c.organisation_id
-JOIN products p ON p.id = d.source_product_id
-JOIN stock b ON b.id = d.box_id
+JOIN products p ON p.id = t.source_product_id
+JOIN stock b ON b.id = t.box_id
 LEFT OUTER JOIN units u ON u.id = b.display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, d.source_size_id, c.name, absolute_measure_value, dimension_id
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.source_size_id, c.name, absolute_measure_value, dimension_id, tag_ids
 
 UNION ALL
 
@@ -365,33 +379,43 @@ UNION ALL
 -- assumed that these boxes have not been further moved but still are part of the
 -- specified base
 SELECT
-    DATE(h.changedate) AS moved_on,
+    DATE(t.changedate) AS moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
     p.gender_id AS gender,
-    b.size_id,
-    ROUND(b.measure_value, 3 - FLOOR(LOG10(b.measure_value) + 1)) AS absolute_measure_value,
+    t.size_id,
+    ROUND(t.measure_value, 3 - FLOOR(LOG10(t.measure_value) + 1)) AS absolute_measure_value,
     u.dimension_id,
-    GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids,
+    t.tag_ids,
     bs.label AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
-    COUNT(h.id) AS boxes_count,
-    SUM(b.items) AS items_count
-FROM
-    history h
-JOIN
-    stock b
-ON
-    h.tablename = "stock" AND
-    h.changes = "box_state_id" AND
-    h.record_id = b.id AND
-    h.from_int = 1 AND
-    h.to_int IN (2, 6) -- (Lost, Scrap)
-JOIN products p ON p.id = b.product_id AND p.camp_id = %s
-JOIN box_state bs on bs.id = h.to_int
-LEFT OUTER JOIN units u ON u.id = b.display_unit_id
-LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, b.size_id, bs.label, absolute_measure_value, dimension_id
+    COUNT(t.history_id) AS boxes_count,
+    SUM(t.items) AS items_count
+FROM (
+    SELECT
+        h.id AS history_id,
+        h.changedate,
+        h.record_id,
+        h.to_int,
+        b.product_id,
+        b.size_id,
+        b.measure_value,
+        b.display_unit_id,
+        b.items,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
+    FROM history h
+    JOIN stock b ON h.tablename = "stock" AND
+                   h.changes = "box_state_id" AND
+                   h.record_id = b.id AND
+                   h.from_int = 1 AND
+                   h.to_int IN (2, 6) -- (Lost, Scrap)
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
+    GROUP BY h.id, h.changedate, h.record_id, h.to_int, b.product_id, b.size_id, b.measure_value, b.display_unit_id, b.items
+) t
+JOIN products p ON p.id = t.product_id AND p.camp_id = %s
+JOIN box_state bs on bs.id = t.to_int
+LEFT OUTER JOIN units u ON u.id = t.display_unit_id
+GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, bs.label, absolute_measure_value, dimension_id, tag_ids
 ;
 """

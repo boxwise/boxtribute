@@ -32,6 +32,7 @@ def test_tags_query(
     read_only_client,
     tags,
     default_beneficiary,
+    another_male_beneficiary,
     default_box,
     box_without_qr_code,
     in_transit_box,
@@ -56,6 +57,10 @@ def test_tags_query(
                 {
                     "__typename": "Beneficiary",
                     "id": str(default_beneficiary["id"]),
+                },
+                {
+                    "__typename": "Beneficiary",
+                    "id": str(another_male_beneficiary["id"]),
                 },
             ],
         },
@@ -311,7 +316,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         [2, TagType.Beneficiary.name, [], "Beneficiary"],
         [3, TagType.Box.name, [2, 3, 9], "Box"],
         [3, TagType.Beneficiary.name, [1], "Beneficiary"],
-        [1, TagType.All.name, [1], "Beneficiary"],
+        [1, TagType.All.name, [1, 6], "Beneficiary"],
     ],
 )
 def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename):
