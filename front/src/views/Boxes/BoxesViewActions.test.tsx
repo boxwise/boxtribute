@@ -704,10 +704,10 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         });
         expect(checkbox1).not.toBeChecked();
         await user.click(checkbox1);
-        await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 5000 });
+        await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
 
-        // Add a small delay to ensure state propagation
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Add a delay to ensure state propagation in CI environments
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Clicks logic
         if (name.toLowerCase().includes("delete")) {

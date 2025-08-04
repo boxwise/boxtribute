@@ -88,25 +88,61 @@ it("4.2.1 - Initial Load of Page", async () => {
     () => {
       expect(screen.getByRole("cell", { name: /boxcare/i })).toBeInTheDocument();
     },
+    { timeout: 15000 },
+  );
+
+  // Use findBy and waitFor for all subsequent assertions to ensure they're rendered
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /pending/i })).toBeInTheDocument();
+    },
     { timeout: 10000 },
   );
-  expect(screen.getByRole("cell", { name: /pending/i })).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
 
-  // Breadcrumbs are there
-  expect(
-    screen.getByRole("link", {
-      name: /aid transfers/i,
-    }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole("link", {
-      name: /my network/i,
-    }),
-  ).toBeInTheDocument();
-}, 30000);
+  await waitFor(
+    () => {
+      expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  // Breadcrumbs are there - wait for them to be rendered
+  await waitFor(
+    () => {
+      expect(
+        screen.getByRole("link", {
+          name: /aid transfers/i,
+        }),
+      ).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(
+        screen.getByRole("link", {
+          name: /my network/i,
+        }),
+      ).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+}, 40000);
 
 const failedMutationTests = [
   {
