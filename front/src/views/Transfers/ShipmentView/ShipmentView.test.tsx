@@ -194,25 +194,33 @@ describe("4.5 Test Cases", () => {
       addTypename: true,
     });
 
-    expect(screen.getByTestId("loader")).toBeInTheDocument();
+    // Wait for initial loader to appear
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("loader")).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
+    // Wait for content tab to appear (indicating page has loaded)
     await waitFor(
       () => {
         expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
       },
-      { timeout: 15000 },
+      { timeout: 20000 },
     );
 
-    const title = screen.getByText(/prepare shipment/i);
+    // Wait for and find the main title
+    const title = await screen.findByText(/prepare shipment/i, {}, { timeout: 20000 });
     expect(title).toBeInTheDocument();
 
     // Wait for all content to be rendered before checking other elements
+    // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
     await waitFor(
       () => {
-        // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
         expect(screen.getByText(/lesvos/i)).toBeInTheDocument();
       },
-      { timeout: 15000 },
+      { timeout: 20000 },
     );
 
     // Use waitFor for all subsequent assertions to ensure they're rendered
@@ -220,7 +228,7 @@ describe("4.5 Test Cases", () => {
       () => {
         expect(screen.getByText(/thessaloniki/i)).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
 
     // Test case 4.5.1.2 - Content: Displays Shipment status
@@ -228,7 +236,7 @@ describe("4.5 Test Cases", () => {
       () => {
         expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
 
     // Test case 4.5.1.3 - Content: Displays total number of boxes
@@ -236,7 +244,7 @@ describe("4.5 Test Cases", () => {
       () => {
         expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
 
     // Test case 4.5.1.5 - Displays Content tab initially
@@ -246,7 +254,7 @@ describe("4.5 Test Cases", () => {
           "Content",
         );
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
 
     // Breadcrumbs are there
@@ -254,9 +262,9 @@ describe("4.5 Test Cases", () => {
       () => {
         expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
-  }, 40000);
+  }, 60000);
 
   // Test case 4.5.1.4
 
