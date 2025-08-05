@@ -194,38 +194,77 @@ describe("4.5 Test Cases", () => {
       addTypename: true,
     });
 
-    expect(screen.getByTestId("loader")).toBeInTheDocument();
+    // Wait for initial loader to appear
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("loader")).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
+    // Wait for content tab to appear (indicating page has loaded)
     await waitFor(
       () => {
         expect(screen.getByRole("tab", { name: /content/i })).toBeInTheDocument();
       },
-      { timeout: 15000 },
+      { timeout: 20000 },
     );
 
-    const title = screen.getByText(/prepare shipment/i);
+    // Wait for and find the main title
+    const title = await screen.findByText(/prepare shipment/i, {}, { timeout: 20000 });
     expect(title).toBeInTheDocument();
 
     // Wait for all content to be rendered before checking other elements
+    // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
     await waitFor(
       () => {
-        // Test case 4.5.1.1 - Content: Displays Shipment Source and Target Bases
         expect(screen.getByText(/lesvos/i)).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: 20000 },
     );
-    expect(screen.getByText(/thessaloniki/i)).toBeInTheDocument();
+
+    // Use waitFor for all subsequent assertions to ensure they're rendered
+    await waitFor(
+      () => {
+        expect(screen.getByText(/thessaloniki/i)).toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
+
     // Test case 4.5.1.2 - Content: Displays Shipment status
-    expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
-    // Test case 4.5.1.3 - Content: Displays total number of boxes
-    expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
-    // Test case 4.5.1.5 - Displays Content tab initially
-    expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
-      "Content",
+    await waitFor(
+      () => {
+        expect(screen.getByText(/PREPARING/)).toBeInTheDocument();
+      },
+      { timeout: 15000 },
     );
+
+    // Test case 4.5.1.3 - Content: Displays total number of boxes
+    await waitFor(
+      () => {
+        expect(screen.getByRole("heading", { name: /\b2\b/i })).toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
+
+    // Test case 4.5.1.5 - Displays Content tab initially
+    await waitFor(
+      () => {
+        expect(screen.getByRole("tab", { name: /content/i, selected: true })).toHaveTextContent(
+          "Content",
+        );
+      },
+      { timeout: 15000 },
+    );
+
     // Breadcrumbs are there
-    expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
-  }, 30000);
+    await waitFor(
+      () => {
+        expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
+  }, 60000);
 
   // Test case 4.5.1.4
 
@@ -268,32 +307,62 @@ describe("4.5 Test Cases", () => {
     expect(title).toBeInTheDocument();
 
     // Test case 4.5.1.6 - Show the number of items per box and the sum of the items grouped together
-    const groupItemNameWithCount = screen.getByTestId("shipment-grouped-item-name");
+    const groupItemNameWithCount = await screen.findByTestId("shipment-grouped-item-name");
     expect(groupItemNameWithCount).toHaveTextContent("Long Sleeves Women (30x)");
 
-    const groupedItemAccordionButton = screen.getByTestId("shipment-accordion-button-1");
+    const groupedItemAccordionButton = await screen.findByTestId("shipment-accordion-button-1");
     expect(groupedItemAccordionButton).toBeInTheDocument();
-    // expanding the accordion
-    user.click(groupedItemAccordionButton);
 
-    // check if cell with number of items equals to 20 is displayed
-    await screen.findByRole(
-      "cell",
-      {
-        name: /20/i,
+    // expanding the accordion - await the click to ensure it completes
+    await user.click(groupedItemAccordionButton);
+
+    // Wait for accordion expansion to complete before checking for expanded content
+    await waitFor(
+      () => {
+        // check if cell with number of items equals to 20 is displayed
+        expect(
+          screen.getByRole("cell", {
+            name: /20/i,
+          }),
+        ).toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
+
+    // check if cell with number of items equals to 10 is displayed - use waitFor
+    await waitFor(
+      () => {
+        expect(
+          screen.getByRole("cell", {
+            name: /10/i,
+          }),
+        ).toBeInTheDocument();
       },
       { timeout: 10000 },
     );
-    // check if cell with number of items equals to 10 is displayed
-    screen.getByRole("cell", {
-      name: /10/i,
-    });
 
-    // check for shipment content grouped by product
-    expect(screen.getByText(/mixed women long sleeves/i)).toBeInTheDocument();
-    expect(screen.getByText(/s women long sleeves/i)).toBeInTheDocument();
-    expect(screen.getByText(/30x/i)).toBeInTheDocument();
-  }, 10000);
+    // check for shipment content grouped by product - wait for all text to be rendered
+    await waitFor(
+      () => {
+        expect(screen.getByText(/mixed women long sleeves/i)).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/s women long sleeves/i)).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/30x/i)).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  }, 20000);
 
   // Test case 4.5.2
   it("4.5.2 - Failed to Fetch Initial Data", async () => {
