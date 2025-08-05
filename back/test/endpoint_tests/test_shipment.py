@@ -465,7 +465,7 @@ def test_shipment_mutations_on_source_side(
         box_response = assert_successful_request(client, query)
         assert box_response == {"state": BoxState(box["state"]).name}
 
-    # Add one box again
+    # Add one box again, remove it, and add it again
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},
                 preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -473,6 +473,22 @@ def test_shipment_mutations_on_source_side(
                 updateInput: {update_input}) {{
                     details {{ id box {{ state }} }} }} }}"""
     shipment = assert_successful_request(client, mutation)
+    temp_shipment_detail_id = str(shipment["details"][-1].pop("id"))
+
+    update_input = f"""{{ id: {shipment_id},
+                removedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    details {{ id box {{ state }} }} }} }}"""
+    assert_successful_request(client, mutation)
+
+    update_input = f"""{{ id: {shipment_id},
+                preparedBoxLabelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ updateShipmentWhenPreparing(
+                updateInput: {update_input}) {{
+                    details {{ id box {{ state }} }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+
     newest_shipment_detail_id = str(shipment["details"][-1].pop("id"))
     assert shipment == {
         "details": [
@@ -482,6 +498,11 @@ def test_shipment_mutations_on_source_side(
             },
             {
                 "id": shipment_detail_id,
+                # this points to the box that has been marked for shipment again
+                "box": {"state": BoxState.MarkedForShipment.name},
+            },
+            {
+                "id": temp_shipment_detail_id,
                 # this points to the box that has been marked for shipment again
                 "box": {"state": BoxState.MarkedForShipment.name},
             },
@@ -511,6 +532,23 @@ def test_shipment_mutations_on_source_side(
     assert shipment["details"][0]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment["details"][1]["box"].pop("lastModifiedOn").startswith(today)
     assert shipment["details"][2]["box"].pop("lastModifiedOn").startswith(today)
+    assert shipment["details"][3]["box"].pop("lastModifiedOn").startswith(today)
+    common_box_info = {
+        "state": BoxState.InTransit.name,
+        "lastModifiedBy": {"id": source_base_user_id},
+        "history": [
+            {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
+            {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+            {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+            {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+            {"changes": f"{change_prefix} MarkedForShipment to InStock"},
+            {"changes": f"{change_prefix} InStock to MarkedForShipment"},
+            {"changes": "assigned tag 'pallet1' to box"},
+            {"changes": "removed tag 'pallet1' from box"},
+            {"changes": "assigned tag 'pallet1' to box"},
+            {"changes": "created record"},
+        ],
+    }
     assert shipment == {
         "id": shipment_id,
         "state": ShipmentState.Sent.name,
@@ -531,37 +569,15 @@ def test_shipment_mutations_on_source_side(
             },
             {
                 "id": shipment_detail_id,
-                "box": {
-                    "state": BoxState.InTransit.name,
-                    "lastModifiedBy": {"id": source_base_user_id},
-                    "history": [
-                        {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "removed tag 'pallet1' from box"},
-                        {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
-                    ],
-                },
+                "box": common_box_info,
+            },
+            {
+                "id": temp_shipment_detail_id,
+                "box": common_box_info,
             },
             {
                 "id": newest_shipment_detail_id,
-                "box": {
-                    "state": BoxState.InTransit.name,
-                    "lastModifiedBy": {"id": source_base_user_id},
-                    "history": [
-                        {"changes": f"{change_prefix} MarkedForShipment to InTransit"},
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": f"{change_prefix} MarkedForShipment to InStock"},
-                        {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "removed tag 'pallet1' from box"},
-                        {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
-                    ],
-                },
+                "box": common_box_info,
             },
         ],
     }
@@ -898,6 +914,14 @@ def test_shipment_mutations_on_target_side(
     }
     assert shipment == expected_shipment
 
+    # Change state of reconciled box to Donated. The shipment should still auto-complete
+    mutation = f"""mutation {{ updateBox(
+                    updateInput: {{
+                        labelIdentifier: "{in_transit_box['label_identifier']}"
+                        state: Donated
+                    }} ) {{ id }} }}"""
+    assert_successful_request(client, mutation)
+
     # Verify that another_detail_id is not updated (invalid product)
     # Test cases 3.2.39ab
     for product in [default_product, {"id": 0}]:
@@ -978,7 +1002,7 @@ def test_shipment_mutations_on_target_side(
                 "lostBy": None,
                 "receivedBy": {"id": target_base_user_id},
                 "box": {
-                    "state": BoxState.InStock.name,
+                    "state": BoxState.Donated.name,
                     "lastModifiedBy": {"id": target_base_user_id},
                 },
             },
@@ -1028,7 +1052,7 @@ def test_shipment_mutations_on_target_side(
     }} }}"""
     box = assert_successful_request(client, query)
     assert box == {
-        "state": BoxState.InStock.name,
+        "state": BoxState.Donated.name,
         "product": {"id": target_product_id},
         "location": {"id": target_location_id},
         "tags": [],

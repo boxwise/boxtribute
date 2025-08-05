@@ -16,10 +16,7 @@ import {
   PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
-import {
-  HISTORY_FIELDS_FRAGMENT,
-  LOCATION_BASIC_FIELDS_FRAGMENT,
-} from "queries/fragments";
+import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import {
@@ -109,10 +106,7 @@ export const UPDATE_BOX_MUTATION = graphql(
       }
     }
   `,
-  [
-    HISTORY_FIELDS_FRAGMENT,
-    LOCATION_BASIC_FIELDS_FRAGMENT,
-  ],
+  [HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT],
 );
 
 export interface IChangeNumberOfItemsBoxData {
@@ -174,7 +168,7 @@ function BTBox() {
       date,
       entries: _.orderBy(entries, (entry) => new Date(entry?.createdOn), "desc"),
     }))
-    .orderBy((entry) => new Date(entry.date), "desc")
+    .orderBy((group) => new Date(group.entries[0]?.createdOn), "desc")
     .value();
 
   const [updateNumberOfItemsMutation, updateNumberOfItemsMutationStatus] = useMutation(
@@ -202,7 +196,11 @@ function BTBox() {
     setCurrentState(boxData?.state);
     const shipmentId = boxData?.shipmentDetail?.shipment.id;
     // open reconciliation overlay if the box state is receiving and if we're on the receiving side
-    if (shipmentId && boxData?.state === "Receiving" && boxData?.shipmentDetail?.shipment.targetBase.id === baseId) {
+    if (
+      shipmentId &&
+      boxData?.state === "Receiving" &&
+      boxData?.shipmentDetail?.shipment.targetBase.id === baseId
+    ) {
       boxReconciliationOverlayVar({
         labelIdentifier: boxData.labelIdentifier,
         isOpen: true,
@@ -459,50 +457,13 @@ function BTBox() {
             message: `Box has been successfully assigned to the shipment ${shipmentId}.`,
             status: "success",
           });
-        }
-      } else {
-        const unassignedBoxResult = await unassignBoxesFromShipment(
-          currentShipmentId,
-          [boxData as IBoxBasicFields],
-          false,
-        );
-
-        if (
-          (unassignedBoxResult?.error?.length || 0) > 0 ||
-          unassignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
-        ) {
-          handelAssignBoxToShipmentError(shipmentId, unassignedBoxResult.kind, "unassign");
-        } else {
-          const updatedBoxData =
-            unassignedBoxResult.unassignedBoxes?.filter(
-              (box) => box.labelIdentifier === boxData.labelIdentifier,
-            )[0] || undefined;
-
-          if (updatedBoxData) {
-            const reassignedResult = (await assignBoxesToShipment(
-              shipmentId,
-              [updatedBoxData as IBoxBasicFields],
-              false,
-              false,
-            )) as IAssignBoxToShipmentResult;
-            if (
-              (reassignedResult?.error?.length || 0) > 0 ||
-              reassignedResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
-            ) {
-              handelAssignBoxToShipmentError(shipmentId, reassignedResult.kind, "reassign");
-            } else {
-              createToast({
-                message: `Box has been successfully reassigned from shipment ${currentShipmentId} to the shipment ${shipmentId}`,
-                status: "success",
-              });
-            }
-          }
+          allData.refetch();
         }
       }
     },
     [
+      allData,
       assignBoxesToShipment,
-      unassignBoxesFromShipment,
       boxData,
       createToast,
       handelAssignBoxToShipmentError,
@@ -529,9 +490,10 @@ function BTBox() {
           message: `Box has been successfully unassigned from the shipment ${shipmentId}`,
           status: "success",
         });
+        allData.refetch();
       }
     },
-    [unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [allData, unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(
@@ -565,9 +527,7 @@ function BTBox() {
   } status.`;
 
   const location =
-    boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.sourceLocation
-      : boxData?.location;
+    boxData?.state === "Receiving" ? boxData?.shipmentDetail?.sourceLocation : boxData?.location;
 
   // TODO: should we ignore all this type checking?
   const boxInLegacyLocation =

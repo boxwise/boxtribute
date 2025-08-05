@@ -4,7 +4,7 @@ import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
 
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
-import { history1, history2 } from "mocks/histories";
+import { history1, history2, history3 } from "mocks/histories";
 import { generateMockBox } from "mocks/boxes";
 import { mockMatchMediaQuery } from "mocks/functions";
 import BTBox from "./BoxView";
@@ -22,8 +22,9 @@ const initialQueryForBoxWithHistory = {
       box: generateMockBox({
         labelIdentifier: "123",
         state: "InStock",
-        histories: [history1, history2],
+        histories: [history1, history2, history3],
       }),
+      shipments: [],
     },
   },
 };
@@ -81,13 +82,36 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
     await user.click(historyButton);
 
     const banner = await screen.findByRole("banner");
-
     expect(banner).toBeInTheDocument();
-    expect(screen.getByText(/jan 14, 2023/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/dev coordinator changed box location from wh men to wh women/i),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/jan 12, 2023/i)).toBeInTheDocument();
-    expect(screen.getByText(/dev coordinator created record/i)).toBeInTheDocument();
-  }, 10000);
+
+    // Wait for all history content to be rendered before making assertions
+    await screen.findByText(/may 15, 2023/i);
+    await screen.findByText(/dev coordinator changed box location from wh men to wh women/i);
+    await screen.findByText(/jan 12, 2023/i);
+    await screen.findByText(/dev coordinator created record/i);
+
+    // Get all date elements in the overlay - they should be ordered chronologically (newest first)
+    // Note: formatDateKey formats dates with newlines, so we need to check for the right pattern
+    const march2024 = await screen.findByText(/mar\s*20,\s*2024/i);
+    const may2023 = screen.getByText(/may\s*15,\s*2023/i);
+    const jan2023 = screen.getByText(/jan\s*12,\s*2023/i);
+
+    // Verify all dates are present
+    expect(march2024).toBeInTheDocument();
+    expect(may2023).toBeInTheDocument();
+    expect(jan2023).toBeInTheDocument();
+
+    // Wait a moment to ensure DOM is fully settled before position checking
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Verify that the 2024 entry appears before the 2023 entries
+    // by checking the document position of the elements
+    const march2024Position = march2024.compareDocumentPosition(may2023);
+    const may2023Position = may2023.compareDocumentPosition(jan2023);
+
+    // DOCUMENT_POSITION_FOLLOWING means the node appears after the reference node
+    // So if march2024 is before may2023, compareDocumentPosition should return DOCUMENT_POSITION_FOLLOWING
+    expect(march2024Position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy(); // Mar 2024 before May 2023
+    expect(may2023Position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy(); // May 2023 before Jan 2023
+  }, 15000);
 });

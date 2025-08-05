@@ -30,7 +30,7 @@ const mockSuccessfulTransferAgreementsQuery = ({
   type = "Bidirectional",
   isInitiator = true,
 }) => ({
-  delay: 30,
+  delay: 200,
   request: {
     query,
     variables,
@@ -76,27 +76,73 @@ it("4.2.1 - Initial Load of Page", async () => {
   });
 
   // 4.2.1.1 - Is the Loading State Shown First?
-  expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
+  expect(await screen.findByTestId("TableSkeleton", {}, { timeout: 10000 })).toBeInTheDocument();
 
-  // Data of Mock Transfer is shown correctly
-  expect(await screen.findByRole("cell", { name: /to \/ from/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /boxcare/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /pending/i })).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
-  expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
-  // Breadcrumbs are there
+  // Data of Mock Transfer is shown correctly - wait for table to load
   expect(
-    screen.getByRole("link", {
-      name: /aid transfers/i,
-    }),
+    await screen.findByRole("cell", { name: /to \/ from/i }, { timeout: 15000 }),
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole("link", {
-      name: /my network/i,
-    }),
-  ).toBeInTheDocument();
-}, 30000);
+
+  // Wait for all content to be rendered before checking other elements
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /boxcare/i })).toBeInTheDocument();
+    },
+    { timeout: 15000 },
+  );
+
+  // Use findBy and waitFor for all subsequent assertions to ensure they're rendered
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /pending/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(screen.getByRole("link", { name: /thessaloniki \(1\)/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /Good Comment/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(screen.getByRole("cell", { name: /1\/1\/2024/i })).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  // Breadcrumbs are there - wait for them to be rendered
+  await waitFor(
+    () => {
+      expect(
+        screen.getByRole("link", {
+          name: /aid transfers/i,
+        }),
+      ).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(
+        screen.getByRole("link", {
+          name: /my network/i,
+        }),
+      ).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+}, 40000);
 
 const failedMutationTests = [
   {

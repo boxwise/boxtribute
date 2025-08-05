@@ -10,7 +10,10 @@ export const urlFilterValuesDecode = <T>(
   array: string,
   values: (IFilterValue & T)[],
 ): (IFilterValue & T)[] =>
-  array.split(",").map((e) => values.find((v) => v.urlId === decodeURIComponent(e))!);
+  array
+    .split(",")
+    .map((e) => values.find((v) => v.urlId === decodeURIComponent(e)))
+    .filter((v): v is IFilterValue & T => v !== undefined);
 
 export default function useMultiSelectFilter<T>(
   values: (IFilterValue & T)[],

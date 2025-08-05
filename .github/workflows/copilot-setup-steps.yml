@@ -34,21 +34,34 @@ jobs:
         with:
           version: 9
 
-      # Cache dependencies installed with pnpm
-      # from https://github.com/cypress-io/github-action/issues/1040
-      - name: Expose pnpm config(s) through "$GITHUB_OUTPUT"
-        id: pnpm-config
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
+      - uses: actions/setup-node@v4
         with:
-          path: ${{ steps.pnpm-config.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: '20'
+          cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Set up Python
+        # This is the version of the action for setting up Python, not the Python version.
+        uses: actions/setup-python@v5
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install BE dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -U -e back -r back/requirements.txt -r back/requirements-dev.txt
+
+      - name: Install FE dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install MySQL
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: "8.0"
+          root-password: dropapp_root
+      - name: Seed database
+        run: |
+          mysql -h 127.0.0.1 -u root -pdropapp_root -e 'create database dropapp_dev;'
+          mysql -h 127.0.0.1 -u root -pdropapp_root -e 'show databases;'
+          mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < back/init.sql

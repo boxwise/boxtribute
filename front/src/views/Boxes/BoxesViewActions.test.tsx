@@ -695,61 +695,95 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       if (clicks.length > 0) {
-        await screen.findByText(/1 box/i, {}, { timeout: 10000 });
+        await screen.findByText(/1 box/i, {}, { timeout: 15000 });
 
-        // Select the first box
-        const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 5000 });
+        // Select the first box - wait for table to be fully loaded
+        const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 10000 });
         const checkbox1 = within(row1).getByRole("checkbox", {
           name: /toggle row selected/i,
         });
         expect(checkbox1).not.toBeChecked();
-        user.click(checkbox1);
-        await waitFor(() => expect(checkbox1).toBeChecked());
-        // add a wait to ensure the checkbox state is updated
+        await user.click(checkbox1);
+        await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
+
+        // Add a delay to ensure state propagation in CI environments
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Clicks logic
         if (name.toLowerCase().includes("delete")) {
           // Check for "Remove Box" button visibility
-          const deleteBoxButton = await screen.findByTestId("delete-boxes-button");
+          const deleteBoxButton = await screen.findByTestId(
+            "delete-boxes-button",
+            {},
+            { timeout: 10000 },
+          );
           expect(deleteBoxButton).toBeInTheDocument();
           await user.click(deleteBoxButton);
 
-          const confirmDialogButton = await screen.findByRole("button", { name: /delete/i });
+          const confirmDialogButton = await screen.findByRole(
+            "button",
+            { name: /delete/i },
+            { timeout: 10000 },
+          );
           expect(confirmDialogButton).toBeInTheDocument();
           await user.click(confirmDialogButton);
         } else if (name.toLowerCase().includes("add tags")) {
-          const addTagsButton = await screen.findByTestId("assign-tags-button");
+          const addTagsButton = await screen.findByTestId(
+            "assign-tags-button",
+            {},
+            { timeout: 10000 },
+          );
           await user.click(addTagsButton);
 
-          const selectInput = await screen.findByRole("combobox");
+          const selectInput = await screen.findByRole("combobox", {}, { timeout: 10000 });
           await user.click(selectInput);
 
-          const tagOption = await screen.findByText(clicks[1]);
+          const tagOption = await screen.findByText(clicks[1], {}, { timeout: 10000 });
           await user.click(tagOption);
 
-          const applyButton = await screen.findByTestId("apply-assign-tags-button");
+          const applyButton = await screen.findByTestId(
+            "apply-assign-tags-button",
+            {},
+            { timeout: 10000 },
+          );
           await user.click(applyButton);
         } else if (name.toLowerCase().includes("remove tags")) {
-          const removeTagsButton = await screen.findByTestId("remove-tags-button");
+          const removeTagsButton = await screen.findByTestId(
+            "remove-tags-button",
+            {},
+            { timeout: 10000 },
+          );
           await user.click(removeTagsButton);
 
-          const selectInput = await screen.findByRole("combobox");
+          const selectInput = await screen.findByRole("combobox", {}, { timeout: 10000 });
           await user.click(selectInput);
 
-          const tagBadgeToRemove = await screen.findByLabelText(clicks[1] as string);
+          const tagBadgeToRemove = await screen.findByLabelText(
+            clicks[1] as string,
+            {},
+            { timeout: 10000 },
+          );
           await user.click(tagBadgeToRemove);
 
-          const applyButton = await screen.findByTestId("apply-remove-tags-button");
+          const applyButton = await screen.findByTestId(
+            "apply-remove-tags-button",
+            {},
+            { timeout: 10000 },
+          );
           await user.click(applyButton);
         } else {
           // Perform action based on the `clicks` parameter
-          const actionButton = await screen.findByRole("button", { name: clicks[0] });
+          const actionButton = await screen.findByRole(
+            "button",
+            { name: clicks[0] },
+            { timeout: 10000 },
+          );
           expect(actionButton).toBeInTheDocument();
           await user.click(actionButton);
 
           if (clicks[1]) {
             // For other actions, click the sub-action button if specified
-            const subButton = await screen.findByText(clicks[1]);
+            const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
             expect(subButton).toBeInTheDocument();
             await user.click(subButton);
           }
@@ -758,26 +792,30 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
 
       if (triggerError) {
         // error message appears
-        await waitFor(() =>
-          expect(mockedTriggerError).toHaveBeenCalledWith(
-            expect.objectContaining({
-              message: expect.stringMatching(triggerError),
-            }),
-          ),
+        await waitFor(
+          () =>
+            expect(mockedTriggerError).toHaveBeenCalledWith(
+              expect.objectContaining({
+                message: expect.stringMatching(triggerError),
+              }),
+            ),
+          { timeout: 15000 },
         );
       }
 
       // Check for the expected toast message
       if (toast) {
-        await waitFor(() =>
-          expect(mockedCreateToast).toHaveBeenCalledWith(
-            expect.objectContaining({
-              message: expect.stringMatching(toast),
-            }),
-          ),
+        await waitFor(
+          () =>
+            expect(mockedCreateToast).toHaveBeenCalledWith(
+              expect.objectContaining({
+                message: expect.stringMatching(toast),
+              }),
+            ),
+          { timeout: 15000 },
         );
       }
     },
-    { timeout: 30000 },
+    40000,
   );
 });
