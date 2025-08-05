@@ -52,6 +52,25 @@ def execute_sql(*params, database=None, query):
     return [dict(zip(column_names, row)) for row in cursor.fetchall()]
 
 
+def format_sql(query):
+    """Format the given Peewee query such that string parameters are properly quoted.
+    Then the result can be used in a different DB query executor (GUI, script, ...).
+    Use for testing only.
+    """
+    # The raw query has %s placeholders
+    raw_query, raw_params = query.sql()
+    params = []
+    for raw_param in raw_params:
+        if isinstance(raw_param, str):
+            param = f'"{raw_param}"'
+        elif raw_param is None:
+            param = "NULL"
+        else:
+            param = raw_param
+        params.append(param)
+    return raw_query % tuple(params)
+
+
 today = date.today()
 
 
