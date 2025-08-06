@@ -259,7 +259,7 @@ function CreateShipment({
                       errors={errors}
                       control={control}
                       onChangeProp={(e) => {
-                        if (e?.value === "CREATE_NEW_PARTNER") {
+                        if (e?.isSpecial) {
                           navigate(`/bases/${baseId}/transfers/agreements/create`);
                         } else {
                           setAgreementNote(e?.comment || "");
