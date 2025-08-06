@@ -126,11 +126,18 @@ function CreateShipment({
   });
 
   // Prepare options for the organisation field
-  const organisationOptions: Array<IDropdownOption> = organisationBaseData?.map((organisation) => ({
-    label: organisation.name,
-    value: organisation.id,
-    comment: organisation.comment,
-  }));
+  const organisationOptions: Array<IDropdownOption> = [
+    ...(organisationBaseData?.map((organisation) => ({
+      label: organisation.name,
+      value: organisation.id,
+      comment: organisation.comment,
+    })) || []),
+    {
+      label: "- Link New Partner -",
+      value: "CREATE_NEW_PARTNER",
+      isSpecial: true,
+    },
+  ];
 
   // Prepare options for the organisation field, but for intra-org shipments
   const intraOrganisationOptions = currentOrganisationBases
@@ -251,7 +258,18 @@ function CreateShipment({
                       options={organisationOptions}
                       errors={errors}
                       control={control}
-                      onChangeProp={(e) => setAgreementNote(e.comment)}
+                      onChangeProp={(e) => {
+                        if (e?.value === "CREATE_NEW_PARTNER") {
+                          navigate(`/bases/${baseId}/transfers/agreements/create`);
+                        } else {
+                          setAgreementNote(e?.comment || "");
+                        }
+                      }}
+                      formatOptionLabel={(data) => (
+                        <span style={{ fontStyle: data.isSpecial ? "italic" : "normal" }}>
+                          {data.label}
+                        </span>
+                      )}
                     />
                     <SelectField
                       fieldId="receivingBase"

@@ -9,6 +9,7 @@ export interface IDropdownOption extends OptionBase {
   subTitle?: string | undefined | null;
   color?: string | undefined | null;
   data?: object | undefined | null;
+  isSpecial?: boolean;
 }
 
 export interface ISelectFieldProps {
