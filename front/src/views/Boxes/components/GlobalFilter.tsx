@@ -17,7 +17,7 @@ interface IProps {
 export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
   const [value, setValue] = useState<string>(globalFilter);
   const { isOpen, onToggle } = useDisclosure();
-  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
+  const [isLargerThan964] = useMediaQuery("(min-width: 964px)");
   const onChange = useAsyncDebounce((val: string) => {
     setGlobalFilter(val || undefined);
   }, 200);
@@ -30,13 +30,13 @@ export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
 
   return (
     <InputGroup width="auto" variant="filled">
-      <InputLeftElement onClick={onToggle} cursor={isLargerThan768 ? "inherit" : "pointer"}>
+      <InputLeftElement onClick={onToggle} cursor={isLargerThan964 ? "inherit" : "pointer"}>
         <SearchIcon />
       </InputLeftElement>
       <Input
         _focus={{ bg: "gray.200" }}
-        w={isLargerThan768 || isOpen ? "auto" : "0"}
-        pr={isLargerThan768 || isOpen ? "auto" : "0"}
+        w={isLargerThan964 || isOpen ? "auto" : "0"}
+        pr={isLargerThan964 || isOpen ? "auto" : "0"}
         borderRadius={0}
         value={value || ""}
         onChange={handleChange}
