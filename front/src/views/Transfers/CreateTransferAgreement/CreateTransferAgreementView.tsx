@@ -226,7 +226,7 @@ function CreateTransferAgreementView() {
             {" "}
             <Alert status="error">
               <AlertIcon />
-              Can&rsquo;t create agreement, an active identical agreement exists.
+              Can&rsquo;t link new partner, an active identical agreement exists.
             </Alert>
           </Box>
         )}
