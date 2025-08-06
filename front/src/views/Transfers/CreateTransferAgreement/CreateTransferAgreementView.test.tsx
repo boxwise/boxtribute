@@ -152,7 +152,7 @@ it("4.1.2 - Input Validations", async () => {
     addTypename: true,
   });
 
-  const submitButton = await screen.findByRole("button", { name: /create agreement/i });
+  const submitButton = await screen.findByRole("button", { name: /link new partner/i });
   expect(submitButton).toBeInTheDocument();
 
   // Test case 4.1.2.1 - Source Organisation SELECT field cannot be empty
@@ -193,7 +193,7 @@ it("4.1.3 - Click on Submit Button", async () => {
     addTypename: true,
   });
 
-  const submitButton = await screen.findByRole("button", { name: /create agreement/i });
+  const submitButton = await screen.findByRole("button", { name: /link new partner/i });
   expect(submitButton).toBeInTheDocument();
 
   // Test case 4.1.3.1 - Form data was valid and mutation was successful
@@ -220,7 +220,7 @@ it("4.1.3 - Click on Submit Button", async () => {
     addTypename: true,
   });
 
-  const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
+  const rerenderedSubmitButton = await screen.findByRole("button", { name: /link new partner/i });
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
   await user.click(rerenderedSubmitButton);
@@ -263,7 +263,7 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
     addTypename: true,
   });
 
-  const rerenderedSubmitButton = await screen.findByRole("button", { name: /create agreement/i });
+  const rerenderedSubmitButton = await screen.findByRole("button", { name: /link new partner/i });
   expect(rerenderedSubmitButton).toBeInTheDocument();
   await selectOptionInSelectField(user, /partner organisation/i, "BoxCare");
 
@@ -276,6 +276,6 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
     ),
   );
   expect(
-    await screen.findByText(/Can’t create agreement, an active identical agreement exists/i),
+    await screen.findByText(/Can’t link new partner, an active identical agreement exists/i),
   ).toBeInTheDocument();
 });
