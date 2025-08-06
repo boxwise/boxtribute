@@ -1,4 +1,13 @@
-import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList, Text } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+  useMediaQuery,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
@@ -42,6 +51,7 @@ function BoxesActions({
   onUnassignBoxesToShipment,
   actionsAreLoading,
 }: BoxesActionsProps) {
+  const [isLargerThan964] = useMediaQuery("(min-width: 964px)");
   // Used for remove tags
   const getSelectedBoxTags = useMemo(() => {
     const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
@@ -78,8 +88,8 @@ function BoxesActions({
         key="assign-to-shipment"
       />
       <Link to="create" key="box-create">
-        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={[0, 0, 2]}>
-          <Text display={["none", "none", "block"]}>Create Box</Text>
+        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={isLargerThan964 ? 2 : 0}>
+          {isLargerThan964 && <Text>Create Box</Text>}
         </Button>
       </Link>
       <Menu key="box-actions" closeOnSelect={false}>
