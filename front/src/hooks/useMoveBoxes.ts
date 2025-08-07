@@ -67,9 +67,7 @@ export interface IUseMoveBoxesReturnType {
   isLoading: boolean;
 }
 
-export const useMoveBoxes = (
-  refetchQueries: Array<{ query: DocumentNode; variables?: any }> = [],
-) => {
+export const useMoveBoxes = () => {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -100,7 +98,6 @@ export const useMoveBoxes = (
           labelIdentifiers,
           locationId: newLocationId,
         },
-        refetchQueries,
       })
         .then(({ data, errors }) => {
           setIsLoading(false);
@@ -238,7 +235,7 @@ export const useMoveBoxes = (
           },
         );
     },
-    [moveBoxesMutation, createToast, refetchQueries, triggerError],
+    [moveBoxesMutation, createToast, triggerError],
   );
 
   return {
