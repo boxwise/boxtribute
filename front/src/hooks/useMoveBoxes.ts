@@ -1,4 +1,4 @@
-import { DocumentNode, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { useCallback, useState } from "react";
 import { graphql } from "../../../graphql/graphql";
 import { useErrorHandling } from "./useErrorHandling";
