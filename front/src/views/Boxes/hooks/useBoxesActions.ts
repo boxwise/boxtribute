@@ -1,4 +1,4 @@
-import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNotification } from "hooks/useNotification";
 import { useAtomValue } from "jotai";
 import { useCallback, useEffect } from "react";
@@ -57,10 +57,9 @@ function useBoxesActions(
           if (
             moveBoxesResult.failedLabelIdentifiers &&
             moveBoxesResult.failedLabelIdentifiers.length > 0 &&
-            moveBoxesResult.movedLabelIdentifiers &&
-            moveBoxesResult.movedLabelIdentifiers.length > 0
+            moveBoxesResult.kind !== IMoveBoxesResultKind.PARTIAL_FAIL
           ) {
-            // Partial failure - some boxes moved, some didn't
+            // Full failure - none of the boxes moved
             createToast({
               type: "error",
               message: `Could not move ${
