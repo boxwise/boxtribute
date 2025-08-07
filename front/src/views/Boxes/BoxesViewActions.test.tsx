@@ -21,6 +21,7 @@ import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
 import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
 import { UNASSIGN_TAGS_FROM_BOXES } from "hooks/useUnassignTags";
+import { MOVE_BOXES_TO_LOCATION } from "hooks/useMoveBoxes";
 import { TadaDocumentNode } from "gql.tada";
 
 const boxesQuery = ({
@@ -174,21 +175,6 @@ beforeEach(() => {
   tableConfigsVar(new Map());
 });
 
-const moveBoxesGQLRequest = graphql(`
-  mutation MoveBoxes($newLocationId: Int!, $labelIdentifier0: String!) {
-    moveBox123: updateBox(
-      updateInput: { labelIdentifier: $labelIdentifier0, locationId: $newLocationId }
-    ) {
-      labelIdentifier
-      state
-      location {
-        id
-      }
-      lastModifiedOn
-    }
-  }
-`);
-
 const unassignFromShipmentGQLRequest = graphql(`
   mutation UnassignBoxesFromShipments($shipment0: ID!, $labelIdentifiers0: [String!]!) {
     unassignBoxesFromShipment1: updateShipmentWhenPreparing(
@@ -222,6 +208,73 @@ const unassignFromShipmentGQLRequest = graphql(`
     }
   }
 `);
+
+const moveBoxesMutation = ({
+  labelIdentifiers = ["123"],
+  locationId = 1,
+  invalidBoxLabelIdentifiers = [] as string[],
+  networkError = false,
+  graphQlError = false,
+  insufficientPermissionError = false,
+  resourceDoesNotExistError = false,
+  unauthorizedForBaseError = false,
+  deletedLocationError = false,
+}) => ({
+  request: {
+    query: MOVE_BOXES_TO_LOCATION,
+    variables: { labelIdentifiers, locationId },
+  },
+  result: networkError
+    ? undefined
+    : {
+        data: insufficientPermissionError
+          ? {
+              moveBoxesToLocation: {
+                __typename: "InsufficientPermissionError",
+                name: "InsufficientPermissionError",
+              },
+            }
+          : resourceDoesNotExistError
+            ? {
+                moveBoxesToLocation: {
+                  __typename: "ResourceDoesNotExistError",
+                  name: "ResourceDoesNotExistError",
+                },
+              }
+            : unauthorizedForBaseError
+              ? {
+                  moveBoxesToLocation: {
+                    __typename: "UnauthorizedForBaseError",
+                    name: "UnauthorizedForBaseError",
+                  },
+                }
+              : deletedLocationError
+                ? {
+                    moveBoxesToLocation: {
+                      __typename: "DeletedLocationError",
+                      name: "DeletedLocationError",
+                    },
+                  }
+                : graphQlError
+                  ? null
+                  : {
+                      moveBoxesToLocation: {
+                        __typename: "BoxesResult",
+                        updatedBoxes: labelIdentifiers.map((labelIdentifier) => ({
+                          labelIdentifier,
+                          state: "InStock",
+                          location: {
+                            id: locationId.toString(),
+                          },
+                          lastModifiedOn: new Date().toISOString(),
+                        })),
+                        invalidBoxLabelIdentifiers,
+                      },
+                    },
+        errors: graphQlError ? [new FakeGraphQLError()] : undefined,
+      },
+  error: networkError ? new FakeGraphQLNetworkError() : undefined,
+});
 
 const deleteBoxesMutation = ({
   labelIdentifiers = ["123"],
@@ -270,29 +323,9 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
-      mutation({
-        gQLRequest: moveBoxesGQLRequest,
-        variables: { newLocationId: 1, labelIdentifier0: "123" },
-        resultData: {
-          moveBox123: {
-            labelIdentifier: "123",
-            state: "InStock",
-            location: {
-              id: "1",
-            },
-            createdBy: {
-              __typename: "User",
-              id: "123",
-              name: "Some User",
-            },
-            lastModifiedOn: new Date().toISOString(),
-            lastModifiedBy: {
-              __typename: "User",
-              id: "1234",
-              name: "Another User",
-            },
-          },
-        },
+      moveBoxesMutation({
+        labelIdentifiers: ["123"],
+        locationId: 1,
       }),
     ],
     clicks: [/move/i, /warehouse/i],
@@ -306,14 +339,14 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
-      mutation({
-        gQLRequest: moveBoxesGQLRequest,
-        variables: { newLocationId: 1, labelIdentifier0: "123" },
+      moveBoxesMutation({
+        labelIdentifiers: ["123"],
+        locationId: 1,
         graphQlError: true,
       }),
     ],
     clicks: [/move/i, /warehouse/i],
-    toast: /Could not move a box/i,
+    triggerError: /Could not move a box/i,
   },
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
@@ -323,14 +356,14 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
-      mutation({
-        gQLRequest: moveBoxesGQLRequest,
-        variables: { newLocationId: 1, labelIdentifier0: "123" },
+      moveBoxesMutation({
+        labelIdentifiers: ["123"],
+        locationId: 1,
         networkError: true,
       }),
     ],
     clicks: [/move/i, /warehouse/i],
-    toast: /Could not move a box/i,
+    triggerError: /Network issue: could not move a box/i,
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
