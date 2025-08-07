@@ -136,8 +136,9 @@ export const generateUnassignBoxesFromShipmentsRequest = (
   const variables = {};
 
   Object.entries(shipmentBoxDictionary).forEach(([shipmentId, labelIdentifiers], index) => {
-    mutationName += `${index === 0 ? "" : ", "
-      }$shipment${index}: ID!, $labelIdentifiers${index}: [String!]!`;
+    mutationName += `${
+      index === 0 ? "" : ", "
+    }$shipment${index}: ID!, $labelIdentifiers${index}: [String!]!`;
     mutationString += `
       unassignBoxesFromShipment${shipmentId}: updateShipmentWhenPreparing(
         updateInput: {
