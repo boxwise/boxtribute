@@ -128,8 +128,8 @@ export const useMoveBoxes = (
           if (resultType === "InsufficientPermissionError") {
             if (showErrors)
               triggerError({
-                message: `You don't have the permissions to move these ${
-                  labelIdentifiers.length === 1 ? "box" : "boxes"
+                message: `You don't have the permissions to move ${
+                  labelIdentifiers.length === 1 ? "this box" : "these boxes"
                 }.`,
               });
             return {
