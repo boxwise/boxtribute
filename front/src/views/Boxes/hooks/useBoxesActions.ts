@@ -52,12 +52,15 @@ function useBoxesActions(
         });
       }
       moveBoxesAction
-        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, false)
+        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, true)
         .then((moveBoxesResult) => {
           if (
             moveBoxesResult.failedLabelIdentifiers &&
-            moveBoxesResult.failedLabelIdentifiers.length > 0
+            moveBoxesResult.failedLabelIdentifiers.length > 0 &&
+            moveBoxesResult.movedLabelIdentifiers &&
+            moveBoxesResult.movedLabelIdentifiers.length > 0
           ) {
+            // Partial failure - some boxes moved, some didn't
             createToast({
               type: "error",
               message: `Could not move ${

@@ -346,7 +346,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move/i, /warehouse/i],
-    triggerError: /Could not move a box/i,
+    triggerError: /Could not move box/i,
   },
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
@@ -363,7 +363,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move/i, /warehouse/i],
-    triggerError: /Network issue: could not move a box/i,
+    triggerError: /Network issue: could not move box/i,
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",

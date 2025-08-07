@@ -107,12 +107,13 @@ export const useMoveBoxes = (
 
           if ((errors?.length || 0) > 0) {
             // General error
-            if (showErrors)
+            if (showErrors) {
               triggerError({
                 message: `Could not move ${
                   labelIdentifiers.length === 1 ? "box" : "boxes"
                 }. Try again?`,
               });
+            }
 
             return {
               kind: IMoveBoxesResultKind.FAIL,
