@@ -177,19 +177,12 @@ export const useMoveBoxes = (
 
           if (resultType === "BoxesResult") {
             const updatedBoxes = data?.moveBoxesToLocation?.updatedBoxes || [];
-            const invalidLabelIdentifiers =
+            const failedLabelIdentifiers =
               data?.moveBoxesToLocation?.invalidBoxLabelIdentifiers || [];
 
             const movedLabelIdentifiers: string[] = updatedBoxes
               .filter((box) => box.location && parseInt(box.location.id, 10) === newLocationId)
               .map((box) => box.labelIdentifier);
-
-            const failedLabelIdentifiers: string[] = [
-              ...invalidLabelIdentifiers,
-              ...labelIdentifiers.filter(
-                (labelIdentifier) => !movedLabelIdentifiers.includes(labelIdentifier),
-              ),
-            ];
 
             if (showToasts && movedLabelIdentifiers.length > 0) {
               createToast({
