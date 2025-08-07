@@ -5,8 +5,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
-  useMediaQuery,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
@@ -51,7 +49,6 @@ function BoxesActions({
   onUnassignBoxesToShipment,
   actionsAreLoading,
 }: BoxesActionsProps) {
-  const [isLargerThan964] = useMediaQuery("(min-width: 964px)");
   // Used for remove tags
   const getSelectedBoxTags = useMemo(() => {
     const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
@@ -87,16 +84,23 @@ function BoxesActions({
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />
-      <Link to="create" key="box-create">
-        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={isLargerThan964 ? 2 : 0}>
-          {isLargerThan964 && <Text>Create Box</Text>}
-        </Button>
-      </Link>
       <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
         </MenuButton>
         <MenuList zIndex={3}>
+          <MenuItem as="div">
+            <Link to="create">
+              <Button
+                padding={1}
+                variant="ghost"
+                leftIcon={<AddIcon />}
+                iconSpacing={2}
+              >
+                Create Box
+              </Button>
+            </Link>
+          </MenuItem>
           <MenuItem as="div">
             <RemoveBoxesButton
               labelIdentifier="Delete Boxes"
