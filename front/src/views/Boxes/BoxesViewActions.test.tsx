@@ -366,6 +366,40 @@ const boxesViewActionsTests = [
     triggerError: /Network issue: could not move box/i,
   },
   {
+    name: "4.8.5.6 - MoveBoxes Action fails due to insufficient permissions",
+    mocks: [
+      boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
+      actionsQuery(),
+      moveBoxesMutation({
+        labelIdentifiers: ["123"],
+        locationId: 1,
+        insufficientPermissionError: true,
+      }),
+    ],
+    clicks: [/move/i, /warehouse/i],
+    triggerError: /You don't have the permissions to move/i,
+  },
+  {
+    name: "4.8.5.7 - MoveBoxes Action fails due to deleted location",
+    mocks: [
+      boxesQuery({}),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
+      actionsQuery(),
+      moveBoxesMutation({
+        labelIdentifiers: ["123"],
+        locationId: 1,
+        deletedLocationError: true,
+      }),
+    ],
+    clicks: [/move/i, /warehouse/i],
+    triggerError: /The target location has been deleted/i,
+  },
+  {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
     mocks: [
       boxesQuery({ state: "MarkedForShipment", stateFilter: [] }),
