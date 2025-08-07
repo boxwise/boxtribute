@@ -14,7 +14,11 @@ import * as Sentry from "@sentry/react";
 import App from "./App";
 import { theme } from "./utils/theme";
 import { captureConsoleIntegration } from "@sentry/react";
+import { setupChunkErrorHandler } from "./utils/chunkErrorHandler";
 import React from "react";
+
+// Setup global chunk error handling for iOS Safari and other browsers
+setupChunkErrorHandler();
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>

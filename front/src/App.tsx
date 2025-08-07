@@ -1,19 +1,8 @@
 import "regenerator-runtime/runtime";
-import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
+import { ReactElement, Suspense, useEffect, useRef, useState, lazy } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
-import Boxes from "views/Boxes/BoxesView";
-import BTBox from "views/Box/BoxView";
-import BoxEditView from "views/BoxEdit/BoxEditView";
-import BoxCreateView from "views/BoxCreate/BoxCreateView";
-import TransferAgreementOverviewView from "views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView";
-import CreateTransferAgreementView from "views/Transfers/CreateTransferAgreement/CreateTransferAgreementView";
-import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentView";
-import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
-import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
-import Products from "views/Products/ProductsView";
-import EnableStandardProductView from "views/EnableStandardProduct/EnableStandardProductView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
 import { AuthorizeProps, useAuthorization } from "hooks/useAuthorization";
@@ -22,17 +11,43 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { TableSkeleton } from "components/Skeletons";
 import { AlertWithoutAction } from "components/Alerts";
 import { ErrorBoundary } from "@sentry/react";
-import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 import ErrorView from "views/ErrorView/ErrorView";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
-import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
-import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
+
+// Lazy load heavy components to reduce initial bundle size
+const Dashboard = lazy(() => import("@boxtribute/shared-components/statviz/dashboard/Dashboard"));
+const Boxes = lazy(() => import("views/Boxes/BoxesView"));
+const BTBox = lazy(() => import("views/Box/BoxView"));
+const BoxEditView = lazy(() => import("views/BoxEdit/BoxEditView"));
+const BoxCreateView = lazy(() => import("views/BoxCreate/BoxCreateView"));
+const TransferAgreementOverviewView = lazy(
+  () => import("views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView"),
+);
+const CreateTransferAgreementView = lazy(
+  () => import("views/Transfers/CreateTransferAgreement/CreateTransferAgreementView"),
+);
+const CreateShipmentView = lazy(() => import("views/Transfers/CreateShipment/CreateShipmentView"));
+const ShipmentsOverviewView = lazy(
+  () => import("views/Transfers/ShipmentsOverview/ShipmentsOverviewView"),
+);
+const ShipmentView = lazy(() => import("views/Transfers/ShipmentView/ShipmentView"));
+const Products = lazy(() => import("views/Products/ProductsView"));
+const EnableStandardProductView = lazy(
+  () => import("views/EnableStandardProduct/EnableStandardProductView"),
+);
+const CreateCustomProductView = lazy(
+  () => import("views/CreateCustomProduct/CreateCustomProductView"),
+);
+const EditCustomProductView = lazy(() => import("views/EditCustomProduct/EditCustomProductView"));
+const EditStandardProductView = lazy(
+  () => import("views/EditStandardProduct/EditStandardProductView"),
+);
 
 type ProtectedRouteProps = {
   component: ReactElement;
   redirectPath: string | undefined;
+  fallback?: ReactElement;
 } & AuthorizeProps;
 
 type DropappRedirectProps = {
@@ -42,6 +57,7 @@ type DropappRedirectProps = {
 function Protected({
   component,
   redirectPath,
+  fallback = <TableSkeleton />,
   requiredAbps = [],
   minBeta = 0,
 }: ProtectedRouteProps) {
@@ -56,7 +72,15 @@ function Protected({
   }, [isAuthorized, triggerError]);
 
   if (isAuthorized) {
-    return component;
+    return (
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not load this page! Please try reloading." />
+        }
+      >
+        <Suspense fallback={fallback}>{component}</Suspense>
+      </ErrorBoundary>
+    );
   }
 
   return (
@@ -146,15 +170,7 @@ function App() {
               element={
                 <Protected
                   component={
-                    <ErrorBoundary
-                      fallback={
-                        <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-                      }
-                    >
-                      <Suspense fallback={<TableSkeleton />}>
-                        <Boxes hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes} />
-                      </Suspense>
-                    </ErrorBoundary>
+                    <Boxes hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes} />
                   }
                   redirectPath={prevLocation}
                   requiredAbps={["manage_inventory"]}
