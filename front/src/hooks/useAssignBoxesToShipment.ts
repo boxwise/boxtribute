@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { graphql } from "../../../graphql/graphql"
+import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
@@ -26,33 +26,39 @@ export interface IAssignBoxToShipmentResult {
   error?: any;
 }
 
-export const ASSIGN_BOXES_TO_SHIPMENT = graphql(`
-  mutation AssignBoxesToShipment($id: ID!, $labelIdentifiers: [String!]) {
-    updateShipmentWhenPreparing(
-      updateInput: {
-        id: $id
-        preparedBoxLabelIdentifiers: $labelIdentifiers
-        removedBoxLabelIdentifiers: [],
+export const ASSIGN_BOXES_TO_SHIPMENT = graphql(
+  `
+    mutation AssignBoxesToShipment($id: ID!, $labelIdentifiers: [String!]) {
+      updateShipmentWhenPreparing(
+        updateInput: {
+          id: $id
+          preparedBoxLabelIdentifiers: $labelIdentifiers
+          removedBoxLabelIdentifiers: []
+        }
+      ) {
+        ...ShipmentFields
       }
-    ) {
-      ...ShipmentFields
     }
-  }
-`, [SHIPMENT_FIELDS_FRAGMENT]);
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
-export const UNASSIGN_BOX_FROM_SHIPMENT = graphql(`
-  mutation UnassignBoxesFromShipment($id: ID!, $labelIdentifiers: [String!]) {
-    updateShipmentWhenPreparing(
-      updateInput: {
-        id: $id
-        preparedBoxLabelIdentifiers: []
-        removedBoxLabelIdentifiers: $labelIdentifiers
+export const UNASSIGN_BOX_FROM_SHIPMENT = graphql(
+  `
+    mutation UnassignBoxesFromShipment($id: ID!, $labelIdentifiers: [String!]) {
+      updateShipmentWhenPreparing(
+        updateInput: {
+          id: $id
+          preparedBoxLabelIdentifiers: []
+          removedBoxLabelIdentifiers: $labelIdentifiers
+        }
+      ) {
+        ...ShipmentFields
       }
-    ) {
-      ...ShipmentFields
     }
-  }
-`, [SHIPMENT_FIELDS_FRAGMENT]);
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
+);
 
 export const useAssignBoxesToShipment = () => {
   const { triggerError } = useErrorHandling();
@@ -154,8 +160,9 @@ export const useAssignBoxesToShipment = () => {
           if (assignedBoxes.length) {
             if (showToasts)
               createToast({
-                message: `${assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
-                  } successfully assigned to the shipment.`,
+                message: `${
+                  assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
+                } successfully assigned to the shipment.`,
               });
           }
           // Not all Boxes were assigned
@@ -204,8 +211,7 @@ export const useAssignBoxesToShipment = () => {
       const inStockLabelIdentifiers = boxes
         .filter(
           (box) =>
-            box.state === "MarkedForShipment" &&
-            box.shipmentDetail?.shipment.id === shipmentId,
+            box.state === "MarkedForShipment" && box.shipmentDetail?.shipment.id === shipmentId,
         )
         .map((box) => box.labelIdentifier);
       return unassignBoxesFromShipmentMutation({
@@ -275,10 +281,11 @@ export const useAssignBoxesToShipment = () => {
           if (unassignedBoxes.length) {
             if (showToastMessage)
               createToast({
-                message: `${unassignedBoxes.length === 1
-                  ? "A Box was"
-                  : `${unassignedBoxes.length} Boxes were`
-                  } successfully removed from the shipment.`,
+                message: `${
+                  unassignedBoxes.length === 1
+                    ? "A Box was"
+                    : `${unassignedBoxes.length} Boxes were`
+                } successfully removed from the shipment.`,
               });
           }
           // Not all Boxes were unassigned

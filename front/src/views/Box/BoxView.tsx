@@ -461,13 +461,7 @@ function BTBox() {
         }
       }
     },
-    [
-      allData,
-      assignBoxesToShipment,
-      boxData,
-      createToast,
-      handelAssignBoxToShipmentError,
-    ],
+    [allData, assignBoxesToShipment, boxData, createToast, handelAssignBoxToShipmentError],
   );
 
   const onUnassignBoxesToShipment = useCallback(

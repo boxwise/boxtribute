@@ -43,9 +43,7 @@ function BoxTabs({
   isLoading,
 }: IBoxTabsProps) {
   const location =
-    boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.sourceLocation
-      : boxData?.location;
+    boxData?.state === "Receiving" ? boxData?.shipmentDetail?.sourceLocation : boxData?.location;
   return (
     <Box alignContent="center" w="100%">
       <Flex direction="column">

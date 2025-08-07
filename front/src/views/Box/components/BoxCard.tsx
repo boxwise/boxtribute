@@ -62,19 +62,14 @@ function BoxCard({
   const hasTag = !!boxData?.tags?.length;
 
   const product =
-    boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.sourceProduct
-      : boxData?.product;
+    boxData?.state === "Receiving" ? boxData?.shipmentDetail?.sourceProduct : boxData?.product;
 
   const numberOfItems =
     boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.sourceQuantity
       : boxData?.numberOfItems;
 
-  const size =
-    boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.sourceSize
-      : boxData?.size;
+  const size = boxData?.state === "Receiving" ? boxData?.shipmentDetail?.sourceSize : boxData?.size;
 
   return (
     <Box border="2px" pb={2} backgroundColor="brandYellow.100" w="100%">
