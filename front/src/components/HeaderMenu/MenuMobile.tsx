@@ -60,8 +60,8 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
 
   return (
-    // zIndez is set to 1600 which is the skipnav value of chakra UI
-    <Flex as="nav" py={4} zIndex="1600">
+    // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
+    <Flex as="nav" py={4} zIndex="1300">
       <BaseSwitcher isOpen={isOpen} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
@@ -75,7 +75,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
             _hover={{ bg: "transparent" }}
             _expanded={{ bg: "transparent" }}
           />
-          <MenuList zIndex={1600} py={0}>
+          <MenuList zIndex={1300} py={0}>
             <MenuItem
               key="qr-code-menu"
               aria-label="Scan QR code"
