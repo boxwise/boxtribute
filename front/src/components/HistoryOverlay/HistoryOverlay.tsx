@@ -24,7 +24,7 @@ function HistoryOverlay({ data, isOpen, onClose }: IHistoryOverlay) {
       size="3xl"
       scrollBehavior="inside"
     >
-      <ModalOverlay zIndex={1700} />
+      <ModalOverlay />
       <ModalContent borderRadius="0" zIndex={1700}>
         <ModalHeader>Box History</ModalHeader>
         <ModalCloseButton />
