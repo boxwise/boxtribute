@@ -15,7 +15,6 @@ export function SelectBoxStateFilter({ column }: ISelectBoxStateFilterProps) {
     "Lost",
     "MarkedForShipment",
     "NotDelivered",
-    "NotDelivered",
     "Receiving",
     "Scrap",
   ];
