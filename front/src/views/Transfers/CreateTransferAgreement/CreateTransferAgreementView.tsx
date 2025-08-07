@@ -215,7 +215,7 @@ function CreateTransferAgreementView() {
 
   return (
     <>
-      <MobileBreadcrumbButton label="Back to Manage Agreements" linkPath=".." />
+      <MobileBreadcrumbButton label="Back to Manage Network" linkPath=".." />
       {createTransferAgreementMutationState.error &&
         createTransferAgreementMutationState.error.graphQLErrors.some(
           (error: any) =>
@@ -226,7 +226,7 @@ function CreateTransferAgreementView() {
             {" "}
             <Alert status="error">
               <AlertIcon />
-              Can&rsquo;t create agreement, an active identical agreement exists.
+              Can&rsquo;t link new partner, an active identical agreement exists.
             </Alert>
           </Box>
         )}

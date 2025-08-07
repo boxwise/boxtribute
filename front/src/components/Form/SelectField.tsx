@@ -9,6 +9,8 @@ export interface IDropdownOption extends OptionBase {
   subTitle?: string | undefined | null;
   color?: string | undefined | null;
   data?: object | undefined | null;
+  /** Whether this option should be styled as a special action. Defaults to false. */
+  isSpecial?: boolean;
 }
 
 export interface ISelectFieldProps {

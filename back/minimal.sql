@@ -355,7 +355,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (162,42,'Manage Tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
   (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (164,163,'Manage Shipments','shipments',0,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_shipments'),
-  (165,163,'Manage Agreements','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
+  (165,163,'Manage Network','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
   (166,99,'Manage Boxes v2 (<span>beta</span>)','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
   (167,128,'Dashboard v2 (<span>beta</span>)','statviz_dashboard',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_beneficiary_graph'),
   (168,131,'Use Service (<span>beta</span>)','use_service',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'register_service_usage'),

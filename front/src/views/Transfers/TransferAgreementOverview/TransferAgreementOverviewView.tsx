@@ -387,7 +387,7 @@ function TransferAgreementOverviewView() {
       <Stack direction="row" my={4} spacing={4}>
         <Link to="create">
           <Button leftIcon={<AddIcon />} borderRadius="0">
-            Create Agreement
+            Link New Partner
           </Button>
         </Link>
       </Stack>

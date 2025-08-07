@@ -84,7 +84,7 @@ function HeaderMenuContainer() {
           },
           {
             link: `/bases/${baseId}/transfers/agreements`,
-            name: "Manage Agreements",
+            name: "Manage Network",
             requiredAbps: ["view_transfer_agreements"],
           },
         ],
