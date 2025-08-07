@@ -22,7 +22,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
 import { AddIcon } from "@chakra-ui/icons";
-import { FaTruckArrowRight } from "react-icons/fa6";
+import { BiNetworkChart } from "react-icons/bi";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
@@ -80,10 +80,10 @@ function BoxesActions({
         key="move-to"
       />
       <SelectButton
-        label="Assign to Shipment"
+        label="Transfer"
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
-        icon={<FaTruckArrowRight />}
+        icon={<BiNetworkChart />}
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />
