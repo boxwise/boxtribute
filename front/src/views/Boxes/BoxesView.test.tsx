@@ -679,7 +679,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       const moveBoxesButton = await screen.findByRole(
         "button",
         {
-          name: /move to/i,
+          name: /move/i,
         },
         { timeout: 10000 },
       );

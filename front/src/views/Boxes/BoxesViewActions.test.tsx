@@ -295,7 +295,7 @@ const boxesViewActionsTests = [
         },
       }),
     ],
-    clicks: [/move to/i, /warehouse/i],
+    clicks: [/move/i, /warehouse/i],
     toast: /A Box was successfully moved/i,
   },
   {
@@ -312,7 +312,7 @@ const boxesViewActionsTests = [
         graphQlError: true,
       }),
     ],
-    clicks: [/move to/i, /warehouse/i],
+    clicks: [/move/i, /warehouse/i],
     toast: /Could not move a box/i,
   },
   {
@@ -329,7 +329,7 @@ const boxesViewActionsTests = [
         networkError: true,
       }),
     ],
-    clicks: [/move to/i, /warehouse/i],
+    clicks: [/move/i, /warehouse/i],
     toast: /Could not move a box/i,
   },
   {
@@ -341,7 +341,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "MarkedForShipment", stateFilter: [], paginationInput: 100000 }),
       actionsQuery(),
     ],
-    clicks: [/move to/i, /warehouse/i],
+    clicks: [/Move/, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
     searchParams: "?columnFilters=%5B%5D",
   },

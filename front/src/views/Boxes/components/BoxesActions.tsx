@@ -72,7 +72,7 @@ function BoxesActions({
   return (
     <ButtonGroup mb={2}>
       <SelectButton
-        label="Move to ..."
+        label="Move"
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaDollyFlatbed />}
