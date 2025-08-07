@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
-import { BiUndo } from "react-icons/bi";
+import { BiTag, BiUndo } from "react-icons/bi";
 import {
   Box,
   Button,
@@ -17,7 +17,6 @@ import {
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
-import { FaTags } from "react-icons/fa";
 import { FaCartFlatbed } from "react-icons/fa6";
 
 import { useReactiveVar } from "@apollo/client";
@@ -142,7 +141,7 @@ function QrReaderMultiBox({
             </Radio>
             <Radio value="assignTags" data-testid="AssignTags">
               <Stack direction="row" alignItems="center" spacing={2}>
-                <Icon as={FaTags} boxSize={6} />
+                <Icon as={BiTag} boxSize={6} />
                 Tag Boxes
                 <Text>Tag Boxes</Text>
               </Stack>

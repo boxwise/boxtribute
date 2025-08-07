@@ -5,8 +5,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
-  useMediaQuery,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
@@ -22,7 +20,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
 import { AddIcon } from "@chakra-ui/icons";
-import { FaTruckArrowRight } from "react-icons/fa6";
+import { BiNetworkChart } from "react-icons/bi";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
@@ -51,7 +49,6 @@ function BoxesActions({
   onUnassignBoxesToShipment,
   actionsAreLoading,
 }: BoxesActionsProps) {
-  const [isLargerThan964] = useMediaQuery("(min-width: 964px)");
   // Used for remove tags
   const getSelectedBoxTags = useMemo(() => {
     const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
@@ -72,7 +69,7 @@ function BoxesActions({
   return (
     <ButtonGroup mb={2}>
       <SelectButton
-        label="Move to ..."
+        label="Move"
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaDollyFlatbed />}
@@ -80,23 +77,30 @@ function BoxesActions({
         key="move-to"
       />
       <SelectButton
-        label="Assign to Shipment"
+        label="Transfer"
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
-        icon={<FaTruckArrowRight />}
+        icon={<BiNetworkChart />}
         isDisabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />
-      <Link to="create" key="box-create">
-        <Button leftIcon={<AddIcon />} borderRadius="0" iconSpacing={isLargerThan964 ? 2 : 0}>
-          {isLargerThan964 && <Text>Create Box</Text>}
-        </Button>
-      </Link>
       <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
           <BsBox2HeartFill />
         </MenuButton>
         <MenuList zIndex={3}>
+          <MenuItem as="div">
+            <Link to="create">
+              <Button
+                padding={1}
+                variant="ghost"
+                leftIcon={<AddIcon />}
+                iconSpacing={2}
+              >
+                Create Box
+              </Button>
+            </Link>
+          </MenuItem>
           <MenuItem as="div">
             <RemoveBoxesButton
               labelIdentifier="Delete Boxes"
