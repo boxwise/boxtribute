@@ -220,11 +220,13 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
   const fontSizeLegend = Math.ceil(height / 35);
   const fontSizeText = Math.ceil(height / 35);
   const fontSizeLabel = Math.ceil(width / (scaleFactor * 4.5));
+  const fontFamily = "Open Sans";
 
   return {
     background: "#ffffff",
     text: {
       fontSize: fontSizeText,
+      fontFamily: fontFamily,
       fill: "#333333",
       outlineWidth: 0,
       outlineColor: "transparent",
@@ -232,6 +234,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
     labels: {
       text: {
         fontSize: fontSizeLabel,
+        fontFamily: fontFamily,
       },
     },
     axis: {
@@ -244,6 +247,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       legend: {
         text: {
           fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
@@ -256,6 +260,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
         },
         text: {
           fontSize: fontSizeAxis,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
@@ -272,6 +277,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       title: {
         text: {
           fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
@@ -279,6 +285,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       },
       text: {
         fontSize: fontSizeLegend,
+        fontFamily: fontFamily,
         fill: "#333333",
         outlineWidth: 0,
         outlineColor: "transparent",
@@ -287,6 +294,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
         line: {},
         text: {
           fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
@@ -296,6 +304,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
     annotations: {
       text: {
         fontSize: fontSizeLegend,
+        fontFamily: fontFamily,
         fill: "#333333",
         outlineWidth: 2,
         outlineColor: "#ffffff",
