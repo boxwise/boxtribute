@@ -1,5 +1,5 @@
 import { extendTheme } from "@chakra-ui/react";
-import { Theme } from "@nivo/core";
+import { Theme } from "@nivo/theming";
 import { defaultStyles } from "@visx/tooltip";
 import { percent } from "../statviz/utils/chart";
 
@@ -105,133 +105,32 @@ export const theme = extendTheme({
   },
 });
 
-export const nivoScheme: Theme = {
-  background: "#ffffff",
-  text: {
-    fontSize: 11,
-    fill: "#333333",
-    outlineWidth: 0,
-    outlineColor: "transparent",
-  },
-  axis: {
-    domain: {
-      line: {
-        stroke: "#777777",
-        strokeWidth: 1,
-      },
-    },
-    legend: {
-      text: {
-        fontSize: 12,
-        fill: "#333333",
-        outlineWidth: 0,
-        outlineColor: "transparent",
-      },
-    },
-    ticks: {
-      line: {
-        stroke: "#777777",
-        strokeWidth: 1,
-      },
-      text: {
-        fontSize: 11,
-        fill: "#333333",
-        outlineWidth: 0,
-        outlineColor: "transparent",
-      },
-    },
-  },
-  grid: {
-    line: {
-      stroke: "#dddddd",
-      strokeWidth: 1,
-    },
-  },
-  legends: {
-    title: {
-      text: {
-        fontSize: 11,
-        fill: "#333333",
-        outlineWidth: 0,
-        outlineColor: "transparent",
-      },
-    },
-    text: {
-      fontSize: 11,
-      fill: "#333333",
-      outlineWidth: 0,
-      outlineColor: "transparent",
-    },
-    ticks: {
-      line: {},
-      text: {
-        fontSize: 10,
-        fill: "#333333",
-        outlineWidth: 0,
-        outlineColor: "transparent",
-      },
-    },
-  },
-  annotations: {
-    text: {
-      fontSize: 13,
-      fill: "#333333",
-      outlineWidth: 2,
-      outlineColor: "#ffffff",
-      outlineOpacity: 1,
-    },
-    link: {
-      stroke: "#000000",
-      strokeWidth: 1,
-      outlineWidth: 2,
-      outlineColor: "#ffffff",
-      outlineOpacity: 1,
-    },
-    outline: {
-      stroke: "#000000",
-      strokeWidth: 2,
-      outlineWidth: 2,
-      outlineColor: "#ffffff",
-      outlineOpacity: 1,
-    },
-    symbol: {
-      fill: "#000000",
-      outlineWidth: 2,
-      outlineColor: "#ffffff",
-      outlineOpacity: 1,
-    },
-  },
-  tooltip: {
-    container: {
-      background: "#ffffff",
-      fontSize: 12,
-    },
-    basic: {},
-    chip: {},
-    table: {},
-    tableCell: {},
-    tableCellValue: {},
-  },
-};
-
 export const scaledNivoTheme = (width: number, height: number, scaleFactor: number = 5): Theme => {
   const strokeWidth = Math.ceil(height / 900);
   const fontSizeAxis = Math.ceil(height / 35);
   const fontSizeLegend = Math.ceil(height / 35);
   const fontSizeText = Math.ceil(height / 35);
   const fontSizeLabel = Math.ceil(width / (scaleFactor * 4.5));
+  const fontFamily = "Open Sans";
 
   return {
     background: "#ffffff",
     text: {
       fontSize: fontSizeText,
+      fontFamily: fontFamily,
       fill: "#333333",
       outlineWidth: 0,
       outlineColor: "transparent",
+      outlineOpacity: 0,
     },
     labels: {
       text: {
         fontSize: fontSizeLabel,
+        fontFamily: fontFamily,
+        fill: "#ffffff",
+        outlineWidth: 0,
+        outlineColor: "transparent",
+        outlineOpacity: 0,
       },
     },
     axis: {
@@ -244,9 +143,11 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       legend: {
         text: {
           fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
       ticks: {
@@ -256,9 +157,11 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
         },
         text: {
           fontSize: fontSizeAxis,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
     },
@@ -272,30 +175,51 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       title: {
         text: {
           fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
       text: {
         fontSize: fontSizeLegend,
+        fontFamily: fontFamily,
         fill: "#333333",
         outlineWidth: 0,
         outlineColor: "transparent",
+        outlineOpacity: 0,
       },
       ticks: {
         line: {},
         text: {
           fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
+        },
+      },
+      hidden: {
+        symbol: {
+          fill: "#333333",
+          opacity: 0.5,
+        },
+        text: {
+          fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
+          fill: "#333333",
+          outlineWidth: 0,
+          outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
     },
     annotations: {
       text: {
         fontSize: fontSizeLegend,
+        fontFamily: fontFamily,
         fill: "#333333",
         outlineWidth: 2,
         outlineColor: "#ffffff",
