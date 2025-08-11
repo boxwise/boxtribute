@@ -127,6 +127,9 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       text: {
         fontSize: fontSizeLabel,
         fontFamily: fontFamily,
+        fill: "#ffffff",
+        outlineWidth: 0,
+        outlineColor: "transparent",
         outlineOpacity: 0,
       },
     },
@@ -189,6 +192,20 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       },
       ticks: {
         line: {},
+        text: {
+          fontSize: fontSizeLegend,
+          fontFamily: fontFamily,
+          fill: "#333333",
+          outlineWidth: 0,
+          outlineColor: "transparent",
+          outlineOpacity: 0,
+        },
+      },
+      hidden: {
+        symbol: {
+          fill: "#333333",
+          opacity: 0.5,
+        },
         text: {
           fontSize: fontSizeLegend,
           fontFamily: fontFamily,
