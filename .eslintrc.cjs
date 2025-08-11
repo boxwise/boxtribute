@@ -23,7 +23,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     tsconfigRootDir: __dirname,
-    project: ["./*/tsconfig.json"],
+    project: ["./*/tsconfig.json", "./tsconfig.json"],
   },
   plugins: ["@typescript-eslint"],
   settings: {
@@ -45,7 +45,7 @@ module.exports = {
         // always try to resolve types
         alwaysTryTypes: true,
         // look here for tsconfig files
-        project: ["./*/tsconfig.json"],
+        project: ["./*/tsconfig.json", "./tsconfig.json"],
       },
     },
   },
