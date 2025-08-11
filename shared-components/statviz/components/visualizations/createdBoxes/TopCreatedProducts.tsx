@@ -29,7 +29,7 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } }),
+      innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } as any }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],
