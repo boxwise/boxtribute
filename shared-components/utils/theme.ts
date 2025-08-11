@@ -1,5 +1,5 @@
 import { extendTheme } from "@chakra-ui/react";
-import { Theme } from "@nivo/core";
+import { Theme } from "@nivo/theming";
 import { defaultStyles } from "@visx/tooltip";
 import { percent } from "../statviz/utils/chart";
 
