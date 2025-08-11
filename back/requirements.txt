@@ -11,4 +11,4 @@ aiodataloader==0.4.2
 gunicorn
 auth0-python==4.10.0
 Faker==37.5.3
-freezegun==1.5.4
+freezegun==1.5.5
