@@ -121,11 +121,13 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
       fill: "#333333",
       outlineWidth: 0,
       outlineColor: "transparent",
+      outlineOpacity: 0,
     },
     labels: {
       text: {
         fontSize: fontSizeLabel,
         fontFamily: fontFamily,
+        outlineOpacity: 0,
       },
     },
     axis: {
@@ -142,6 +144,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
       ticks: {
@@ -155,6 +158,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
     },
@@ -172,6 +176,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
       text: {
@@ -180,6 +185,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
         fill: "#333333",
         outlineWidth: 0,
         outlineColor: "transparent",
+        outlineOpacity: 0,
       },
       ticks: {
         line: {},
@@ -189,6 +195,7 @@ export const scaledNivoTheme = (width: number, height: number, scaleFactor: numb
           fill: "#333333",
           outlineWidth: 0,
           outlineColor: "transparent",
+          outlineOpacity: 0,
         },
       },
     },
