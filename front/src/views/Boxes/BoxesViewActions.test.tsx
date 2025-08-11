@@ -777,7 +777,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Clicks logic
-        if (name.toLowerCase().includes("delete")) {
+        if (name.toLowerCase().includes("deleteboxes")) {
           // Check for "Remove Box" button visibility
           const deleteBoxButton = await screen.findByTestId(
             "delete-boxes-button",

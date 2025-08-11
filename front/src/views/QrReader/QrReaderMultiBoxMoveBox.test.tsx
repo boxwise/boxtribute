@@ -238,7 +238,7 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
 
   // Alert appears
   expect(await screen.findByText(/The following boxes were not moved/i)).toBeInTheDocument();
-  expect(screen.getAllByText("678")).toHaveLength(2); // Accept that there are 2 instances
+  expect(screen.getByText(/678/i)).toBeInTheDocument();
 
   // click link to remove all not failed boxes
   await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
