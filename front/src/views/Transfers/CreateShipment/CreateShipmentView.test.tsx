@@ -444,3 +444,35 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
     ).toBeInTheDocument();
   });
 });
+
+// Test case 4.3.5 - Link New Partner functionality
+it("4.3.5 - Click on Link New Partner navigates to create transfer agreement", async () => {
+  const user = userEvent.setup();
+  render(<CreateShipmentView />, {
+    routePath: "/bases/:baseId/transfers/shipments/create",
+    initialUrl: "/bases/1/transfers/shipments/create",
+    additionalRoute: "/bases/1/transfers/agreements/create",
+    mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
+    addTypename: true,
+  });
+
+  const title = await screen.findByRole("heading", { name: "New Shipment" });
+  expect(title).toBeInTheDocument();
+
+  // Check that "Link New Partner" option is available in the dropdown
+  await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i, /link new partner/i], title);
+
+  // Open the dropdown and click on "Link New Partner" option directly
+  const fieldControlInput = screen.getByLabelText(/organisation/i);
+  await user.click(fieldControlInput);
+
+  // Find and click the "Link New Partner" option
+  const linkNewPartnerOption = await screen.findByRole("option", { name: /link new partner/i });
+  expect(linkNewPartnerOption).toBeInTheDocument();
+  await user.click(linkNewPartnerOption);
+
+  // Verify navigation to create transfer agreement page
+  expect(
+    await screen.findByRole("heading", { name: "/bases/1/transfers/agreements/create" }),
+  ).toBeInTheDocument();
+});
