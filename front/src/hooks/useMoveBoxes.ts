@@ -151,7 +151,8 @@ export const useMoveBoxes = () => {
           if (resultType === "UnauthorizedForBaseError") {
             if (showErrors)
               triggerError({
-                message: `You don't have access to the target base.`,
+                message: `You don't have access to base
+                ${data?.moveBoxesToLocation?.name}.`,
               });
             return {
               kind: IMoveBoxesResultKind.UNAUTHORIZED_FOR_BASE,
