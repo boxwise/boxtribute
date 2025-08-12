@@ -1,6 +1,6 @@
-import { DocumentNode, useApolloClient } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { generateMoveBoxRequest, isMove, IMove } from "queries/dynamic-mutations";
+import { graphql } from "../../../graphql/graphql";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -8,8 +8,12 @@ export enum IMoveBoxesResultKind {
   SUCCESS = "success",
   FAIL = "fail",
   NETWORK_FAIL = "networkFail",
-  BAD_USER_INPUT = "badUserInput", // no Boxes were pased to the function
-  PARTIAL_FAIL = "partailFail", // Some Boxes where moved and some not
+  BAD_USER_INPUT = "badUserInput", // no Boxes were passed to the function
+  PARTIAL_FAIL = "partialFail", // Some Boxes were moved and some not
+  NOT_AUTHORIZED = "notAuthorized", // Permission errors
+  RESOURCE_NOT_FOUND = "resourceNotFound", // Location doesn't exist
+  UNAUTHORIZED_FOR_BASE = "unauthorizedForBase", // Base access issue
+  DELETED_LOCATION = "deletedLocation", // Location has been deleted
 }
 
 export interface IMoveBoxesResult {
@@ -19,6 +23,39 @@ export interface IMoveBoxesResult {
   failedLabelIdentifiers?: string[];
   error?: any;
 }
+
+export const MOVE_BOXES_TO_LOCATION = graphql(`
+  mutation MoveBoxesToLocation($labelIdentifiers: [String!]!, $locationId: Int!) {
+    moveBoxesToLocation(
+      updateInput: { labelIdentifiers: $labelIdentifiers, locationId: $locationId }
+    ) {
+      __typename
+      ... on BoxesResult {
+        updatedBoxes {
+          labelIdentifier
+          state
+          location {
+            id
+          }
+          lastModifiedOn
+        }
+        invalidBoxLabelIdentifiers
+      }
+      ... on InsufficientPermissionError {
+        name
+      }
+      ... on ResourceDoesNotExistError {
+        name
+      }
+      ... on UnauthorizedForBaseError {
+        name
+      }
+      ... on DeletedLocationError {
+        name
+      }
+    }
+  }
+`);
 
 export interface IUseMoveBoxesReturnType {
   moveBoxes: (
@@ -30,13 +67,12 @@ export interface IUseMoveBoxesReturnType {
   isLoading: boolean;
 }
 
-export const useMoveBoxes = (
-  refetchQueries: Array<{ query: DocumentNode; variables?: any }> = [],
-) => {
+export const useMoveBoxes = () => {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const apolloClient = useApolloClient();
+
+  const [moveBoxesMutation] = useMutation(MOVE_BOXES_TO_LOCATION);
 
   const moveBoxes = useCallback(
     (
@@ -47,7 +83,6 @@ export const useMoveBoxes = (
     ) => {
       setIsLoading(true);
 
-      // TODO: Validate here that Boxes are in the right state
       // no Boxes were passed
       if (labelIdentifiers.length === 0) {
         setIsLoading(false);
@@ -57,25 +92,25 @@ export const useMoveBoxes = (
         } as IMoveBoxesResult);
       }
 
-      const gqlRequestPrep = generateMoveBoxRequest(labelIdentifiers, newLocationId);
-
       // execute mutation
-      return apolloClient
-        .mutate({
-          mutation: gqlRequestPrep.gqlRequest,
-          variables: gqlRequestPrep.variables,
-          refetchQueries,
-        })
+      return moveBoxesMutation({
+        variables: {
+          labelIdentifiers,
+          locationId: newLocationId,
+        },
+      })
         .then(({ data, errors }) => {
           setIsLoading(false);
+
           if ((errors?.length || 0) > 0) {
             // General error
-            if (showErrors)
+            if (showErrors) {
               triggerError({
                 message: `Could not move ${
                   labelIdentifiers.length === 1 ? "box" : "boxes"
                 }. Try again?`,
               });
+            }
 
             return {
               kind: IMoveBoxesResultKind.FAIL,
@@ -85,51 +120,101 @@ export const useMoveBoxes = (
             } as IMoveBoxesResult;
           }
 
-          const movedLabelIdentifiers: string[] = Object.values(data).reduce(
-            (result: string[], move) => {
-              if (isMove(move)) {
-                const typedMove = move as IMove;
-                if (parseInt(typedMove.location.id, 10) === newLocationId) {
-                  result.push(typedMove.labelIdentifier);
-                }
-              }
-              return result;
-            },
-            [],
-          ) as string[];
+          const resultType = data?.moveBoxesToLocation?.__typename;
 
-          const failedLabelIdentifiers: string[] = labelIdentifiers.filter(
-            (labelIdentifier) =>
-              !movedLabelIdentifiers.some(
-                (movedLabelIdentifier) => movedLabelIdentifier === labelIdentifier,
-              ),
-          );
-
-          if (showToasts && movedLabelIdentifiers.length > 0) {
-            createToast({
-              message: `${
-                movedLabelIdentifiers.length === 1
-                  ? "A Box was"
-                  : `${movedLabelIdentifiers.length} Boxes were`
-              } successfully moved.`,
-            });
-          }
-
-          // Not all Boxes were moved
-          if (failedLabelIdentifiers.length) {
+          if (resultType === "InsufficientPermissionError") {
+            if (showErrors)
+              triggerError({
+                message: `You don't have the permissions to move ${
+                  labelIdentifiers.length === 1 ? "this box" : "these boxes"
+                }.`,
+              });
             return {
-              kind: IMoveBoxesResultKind.PARTIAL_FAIL,
+              kind: IMoveBoxesResultKind.NOT_AUTHORIZED,
               requestedLabelIdentifiers: labelIdentifiers,
-              movedLabelIdentifiers,
-              failedLabelIdentifiers,
+              failedLabelIdentifiers: labelIdentifiers,
             } as IMoveBoxesResult;
           }
 
-          // All Boxes were moved
+          if (resultType === "ResourceDoesNotExistError") {
+            if (showErrors)
+              triggerError({
+                message: `The target location does not exist.`,
+              });
+            return {
+              kind: IMoveBoxesResultKind.RESOURCE_NOT_FOUND,
+              requestedLabelIdentifiers: labelIdentifiers,
+              failedLabelIdentifiers: labelIdentifiers,
+            } as IMoveBoxesResult;
+          }
+
+          if (resultType === "UnauthorizedForBaseError") {
+            if (showErrors)
+              triggerError({
+                message: `You don't have access to base
+                ${data?.moveBoxesToLocation?.name}.`,
+              });
+            return {
+              kind: IMoveBoxesResultKind.UNAUTHORIZED_FOR_BASE,
+              requestedLabelIdentifiers: labelIdentifiers,
+              failedLabelIdentifiers: labelIdentifiers,
+            } as IMoveBoxesResult;
+          }
+
+          if (resultType === "DeletedLocationError") {
+            if (showErrors)
+              triggerError({
+                message: `The target location has been deleted.`,
+              });
+            return {
+              kind: IMoveBoxesResultKind.DELETED_LOCATION,
+              requestedLabelIdentifiers: labelIdentifiers,
+              failedLabelIdentifiers: labelIdentifiers,
+            } as IMoveBoxesResult;
+          }
+
+          if (resultType === "BoxesResult") {
+            const updatedBoxes = data?.moveBoxesToLocation?.updatedBoxes || [];
+            const failedLabelIdentifiers =
+              data?.moveBoxesToLocation?.invalidBoxLabelIdentifiers || [];
+
+            const movedLabelIdentifiers: string[] = updatedBoxes
+              .filter((box) => box.location && parseInt(box.location.id, 10) === newLocationId)
+              .map((box) => box.labelIdentifier);
+
+            if (showToasts && movedLabelIdentifiers.length > 0) {
+              createToast({
+                message: `${
+                  movedLabelIdentifiers.length === 1
+                    ? "A Box was"
+                    : `${movedLabelIdentifiers.length} Boxes were`
+                } successfully moved.`,
+              });
+            }
+
+            // Not all Boxes were moved
+            if (failedLabelIdentifiers.length) {
+              return {
+                kind: IMoveBoxesResultKind.PARTIAL_FAIL,
+                requestedLabelIdentifiers: labelIdentifiers,
+                movedLabelIdentifiers,
+                failedLabelIdentifiers,
+              } as IMoveBoxesResult;
+            }
+
+            // All Boxes were moved
+            return {
+              kind: IMoveBoxesResultKind.SUCCESS,
+              requestedLabelIdentifiers: labelIdentifiers,
+              movedLabelIdentifiers,
+            } as IMoveBoxesResult;
+          }
+
+          // Fallback for unknown result type
           return {
-            kind: IMoveBoxesResultKind.SUCCESS,
+            kind: IMoveBoxesResultKind.FAIL,
             requestedLabelIdentifiers: labelIdentifiers,
-            movedLabelIdentifiers,
+            failedLabelIdentifiers: labelIdentifiers,
           } as IMoveBoxesResult;
         })
         .catch(
@@ -151,7 +236,7 @@ export const useMoveBoxes = (
           },
         );
     },
-    [apolloClient, createToast, refetchQueries, triggerError],
+    [moveBoxesMutation, createToast, triggerError],
   );
 
   return {

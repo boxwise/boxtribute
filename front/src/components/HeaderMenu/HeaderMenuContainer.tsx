@@ -84,7 +84,7 @@ function HeaderMenuContainer() {
           },
           {
             link: `/bases/${baseId}/transfers/agreements`,
-            name: "Manage Agreements",
+            name: "Manage Network",
             requiredAbps: ["view_transfer_agreements"],
           },
         ],
@@ -145,12 +145,6 @@ function HeaderMenuContainer() {
             link: `${oldAppUrlWithBase}&action=tags`,
             name: "Manage Tags",
             requiredAbps: ["manage_tags"],
-            external: true,
-          },
-          {
-            link: `${oldAppUrlWithBase}&action=products`,
-            name: "Classic Manage Products",
-            requiredAbps: ["manage_products"],
             external: true,
           },
           {
