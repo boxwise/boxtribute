@@ -14,9 +14,9 @@ import { cache } from "queries/cache";
 import { generateMockShipmentMinimal } from "mocks/shipments";
 import { selectOptionInSelectField } from "tests/helpers";
 import { locations } from "mocks/locations";
-import { generateMoveBoxRequest } from "queries/dynamic-mutations";
 import { tags } from "mocks/tags";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
+import { MOVE_BOXES_TO_LOCATION } from "hooks/useMoveBoxes";
 import QrReaderView from "./QrReaderView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
@@ -64,52 +64,39 @@ const mockLocationsQuery = ({
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-const generateMoveBoxesResponse = ({
-  labelIdentifiers,
-  newLocationId,
-  newBoxState,
-  failLabelIdentifier,
-}) => {
-  const response = {};
-  labelIdentifiers.forEach((labelIdentifier) => {
-    if (labelIdentifier !== failLabelIdentifier) {
-      response[`moveBox${labelIdentifier}`] = {
-        labelIdentifier,
-        state: newBoxState,
-        location: {
-          id: newLocationId,
-        },
-      };
-    } else {
-      response[`moveBox${labelIdentifier}`] = null;
-    }
-  });
-  return response;
-};
-
 const mockMoveBoxesMutation = ({
   networkError = false,
   graphQlError = false,
   labelIdentifiers = ["123"],
-  newLocationId = 2,
+  locationId = 2,
   newBoxState = "Donated",
   failLabelIdentifier = "678",
 }) => ({
   request: {
-    query: generateMoveBoxRequest(labelIdentifiers, newLocationId).gqlRequest,
-    variables: generateMoveBoxRequest(labelIdentifiers, newLocationId).variables,
+    query: MOVE_BOXES_TO_LOCATION,
+    variables: { labelIdentifiers, locationId },
   },
   result: networkError
     ? undefined
     : {
         data: graphQlError
           ? null
-          : generateMoveBoxesResponse({
-              labelIdentifiers,
-              newLocationId,
-              newBoxState,
-              failLabelIdentifier,
-            }),
+          : {
+              moveBoxesToLocation: {
+                __typename: "BoxesResult",
+                updatedBoxes: labelIdentifiers
+                  .filter((id) => id !== failLabelIdentifier)
+                  .map((labelIdentifier) => ({
+                    labelIdentifier,
+                    state: newBoxState,
+                    location: {
+                      id: locationId.toString(),
+                    },
+                    lastModifiedOn: new Date().toISOString(),
+                  })),
+                invalidBoxLabelIdentifiers: failLabelIdentifier ? [failLabelIdentifier] : [],
+              },
+            },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
@@ -141,7 +128,7 @@ const moveBoxesMutationTests = [
       mockLocationsQuery({}),
       mockMoveBoxesMutation({ graphQlError: true }),
     ],
-    toast: { isError: true, message: /Could not move/i },
+    toast: { isError: true, message: /Could not move box/i },
   },
   {
     name: "3.4.6.5 - Boxes are successfully moved",
@@ -208,7 +195,7 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
       mockSuccessfulQrQuery({ hash: "InStockBox1", labelIdentifier: "123" }),
       mockSuccessfulQrQuery({ hash: "InStockBox2", labelIdentifier: "678" }),
       mockLocationsQuery({}),
-      mockMoveBoxesMutation({ labelIdentifiers: ["123", "678"] }),
+      mockMoveBoxesMutation({ labelIdentifiers: ["123", "678"], locationId: 2 }),
     ],
     cache,
   });
