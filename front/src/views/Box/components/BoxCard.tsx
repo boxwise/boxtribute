@@ -29,6 +29,7 @@ import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
 import { BoxByLabelIdentifier } from "queries/types";
+import { RiQrCodeLine } from "react-icons/ri";
 
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifier;
@@ -62,19 +63,15 @@ function BoxCard({
   const hasTag = !!boxData?.tags?.length;
 
   const product =
-    boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.sourceProduct
-      : boxData?.product;
+    boxData?.state === "Receiving" ? boxData?.shipmentDetail?.sourceProduct : boxData?.product;
 
   const numberOfItems =
     boxData?.state === "Receiving"
       ? boxData?.shipmentDetail?.sourceQuantity
       : boxData?.numberOfItems;
 
-  const size =
-    boxData?.state === "Receiving"
-      ? boxData?.shipmentDetail?.sourceSize
-      : boxData?.size;
+  const size = boxData?.state === "Receiving" ? boxData?.shipmentDetail?.sourceSize : boxData?.size;
+  const printLabelUrl = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/pdf/qr.php?label=${boxData?.id}`;
 
   return (
     <Box border="2px" pb={2} backgroundColor="brandYellow.100" w="100%">
@@ -84,6 +81,20 @@ function BoxCard({
             Box {boxData?.labelIdentifier}
           </Heading>
         </WrapItem>
+        {boxData?.qrCode && (
+          <WrapItem pt={2}>
+            <NavLink to={printLabelUrl}>
+              <IconButton
+                aria-label="Print label"
+                borderRadius="5"
+                size="s"
+                icon={<RiQrCodeLine size={24} />}
+                border="2px"
+                isDisabled={isLoading}
+              />
+            </NavLink>
+          </WrapItem>
+        )}
         <Spacer />
         <WrapItem>
           <NavLink to="edit">
