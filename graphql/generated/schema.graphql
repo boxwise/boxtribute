@@ -12,6 +12,8 @@ enum ProductGender {
   Girl
   Boy
   none
+  BabyGirl
+  BabyBoy
 }
 
 """
