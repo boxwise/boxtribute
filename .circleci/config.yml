@@ -202,13 +202,11 @@ jobs:
           flags: frontend
           files: coverage/coverage-final.json
           plugins: noop
-          skip_validation: true
       - codecov/upload:
           flags: sharedComponents
           files: ../shared-components/coverage/coverage-final.json
           excludes: coverage
           plugins: noop
-          skip_validation: true
       - slack/notify-on-failure:
           only_for_branches: master,production
 
@@ -290,7 +288,6 @@ jobs:
       - codecov/upload:
           flags: backend
           plugins: noop
-          skip_validation: true
 
   deploy:
     parameters:
