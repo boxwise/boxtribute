@@ -7,6 +7,8 @@ import {
   AlertIcon,
   AlertTitle,
   Box,
+  Button,
+  Flex,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -109,6 +111,15 @@ export const UPDATE_BOX_MUTATION = graphql(
   [HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT],
 );
 
+export const CREATE_QR_CODE_MUTATION = graphql(`
+  mutation CreateQrCode($boxLabelIdentifier: String!) {
+    createQrCode(boxLabelIdentifier: $boxLabelIdentifier) {
+      id
+      code
+    }
+  }
+`);
+
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
@@ -186,6 +197,8 @@ function BTBox() {
   );
 
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation(UPDATE_BOX_MUTATION);
+
+  const [createQrCodeMutation, createQrCodeMutationStatus] = useMutation(CREATE_QR_CODE_MUTATION);
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
@@ -379,6 +392,51 @@ function BTBox() {
     [updateBoxLocation, triggerError, createToast, labelIdentifier],
   );
 
+  const onCreateQrCodeClick = useCallback(
+    async () => {
+      // Check if box, location, or product is deleted
+      if (boxData?.product?.deletedOn) {
+        triggerError({
+          message: "Cannot create QR code: Box product is deleted",
+        });
+        return;
+      }
+
+      if (boxData?.location && "deletedOn" in boxData.location && boxData.location.deletedOn) {
+        triggerError({
+          message: "Cannot create QR code: Box location is deleted",
+        });
+        return;
+      }
+
+      createQrCodeMutation({
+        variables: {
+          boxLabelIdentifier: labelIdentifier,
+        },
+        refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
+      })
+        .then((mutationResult) => {
+          if (mutationResult?.errors) {
+            triggerError({
+              message: "Error: Could not create QR code",
+            });
+          } else {
+            createToast({
+              title: `Box ${labelIdentifier}`,
+              type: "success",
+              message: "Successfully created QR code",
+            });
+          }
+        })
+        .catch(() => {
+          triggerError({
+            message: "Could not create QR code",
+          });
+        });
+    },
+    [createQrCodeMutation, triggerError, createToast, labelIdentifier, boxData],
+  );
+
   const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
     assignBoxToDistributionEventMutation({
       variables: {
@@ -558,6 +616,34 @@ function BTBox() {
                 : alertMessageForBoxWithLostScrapState}
             </AlertDescription>
           </Box>
+        </Alert>
+      )}
+      {boxData && !boxData.qrCode && (
+        <Alert
+          status="warning"
+          variant="top-accent"
+          w={["100%", "80%", "100%", "80%"]}
+          alignSelf="center"
+          data-testid="no-qr-code-alert"
+        >
+          <AlertIcon />
+          <Flex justify="space-between" align="center" width="100%">
+            <Box>
+              <AlertTitle>Missing QR Code</AlertTitle>
+              <AlertDescription>
+                This box has no QR code associated with it. Create a label to generate a QR code.
+              </AlertDescription>
+            </Box>
+            <Button
+              colorScheme="orange"
+              size="sm"
+              onClick={onCreateQrCodeClick}
+              isLoading={createQrCodeMutationStatus.loading}
+              data-testid="create-label-button"
+            >
+              Create label
+            </Button>
+          </Flex>
         </Alert>
       )}
       <BoxDetails

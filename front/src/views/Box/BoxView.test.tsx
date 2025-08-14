@@ -4,7 +4,7 @@ import { userEvent } from "@testing-library/user-event";
 import { cache } from "queries/cache";
 import { generateMockBox } from "mocks/boxes";
 import { generateMockLocationWithBase, locations } from "mocks/locations";
-import { product1, product3, products } from "mocks/products";
+import { product1, product3, products, productBasic1 } from "mocks/products";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "views/BoxEdit/BoxEditView";
 import { tags } from "mocks/tags";
 import { textContentMatcher } from "tests/helpers";
@@ -16,6 +16,7 @@ import BTBox, {
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
   UPDATE_STATE_IN_BOX_MUTATION,
   UPDATE_BOX_MUTATION,
+  CREATE_QR_CODE_MUTATION,
 } from "./BoxView";
 
 const initialQuery = {
@@ -849,4 +850,178 @@ it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be vis
   expect(screen.getByRole("tab", { name: /move/i, selected: true })).toHaveTextContent("Move");
 
   expect(screen.queryByRole("tab", { name: /transfer/i, selected: true })).not.toBeInTheDocument();
+}, 10000);
+
+// QR Code Tests
+const initialQueryForBoxWithoutQrCode = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "noqr123",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ 
+        labelIdentifier: "noqr123",
+        qrCode: null,
+      }),
+      shipments: null,
+    },
+  },
+};
+
+const initialQueryForBoxWithQrCode = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "withqr123",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ 
+        labelIdentifier: "withqr123",
+        qrCode: { id: "qr1" },
+      }),
+      shipments: null,
+    },
+  },
+};
+
+const initialQueryForBoxWithDeletedProduct = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "deletedprod123",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({ 
+        labelIdentifier: "deletedprod123",
+        qrCode: null,
+        product: { ...productBasic1, deletedOn: "2023-01-01T00:00:00Z" },
+      }),
+      shipments: null,
+    },
+  },
+};
+
+const createQrCodeMutation = {
+  request: {
+    query: CREATE_QR_CODE_MUTATION,
+    variables: {
+      boxLabelIdentifier: "noqr123",
+    },
+  },
+  result: {
+    data: {
+      createQrCode: {
+        id: "qr123",
+        code: "abc123def456",
+      },
+    },
+  },
+};
+
+const createQrCodeMutationError = {
+  request: {
+    query: CREATE_QR_CODE_MUTATION,
+    variables: {
+      boxLabelIdentifier: "deletedprod123",
+    },
+  },
+  error: new FakeGraphQLError("Cannot create QR code for deleted product"),
+};
+
+// Test case QR.1 - Display warning alert for box without QR code
+it("QR.1 - Display warning alert for box without QR code and create button", async () => {
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/noqr123",
+    mocks: [initialQueryForBoxWithoutQrCode],
+    addTypename: true,
+  });
+
+  expect(await screen.findByRole("heading", { name: /box noqr123/i })).toBeInTheDocument();
+  
+  // Test that warning alert is displayed
+  const alert = screen.getByTestId("no-qr-code-alert");
+  expect(alert).toBeInTheDocument();
+  expect(screen.getByText(/missing qr code/i)).toBeInTheDocument();
+  expect(screen.getByText(/this box has no qr code associated with it/i)).toBeInTheDocument();
+  
+  // Test that create label button is present
+  expect(screen.getByTestId("create-label-button")).toBeInTheDocument();
+}, 10000);
+
+// Test case QR.2 - No warning alert for box with QR code
+it("QR.2 - No warning alert for box with QR code", async () => {
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/withqr123",
+    mocks: [initialQueryForBoxWithQrCode],
+    addTypename: true,
+  });
+
+  expect(await screen.findByRole("heading", { name: /box withqr123/i })).toBeInTheDocument();
+  
+  // Test that warning alert is NOT displayed
+  expect(screen.queryByTestId("no-qr-code-alert")).not.toBeInTheDocument();
+  expect(screen.queryByTestId("create-label-button")).not.toBeInTheDocument();
+}, 10000);
+
+// Test case QR.3 - Successful QR code creation
+it("QR.3 - Successful QR code creation", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/noqr123",
+    mocks: [initialQueryForBoxWithoutQrCode, createQrCodeMutation],
+    addTypename: true,
+  });
+
+  expect(await screen.findByRole("heading", { name: /box noqr123/i })).toBeInTheDocument();
+  
+  // Click the create label button
+  const createButton = screen.getByTestId("create-label-button");
+  await user.click(createButton);
+  
+  // Test that success toast is triggered
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Box noqr123",
+        type: "success",
+        message: "Successfully created QR code",
+      }),
+    ),
+  );
+}, 10000);
+
+// Test case QR.4 - Failed QR code creation for box with deleted product
+it("QR.4 - Failed QR code creation for box with deleted product", async () => {
+  const user = userEvent.setup();
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/deletedprod123",
+    mocks: [initialQueryForBoxWithDeletedProduct],
+    addTypename: true,
+  });
+
+  expect(await screen.findByRole("heading", { name: /box deletedprod123/i })).toBeInTheDocument();
+  
+  // Click the create label button
+  const createButton = screen.getByTestId("create-label-button");
+  await user.click(createButton);
+  
+  // Test that error toast is triggered
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Cannot create QR code: Box product is deleted",
+      }),
+    ),
+  );
 }, 10000);
