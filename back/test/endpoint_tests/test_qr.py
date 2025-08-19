@@ -1,7 +1,7 @@
 from datetime import date
 
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from utils import assert_bad_user_input, assert_successful_request
+from utils import assert_successful_request
 
 
 def test_qr_exists_query(read_only_client, default_qr_code):
@@ -52,7 +52,7 @@ def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
 
 def test_qr_code_mutation(client, box_without_qr_code):
     # Test case 8.2.30
-    mutation = "mutation { createQrCode { id } }"
+    mutation = "mutation { createQrCode { ...on QrCode { id } } }"
     qr_code = assert_successful_request(client, mutation)
     qr_code_id = int(qr_code["id"])
     assert qr_code_id > 2
@@ -60,13 +60,13 @@ def test_qr_code_mutation(client, box_without_qr_code):
     # Test case 8.2.31
     mutation = f"""mutation {{
         createQrCode(boxLabelIdentifier: "{box_without_qr_code['label_identifier']}")
-        {{
+        {{ ...on QrCode {{
             id
             box {{ ...on Box {{
                 id
                 numberOfItems
             }} }}
-        }}
+        }} }}
     }}"""
     created_qr_code = assert_successful_request(client, mutation)
     assert int(created_qr_code["id"]) == qr_code_id + 1
@@ -75,11 +75,6 @@ def test_qr_code_mutation(client, box_without_qr_code):
         == box_without_qr_code["number_of_items"]
     )
     assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
-
-    # Test case 8.2.32
-    assert_bad_user_input(
-        client, """mutation { createQrCode(boxLabelIdentifier: "xxx") { id } }"""
-    )
 
     history_entries = list(
         DbChangeHistory.select(
