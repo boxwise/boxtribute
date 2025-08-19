@@ -826,7 +826,9 @@ INSERT INTO `genders` VALUES (1,'Female','Female',1,NULL,NULL,NULL,NULL,0,1,1,0,
   (4,'Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,0,1,0,'0'),
   (5,'Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,0,1,0,'0'),
   (6,'Unisex Kid','Kid',7,NULL,NULL,NULL,NULL,1,1,0,1,0,'0'),
-  (9,'Unisex Baby','Baby',8,NULL,NULL,NULL,NULL,1,1,0,0,0,'1'),
+  (7,'Baby Girl','Girl',8,NULL,NULL,NULL,NULL,0,1,0,0,1,'1'),
+  (8,'Baby Boy','Boy',8,NULL,NULL,NULL,NULL,1,0,0,0,1,'1'),
+  (9,'Unisex Baby','Baby',8,NULL,NULL,NULL,NULL,1,1,0,0,1,'1'),
   (10,'-',NULL,0,NULL,NULL,NULL,NULL,1,1,1,1,1,'1'),
   (12,'Teen Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,1,0,0,'0'),
   (13,'Teen Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,1,0,0,'0');
@@ -1608,7 +1610,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20250403143459,'AddServicesTable','2025-04-16 13:13:49','2025-04-16 13:13:50',0),
   (20250407152827,'AddServicesRelations','2025-04-16 13:13:50','2025-04-16 13:13:51',0),
   (20250414124236,'AddServiceMenues','2025-04-16 13:13:51','2025-04-16 13:13:51',0),
-  (20250415134236,'AddBaseSettingMenu','2025-04-17 12:43:19','2025-04-17 12:43:20',0);
+  (20250415134236,'AddBaseSettingMenu','2025-04-17 12:43:19','2025-04-17 12:43:20',0),
+  (20250806155709,'UpdateAgreementMenuTitle','2025-08-19 12:41:45','2025-08-19 12:41:45',0),
+  (20250814100608,'AddBabyGenders','2025-08-19 12:49:34','2025-08-19 12:49:35',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
