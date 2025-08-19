@@ -77,7 +77,7 @@ def test_mutations(auth0_client, mocker):
     )
     user_id = "100000001"
 
-    mutation = "mutation { createQrCode { id } }"
+    mutation = "mutation { createQrCode { ...on QrCode { id } } }"
     response = assert_successful_request(auth0_client, mutation, field="createQrCode")
     assert response is not None
 

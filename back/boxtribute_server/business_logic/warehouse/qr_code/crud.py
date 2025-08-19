@@ -24,8 +24,10 @@ def create_qr_code(*, user_id, box_label_identifier=None):
         box = (
             Box.select(
                 Box,
+                Product.id,  # otherwise box.save violates FK constraint
                 Product.deleted_on,
                 Product.name,
+                Location.id,
                 Location.deleted_on,
                 Location.name,
             )
