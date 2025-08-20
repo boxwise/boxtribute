@@ -33,6 +33,7 @@ export const generateMockBox = ({
   size = size2,
   tags = [tag2],
   histories = [history1, history2],
+  qrCode = { id: "2", code: "default-qr" },
 }) => ({
   id,
   labelIdentifier,
@@ -40,6 +41,7 @@ export const generateMockBox = ({
   product,
   size,
   shipmentDetail,
+  qrCode,
   location,
   numberOfItems,
   tags,
