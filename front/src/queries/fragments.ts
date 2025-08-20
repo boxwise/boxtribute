@@ -155,6 +155,7 @@ export const BOX_FIELDS_FRAGMENT = graphql(
       }
       createdOn
       lastModifiedOn
+      deletedOn
     }
   `,
   [

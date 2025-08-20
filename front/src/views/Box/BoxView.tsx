@@ -401,6 +401,12 @@ function BTBox() {
 
   const onCreateQrCodeClick = useCallback(async () => {
     // Check if box, location, or product is deleted
+    if (boxData?.deletedOn) {
+      triggerError({
+        message: "Cannot create QR code: Box is deleted",
+      });
+      return;
+    }
     if (boxData?.product?.deletedOn) {
       triggerError({
         message: "Cannot create QR code: Box product is deleted",
