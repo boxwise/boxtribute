@@ -474,7 +474,7 @@ function BTBox() {
 
   type requestType = "assign" | "unassign" | "reassign";
 
-  const handelAssignBoxToShipmentError = useCallback(
+  const handleAssignBoxToShipmentError = useCallback(
     (shipmentId: string, kind: IAssignBoxToShipmentResultKind, type: requestType) => {
       if (kind === IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE) {
         triggerError({
@@ -512,7 +512,7 @@ function BTBox() {
           (assignedBoxResult?.error?.length || 0) > 0 ||
           assignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
         ) {
-          handelAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
+          handleAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
         } else {
           createToast({
             message: `Box has been successfully assigned to the shipment ${shipmentId}.`,
@@ -522,7 +522,7 @@ function BTBox() {
         }
       }
     },
-    [allData, assignBoxesToShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [allData, assignBoxesToShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
   const onUnassignBoxesToShipment = useCallback(
@@ -539,7 +539,7 @@ function BTBox() {
         !currentShipmentId ||
         unassigmentResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
       ) {
-        handelAssignBoxToShipmentError(shipmentId, unassigmentResult.kind, "unassign");
+        handleAssignBoxToShipmentError(shipmentId, unassigmentResult.kind, "unassign");
       } else {
         createToast({
           message: `Box has been successfully unassigned from the shipment ${shipmentId}`,
@@ -548,7 +548,7 @@ function BTBox() {
         allData.refetch();
       }
     },
-    [allData, unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [allData, unassignBoxesFromShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(
