@@ -435,7 +435,8 @@ function BTBox() {
           createToast({
             title: `Box ${labelIdentifier}`,
             type: "success",
-            message: "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
+            message:
+              "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
           });
         }
       })

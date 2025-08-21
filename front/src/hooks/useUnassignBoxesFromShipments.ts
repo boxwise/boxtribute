@@ -35,13 +35,9 @@ export const useUnassignBoxesFromShipments = () => {
   const unassignBoxesFromShipments = useCallback(
     (boxes: IBoxBasicFields[]) => {
       setIsLoading(true);
-      const markedForShipmentBoxes = boxes.filter(
-        (box) => box.state === "MarkedForShipment",
-      );
+      const markedForShipmentBoxes = boxes.filter((box) => box.state === "MarkedForShipment");
 
-      const notMarkedForShipmentBoxes = boxes.filter(
-        (box) => box.state !== "MarkedForShipment",
-      );
+      const notMarkedForShipmentBoxes = boxes.filter((box) => box.state !== "MarkedForShipment");
 
       const shipmentBoxDictionary = markedForShipmentBoxes.reduce(
         (acc, box) => {
@@ -121,8 +117,9 @@ export const useUnassignBoxesFromShipments = () => {
           // some boxes were unassigned
           if (unassignedBoxes.length > 0) {
             createToast({
-              message: `${unassignedBoxes.length === 1 ? "A Box was" : `${unassignedBoxes.length} Boxes were`
-                } successfully unassigned from the corresponding shipment.`,
+              message: `${
+                unassignedBoxes.length === 1 ? "A Box was" : `${unassignedBoxes.length} Boxes were`
+              } successfully unassigned from the corresponding shipment.`,
             });
           }
           if (failedBoxes.length > 0) {

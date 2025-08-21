@@ -18,6 +18,7 @@ export async function assertOptionsInSelectField(
   subHeadings.forEach((subHeading) => {
     expect(screen.queryByText(subHeading)).not.toBeInTheDocument();
   });
+  // eslint-disable-next-line testing-library/no-node-access
   await user.click(fieldControlInput);
   options.forEach(async (option) => {
     expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
@@ -25,6 +26,7 @@ export async function assertOptionsInSelectField(
   subHeadings.forEach((subHeading) => {
     expect(screen.getByText(subHeading)).toBeInTheDocument();
   });
+  // eslint-disable-next-line testing-library/no-node-access
   await user.click(elementOutside);
   options.forEach(async (option) => {
     await waitFor(() => {
@@ -46,9 +48,11 @@ export async function selectOptionInSelectField(
 ) {
   const fieldControlInput =
     label !== undefined ? screen.getByLabelText(label) : screen.getByText(placeholderText);
+  // eslint-disable-next-line testing-library/no-node-access
   await user.click(fieldControlInput);
   const optionButton = await screen.findByRole(optionInTestingEnvironment, { name: option });
   expect(optionButton).toBeInTheDocument();
+  // eslint-disable-next-line testing-library/no-node-access
   await user.click(optionButton);
   if (isMulti) {
     await waitFor(() => {

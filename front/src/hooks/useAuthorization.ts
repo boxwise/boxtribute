@@ -8,7 +8,7 @@ import { JWT_ROLE, JWT_ABP, JWT_BETA } from "utils/constants";
 export type AuthorizeProps = {
   requiredAbps?: (string | string[])[];
   minBeta?: number;
-}
+};
 
 export function useAuthorization() {
   const { user } = useAuth0();
