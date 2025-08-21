@@ -268,7 +268,9 @@ it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", as
   );
 
   // Alert appears
-  expect(await screen.findByText(/The following boxes were not assigned tags/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/The following boxes were not assigned tags/i),
+  ).toBeInTheDocument();
   expect(screen.getByText(/678/i)).toBeInTheDocument();
 
   // click link to remove all not failed boxes

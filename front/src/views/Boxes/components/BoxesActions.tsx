@@ -1,11 +1,4 @@
-import {
-  Button,
-  ButtonGroup,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
@@ -91,12 +84,7 @@ function BoxesActions({
         <MenuList zIndex={3}>
           <MenuItem as="div">
             <Link to="create">
-              <Button
-                padding={1}
-                variant="ghost"
-                leftIcon={<AddIcon />}
-                iconSpacing={2}
-              >
+              <Button padding={1} variant="ghost" leftIcon={<AddIcon />} iconSpacing={2}>
                 Create Box
               </Button>
             </Link>

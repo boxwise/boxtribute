@@ -104,7 +104,13 @@ function ShipmentCard({
         </Flex>
 
         <>
-          <Flex minWidth="max-content" justifyContent="center" alignItems="center" gap="4" alignContent="space-between">
+          <Flex
+            minWidth="max-content"
+            justifyContent="center"
+            alignItems="center"
+            gap="4"
+            alignContent="space-between"
+          >
             <Box>
               <List spacing={2}>
                 <ListItem>

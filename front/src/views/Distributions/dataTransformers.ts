@@ -3,16 +3,15 @@ import { IPackingListEntryForPackingState } from "./types";
 import { PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY } from "./queries";
 
 export const graphqlPackingListEntriesForDistributionEventTransformer = (
-  queryResult: ResultOf<typeof PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY> | undefined
+  queryResult: ResultOf<typeof PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY> | undefined,
 ): IPackingListEntryForPackingState[] | undefined => {
   // TODO: Do better (e.g. zod based) validation of the query result
   return queryResult?.distributionEvent?.packingListEntries.map((entry) => {
-
     const matchingPackedItemsCollections = entry.matchingPackedItemsCollections.map((el) => {
       return {
         ...el,
         numberOfItems: el.numberOfItems || 0,
-      }
+      };
     });
 
     return {
