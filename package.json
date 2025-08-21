@@ -54,7 +54,7 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
-    "@sentry/types": "^9.34.0",
+    "@sentry/types": "^10.5.0",
     "@testing-library/jest-dom": "^6.7.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.5.2",
