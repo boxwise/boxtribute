@@ -51,6 +51,14 @@ const genders: IGendersOptions[] = [
     label: "Teen Boy",
     value: "TeenBoy",
   },
+  {
+    label: "Baby Girl",
+    value: "BabyGirl",
+  },
+  {
+    label: "Baby Boy",
+    value: "BabyBoy",
+  },
 ];
 
 export const customProductRawToFormOptionsTransformer = (

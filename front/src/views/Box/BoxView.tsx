@@ -7,6 +7,8 @@ import {
   AlertIcon,
   AlertTitle,
   Box,
+  Button,
+  Flex,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -109,6 +111,22 @@ export const UPDATE_BOX_MUTATION = graphql(
   [HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT],
 );
 
+export const CREATE_QR_CODE_MUTATION = graphql(`
+  mutation CreateQrCode($boxLabelIdentifier: String!) {
+    createQrCode(boxLabelIdentifier: $boxLabelIdentifier) {
+      code
+      box {
+        ... on Box {
+          labelIdentifier
+          qrCode {
+            code
+          }
+        }
+      }
+    }
+  }
+`);
+
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
@@ -186,6 +204,8 @@ function BTBox() {
   );
 
   const [updateBoxLocation, updateBoxLocationMutationStatus] = useMutation(UPDATE_BOX_MUTATION);
+
+  const [createQrCodeMutation, createQrCodeMutationStatus] = useMutation(CREATE_QR_CODE_MUTATION);
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
@@ -379,6 +399,53 @@ function BTBox() {
     [updateBoxLocation, triggerError, createToast, labelIdentifier],
   );
 
+  const onCreateQrCodeClick = useCallback(async () => {
+    // Check if box, location, or product is deleted
+    if (boxData?.deletedOn) {
+      triggerError({
+        message: "Cannot create QR code: Box is deleted",
+      });
+      return;
+    }
+    if (boxData?.product?.deletedOn) {
+      triggerError({
+        message: "Cannot create QR code: Box product is deleted",
+      });
+      return;
+    }
+
+    if (boxData?.location && "deletedOn" in boxData.location && boxData.location.deletedOn) {
+      triggerError({
+        message: "Cannot create QR code: Box location is deleted",
+      });
+      return;
+    }
+
+    createQrCodeMutation({
+      variables: {
+        boxLabelIdentifier: labelIdentifier,
+      },
+    })
+      .then((mutationResult) => {
+        if (mutationResult?.errors) {
+          triggerError({
+            message: "Error: Could not create QR code",
+          });
+        } else {
+          createToast({
+            title: `Box ${labelIdentifier}`,
+            type: "success",
+            message: "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
+          });
+        }
+      })
+      .catch(() => {
+        triggerError({
+          message: "Could not create QR code",
+        });
+      });
+  }, [createQrCodeMutation, triggerError, createToast, labelIdentifier, boxData]);
+
   const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
     assignBoxToDistributionEventMutation({
       variables: {
@@ -413,7 +480,7 @@ function BTBox() {
 
   type requestType = "assign" | "unassign" | "reassign";
 
-  const handelAssignBoxToShipmentError = useCallback(
+  const handleAssignBoxToShipmentError = useCallback(
     (shipmentId: string, kind: IAssignBoxToShipmentResultKind, type: requestType) => {
       if (kind === IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE) {
         triggerError({
@@ -451,7 +518,7 @@ function BTBox() {
           (assignedBoxResult?.error?.length || 0) > 0 ||
           assignedBoxResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
         ) {
-          handelAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
+          handleAssignBoxToShipmentError(shipmentId, assignedBoxResult.kind, "assign");
         } else {
           createToast({
             message: `Box has been successfully assigned to the shipment ${shipmentId}.`,
@@ -461,13 +528,7 @@ function BTBox() {
         }
       }
     },
-    [
-      allData,
-      assignBoxesToShipment,
-      boxData,
-      createToast,
-      handelAssignBoxToShipmentError,
-    ],
+    [allData, assignBoxesToShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
   const onUnassignBoxesToShipment = useCallback(
@@ -484,7 +545,7 @@ function BTBox() {
         !currentShipmentId ||
         unassigmentResult.kind !== IAssignBoxToShipmentResultKind.SUCCESS
       ) {
-        handelAssignBoxToShipmentError(shipmentId, unassigmentResult.kind, "unassign");
+        handleAssignBoxToShipmentError(shipmentId, unassigmentResult.kind, "unassign");
       } else {
         createToast({
           message: `Box has been successfully unassigned from the shipment ${shipmentId}`,
@@ -493,7 +554,7 @@ function BTBox() {
         allData.refetch();
       }
     },
-    [allData, unassignBoxesFromShipment, boxData, createToast, handelAssignBoxToShipmentError],
+    [allData, unassignBoxesFromShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(
@@ -558,6 +619,41 @@ function BTBox() {
                 : alertMessageForBoxWithLostScrapState}
             </AlertDescription>
           </Box>
+        </Alert>
+      )}
+      {boxData && !boxData.qrCode && (
+        <Alert
+          status="warning"
+          variant="top-accent"
+          w={["100%", "80%", "100%", "80%"]}
+          alignSelf="center"
+          data-testid="no-qr-code-alert"
+        >
+          <AlertIcon />
+          <Flex
+            direction={["column", "row"]}
+            justify={["center", "space-between"]}
+            align={["stretch", "center"]}
+            width="100%"
+            gap={[2, 0]}
+          >
+            <Box>
+              <AlertTitle>Missing Label</AlertTitle>
+              <AlertDescription>
+                This box does not yet have a QR code label associated with it.
+              </AlertDescription>
+            </Box>
+            <Button
+              colorScheme="orange"
+              size="sm"
+              onClick={onCreateQrCodeClick}
+              isLoading={createQrCodeMutationStatus.loading}
+              data-testid="create-label-button"
+              minW={["auto", "120px"]}
+            >
+              Create label
+            </Button>
+          </Flex>
         </Alert>
       )}
       <BoxDetails
