@@ -25,6 +25,33 @@ export default defineConfig({
       ]
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React and core libraries
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Apollo GraphQL
+          'apollo-vendor': ['@apollo/client', 'graphql'],
+          // UI framework
+          'chakra-vendor': ['@chakra-ui/react', '@emotion/react', '@emotion/styled'],
+          // Data visualization libraries (largest chunks)
+          'nivo-vendor': ['@nivo/bar', '@nivo/core', '@nivo/pie', '@nivo/sankey', '@nivo/sunburst'],
+          'visx-vendor': ['@visx/axis', '@visx/event', '@visx/grid', '@visx/group', '@visx/responsive', '@visx/scale', '@visx/shape', '@visx/tooltip'],
+          'victory-vendor': ['victory'],
+          // QR code and camera libraries
+          'qr-vendor': ['@zxing/browser', '@zxing/library'],
+          // Utility libraries
+          'utils-vendor': ['lodash', 'date-fns', 'zod'],
+          // State management and forms
+          'state-vendor': ['jotai', 'react-hook-form'],
+          // Sentry error tracking
+          'sentry-vendor': ['@sentry/react'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 800, // Increase warning limit since we're splitting chunks
+  },
   server: {
     host: true,
     port: 3000,
