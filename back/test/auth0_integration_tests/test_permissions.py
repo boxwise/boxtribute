@@ -233,7 +233,7 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
         "dev_coordinator@boxaid.org"
     )
 
-    mutation = "mutation { createQrCode { id } }"
+    mutation = "mutation { createQrCode { ...on QrCode { id } } }"
     assert_successful_request(dropapp_dev_client, mutation)
 
     mutation = "mutation { deleteTag(id: 1) { id } }"

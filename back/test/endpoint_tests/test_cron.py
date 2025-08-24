@@ -62,7 +62,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
 
     # Success; perform actual sourcing of seed (takes about 2s)
     # Create QR code and verify that it is removed after reseeding
-    mutation = "mutation { createQrCode { id code } }"
+    mutation = "mutation { createQrCode { ...on QrCode { id code } } }"
     response = assert_successful_request(cron_client, mutation)
     code = response["code"]
     response = cron_client.get(reseed_db_path, headers=headers)

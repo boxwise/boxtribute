@@ -63,8 +63,8 @@ def test_base_specific_permissions(client, mocker):
 
     data = {
         "query": """mutation {
-            qr2: createQrCode { code }
-            qr3: createQrCode { code }
+            qr2: createQrCode { ...on QrCode { code } }
+            qr3: createQrCode { ...on QrCode { code } }
         }"""
     }
     response = client.post("/graphql", json=data)
@@ -354,6 +354,13 @@ def test_update_non_existent_resource(
             "...on UnauthorizedForBaseError { id name organisationName }",
             {"id": "0", "name": "", "organisationName": ""},
         ],
+        # Test case 8.2.32
+        [
+            "createQrCode",
+            'boxLabelIdentifier: "xxx"',
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": None, "name": "Box"},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(
@@ -395,7 +402,7 @@ def test_mutation_arbitrary_database_error(read_only_client, mocker):
     mocker.patch(
         "boxtribute_server.business_logic.warehouse.qr_code.mutations.create_qr_code"
     ).side_effect = peewee.PeeweeException
-    mutation = "mutation { createQrCode { id } }"
+    mutation = "mutation { createQrCode { ...on QrCode { id } } }"
     assert_internal_server_error(read_only_client, mutation, field="createQrCode")
 
 

@@ -2,7 +2,7 @@
 # - input argument: creationInput/updateInput
 # - input type: <Resource>CreationInput/UpdateInput
 type Mutation {
-  createQrCode(boxLabelIdentifier: String): QrCode
+  createQrCode(boxLabelIdentifier: String): CreateQrCodeResult
   " Create a new box in a location, containing items of certain product and size. Optionally pass tags to assign to the box. "
   createBox(creationInput: BoxCreationInput): Box
   " Update one or more properties of a box with specified label identifier. "

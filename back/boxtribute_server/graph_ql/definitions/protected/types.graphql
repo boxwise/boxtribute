@@ -697,10 +697,21 @@ type DeletedTagError {
 type DeletedBaseError {
   name: String!
 }
+type DeletedProductError {
+  name: String!
+}
+type DeletedBoxError {
+  labelIdentifier: String!
+}
+type QrCodeAlreadyAssignedToBox {
+  code: String!
+  labelIdentifier: String!
+}
 type InvalidDateError {
   date: Datetime!
 }
 
+union CreateQrCodeResult = QrCode | DeletedBoxError | DeletedLocationError | DeletedProductError | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | QrCodeAlreadyAssignedToBox
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError

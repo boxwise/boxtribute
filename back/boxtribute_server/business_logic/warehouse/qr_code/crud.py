@@ -1,8 +1,11 @@
 import hashlib
 
 from ....db import db
+from ....errors import DeletedLocation, ResourceDoesNotExist
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
+from ....models.definitions.location import Location
+from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
 from ....models.utils import utcnow
 
@@ -16,6 +19,30 @@ def create_qr_code(*, user_id, box_label_identifier=None):
     All operations are run inside an atomic transaction. If e.g. the box look-up fails,
     the operations are rolled back (i.e. no new QR code is inserted).
     """
+    box = None
+    if box_label_identifier is not None:
+        box = (
+            Box.select(
+                Box,
+                Product.id,  # otherwise box.save violates FK constraint
+                Product.deleted_on,
+                Product.name,
+                Location.id,
+                Location.deleted_on,
+                Location.name,
+            )
+            .join(Product)
+            .join(Location, src=Box)
+            .where(Box.label_identifier == box_label_identifier)
+            .get_or_none()
+        )
+
+        if box is None:
+            return ResourceDoesNotExist(name="Box")
+
+        if box.location.deleted_on is not None:
+            return DeletedLocation(name=box.location.name)
+
     with db.database.atomic():
         now = utcnow()
         new_qr_code = QrCode.create(created_on=now)
@@ -33,8 +60,7 @@ def create_qr_code(*, user_id, box_label_identifier=None):
             change_date=now,
         )
 
-        if box_label_identifier is not None:
-            box = Box.get(Box.label_identifier == box_label_identifier)
+        if box is not None:
             box.qr_code = new_qr_code.id
             box.save()
 

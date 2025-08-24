@@ -148,8 +148,6 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
             }) {
             id
         }""",
-        # Test case 8.2.33
-        "createQrCode { id }",
         """createTransferAgreement(
             creationInput : {
                 initiatingOrganisationId: 1,
@@ -612,6 +610,13 @@ def test_invalid_permission_for_user_read(
             "creationInput: { baseId: 1, beneficiaryData: []}",
             "...on InsufficientPermissionError { name }",
             {"name": "beneficiary:create"},
+        ],
+        # Test case 8.2.33
+        [
+            "createQrCode",
+            'boxLabelIdentifier: "xyz"',
+            "...on InsufficientPermissionError { name }",
+            {"name": "qr:create"},
         ],
     ],
 )
