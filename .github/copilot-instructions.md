@@ -11,7 +11,14 @@ Boxtribute is a humanitarian relief web application supporting the distribution 
 - **Additional Apps**: Statistics visualization (statviz), shared components
 - **Architecture**: Docker-based development, deployed on Google App Engine
 
+### Architecture Diagrams
+For detailed system architecture understanding:
+- **System Landscape**: `docs/c4-system-landscape.png` - High-level overview of system components and external integrations
+- **Backend Components**: `docs/c4-backend-components.jpg` - Internal backend service architecture and data flow
+
 ## Essential Setup Commands
+
+**Note**: These instructions complement the automated setup defined in `.github/workflows/copilot-setup-steps.yml`. The workflow file handles dependency installation in the Copilot environment, while these instructions are for manual development setup.
 
 Run these commands exactly in order for initial setup:
 
@@ -64,7 +71,7 @@ If Docker Compose fails due to network issues:
 
 ```bash
 # Start database only
-docker compose up db
+docker compose up -d db
 
 # Frontend development server (in separate terminal)
 cd front
@@ -74,7 +81,7 @@ pnpm dev
 # Backend development server (in separate terminal)
 cd back
 source ../.venv/bin/activate
-python -m boxtribute_server.dev_main
+MYSQL_HOST=127.0.0.1 MYSQL_USER=root MYSQL_PASSWORD=dropapp_root MYSQL_DB=dropapp_dev MYSQL_PORT=32000 python -m boxtribute_server.dev_main
 # Runs on http://localhost:5005
 ```
 
@@ -114,7 +121,7 @@ pytest
 pytest test/unit_tests/          # Unit tests only (~2 minutes)
 pytest test/model_tests/         # Data model tests (~3 minutes)  
 pytest test/endpoint_tests/      # API endpoint tests (~8 minutes)
-pytest test/auth0_integration_tests/  # Auth0 integration (~2 minutes, requires internet)
+# Skip auth0_integration_tests/ when internet access is limited
 ```
 
 **CRITICAL NOTE**: Backend development requires internet access to PyPI for dependency installation. If you encounter `ReadTimeoutError` from pypi.org, document this in your PR and focus on frontend validation.
@@ -130,8 +137,7 @@ pnpm build
 # Timeout: Set to 3+ minutes
 
 # Build statistics app
-cd statviz  
-pnpm build
+pnpm -C statviz build
 # Takes ~30-60 seconds
 ```
 
@@ -177,26 +183,56 @@ pnpm format:write:all
 
 After making changes, ALWAYS validate functionality by:
 
-### Frontend Validation
-1. Start the development server: `cd front && pnpm dev` 
+### Full Integration Testing
+
+**Note**: Frontend validation always requires a running backend, so complete integration testing is mandatory for all frontend changes.
+
+1. Start complete stack: `docker compose up` (when network allows) or start services separately:
+   ```bash
+   # Alternative when Docker Compose fails:
+   docker compose up -d db
+   cd back && MYSQL_HOST=127.0.0.1 MYSQL_USER=root MYSQL_PASSWORD=dropapp_root MYSQL_DB=dropapp_dev MYSQL_PORT=32000 python -m boxtribute_server.dev_main &
+   cd front && pnpm dev
+   ```
+
 2. Navigate to http://localhost:3000
+
 3. **Login Flow Test**:
    - Click login button
-   - Use test credentials: `dev_volunteer@boxaid.org` / `Browser_tests`
+   - Use test credentials: `dev_coordinator@boxaid.org` / `Browser_tests`
    - Verify successful authentication and redirect to dashboard
+
 4. **Basic Navigation Test**:
    - Test main menu navigation (Boxes, People, Distributions, etc.)
    - Verify all routes load without errors
    - Check browser console for JavaScript errors
+
 5. **Core Functionality Tests** (based on your changes):
-   - **Box management**: Create, edit, scan QR codes
+   - **Box management**: Create, edit boxes
    - **User management**: Add/edit beneficiaries
-   - **Location management**: Manage warehouse locations
    - **Transfer workflows**: Box transfers between locations
-6. Take screenshots of any UI changes for PR documentation
+
+6. **End-to-End User Scenarios**:
+   - Complete user registration and login flow
+   - Box creation and editing
+   - Location-to-location box transfers
+   - Shipment creation and box assignments
+   - Distribution event management (if applicable)
+
+7. **Error Handling Validation**:
+   - Test invalid inputs and verify proper error messages
+   - Test network failure scenarios
+   - Verify authentication timeout handling
+
+8. **Performance Validation**:
+   - Large data set handling (100+ boxes, users)
+   - Multiple concurrent user simulation
+   - Mobile device responsiveness testing
+
+9. Take screenshots of any UI changes for PR documentation
 
 ### Backend Validation (when dependencies available)
-1. Start GraphQL server: `cd back && python -m boxtribute_server.dev_main`
+1. Start GraphQL server: `cd back && MYSQL_HOST=127.0.0.1 MYSQL_USER=root MYSQL_PASSWORD=dropapp_root MYSQL_DB=dropapp_dev MYSQL_PORT=32000 python -m boxtribute_server.dev_main`
 2. Access GraphiQL explorer at http://localhost:5005/graphql
 3. **Authentication Test**:
    ```bash
@@ -210,23 +246,6 @@ After making changes, ALWAYS validate functionality by:
    ```
 5. **Data Integrity Test**: Verify any new mutations return expected data structure
 6. Check server logs for warnings or errors
-
-### Full Integration Testing
-1. Start complete stack: `docker compose up` (when network allows)
-2. **End-to-End User Scenarios**:
-   - Complete user registration and login flow
-   - Box creation, editing, and QR code scanning
-   - Location-to-location box transfers
-   - Shipment creation and box assignments
-   - Distribution event management (if applicable)
-3. **Error Handling Validation**:
-   - Test invalid inputs and verify proper error messages
-   - Test network failure scenarios
-   - Verify authentication timeout handling
-4. **Performance Validation**:
-   - Large data set handling (100+ boxes, users)
-   - Multiple concurrent user simulation
-   - Mobile device responsiveness testing
 
 ### Test Data Available
 The development database includes:
@@ -292,6 +311,8 @@ The project uses CircleCI for automated testing and deployment:
 - **Build process**: ~15-25 minutes total in CI
 - **Deployment**: Automated to Google App Engine
 
+**CRITICAL**: NEVER modify `.circleci/config.yml` or trigger any deployment manually. If changes to CI configuration are absolutely necessary, request approval in a PR comment.
+
 Always run the full test suite locally before pushing:
 ```bash
 # Complete validation sequence
@@ -299,6 +320,8 @@ pnpm install
 pnpm check-types
 pnpm lint:all
 pnpm test:coverage
+pnpm -C front build
+pnpm -C statviz build
 cd back && pytest
 ```
 
