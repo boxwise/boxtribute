@@ -104,6 +104,7 @@ enum ShipmentState {
 
 enum TargetType {
   Shipment
+  IncomingShipment
   OutgoingLocation
   BoxState
 }
