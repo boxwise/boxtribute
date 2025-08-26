@@ -123,7 +123,6 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
     initialUrl: "/bases/1/boxes/123",
     additionalRoute: "/bases/1/shipment/1",
     mocks: [initialQueryForBoxInReceivingState, queryShipmentDetailForBoxReconciliation],
-    addTypename: true,
     cache,
   });
 

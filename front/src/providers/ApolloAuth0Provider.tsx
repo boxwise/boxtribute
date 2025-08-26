@@ -3,7 +3,8 @@
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
 import { useState, useEffect, ReactNode } from "react";
-import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions, ApolloLink } from "@apollo/client";
+import { ApolloClient, HttpLink, DefaultOptions, ApolloLink } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { onError } from "@apollo/client/link/error";
@@ -52,7 +53,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
           traceparent: getTraceparentString(),
         },
       }));
-      return forward(operation).map((data) => {
+      return (forward(operation) as any).map((data: any) => {
         span.end();
         return data;
       });
@@ -60,7 +61,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     return result;
   });
 
-  const errorLink = onError(({ graphQLErrors, networkError }) => {
+  const errorLink = onError(({ graphQLErrors, networkError }: any) => {
     if (graphQLErrors) {
       graphQLErrors.forEach(({ message, locations, path, extensions }) => {
         triggerError({
@@ -88,7 +89,6 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const client = new ApolloClient({
     cache,
-    connectToDevTools: import.meta.env.FRONT_ENVIRONMENT !== "production",
     link: auth0Link.concat(errorLink).concat(createSpanLink).concat(httpLink),
     defaultOptions,
   });

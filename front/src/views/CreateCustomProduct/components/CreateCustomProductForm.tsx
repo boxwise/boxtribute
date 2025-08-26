@@ -133,7 +133,7 @@ function CreateCustomProductForm({
               </Text>
             </HStack>
           </FormControl>
-          <FormControl isInvalid={!!errors.name}>
+          <FormControl isInvalid={!!errors?.name}>
             <FormLabel htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">
@@ -150,7 +150,7 @@ function CreateCustomProductForm({
               type="string"
               {...register("name")}
             />
-            {!!errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}
+            {!!errors?.name && <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>}
           </FormControl>
           <SelectField
             fieldId="category"

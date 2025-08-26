@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -101,13 +101,11 @@ function BoxCreateView() {
   const [
     runCheckIfQRExistsInDB,
     { loading: qrCodeExistsLoading, error: qrCodeExistsError, data: qrCodeExistsData },
-  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB, {
-    variables: { qrCode },
-  });
+  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB);
 
   // Check the QR Code if there is a qrCode param (user read a box QR-Code)
   useEffect(() => {
-    if (qrCode) runCheckIfQRExistsInDB();
+    if (qrCode) runCheckIfQRExistsInDB({ variables: { qrCode } });
 
     if (qrCode && qrCodeExistsData?.qrExists === false) {
       createToast({
@@ -200,8 +198,8 @@ function BoxCreateView() {
       },
     })
       .then((mutationResult) => {
-        if (mutationResult.errors) {
-          const errorCode = mutationResult.errors[0]?.extensions?.code;
+        if (mutationResult.error) {
+          const errorCode = mutationResult.error[0]?.extensions?.code;
           if (errorCode === "BAD_USER_INPUT") {
             triggerError({
               message: "The QR code is already used for another box.",
