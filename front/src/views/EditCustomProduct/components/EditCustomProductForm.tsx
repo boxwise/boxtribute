@@ -16,7 +16,7 @@ import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { z } from "zod";
+import { z } from "zod/v3";
 
 const SingleSelectOptionSchema = z.object({
   label: z.string(),

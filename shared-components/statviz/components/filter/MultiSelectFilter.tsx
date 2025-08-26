@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { useEffect } from "react";
 import SelectField from "../../../form/SelectField";
 

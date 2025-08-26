@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { z } from "zod/v3";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import DateField from "components/Form/DateField";
 import { addDays } from "date-fns";

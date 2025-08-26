@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { groupBy } from "lodash";
 import { useForm } from "react-hook-form";

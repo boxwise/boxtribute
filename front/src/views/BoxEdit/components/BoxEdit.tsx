@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { z } from "zod/v3";
 import _ from "lodash";
 import { useForm } from "react-hook-form";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
