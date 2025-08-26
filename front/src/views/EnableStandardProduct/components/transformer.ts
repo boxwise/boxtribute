@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 
 import { StandardProductQueryResultType } from "queries/types";
 import { enableStandardProductQueryErrorText } from "../EnableStandardProductView";

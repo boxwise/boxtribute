@@ -19,7 +19,7 @@ import {
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
 import { DistributionEventDetails, DistributionEventDetailsSchema } from "../types";
 import DistroEventsCalendarContainer from "./components/DistroEventsCalendar/DistroEventsCalendarContainer";

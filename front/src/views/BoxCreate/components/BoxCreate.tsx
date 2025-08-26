@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { z } from "zod/v3";
 import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";

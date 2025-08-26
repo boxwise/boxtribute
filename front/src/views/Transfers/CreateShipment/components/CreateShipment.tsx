@@ -23,7 +23,7 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { z } from "zod/v3";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useNavigate } from "react-router-dom";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v3";
 import { ProductGender } from "../../../../graphql/types";
 
 // export const DistributionEventStateSchema = z.enum(["Planning", "Packing", "OnDistro", "Returned", "Completed"]);
@@ -6,9 +6,14 @@ import { ProductGender } from "../../../../graphql/types";
 
 // Consider to remove this and instead directly use the enum from the generated graphql schema
 
-export const DistributionEventStateSchema = z.nativeEnum(
-  { Planning: "Planning", Packing: "Packing", OnDistro: "OnDistro", ReturnedFromDistribution: "ReturnedFromDistribution", ReturnTrackingInProgress: "ReturnTrackingInProgress", Completed: "Completed" }
-);
+export const DistributionEventStateSchema = z.nativeEnum({
+  Planning: "Planning",
+  Packing: "Packing",
+  OnDistro: "OnDistro",
+  ReturnedFromDistribution: "ReturnedFromDistribution",
+  ReturnTrackingInProgress: "ReturnTrackingInProgress",
+  Completed: "Completed",
+});
 
 export const DistributionSpotSchema = z.object({
   id: z.string().min(1),
@@ -36,9 +41,7 @@ export const DistributionEventDetailsSchema = z.object({
   distributionSpot: DistributionSpotSchema,
 });
 
-export type DistributionEventDetails = z.infer<
-  typeof DistributionEventDetailsSchema
->;
+export type DistributionEventDetails = z.infer<typeof DistributionEventDetailsSchema>;
 
 export const DistributionTrackingGroupSchema = z.object({
   id: z.string().min(1),
@@ -47,9 +50,7 @@ export const DistributionTrackingGroupSchema = z.object({
   distributionEvents: z.array(DistributionEventDetailsSchema),
 });
 
-export type DistributionTrackingGroup = z.infer<
-  typeof DistributionTrackingGroupSchema
->;
+export type DistributionTrackingGroup = z.infer<typeof DistributionTrackingGroupSchema>;
 
 // export type DistributionEventDetails = {
 //     id: string;
@@ -151,18 +152,13 @@ export const DistributionSpotCoreDataSchema = z.object({
   comment: z.string().nullish(),
 });
 
-export type DistributionSpotCoreData = z.infer<
-  typeof DistributionSpotCoreDataSchema
->;
+export type DistributionSpotCoreData = z.infer<typeof DistributionSpotCoreDataSchema>;
 
-export const DistributionSpotEnrichedDataSchema =
-  DistributionSpotCoreDataSchema.extend({
-    id: z.string().min(1),
-    baseId: z.string().min(1),
-    nextDistroEventDate: z.date().nullish(),
-    distroEvents: z.array(DistroEventForSpotSchema),
-  });
+export const DistributionSpotEnrichedDataSchema = DistributionSpotCoreDataSchema.extend({
+  id: z.string().min(1),
+  baseId: z.string().min(1),
+  nextDistroEventDate: z.date().nullish(),
+  distroEvents: z.array(DistroEventForSpotSchema),
+});
 
-export type DistributionSpotEnrichedData = z.infer<
-  typeof DistributionSpotEnrichedDataSchema
->;
+export type DistributionSpotEnrichedData = z.infer<typeof DistributionSpotEnrichedDataSchema>;

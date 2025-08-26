@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { ILocationData } from "./BoxReconciliationView";
 import { useAtomValue } from "jotai";
 import { reconciliationReceiveLocationAtom } from "stores/globalCacheStore";

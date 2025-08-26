@@ -1,5 +1,5 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";

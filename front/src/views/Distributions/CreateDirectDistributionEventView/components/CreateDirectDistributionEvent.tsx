@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parse, isValid } from "date-fns";
 
