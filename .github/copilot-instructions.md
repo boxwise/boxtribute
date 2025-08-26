@@ -213,11 +213,9 @@ After making changes, ALWAYS validate functionality by:
    - **Transfer workflows**: Box transfers between locations
 
 6. **End-to-End User Scenarios**:
-   - Complete user registration and login flow
    - Box creation and editing
    - Location-to-location box transfers
    - Shipment creation and box assignments
-   - Distribution event management (if applicable)
 
 7. **Error Handling Validation**:
    - Test invalid inputs and verify proper error messages
@@ -322,7 +320,7 @@ pnpm lint:all
 pnpm test:coverage
 pnpm -C front build
 pnpm -C statviz build
-cd back && pytest
+cd back && pytest --ignore=test/auth0_integration_tests/
 ```
 
 ## Troubleshooting
