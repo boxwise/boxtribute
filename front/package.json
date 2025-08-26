@@ -5,11 +5,11 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.3.0",
+    "@auth0/auth0-react": "^2.4.0",
     "@boxtribute/shared-components": "workspace:*",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
-    "jotai": "^2.12.5",
+    "jotai": "^2.13.1",
     "react-big-calendar": "^1.19.4",
     "react-csv": "^2.2.2",
     "react-icons": "^5.5.0",
