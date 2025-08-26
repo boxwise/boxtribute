@@ -45,8 +45,8 @@ importers:
         specifier: 0.99.0
         version: 0.99.0(react@18.3.1)
       '@sentry/react':
-        specifier: ^9.33.0
-        version: 9.33.0(react@18.3.1)
+        specifier: ^10.6.0
+        version: 10.6.0(react@18.3.1)
       '@tidyjs/tidy':
         specifier: ^2.5.2
         version: 2.5.2
@@ -202,8 +202,8 @@ importers:
   front:
     dependencies:
       '@auth0/auth0-react':
-        specifier: ^2.3.0
-        version: 2.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.4.0
+        version: 2.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@boxtribute/shared-components':
         specifier: workspace:*
         version: link:../shared-components
@@ -214,8 +214,8 @@ importers:
         specifier: ^0.21.3
         version: 0.21.3
       jotai:
-        specifier: ^2.12.5
-        version: 2.12.5(@types/react@18.3.14)(react@18.3.1)
+        specifier: ^2.13.1
+        version: 2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1)
       react-big-calendar:
         specifier: ^1.19.4
         version: 1.19.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -248,8 +248,8 @@ importers:
         specifier: ^0.3.7
         version: 0.3.7
       vite-plugin-static-copy:
-        specifier: ^3.1.1
-        version: 3.1.1(vite@6.3.5(@types/node@22.10.1)(yaml@2.8.1))
+        specifier: ^3.1.2
+        version: 3.1.2(vite@6.3.5(@types/node@22.10.1)(yaml@2.8.1))
 
   shared-components: {}
 
@@ -260,8 +260,8 @@ importers:
         version: link:../shared-components
     devDependencies:
       vite-plugin-static-copy:
-        specifier: ^3.1.1
-        version: 3.1.1(vite@6.3.5(@types/node@22.10.1)(yaml@2.8.1))
+        specifier: ^3.1.2
+        version: 3.1.2(vite@6.3.5(@types/node@22.10.1)(yaml@2.8.1))
 
 packages:
 
@@ -307,14 +307,14 @@ packages:
   '@asamuzakjp/css-color@3.1.1':
     resolution: {integrity: sha512-hpRD68SV2OMcZCsrbdkccTw5FXjNDLo5OuqSHyHZfwweGsDWZwDJ2+gONyNAbazZclobMirACLw0lk8WVxIqxA==}
 
-  '@auth0/auth0-react@2.3.0':
-    resolution: {integrity: sha512-YYTc/DWWigKC9fURufR/79h3+3DAnIzbfEzJLZ8Z4Q0BXE0azru3pKUbU+vYzS4lMAJkclwLuAbUnLjK81vCpA==}
+  '@auth0/auth0-react@2.4.0':
+    resolution: {integrity: sha512-5bt3sO9FVupNM15IpqyYu/2OPHpLI5El7RgWLQXZOPbnCBbtl+VgdHR+H2NfhNQ4SqQtC/5uKbHWafcVcsxkiw==}
     peerDependencies:
       react: ^16.11.0 || ^17 || ^18 || ^19
       react-dom: ^16.11.0 || ^17 || ^18 || ^19
 
-  '@auth0/auth0-spa-js@2.1.3':
-    resolution: {integrity: sha512-NMTBNuuG4g3rame1aCnNS5qFYIzsTUV5qTFPRfTyYFS1feS6jsCBR+eTq9YkxCp1yuoM2UIcjunPaoPl77U9xQ==}
+  '@auth0/auth0-spa-js@2.3.0':
+    resolution: {integrity: sha512-zAW6w79UO+G1+3AxboVQIUIZy05xluSOb1ymGg2dqG0pIi0JxEtZGec05BOf2LJ9SehzW4WeCYUQsYD9BjrVpQ==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -1486,36 +1486,36 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
-  '@sentry-internal/browser-utils@9.33.0':
-    resolution: {integrity: sha512-DT9J0jIamavygIvW6rapgFb4L+7VoATPfEaV0UnXfGNXpSq18x7+vj1CyGMc//GBqqgb9SCHxJHOSkfuDYX7ZA==}
+  '@sentry-internal/browser-utils@10.6.0':
+    resolution: {integrity: sha512-pU0aUW1+wBQF4N4cd4aKX61GkiT2wKynsmNOUPR3vhhruuo4WG+GE8mSItO5+5ZyYCevzJ0aPl2QApQlfpnLvw==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@9.33.0':
-    resolution: {integrity: sha512-NQ3Q3d1xvtagI2cYZnI6C1i6hmMkUxIXUMjfO5JFTYpWGNIkzhIaoaY0HFqbiZ94FWwWdfodlQlj6r8Y+M0bnw==}
+  '@sentry-internal/feedback@10.6.0':
+    resolution: {integrity: sha512-oz5oG0R8/vaCImhLFA9jlSZFNlCwtpfyIUXuFW/pzR7OBQ8bnfxoZoM9U+vLpNNcChKojIPbs1/Vugg7MMxFzg==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@9.33.0':
-    resolution: {integrity: sha512-lFO5DYJ32K/mui5Ck7PbqcD7wzRxTyRKiy49gCGAp7x/mhLg5utf5vWPtegiUoCiiMB22rj+n2z0geZwiGKH4A==}
+  '@sentry-internal/replay-canvas@10.6.0':
+    resolution: {integrity: sha512-ekRRvpKWW88vefQEx7EqBLnX+uSfHc6ovDLHdbYtYcT7sc4oWoDqwUN9FrDZxqzwdO0CBgC+iktKKewE5OFOzg==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@9.33.0':
-    resolution: {integrity: sha512-xDFrN19hDkP6+yS4ARYBruI0RinGYD8FPm7JC0BaIMP5yNWAJ80LTT0Jq9Dh1hQfDwUX34dpHy/9Aa7qv+2bRQ==}
+  '@sentry-internal/replay@10.6.0':
+    resolution: {integrity: sha512-w5M+11k0WKT22h5M+Mio+H2sl3WYhRQkntlBrxt0SeevnNVbRODkmZOqTIUhvbGtBg3/yj1otqnsVEKanb0fSA==}
     engines: {node: '>=18'}
 
-  '@sentry/browser@9.33.0':
-    resolution: {integrity: sha512-emlZlpE62lcpxMEzvrQzecnh0WeS36XLQlFLEUhGaYVOw7TBl5JPIoSB4mxPrzIn4GpW++3JrtKRpDAHQn/c4Q==}
+  '@sentry/browser@10.6.0':
+    resolution: {integrity: sha512-Nc50U5Zoyrw/Miz1gwvlyJsIYEdHWwperilM52cPvhYzPdeY31g5XPO/tCpcsgpfYdCjNYWcSwIrD/DCYn6YSA==}
     engines: {node: '>=18'}
 
   '@sentry/core@10.5.0':
     resolution: {integrity: sha512-jTJ8NhZSKB2yj3QTVRXfCCngQzAOLThQUxCl9A7Mv+XF10tP7xbH/88MVQ5WiOr2IzcmrB9r2nmUe36BnMlLjA==}
     engines: {node: '>=18'}
 
-  '@sentry/core@9.33.0':
-    resolution: {integrity: sha512-0mtJAU+x10+q5aV/txyeuPjJ0TmObcD701R0tY0s71yJJOltqqMrmgNpqyuMI/VOASuzTZesiMYdbG6xb3zeSw==}
+  '@sentry/core@10.6.0':
+    resolution: {integrity: sha512-9i0Yf0Px8sScUpGg5KPnn0PwrsO6zoPgp5W5dPp8j+dTmYAxPApoADP4IDF547lsXrm3oKEwEeqQ675xStOiwA==}
     engines: {node: '>=18'}
 
-  '@sentry/react@9.33.0':
-    resolution: {integrity: sha512-WB+OnFVyvFyqC0U2OBLwUpCGrV7TYkduiVaokcPeIvTHC8glou9NSwrBgZ0bQXY68uD/ruIEWrGYZ9SxXGQrUg==}
+  '@sentry/react@10.6.0':
+    resolution: {integrity: sha512-Z7vlPkf5iKrYkOh762q6ptC7EX6hZF6Lx/W6UxuRyuNAFR5qRBh/MLeQHWKi3qL73VSZC8hbWpni3eh6DY2nSQ==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -2907,6 +2907,15 @@ packages:
       picomatch:
         optional: true
 
+  fdir@6.5.0:
+    resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      picomatch: ^3 || ^4
+    peerDependenciesMeta:
+      picomatch:
+        optional: true
+
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
 
@@ -2961,8 +2970,8 @@ packages:
   framesync@6.1.2:
     resolution: {integrity: sha512-jBTqhX6KaQVDyus8muwZbBeGGP0XgujBRbQ7gM7BRdS3CadCZIHiawyzYLnafYcvZIh5j8WE7cxZKFn7dXhu9g==}
 
-  fs-extra@11.3.0:
-    resolution: {integrity: sha512-Z4XaCL6dUDHfP/jT25jJKMmtxvuwbkrD1vNSMFlo9lNLY2c5FHYSQgHPRZUjAB26TpDEoW9HCOgplrdbaPV/ew==}
+  fs-extra@11.3.1:
+    resolution: {integrity: sha512-eXvGGwZ5CL17ZSwHWd3bbgk7UUpF6IFHtP57NYYakPvHOs8GDgDe5KJI36jIJzDkJ6eJjuzRA8eBQb6SkKue0g==}
     engines: {node: '>=14.14'}
 
   fs.realpath@1.0.0:
@@ -3378,13 +3387,19 @@ packages:
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
-  jotai@2.12.5:
-    resolution: {integrity: sha512-G8m32HW3lSmcz/4mbqx0hgJIQ0ekndKWiYP7kWVKi0p6saLXdSoye+FZiOFyonnd7Q482LCzm8sMDl7Ar1NWDw==}
+  jotai@2.13.1:
+    resolution: {integrity: sha512-cRsw6kFeGC9Z/D3egVKrTXRweycZ4z/k7i2MrfCzPYsL9SIWcPXTyqv258/+Ay8VUEcihNiE/coBLE6Kic6b8A==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
+      '@babel/core': '>=7.0.0'
+      '@babel/template': '>=7.0.0'
       '@types/react': '>=17.0.0'
       react: '>=17.0.0'
     peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@babel/template':
+        optional: true
       '@types/react':
         optional: true
       react:
@@ -3433,8 +3448,8 @@ packages:
     resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
     hasBin: true
 
-  jsonfile@6.1.0:
-    resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
+  jsonfile@6.2.0:
+    resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
 
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
@@ -3737,6 +3752,10 @@ packages:
 
   picomatch@4.0.2:
     resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
+    engines: {node: '>=12'}
+
+  picomatch@4.0.3:
+    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
 
   pidtree@0.6.0:
@@ -4614,8 +4633,8 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  vite-plugin-static-copy@3.1.1:
-    resolution: {integrity: sha512-oR53SkL5cX4KT1t18E/xU50vJDo0N8oaHza4EMk0Fm+2/u6nQivxavOfrDk3udWj+dizRizB/QnBvJOOQrTTAQ==}
+  vite-plugin-static-copy@3.1.2:
+    resolution: {integrity: sha512-aVmYOzptLVOI2b1jL+cmkF7O6uhRv1u5fvOkQgbohWZp2CbR22kn9ZqkCUIt9umKF7UhdbsEpshn1rf4720QFg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0
@@ -4881,13 +4900,13 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.3
       lru-cache: 10.4.3
 
-  '@auth0/auth0-react@2.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@auth0/auth0-react@2.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@auth0/auth0-spa-js': 2.1.3
+      '@auth0/auth0-spa-js': 2.3.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@auth0/auth0-spa-js@2.1.3': {}
+  '@auth0/auth0-spa-js@2.3.0': {}
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -6334,40 +6353,40 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@sentry-internal/browser-utils@9.33.0':
+  '@sentry-internal/browser-utils@10.6.0':
     dependencies:
-      '@sentry/core': 9.33.0
+      '@sentry/core': 10.6.0
 
-  '@sentry-internal/feedback@9.33.0':
+  '@sentry-internal/feedback@10.6.0':
     dependencies:
-      '@sentry/core': 9.33.0
+      '@sentry/core': 10.6.0
 
-  '@sentry-internal/replay-canvas@9.33.0':
+  '@sentry-internal/replay-canvas@10.6.0':
     dependencies:
-      '@sentry-internal/replay': 9.33.0
-      '@sentry/core': 9.33.0
+      '@sentry-internal/replay': 10.6.0
+      '@sentry/core': 10.6.0
 
-  '@sentry-internal/replay@9.33.0':
+  '@sentry-internal/replay@10.6.0':
     dependencies:
-      '@sentry-internal/browser-utils': 9.33.0
-      '@sentry/core': 9.33.0
+      '@sentry-internal/browser-utils': 10.6.0
+      '@sentry/core': 10.6.0
 
-  '@sentry/browser@9.33.0':
+  '@sentry/browser@10.6.0':
     dependencies:
-      '@sentry-internal/browser-utils': 9.33.0
-      '@sentry-internal/feedback': 9.33.0
-      '@sentry-internal/replay': 9.33.0
-      '@sentry-internal/replay-canvas': 9.33.0
-      '@sentry/core': 9.33.0
+      '@sentry-internal/browser-utils': 10.6.0
+      '@sentry-internal/feedback': 10.6.0
+      '@sentry-internal/replay': 10.6.0
+      '@sentry-internal/replay-canvas': 10.6.0
+      '@sentry/core': 10.6.0
 
   '@sentry/core@10.5.0': {}
 
-  '@sentry/core@9.33.0': {}
+  '@sentry/core@10.6.0': {}
 
-  '@sentry/react@9.33.0(react@18.3.1)':
+  '@sentry/react@10.6.0(react@18.3.1)':
     dependencies:
-      '@sentry/browser': 9.33.0
-      '@sentry/core': 9.33.0
+      '@sentry/browser': 10.6.0
+      '@sentry/core': 10.6.0
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
 
@@ -8165,6 +8184,10 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.2
 
+  fdir@6.5.0(picomatch@4.0.3):
+    optionalDependencies:
+      picomatch: 4.0.3
+
   fflate@0.8.2: {}
 
   file-entry-cache@6.0.1:
@@ -8215,10 +8238,10 @@ snapshots:
     dependencies:
       tslib: 2.4.0
 
-  fs-extra@11.3.0:
+  fs-extra@11.3.1:
     dependencies:
       graceful-fs: 4.2.11
-      jsonfile: 6.1.0
+      jsonfile: 6.2.0
       universalify: 2.0.1
 
   fs.realpath@1.0.0: {}
@@ -8658,8 +8681,9 @@ snapshots:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
-  jotai@2.12.5(@types/react@18.3.14)(react@18.3.1):
+  jotai@2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1):
     optionalDependencies:
+      '@babel/template': 7.25.9
       '@types/react': 18.3.14
       react: 18.3.1
 
@@ -8714,7 +8738,7 @@ snapshots:
     dependencies:
       minimist: 1.2.8
 
-  jsonfile@6.1.0:
+  jsonfile@6.2.0:
     dependencies:
       universalify: 2.0.1
     optionalDependencies:
@@ -9025,6 +9049,8 @@ snapshots:
   picomatch@2.3.1: {}
 
   picomatch@4.0.2: {}
+
+  picomatch@4.0.3: {}
 
   pidtree@0.6.0: {}
 
@@ -9617,8 +9643,8 @@ snapshots:
 
   tinyglobby@0.2.14:
     dependencies:
-      fdir: 6.4.6(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tinypool@1.1.1: {}
 
@@ -10104,10 +10130,10 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-static-copy@3.1.1(vite@6.3.5(@types/node@22.10.1)(yaml@2.8.1)):
+  vite-plugin-static-copy@3.1.2(vite@6.3.5(@types/node@22.10.1)(yaml@2.8.1)):
     dependencies:
       chokidar: 3.6.0
-      fs-extra: 11.3.0
+      fs-extra: 11.3.1
       p-map: 7.0.3
       picocolors: 1.1.1
       tinyglobby: 0.2.14
