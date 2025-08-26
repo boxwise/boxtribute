@@ -30,7 +30,7 @@
     "@nivo/sankey": "0.99.0",
     "@nivo/sunburst": "0.99.0",
     "@nivo/theming": "0.99.0",
-    "@sentry/react": "^9.33.0",
+    "@sentry/react": "^10.6.0",
     "@tidyjs/tidy": "^2.5.2",
     "@visx/axis": "^3.12.0",
     "@visx/event": "^3.12.0",
