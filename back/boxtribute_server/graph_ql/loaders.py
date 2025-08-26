@@ -25,6 +25,7 @@ from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
 from ..models.utils import convert_ids
@@ -131,6 +132,53 @@ class ShipmentLoader(DataLoader):
             )
         }
         return [shipments.get(i) for i in keys]
+
+
+async def load_agreement_bases(*, type, agreement_ids):
+    source_bases = defaultdict(list)
+    base_ids = []
+    for base in (
+        Base.select(Base, TransferAgreementDetail.transfer_agreement)
+        .join(
+            TransferAgreementDetail,
+            on=((TransferAgreementDetail.source_base == Base.id)),
+        )
+        .where(
+            TransferAgreementDetail.transfer_agreement << agreement_ids,
+        )
+        .distinct()
+    ):
+        source_bases[base.source_base.transfer_agreement_id].append(base)
+        base_ids.append(base.id)
+
+    target_bases = defaultdict(list)
+    for base in (
+        Base.select(Base, TransferAgreementDetail.transfer_agreement)
+        .join(
+            TransferAgreementDetail,
+            on=((TransferAgreementDetail.target_base == Base.id)),
+        )
+        .where(
+            TransferAgreementDetail.transfer_agreement << agreement_ids,
+        )
+        .distinct()
+    ):
+        target_bases[base.target_base.transfer_agreement_id].append(base)
+        base_ids.append(base.id)
+    authorize(permission="base:read", base_ids=base_ids)
+    if type == "source":
+        return [source_bases.get(i, []) for i in agreement_ids]
+    return [target_bases.get(i, []) for i in agreement_ids]
+
+
+class SourceBasesForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        return await load_agreement_bases(type="source", agreement_ids=agreement_ids)
+
+
+class TargetBasesForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        return await load_agreement_bases(type="target", agreement_ids=agreement_ids)
 
 
 class ShipmentsForAgreementLoader(DataLoader):
