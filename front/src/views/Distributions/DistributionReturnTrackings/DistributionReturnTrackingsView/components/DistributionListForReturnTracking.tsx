@@ -1,4 +1,4 @@
-import { useApolloClient } from '@apollo/client/react';
+import { useApolloClient } from "@apollo/client/react";
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -108,7 +108,7 @@ function DistributionListForReturnTracking({
       })
       .then(({ data }) => {
         navigate({
-          pathname: `/bases/${baseId}/distributions/return-trackings/${data.startDistributionEventsTrackingGroup?.id}`,
+          pathname: `/bases/${baseId}/distributions/return-trackings/${data?.startDistributionEventsTrackingGroup?.id}`,
         });
       });
   };

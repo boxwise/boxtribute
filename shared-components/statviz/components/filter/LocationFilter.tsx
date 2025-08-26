@@ -1,4 +1,4 @@
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { ResultOf } from "gql.tada";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import { ITargetFilterValue, targetFilterValuesVar } from "../../state/filter";

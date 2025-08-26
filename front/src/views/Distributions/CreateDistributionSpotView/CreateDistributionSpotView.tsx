@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client/react';
+import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../../../graphql/graphql";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -69,7 +69,7 @@ const CreateDistributionSpotView = () => {
     })
       .then((mutationResult) => {
         const distributionSpotId = mutationResult.data?.createDistributionSpot?.id;
-        if (distributionSpotId === null || (mutationResult.error?.length || 0) > 0) {
+        if (distributionSpotId === null || mutationResult.error) {
           showErrorToast();
         }
         navigate(`/bases/${baseId}/distributions/spots`);

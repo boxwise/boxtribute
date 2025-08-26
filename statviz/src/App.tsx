@@ -97,9 +97,11 @@ function App() {
 
   // Get tag filters.
   useEffect(() => {
-    const tags = (data as any)?.resolveLink?.data[0].dimensions?.tag?.map((t: any) => tagToFilterValue(t!));
+    const tags = (data as any)?.resolveLink?.data[0].dimensions?.tag?.map((t: any) =>
+      tagToFilterValue(t!),
+    );
     if (tags?.length) tagFilterValuesVar(tags);
-  }, [(data as any)?.resolveLink?.data]);
+  }, [data]);
 
   if (error) {
     return <ErrorPage>{matchErrorMessage(error.message)}</ErrorPage>;
@@ -145,7 +147,9 @@ function App() {
     <>
       <Flex gap={8} p={2} alignItems="center" flexDirection={["column", "row"]}>
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-        <Heading size="md">ORGANIZATION: {(data as any).resolveLink.organisationName.toUpperCase()}</Heading>
+        <Heading size="md">
+          ORGANIZATION: {(data as any).resolveLink.organisationName.toUpperCase()}
+        </Heading>
         <Heading size="md">BASE: {(data as any).resolveLink.baseName.toUpperCase()}</Heading>
       </Flex>
       <Flex

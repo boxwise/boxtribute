@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLazyQuery,useMutation,useQuery } from '@apollo/client/react';
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -101,13 +101,11 @@ function BoxCreateView() {
   const [
     runCheckIfQRExistsInDB,
     { loading: qrCodeExistsLoading, error: qrCodeExistsError, data: qrCodeExistsData },
-  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB, {
-    variables: { qrCode },
-  });
+  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB);
 
   // Check the QR Code if there is a qrCode param (user read a box QR-Code)
   useEffect(() => {
-    if (qrCode) runCheckIfQRExistsInDB();
+    if (qrCode) runCheckIfQRExistsInDB({ variables: { qrCode } });
 
     if (qrCode && qrCodeExistsData?.qrExists === false) {
       createToast({

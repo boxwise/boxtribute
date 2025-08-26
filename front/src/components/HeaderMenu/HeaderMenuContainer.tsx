@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import QrReaderOverlay from "components/QrReaderOverlay/QrReaderOverlay";
 import { qrReaderOverlayVar } from "queries/cache";
 import { useAuthorization } from "hooks/useAuthorization";

@@ -752,7 +752,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         {
           routePath: "/bases/:baseId/boxes",
           initialUrl: `/bases/1/boxes${searchParams || ""}`,
-          addTypename: true,
           mocks,
           cache,
         },

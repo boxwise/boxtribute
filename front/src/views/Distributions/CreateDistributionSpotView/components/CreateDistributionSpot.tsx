@@ -36,7 +36,7 @@ function CreateDistributionSpot({
           Name of the Distribution Spot:
         </FormLabel>
         <Input mb={4} {...register("name")} placeholder="Write a name for a Distro Spot" />
-        {error?.graphQLErrors?.name?.message && <p>{error?.graphQLErrors?.name?.message}</p>}
+        {errors?.name?.message && <p>{errors?.name?.message}</p>}
         <FormLabel fontSize="sm" htmlFor="latitude">
           Geo Location:
         </FormLabel>
@@ -47,7 +47,7 @@ function CreateDistributionSpot({
             {...register("latitude", { setValueAs: (v) => (v === "" ? undefined : parseFloat(v)) })}
             placeholder="latitude"
           />
-          {error?.graphQLErrors?.latitude?.message && <p>{error?.graphQLErrors?.latitude?.message}</p>}
+          {errors?.latitude?.message && <p>{errors?.latitude?.message}</p>}
           <Spacer />
           <Input
             mb={4}
@@ -56,7 +56,7 @@ function CreateDistributionSpot({
             })}
             placeholder="longitude"
           />
-          {error?.graphQLErrors?.longitude?.message && <p>{error?.graphQLErrors?.longitude?.message}</p>}
+          {errors?.longitude?.message && <p>{errors?.longitude?.message}</p>}
         </Flex>
         <FormLabel fontSize="sm" htmlFor="comment">
           Comment:

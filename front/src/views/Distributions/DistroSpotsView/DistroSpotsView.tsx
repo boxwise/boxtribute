@@ -8,13 +8,13 @@ const DistroSpotsView = () => {
   const onGoToDistroEventViewHandler = useCallback(
     (distroEventId: string) =>
       navigate(`/bases/${currentBaseId}/distributions/events/${distroEventId}`),
-    [currentBaseId, navigate]
+    [currentBaseId, navigate],
   );
 
   const onGoToCreateNewDistroEventForDistroSpot = useCallback(
     (distroSpotId: string) =>
       navigate(`/bases/${currentBaseId}/distributions/spots/${distroSpotId}/events/create`),
-    [currentBaseId, navigate]
+    [currentBaseId, navigate],
   );
 
   return (

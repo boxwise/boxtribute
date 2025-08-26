@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import { gql } from '@apollo/client';
-import { useApolloClient } from '@apollo/client/react';
+import { gql } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -65,7 +65,7 @@ export const useAssignTags = () => {
 
         setIsLoading(false);
 
-        if ((error?.graphQLErrors?.length || 0) > 0) {
+        if (error) {
           if (showToastMessage)
             triggerError({
               message: `Could not assign tags to ${
@@ -75,12 +75,13 @@ export const useAssignTags = () => {
           return {
             kind: IAssignTagsResultKind.FAIL,
             requestedLabelIdentifiers: labelIdentifiers,
-            error: errors?.[0],
+            error: error,
           };
         }
 
-        const assignedBoxes = data?.assignTagsToBoxes?.updatedBoxes ?? [];
-        const failedLabelIdentifiers = data?.assignTagsToBoxes?.invalidBoxLabelIdentifiers ?? [];
+        const assignedBoxes = (data as any)?.assignTagsToBoxes?.updatedBoxes ?? [];
+        const failedLabelIdentifiers =
+          (data as any)?.assignTagsToBoxes?.invalidBoxLabelIdentifiers ?? [];
         const successfulLabelIdentifiers: string[] = assignedBoxes.map(
           (box: any) => box.labelIdentifier,
         );

@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client/react';
+import { useQuery } from "@apollo/client/react";
 import { Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 

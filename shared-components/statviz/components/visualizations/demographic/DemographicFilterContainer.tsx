@@ -1,4 +1,4 @@
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { useEffect, useMemo } from "react";
 import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
 import DemographicCharts from "./DemographicCharts";

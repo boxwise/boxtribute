@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client/react';
+import { useQuery } from "@apollo/client/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import { ALL_PRODUCTS_FOR_PACKING_LIST } from "views/Distributions/queries";

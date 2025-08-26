@@ -26,8 +26,7 @@ import {
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { useAtomValue } from "jotai";
-import { QueryRef } from '@apollo/client';
-import { useReadQuery } from '@apollo/client/react';
+import { QueryRef, useReadQuery } from "@apollo/client/react";
 import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,

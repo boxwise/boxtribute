@@ -19,7 +19,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { FaCartFlatbed } from "react-icons/fa6";
 
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { qrReaderOverlayVar } from "queries/cache";
 import { colorIsBright } from "utils/helpers";
 import { ShipmentOption } from "components/Form/ShipmentOption";

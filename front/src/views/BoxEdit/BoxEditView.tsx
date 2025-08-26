@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMutation,useQuery } from '@apollo/client/react';
+import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../graphql/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";

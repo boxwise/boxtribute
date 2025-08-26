@@ -1,5 +1,5 @@
 import { Spinner } from "@chakra-ui/react";
-import { useQuery } from '@apollo/client/react';
+import { useQuery } from "@apollo/client/react";
 import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";

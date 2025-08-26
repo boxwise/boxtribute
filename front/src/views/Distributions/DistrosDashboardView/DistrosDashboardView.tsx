@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client/react';
+import { useQuery } from "@apollo/client/react";
 import {
   Box,
   Button,
@@ -71,7 +71,7 @@ const DistrosDashboardView = () => {
 
   if (loading) return <APILoadingIndicator />;
   // TODO: add error logging here
-  if (error) return <div>Error: {error?.graphQLErrors?.message}</div>;
+  if (error) return <div>Error: {error?.message}</div>;
 
   if (data?.base?.distributionEvents == null) return <div>Error: No data</div>;
 

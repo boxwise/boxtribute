@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client/react';
+import { useQuery } from "@apollo/client/react";
 import { Button, Badge } from "@chakra-ui/react";
 import { TableSkeleton } from "components/Skeletons";
 import { SelectColumnFilter } from "components/Table/Filter";

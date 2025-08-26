@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useLazyQuery } from '@apollo/client/react';
+import { useLazyQuery } from "@apollo/client/react";
 import { useLocation } from "react-router-dom";
 import { ORGANISATION_AND_BASES_QUERY } from "queries/queries";
 import {

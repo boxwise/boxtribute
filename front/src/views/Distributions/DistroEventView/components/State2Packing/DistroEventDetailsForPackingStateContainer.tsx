@@ -1,4 +1,4 @@
-import { useMutation,useQuery } from '@apollo/client/react';
+import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../../../../graphql/graphql";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -89,7 +89,7 @@ const DistroEventDetailsForPackingStateContainer = ({
       ],
     })
       .then((res) => {
-        if (res.error && res.error?.graphQLErrors?.length !== 0) {
+        if (res.error && res.error) {
           handleError(res.error);
         } else {
           toast({
@@ -157,7 +157,7 @@ const DistroEventDetailsForPackingStateContainer = ({
         },
       })
         .then((res) => {
-          if (res.error && res.error?.graphQLErrors?.length !== 0) {
+          if (res.error && res.error) {
             handleError(res.error);
           } else {
             toast({

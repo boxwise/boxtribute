@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@apollo/client/react';
+import { useSuspenseQuery } from "@apollo/client/react";
 import { useNavigate } from "react-router-dom";
 import { Badge, Button } from "@chakra-ui/react";
 import { SelectColumnFilter } from "components/Table/Filter";

@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { useLazyQuery,useMutation,useQuery } from '@apollo/client/react';
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -124,14 +124,13 @@ function CreateShipmentView() {
       error: allBasesOfCurrentOrgError,
       data: AllBasesOfCurrentOrg,
     },
-  ] = useLazyQuery(ALL_BASES_OF_CURRENT_ORG_QUERY, {
-    variables: {
-      orgId: currentOrganisationId || "0",
-    },
-  });
+  ] = useLazyQuery(ALL_BASES_OF_CURRENT_ORG_QUERY);
 
   useEffect(() => {
-    if (currentOrganisationId) runAllBasesOfCurrentOrg();
+    if (currentOrganisationId)
+      runAllBasesOfCurrentOrg({
+        variables: { orgId: currentOrganisationId },
+      });
   }, [runAllBasesOfCurrentOrg, currentOrganisationId]);
 
   const currentOrganisationBases = AllBasesOfCurrentOrg?.organisation?.bases;
@@ -280,7 +279,7 @@ function CreateShipmentView() {
           currentOrganisationId={currentOrganisationId || ""}
           currentOrganisationName={currentOrganisationName || ""}
           currentOrganisationBase={currentOrganisationBase || ""}
-          currentOrganisationBases={currentOrganisationBases || []}
+          currentOrganisationBases={(currentOrganisationBases || []).filter(Boolean)}
           organisationBaseData={partnerOrganisationBaseData || []}
           onSubmit={onSubmitCreateShipmentForm}
           noAcceptedAgreements={noAcceptedAgreements || noPartnerOrgBaseData}

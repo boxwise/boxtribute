@@ -84,7 +84,7 @@ function EditCustomProductForm({
           </Text>
         </HStack>
         <VStack spacing={4} p={2} mt={2}>
-          <FormControl isInvalid={!!error?.graphQLErrors?.name}>
+          <FormControl isInvalid={!!errors?.name}>
             <FormLabel htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">
@@ -101,7 +101,7 @@ function EditCustomProductForm({
               type="string"
               {...register("name")}
             />
-            {!!error?.graphQLErrors?.name && <FormErrorMessage>{error?.graphQLErrors?.name.message}</FormErrorMessage>}
+            {!!errors?.name && <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>}
           </FormControl>
           <SelectField
             fieldId="category"

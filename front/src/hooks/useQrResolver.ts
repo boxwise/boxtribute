@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import { FetchPolicy } from '@apollo/client';
-import { useApolloClient } from '@apollo/client/react';
+import { FetchPolicy } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import { useErrorHandling } from "./useErrorHandling";
@@ -22,10 +22,12 @@ export enum IQrResolverResultKind {
 export type IQrResolvedValue = {
   kind: IQrResolverResultKind;
   qrHash?: string;
-  box?: Partial<Box & {
-    baseName: string;
-    organisationName: string;
-  }>;
+  box?: Partial<
+    Box & {
+      baseName: string;
+      organisationName: string;
+    }
+  >;
   error?: unknown;
 };
 
@@ -56,8 +58,8 @@ export const useQrResolver = () => {
           fetchPolicy,
         })
         .then(({ data, error }) => {
-          if (error?.length) {
-            // Likely an unexpected graphQL error?.graphQLErrors?.
+          if (error) {
+            // Likely an unexpected GraphQL error
             triggerError({
               message: "QR code lookup failed. Please wait a bit and try again.",
             });
@@ -68,7 +70,7 @@ export const useQrResolver = () => {
             } as IQrResolvedValue;
           }
 
-          if (data.qrCode.__typename === "ResourceDoesNotExistError") {
+          if (data && data.qrCode.__typename === "ResourceDoesNotExistError") {
             // Qr code does not exit in the DB
             triggerError({
               message: "This is not a Boxtribute QR code!",
@@ -77,7 +79,7 @@ export const useQrResolver = () => {
               kind: IQrResolverResultKind.NO_BOXTRIBUTE_QR,
               qrHash: hash,
             } as IQrResolvedValue;
-          } else if (data.qrCode.__typename === "InsufficientPermissionError") {
+          } else if (data && data.qrCode.__typename === "InsufficientPermissionError") {
             // missing qr:read RBP
             triggerError({
               message: `You don't have permission to access this QR-code!`,
@@ -86,7 +88,7 @@ export const useQrResolver = () => {
               kind: IQrResolverResultKind.NOT_AUTHORIZED_FOR_QR,
               qrHash: hash,
             } as IQrResolvedValue;
-          } else if (data.qrCode.__typename === "QrCode") {
+          } else if (data && data.qrCode.__typename === "QrCode") {
             // qr code exists in the DB
             if (!data?.qrCode?.box) {
               // no box associated to this qr code

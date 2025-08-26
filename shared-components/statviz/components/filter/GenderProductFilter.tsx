@@ -1,4 +1,4 @@
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import MultiSelectFilter from "./MultiSelectFilter";
 import { IFilterValue } from "./ValueFilter";

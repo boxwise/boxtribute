@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useQuery } from '@apollo/client/react';
+import { useQuery } from "@apollo/client/react";
 import { Alert, AlertIcon, Button, Heading, Stack, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { useAtomValue } from "jotai";

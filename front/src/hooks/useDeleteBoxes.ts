@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client/react';
+import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
@@ -69,7 +69,7 @@ export const useDeleteBoxes = () => {
         .then(({ data, error }) => {
           setIsLoading(false);
 
-          if (error?.length) {
+          if (error) {
             if (showErrors) {
               triggerError({
                 message: "Could not delete boxes. Try again?",
@@ -78,7 +78,7 @@ export const useDeleteBoxes = () => {
             return {
               kind: IDeleteBoxResultKind.FAIL,
               requestedBoxes: boxes,
-              error: error?.graphQLErrors?.[0],
+              error: error,
             } as IDeleteBoxResult;
           }
 

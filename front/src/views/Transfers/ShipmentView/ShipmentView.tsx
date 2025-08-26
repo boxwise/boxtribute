@@ -1,4 +1,4 @@
-import { useMutation,useQuery } from '@apollo/client/react';
+import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../../graphql/graphql";
 import { formatDateKey } from "utils/helpers";
 import {

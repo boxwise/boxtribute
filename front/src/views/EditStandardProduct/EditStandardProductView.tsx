@@ -1,6 +1,6 @@
 import { Suspense, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation,useSuspenseQuery } from '@apollo/client/react';
+import { useMutation, useSuspenseQuery } from "@apollo/client/react";
 import { useAtomValue } from "jotai";
 import { ErrorBoundary } from "@sentry/react";
 import { Box, Center, Heading } from "@chakra-ui/react";

@@ -43,7 +43,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       initialUrl: "/bases/1/boxes/123",
       additionalRoute: "/bases/1/shipment/1",
       mocks: [initialQueryForBoxWithHistory],
-      addTypename: true,
       cache,
     });
 
@@ -66,7 +65,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
       initialUrl: "/bases/1/boxes/123",
       additionalRoute: "/bases/1/shipment/1",
       mocks: [initialQueryForBoxWithHistory],
-      addTypename: true,
       cache,
     });
 

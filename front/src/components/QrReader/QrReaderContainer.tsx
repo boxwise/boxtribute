@@ -9,7 +9,7 @@ import {
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";

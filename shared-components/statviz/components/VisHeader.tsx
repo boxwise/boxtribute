@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useState } from "react";
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import useTimerange from "../hooks/useTimerange";
 import { isChartExporting } from "../state/exportingCharts";
 import { ImageFormat } from "../utils/chartExport";

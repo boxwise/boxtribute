@@ -103,25 +103,25 @@ const CreateDirectDistroEvent = ({
                 isSearchable
                 tagVariant="outline"
               />
-              <FormErrorMessage>{error && error?.graphQLErrors?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
             </FormControl>
           )}
         />
-        <FormControl isInvalid={error?.graphQLErrors?.eventDate != null} id="eventDate">
+        <FormControl isInvalid={errors?.eventDate != null} id="eventDate">
           <FormLabel fontSize="sm" htmlFor="date">
             Date of the event:
           </FormLabel>
           <Input type="date" mb={4} {...register("eventDate", { required: true })} />
-          <FormErrorMessage>{error?.graphQLErrors?.eventDate && error?.graphQLErrors?.eventDate.message}</FormErrorMessage>
+          <FormErrorMessage>{errors?.eventDate && errors?.eventDate.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={error?.graphQLErrors?.eventTime != null} id="eventTime">
+        <FormControl isInvalid={errors?.eventTime != null} id="eventTime">
           <FormLabel fontSize="sm" htmlFor="time">
             Time of the event:
           </FormLabel>
           <Input type="time" mb={4} {...register("eventTime", { required: true })} />
-          <FormErrorMessage>{error?.graphQLErrors?.eventTime && error?.graphQLErrors?.eventTime.message}</FormErrorMessage>
+          <FormErrorMessage>{errors?.eventTime && errors?.eventTime.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={error?.graphQLErrors?.duration != null} id="duration">
+        <FormControl isInvalid={errors?.duration != null} id="duration">
           <FormLabel fontSize="sm" htmlFor="date">
             Expected duration (in hours):
           </FormLabel>
@@ -135,7 +135,7 @@ const CreateDirectDistroEvent = ({
             })}
           />
           <FormErrorMessage>
-            {error?.graphQLErrors?.duration?.message && error?.graphQLErrors?.duration?.message}
+            {errors?.duration?.message && errors?.duration?.message}
           </FormErrorMessage>
         </FormControl>
         <FormLabel fontSize="sm" htmlFor="name">

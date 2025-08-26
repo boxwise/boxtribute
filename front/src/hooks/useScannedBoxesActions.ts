@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useApolloClient } from '@apollo/client/react';
+import { useApolloClient } from "@apollo/client/react";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { IScannedBoxesData } from "types/graphql-local-only";
 import { useNotification } from "./useNotification";
@@ -15,7 +15,7 @@ export const useScannedBoxesActions = () => {
         {
           query: GET_SCANNED_BOXES,
         },
-        // @ts-expect-error TODO: this is a client only query, fix type hint/inference.
+        // TODO: this is a client only query, fix type hint/inference.
         (data: IScannedBoxesData) => {
           const existingBoxRefs = data?.scannedBoxes;
 

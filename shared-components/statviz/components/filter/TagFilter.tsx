@@ -1,5 +1,5 @@
 import { Box } from "@chakra-ui/react";
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { ResultOf } from "gql.tada";
 import MultiSelectFilter from "./MultiSelectFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";

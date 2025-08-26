@@ -2,7 +2,6 @@
 // If you are using a fragment a local-only field with another query you have to
 // manually write the type for the fragment.
 
-import { gql } from '@apollo/client';
 import { gql } from "@apollo/client";
 
 export const BOX_SCANNED_ON_FRAGMENT = gql`

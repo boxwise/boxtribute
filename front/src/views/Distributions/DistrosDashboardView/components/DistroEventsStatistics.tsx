@@ -1,4 +1,4 @@
-import { useApolloClient } from '@apollo/client/react';
+import { useApolloClient } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import {
   Stat,
@@ -119,7 +119,7 @@ const DistroEventsStatistics = () => {
         "data:text/csv;charset=utf-8," +
         exportCsvColumns.join(",") +
         "\n" +
-        result.data.base?.distributionEventsStatistics
+        result.data?.base?.distributionEventsStatistics
           .map((e) => exportCsvColumns.map((c) => e[c]).join(","))
           .join("\n");
 

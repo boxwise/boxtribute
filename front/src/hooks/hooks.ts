@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { tableConfigsVar } from "queries/cache";
-import { useReactiveVar } from '@apollo/client/react';
+import { useReactiveVar } from "@apollo/client/react";
 import { Filters, SortingRule } from "react-table";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
