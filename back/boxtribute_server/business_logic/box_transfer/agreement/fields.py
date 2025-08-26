@@ -1,8 +1,5 @@
 from ariadne import ObjectType
 
-from ....authz import authorize
-from .crud import retrieve_transfer_agreement_bases
-
 transfer_agreement = ObjectType("TransferAgreement")
 
 
@@ -21,17 +18,11 @@ def resolve_agreement_target_organisation(transfer_agreement_obj, info):
 
 
 @transfer_agreement.field("sourceBases")
-def resolve_transfer_agreement_source_bases(
-    transfer_agreement_obj, _, filter_input=None
+async def resolve_transfer_agreement_source_bases(
+    transfer_agreement_obj, info, filter_input=None
 ):
-    source_bases = retrieve_transfer_agreement_bases(
-        agreement=transfer_agreement_obj, kind="source"
-    )
-    target_bases = retrieve_transfer_agreement_bases(
-        agreement=transfer_agreement_obj, kind="target"
-    )
-    authorize(
-        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
+    source_bases = await info.context["source_bases_for_agreement_loader"].load(
+        transfer_agreement_obj.id
     )
     if filter_input is not None and filter_input.get("include_deleted") is True:
         return source_bases
@@ -39,17 +30,11 @@ def resolve_transfer_agreement_source_bases(
 
 
 @transfer_agreement.field("targetBases")
-def resolve_transfer_agreement_target_bases(
-    transfer_agreement_obj, _, filter_input=None
+async def resolve_transfer_agreement_target_bases(
+    transfer_agreement_obj, info, filter_input=None
 ):
-    source_bases = retrieve_transfer_agreement_bases(
-        agreement=transfer_agreement_obj, kind="source"
-    )
-    target_bases = retrieve_transfer_agreement_bases(
-        agreement=transfer_agreement_obj, kind="target"
-    )
-    authorize(
-        permission="base:read", base_ids=[b.id for b in source_bases + target_bases]
+    target_bases = await info.context["target_bases_for_agreement_loader"].load(
+        transfer_agreement_obj.id
     )
     if filter_input is not None and filter_input.get("include_deleted") is True:
         return target_bases
