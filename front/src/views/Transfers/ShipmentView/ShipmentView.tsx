@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "../../../../../graphql/graphql";
 import { formatDateKey } from "utils/helpers";
 import {
@@ -184,7 +184,7 @@ function ShipmentView() {
           },
         })
           .then((res) => {
-            if (!res?.errors) {
+            if (!res?.error) {
               onShipmentOverlayClose();
               if (showSuccessMessage) {
                 createToast({
@@ -254,7 +254,7 @@ function ShipmentView() {
       },
     })
       .then((mutationResult) => {
-        if (mutationResult?.errors) {
+        if (mutationResult?.error) {
           triggerError({
             message: "Error: Could not change state of remaining boxes.",
           });
@@ -290,7 +290,7 @@ function ShipmentView() {
         },
       })
         .then((mutationResult) => {
-          if (mutationResult?.errors) {
+          if (mutationResult?.error) {
             triggerError({
               message: "Error: Could not remove box.",
             });
@@ -321,7 +321,7 @@ function ShipmentView() {
         },
       })
         .then((mutationResult) => {
-          if (mutationResult?.errors) {
+          if (mutationResult?.error) {
             triggerError({
               message: "Error: Could not remove box.",
             });

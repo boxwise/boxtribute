@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useReactiveVar } from "@apollo/client";
+import { useReactiveVar } from '@apollo/client/react';
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";

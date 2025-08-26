@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -203,7 +203,7 @@ function TransferAgreementOverviewView() {
         variables: { id },
       })
         .then((res) => {
-          if (!res?.errors) {
+          if (!res?.error) {
             onClose();
             createToast({
               type: "success",

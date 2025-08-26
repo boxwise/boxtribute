@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
+import { useMutation,useQuery,useReactiveVar } from '@apollo/client/react';
 import { useAtomValue } from "jotai";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
@@ -106,7 +106,7 @@ export function BoxReconciliationOverlay({
           },
         })
           .then((mutationResult) => {
-            if (mutationResult?.errors) {
+            if (mutationResult?.error) {
               triggerError({
                 message: "Could not change state of the box.",
               });
@@ -167,7 +167,7 @@ export function BoxReconciliationOverlay({
           },
         })
           .then((mutationResult) => {
-            if (mutationResult?.errors) {
+            if (mutationResult?.error) {
               triggerError({
                 message: "Could not change state of the box.",
               });

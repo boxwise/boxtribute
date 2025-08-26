@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useQuery } from '@apollo/client/react';
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import { DISTRIBUTION_EVENT_QUERY } from "../queries";

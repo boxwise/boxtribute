@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery,useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -200,8 +200,8 @@ function BoxCreateView() {
       },
     })
       .then((mutationResult) => {
-        if (mutationResult.errors) {
-          const errorCode = mutationResult.errors[0]?.extensions?.code;
+        if (mutationResult.error) {
+          const errorCode = mutationResult.error[0]?.extensions?.code;
           if (errorCode === "BAD_USER_INPUT") {
             triggerError({
               message: "The QR code is already used for another box.",

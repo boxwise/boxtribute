@@ -9,7 +9,7 @@ import {
 } from "hooks/useLabelIdentifierResolver";
 import { IQrResolverResultKind, useQrResolver } from "hooks/useQrResolver";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
-import { useReactiveVar } from "@apollo/client";
+import { useReactiveVar } from '@apollo/client/react';
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
 import QrReader from "./components/QrReader";
@@ -56,14 +56,14 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         video: true,
       })
       .catch((error) => {
-        if (error.name === "NotAllowedError") {
+        if (error?.graphQLErrors?.name === "NotAllowedError") {
           setIsCameraNotPermited(true);
         }
 
-        if (error.name === "NotFoundError") {
+        if (error?.graphQLErrors?.name === "NotFoundError") {
           triggerError({
             userMessage: "No camera is available on your device.",
-            message: `getUserMedia error: ${error.name}`,
+            message: `getUserMedia error: ${error?.graphQLErrors?.name}`,
           });
         }
       })
@@ -152,7 +152,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         case ILabelIdentifierResolverResultKind.FAIL: {
           triggerError({
             message: "The search for this label failed. Please try again.",
-            statusCode: labelIdentifierResolvedValue?.error.code,
+            statusCode: labelIdentifierResolvedValue?.error?.graphQLErrors?.code,
           });
           break;
         }

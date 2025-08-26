@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
@@ -96,9 +97,9 @@ function App() {
 
   // Get tag filters.
   useEffect(() => {
-    const tags = data?.resolveLink?.data[0].dimensions?.tag?.map((t) => tagToFilterValue(t!));
+    const tags = (data as any)?.resolveLink?.data[0].dimensions?.tag?.map((t: any) => tagToFilterValue(t!));
     if (tags?.length) tagFilterValuesVar(tags);
-  }, [data?.resolveLink?.data]);
+  }, [(data as any)?.resolveLink?.data]);
 
   if (error) {
     return <ErrorPage>{matchErrorMessage(error.message)}</ErrorPage>;
@@ -121,16 +122,16 @@ function App() {
     );
   }
 
-  if (["ExpiredLinkError", "UnknownLinkError"].includes(data?.resolveLink?.__typename)) {
-    return <ErrorPage>{matchErrorMessage(data.resolveLink.__typename ?? "")}</ErrorPage>;
+  if (["ExpiredLinkError", "UnknownLinkError"].includes((data as any)?.resolveLink?.__typename)) {
+    return <ErrorPage>{matchErrorMessage((data as any).resolveLink.__typename ?? "")}</ErrorPage>;
   }
 
   // Prepend Search Params with fetched link data params and reload the page while displaying a skeleton loader.
   if (!view) {
-    const urlParams = data?.resolveLink?.urlParameters ?? "nofilters=true";
+    const urlParams = (data as any)?.resolveLink?.urlParameters ?? "nofilters=true";
     const hasBoiParam = urlParams.includes("boi=");
     const boiParam = hasBoiParam ? "" : `&boi=${boxesOrItemsFilterValues[0].urlId}`;
-    location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${urlParams}${boiParam}&code=${code}`;
+    location.search = `view=${(data as any)?.resolveLink?.view.toLowerCase()}&${urlParams}${boiParam}&code=${code}`;
 
     return (
       <>
@@ -144,8 +145,8 @@ function App() {
     <>
       <Flex gap={8} p={2} alignItems="center" flexDirection={["column", "row"]}>
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-        <Heading size="md">ORGANIZATION: {data.resolveLink.organisationName.toUpperCase()}</Heading>
-        <Heading size="md">BASE: {data.resolveLink.baseName.toUpperCase()}</Heading>
+        <Heading size="md">ORGANIZATION: {(data as any).resolveLink.organisationName.toUpperCase()}</Heading>
+        <Heading size="md">BASE: {(data as any).resolveLink.baseName.toUpperCase()}</Heading>
       </Flex>
       <Flex
         borderWidth="1"
@@ -162,7 +163,7 @@ function App() {
         </WrapItem>
       </Flex>
       {/* TODO: Match view with view returned from data once other views are implemented. */}
-      <StockDataFilter stockOverview={data.resolveLink.data[0]} />
+      <StockDataFilter stockOverview={(data as any).resolveLink.data[0]} />
     </>
   );
 }

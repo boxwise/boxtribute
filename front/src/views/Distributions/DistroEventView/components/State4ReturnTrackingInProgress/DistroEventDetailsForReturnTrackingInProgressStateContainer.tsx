@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useQuery } from '@apollo/client/react';
 import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { Link as RouterLink } from "react-router-dom";

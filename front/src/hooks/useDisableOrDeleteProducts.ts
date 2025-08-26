@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation } from '@apollo/client/react';
 
 import { graphql } from "../../../graphql/graphql";
 import { useNotification } from "./useNotification";

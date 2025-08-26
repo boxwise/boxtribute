@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useQuery } from '@apollo/client/react';
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useParams } from "react-router-dom";
 import { z } from "zod";
@@ -22,7 +22,7 @@ const DistributionReturnTrackingsView = () => {
 
   if (loading) return <APILoadingIndicator />;
   // TODO: add error logging here
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {error?.graphQLErrors?.message}</div>;
 
   if (data?.base?.distributionEvents == null) return <div>Error: No data</div>;
 

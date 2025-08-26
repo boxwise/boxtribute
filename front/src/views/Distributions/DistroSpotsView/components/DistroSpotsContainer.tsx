@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useQuery } from '@apollo/client/react';
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useGlobalSiteState } from "hooks/hooks";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "views/Distributions/queries";

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
-import { FetchPolicy, useApolloClient } from "@apollo/client";
+import { FetchPolicy } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE } from "queries/queries";
 import { BOX_SCANNED_ON_FRAGMENT } from "queries/local-only";
 import { useErrorHandling } from "./useErrorHandling";
@@ -54,9 +55,9 @@ export const useQrResolver = () => {
           variables: { qrCode: hash },
           fetchPolicy,
         })
-        .then(({ data, errors }) => {
-          if (errors?.length) {
-            // Likely an unexpected graphQL error.
+        .then(({ data, error }) => {
+          if (error?.length) {
+            // Likely an unexpected graphQL error?.graphQLErrors?.
             triggerError({
               message: "QR code lookup failed. Please wait a bit and try again.",
             });
@@ -122,7 +123,7 @@ export const useQrResolver = () => {
           throw new Error("Invalid Query Result.");
         })
         .catch((err) => {
-          // Likely an unexpected network error.
+          // Likely an unexpected network error?.graphQLErrors?.
           triggerError({
             message: "QR code lookup failed. Please wait a bit and try again.",
           });

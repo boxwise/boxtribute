@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
-import { useReactiveVar } from "@apollo/client";
+import { useReactiveVar } from '@apollo/client/react';
 import CreatedBoxesCharts from "./CreatedBoxesCharts";
 import { filterListByInterval } from "../../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";

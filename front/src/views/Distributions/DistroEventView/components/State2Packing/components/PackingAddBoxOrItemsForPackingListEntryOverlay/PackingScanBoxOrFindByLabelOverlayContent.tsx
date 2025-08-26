@@ -1,5 +1,5 @@
 import { graphql } from "../../../../../../../../../graphql/graphql";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from '@apollo/client/react';
 import {
   Button,
   Flex,

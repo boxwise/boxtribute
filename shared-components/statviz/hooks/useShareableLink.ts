@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 // TODO: Move common utils to shared-components, use alias for imports.
 import { graphql } from "../../../graphql/graphql";
 import { useNotification } from "../../../front/src/hooks/useNotification";
-import { useMutation, useReactiveVar } from "@apollo/client";
+import { useMutation,useReactiveVar } from '@apollo/client/react';
 import useValueFilter from "./useValueFilter";
 import {
   boxesOrItemsFilterValues,

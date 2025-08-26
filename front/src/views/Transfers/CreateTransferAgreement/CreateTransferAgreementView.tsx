@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -173,7 +173,7 @@ function CreateTransferAgreementView() {
       },
     })
       .then((mutationResult) => {
-        if (mutationResult.errors) {
+        if (mutationResult.error) {
           triggerError({
             message: "Error while trying to create transfer agreement",
           });
@@ -217,10 +217,10 @@ function CreateTransferAgreementView() {
     <>
       <MobileBreadcrumbButton label="Back to Manage Network" linkPath=".." />
       {createTransferAgreementMutationState.error &&
-        createTransferAgreementMutationState.error.graphQLErrors.some(
+        createTransferAgreementMutationState.error?.graphQLErrors?.graphQLErrors.some(
           (error: any) =>
-            error.extensions?.code === "BAD_USER_INPUT" &&
-            error.extensions?.description.includes("An identical agreement already exists"),
+            error?.graphQLErrors?.extensions?.code === "BAD_USER_INPUT" &&
+            error?.graphQLErrors?.extensions?.description.includes("An identical agreement already exists"),
         ) && (
           <Box mx={1} my={1}>
             {" "}

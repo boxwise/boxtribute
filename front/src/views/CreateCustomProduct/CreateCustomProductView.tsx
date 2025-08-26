@@ -12,7 +12,7 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
-import { useMutation, useSuspenseQuery } from "@apollo/client";
+import { useMutation,useSuspenseQuery } from '@apollo/client/react';
 import { customProductRawToFormOptionsTransformer } from "./components/transformer";
 import { graphql } from "../../../../graphql/graphql";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";

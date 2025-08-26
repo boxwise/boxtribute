@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery } from '@apollo/client/react';
 import { useAtomValue } from "jotai";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "queries/queries";

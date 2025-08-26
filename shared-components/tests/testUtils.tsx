@@ -7,6 +7,7 @@ import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing
 import { onError } from "@apollo/client/link/error";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
+import { ApolloLink,DefaultOptions } from '@apollo/client';
 import { ApolloLink, DefaultOptions } from "@apollo/client";
 import { theme } from "../utils/theme";
 

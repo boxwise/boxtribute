@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery,useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -222,7 +222,7 @@ function CreateShipmentView() {
           },
         })
           .then((mutationResult) => {
-            if (mutationResult.errors) {
+            if (mutationResult.error) {
               triggerError({
                 message: "Error while trying to create a new shipment!",
               });

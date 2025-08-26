@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from '@apollo/client/react';
 import { BellIcon } from "@chakra-ui/icons";
 import {
   Box,

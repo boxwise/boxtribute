@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from '@apollo/client/react';
 import { useState, useCallback } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import {

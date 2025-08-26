@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "../../../../graphql/graphql";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -137,7 +137,7 @@ function BoxEditView() {
       },
     })
       .then((mutationResult) => {
-        if (mutationResult?.errors) {
+        if (mutationResult?.error) {
           triggerError({
             message: "Could not update Box.",
           });
@@ -161,7 +161,7 @@ function BoxEditView() {
       .catch((error) => {
         triggerError({
           message: "Could not update Box.",
-          statusCode: error.code,
+          statusCode: error?.graphQLErrors?.code,
         });
       });
   };

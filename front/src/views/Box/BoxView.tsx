@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
+import { NetworkStatus } from '@apollo/client';
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "gql.tada";
 import {
   Alert,
@@ -254,7 +255,7 @@ function BTBox() {
         },
       })
         .then((mutationResult) => {
-          if (mutationResult?.errors) {
+          if (mutationResult?.error) {
             triggerError({
               message: `Error: Could not update the box status to ${newState}`,
             });
@@ -294,7 +295,7 @@ function BTBox() {
             },
           })
             .then((mutationResult) => {
-              if (mutationResult?.errors) {
+              if (mutationResult?.error) {
                 triggerError({
                   message: "Error: Could not remove item from the box",
                 });
@@ -345,7 +346,7 @@ function BTBox() {
             },
           })
             .then((mutationResult) => {
-              if (mutationResult?.errors) {
+              if (mutationResult?.error) {
                 triggerError({
                   message: "Error: Could not add items to the box",
                 });
@@ -378,7 +379,7 @@ function BTBox() {
         },
       })
         .then((mutationResult) => {
-          if (mutationResult?.errors) {
+          if (mutationResult?.error) {
             triggerError({
               message: "Error: Box could not be moved!",
             });
@@ -427,7 +428,7 @@ function BTBox() {
       },
     })
       .then((mutationResult) => {
-        if (mutationResult?.errors) {
+        if (mutationResult?.error) {
           triggerError({
             message: "Error: Could not create QR code",
           });

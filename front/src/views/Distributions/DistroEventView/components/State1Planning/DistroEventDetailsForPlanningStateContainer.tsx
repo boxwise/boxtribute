@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "../../../../../../../graphql/graphql";
 import {
   Modal,
@@ -169,7 +169,7 @@ const DistroEventDetailsForPlanningStateContainer = ({
         numberOfItems,
       },
     }).then((result) => {
-      if (result.errors && result.errors.length !== 0) {
+      if (result.error && result.error?.graphQLErrors?.length !== 0) {
         console.error(
           `GraphQL error while trying to update Packing List Entry (id: ${packingListEntryId})`,
           // TODO: consider to track the respective error details
@@ -202,10 +202,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
         },
       })
         .then((res) => {
-          if (res.errors && res.errors.length !== 0) {
+          if (res.error && res.error?.graphQLErrors?.length !== 0) {
             console.error(
               `GraphQL error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
-              res.errors,
+              res.error,
             );
             toast({
               title: "Error",
@@ -254,10 +254,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
         },
       })
         .then((res) => {
-          if (res.errors && res.errors.length !== 0) {
+          if (res.error && res.error?.graphQLErrors?.length !== 0) {
             console.error(
               `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
-              res.errors,
+              res.error,
             );
             toast({
               title: "Error",
@@ -325,10 +325,10 @@ const DistroEventDetailsForPlanningStateContainer = ({
         },
       })
         .then((res) => {
-          if (res.errors && res.errors.length !== 0) {
+          if (res.error && res.error?.graphQLErrors?.length !== 0) {
             console.error(
               `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
-              res.errors,
+              res.error,
             );
             toast({
               title: "Error",

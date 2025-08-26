@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from '@apollo/client/react';
 import { AddIcon } from "@chakra-ui/icons";
 import {
   Accordion,
@@ -74,10 +74,10 @@ const PackingListEntry = ({
         ],
       })
         .then((res) => {
-          if (res.errors && res.errors.length !== 0) {
+          if (res.error && res.error?.graphQLErrors?.length !== 0) {
             console.error(
               `GraphQL error while trying to move items from Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
-              res.errors,
+              res.error,
             );
             toast({
               title: "Error",
@@ -136,10 +136,10 @@ const PackingListEntry = ({
         ],
       })
         .then((res) => {
-          if (res.errors && res.errors.length !== 0) {
+          if (res.error && res.error?.graphQLErrors?.length !== 0) {
             console.error(
               `GraphQL error while trying to move Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
-              res.errors,
+              res.error,
             );
             toast({
               title: "Error",

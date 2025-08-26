@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
-import { gql, useApolloClient } from "@apollo/client";
+import { gql } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -57,14 +58,14 @@ export const useAssignTags = () => {
       }
 
       try {
-        const { data, errors } = await apolloClient.mutate({
+        const { data, error } = await apolloClient.mutate({
           mutation: ASSIGN_TAGS_TO_BOXES,
           variables: { labelIdentifiers, tagIds },
         });
 
         setIsLoading(false);
 
-        if ((errors?.length || 0) > 0) {
+        if ((error?.graphQLErrors?.length || 0) > 0) {
           if (showToastMessage)
             triggerError({
               message: `Could not assign tags to ${

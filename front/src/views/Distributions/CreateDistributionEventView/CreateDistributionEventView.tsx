@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "../../../../../graphql/graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
@@ -68,9 +68,9 @@ const CreateDistributionEventView = () => {
         },
       })
         .then((mutationResult) => {
-          if ((mutationResult.errors?.length || 0) > 0) {
+          if ((mutationResult.error?.length || 0) > 0) {
             // TODO: Improve Error handling
-            throw new Error(JSON.stringify(mutationResult.errors));
+            throw new Error(JSON.stringify(mutationResult.error));
           }
           navigate(
             `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`,

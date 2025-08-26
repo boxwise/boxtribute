@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from '@apollo/client/react';
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import { IScannedBoxesData } from "types/graphql-local-only";
 import { useNotification } from "./useNotification";

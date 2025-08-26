@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from '@apollo/client/react';
 import { Box } from "queries/types";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
 
@@ -33,9 +33,9 @@ export const useLabelIdentifierResolver = () => {
           variables: { labelIdentifier },
           fetchPolicy: "network-only",
         })
-        .then(({ data, errors }) => {
-          if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions?.code : undefined;
+        .then(({ data, error }) => {
+          if ((error?.graphQLErrors?.length || 0) > 0) {
+            const errorCode = errors ? error?.graphQLErrors?.[0].extensions?.code : undefined;
             if (errorCode === "FORBIDDEN") {
               return {
                 kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,

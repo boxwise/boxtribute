@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from '@apollo/client/react';
 import { useCallback, useState } from "react";
 import { graphql } from "../../../graphql/graphql";
 import { useErrorHandling } from "./useErrorHandling";
@@ -99,10 +99,10 @@ export const useMoveBoxes = () => {
           locationId: newLocationId,
         },
       })
-        .then(({ data, errors }) => {
+        .then(({ data, error }) => {
           setIsLoading(false);
 
-          if ((errors?.length || 0) > 0) {
+          if ((error?.graphQLErrors?.length || 0) > 0) {
             // General error
             if (showErrors) {
               triggerError({
@@ -116,7 +116,7 @@ export const useMoveBoxes = () => {
               kind: IMoveBoxesResultKind.FAIL,
               requestedLabelIdentifiers: labelIdentifiers,
               failedLabelIdentifiers: labelIdentifiers,
-              error: errors ? errors[0] : undefined,
+              error: errors ? error?.graphQLErrors?.[0] : undefined,
             } as IMoveBoxesResult;
           }
 

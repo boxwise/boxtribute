@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation,useQuery } from '@apollo/client/react';
 import { graphql } from "../../../../../../../graphql/graphql";
 import { useToast } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -89,8 +89,8 @@ const DistroEventDetailsForPackingStateContainer = ({
       ],
     })
       .then((res) => {
-        if (res.errors && res.errors.length !== 0) {
-          handleError(res.errors);
+        if (res.error && res.error?.graphQLErrors?.length !== 0) {
+          handleError(res.error);
         } else {
           toast({
             title: "Successfully removed items from distribution event. ",
@@ -157,8 +157,8 @@ const DistroEventDetailsForPackingStateContainer = ({
         },
       })
         .then((res) => {
-          if (res.errors && res.errors.length !== 0) {
-            handleError(res.errors);
+          if (res.error && res.error?.graphQLErrors?.length !== 0) {
+            handleError(res.error);
           } else {
             toast({
               title: "Successfully unassigned box from distribution event. ",
