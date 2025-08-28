@@ -55,14 +55,7 @@ function HeaderMenuContainer() {
           {
             link: `/bases/${baseId}/boxes`,
             name: "Manage Boxes",
-            beta: true,
             requiredAbps: ["manage_inventory"],
-          },
-          {
-            link: `${oldAppUrlWithBase}&action=stock`,
-            name: "Classic Manage Boxes",
-            requiredAbps: ["manage_inventory"],
-            external: true,
           },
           {
             link: `${oldAppUrlWithBase}&action=stock_overview`,
