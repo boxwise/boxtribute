@@ -33,6 +33,7 @@ import {
 import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { useBoxesViewFilters } from "hooks/useBoxesViewFilters";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 import BoxesTable from "./components/BoxesTable";
@@ -145,11 +146,16 @@ function Boxes({
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
+  const { tableFilters } = useBoxesViewFilters();
+
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
+      columnFilters: [
+        { id: "state", value: ["InStock"] },
+        ...tableFilters, // Merge URL-based filters with default filters
+      ],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "gender",

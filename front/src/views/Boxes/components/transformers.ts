@@ -35,6 +35,18 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
   switch (filterID) {
     case "state":
       return "states";
+    case "location":
+      return "locationId";
+    case "productCategory":
+      return "productCategoryId";
+    case "product":
+      return "productId";
+    case "size":
+      return "sizeId";
+    case "gender":
+      return "productGender";
+    case "tags":
+      return "tagIds";
     default:
       return "";
   }
@@ -50,13 +62,23 @@ export const prepareBoxesForBoxesViewQueryVariables = (
     filterInput: {},
     paginationInput,
   };
-  const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
-  if (refetchFilters.length > 0) {
-    const filterInput = refetchFilters.reduce(
-      (acc, filter) => ({ ...acc, [filterIdToGraphQLVariable(filter.id)]: filter.value }),
-      {},
-    );
+
+  // Handle all filter types, not just state
+  if (columnFilters.length > 0) {
+    const filterInput = columnFilters.reduce((acc, filter) => {
+      const graphqlField = filterIdToGraphQLVariable(filter.id);
+      if (graphqlField) {
+        // Handle different value types
+        if (Array.isArray(filter.value)) {
+          acc[graphqlField] = filter.value;
+        } else {
+          acc[graphqlField] = [filter.value];
+        }
+      }
+      return acc;
+    }, {} as any);
     variables.filterInput = filterInput;
   }
+
   return variables;
 };

@@ -42,6 +42,7 @@ import {
 } from "./transformers";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import { useBoxesViewFilters } from "hooks/useBoxesViewFilters";
 import ColumnSelector from "components/Table/ColumnSelector";
 import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
@@ -76,6 +77,7 @@ function BoxesTable({
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
+  const { updateFilter } = useBoxesViewFilters();
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -165,6 +167,33 @@ function BoxesTable({
       });
     }
 
+    // Sync filters with URL parameters
+    filters.forEach((filter) => {
+      switch (filter.id) {
+        case "location":
+          updateFilter("location_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+          break;
+        case "productCategory":
+          updateFilter("category_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+          break;
+        case "product":
+          updateFilter("product_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+          break;
+        case "size":
+          updateFilter("size_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+          break;
+        case "gender":
+          updateFilter("gender_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+          break;
+        case "state":
+          updateFilter("box_state", Array.isArray(filter.value) ? filter.value : [filter.value]);
+          break;
+        case "tags":
+          updateFilter("tag_ids", Array.isArray(filter.value) ? filter.value : [filter.value]);
+          break;
+      }
+    });
+
     // update tableConfig
     if (globalFilter !== tableConfig.getGlobalFilter()) {
       tableConfig.setGlobalFilter(globalFilter);
@@ -178,7 +207,7 @@ function BoxesTable({
     if (hiddenColumns !== tableConfig.getHiddenColumns()) {
       tableConfig.setHiddenColumns(hiddenColumns);
     }
-  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
+  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig, updateFilter]);
 
   return (
     <Flex direction="column" height="100%">
