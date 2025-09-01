@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   gcp-cli: circleci/gcp-cli@3.1.1
   slack: circleci/slack@3.4.2
-  codecov: codecov/codecov@4.1.0
+  codecov: codecov/codecov@5.4.3
   queue: eddiewebb/queue@3.2.1
 executors:
   node-executor:
@@ -200,15 +200,13 @@ jobs:
           destination: shared-components-coverage
       - codecov/upload:
           flags: frontend
-          file: coverage/coverage-final.json
-          upload_args: --plugin noop
-          validate: false
+          files: coverage/coverage-final.json
+          plugins: noop
       - codecov/upload:
           flags: sharedComponents
-          file: ../shared-components/coverage/coverage-final.json
-          # https://docs.codecov.com/docs/cli-options#do-upload
-          upload_args: --exclude coverage --plugin noop
-          validate: false
+          files: ../shared-components/coverage/coverage-final.json
+          excludes: coverage
+          plugins: noop
       - slack/notify-on-failure:
           only_for_branches: master,production
 
@@ -289,8 +287,7 @@ jobs:
           only_for_branches: master,production
       - codecov/upload:
           flags: backend
-          upload_args: --plugin noop
-          validate: false
+          plugins: noop
 
   deploy:
     parameters:

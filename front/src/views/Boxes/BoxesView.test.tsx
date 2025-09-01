@@ -1,7 +1,7 @@
 import { it, describe, expect, vi, beforeEach } from "vitest";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor, within } from "tests/test-utils";
-import { generateMoveBoxRequest } from "queries/dynamic-mutations";
+import { MOVE_BOXES_TO_LOCATION } from "hooks/useMoveBoxes";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
@@ -440,35 +440,37 @@ const actionsQuery = {
   },
 };
 
-const gqlRequestPrep = generateMoveBoxRequest(["8650860", "1481666"], 17);
-
 const moveBoxesMutation = {
   request: {
-    query: gqlRequestPrep.gqlRequest,
-    variables: gqlRequestPrep.variables,
+    query: MOVE_BOXES_TO_LOCATION,
+    variables: {
+      labelIdentifiers: ["8650860", "1481666"],
+      locationId: 17,
+    },
   },
   result: {
     data: {
-      // TODO: the data should be placed in the mocks
-      moveBox8650860: {
-        __typename: "Box",
-        labelIdentifier: "8650860",
-        location: {
-          __typename: "ClassicLocation",
-          id: "17",
-        },
-        state: "InStock",
-        lastModifiedOn: new Date().toISOString(),
-      },
-      moveBox1481666: {
-        __typename: "Box",
-        labelIdentifier: "1481666",
-        location: {
-          __typename: "ClassicLocation",
-          id: "17",
-        },
-        state: "InStock",
-        lastModifiedOn: new Date().toISOString(),
+      moveBoxesToLocation: {
+        __typename: "BoxesResult",
+        updatedBoxes: [
+          {
+            labelIdentifier: "8650860",
+            state: "InStock",
+            location: {
+              id: "17",
+            },
+            lastModifiedOn: new Date().toISOString(),
+          },
+          {
+            labelIdentifier: "1481666",
+            state: "InStock",
+            location: {
+              id: "17",
+            },
+            lastModifiedOn: new Date().toISOString(),
+          },
+        ],
+        invalidBoxLabelIdentifiers: [],
       },
     },
   },
@@ -679,7 +681,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       const moveBoxesButton = await screen.findByRole(
         "button",
         {
-          name: /move to/i,
+          name: /move/i,
         },
         { timeout: 10000 },
       );

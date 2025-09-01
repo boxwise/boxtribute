@@ -252,7 +252,7 @@ function CreateTransferAgreement({
             backgroundColor="blue.500"
             color="white"
           >
-            Create Agreement
+            Link New Partner
           </Button>
           <Button
             size="md"

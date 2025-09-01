@@ -23,7 +23,7 @@ const MakeLabelsButton: React.FC<MakeLabelsButtonProps> = ({ selectedBoxes }) =>
       });
       return false;
     }
-    window.location.href = MAKE_LABELS_URL + selectedBoxIds;
+    window.open(MAKE_LABELS_URL + selectedBoxIds, "_blank");
     return true;
   };
 

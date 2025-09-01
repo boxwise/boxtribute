@@ -31,17 +31,17 @@ export function SelectButton({
   icon = undefined,
 }: ISelectButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isLargerThan964] = useMediaQuery("(min-width: 964px)");
+  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   return (
     <Menu onOpen={onOpen} onClose={onClose}>
       <MenuButton
         as={Button}
         isDisabled={isDisabled}
         leftIcon={icon}
-        iconSpacing={isLargerThan964 || isOpen ? 2 : 0}
-        rightIcon={isLargerThan964 || isOpen ? <ChevronDownIcon /> : undefined}
+        iconSpacing={isLargerThan768 || isOpen ? 2 : 0}
+        rightIcon={isLargerThan768 || isOpen ? <ChevronDownIcon /> : undefined}
       >
-        {(isLargerThan964 || isOpen) && label}
+        {(isLargerThan768 || isOpen) && label}
       </MenuButton>
       <MenuList zIndex={3}>
         {options.map(({ label: olabel, value, subTitle }) => {

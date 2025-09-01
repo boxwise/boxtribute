@@ -293,14 +293,14 @@ function BoxesTable({
               {pageIndex + 1}
             </Text>{" "}
             of{" "}
+            {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+              <Skeleton height={5} width={10} mr={2} />
+            ) : (
+              <Text fontWeight="bold" as="span">
+                {pageOptions.length}
+              </Text>
+            )}
           </Text>
-          {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
-            <Skeleton height={5} width={10} mr={2} />
-          ) : (
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          )}
         </Flex>
 
         <Flex>

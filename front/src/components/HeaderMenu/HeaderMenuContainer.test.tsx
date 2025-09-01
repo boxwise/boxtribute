@@ -104,7 +104,7 @@ it("1.3.5 - Menus available to the user depending on ABPs - Coordinator Admin w/
       "manage_products",
       "manage_warehouses",
     ],
-    "3",
+    "4",
   );
 
   render(<HeaderMenuContainer />, {
