@@ -83,7 +83,7 @@ function BoxCard({
         </WrapItem>
         {boxData?.qrCode && (
           <WrapItem pt={2}>
-            <NavLink to={printLabelUrl}>
+            <a href={printLabelUrl} target="_blank" rel="noopener noreferrer">
               <IconButton
                 aria-label="Print label"
                 borderRadius="5"
@@ -92,7 +92,7 @@ function BoxCard({
                 border="2px"
                 isDisabled={isLoading}
               />
-            </NavLink>
+            </a>
           </WrapItem>
         )}
         <Spacer />
