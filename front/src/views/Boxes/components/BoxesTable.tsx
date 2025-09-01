@@ -173,29 +173,67 @@ function BoxesTable({
     // Update URL for active filters
     filters.forEach((filter) => {
       switch (filter.id) {
-        case "productCategory":
-          updateFilter("category_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+        case "productCategory": {
+          // Extract ID from category object if needed
+          const categoryValue = filter.value?.[0];
+          const categoryId =
+            typeof categoryValue === "object"
+              ? categoryValue?.value || categoryValue?.id
+              : categoryValue;
+          if (categoryId) updateFilter("category_id", String(categoryId));
           break;
-        case "product":
-          updateFilter("product_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+        }
+        case "product": {
+          // Extract ID from product object if needed
+          const productValue = filter.value?.[0];
+          const productId =
+            typeof productValue === "object"
+              ? productValue?.value || productValue?.id
+              : productValue;
+          if (productId) updateFilter("product_id", String(productId));
           break;
-        case "size":
-          updateFilter("size_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+        }
+        case "size": {
+          // Extract ID from size object if needed
+          const sizeValue = filter.value?.[0];
+          const sizeId =
+            typeof sizeValue === "object" ? sizeValue?.value || sizeValue?.id : sizeValue;
+          if (sizeId) updateFilter("size_id", String(sizeId));
           break;
-        case "gender":
-          updateFilter("gender_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
+        }
+        case "gender": {
+          // Gender is typically a string value, not an object
+          const genderValue = Array.isArray(filter.value) ? filter.value[0] : filter.value;
+          if (genderValue) updateFilter("gender_id", String(genderValue));
           break;
-        case "state":
-          updateFilter("box_state", Array.isArray(filter.value) ? filter.value : [filter.value]);
+        }
+        case "state": {
+          // States are string values
+          const stateValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          if (stateValues.length > 0) updateFilter("box_state", stateValues);
           break;
-        case "tags":
-          updateFilter("tag_ids", Array.isArray(filter.value) ? filter.value : [filter.value]);
+        }
+        case "tags": {
+          // Extract IDs from tag objects
+          const tagValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const tagIds = tagValues
+            .map((tag) => {
+              if (typeof tag === "object" && tag !== null) {
+                return String(tag.value || tag.id || tag);
+              }
+              return String(tag);
+            })
+            .filter(Boolean);
+          if (tagIds.length > 0) updateFilter("tag_ids", tagIds);
+          break;
+        }
+        default:
           break;
       }
     });
 
     // Clear URL parameters for removed filters
-    const supportedFilters = ["productCategory", "product", "size", "gender", "state", "tags"];
+    // This ensures that when a filter is cleared in the table, it's also cleared from the URL
     const urlFilterMap: Record<string, keyof import("hooks/useBoxesViewFilters").BoxesViewFilters> =
       {
         productCategory: "category_id",
@@ -206,9 +244,10 @@ function BoxesTable({
         tags: "tag_ids",
       };
 
-    supportedFilters.forEach((filterId) => {
+    // Check each possible filter and clear it from URL if not in current filters
+    Object.entries(urlFilterMap).forEach(([filterId, urlParam]) => {
       if (!currentFilters.has(filterId)) {
-        clearFilter(urlFilterMap[filterId]);
+        clearFilter(urlParam);
       }
     });
 
