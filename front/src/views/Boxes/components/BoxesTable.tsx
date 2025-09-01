@@ -178,7 +178,7 @@ function BoxesTable({
           const categoryValue = filter.value?.[0];
           const categoryId =
             typeof categoryValue === "object"
-              ? categoryValue?.value || categoryValue?.id
+              ? categoryValue?.id || categoryValue?.value
               : categoryValue;
           if (categoryId) updateFilter("category_id", String(categoryId));
           break;
@@ -188,7 +188,7 @@ function BoxesTable({
           const productValue = filter.value?.[0];
           const productId =
             typeof productValue === "object"
-              ? productValue?.value || productValue?.id
+              ? productValue?.id || productValue?.value
               : productValue;
           if (productId) updateFilter("product_id", String(productId));
           break;
@@ -197,7 +197,7 @@ function BoxesTable({
           // Extract ID from size object if needed
           const sizeValue = filter.value?.[0];
           const sizeId =
-            typeof sizeValue === "object" ? sizeValue?.value || sizeValue?.id : sizeValue;
+            typeof sizeValue === "object" ? sizeValue?.id || sizeValue?.value : sizeValue;
           if (sizeId) updateFilter("size_id", String(sizeId));
           break;
         }
@@ -219,7 +219,7 @@ function BoxesTable({
           const tagIds = tagValues
             .map((tag) => {
               if (typeof tag === "object" && tag !== null) {
-                return String(tag.value || tag.id || tag);
+                return String(tag.id || tag.value || tag);
               }
               return String(tag);
             })
