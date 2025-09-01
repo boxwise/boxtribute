@@ -35,17 +35,9 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
   switch (filterID) {
     case "state":
       return "states";
-    // Location filtering is not supported in FilterBoxInput schema
-    case "productCategory":
-      return "productCategoryId";
-    case "product":
-      return "productId";
-    case "size":
-      return "sizeId";
-    case "gender":
-      return "productGender";
     case "tags":
       return "tagIds";
+    // Other filters not yet supported by backend
     default:
       return "";
   }
@@ -62,7 +54,7 @@ export const prepareBoxesForBoxesViewQueryVariables = (
     paginationInput,
   };
 
-  // Handle all filter types, not just state
+  // Only handle state and tagIds filters - other types not yet supported by backend
   if (columnFilters.length > 0) {
     const filterInput = columnFilters.reduce((acc, filter) => {
       const graphqlField = filterIdToGraphQLVariable(filter.id);

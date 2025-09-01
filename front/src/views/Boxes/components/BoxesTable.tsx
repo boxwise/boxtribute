@@ -79,6 +79,31 @@ function BoxesTable({
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
   const { updateFilter, clearFilter } = useBoxesViewFilters();
 
+  // Create name-to-ID mappings from raw GraphQL data
+  const nameToIdMappings = useMemo(() => {
+    const categoryMap = new Map<string, string>();
+    const productMap = new Map<string, string>();
+    const sizeMap = new Map<string, string>();
+    const locationMap = new Map<string, string>();
+
+    rawData.boxes.elements.forEach((element) => {
+      if (element.product?.category) {
+        categoryMap.set(element.product.category.name, element.product.category.id);
+      }
+      if (element.product) {
+        productMap.set(element.product.name, element.product.id);
+      }
+      if (element.size) {
+        sizeMap.set(element.size.label, element.size.id);
+      }
+      if (element.location && element.location.name) {
+        locationMap.set(element.location.name, element.location.id);
+      }
+    });
+
+    return { categoryMap, productMap, sizeMap, locationMap };
+  }, [rawData]);
+
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
@@ -174,30 +199,47 @@ function BoxesTable({
     filters.forEach((filter) => {
       switch (filter.id) {
         case "productCategory": {
-          // Extract ID from category object if needed
-          const categoryValue = filter.value?.[0];
-          const categoryId =
-            typeof categoryValue === "object"
-              ? categoryValue?.id || categoryValue?.value
-              : categoryValue;
+          // Map category name to ID using GraphQL data
+          // Filter value is an array of selected category names
+          const categoryValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const categoryId = categoryValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.categoryMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean)[0];
           if (categoryId) updateFilter("category_id", String(categoryId));
           break;
         }
         case "product": {
-          // Extract ID from product object if needed
-          const productValue = filter.value?.[0];
-          const productId =
-            typeof productValue === "object"
-              ? productValue?.id || productValue?.value
-              : productValue;
+          // Map product name to ID using GraphQL data
+          // Filter value is an array of selected product names
+          const productValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const productId = productValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.productMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean)[0];
           if (productId) updateFilter("product_id", String(productId));
           break;
         }
         case "size": {
-          // Extract ID from size object if needed
-          const sizeValue = filter.value?.[0];
-          const sizeId =
-            typeof sizeValue === "object" ? sizeValue?.id || sizeValue?.value : sizeValue;
+          // Map size label to ID using GraphQL data
+          // Filter value is an array of selected size labels
+          const sizeValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const sizeId = sizeValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.sizeMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean)[0];
           if (sizeId) updateFilter("size_id", String(sizeId));
           break;
         }
@@ -205,6 +247,21 @@ function BoxesTable({
           // Gender is typically a string value, not an object
           const genderValue = Array.isArray(filter.value) ? filter.value[0] : filter.value;
           if (genderValue) updateFilter("gender_id", String(genderValue));
+          break;
+        }
+        case "location": {
+          // Map location name to ID using GraphQL data
+          // Filter value is an array of selected location names
+          const locationValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const locationId = locationValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.locationMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean)[0];
+          if (locationId) updateFilter("location_id", String(locationId));
           break;
         }
         case "state": {
@@ -240,6 +297,7 @@ function BoxesTable({
         product: "product_id",
         size: "size_id",
         gender: "gender_id",
+        location: "location_id",
         state: "box_state",
         tags: "tag_ids",
       };
@@ -274,6 +332,7 @@ function BoxesTable({
     tableConfig,
     updateFilter,
     clearFilter,
+    nameToIdMappings,
   ]);
 
   return (
