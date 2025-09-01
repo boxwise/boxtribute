@@ -22,6 +22,7 @@ import { useErrorHandling } from "hooks/useErrorHandling";
 import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { STANDARD_PRODUCT_QUERY } from "queries/queries";
+import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY } from "views/BoxCreate/BoxCreateView";
 
 export const enableStandardProductQueryErrorText =
   "Could not fetch ASSORT standard data! Please try reloading the page.";
@@ -90,6 +91,7 @@ function EnableStandardProductFormContainer() {
         refetchQueries: [
           { query: STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, variables: { baseId } },
           { query: PRODUCTS_QUERY, variables: { baseId } },
+          { query: ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY, variables: { baseId } },
         ],
       })
         .then(({ data }) => {
