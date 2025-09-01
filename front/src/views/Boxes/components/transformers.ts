@@ -35,8 +35,7 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
   switch (filterID) {
     case "state":
       return "states";
-    case "location":
-      return "locationId";
+    // Location filtering is not supported in FilterBoxInput schema
     case "productCategory":
       return "productCategoryId";
     case "product":

@@ -804,13 +804,11 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     // Mock the hook with specific filter values
     mockedUseBoxesViewFilters.mockReturnValue({
       filters: {
-        location_id: "16",
         gender_id: "Men",
         box_state: ["InStock"],
         tag_ids: ["11", "12"],
       },
       tableFilters: [
-        { id: "location", value: ["16"] },
         { id: "gender", value: ["Men"] },
         { id: "state", value: ["InStock"] },
         { id: "tags", value: ["11", "12"] },

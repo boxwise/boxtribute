@@ -77,7 +77,7 @@ function BoxesTable({
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
-  const { updateFilter } = useBoxesViewFilters();
+  const { updateFilter, clearFilter } = useBoxesViewFilters();
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -168,11 +168,11 @@ function BoxesTable({
     }
 
     // Sync filters with URL parameters
+    const currentFilters = new Set(filters.map((f) => f.id));
+
+    // Update URL for active filters
     filters.forEach((filter) => {
       switch (filter.id) {
-        case "location":
-          updateFilter("location_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
-          break;
         case "productCategory":
           updateFilter("category_id", Array.isArray(filter.value) ? filter.value[0] : filter.value);
           break;
@@ -194,6 +194,24 @@ function BoxesTable({
       }
     });
 
+    // Clear URL parameters for removed filters
+    const supportedFilters = ["productCategory", "product", "size", "gender", "state", "tags"];
+    const urlFilterMap: Record<string, keyof import("hooks/useBoxesViewFilters").BoxesViewFilters> =
+      {
+        productCategory: "category_id",
+        product: "product_id",
+        size: "size_id",
+        gender: "gender_id",
+        state: "box_state",
+        tags: "tag_ids",
+      };
+
+    supportedFilters.forEach((filterId) => {
+      if (!currentFilters.has(filterId)) {
+        clearFilter(urlFilterMap[filterId]);
+      }
+    });
+
     // update tableConfig
     if (globalFilter !== tableConfig.getGlobalFilter()) {
       tableConfig.setGlobalFilter(globalFilter);
@@ -207,7 +225,17 @@ function BoxesTable({
     if (hiddenColumns !== tableConfig.getHiddenColumns()) {
       tableConfig.setHiddenColumns(hiddenColumns);
     }
-  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig, updateFilter]);
+  }, [
+    baseId,
+    filters,
+    globalFilter,
+    hiddenColumns,
+    onRefetch,
+    sortBy,
+    tableConfig,
+    updateFilter,
+    clearFilter,
+  ]);
 
   return (
     <Flex direction="column" height="100%">
