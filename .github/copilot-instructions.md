@@ -110,18 +110,22 @@ docker compose up -d db
 cd back
 source ../.venv/bin/activate
 pip install -U -e . -r requirements-dev.txt
+pre-commit install --overwrite
 # NOTE: May fail with network timeouts in restricted environments
 
 # Run backend tests (requires MySQL database and dependencies)
-pytest
+pytest --ignore=test/auth0_integration_tests/
 # NEVER CANCEL: Takes ~5-10 minutes including database setup
 # Timeout: Set to 15+ minutes
+
+# Run auth0_integration_tests separately if needed (requires repository secrets)
+pytest test/auth0_integration_tests/
+# NOTE: Requires TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET from repository secrets
 
 # Run specific test categories (when dependencies are available)
 pytest test/unit_tests/          # Unit tests only (~2 minutes)
 pytest test/model_tests/         # Data model tests (~3 minutes)  
 pytest test/endpoint_tests/      # API endpoint tests (~8 minutes)
-# Skip auth0_integration_tests/ when internet access is limited
 ```
 
 **CRITICAL NOTE**: Backend development requires internet access to PyPI for dependency installation. If you encounter `ReadTimeoutError` from pypi.org, document this in your PR and focus on frontend validation.
@@ -165,6 +169,7 @@ cd back
 source ../.venv/bin/activate
 pre-commit run --all-files
 # Takes ~30-60 seconds
+# NOTE: May fail with PyPI network timeouts in restricted environments
 ```
 
 ### Formatting
@@ -198,18 +203,16 @@ After making changes, ALWAYS validate functionality by:
 2. Navigate to http://localhost:3000
 
 3. **Login Flow Test**:
-   - Click login button
    - Use test credentials: `dev_coordinator@boxaid.org` / `Browser_tests`
    - Verify successful authentication and redirect to dashboard
 
 4. **Basic Navigation Test**:
-   - Test main menu navigation (Boxes, People, Distributions, etc.)
+   - Test main menu navigation (Manage boxes, Manage Network, Manage Shipments, Manage Products)
    - Verify all routes load without errors
    - Check browser console for JavaScript errors
 
 5. **Core Functionality Tests** (based on your changes):
    - **Box management**: Create, edit boxes
-   - **User management**: Add/edit beneficiaries
    - **Transfer workflows**: Box transfers between locations
 
 6. **End-to-End User Scenarios**:
@@ -294,7 +297,7 @@ pnpm graphql-gen
 ### Auth0 Integration
 - Development uses Auth0 test tenant
 - Test credentials are documented in README.md
-- Auth0 secrets are required for backend tests but provided in .env
+- Auth0 secrets are provided by repository secrets for Auth0 integration tests
 
 ### Known Limitations
 - Network access to npmjs.org and pypi.org may be limited in some environments
