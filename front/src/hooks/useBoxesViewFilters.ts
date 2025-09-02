@@ -74,10 +74,14 @@ export const useBoxesViewFilters = () => {
     return result;
   }, [categoryId, productId, sizeId, genderId, locationId, boxState, tagIds]);
 
-  // Helper to remove URL parameter completely
-  const removeUrlParameter = (paramName: string) => {
+  // Helper to update URL parameter atomically (set or remove in single operation)
+  const updateUrlParameter = (paramName: string, value: string | undefined) => {
     const url = new URL(window.location.href);
-    url.searchParams.delete(paramName);
+    if (value) {
+      url.searchParams.set(paramName, value);
+    } else {
+      url.searchParams.delete(paramName);
+    }
     window.history.replaceState({}, "", url.toString());
   };
 
@@ -86,68 +90,53 @@ export const useBoxesViewFilters = () => {
     const stringValue =
       Array.isArray(value) && value.length > 0 ? value.join(",") : (value as string);
 
+    // Use atomic URL updates to avoid flickering
     switch (key) {
       case "category_id":
-        if (stringValue) {
-          setCategoryId(stringValue);
-        } else {
-          setCategoryId("");
-          removeUrlParameter("category_id");
-        }
+        updateUrlParameter("category_id", stringValue || undefined);
+        setCategoryId(stringValue || "");
         break;
       case "product_id":
-        if (stringValue) {
-          setProductId(stringValue);
-        } else {
-          setProductId("");
-          removeUrlParameter("product_id");
-        }
+        updateUrlParameter("product_id", stringValue || undefined);
+        setProductId(stringValue || "");
         break;
       case "size_id":
-        if (stringValue) {
-          setSizeId(stringValue);
-        } else {
-          setSizeId("");
-          removeUrlParameter("size_id");
-        }
+        updateUrlParameter("size_id", stringValue || undefined);
+        setSizeId(stringValue || "");
         break;
       case "gender_id":
-        if (stringValue) {
-          setGenderId(stringValue);
-        } else {
-          setGenderId("");
-          removeUrlParameter("gender_id");
-        }
+        updateUrlParameter("gender_id", stringValue || undefined);
+        setGenderId(stringValue || "");
         break;
       case "location_id":
-        if (stringValue) {
-          setLocationId(stringValue);
-        } else {
-          setLocationId("");
-          removeUrlParameter("location_id");
-        }
+        updateUrlParameter("location_id", stringValue || undefined);
+        setLocationId(stringValue || "");
         break;
       case "box_state":
-        if (stringValue) {
-          setBoxState(stringValue);
-        } else {
-          setBoxState("");
-          removeUrlParameter("box_state");
-        }
+        updateUrlParameter("box_state", stringValue || undefined);
+        setBoxState(stringValue || "");
         break;
       case "tag_ids":
-        if (stringValue) {
-          setTagIds(stringValue);
-        } else {
-          setTagIds("");
-          removeUrlParameter("tag_ids");
-        }
+        updateUrlParameter("tag_ids", stringValue || undefined);
+        setTagIds(stringValue || "");
         break;
     }
   };
 
-  // Clear all filters
+  // Clear all filters atomically
   const clearFilters = () => {
+    // Update URL first to remove all parameters at once
+    const url = new URL(window.location.href);
+    url.searchParams.delete("category_id");
+    url.searchParams.delete("product_id");
+    url.searchParams.delete("size_id");
+    url.searchParams.delete("gender_id");
+    url.searchParams.delete("location_id");
+    url.searchParams.delete("box_state");
+    url.searchParams.delete("tag_ids");
+    window.history.replaceState({}, "", url.toString());
+
+    // Then update jotai state
     setCategoryId("");
     setProductId("");
     setSizeId("");
@@ -155,49 +144,11 @@ export const useBoxesViewFilters = () => {
     setLocationId("");
     setBoxState("");
     setTagIds("");
-
-    // Remove all filter parameters from URL
-    removeUrlParameter("category_id");
-    removeUrlParameter("product_id");
-    removeUrlParameter("size_id");
-    removeUrlParameter("gender_id");
-    removeUrlParameter("location_id");
-    removeUrlParameter("box_state");
-    removeUrlParameter("tag_ids");
   };
 
-  // Clear a specific filter
+  // Clear a specific filter atomically
   const clearFilter = (key: keyof BoxesViewFilters) => {
-    switch (key) {
-      case "category_id":
-        setCategoryId("");
-        removeUrlParameter("category_id");
-        break;
-      case "product_id":
-        setProductId("");
-        removeUrlParameter("product_id");
-        break;
-      case "size_id":
-        setSizeId("");
-        removeUrlParameter("size_id");
-        break;
-      case "gender_id":
-        setGenderId("");
-        removeUrlParameter("gender_id");
-        break;
-      case "location_id":
-        setLocationId("");
-        removeUrlParameter("location_id");
-        break;
-      case "box_state":
-        setBoxState("");
-        removeUrlParameter("box_state");
-        break;
-      case "tag_ids":
-        setTagIds("");
-        removeUrlParameter("tag_ids");
-        break;
-    }
+    updateFilter(key, undefined);
   };
 
   // Build the filters object for external use
