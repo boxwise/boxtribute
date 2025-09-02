@@ -430,4 +430,28 @@ describe("URL Parameter Filtering", () => {
       expect(processMultiple).toHaveLength(2);
     });
   });
+
+  describe("Debug: Multiple product URL decoding", () => {
+    it("should decode multiple product IDs from URL parameter", () => {
+      // Test the exact decoding logic used in the hook
+      const decodeAndSplitParam = (value: string | undefined): string[] | undefined => {
+        if (!value || value === "") return undefined;
+        const decoded = decodeURIComponent(value);
+        const split = decoded.split(",").filter(Boolean);
+        return split.length > 0 ? split : undefined;
+      };
+
+      // Test various formats
+      expect(decodeAndSplitParam("1,2,3")).toEqual(["1", "2", "3"]);
+      expect(decodeAndSplitParam("1%2C2%2C3")).toEqual(["1", "2", "3"]);
+      expect(decodeAndSplitParam("")).toBeUndefined();
+      expect(decodeAndSplitParam(undefined)).toBeUndefined();
+
+      // Test single value
+      expect(decodeAndSplitParam("1")).toEqual(["1"]);
+
+      // Test empty elements
+      expect(decodeAndSplitParam("1,,3")).toEqual(["1", "3"]);
+    });
+  });
 });

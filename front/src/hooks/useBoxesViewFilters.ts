@@ -104,58 +104,49 @@ export const useBoxesViewFilters = () => {
     return result;
   }, [categoryIds, productIds, sizeIds, genderIds, locationIds, boxState, tagIds]);
 
-  // Helper to update URL parameter atomically (set or remove in single operation)
-  const updateUrlParameter = (paramName: string, value: string | undefined) => {
-    const url = new URL(window.location.href);
-    if (value) {
-      url.searchParams.set(paramName, value);
-    } else {
-      url.searchParams.delete(paramName);
-    }
-    window.history.replaceState({}, "", url.toString());
-  };
-
   // Update a specific filter
   const updateFilter = (key: keyof BoxesViewFilters, value: string | string[] | undefined) => {
     const stringValue =
       Array.isArray(value) && value.length > 0 ? value.join(",") : (value as string);
 
-    // Use atomic URL updates to avoid flickering
+    // First update URL manually to control parameter presence
+    const url = new URL(window.location.href);
+    if (stringValue) {
+      url.searchParams.set(key, stringValue);
+    } else {
+      url.searchParams.delete(key);
+    }
+    window.history.replaceState({}, "", url.toString());
+
+    // Then update jotai atoms (they will sync with the URL)
     switch (key) {
       case "category_ids":
-        updateUrlParameter("category_ids", stringValue || undefined);
         setCategoryIds(stringValue || "");
         break;
       case "product_ids":
-        updateUrlParameter("product_ids", stringValue || undefined);
         setProductIds(stringValue || "");
         break;
       case "size_ids":
-        updateUrlParameter("size_ids", stringValue || undefined);
         setSizeIds(stringValue || "");
         break;
       case "gender_ids":
-        updateUrlParameter("gender_ids", stringValue || undefined);
         setGenderIds(stringValue || "");
         break;
       case "location_ids":
-        updateUrlParameter("location_ids", stringValue || undefined);
         setLocationIds(stringValue || "");
         break;
       case "box_state":
-        updateUrlParameter("box_state", stringValue || undefined);
         setBoxState(stringValue || "");
         break;
       case "tag_ids":
-        updateUrlParameter("tag_ids", stringValue || undefined);
         setTagIds(stringValue || "");
         break;
     }
   };
 
-  // Clear all filters atomically
+  // Clear all filters
   const clearFilters = () => {
-    // Update URL first to remove all parameters at once
+    // First clean up URL
     const url = new URL(window.location.href);
     url.searchParams.delete("category_ids");
     url.searchParams.delete("product_ids");
@@ -166,7 +157,7 @@ export const useBoxesViewFilters = () => {
     url.searchParams.delete("tag_ids");
     window.history.replaceState({}, "", url.toString());
 
-    // Then update jotai state
+    // Then clear jotai state
     setCategoryIds("");
     setProductIds("");
     setSizeIds("");
@@ -183,7 +174,7 @@ export const useBoxesViewFilters = () => {
 
   // Helper to decode and split URL parameters (handles %2C encoded commas)
   const decodeAndSplitParam = (value: string | undefined): string[] | undefined => {
-    if (!value) return undefined;
+    if (!value || value === "") return undefined;
     const decoded = decodeURIComponent(value);
     const split = decoded.split(",").filter(Boolean);
     return split.length > 0 ? split : undefined;
