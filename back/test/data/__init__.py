@@ -248,6 +248,8 @@ _NAMES = [
     "shipment",
     "tag",
     "shareable_link",
+    "distribution_event_tracking_group",
+    "distribution_event",
 ]
 
 
@@ -269,8 +271,9 @@ def setup_models():
         module = importlib.import_module(f"data.{module_name}")
         module.create()
 
-    # Set up remaining models; order is now irrelevant
-    for module_name in module_names:
+    # Set up remaining models; order is now irrelevant. Still sort modules to be
+    # independent from different result order of os.listdir in different envs
+    for module_name in sorted(module_names):
         module = importlib.import_module(f"data.{module_name}")
         module.create()
 
