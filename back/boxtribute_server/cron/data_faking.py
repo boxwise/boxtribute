@@ -704,6 +704,7 @@ class Generator:
             type=TransferAgreementType.Bidirectional,
             initiating_organisation_base_ids=[1],
             user=org1_user,
+            comment="this is a test agreement",
         )
         reject_transfer_agreement(agreement=agreement, user=org2_user)
 
@@ -726,6 +727,7 @@ class Generator:
             initiating_organisation_base_ids=[1],
             partner_organisation_base_ids=[2, 3],
             user=org1_user,
+            comment="we want this to work forever",
         )
         accept_transfer_agreement(agreement=agreement, user=org2_user)
         self.accepted_agreement = agreement
