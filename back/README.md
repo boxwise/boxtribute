@@ -84,8 +84,6 @@ Create `.env` file with environment variables
 
     cp example.env .env
 
-For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variable.
-
 ### Linting and Formatting in VSCode
 
 Most of our developers are using VSCode. Instead of running our linter (flake8) and our formatter (black) for Python just when you are committing your code, we added a few settings in `.vscode/settings.json` so that your files are formatted and linted when you save a Python file.
@@ -218,7 +216,20 @@ Our tests verify the production code on different levels:
 1. **Unit tests**: testing isolated functionality, see `unit_tests/`
 1. **Data model tests**: testing data models, requiring a test database being set up. See `model_tests/`
 1. **App tests**: testing behavior of Flask app, mostly the handling of GraphQL requests. Requires a test database being set up, or a MySQL database server running in the background. Any data for user authentication and authorization is mocked. See `endpoint_tests/`
-1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection. Parameters for the test user are read from the `.env` file. See `auth0_integration_tests/`
+1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection, and secrets in the `.env` file (check next section). See `auth0_integration_tests/`
+
+### Obtaining secrets for Auth0 integration tests
+
+If you don't have to run the integration tests, skip them using the `--ignore back/test/auth0_integration_tests` option.
+
+If you need to run the integration tests, proceed as follows:
+1.  Log in to Auth0 and navigate to `Applications` -> `Applications` from the side bar menu
+1.  Select `query-api`
+1.  Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variable
+1.  Back in the Applications list, select `API Explorer Application`
+1.  Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET` variable
+
+**If you don't have Auth0 access, please ask a team member for the secrets.**
 
 ### Executing tests
 
