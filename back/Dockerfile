@@ -13,6 +13,9 @@ COPY requirements.txt /app
 COPY requirements-dev.txt /app
 RUN pip install -r requirements.txt -r requirements-dev.txt && rm requirements*.txt
 
+# Install dependencies for Auth0 integration tests (public key extraction)
+RUN apk add --no-cache openssl
+
 # Simulate editable install for boxtribute-server package. This is required to resolve imports
 # (editable installing is not possible during Docker build since the code directory is only
 # mounted at container runtime)
