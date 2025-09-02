@@ -110,6 +110,7 @@ docker compose up -d db
 cd back
 source ../.venv/bin/activate
 pip install -U -e . -r requirements-dev.txt
+git config --unset-all core.hooksPath
 pre-commit install --overwrite
 # NOTE: May fail with network timeouts in restricted environments
 
@@ -120,7 +121,7 @@ pytest --ignore=test/auth0_integration_tests/
 
 # Run auth0_integration_tests separately if needed (requires repository secrets)
 pytest test/auth0_integration_tests/
-# NOTE: Requires TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET from repository secrets
+# NOTE: Requires TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET and TEST_AUTH0_CLIENT_SECRET from repository secrets
 
 # Run specific test categories (when dependencies are available)
 pytest test/unit_tests/          # Unit tests only (~2 minutes)
@@ -167,7 +168,7 @@ pnpm lint:all:fix
 # Backend linting (via pre-commit)
 cd back
 source ../.venv/bin/activate
-pre-commit run --all-files
+git ls-files -- back | SKIP=generate-graphql-ts-types xargs pre-commit run --files
 # Takes ~30-60 seconds
 # NOTE: May fail with PyPI network timeouts in restricted environments
 ```
@@ -324,6 +325,7 @@ pnpm test:coverage
 pnpm -C front build
 pnpm -C statviz build
 cd back && pytest --ignore=test/auth0_integration_tests/
+git ls-files -- back | SKIP=generate-graphql-ts-types xargs pre-commit run --files
 ```
 
 ## Troubleshooting
