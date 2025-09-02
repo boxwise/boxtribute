@@ -10,10 +10,7 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
   onClose: () => void;
   onAddBoxToDistributionEvent: (boxId: string) => void;
   // TODO: add correct signature / type here
-  onAddUnboxedItemsToDistributionEvent: (
-    boxId: string,
-    numberOfItemsToMove: number
-  ) => void;
+  onAddUnboxedItemsToDistributionEvent: (boxId: string, numberOfItemsToMove: number) => void;
 }
 
 const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
@@ -63,7 +60,7 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
           boxData={boxData}
           onAddBoxToDistributionEvent={(boxId: string) => {
             resetState();
-            onAddBoxToDistributionEvent(boxId)
+            onAddBoxToDistributionEvent(boxId);
           }}
           onAddIndividualItemsToDistribution={(boxId: string, numberOfItemsToMove: number) => {
             resetState();
