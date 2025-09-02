@@ -50,10 +50,11 @@ Virtual environments (venvs for short) must be activated and deactivated. If you
 
 ### Set-up pre-commit
 
-[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, as well as consistent code formatting, before you commit your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
+[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, as well as consistent code formatting, before you commit your code.
 
 1.  Install pre-commit and the linters/formatters (all declared in `/back/requirements-dev.txt`). Run the command from the root folder of the repo
 
+        source .venv/bin/activate
         pip install -U -e back -r back/requirements-dev.txt
 
 2.  Install the git hooks
@@ -76,8 +77,9 @@ The following are a couple of recommendations for IDE integration, database inte
 
 **Crucial for running tests!**
 
-Install the dependencies of the app in the activated virtual environment
+In the repository root, install the dependencies of the app in the activated virtual environment
 
+    source .venv/bin/activate
     pip install -U -e back -r back/requirements-dev.txt
 
 Create `.env` file with environment variables
@@ -140,14 +142,6 @@ Mind the following perks of peewee:
 from .utils import activate_logging
 activate_logging()
 ```
-
-#### Auto-generating peewee model definitions
-
-The `pwiz` utility helps to generate peewee model definitions by inspecting a running database. It is already installed with the `peewee` package.
-
-1. Start the database by `docker compose up db`
-1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
-1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
 
 ### Debugging
 
