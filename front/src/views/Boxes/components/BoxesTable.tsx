@@ -244,69 +244,69 @@ function BoxesTable({
     filters.forEach((filter) => {
       switch (filter.id) {
         case "productCategory": {
-          // Map category name to ID using GraphQL data
+          // Map category names to IDs using GraphQL data
           // Filter value is an array of selected category names
           const categoryValues = Array.isArray(filter.value) ? filter.value : [filter.value];
-          const categoryId = categoryValues
+          const categoryIds = categoryValues
             .map((val) => {
               if (typeof val === "string") {
                 return nameToIdMappings.categoryMap.get(val);
               }
               return val?.id || val?.value || val;
             })
-            .filter(Boolean)[0];
-          if (categoryId) updateFilter("category_id", String(categoryId));
+            .filter(Boolean);
+          if (categoryIds.length > 0) updateFilter("category_ids", categoryIds);
           break;
         }
         case "product": {
-          // Map product name to ID using GraphQL data
+          // Map product names to IDs using GraphQL data
           // Filter value is an array of selected product names
           const productValues = Array.isArray(filter.value) ? filter.value : [filter.value];
-          const productId = productValues
+          const productIds = productValues
             .map((val) => {
               if (typeof val === "string") {
                 return nameToIdMappings.productMap.get(val);
               }
               return val?.id || val?.value || val;
             })
-            .filter(Boolean)[0];
-          if (productId) updateFilter("product_id", String(productId));
+            .filter(Boolean);
+          if (productIds.length > 0) updateFilter("product_ids", productIds);
           break;
         }
         case "size": {
-          // Map size label to ID using GraphQL data
+          // Map size labels to IDs using GraphQL data
           // Filter value is an array of selected size labels
           const sizeValues = Array.isArray(filter.value) ? filter.value : [filter.value];
-          const sizeId = sizeValues
+          const sizeIds = sizeValues
             .map((val) => {
               if (typeof val === "string") {
                 return nameToIdMappings.sizeMap.get(val);
               }
               return val?.id || val?.value || val;
             })
-            .filter(Boolean)[0];
-          if (sizeId) updateFilter("size_id", String(sizeId));
+            .filter(Boolean);
+          if (sizeIds.length > 0) updateFilter("size_ids", sizeIds);
           break;
         }
         case "gender": {
-          // Gender is typically a string value, not an object
-          const genderValue = Array.isArray(filter.value) ? filter.value[0] : filter.value;
-          if (genderValue) updateFilter("gender_id", String(genderValue));
+          // Gender values
+          const genderValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          if (genderValues.length > 0) updateFilter("gender_ids", genderValues);
           break;
         }
         case "location": {
-          // Map location name to ID using GraphQL data
+          // Map location names to IDs using GraphQL data
           // Filter value is an array of selected location names
           const locationValues = Array.isArray(filter.value) ? filter.value : [filter.value];
-          const locationId = locationValues
+          const locationIds = locationValues
             .map((val) => {
               if (typeof val === "string") {
                 return nameToIdMappings.locationMap.get(val);
               }
               return val?.id || val?.value || val;
             })
-            .filter(Boolean)[0];
-          if (locationId) updateFilter("location_id", String(locationId));
+            .filter(Boolean);
+          if (locationIds.length > 0) updateFilter("location_ids", locationIds);
           break;
         }
         case "state": {
@@ -338,11 +338,11 @@ function BoxesTable({
     // This ensures that when a filter is cleared in the table, it's also cleared from the URL
     const urlFilterMap: Record<string, keyof import("hooks/useBoxesViewFilters").BoxesViewFilters> =
       {
-        productCategory: "category_id",
-        product: "product_id",
-        size: "size_id",
-        gender: "gender_id",
-        location: "location_id",
+        productCategory: "category_ids",
+        product: "product_ids",
+        size: "size_ids",
+        gender: "gender_ids",
+        location: "location_ids",
         state: "box_state",
         tags: "tag_ids",
       };

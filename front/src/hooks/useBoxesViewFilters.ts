@@ -6,30 +6,30 @@ import { Filters } from "react-table";
 // Define the filter structure for frontend table filtering
 // Note: Frontend filtering is client-side and independent of GraphQL FilterBoxInput
 export interface BoxesViewFilters {
-  category_id?: string;
-  product_id?: string;
-  size_id?: string;
-  gender_id?: string;
-  location_id?: string;
+  category_ids?: string[];
+  product_ids?: string[];
+  size_ids?: string[];
+  gender_ids?: string[];
+  location_ids?: string[];
   box_state?: string[];
   tag_ids?: string[];
 }
 
-// Create atoms for individual search parameters
-const categoryIdAtom = atomWithSearchParams("category_id", "");
-const productIdAtom = atomWithSearchParams("product_id", "");
-const sizeIdAtom = atomWithSearchParams("size_id", "");
-const genderIdAtom = atomWithSearchParams("gender_id", "");
-const locationIdAtom = atomWithSearchParams("location_id", "");
+// Create atoms for individual search parameters (using plural names)
+const categoryIdsAtom = atomWithSearchParams("category_ids", "");
+const productIdsAtom = atomWithSearchParams("product_ids", "");
+const sizeIdsAtom = atomWithSearchParams("size_ids", "");
+const genderIdsAtom = atomWithSearchParams("gender_ids", "");
+const locationIdsAtom = atomWithSearchParams("location_ids", "");
 const boxStateAtom = atomWithSearchParams("box_state", "");
 const tagIdsAtom = atomWithSearchParams("tag_ids", "");
 
 export const useBoxesViewFilters = () => {
-  const [categoryId, setCategoryId] = useAtom(categoryIdAtom);
-  const [productId, setProductId] = useAtom(productIdAtom);
-  const [sizeId, setSizeId] = useAtom(sizeIdAtom);
-  const [genderId, setGenderId] = useAtom(genderIdAtom);
-  const [locationId, setLocationId] = useAtom(locationIdAtom);
+  const [categoryIds, setCategoryIds] = useAtom(categoryIdsAtom);
+  const [productIds, setProductIds] = useAtom(productIdsAtom);
+  const [sizeIds, setSizeIds] = useAtom(sizeIdsAtom);
+  const [genderIds, setGenderIds] = useAtom(genderIdsAtom);
+  const [locationIds, setLocationIds] = useAtom(locationIdsAtom);
   const [boxState, setBoxState] = useAtom(boxStateAtom);
   const [tagIds, setTagIds] = useAtom(tagIdsAtom);
 
@@ -39,24 +39,39 @@ export const useBoxesViewFilters = () => {
     const result: Filters<any> = [];
 
     // These filters need ID-to-name conversion in BoxesTable
-    if (categoryId) {
-      result.push({ id: "productCategory", value: [categoryId], needsConversion: true });
+    if (categoryIds) {
+      const categories = categoryIds.split(",").filter(Boolean);
+      if (categories.length > 0) {
+        result.push({ id: "productCategory", value: categories, needsConversion: true });
+      }
     }
 
-    if (productId) {
-      result.push({ id: "product", value: [productId], needsConversion: true });
+    if (productIds) {
+      const products = productIds.split(",").filter(Boolean);
+      if (products.length > 0) {
+        result.push({ id: "product", value: products, needsConversion: true });
+      }
     }
 
-    if (sizeId) {
-      result.push({ id: "size", value: [sizeId], needsConversion: true });
+    if (sizeIds) {
+      const sizes = sizeIds.split(",").filter(Boolean);
+      if (sizes.length > 0) {
+        result.push({ id: "size", value: sizes, needsConversion: true });
+      }
     }
 
-    if (genderId) {
-      result.push({ id: "gender", value: [genderId] });
+    if (genderIds) {
+      const genders = genderIds.split(",").filter(Boolean);
+      if (genders.length > 0) {
+        result.push({ id: "gender", value: genders });
+      }
     }
 
-    if (locationId) {
-      result.push({ id: "location", value: [locationId], needsConversion: true });
+    if (locationIds) {
+      const locations = locationIds.split(",").filter(Boolean);
+      if (locations.length > 0) {
+        result.push({ id: "location", value: locations, needsConversion: true });
+      }
     }
 
     if (boxState) {
@@ -74,7 +89,7 @@ export const useBoxesViewFilters = () => {
     }
 
     return result;
-  }, [categoryId, productId, sizeId, genderId, locationId, boxState, tagIds]);
+  }, [categoryIds, productIds, sizeIds, genderIds, locationIds, boxState, tagIds]);
 
   // Helper to update URL parameter atomically (set or remove in single operation)
   const updateUrlParameter = (paramName: string, value: string | undefined) => {
@@ -94,25 +109,25 @@ export const useBoxesViewFilters = () => {
 
     // Use atomic URL updates to avoid flickering
     switch (key) {
-      case "category_id":
-        updateUrlParameter("category_id", stringValue || undefined);
-        setCategoryId(stringValue || "");
+      case "category_ids":
+        updateUrlParameter("category_ids", stringValue || undefined);
+        setCategoryIds(stringValue || "");
         break;
-      case "product_id":
-        updateUrlParameter("product_id", stringValue || undefined);
-        setProductId(stringValue || "");
+      case "product_ids":
+        updateUrlParameter("product_ids", stringValue || undefined);
+        setProductIds(stringValue || "");
         break;
-      case "size_id":
-        updateUrlParameter("size_id", stringValue || undefined);
-        setSizeId(stringValue || "");
+      case "size_ids":
+        updateUrlParameter("size_ids", stringValue || undefined);
+        setSizeIds(stringValue || "");
         break;
-      case "gender_id":
-        updateUrlParameter("gender_id", stringValue || undefined);
-        setGenderId(stringValue || "");
+      case "gender_ids":
+        updateUrlParameter("gender_ids", stringValue || undefined);
+        setGenderIds(stringValue || "");
         break;
-      case "location_id":
-        updateUrlParameter("location_id", stringValue || undefined);
-        setLocationId(stringValue || "");
+      case "location_ids":
+        updateUrlParameter("location_ids", stringValue || undefined);
+        setLocationIds(stringValue || "");
         break;
       case "box_state":
         updateUrlParameter("box_state", stringValue || undefined);
@@ -129,21 +144,21 @@ export const useBoxesViewFilters = () => {
   const clearFilters = () => {
     // Update URL first to remove all parameters at once
     const url = new URL(window.location.href);
-    url.searchParams.delete("category_id");
-    url.searchParams.delete("product_id");
-    url.searchParams.delete("size_id");
-    url.searchParams.delete("gender_id");
-    url.searchParams.delete("location_id");
+    url.searchParams.delete("category_ids");
+    url.searchParams.delete("product_ids");
+    url.searchParams.delete("size_ids");
+    url.searchParams.delete("gender_ids");
+    url.searchParams.delete("location_ids");
     url.searchParams.delete("box_state");
     url.searchParams.delete("tag_ids");
     window.history.replaceState({}, "", url.toString());
 
     // Then update jotai state
-    setCategoryId("");
-    setProductId("");
-    setSizeId("");
-    setGenderId("");
-    setLocationId("");
+    setCategoryIds("");
+    setProductIds("");
+    setSizeIds("");
+    setGenderIds("");
+    setLocationIds("");
     setBoxState("");
     setTagIds("");
   };
@@ -155,11 +170,11 @@ export const useBoxesViewFilters = () => {
 
   // Build the filters object for external use
   const filters: BoxesViewFilters = {
-    category_id: categoryId || undefined,
-    product_id: productId || undefined,
-    size_id: sizeId || undefined,
-    gender_id: genderId || undefined,
-    location_id: locationId || undefined,
+    category_ids: categoryIds ? categoryIds.split(",").filter(Boolean) : undefined,
+    product_ids: productIds ? productIds.split(",").filter(Boolean) : undefined,
+    size_ids: sizeIds ? sizeIds.split(",").filter(Boolean) : undefined,
+    gender_ids: genderIds ? genderIds.split(",").filter(Boolean) : undefined,
+    location_ids: locationIds ? locationIds.split(",").filter(Boolean) : undefined,
     box_state: boxState ? boxState.split(",").filter(Boolean) : undefined,
     tag_ids: tagIds ? tagIds.split(",").filter(Boolean) : undefined,
   };
