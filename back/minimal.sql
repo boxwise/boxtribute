@@ -311,9 +311,9 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (44,155,'Settings','cms_settings',25,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
   (45,155,'Texts','cms_translate',26,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
   (50,155,'Manage Menu Functions','cms_functions',24,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
-  (67,42,'Manage Products','products',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_products'),
+  (67,42,'Manage Products v2','products',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_products'),
   (87,35,'Checkout','check_out',7,NULL,NULL,NULL,NULL,0,0,1,0,0,'checkout_beneficiaries'),
-  (90,99,'Classic Manage Boxes','stock',3,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
+  (90,99,'Classic Manage Boxes','stock',3,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL),
   (92,35,'Give Tokens <span>To</span> All','give2all',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tokens'),
   (96,128,'Sales Reports','sales_list',16,NULL,NULL,NULL,NULL,0,0,1,0,0,'list_sales'),
   (99,NULL,'Inventory','',1,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
@@ -356,7 +356,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (164,163,'Manage Shipments','shipments',0,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_shipments'),
   (165,163,'Manage Network','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
-  (166,99,'Manage Boxes v2 (<span>beta</span>)','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
+  (166,99,'Manage Boxes v2','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
   (167,128,'Dashboard v2 (<span>beta</span>)','statviz_dashboard',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_beneficiary_graph'),
   (168,131,'Use Service (<span>beta</span>)','use_service',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'register_service_usage'),
   (169,131,'Manage Services (<span>beta</span>)','services',11,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_services'),
@@ -2318,7 +2318,8 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20250414124236,'AddServiceMenues','2025-04-16 13:13:51','2025-04-16 13:13:51',0),
   (20250415134236,'AddBaseSettingMenu','2025-04-17 12:43:19','2025-04-17 12:43:20',0),
   (20250806155709,'UpdateAgreementMenuTitle','2025-08-19 12:41:45','2025-08-19 12:41:45',0),
-  (20250814100608,'AddBabyGenders','2025-08-19 12:49:34','2025-08-19 12:49:35',0);
+  (20250814100608,'AddBabyGenders','2025-08-19 12:49:34','2025-08-19 12:49:35',0),
+  (20250828102054,'RemoveClassicManageBoxesMenu','2025-09-02 14:13:19','2025-09-02 14:13:19',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
