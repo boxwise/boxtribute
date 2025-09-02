@@ -59,12 +59,29 @@ export const prepareBoxesForBoxesViewQueryVariables = (
     const filterInput = columnFilters.reduce((acc, filter) => {
       const graphqlField = filterIdToGraphQLVariable(filter.id);
       if (graphqlField) {
-        // Handle different value types
-        if (Array.isArray(filter.value)) {
-          acc[graphqlField] = filter.value;
+        let processedValue;
+
+        if (filter.id === "tags") {
+          // For tags, extract IDs from tag objects or use string IDs directly
+          const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+          processedValue = values
+            .map((tag) => {
+              if (typeof tag === "object" && tag !== null) {
+                return String(tag.id || tag.value || tag);
+              }
+              return String(tag);
+            })
+            .filter(Boolean);
+        } else if (filter.id === "state") {
+          // For states, ensure they're strings
+          const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+          processedValue = values.map(String);
         } else {
-          acc[graphqlField] = [filter.value];
+          // Handle other filter types
+          processedValue = Array.isArray(filter.value) ? filter.value : [filter.value];
         }
+
+        acc[graphqlField] = processedValue;
       }
       return acc;
     }, {} as any);

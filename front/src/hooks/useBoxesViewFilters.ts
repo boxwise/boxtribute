@@ -1,7 +1,13 @@
 import { useAtom } from "jotai";
 import { atomWithSearchParams } from "jotai-location";
 import { useMemo } from "react";
-import { Filters } from "react-table";
+
+// Extend Filters type to include needsConversion flag
+type ExtendedFilter = {
+  id: string;
+  value: any;
+  needsConversion?: boolean;
+};
 
 // Define the filter structure for frontend table filtering
 // Note: Frontend filtering is client-side and independent of GraphQL FilterBoxInput
@@ -35,54 +41,61 @@ export const useBoxesViewFilters = () => {
 
   // Convert URL filters to react-table Filters format
   // NOTE: These contain raw IDs that need to be converted to display names in BoxesTable
-  const tableFilters = useMemo((): Filters<any> => {
-    const result: Filters<any> = [];
+  const tableFilters = useMemo((): ExtendedFilter[] => {
+    const result: ExtendedFilter[] = [];
+
+    // Helper to decode and split URL parameters (handles %2C encoded commas)
+    const decodeAndSplit = (value: string): string[] => {
+      // First decode the URL encoding (converts %2C back to ,)
+      const decoded = decodeURIComponent(value);
+      return decoded.split(",").filter(Boolean);
+    };
 
     // These filters need ID-to-name conversion in BoxesTable
     if (categoryIds) {
-      const categories = categoryIds.split(",").filter(Boolean);
+      const categories = decodeAndSplit(categoryIds);
       if (categories.length > 0) {
         result.push({ id: "productCategory", value: categories, needsConversion: true });
       }
     }
 
     if (productIds) {
-      const products = productIds.split(",").filter(Boolean);
+      const products = decodeAndSplit(productIds);
       if (products.length > 0) {
         result.push({ id: "product", value: products, needsConversion: true });
       }
     }
 
     if (sizeIds) {
-      const sizes = sizeIds.split(",").filter(Boolean);
+      const sizes = decodeAndSplit(sizeIds);
       if (sizes.length > 0) {
         result.push({ id: "size", value: sizes, needsConversion: true });
       }
     }
 
     if (genderIds) {
-      const genders = genderIds.split(",").filter(Boolean);
+      const genders = decodeAndSplit(genderIds);
       if (genders.length > 0) {
         result.push({ id: "gender", value: genders });
       }
     }
 
     if (locationIds) {
-      const locations = locationIds.split(",").filter(Boolean);
+      const locations = decodeAndSplit(locationIds);
       if (locations.length > 0) {
         result.push({ id: "location", value: locations, needsConversion: true });
       }
     }
 
     if (boxState) {
-      const states = boxState.split(",").filter(Boolean);
+      const states = decodeAndSplit(boxState);
       if (states.length > 0) {
         result.push({ id: "state", value: states });
       }
     }
 
     if (tagIds) {
-      const tags = tagIds.split(",").filter(Boolean);
+      const tags = decodeAndSplit(tagIds);
       if (tags.length > 0) {
         result.push({ id: "tags", value: tags });
       }
@@ -168,15 +181,23 @@ export const useBoxesViewFilters = () => {
     updateFilter(key, undefined);
   };
 
+  // Helper to decode and split URL parameters (handles %2C encoded commas)
+  const decodeAndSplitParam = (value: string | undefined): string[] | undefined => {
+    if (!value) return undefined;
+    const decoded = decodeURIComponent(value);
+    const split = decoded.split(",").filter(Boolean);
+    return split.length > 0 ? split : undefined;
+  };
+
   // Build the filters object for external use
   const filters: BoxesViewFilters = {
-    category_ids: categoryIds ? categoryIds.split(",").filter(Boolean) : undefined,
-    product_ids: productIds ? productIds.split(",").filter(Boolean) : undefined,
-    size_ids: sizeIds ? sizeIds.split(",").filter(Boolean) : undefined,
-    gender_ids: genderIds ? genderIds.split(",").filter(Boolean) : undefined,
-    location_ids: locationIds ? locationIds.split(",").filter(Boolean) : undefined,
-    box_state: boxState ? boxState.split(",").filter(Boolean) : undefined,
-    tag_ids: tagIds ? tagIds.split(",").filter(Boolean) : undefined,
+    category_ids: decodeAndSplitParam(categoryIds),
+    product_ids: decodeAndSplitParam(productIds),
+    size_ids: decodeAndSplitParam(sizeIds),
+    gender_ids: decodeAndSplitParam(genderIds),
+    location_ids: decodeAndSplitParam(locationIds),
+    box_state: decodeAndSplitParam(boxState),
+    tag_ids: decodeAndSplitParam(tagIds),
   };
 
   return {
@@ -185,5 +206,11 @@ export const useBoxesViewFilters = () => {
     updateFilter,
     clearFilters,
     clearFilter,
+  } as {
+    filters: BoxesViewFilters;
+    tableFilters: ExtendedFilter[];
+    updateFilter: (key: keyof BoxesViewFilters, value: string | string[] | undefined) => void;
+    clearFilters: () => void;
+    clearFilter: (key: keyof BoxesViewFilters) => void;
   };
 };
