@@ -79,30 +79,75 @@ function BoxesTable({
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
   const { updateFilter, clearFilter } = useBoxesViewFilters();
 
-  // Create name-to-ID mappings from raw GraphQL data
+  // Create bidirectional mappings between names and IDs from raw GraphQL data
   const nameToIdMappings = useMemo(() => {
     const categoryMap = new Map<string, string>();
     const productMap = new Map<string, string>();
     const sizeMap = new Map<string, string>();
     const locationMap = new Map<string, string>();
 
+    // Reverse maps for converting IDs back to names
+    const categoryIdToName = new Map<string, string>();
+    const productIdToName = new Map<string, string>();
+    const sizeIdToName = new Map<string, string>();
+    const locationIdToName = new Map<string, string>();
+
     rawData.boxes.elements.forEach((element) => {
       if (element.product?.category) {
         categoryMap.set(element.product.category.name, element.product.category.id);
+        categoryIdToName.set(element.product.category.id, element.product.category.name);
       }
       if (element.product) {
         productMap.set(element.product.name, element.product.id);
+        productIdToName.set(element.product.id, element.product.name);
       }
       if (element.size) {
         sizeMap.set(element.size.label, element.size.id);
+        sizeIdToName.set(element.size.id, element.size.label);
       }
       if (element.location && element.location.name) {
         locationMap.set(element.location.name, element.location.id);
+        locationIdToName.set(element.location.id, element.location.name);
       }
     });
 
-    return { categoryMap, productMap, sizeMap, locationMap };
+    return {
+      categoryMap,
+      productMap,
+      sizeMap,
+      locationMap,
+      categoryIdToName,
+      productIdToName,
+      sizeIdToName,
+      locationIdToName,
+    };
   }, [rawData]);
+
+  // Convert URL filter IDs to display names for table filters
+  const convertedInitialFilters = useMemo(() => {
+    const filters = tableConfig.getColumnFilters();
+    return filters.map((filter: any) => {
+      // Check if this filter needs ID-to-name conversion
+      if (filter.needsConversion && filter.value) {
+        const convertedValues = filter.value.map((id: string) => {
+          switch (filter.id) {
+            case "productCategory":
+              return nameToIdMappings.categoryIdToName.get(id) || id;
+            case "product":
+              return nameToIdMappings.productIdToName.get(id) || id;
+            case "size":
+              return nameToIdMappings.sizeIdToName.get(id) || id;
+            case "location":
+              return nameToIdMappings.locationIdToName.get(id) || id;
+            default:
+              return id;
+          }
+        });
+        return { ...filter, value: convertedValues, needsConversion: undefined };
+      }
+      return filter;
+    });
+  }, [tableConfig, nameToIdMappings]);
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -140,7 +185,7 @@ function BoxesTable({
         sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
         pageSize: 20,
-        filters: tableConfig.getColumnFilters(),
+        filters: convertedInitialFilters,
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -185,7 +230,7 @@ function BoxesTable({
   useEffect(() => {
     // refetch
     const newStateFilter = filters.find((filter) => filter.id === "state");
-    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    const oldStateFilter = convertedInitialFilters.find((filter) => filter.id === "state");
     if (newStateFilter !== oldStateFilter) {
       startRefetchBoxes(() => {
         onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
@@ -333,6 +378,7 @@ function BoxesTable({
     updateFilter,
     clearFilter,
     nameToIdMappings,
+    convertedInitialFilters,
   ]);
 
   return (

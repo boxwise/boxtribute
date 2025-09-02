@@ -34,19 +34,21 @@ export const useBoxesViewFilters = () => {
   const [tagIds, setTagIds] = useAtom(tagIdsAtom);
 
   // Convert URL filters to react-table Filters format
+  // NOTE: These contain raw IDs that need to be converted to display names in BoxesTable
   const tableFilters = useMemo((): Filters<any> => {
     const result: Filters<any> = [];
 
+    // These filters need ID-to-name conversion in BoxesTable
     if (categoryId) {
-      result.push({ id: "productCategory", value: [categoryId] });
+      result.push({ id: "productCategory", value: [categoryId], needsConversion: true });
     }
 
     if (productId) {
-      result.push({ id: "product", value: [productId] });
+      result.push({ id: "product", value: [productId], needsConversion: true });
     }
 
     if (sizeId) {
-      result.push({ id: "size", value: [sizeId] });
+      result.push({ id: "size", value: [sizeId], needsConversion: true });
     }
 
     if (genderId) {
@@ -54,7 +56,7 @@ export const useBoxesViewFilters = () => {
     }
 
     if (locationId) {
-      result.push({ id: "location", value: [locationId] });
+      result.push({ id: "location", value: [locationId], needsConversion: true });
     }
 
     if (boxState) {
