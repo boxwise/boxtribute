@@ -121,6 +121,13 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
         tags(resourceType: Box) {
           ...TagBasicFields
         }
+        products {
+          ...ProductBasicFields
+        }
+      }
+      productCategories {
+        id
+        name
       }
       shipments {
         id
@@ -135,7 +142,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
       }
     }
   `,
-  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
 
 function Boxes({
@@ -403,6 +410,8 @@ function Boxes({
           actionOptionsData.base?.locations ?? [],
         )}
         tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
+        allProducts={actionOptionsData?.base?.products ?? []}
+        allCategories={actionOptionsData?.productCategories ?? []}
       />
     </>
   );

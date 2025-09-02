@@ -68,7 +68,7 @@ describe("transformers", () => {
         const filters = [{ id: "tags", value: ["80", "85", "90"] }];
         const result = prepareBoxesForBoxesViewQueryVariables(baseId, filters);
 
-        expect(result.filterInput!.tagIds).toEqual(["80", "85", "90"]);
+        expect(result.filterInput!.tagIds).toEqual([80, 85, 90]);
       });
 
       it("should extract IDs from tag objects", () => {
@@ -84,7 +84,7 @@ describe("transformers", () => {
         ];
         const result = prepareBoxesForBoxesViewQueryVariables(baseId, filters);
 
-        expect(result.filterInput!.tagIds).toEqual(["80", "85", "90"]);
+        expect(result.filterInput!.tagIds).toEqual([80, 85, 90]);
       });
 
       it("should handle mixed tag objects and strings", () => {
@@ -96,7 +96,7 @@ describe("transformers", () => {
         ];
         const result = prepareBoxesForBoxesViewQueryVariables(baseId, filters);
 
-        expect(result.filterInput!.tagIds).toEqual(["80", "85", "90"]);
+        expect(result.filterInput!.tagIds).toEqual([80, 85, 90]);
       });
 
       it("should handle single tag object", () => {
@@ -108,7 +108,7 @@ describe("transformers", () => {
         ];
         const result = prepareBoxesForBoxesViewQueryVariables(baseId, filters);
 
-        expect(result.filterInput!.tagIds).toEqual(["80"]);
+        expect(result.filterInput!.tagIds).toEqual([80]);
       });
 
       it("should filter out empty/invalid tag values", () => {
@@ -122,13 +122,7 @@ describe("transformers", () => {
 
         // String conversion happens first, then filter(Boolean) removes only empty strings
         // null becomes "null", undefined becomes "undefined" - both are truthy strings
-        expect(result.filterInput!.tagIds).toEqual([
-          "80",
-          "null",
-          "undefined",
-          "85",
-          "[object Object]",
-        ]);
+        expect(result.filterInput!.tagIds).toEqual([80, 85]);
       });
     });
 
@@ -159,7 +153,7 @@ describe("transformers", () => {
 
         expect(result.filterInput).toEqual({
           states: ["InStock", "Lost"],
-          tagIds: ["80", "85"],
+          tagIds: [80, 85],
         });
       });
     });
@@ -173,7 +167,7 @@ describe("transformers", () => {
         const result = prepareBoxesForBoxesViewQueryVariables(baseId, filters);
 
         expect(result.filterInput!.states).toEqual(["undefined"]);
-        expect(result.filterInput!.tagIds).toEqual(["undefined"]);
+        expect(result.filterInput!.tagIds).toEqual([]);
       });
 
       it("should handle filters with null values", () => {
@@ -184,7 +178,7 @@ describe("transformers", () => {
         const result = prepareBoxesForBoxesViewQueryVariables(baseId, filters);
 
         expect(result.filterInput!.states).toEqual(["null"]);
-        expect(result.filterInput!.tagIds).toEqual(["null"]);
+        expect(result.filterInput!.tagIds).toEqual([]);
       });
     });
   });

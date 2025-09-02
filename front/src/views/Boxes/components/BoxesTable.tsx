@@ -58,6 +58,8 @@ interface IBoxesTableProps {
   locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
+  allProducts?: any[];
+  allCategories?: any[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
 }
@@ -72,6 +74,8 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
+  allProducts,
+  allCategories,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -92,15 +96,28 @@ function BoxesTable({
     const sizeIdToName = new Map<string, string>();
     const locationIdToName = new Map<string, string>();
 
+    // Build mappings from ALL products and categories (not just filtered results)
+    // This ensures ID-to-name conversion works even when products aren't in current results
+    if (allProducts) {
+      allProducts.forEach((product) => {
+        productMap.set(product.name, product.id);
+        productIdToName.set(product.id, product.name);
+        if (product.category) {
+          categoryMap.set(product.category.name, product.category.id);
+          categoryIdToName.set(product.category.id, product.category.name);
+        }
+      });
+    }
+
+    if (allCategories) {
+      allCategories.forEach((category) => {
+        categoryMap.set(category.name, category.id);
+        categoryIdToName.set(category.id, category.name);
+      });
+    }
+
+    // For sizes and locations, use the rawData since they vary per base
     rawData.boxes.elements.forEach((element) => {
-      if (element.product?.category) {
-        categoryMap.set(element.product.category.name, element.product.category.id);
-        categoryIdToName.set(element.product.category.id, element.product.category.name);
-      }
-      if (element.product) {
-        productMap.set(element.product.name, element.product.id);
-        productIdToName.set(element.product.id, element.product.name);
-      }
       if (element.size) {
         sizeMap.set(element.size.label, element.size.id);
         sizeIdToName.set(element.size.id, element.size.label);
@@ -121,7 +138,7 @@ function BoxesTable({
       sizeIdToName,
       locationIdToName,
     };
-  }, [rawData]);
+  }, [rawData, allProducts, allCategories]);
 
   // Convert URL filter IDs to display names for table filters
   const convertedInitialFilters = useMemo(() => {

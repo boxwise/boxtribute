@@ -240,7 +240,7 @@ describe("URL Parameter Filtering", () => {
       const result = prepareBoxesForBoxesViewQueryVariables("test-base", filters);
 
       // Should extract only IDs, not full objects
-      expect(result.filterInput!.tagIds).toEqual(["80", "85"]);
+      expect(result.filterInput!.tagIds).toEqual([80, 85]);
       expect(result.filterInput!.tagIds).not.toContain(
         expect.objectContaining({ __typename: "Tag" }),
       );
@@ -261,13 +261,13 @@ describe("URL Parameter Filtering", () => {
       const result = prepareBoxesForBoxesViewQueryVariables("test-base", filters);
 
       expect(result.filterInput!).toEqual({
-        tagIds: ["80"],
+        tagIds: [80],
         states: ["InStock"],
       });
 
       // Ensure no invalid GraphQL variable structure
-      expect(result.filterInput!.tagIds![0]).toBe("80");
-      expect(typeof result.filterInput!.tagIds![0]).toBe("string");
+      expect(result.filterInput!.tagIds![0]).toBe(80);
+      expect(typeof result.filterInput!.tagIds![0]).toBe("number");
     });
   });
 
@@ -288,7 +288,7 @@ describe("URL Parameter Filtering", () => {
       // Only state and tagIds should be in the GraphQL variables
       expect(result.filterInput!).toEqual({
         states: ["InStock", "Lost"],
-        tagIds: ["80", "85"],
+        tagIds: [80, 85],
       });
 
       // Frontend-only filters should be excluded

@@ -62,14 +62,19 @@ export const prepareBoxesForBoxesViewQueryVariables = (
         let processedValue;
 
         if (filter.id === "tags") {
-          // For tags, extract IDs from tag objects or use string IDs directly
+          // For tags, extract IDs from tag objects and convert to integers for GraphQL
           const values = Array.isArray(filter.value) ? filter.value : [filter.value];
           processedValue = values
             .map((tag) => {
+              let idValue;
               if (typeof tag === "object" && tag !== null) {
-                return String(tag.id || tag.value || tag);
+                idValue = tag.id || tag.value || tag;
+              } else {
+                idValue = tag;
               }
-              return String(tag);
+              // Convert to integer for GraphQL schema compliance
+              const intValue = parseInt(String(idValue), 10);
+              return isNaN(intValue) ? null : intValue;
             })
             .filter(Boolean);
         } else if (filter.id === "state") {
