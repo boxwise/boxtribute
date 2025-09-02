@@ -2499,6 +2499,11 @@ CREATE TABLE `services` (
 
 LOCK TABLES `services` WRITE;
 /*!40000 ALTER TABLE `services` DISABLE KEYS */;
+INSERT INTO `services` VALUES
+  (1,'English course','',1,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0),
+  (2,'English course','',2,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0),
+  (3,'English course','',3,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0),
+  (4,'English course','',4,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0);
 /*!40000 ALTER TABLE `services` ENABLE KEYS */;
 UNLOCK TABLES;
 
