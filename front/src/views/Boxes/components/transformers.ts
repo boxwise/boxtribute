@@ -35,6 +35,9 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
   switch (filterID) {
     case "state":
       return "states";
+    case "tags":
+      return "tagIds";
+    // Other filters not yet supported by backend
     default:
       return "";
   }
@@ -50,13 +53,45 @@ export const prepareBoxesForBoxesViewQueryVariables = (
     filterInput: {},
     paginationInput,
   };
-  const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
-  if (refetchFilters.length > 0) {
-    const filterInput = refetchFilters.reduce(
-      (acc, filter) => ({ ...acc, [filterIdToGraphQLVariable(filter.id)]: filter.value }),
-      {},
-    );
+
+  // Only handle state and tagIds filters - other types not yet supported by backend
+  if (columnFilters.length > 0) {
+    const filterInput = columnFilters.reduce((acc, filter) => {
+      const graphqlField = filterIdToGraphQLVariable(filter.id);
+      if (graphqlField) {
+        let processedValue;
+
+        if (filter.id === "tags") {
+          // For tags, extract IDs from tag objects and convert to integers for GraphQL
+          const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+          processedValue = values
+            .map((tag) => {
+              let idValue;
+              if (typeof tag === "object" && tag !== null) {
+                idValue = tag.id || tag.value || tag;
+              } else {
+                idValue = tag;
+              }
+              // Convert to integer for GraphQL schema compliance
+              const intValue = parseInt(String(idValue), 10);
+              return isNaN(intValue) ? null : intValue;
+            })
+            .filter(Boolean);
+        } else if (filter.id === "state") {
+          // For states, ensure they're strings
+          const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+          processedValue = values.map(String);
+        } else {
+          // Handle other filter types
+          processedValue = Array.isArray(filter.value) ? filter.value : [filter.value];
+        }
+
+        acc[graphqlField] = processedValue;
+      }
+      return acc;
+    }, {} as any);
     variables.filterInput = filterInput;
   }
+
   return variables;
 };

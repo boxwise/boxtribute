@@ -42,6 +42,7 @@ import {
 } from "./transformers";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import { useBoxesViewFilters } from "hooks/useBoxesViewFilters";
 import ColumnSelector from "components/Table/ColumnSelector";
 import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
@@ -57,6 +58,8 @@ interface IBoxesTableProps {
   locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
+  allProducts?: any[];
+  allCategories?: any[];
   actionButtons?: React.ReactNode[];
   selectedBoxes?: Row<BoxRow>[];
 }
@@ -71,11 +74,97 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
+  allProducts,
+  allCategories,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
+  const { updateFilter, clearFilter } = useBoxesViewFilters();
+
+  // Create bidirectional mappings between names and IDs from raw GraphQL data
+  const nameToIdMappings = useMemo(() => {
+    const categoryMap = new Map<string, string>();
+    const productMap = new Map<string, string>();
+    const sizeMap = new Map<string, string>();
+    const locationMap = new Map<string, string>();
+
+    // Reverse maps for converting IDs back to names
+    const categoryIdToName = new Map<string, string>();
+    const productIdToName = new Map<string, string>();
+    const sizeIdToName = new Map<string, string>();
+    const locationIdToName = new Map<string, string>();
+
+    // Build mappings from ALL products and categories (not just filtered results)
+    // This ensures ID-to-name conversion works even when products aren't in current results
+    if (allProducts) {
+      allProducts.forEach((product) => {
+        productMap.set(product.name, product.id);
+        productIdToName.set(product.id, product.name);
+        if (product.category) {
+          categoryMap.set(product.category.name, product.category.id);
+          categoryIdToName.set(product.category.id, product.category.name);
+        }
+      });
+    }
+
+    if (allCategories) {
+      allCategories.forEach((category) => {
+        categoryMap.set(category.name, category.id);
+        categoryIdToName.set(category.id, category.name);
+      });
+    }
+
+    // For sizes and locations, use the rawData since they vary per base
+    rawData.boxes.elements.forEach((element) => {
+      if (element.size) {
+        sizeMap.set(element.size.label, element.size.id);
+        sizeIdToName.set(element.size.id, element.size.label);
+      }
+      if (element.location && element.location.name) {
+        locationMap.set(element.location.name, element.location.id);
+        locationIdToName.set(element.location.id, element.location.name);
+      }
+    });
+
+    return {
+      categoryMap,
+      productMap,
+      sizeMap,
+      locationMap,
+      categoryIdToName,
+      productIdToName,
+      sizeIdToName,
+      locationIdToName,
+    };
+  }, [rawData, allProducts, allCategories]);
+
+  // Convert URL filter IDs to display names for table filters
+  const convertedInitialFilters = useMemo(() => {
+    const filters = tableConfig.getColumnFilters();
+    return filters.map((filter: any) => {
+      // Check if this filter needs ID-to-name conversion
+      if (filter.needsConversion && filter.value) {
+        const convertedValues = filter.value.map((id: string) => {
+          switch (filter.id) {
+            case "productCategory":
+              return nameToIdMappings.categoryIdToName.get(id) || id;
+            case "product":
+              return nameToIdMappings.productIdToName.get(id) || id;
+            case "size":
+              return nameToIdMappings.sizeIdToName.get(id) || id;
+            case "location":
+              return nameToIdMappings.locationIdToName.get(id) || id;
+            default:
+              return id;
+          }
+        });
+        return { ...filter, value: convertedValues, needsConversion: undefined };
+      }
+      return filter;
+    });
+  }, [tableConfig, nameToIdMappings]);
 
   // Add custom filter function to filter objects in a column
   // https://react-table-v7.tanstack.com/docs/examples/filtering
@@ -113,7 +202,7 @@ function BoxesTable({
         sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
         pageSize: 20,
-        filters: tableConfig.getColumnFilters(),
+        filters: convertedInitialFilters,
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -158,12 +247,129 @@ function BoxesTable({
   useEffect(() => {
     // refetch
     const newStateFilter = filters.find((filter) => filter.id === "state");
-    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    const oldStateFilter = convertedInitialFilters.find((filter) => filter.id === "state");
     if (newStateFilter !== oldStateFilter) {
       startRefetchBoxes(() => {
         onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
       });
     }
+
+    // Sync filters with URL parameters
+    const currentFilters = new Set(filters.map((f) => f.id));
+
+    // Update URL for active filters
+    filters.forEach((filter) => {
+      switch (filter.id) {
+        case "productCategory": {
+          // Map category names to IDs using GraphQL data
+          // Filter value is an array of selected category names
+          const categoryValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const categoryIds = categoryValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.categoryMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean);
+          if (categoryIds.length > 0) updateFilter("category_ids", categoryIds);
+          break;
+        }
+        case "product": {
+          // Map product names to IDs using GraphQL data
+          // Filter value is an array of selected product names
+          const productValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const productIds = productValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.productMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean);
+          if (productIds.length > 0) updateFilter("product_ids", productIds);
+          break;
+        }
+        case "size": {
+          // Map size labels to IDs using GraphQL data
+          // Filter value is an array of selected size labels
+          const sizeValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const sizeIds = sizeValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.sizeMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean);
+          if (sizeIds.length > 0) updateFilter("size_ids", sizeIds);
+          break;
+        }
+        case "gender": {
+          // Gender values
+          const genderValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          if (genderValues.length > 0) updateFilter("gender_ids", genderValues);
+          break;
+        }
+        case "location": {
+          // Map location names to IDs using GraphQL data
+          // Filter value is an array of selected location names
+          const locationValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const locationIds = locationValues
+            .map((val) => {
+              if (typeof val === "string") {
+                return nameToIdMappings.locationMap.get(val);
+              }
+              return val?.id || val?.value || val;
+            })
+            .filter(Boolean);
+          if (locationIds.length > 0) updateFilter("location_ids", locationIds);
+          break;
+        }
+        case "state": {
+          // States are string values
+          const stateValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          if (stateValues.length > 0) updateFilter("box_state", stateValues);
+          break;
+        }
+        case "tags": {
+          // Extract IDs from tag objects
+          const tagValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+          const tagIds = tagValues
+            .map((tag) => {
+              if (typeof tag === "object" && tag !== null) {
+                return String(tag.id || tag.value || tag);
+              }
+              return String(tag);
+            })
+            .filter(Boolean);
+          if (tagIds.length > 0) updateFilter("tag_ids", tagIds);
+          break;
+        }
+        default:
+          break;
+      }
+    });
+
+    // Clear URL parameters for removed filters
+    // This ensures that when a filter is cleared in the table, it's also cleared from the URL
+    const urlFilterMap: Record<string, keyof import("hooks/useBoxesViewFilters").BoxesViewFilters> =
+      {
+        productCategory: "category_ids",
+        product: "product_ids",
+        size: "size_ids",
+        gender: "gender_ids",
+        location: "location_ids",
+        state: "box_state",
+        tags: "tag_ids",
+      };
+
+    // Check each possible filter and clear it from URL if not in current filters
+    Object.entries(urlFilterMap).forEach(([filterId, urlParam]) => {
+      if (!currentFilters.has(filterId)) {
+        clearFilter(urlParam);
+      }
+    });
 
     // update tableConfig
     if (globalFilter !== tableConfig.getGlobalFilter()) {
@@ -178,7 +384,19 @@ function BoxesTable({
     if (hiddenColumns !== tableConfig.getHiddenColumns()) {
       tableConfig.setHiddenColumns(hiddenColumns);
     }
-  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
+  }, [
+    baseId,
+    filters,
+    globalFilter,
+    hiddenColumns,
+    onRefetch,
+    sortBy,
+    tableConfig,
+    updateFilter,
+    clearFilter,
+    nameToIdMappings,
+    convertedInitialFilters,
+  ]);
 
   return (
     <Flex direction="column" height="100%">

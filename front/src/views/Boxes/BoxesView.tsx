@@ -33,6 +33,7 @@ import {
 import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { useBoxesViewFilters } from "hooks/useBoxesViewFilters";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 import BoxesTable from "./components/BoxesTable";
@@ -120,6 +121,13 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
         tags(resourceType: Box) {
           ...TagBasicFields
         }
+        products {
+          ...ProductBasicFields
+        }
+      }
+      productCategories {
+        id
+        name
       }
       shipments {
         id
@@ -134,7 +142,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
       }
     }
   `,
-  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
 
 function Boxes({
@@ -145,11 +153,16 @@ function Boxes({
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
+  const { tableFilters } = useBoxesViewFilters();
+
   const tableConfigKey = `bases/${baseId}/boxes`;
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
+      columnFilters: [
+        { id: "state", value: ["InStock"] },
+        ...tableFilters, // Merge URL-based filters with default filters
+      ],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "gender",
@@ -397,6 +410,8 @@ function Boxes({
           actionOptionsData.base?.locations ?? [],
         )}
         tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
+        allProducts={actionOptionsData?.base?.products ?? []}
+        allCategories={actionOptionsData?.productCategories ?? []}
       />
     </>
   );
