@@ -61,7 +61,6 @@ const successfulCreateBoxMutation = {
       comment: "",
       tagIds: [],
       qrCode: undefined,
-      qrCode: undefined,
     },
   },
   result: {
@@ -221,7 +220,6 @@ describe("BoxCreateView", () => {
           numberOfItems: 5,
           comment: "",
           tagIds: [],
-          qrCode: undefined,
           qrCode: undefined,
         },
       },
