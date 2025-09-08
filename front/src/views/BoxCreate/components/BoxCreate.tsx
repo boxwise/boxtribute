@@ -8,6 +8,7 @@ import {
   List,
   ListItem,
   Stack,
+  useMediaQuery,
 } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
@@ -90,6 +91,7 @@ export interface IBoxCreateProps {
   allTags: IDropdownOption[] | null | undefined;
   disableSubmission?: boolean;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
+  onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
 
 function BoxCreate({
@@ -97,6 +99,7 @@ function BoxCreate({
   allLocations,
   allTags,
   onSubmitBoxCreateForm,
+  onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
@@ -132,6 +135,12 @@ function BoxCreate({
 
   const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);
 
+  const onSubmitAndCreateAnother = (data: ICreateBoxFormData) => {
+    if (onSubmitBoxCreateFormAndCreateAnother) {
+      onSubmitBoxCreateFormAndCreateAnother(data);
+    }
+  };
+
   const {
     handleSubmit,
     control,
@@ -147,6 +156,8 @@ function BoxCreate({
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
     IDropdownOption[]
   >([]);
+
+  const [isLargeScreen] = useMediaQuery("(min-width: 768px)");
 
   const productId = watch("productId");
 
@@ -241,7 +252,7 @@ function BoxCreate({
         </List>
 
         <Stack spacing={4}>
-          <ButtonGroup gap="4">
+          <ButtonGroup gap="4" flexDirection={isLargeScreen ? "row" : "column"} w="full">
             <Button
               mt={4}
               isLoading={isSubmitting}
@@ -249,9 +260,27 @@ function BoxCreate({
               borderRadius="0"
               w="full"
               isDisabled={disableSubmission}
+              colorScheme="blue"
+              bg="blue.500"
             >
               Create Box
             </Button>
+            {onSubmitBoxCreateFormAndCreateAnother && (
+              <Button
+                mt={4}
+                isLoading={isSubmitting}
+                type="button"
+                borderRadius="0"
+                w="full"
+                isDisabled={disableSubmission}
+                colorScheme="blue"
+                bg="blue.200"
+                color="black"
+                onClick={handleSubmit(onSubmitAndCreateAnother)}
+              >
+                Create &amp; Create Another Box
+              </Button>
+            )}
           </ButtonGroup>
         </Stack>
       </form>
