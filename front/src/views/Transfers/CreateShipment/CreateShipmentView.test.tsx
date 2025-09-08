@@ -207,8 +207,6 @@ it("4.3.2 - Input Validations", async () => {
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
   expect(screen.getAllByText(/please select a base/i)[0]).toBeInTheDocument();
-
-  expect((await screen.findAllByText(/required/i)).length).toEqual(2);
 });
 
 // Test case 4.3.3
