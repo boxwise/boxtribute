@@ -55,8 +55,9 @@ function BoxMoveLocation({
                       ? "Lost" === boxData.state ||
                         "Scrap" === boxData.state ||
                         "NotDelivered" === boxData.state ||
-                        boxInTransit
-                      : false
+                        boxInTransit ||
+                        !!boxData?.deletedOn
+                      : !!boxData?.deletedOn
                   }
                   border="2px"
                 >

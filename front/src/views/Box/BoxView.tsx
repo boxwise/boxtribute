@@ -604,6 +604,22 @@ function BTBox() {
 
   return (
     <VStack spacing={4} align="stretch">
+      {boxData?.deletedOn && (
+        <Alert
+          status="warning"
+          variant="top-accent"
+          w={["100%", "80%", "100%", "80%"]}
+          alignSelf="center"
+        >
+          <AlertIcon />
+          <Box>
+            <AlertTitle>Box deleted</AlertTitle>
+            <AlertDescription>
+              You cannot perform any actions on this box. Please create a new box.
+            </AlertDescription>
+          </Box>
+        </Alert>
+      )}
       {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") && (
         <Alert
           status="info"
