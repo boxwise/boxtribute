@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { groupBy } from "lodash";
 import { useForm } from "react-hook-form";
@@ -28,18 +28,22 @@ export interface ISizeRangeData {
 // Definitions for form validation with zod
 export const MatchProductsFormDataSchema = z.object({
   productId: z
-    .object({ label: z.string(), value: z.string() }, { required_error: "Save Product as ..." })
+    .object(
+      { label: z.string(), value: z.string() },
+      {
+        error: (issue) => (issue.input === undefined ? "Save Product as ..." : undefined),
+      },
+    )
     .optional(),
   sizeId: z
-    .object({ label: z.string(), value: z.string() }, { required_error: "Save Size as ..." })
+    .object(
+      { label: z.string(), value: z.string() },
+      {
+        error: (issue) => (issue.input === undefined ? "Save Size as ..." : undefined),
+      },
+    )
     .optional(),
-  numberOfItems: z
-    .number({
-      required_error: "Please enter a number of items",
-      invalid_type_error: "Please enter an integer number",
-    })
-    .int()
-    .nonnegative(),
+  numberOfItems: z.int().nonnegative(),
 });
 
 export type MatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;

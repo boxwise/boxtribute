@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { ILocationData } from "./BoxReconciliationView";
 import { useAtomValue } from "jotai";
 import { reconciliationReceiveLocationAtom } from "stores/globalCacheStore";
@@ -20,7 +20,9 @@ const singleSelectOptionSchema = z.object({
 export const ReceiveLocationFormDataSchema = z.object({
   locationId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a location" })
+    .refine(Boolean, {
+      error: "Please select a location",
+    })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
 });
 

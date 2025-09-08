@@ -23,7 +23,7 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v3";
+import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useNavigate } from "react-router-dom";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
@@ -55,11 +55,15 @@ export const ShipmentFormSchema = z.object({
   shipmentTarget: shipmentTargetSchema,
   receivingOrganisation: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a partner organisation" })
+    .refine(Boolean, {
+      error: "Please select a partner organisation",
+    })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   receivingBase: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a partner base" })
+    .refine(Boolean, {
+      error: "Please select a partner base",
+    })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
 });
 

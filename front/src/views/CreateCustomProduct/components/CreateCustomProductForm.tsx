@@ -17,7 +17,7 @@ import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 const categoryErrorText = "Please select a category.";
 const sizeRangeErrorText = "Please select a size range.";
@@ -33,16 +33,21 @@ const CreateCustomProductFormSchema = z.object({
     .string()
     .trim()
     .refine((name) => !!name, {
-      message: "Please enter a product name.",
+      error: "Please enter a product name.",
     }),
   // see https://github.com/colinhacks/zod?tab=readme-ov-file#validating-during-transform
   category: z
-    .object({ value: z.string() }, { required_error: categoryErrorText })
+    .object(
+      { value: z.string() },
+      {
+        error: (issue) => (issue.input === undefined ? categoryErrorText : undefined),
+      },
+    )
     .transform((selectedOption, ctx) => {
       const valueInInt = parseInt(selectedOption.value, 10);
       if (isNaN(valueInInt)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: categoryErrorText,
         });
         return z.NEVER;
@@ -50,11 +55,16 @@ const CreateCustomProductFormSchema = z.object({
       return valueInInt;
     }),
   gender: z
-    .object({ value: z.string() }, { required_error: genderErrorText })
+    .object(
+      { value: z.string() },
+      {
+        error: (issue) => (issue.input === undefined ? genderErrorText : undefined),
+      },
+    )
     .transform((selectedOption, ctx) => {
       if (!selectedOption.value) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: genderErrorText,
         });
         return z.NEVER;
@@ -62,12 +72,17 @@ const CreateCustomProductFormSchema = z.object({
       return selectedOption.value;
     }),
   sizeRange: z
-    .object({ value: z.string() }, { required_error: sizeRangeErrorText })
+    .object(
+      { value: z.string() },
+      {
+        error: (issue) => (issue.input === undefined ? sizeRangeErrorText : undefined),
+      },
+    )
     .transform((selectedOption, ctx) => {
       const valueInInt = parseInt(selectedOption.value, 10);
       if (isNaN(valueInInt)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: sizeRangeErrorText,
         });
         return z.NEVER;
@@ -79,13 +94,7 @@ const CreateCustomProductFormSchema = z.object({
     .optional()
     .transform((value) => (value === "" ? undefined : value)),
   inShop: z.boolean().optional(),
-  price: z
-    .number({
-      invalid_type_error: "Please enter a positive integer number.",
-    })
-    .int()
-    .nonnegative()
-    .optional(),
+  price: z.int().nonnegative().optional(),
 });
 
 export type ICreateCustomProductFormInput = z.input<typeof CreateCustomProductFormSchema>;

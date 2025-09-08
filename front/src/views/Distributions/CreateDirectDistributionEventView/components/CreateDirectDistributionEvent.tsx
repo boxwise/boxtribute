@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parse, isValid } from "date-fns";
 
@@ -19,7 +19,9 @@ export const CreateDirectDistributionEventFormDataSchema = z.object({
     const parsedDate = parse(value, "yyyy-MM-dd", new Date());
     if (!isValid(parsedDate)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.invalid_date,
+        code: "invalid_type",
+        expected: "date",
+        received: "string",
         message: "Please enter a valid date",
       });
       return z.NEVER;
@@ -30,7 +32,9 @@ export const CreateDirectDistributionEventFormDataSchema = z.object({
     const parsedTime = parse(value, "HH:mm", new Date());
     if (!isValid(parsedTime)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.invalid_date,
+        code: "invalid_type",
+        expected: "date",
+        received: "string",
         message: "Please enter a valid time",
       });
       return z.NEVER;
@@ -39,7 +43,9 @@ export const CreateDirectDistributionEventFormDataSchema = z.object({
   }),
   duration: z.number(),
   comment: z.string().optional(),
-  distroSpotId: z.string({ required_error: "Distribution Spot is required" }),
+  distroSpotId: z.string({
+    error: (issue) => (issue.input === undefined ? "Distribution Spot is required" : undefined),
+  }),
 });
 
 export type CreateDistroEventFormData = z.infer<typeof CreateDirectDistributionEventFormDataSchema>;

@@ -16,7 +16,7 @@ import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 const SingleSelectOptionSchema = z.object({
   label: z.string(),
@@ -28,20 +28,14 @@ const EditCustomProductFormSchema = z.object({
     .string()
     .trim()
     .refine((name) => !!name, {
-      message: "Please enter a product name.",
+      error: "Please enter a product name.",
     }),
   category: SingleSelectOptionSchema.optional(),
   gender: SingleSelectOptionSchema.optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
   comment: z.string().optional(),
   inShop: z.boolean().optional(),
-  price: z
-    .number({
-      invalid_type_error: "Please enter a positive integer number.",
-    })
-    .int()
-    .nonnegative()
-    .optional(),
+  price: z.int().nonnegative().optional(),
 });
 
 export type EditCustomProductFormInput = z.input<typeof EditCustomProductFormSchema>;

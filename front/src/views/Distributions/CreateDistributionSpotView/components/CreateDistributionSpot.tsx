@@ -1,6 +1,6 @@
 import { Button, Flex, FormLabel, Input, Spacer } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LatitudeSchema, LongitudeSchema } from "views/Distributions/types";
 

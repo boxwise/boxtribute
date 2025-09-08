@@ -1,4 +1,4 @@
-import { z } from "zod/v3";
+import { z } from "zod";
 
 import { StandardProductQueryResultType } from "queries/types";
 import { enableStandardProductQueryErrorText } from "../EnableStandardProductView";
@@ -14,20 +14,17 @@ export const StandardProductFormSchema = z.object({
   instantiation: z.object({ value: z.string(), label: z.string() }),
   standardProduct: z.object(
     { value: z.string(), label: z.string() },
-    { required_error: "Please select a standard product." },
+    {
+      error: (issue) =>
+        issue.input === undefined ? "Please select a standard product." : undefined,
+    },
   ),
   category: SingleSelectOptionSchema.optional(),
   gender: z.string().optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
   comment: z.string().optional(),
   inShop: z.boolean().optional(),
-  price: z
-    .number({
-      invalid_type_error: "Please enter a positive integer number.",
-    })
-    .int()
-    .nonnegative()
-    .optional(),
+  price: z.int().nonnegative().optional(),
 });
 
 export const standardProductRawToFormDataTransformer = (

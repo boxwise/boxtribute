@@ -1,5 +1,5 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
@@ -11,13 +11,13 @@ import { trackFilter } from "../../utils/analytics/heap";
 export const FilterCreatedOnFormScheme = z.object({
   from: z
     .date({
-      invalid_type_error: "Please enter a valid date",
+      error: (issue) => (issue.input === undefined ? undefined : "Please enter a valid date"),
     })
     .transform((value) => value?.toISOString().substring(0, 10))
     .optional(),
   to: z
     .date({
-      invalid_type_error: "Please enter a valid date",
+      error: (issue) => (issue.input === undefined ? undefined : "Please enter a valid date"),
     })
     .transform((value) => value?.toISOString().substring(0, 10))
     .optional(),

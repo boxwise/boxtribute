@@ -1,4 +1,4 @@
-import { z } from "zod/v3";
+import { z } from "zod";
 import { ProductGender } from "../../../../graphql/types";
 
 // export const DistributionEventStateSchema = z.enum(["Planning", "Packing", "OnDistro", "Returned", "Completed"]);
@@ -6,14 +6,14 @@ import { ProductGender } from "../../../../graphql/types";
 
 // Consider to remove this and instead directly use the enum from the generated graphql schema
 
-export const DistributionEventStateSchema = z.nativeEnum({
-  Planning: "Planning",
-  Packing: "Packing",
-  OnDistro: "OnDistro",
-  ReturnedFromDistribution: "ReturnedFromDistribution",
-  ReturnTrackingInProgress: "ReturnTrackingInProgress",
-  Completed: "Completed",
-});
+export const DistributionEventStateSchema = z.enum([
+  "Planning",
+  "Packing",
+  "OnDistro",
+  "ReturnedFromDistribution",
+  "ReturnTrackingInProgress",
+  "Completed",
+]);
 
 export const DistributionSpotSchema = z.object({
   id: z.string().min(1),

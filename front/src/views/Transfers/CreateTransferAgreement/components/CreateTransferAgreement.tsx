@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v3";
+import { z } from "zod";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import DateField from "components/Form/DateField";
 import { addDays } from "date-fns";
@@ -30,24 +30,25 @@ export const TransferAgreementFormDataSchema = z
   .object({
     currentOrganisationSelectedBases: singleSelectOptionSchema
       .array()
-      .min(1)
-      .nonempty("Please select at least one base"),
+      .min(1, "Please select at least one base"),
 
     partnerOrganisation: singleSelectOptionSchema
-      .refine(Boolean, { message: "Please select a partner organisation" })
+      .refine(Boolean, {
+        error: "Please select a partner organisation",
+      })
       .transform((selectedOption) => selectedOption || { label: "", value: "" }),
     partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
     validFrom: z
       .date({
-        required_error: "Please enter a valid date",
-        invalid_type_error: "Please enter a valid date",
+        error: (issue) =>
+          issue.input === undefined ? "Please enter a valid date" : "Please enter a valid date",
       })
       .optional()
       .transform((value) => value?.toISOString().substring(0, 10)),
     validUntil: z
       .date({
-        required_error: "Please enter a valid date",
-        invalid_type_error: "Please enter a valid date",
+        error: (issue) =>
+          issue.input === undefined ? "Please enter a valid date" : "Please enter a valid date",
       })
       .optional()
       .transform((value) => value?.toISOString().substring(0, 10)),
@@ -62,8 +63,8 @@ export const TransferAgreementFormDataSchema = z
       return true;
     },
     {
-      message: "Please enter a greater date for the valid until",
       path: ["validUntil"], // path of error
+      error: "Please enter a greater date for the valid until",
     },
   );
 
