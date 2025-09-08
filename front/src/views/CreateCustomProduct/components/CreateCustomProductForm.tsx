@@ -94,7 +94,7 @@ const CreateCustomProductFormSchema = z.object({
     .optional()
     .transform((value) => (value === "" ? undefined : value)),
   inShop: z.boolean().optional(),
-  price: z.int().nonnegative().optional(),
+  price: z.number().int().nonnegative().optional(),
 });
 
 export type ICreateCustomProductFormInput = z.input<typeof CreateCustomProductFormSchema>;

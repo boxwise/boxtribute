@@ -71,7 +71,7 @@ export const CreateBoxFormDataSchema = z.object({
       error: "Please select a size",
     })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z.int().nonnegative(),
+  numberOfItems: z.number().int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, {

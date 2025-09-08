@@ -43,7 +43,7 @@ export const MatchProductsFormDataSchema = z.object({
       },
     )
     .optional(),
-  numberOfItems: z.int().nonnegative(),
+  numberOfItems: z.number().int().nonnegative(),
 });
 
 export type MatchProductsFormData = z.infer<typeof MatchProductsFormDataSchema>;

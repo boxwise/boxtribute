@@ -35,7 +35,7 @@ const EditCustomProductFormSchema = z.object({
   sizeRange: SingleSelectOptionSchema.optional(),
   comment: z.string().optional(),
   inShop: z.boolean().optional(),
-  price: z.int().nonnegative().optional(),
+  price: z.number().int().nonnegative().optional(),
 });
 
 export type EditCustomProductFormInput = z.input<typeof EditCustomProductFormSchema>;
