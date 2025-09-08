@@ -55,15 +55,11 @@ export const ShipmentFormSchema = z.object({
   shipmentTarget: shipmentTargetSchema,
   receivingOrganisation: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, {
-      error: "Please select a partner organisation",
-    })
+    .refine(Boolean, { error: "Please select a partner organisation" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
   receivingBase: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, {
-      error: "Please select a partner base",
-    })
+    .refine(Boolean, { error: "Please select a partner base" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
 });
 

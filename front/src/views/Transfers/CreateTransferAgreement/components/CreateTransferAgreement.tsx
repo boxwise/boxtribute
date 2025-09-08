@@ -33,9 +33,7 @@ export const TransferAgreementFormDataSchema = z
       .min(1, "Please select at least one base"),
 
     partnerOrganisation: singleSelectOptionSchema
-      .refine(Boolean, {
-        error: "Please select a partner organisation",
-      })
+      .refine(Boolean, { error: "Please select a partner organisation" })
       .transform((selectedOption) => selectedOption || { label: "", value: "" }),
     partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
     validFrom: z
