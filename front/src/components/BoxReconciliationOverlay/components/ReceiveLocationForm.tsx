@@ -20,7 +20,7 @@ const singleSelectOptionSchema = z.object({
 export const ReceiveLocationFormDataSchema = z.object({
   locationId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a location" })
+    .refine(Boolean, { error: "Please select a location" })
     .transform((selectedOption) => selectedOption || { label: "", value: "" }),
 });
 

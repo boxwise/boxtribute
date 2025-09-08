@@ -24,7 +24,7 @@ import {
   CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION,
   DISTRIBUTION_EVENT_QUERY,
 } from "views/Distributions/queries";
-import { DistributionEventDetails, DistributionEventStateSchema } from "views/Distributions/types";
+import { DistributionEventDetails } from "views/Distributions/types";
 import DistroEventDetailsForPlanningStateContainer from "./State1Planning/DistroEventDetailsForPlanningStateContainer";
 import DistroEventDetailsForPackingStateContainer from "./State2Packing/DistroEventDetailsForPackingStateContainer";
 import DistroEventDetailsForReturnTrackingInProgressStateContainer from "./State4ReturnTrackingInProgress/DistroEventDetailsForReturnTrackingInProgressStateContainer";
@@ -58,13 +58,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
 
   const onMoveToStage = useCallback(
     (state: DistributionEventState) => {
-      if (
-        [
-          DistributionEventStateSchema.enum.ReturnedFromDistribution,
-          DistributionEventStateSchema.enum.ReturnTrackingInProgress,
-          DistributionEventStateSchema.enum.Completed,
-        ].includes(state)
-      ) {
+      if (["ReturnedFromDistribution", "ReturnTrackingInProgress", "Completed"].includes(state)) {
         nextStageTransitionAlertState.onOpen();
         return;
       }
