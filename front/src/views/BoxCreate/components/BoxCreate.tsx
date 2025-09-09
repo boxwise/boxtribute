@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  ButtonGroup,
   FormLabel,
   Heading,
   Input,
@@ -90,6 +89,7 @@ export interface IBoxCreateProps {
   allTags: IDropdownOption[] | null | undefined;
   disableSubmission?: boolean;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
+  onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
 
 function BoxCreate({
@@ -97,6 +97,7 @@ function BoxCreate({
   allLocations,
   allTags,
   onSubmitBoxCreateForm,
+  onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
@@ -131,6 +132,12 @@ function BoxCreate({
   }));
 
   const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);
+
+  const onSubmitAndCreateAnother = (data: ICreateBoxFormData) => {
+    if (onSubmitBoxCreateFormAndCreateAnother) {
+      onSubmitBoxCreateFormAndCreateAnother(data);
+    }
+  };
 
   const {
     handleSubmit,
@@ -240,19 +247,33 @@ function BoxCreate({
           </ListItem>
         </List>
 
-        <Stack spacing={4}>
-          <ButtonGroup gap="4">
+        <Stack spacing={4} mt={8}>
+          <Button
+            isLoading={isSubmitting}
+            type="submit"
+            borderRadius="0"
+            w="full"
+            isDisabled={disableSubmission}
+            colorScheme="blue"
+            bg="blue.500"
+          >
+            Save
+          </Button>
+          {onSubmitBoxCreateFormAndCreateAnother && (
             <Button
-              mt={4}
               isLoading={isSubmitting}
-              type="submit"
+              type="button"
               borderRadius="0"
               w="full"
               isDisabled={disableSubmission}
+              colorScheme="blue"
+              bg="blue.200"
+              color="black"
+              onClick={handleSubmit(onSubmitAndCreateAnother)}
             >
-              Create Box
+              Save &amp; Create Another Box
             </Button>
-          </ButtonGroup>
+          )}
         </Stack>
       </form>
     </Box>
