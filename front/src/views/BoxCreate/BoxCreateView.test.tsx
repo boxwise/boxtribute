@@ -19,8 +19,23 @@ vi.setConfig({ testTimeout: 20_000 });
 vi.mock("@auth0/auth0-react");
 const mockedUseAuth0 = vi.mocked(useAuth0);
 
-beforeEach(() => {
+// Mock useNavigate
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
+const mockNavigate = vi.fn();
+
+beforeEach(async () => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org");
+  // Reset navigate mock before each test
+  mockNavigate.mockClear();
+  const { useNavigate } = await import("react-router-dom");
+  vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 });
 
 // Create a unique product for testing to avoid conflicts
@@ -139,8 +154,8 @@ describe("BoxCreateView", () => {
       ),
     );
 
-    // Verify navigation to box details page - for test purposes, just check toast was shown
-    // expect(await screen.findByRole("heading", { name: "/bases/1/boxes/12345" })).toBeInTheDocument();
+    // Verify navigation to box details page
+    expect(mockNavigate).toHaveBeenCalledWith("/bases/1/boxes/12345");
   });
 
   it("successfully creates a box and navigates to create another box", async () => {
@@ -181,8 +196,8 @@ describe("BoxCreateView", () => {
       ),
     );
 
-    // Verify navigation to create another box page - for test purposes, just check toast was shown
-    // expect(await screen.findByRole("heading", { name: "/bases/1/boxes/create" })).toBeInTheDocument();
+    // Verify navigation to create another box (same route but refreshed)
+    expect(mockNavigate).toHaveBeenCalledWith("/bases/1/boxes/create");
   });
 
   it("handles form validation errors", async () => {
