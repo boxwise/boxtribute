@@ -622,8 +622,7 @@ function BTBox() {
               })}
             </AlertTitle>
             <AlertDescription>
-              Details displayed show the historical information of the box prior to its deletion,
-              however, new actions cannot be performed on the box.
+              Details displayed show historical information of the box prior to deletion. New actions cannot be performed on the box.
             </AlertDescription>
           </Box>
         </Alert>
