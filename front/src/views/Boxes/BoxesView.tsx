@@ -233,7 +233,11 @@ function Boxes({
         id: "qrLabel",
         Cell: QrCodeCell,
         disableFilters: true,
-        disableSortBy: true,
+        sortType: (rowA, rowB) => {
+          if (rowA.values.qrLabel === rowB.values.qrLabel) return 0;
+          if (rowA.values.qrLabel > rowB.values.qrLabel) return 1;
+          return -1;
+        },
       },
       {
         Header: "Box #",
