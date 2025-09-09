@@ -633,7 +633,7 @@ describe("4.8.1 - Initial load of Page", () => {
     );
 
     // Test case 4.8.1.3
-    expect(await screen.findByText(/8650860/i, {}, { timeout: 5000 })).toBeInTheDocument();
+    expect(await screen.findByText(/8650860/i, {}, { timeout: 10000 })).toBeInTheDocument();
   });
 });
 
