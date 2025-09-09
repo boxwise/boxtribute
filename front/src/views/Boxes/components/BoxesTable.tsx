@@ -209,7 +209,7 @@ function BoxesTable({
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
-          <Tr key={"boxes-count-row"}>
+          <Tr key={"boxes-count-row"} bg={"gray.100"}>
             <Td fontWeight="bold" key={"product-total"}>
               Total
             </Td>
@@ -231,6 +231,7 @@ function BoxesTable({
                 <Text as="span">Data unavailable</Text>
               )}
             </Td>
+            <Td colSpan={20}></Td>
           </Tr>
           {refetchBoxesIsPending && (
             <Tr key="refetchIsPending1">
