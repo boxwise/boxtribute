@@ -613,9 +613,17 @@ function BTBox() {
         >
           <AlertIcon />
           <Box>
-            <AlertTitle>Box deleted</AlertTitle>
+            <AlertTitle>
+              This box was deleted on{" "}
+              {new Date(boxData.deletedOn).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+            </AlertTitle>
             <AlertDescription>
-              You cannot perform any actions on this box. Please create a new box.
+              Details displayed show the historical information of the box prior to its deletion,
+              however, new actions cannot be performed on the box.
             </AlertDescription>
           </Box>
         </Alert>

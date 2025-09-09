@@ -490,9 +490,11 @@ it("3.1.1.10 - Content: Display a warning alert and disable actions if a box is 
   // Check that warning alert is displayed for deleted box
   const alerts = screen.getAllByRole("alert");
   expect(alerts.length).toBeGreaterThan(0);
-  expect(screen.getByText("Box deleted")).toBeInTheDocument();
+  expect(screen.getByText("This box was deleted on 15 Dec 2023")).toBeInTheDocument();
   expect(
-    screen.getByText("You cannot perform any actions on this box. Please create a new box."),
+    screen.getByText(
+      "Details displayed show the historical information of the box prior to its deletion, however, new actions cannot be performed on the box.",
+    ),
   ).toBeInTheDocument();
   expect(screen.queryByText("Missing Label")).not.toBeInTheDocument();
 
