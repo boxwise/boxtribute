@@ -99,10 +99,8 @@ describe("BoxCreateView", () => {
     });
 
     expect(await screen.findByRole("heading", { name: /create new box/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /create box/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /create & create another box/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^save$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /save & create another box/i })).toBeInTheDocument();
   });
 
   it("successfully creates a box and navigates to box details", async () => {
@@ -126,8 +124,8 @@ describe("BoxCreateView", () => {
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
 
-    // Click the "Create Box" button
-    const createBoxButton = screen.getByRole("button", { name: /^create box$/i });
+    // Click the "Save" button
+    const createBoxButton = screen.getByRole("button", { name: /^save$/i });
     await user.click(createBoxButton);
 
     // Verify success toast is shown
@@ -166,9 +164,9 @@ describe("BoxCreateView", () => {
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
 
-    // Click the "Create & Create Another Box" button
+    // Click the "Save & Create Another Box" button
     const createAnotherButton = screen.getByRole("button", {
-      name: /create & create another box/i,
+      name: /save & create another box/i,
     });
     await user.click(createAnotherButton);
 
@@ -199,7 +197,7 @@ describe("BoxCreateView", () => {
     await screen.findByRole("heading", { name: /create new box/i });
 
     // Try to submit without filling required fields
-    const createBoxButton = screen.getByRole("button", { name: /^create box$/i });
+    const createBoxButton = screen.getByRole("button", { name: /^save$/i });
     await user.click(createBoxButton);
 
     // Check for validation errors
@@ -247,8 +245,8 @@ describe("BoxCreateView", () => {
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
 
-    // Click the create box button
-    const createBoxButton = screen.getByRole("button", { name: /^create box$/i });
+    // Click the save button
+    const createBoxButton = screen.getByRole("button", { name: /^save$/i });
     await user.click(createBoxButton);
 
     // Verify error handling
