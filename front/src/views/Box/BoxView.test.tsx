@@ -493,7 +493,7 @@ it("3.1.1.10 - Content: Display a warning alert and disable actions if a box is 
   expect(screen.getByText("This box was deleted on 15 Dec 2023")).toBeInTheDocument();
   expect(
     screen.getByText(
-      "Details displayed show the historical information of the box prior to its deletion, however, new actions cannot be performed on the box.",
+      "Details displayed show historical information of the box prior to deletion. New actions cannot be performed on the box.",
     ),
   ).toBeInTheDocument();
   expect(screen.queryByText("Missing Label")).not.toBeInTheDocument();
