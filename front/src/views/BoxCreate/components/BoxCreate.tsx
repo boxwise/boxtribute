@@ -1,14 +1,12 @@
 import {
   Box,
   Button,
-  ButtonGroup,
   FormLabel,
   Heading,
   Input,
   List,
   ListItem,
   Stack,
-  useMediaQuery,
 } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
@@ -157,8 +155,6 @@ function BoxCreate({
     IDropdownOption[]
   >([]);
 
-  const [isLargeScreen] = useMediaQuery("(min-width: 768px)");
-
   const productId = watch("productId");
 
   useEffect(() => {
@@ -251,37 +247,33 @@ function BoxCreate({
           </ListItem>
         </List>
 
-        <Stack spacing={4}>
-          <ButtonGroup gap="4" flexDirection={isLargeScreen ? "row" : "column"} w="full">
+        <Stack spacing={4} mt={8}>
+          <Button
+            isLoading={isSubmitting}
+            type="submit"
+            borderRadius="0"
+            w="full"
+            isDisabled={disableSubmission}
+            colorScheme="blue"
+            bg="blue.500"
+          >
+            Save
+          </Button>
+          {onSubmitBoxCreateFormAndCreateAnother && (
             <Button
-              mt={4}
               isLoading={isSubmitting}
-              type="submit"
+              type="button"
               borderRadius="0"
               w="full"
               isDisabled={disableSubmission}
               colorScheme="blue"
-              bg="blue.500"
+              bg="blue.200"
+              color="black"
+              onClick={handleSubmit(onSubmitAndCreateAnother)}
             >
-              Create Box
+              Save &amp; Create Another Box
             </Button>
-            {onSubmitBoxCreateFormAndCreateAnother && (
-              <Button
-                mt={4}
-                isLoading={isSubmitting}
-                type="button"
-                borderRadius="0"
-                w="full"
-                isDisabled={disableSubmission}
-                colorScheme="blue"
-                bg="blue.200"
-                color="black"
-                onClick={handleSubmit(onSubmitAndCreateAnother)}
-              >
-                Create &amp; Create Another Box
-              </Button>
-            )}
-          </ButtonGroup>
+          )}
         </Stack>
       </form>
     </Box>
