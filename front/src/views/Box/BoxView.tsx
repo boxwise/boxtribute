@@ -638,7 +638,7 @@ function BTBox() {
           </Box>
         </Alert>
       )}
-      {boxData && !boxData.qrCode && (
+      {boxData && !boxData.qrCode && !boxData?.deletedOn && (
         <Alert
           status="warning"
           variant="top-accent"

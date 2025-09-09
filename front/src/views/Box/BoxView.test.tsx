@@ -494,6 +494,7 @@ it("3.1.1.10 - Content: Display a warning alert and disable actions if a box is 
   expect(
     screen.getByText("You cannot perform any actions on this box. Please create a new box."),
   ).toBeInTheDocument();
+  expect(screen.queryByText("Missing Label")).not.toBeInTheDocument();
 
   // Test case 3.1.1.10.1 - If the Box is deleted, editing should be disabled
   expect(screen.getByTestId("increase-items")).toHaveAttribute("disabled");
