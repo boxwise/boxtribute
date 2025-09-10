@@ -251,8 +251,8 @@ function Boxes({
         id: "product",
         Cell: ProductWithSPCheckmarkCell,
         sortType: (rowA, rowB) => {
-          const a = rowA.values.product?.toLowerCase() ?? "";
-          const b = rowB.values.product?.toLowerCase() ?? "";
+          const a = rowA.values.product?.name.toLowerCase() ?? "";
+          const b = rowB.values.product?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
         Filter: SelectColumnFilter,

@@ -4,7 +4,7 @@ import { Shipment } from "queries/types";
 
 export type BoxRow = {
   labelIdentifier: string;
-  product: string;
+  product: { name: string | undefined; id: string | undefined };
   productCategory: string;
   gender: string;
   numberOfItems: number;
