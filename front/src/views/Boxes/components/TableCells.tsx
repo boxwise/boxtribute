@@ -1,6 +1,7 @@
 import { CellProps } from "react-table";
 import { VStack, Tag, TagLabel, Wrap, WrapItem, chakra } from "@chakra-ui/react";
 import { Style } from "victory";
+import { RiQrCodeLine } from "react-icons/ri";
 
 import { colorIsBright } from "utils/helpers";
 
@@ -66,4 +67,11 @@ export function DaysCell({ value }: CellProps<any>) {
     return <chakra.span>1 day</chakra.span>;
   }
   return <chakra.span>{value} days</chakra.span>;
+}
+
+export function QrCodeCell({ value }: CellProps<any>) {
+  if (value) {
+    return <RiQrCodeLine color="black" size="1.5em" />;
+  }
+  return <chakra.div />;
 }
