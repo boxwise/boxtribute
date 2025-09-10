@@ -108,6 +108,24 @@ const initialQueryForBoxScrapState = {
   },
 };
 
+const initialQueryForBoxDeletedState = {
+  request: {
+    query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+    variables: {
+      labelIdentifier: "1234",
+    },
+  },
+  result: {
+    data: {
+      box: generateMockBox({
+        labelIdentifier: "1234",
+        deletedOn: "2023-12-15T10:24:29+00:00",
+      }),
+      shipments: null,
+    },
+  },
+};
+
 const initialQueryForBoxMarkedForShipmentState = {
   request: {
     query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
@@ -456,7 +474,38 @@ it("3.1.1.9 - Content: Display an info alert if a box status is Scrap", async ()
 }, 10000);
 
 // Test case 3.1.1.10
-it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipment", async () => {
+it("3.1.1.10 - Content: Display a warning alert and disable actions if a box is deleted", async () => {
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/1234",
+    mocks: [initialQueryForBoxDeletedState],
+    addTypename: true,
+  });
+
+  // Test case 3.1.1.10 - Content: Display a warning alert if a box is deleted
+
+  const title = await screen.findByRole("heading", { name: "Box 1234" });
+  expect(title).toBeInTheDocument();
+
+  // Check that warning alert is displayed for deleted box
+  const alerts = screen.getAllByRole("alert");
+  expect(alerts.length).toBeGreaterThan(0);
+  expect(screen.getByText("This box was deleted on 15 Dec 2023")).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "Details displayed show historical information of the box prior to deletion. New actions cannot be performed on the box.",
+    ),
+  ).toBeInTheDocument();
+  expect(screen.queryByText("Missing Label")).not.toBeInTheDocument();
+
+  // Test case 3.1.1.10.1 - If the Box is deleted, editing should be disabled
+  expect(screen.getByTestId("increase-items")).toHaveAttribute("disabled");
+  expect(screen.getByTestId("decrease-items")).toHaveAttribute("disabled");
+  expect(screen.getByRole("button", { name: /edit box/i })).toHaveAttribute("disabled");
+}, 10000);
+
+// Test case 3.1.1.11
+it("3.1.1.11 - Content: Display an info alert if a box status is mark for shipment", async () => {
   const user = userEvent.setup();
   render(<BTBox />, {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
@@ -465,7 +514,7 @@ it("3.1.1.10 - Content: Display an info alert if a box status is mark for shipme
     addTypename: true,
   });
 
-  // Test case 3.1.1.10 - Content: Display an info alert if a box status is mark for shipment
+  // Test case 3.1.1.11 - Content: Display an info alert if a box status is mark for shipment
 
   const title = await screen.findByRole("heading", { name: "Box 1234" });
   expect(title).toBeInTheDocument();
