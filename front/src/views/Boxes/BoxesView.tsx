@@ -256,7 +256,7 @@ function Boxes({
           return a.localeCompare(b);
         },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Product Category",
