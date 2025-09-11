@@ -143,11 +143,11 @@ export const useTableConfig = ({
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Update URL when filters change
   const updateUrl = useCallback((filters: Filters<any>) => {
     const newSearchParams = new URLSearchParams();
-    
+
     // Handle product filters
     const productFilter = filters.find(f => f.id === "product");
     if (productFilter && productFilter.value?.length > 0) {
@@ -156,7 +156,7 @@ export const useTableConfig = ({
         newSearchParams.set("product_ids", productIds);
       }
     }
-    
+
     // Handle state filters
     const stateFilter = filters.find(f => f.id === "state");
     if (stateFilter && stateFilter.value?.length > 0) {
@@ -165,38 +165,38 @@ export const useTableConfig = ({
         newSearchParams.set("state_ids", stateIds);
       }
     }
-    
+
     // Only update if something changed
     if (newSearchParams.toString() !== searchParams.toString()) {
       setSearchParams(newSearchParams, { replace: true });
     }
-  }, []); // Remove searchParams dependency to avoid re-renders
-  
+  }); // Remove searchParams dependency to avoid re-renders
+
   // Parse URL parameters
   const productIdsParam = searchParams.get("product_ids");
   const stateIdsParam = searchParams.get("state_ids");
-  
+
   // Parse filters from URL
   const urlProductFilters = useMemo(() => parseProductIds(productIdsParam), [productIdsParam]);
   const urlStateFilters = useMemo(() => parseStateIds(stateIdsParam), [stateIdsParam]);
-  
+
   // Initialization
   if (!tableConfigsState.has(tableConfigKey)) {
     // Create initial column filters, prioritizing URL parameters
     let initialColumnFilters = [...defaultTableConfig.columnFilters];
-    
+
     // Replace state filter if URL has state_ids
     if (urlStateFilters.length > 0) {
       initialColumnFilters = initialColumnFilters.filter(filter => filter.id !== "state");
       initialColumnFilters.push({ id: "state", value: urlStateFilters });
     }
-    
+
     // Add product filter if URL has product_ids
     if (urlProductFilters.length > 0) {
       initialColumnFilters = initialColumnFilters.filter(filter => filter.id !== "product");
       initialColumnFilters.push({ id: "product", value: urlProductFilters });
     }
-    
+
     const tableConfig: ITableConfig = {
       globalFilter: defaultTableConfig.globalFilter,
       columnFilters: initialColumnFilters,
@@ -206,7 +206,7 @@ export const useTableConfig = ({
     tableConfigsState.set(tableConfigKey, tableConfig);
     tableConfigsVar(tableConfigsState);
   }
-  
+
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
