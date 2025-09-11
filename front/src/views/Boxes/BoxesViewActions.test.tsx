@@ -74,6 +74,21 @@ const actionsQuery = () => ({
         id: "1",
         locations: [location1],
         tags: [tag1],
+        products: [
+          {
+            __typename: "Product",
+            id: "267",
+            name: "Sweatpants",
+            type: "Custom",
+            gender: "Men",
+            deletedOn: null,
+            category: {
+              __typename: "ProductCategory",
+              id: "1",
+              name: "Bottoms",
+            },
+          },
+        ],
       },
       shipments: [generateMockShipment({ hasBoxes: false })],
     },
@@ -318,7 +333,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.2 - MoveBoxes Action is successful",
     mocks: [
-      boxesQuery({}),
+      boxesQuery({}), // Initial query
+      boxesQuery({}), // Query after URL sync adds default filters
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
@@ -334,7 +350,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
     mocks: [
-      boxesQuery({}),
+      boxesQuery({}), // Initial query
+      boxesQuery({}), // Query after URL sync adds default filters
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
@@ -351,7 +368,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
     mocks: [
-      boxesQuery({}),
+      boxesQuery({}), // Initial query
+      boxesQuery({}), // Query after URL sync adds default filters
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
@@ -469,7 +487,8 @@ const boxesViewActionsTests = [
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
     mocks: [
-      boxesQuery({ state: "Donated", stateFilter: [] }),
+      boxesQuery({ state: "Donated", stateFilter: [] }), // Initial query
+      boxesQuery({ state: "Donated", stateFilter: [] }), // Query after URL sync (no change due to searchParams)
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ state: "Donated", stateFilter: [], paginationInput: 100000 }),
@@ -711,6 +730,9 @@ const boxesViewActionsTests = [
       const bq1 = boxesQuery({});
       bq1.result.data.boxes.elements[0].tags = [tag2];
 
+      const bq1Duplicate = boxesQuery({});
+      bq1Duplicate.result.data.boxes.elements[0].tags = [tag2];
+
       const bq2 = boxesQuery({ paginationInput: 100000 });
       bq2.result.data.boxes.elements[0].tags = [tag2];
 
@@ -718,7 +740,8 @@ const boxesViewActionsTests = [
       aq.result.data.base.tags = [tag1, tag2];
 
       return [
-        bq1,
+        bq1, // Initial query
+        bq1Duplicate, // Query after URL sync adds default filters
         boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
         boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
         bq2,
