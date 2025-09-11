@@ -152,7 +152,7 @@ function Boxes({
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
+      columnFilters: [{ id: "state", value: [{ name: "InStock", id: 1 }] }],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "qrLabel",
@@ -251,12 +251,12 @@ function Boxes({
         id: "product",
         Cell: ProductWithSPCheckmarkCell,
         sortType: (rowA, rowB) => {
-          const a = rowA.values.product?.toLowerCase() ?? "";
-          const b = rowB.values.product?.toLowerCase() ?? "";
+          const a = rowA.values.product?.name.toLowerCase() ?? "";
+          const b = rowB.values.product?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Product Category",
@@ -291,7 +291,7 @@ function Boxes({
         id: "state",
         Cell: StateCell,
         Filter: SelectBoxStateFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Location",

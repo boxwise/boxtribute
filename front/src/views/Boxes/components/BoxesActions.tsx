@@ -54,7 +54,7 @@ function BoxesActions({
   const thereIsABoxMarkedForShipmentSelected = useMemo(
     () =>
       selectedBoxes.some(
-        (box) => box.values.shipment !== null && box.values.state === "MarkedForShipment",
+        (box) => box.values.shipment !== null && box.values.state.name === "MarkedForShipment",
       ),
     [selectedBoxes],
   );
