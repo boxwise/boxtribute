@@ -152,7 +152,7 @@ function Boxes({
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
+      columnFilters: [{ id: "state", value: [{ name: "InStock", id: 1 }] }],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "qrLabel",
@@ -291,7 +291,7 @@ function Boxes({
         id: "state",
         Cell: StateCell,
         Filter: SelectBoxStateFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Location",
