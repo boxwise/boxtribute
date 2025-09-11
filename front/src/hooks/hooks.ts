@@ -223,7 +223,7 @@ export const useTableConfig = ({
   // Sync default filters to URL on first load if no URL parameters present
   useEffect(() => {
     if (isInitialMount.current) {
-      const hasUrlParams = productIdsParam || stateIdsParam;
+      const hasUrlParams = productIdsParam || stateIdsParam || searchParams.has("columnFilters");
       if (!hasUrlParams) {
         const currentConfig = tableConfigsState.get(tableConfigKey);
         if (currentConfig?.columnFilters) {
@@ -232,7 +232,7 @@ export const useTableConfig = ({
       }
       isInitialMount.current = false;
     }
-  }, [productIdsParam, stateIdsParam, tableConfigKey, tableConfigsState, updateUrl]);
+  }, [productIdsParam, stateIdsParam, searchParams, tableConfigKey, tableConfigsState, updateUrl]);
 
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
