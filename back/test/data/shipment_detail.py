@@ -36,6 +36,10 @@ def data():
             "source_location": in_transit_box["location"],
             "source_size": in_transit_box["size"],
             "source_quantity": in_transit_box["number_of_items"],
+            "target_product": None,
+            "target_location": None,
+            "target_size": None,
+            "target_quantity": None,
             "created_on": TIME,
             "created_by": default_user_data()["id"],
             "removed_on": None,
@@ -149,19 +153,25 @@ def data():
         },
         {
             "id": 8,
-            "shipment": shipments[6]["id"],  # completed shipment
+            "shipment": shipments[6]["id"],  # completed shipment; base 1->3
             "box": another_box["id"],
+            # it's not consistent to use the same properties on source and target side
+            # but since the actual box is the same we keep it
             "source_product": another_box["product"],
             "source_location": another_box["location"],
             "source_size": another_box["size"],
             "source_quantity": another_box["number_of_items"],
+            "target_product": another_box["product"],
+            "target_location": another_box["location"],
+            "target_size": another_box["size"],
+            "target_quantity": another_box["number_of_items"],
             "created_on": TIME,
             "created_by": default_user_data()["id"],
             "removed_on": None,
             "removed_by": None,
             "lost_on": None,
             "lost_by": None,
-            "received_on": None,
+            "received_on": TIME,
             "received_by": default_user_data()["id"],
         },
     ]
