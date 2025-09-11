@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { tableConfigsVar } from "queries/cache";
@@ -97,8 +97,6 @@ export interface IUseTableConfigReturnType {
   setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
 }
 
-
-
 // Helper functions for URL parameter sync
 const parseProductIds = (
   productIdsParam: string | null,
@@ -112,8 +110,9 @@ const parseProductIds = (
     .filter((id) => id && !isNaN(Number(id)))
     .map((id) => {
       const product = products.find((p) => p.id === id);
-      return product ? { name: product.name, id } : { name: `Product ${id}`, id };
-    });
+      return product ? { name: product.name, id } : null;
+    })
+    .filter((product): product is { name: string; id: string } => product !== null);
 };
 
 const parseStateIds = (stateIdsParam: string | null): Array<{ name: string; id: number }> => {
@@ -150,41 +149,48 @@ export const useTableConfig = ({
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
   const [searchParams, setSearchParams] = useSearchParams();
+  const isInitialMount = useRef(true);
 
   // Update URL when filters change
-  const updateUrl = useCallback((filters: Filters<any>) => {
-    const newSearchParams = new URLSearchParams();
+  const updateUrl = useCallback(
+    (filters: Filters<any>) => {
+      const newSearchParams = new URLSearchParams();
 
-    // Handle product filters
-    const productFilter = filters.find(f => f.id === "product");
-    if (productFilter && productFilter.value?.length > 0) {
-      const productIds = serializeProductIds(productFilter.value);
-      if (productIds) {
-        newSearchParams.set("product_ids", productIds);
+      // Handle product filters
+      const productFilter = filters.find((f) => f.id === "product");
+      if (productFilter && productFilter.value?.length > 0) {
+        const productIds = serializeProductIds(productFilter.value);
+        if (productIds) {
+          newSearchParams.set("product_ids", productIds);
+        }
       }
-    }
 
-    // Handle state filters
-    const stateFilter = filters.find(f => f.id === "state");
-    if (stateFilter && stateFilter.value?.length > 0) {
-      const stateIds = serializeStateIds(stateFilter.value);
-      if (stateIds) {
-        newSearchParams.set("state_ids", stateIds);
+      // Handle state filters
+      const stateFilter = filters.find((f) => f.id === "state");
+      if (stateFilter && stateFilter.value?.length > 0) {
+        const stateIds = serializeStateIds(stateFilter.value);
+        if (stateIds) {
+          newSearchParams.set("state_ids", stateIds);
+        }
       }
-    }
 
-    // Only update if something changed
-    if (newSearchParams.toString() !== searchParams.toString()) {
-      setSearchParams(newSearchParams, { replace: true });
-    }
-  }); // Remove searchParams dependency to avoid re-renders
+      // Only update if something changed
+      if (newSearchParams.toString() !== searchParams.toString()) {
+        setSearchParams(newSearchParams, { replace: true });
+      }
+    },
+    [searchParams, setSearchParams],
+  );
 
   // Parse URL parameters
   const productIdsParam = searchParams.get("product_ids");
   const stateIdsParam = searchParams.get("state_ids");
 
   // Parse filters from URL
-  const urlProductFilters = useMemo(() => parseProductIds(productIdsParam, products), [productIdsParam, products]);
+  const urlProductFilters = useMemo(
+    () => parseProductIds(productIdsParam, products),
+    [productIdsParam, products],
+  );
   const urlStateFilters = useMemo(() => parseStateIds(stateIdsParam), [stateIdsParam]);
 
   // Initialization
@@ -194,13 +200,13 @@ export const useTableConfig = ({
 
     // Replace state filter if URL has state_ids
     if (urlStateFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter(filter => filter.id !== "state");
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "state");
       initialColumnFilters.push({ id: "state", value: urlStateFilters });
     }
 
     // Add product filter if URL has product_ids
     if (urlProductFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter(filter => filter.id !== "product");
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "product");
       initialColumnFilters.push({ id: "product", value: urlProductFilters });
     }
 
@@ -213,6 +219,20 @@ export const useTableConfig = ({
     tableConfigsState.set(tableConfigKey, tableConfig);
     tableConfigsVar(tableConfigsState);
   }
+
+  // Sync default filters to URL on first load if no URL parameters present
+  useEffect(() => {
+    if (isInitialMount.current) {
+      const hasUrlParams = productIdsParam || stateIdsParam;
+      if (!hasUrlParams) {
+        const currentConfig = tableConfigsState.get(tableConfigKey);
+        if (currentConfig?.columnFilters) {
+          updateUrl(currentConfig.columnFilters);
+        }
+      }
+      isInitialMount.current = false;
+    }
+  }, [productIdsParam, stateIdsParam, tableConfigKey, tableConfigsState, updateUrl]);
 
   // Note: URL sync happens via setColumnFilters when filters change through UI
 

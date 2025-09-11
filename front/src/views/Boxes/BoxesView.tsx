@@ -152,7 +152,7 @@ function Boxes({
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
-  
+
   // fetch options for actions on boxes causing the suspense.
   const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
     variables: {
@@ -179,7 +179,7 @@ function Boxes({
         "id",
       ],
     },
-    products: actionOptionsData.base.products,
+    products: actionOptionsData.base?.products || [],
   });
 
   // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
