@@ -216,6 +216,9 @@ importers:
       jotai:
         specifier: ^2.13.1
         version: 2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1)
+      jotai-location:
+        specifier: ^0.6.2
+        version: 0.6.2(jotai@2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1))
       react-big-calendar:
         specifier: ^1.19.4
         version: 1.19.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3332,6 +3335,11 @@ packages:
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
+
+  jotai-location@0.6.2:
+    resolution: {integrity: sha512-D+fqGNNgPHpehOsGBsYsS7F3kNgml099MJrGYt8YlLumcnoTVrBdcO+Y11KyMlyzwPihEN0HPUgke9Iihz9OXw==}
+    peerDependencies:
+      jotai: '>=1.11.0'
 
   jotai@2.13.1:
     resolution: {integrity: sha512-cRsw6kFeGC9Z/D3egVKrTXRweycZ4z/k7i2MrfCzPYsL9SIWcPXTyqv258/+Ay8VUEcihNiE/coBLE6Kic6b8A==}
@@ -8553,6 +8561,10 @@ snapshots:
       '@isaacs/cliui': 8.0.2
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
+
+  jotai-location@0.6.2(jotai@2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1)):
+    dependencies:
+      jotai: 2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1)
 
   jotai@2.13.1(@babel/template@7.25.9)(@types/react@18.3.14)(react@18.3.1):
     optionalDependencies:
