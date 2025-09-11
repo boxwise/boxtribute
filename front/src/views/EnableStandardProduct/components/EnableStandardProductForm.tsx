@@ -229,7 +229,7 @@ function EnableStandardProductForm({
             size="md"
             type="button"
             w="full"
-            variant="cancel"
+            variant="outline"
             onClick={() => navigate(`${selectedStandardProduct ? "../.." : ".."}`)}
           >
             Nevermind
