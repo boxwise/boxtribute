@@ -796,3 +796,284 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
   }, 15000);
 });
+
+describe("4.8.3 - URL Parameter Sync for Filters", () => {
+  it("4.8.3.1 - Initial URL should become /boxes?state_ids=1 when navigating to /boxes", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Check that URL has state_ids=1 parameter
+    await waitFor(
+      () => {
+        expect(window.location.search).toContain("state_ids=1");
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it("4.8.3.2 - Clearing state filter should update URL to /boxes without state_ids parameter", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Find and click the state filter button
+    const stateFilterButton = await screen.findByTestId("filter-state");
+    await user.click(stateFilterButton);
+
+    // Clear the filter by deselecting all options
+    const clearButton = screen.getByRole("button", { name: /clear/i });
+    if (clearButton) {
+      await user.click(clearButton);
+    }
+
+    // Check that URL no longer has state_ids parameter
+    await waitFor(
+      () => {
+        expect(window.location.search).not.toContain("state_ids");
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it("4.8.3.3 - Adding product filter should add product_ids=X to URL", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Find and click the product filter button
+    const productFilterButton = await screen.findByTestId("filter-product");
+    await user.click(productFilterButton);
+
+    // Select a product option (first available option)
+    const productOptions = await screen.findAllByRole("option");
+    if (productOptions.length > 0) {
+      await user.click(productOptions[0]);
+    }
+
+    // Check that URL now contains product_ids parameter
+    await waitFor(
+      () => {
+        expect(window.location.search).toMatch(/product_ids=\d+/);
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it("4.8.3.4 - Adding multiple product filters should add product_ids=X,Y to URL", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Find and click the product filter button
+    const productFilterButton = await screen.findByTestId("filter-product");
+    await user.click(productFilterButton);
+
+    // Select multiple product options (first two available options)
+    const productOptions = await screen.findAllByRole("option");
+    if (productOptions.length >= 2) {
+      await user.click(productOptions[0]);
+      await user.click(productOptions[1]);
+    }
+
+    // Check that URL now contains product_ids parameter with comma-separated values
+    await waitFor(
+      () => {
+        expect(window.location.search).toMatch(/product_ids=\d+,\d+/);
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it("4.8.3.5 - Clearing product filter should remove product_ids from URL", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?product_ids=267",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Find and click the product filter button
+    const productFilterButton = await screen.findByTestId("filter-product");
+    await user.click(productFilterButton);
+
+    // Clear the filter
+    const clearButton = screen.getByRole("button", { name: /clear/i });
+    if (clearButton) {
+      await user.click(clearButton);
+    }
+
+    // Check that URL no longer contains product_ids parameter
+    await waitFor(
+      () => {
+        expect(window.location.search).not.toContain("product_ids");
+      },
+      { timeout: 5000 },
+    );
+  });
+
+  it("4.8.3.6 - Invalid parameter values should be ignored and removed from URL", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=9", // 9 is an invalid state ID
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Check that invalid parameter is ignored and URL gets cleaned up
+    await waitFor(
+      () => {
+        expect(window.location.search).not.toContain("state_ids=9");
+      },
+      { timeout: 5000 },
+    );
+  });
+});
