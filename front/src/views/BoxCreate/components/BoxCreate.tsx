@@ -1,14 +1,4 @@
-import {
-  Box,
-  Button,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-  useMediaQuery,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -104,7 +94,6 @@ function BoxCreate({
   onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
-  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
     productAndSizesData,
     (product) => product.category.name,
@@ -269,7 +258,7 @@ function BoxCreate({
           >
             Save
           </Button>
-          {onSubmitBoxCreateFormAndCreateAnother && isLargerThan768 && (
+          {onSubmitBoxCreateFormAndCreateAnother && (
             <Button
               isLoading={isSubmitting}
               type="button"

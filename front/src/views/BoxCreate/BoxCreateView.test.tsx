@@ -7,7 +7,7 @@ import BoxCreateView, {
   ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
   CREATE_BOX_MUTATION,
 } from "./BoxCreateView";
-import { FakeGraphQLError, mockMatchMediaQuery } from "mocks/functions";
+import { FakeGraphQLError } from "mocks/functions";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { product1, productBasic1 } from "mocks/products";
@@ -36,8 +36,6 @@ beforeEach(async () => {
   mockNavigate.mockClear();
   const { useNavigate } = await import("react-router-dom");
   vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-  // Set default to desktop view for existing tests
-  mockMatchMediaQuery(true);
 });
 
 // Create a unique product for testing to avoid conflicts
@@ -274,41 +272,5 @@ describe("BoxCreateView", () => {
         }),
       ),
     );
-  });
-
-  it("hides 'Save & Create Another Box' button on mobile screens", async () => {
-    render(<BoxCreateView />, {
-      routePath: "/bases/:baseId/boxes/create",
-      initialUrl: "/bases/1/boxes/create",
-      mocks: [initialQuery],
-      addTypename: true,
-      mediaQueryReturnValue: false, // Mock mobile viewport (screen width < 768px)
-    });
-
-    expect(await screen.findByRole("heading", { name: /create new box/i })).toBeInTheDocument();
-
-    // The regular "Save" button should still be present
-    expect(screen.getByRole("button", { name: /^save$/i })).toBeInTheDocument();
-
-    // The "Save & Create Another Box" button should NOT be present on mobile
-    expect(
-      screen.queryByRole("button", { name: /save & create another box/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("shows 'Save & Create Another Box' button on desktop screens", async () => {
-    render(<BoxCreateView />, {
-      routePath: "/bases/:baseId/boxes/create",
-      initialUrl: "/bases/1/boxes/create",
-      mocks: [initialQuery],
-      addTypename: true,
-      mediaQueryReturnValue: true, // Mock desktop viewport (screen width >= 768px)
-    });
-
-    expect(await screen.findByRole("heading", { name: /create new box/i })).toBeInTheDocument();
-
-    // Both buttons should be present on desktop
-    expect(screen.getByRole("button", { name: /^save$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /save & create another box/i })).toBeInTheDocument();
   });
 });
