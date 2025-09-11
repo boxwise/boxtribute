@@ -83,6 +83,7 @@ export interface ITableConfig {
 interface IUseTableConfigProps {
   tableConfigKey: string;
   defaultTableConfig: ITableConfig;
+  products?: Array<{ id: string; name: string }>;
 }
 
 export interface IUseTableConfigReturnType {
@@ -96,18 +97,23 @@ export interface IUseTableConfigReturnType {
   setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
 }
 
-// Create location atom for managing URL parameters
-// const locationAtom = atomWithLocation();
+
 
 // Helper functions for URL parameter sync
-const parseProductIds = (productIdsParam: string | null): Array<{ name: string; id: string }> => {
+const parseProductIds = (
+  productIdsParam: string | null,
+  products: Array<{ id: string; name: string }> = [],
+): Array<{ name: string; id: string }> => {
   if (!productIdsParam) return [];
 
   return productIdsParam
     .split(",")
     .map((id) => id.trim())
     .filter((id) => id && !isNaN(Number(id)))
-    .map((id) => ({ name: `Product ${id}`, id })); // Placeholder name, will be updated by filter
+    .map((id) => {
+      const product = products.find((p) => p.id === id);
+      return product ? { name: product.name, id } : { name: `Product ${id}`, id };
+    });
 };
 
 const parseStateIds = (stateIdsParam: string | null): Array<{ name: string; id: number }> => {
@@ -140,6 +146,7 @@ const serializeStateIds = (filters: Array<{ name: string; id: number }>): string
 export const useTableConfig = ({
   tableConfigKey,
   defaultTableConfig,
+  products = [],
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -177,7 +184,7 @@ export const useTableConfig = ({
   const stateIdsParam = searchParams.get("state_ids");
 
   // Parse filters from URL
-  const urlProductFilters = useMemo(() => parseProductIds(productIdsParam), [productIdsParam]);
+  const urlProductFilters = useMemo(() => parseProductIds(productIdsParam, products), [productIdsParam, products]);
   const urlStateFilters = useMemo(() => parseStateIds(stateIdsParam), [stateIdsParam]);
 
   // Initialization

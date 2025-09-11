@@ -390,6 +390,34 @@ const actionsQuery = {
             type: "Box",
           },
         ],
+        products: [
+          {
+            __typename: "Product",
+            id: "267",
+            name: "Sweatpants",
+            type: "Custom",
+            gender: "Men",
+            deletedOn: null,
+            category: {
+              __typename: "ProductCategory",
+              id: "1",
+              name: "Bottoms",
+            },
+          },
+          {
+            __typename: "Product",
+            id: "350",
+            name: "T-shirt",
+            type: "Custom",
+            gender: "Women",
+            deletedOn: null,
+            category: {
+              __typename: "ProductCategory",
+              id: "2",
+              name: "Tops",
+            },
+          },
+        ],
       },
       shipments: [
         {
@@ -828,8 +856,12 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     // Wait for the table to load - this validates that URL parameters are parsed correctly
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
     
-    // At this point, if the page renders without error, URL parsing worked
+    // Verify that the state filter is applied (showing InStock boxes)
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+    
+    // Check that the state filter button indicates it has a filter applied
+    const stateFilterButton = screen.getByTestId("filter-state");
+    expect(stateFilterButton).toBeInTheDocument();
   });
 
   it("4.8.3.2 - Component should handle invalid state_ids parameter", async () => {
@@ -894,6 +926,13 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     // Should render properly with both parameters
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+    
+    // Verify that the product filter is applied (showing Sweatpants)
+    expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
+    
+    // Check that the product filter button indicates it has a filter applied
+    const productFilterButton = screen.getByTestId("filter-product");
+    expect(productFilterButton).toBeInTheDocument();
   });
 
   it("4.8.3.4 - Component should handle multiple comma-separated IDs", async () => {

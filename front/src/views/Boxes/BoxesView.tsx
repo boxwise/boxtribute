@@ -123,6 +123,9 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
         tags(resourceType: Box) {
           ...TagBasicFields
         }
+        products {
+          ...ProductBasicFields
+        }
       }
       shipments {
         id
@@ -137,7 +140,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
       }
     }
   `,
-  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, PRODUCT_BASIC_FIELDS_FRAGMENT],
 );
 
 function Boxes({
@@ -149,6 +152,14 @@ function Boxes({
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
+  
+  // fetch options for actions on boxes causing the suspense.
+  const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
+    variables: {
+      baseId,
+    },
+  });
+
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
@@ -168,13 +179,7 @@ function Boxes({
         "id",
       ],
     },
-  });
-
-  // fetch options for actions on boxes causing the suspense.
-  const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
-    variables: {
-      baseId,
-    },
+    products: actionOptionsData.base.products,
   });
 
   // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
