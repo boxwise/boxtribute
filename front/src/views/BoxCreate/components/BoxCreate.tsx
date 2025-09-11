@@ -258,7 +258,7 @@ function BoxCreate({
           >
             Save
           </Button>
-          {onSubmitBoxCreateFormAndCreateAnother && (
+          {onSubmitBoxCreateFormAndCreateAnother && !qrCode && (
             <Button
               isLoading={isSubmitting}
               type="button"
