@@ -50,7 +50,6 @@ function BoxMoveLocation({
                   isDisabled={
                     boxData.location?.__typename === "ClassicLocation" &&
                     boxData.location?.defaultBoxState !== "Lost" &&
-                    boxData.location?.__typename === "ClassicLocation" &&
                     boxData.location?.defaultBoxState !== "Scrap"
                       ? "Lost" === boxData.state ||
                         "Scrap" === boxData.state ||
