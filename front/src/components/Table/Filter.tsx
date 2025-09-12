@@ -57,11 +57,8 @@ export function SelectColumnFilterUI({
             value={
               filterValue &&
               filterValue.map((value) => {
-                if (value.__typename === "Tag" && typeof value === "object" && value !== null) {
-                  return { value, label: value.name };
-                }
                 if (typeof value === "object" && value !== null) {
-                  return { value, label: ObjectToString(value) };
+                  return { value, label: value.name };
                 }
                 return { value, label: value };
               })
@@ -123,7 +120,7 @@ export function SelectColumnFilter({
       .map(
         (label) =>
           ({
-            label,
+            label: optionValues[label].name ?? label,
             value: optionValues[label],
           }) as ISelectOption,
       )
