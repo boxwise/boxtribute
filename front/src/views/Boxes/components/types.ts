@@ -1,12 +1,12 @@
 import { FragmentOf } from "gql.tada";
 import { TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
-import { BoxState, Shipment } from "queries/types";
+import { BoxState, ProductGender, Shipment } from "queries/types";
 
 export type BoxRow = {
   labelIdentifier: string;
   product: { name: string | undefined; id: string | undefined };
   productCategory: { name: string; id: string };
-  gender: string;
+  gender: { name: ProductGender; id: string };
   numberOfItems: number;
   size: { name: string; id: string };
   location: { name: string; id: string };

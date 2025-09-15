@@ -15,7 +15,7 @@ import {
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { DaysCell, ShipmentCell, StateCell, TagsCell, QrCodeCell } from "./components/TableCells";
+import { DaysCell, ObjectCell, ShipmentCell, StateCell, TagsCell, QrCodeCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
@@ -267,8 +267,9 @@ function Boxes({
         Header: "Product Category",
         accessor: "productCategory",
         id: "productCategory",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Gender",
@@ -281,8 +282,9 @@ function Boxes({
         Header: "Size",
         accessor: "size",
         id: "size",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Items",
@@ -302,8 +304,9 @@ function Boxes({
         Header: "Location",
         accessor: "location",
         id: "location",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Tags",

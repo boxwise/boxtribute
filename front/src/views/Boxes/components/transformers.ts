@@ -2,7 +2,7 @@ import { differenceInDays } from "date-fns";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
 import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "queries/types";
-import { boxStateIds } from "utils/constants";
+import { boxStateIds, genderIds } from "utils/constants";
 
 export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBoxesViewQuery) =>
   boxesQueryResult.boxes.elements
@@ -17,7 +17,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
             name: element.product?.category.name,
             id: element.product?.category.id,
           },
-          gender: element.product?.gender,
+          gender: { name: element.product?.gender, id: genderIds[element.product?.gender] },
           numberOfItems: element.numberOfItems,
           size: { name: element.size?.label, id: element.size?.id },
           state: { name: element.state, id: boxStateIds[element.state] },

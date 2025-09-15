@@ -6,7 +6,6 @@ import { useReactiveVar } from "@apollo/client";
 import { Filters, SortingRule } from "react-table";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { boxStateIds } from "utils/constants";
 
 // logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
 export const useHandleLogout = () => {
@@ -205,8 +204,6 @@ export const useTableConfig = ({
     if (urlStateFilters.length > 0) {
       initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "state");
       initialColumnFilters.push({ id: "state", value: urlStateFilters });
-    } else {
-      initialColumnFilters.push({ id: "state", value: ["1"] });
     }
 
     // Add product filter if URL has product_ids

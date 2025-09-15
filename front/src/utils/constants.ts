@@ -16,3 +16,18 @@ export const boxStateIds: { [key in BoxState]?: string } = {
   InTransit: "7",
   NotDelivered: "8",
 };
+
+export const genderIds: { ProductGender: string } = {
+Women: "1",
+Men: "2",
+UnisexAdult: "3",
+Girl: "4",
+Boy: "5",
+UnisexKid: "6",
+BabyGirl: "7",
+BabyBoy: "8",
+UnisexBaby: "9",
+none: "10",
+TeenGirl: "12",
+TeenBoy: "13",
+  };
