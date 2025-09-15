@@ -141,6 +141,15 @@ export const useTableConfig = ({
         }
       }
 
+      // Handle product gender filters
+      const genderFilter = filters.find((f) => f.id === "gender");
+      if (genderFilter && genderFilter.value?.length > 0) {
+        const genderIds = serializeIds(genderFilter.value);
+        if (genderIds) {
+          newSearchParams.set("gender_ids", genderIds);
+        }
+      }
+
       // Handle product category filters
       const productCategoryFilter = filters.find((f) => f.id === "productCategory");
       if (productCategoryFilter && productCategoryFilter.value?.length > 0) {
@@ -179,6 +188,7 @@ export const useTableConfig = ({
   // Parse URL parameters
   const productIdsParam = searchParams.get("product_ids");
   const stateIdsParam = searchParams.get("state_ids");
+  const genderIdsParam = searchParams.get("gender_ids");
   const productCategoryIdsParam = searchParams.get("product_category_ids");
   const sizeIdsParam = searchParams.get("size_ids");
   const locationIdsParam = searchParams.get("location_ids");
@@ -186,6 +196,7 @@ export const useTableConfig = ({
   // Parse filters from URL
   const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam]);
   const urlStateFilters = useMemo(() => parseIds(stateIdsParam), [stateIdsParam]);
+  const urlGenderFilters = useMemo(() => parseIds(genderIdsParam), [genderIdsParam]);
   const urlProductCategoryFilters = useMemo(
     () => parseIds(productCategoryIdsParam),
     [productCategoryIdsParam],
@@ -210,6 +221,12 @@ export const useTableConfig = ({
       initialColumnFilters.push({ id: "product", value: urlProductFilters });
     }
 
+    // Add gender filter if URL has gender_ids
+    if (urlGenderFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "gender");
+      initialColumnFilters.push({ id: "gender", value: urlGenderFilters });
+    }
+
     // Add product category filter if URL has product_category_ids
     if (urlProductCategoryFilters.length > 0) {
       initialColumnFilters = initialColumnFilters.filter(
@@ -229,7 +246,6 @@ export const useTableConfig = ({
       initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "location");
       initialColumnFilters.push({ id: "location", value: urlLocationFilters });
     }
-    console.log(initialColumnFilters);
 
     const tableConfig: ITableConfig = {
       globalFilter: defaultTableConfig.globalFilter,
@@ -247,6 +263,7 @@ export const useTableConfig = ({
       const hasUrlParams =
         productIdsParam ||
         stateIdsParam ||
+        genderIdsParam ||
         productCategoryIdsParam ||
         sizeIdsParam ||
         locationIdsParam;
@@ -261,6 +278,7 @@ export const useTableConfig = ({
   }, [
     productIdsParam,
     stateIdsParam,
+    genderIdsParam,
     productCategoryIdsParam,
     sizeIdsParam,
     locationIdsParam,

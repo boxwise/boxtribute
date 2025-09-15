@@ -271,8 +271,9 @@ function Boxes({
         Header: "Gender",
         accessor: "gender",
         id: "gender",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Size",
