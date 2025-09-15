@@ -1,4 +1,4 @@
-import { BoxState } from "queries/types";
+import { BoxState, ProductGender } from "queries/types";
 
 export const JWT_ROLE = "https://www.boxtribute.com/roles";
 export const JWT_ABP = "https://www.boxtribute.com/actions";
@@ -17,17 +17,17 @@ export const boxStateIds: { [key in BoxState]?: string } = {
   NotDelivered: "8",
 };
 
-export const genderIds: { ProductGender: string } = {
-Women: "1",
-Men: "2",
-UnisexAdult: "3",
-Girl: "4",
-Boy: "5",
-UnisexKid: "6",
-BabyGirl: "7",
-BabyBoy: "8",
-UnisexBaby: "9",
-none: "10",
-TeenGirl: "12",
-TeenBoy: "13",
-  };
+export const genderIds: { [key in ProductGender]: string } = {
+  Women: "1",
+  Men: "2",
+  UnisexAdult: "3",
+  Girl: "4",
+  Boy: "5",
+  UnisexKid: "6",
+  BabyGirl: "7",
+  BabyBoy: "8",
+  UnisexBaby: "9",
+  none: "10",
+  TeenGirl: "12",
+  TeenBoy: "13",
+};

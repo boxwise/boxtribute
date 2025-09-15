@@ -15,7 +15,14 @@ import {
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { DaysCell, ObjectCell, ShipmentCell, StateCell, TagsCell, QrCodeCell } from "./components/TableCells";
+import {
+  DaysCell,
+  ObjectCell,
+  ShipmentCell,
+  StateCell,
+  TagsCell,
+  QrCodeCell,
+} from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
