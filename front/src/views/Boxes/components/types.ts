@@ -5,11 +5,11 @@ import { BoxState, Shipment } from "queries/types";
 export type BoxRow = {
   labelIdentifier: string;
   product: { name: string | undefined; id: string | undefined };
-  productCategory: string;
+  productCategory: { name: string; id: string };
   gender: string;
   numberOfItems: number;
-  size: string;
-  location: string;
+  size: { name: string; id: string };
+  location: { name: string; id: string };
   state: { name: BoxState; id: string };
   tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[];
   shipment: Shipment | null;

@@ -144,6 +144,33 @@ export const useTableConfig = ({
         }
       }
 
+      // Handle product category filters
+      const productCategoryFilter = filters.find((f) => f.id === "productCategory");
+      if (productCategoryFilter && productCategoryFilter.value?.length > 0) {
+        const productCategoryIds = serializeIds(productCategoryFilter.value);
+        if (productCategoryIds) {
+          newSearchParams.set("product_category_ids", productCategoryIds);
+        }
+      }
+
+      // Handle size filters
+      const sizeFilter = filters.find((f) => f.id === "size");
+      if (sizeFilter && sizeFilter.value?.length > 0) {
+        const sizeIds = serializeIds(sizeFilter.value);
+        if (sizeIds) {
+          newSearchParams.set("size_ids", sizeIds);
+        }
+      }
+
+      // Handle location filters
+      const locationFilter = filters.find((f) => f.id === "location");
+      if (locationFilter && locationFilter.value?.length > 0) {
+        const locationIds = serializeIds(locationFilter.value);
+        if (locationIds) {
+          newSearchParams.set("location_ids", locationIds);
+        }
+      }
+
       // Only update if something changed
       if (newSearchParams.toString() !== searchParams.toString()) {
         setSearchParams(newSearchParams, { replace: true });
@@ -155,10 +182,19 @@ export const useTableConfig = ({
   // Parse URL parameters
   const productIdsParam = searchParams.get("product_ids");
   const stateIdsParam = searchParams.get("state_ids");
+  const productCategoryIdsParam = searchParams.get("product_category_ids");
+  const sizeIdsParam = searchParams.get("size_ids");
+  const locationIdsParam = searchParams.get("location_ids");
 
   // Parse filters from URL
   const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam, products]);
   const urlStateFilters = useMemo(() => parseIds(stateIdsParam), [stateIdsParam]);
+  const urlProductCategoryFilters = useMemo(
+    () => parseIds(productCategoryIdsParam),
+    [productCategoryIdsParam],
+  );
+  const urlSizeFilters = useMemo(() => parseIds(sizeIdsParam), [sizeIdsParam]);
+  const urlLocationFilters = useMemo(() => parseIds(locationIdsParam), [locationIdsParam]);
 
   // Initialization
   if (!tableConfigsState.has(tableConfigKey)) {
@@ -169,6 +205,8 @@ export const useTableConfig = ({
     if (urlStateFilters.length > 0) {
       initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "state");
       initialColumnFilters.push({ id: "state", value: urlStateFilters });
+    } else {
+      initialColumnFilters.push({ id: "state", value: ["1"] });
     }
 
     // Add product filter if URL has product_ids
@@ -176,6 +214,27 @@ export const useTableConfig = ({
       initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "product");
       initialColumnFilters.push({ id: "product", value: urlProductFilters });
     }
+
+    // Add product category filter if URL has product_category_ids
+    if (urlProductCategoryFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter(
+        (filter) => filter.id !== "productCategory",
+      );
+      initialColumnFilters.push({ id: "productCategory", value: urlProductCategoryFilters });
+    }
+
+    // Add size filter if URL has size_ids
+    if (urlSizeFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "size");
+      initialColumnFilters.push({ id: "size", value: urlSizeFilters });
+    }
+
+    // Add location filter if URL has location_ids
+    if (urlLocationFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "location");
+      initialColumnFilters.push({ id: "location", value: urlLocationFilters });
+    }
+    console.log(initialColumnFilters);
 
     const tableConfig: ITableConfig = {
       globalFilter: defaultTableConfig.globalFilter,
@@ -190,7 +249,12 @@ export const useTableConfig = ({
   // Sync default filters to URL on first load if no URL parameters present
   useEffect(() => {
     if (isInitialMount.current) {
-      const hasUrlParams = productIdsParam || stateIdsParam;
+      const hasUrlParams =
+        productIdsParam ||
+        stateIdsParam ||
+        productCategoryIdsParam ||
+        sizeIdsParam ||
+        locationIdsParam;
       if (!hasUrlParams) {
         const currentConfig = tableConfigsState.get(tableConfigKey);
         if (currentConfig?.columnFilters) {
@@ -199,7 +263,16 @@ export const useTableConfig = ({
       }
       isInitialMount.current = false;
     }
-  }, [productIdsParam, stateIdsParam, tableConfigKey, tableConfigsState, updateUrl]);
+  }, [
+    productIdsParam,
+    stateIdsParam,
+    productCategoryIdsParam,
+    sizeIdsParam,
+    locationIdsParam,
+    tableConfigKey,
+    tableConfigsState,
+    updateUrl,
+  ]);
 
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
