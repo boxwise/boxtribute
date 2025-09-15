@@ -53,23 +53,17 @@ export const CreateBoxFormDataSchema = z.object({
     // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
     .nullable()
     // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
-    .refine(Boolean, { message: "Please select a product" })
+    .refine(Boolean, { error: "Please select a product" })
     // since the expected return type should not have a null we add this transform at the en.
     .transform((selectedOption) => selectedOption || z.NEVER),
   sizeId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a size" })
+    .refine(Boolean, { error: "Please select a size" })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z
-    .number({
-      required_error: "Please enter a number of items",
-      invalid_type_error: "Please enter an integer number",
-    })
-    .int()
-    .nonnegative(),
+  numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a location" })
+    .refine(Boolean, { error: "Please select a location" })
     .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
