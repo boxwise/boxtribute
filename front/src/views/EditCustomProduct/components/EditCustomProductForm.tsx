@@ -155,7 +155,13 @@ function EditCustomProductForm({
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Edit Product
         </Button>
-        <Button size="md" type="button" w="full" variant="cancel" onClick={() => navigate("../..")}>
+        <Button
+          size="md"
+          type="button"
+          w="full"
+          variant="outline"
+          onClick={() => navigate("../..")}
+        >
           Nevermind
         </Button>
       </Stack>

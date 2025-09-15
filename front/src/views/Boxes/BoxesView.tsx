@@ -15,7 +15,7 @@ import {
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import { DaysCell, ShipmentCell, StateCell, TagsCell, QrCodeCell } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
@@ -65,6 +65,9 @@ export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
           id
           labelIdentifier
         }
+      }
+      qrCode {
+        code
       }
       comment
       createdOn
@@ -152,6 +155,7 @@ function Boxes({
       columnFilters: [{ id: "state", value: ["InStock"] }],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
+        "qrLabel",
         "gender",
         "size",
         "shipment",
@@ -223,6 +227,18 @@ function Boxes({
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
+      {
+        Header: "QR label",
+        accessor: "hasQrCode",
+        id: "qrLabel",
+        Cell: QrCodeCell,
+        disableFilters: true,
+        sortType: (rowA, rowB) => {
+          if (rowA.values.qrLabel === rowB.values.qrLabel) return 0;
+          if (rowA.values.qrLabel > rowB.values.qrLabel) return 1;
+          return -1;
+        },
+      },
       {
         Header: "Box #",
         accessor: "labelIdentifier",
@@ -367,13 +383,6 @@ function Boxes({
         id: "createdBy",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
-      },
-      {
-        Header: "ID",
-        accessor: "id",
-        id: "id",
-        Filter: SelectColumnFilter,
-        disableFilters: true,
       },
     ],
     [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],

@@ -1,17 +1,9 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,6 +11,7 @@ import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
 import { ProductGender } from "../../../../../graphql/types";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface ICategoryData {
   name: string;
@@ -84,6 +77,7 @@ export interface IBoxCreateProps {
   allTags: IDropdownOption[] | null | undefined;
   disableSubmission?: boolean;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
+  onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
 
 function BoxCreate({
@@ -91,6 +85,7 @@ function BoxCreate({
   allLocations,
   allTags,
   onSubmitBoxCreateForm,
+  onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
@@ -125,6 +120,17 @@ function BoxCreate({
   }));
 
   const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);
+
+  const onSubmitAndCreateAnother = (data: ICreateBoxFormData) => {
+    if (onSubmitBoxCreateFormAndCreateAnother) {
+      onSubmitBoxCreateFormAndCreateAnother(data);
+    }
+  };
+
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const qrCode = useParams<{ qrCode: string }>().qrCode!;
+  const urlSuffix = qrCode ? "qrreader" : "boxes";
 
   const {
     handleSubmit,
@@ -234,19 +240,43 @@ function BoxCreate({
           </ListItem>
         </List>
 
-        <Stack spacing={4}>
-          <ButtonGroup gap="4">
+        <Stack spacing={4} mt={8}>
+          <Button
+            isLoading={isSubmitting}
+            type="submit"
+            borderRadius="0"
+            w="full"
+            isDisabled={disableSubmission}
+            colorScheme="blue"
+            bg="blue.500"
+          >
+            Save
+          </Button>
+          {onSubmitBoxCreateFormAndCreateAnother && !qrCode && (
             <Button
-              mt={4}
               isLoading={isSubmitting}
-              type="submit"
+              type="button"
               borderRadius="0"
               w="full"
               isDisabled={disableSubmission}
+              colorScheme="blue"
+              bg="blue.200"
+              color="black"
+              onClick={handleSubmit(onSubmitAndCreateAnother)}
             >
-              Create Box
+              Save &amp; Create Another Box
             </Button>
-          </ButtonGroup>
+          )}
+          <Button
+            size="md"
+            type="button"
+            borderRadius="0"
+            w="full"
+            variant="outline"
+            onClick={() => navigate(`/bases/${baseId}/${urlSuffix}`)}
+          >
+            Nevermind
+          </Button>
         </Stack>
       </form>
     </Box>

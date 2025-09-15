@@ -604,25 +604,50 @@ function BTBox() {
 
   return (
     <VStack spacing={4} align="stretch">
-      {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") && (
+      {boxData?.deletedOn && (
         <Alert
-          status="info"
+          status="warning"
           variant="top-accent"
           w={["100%", "80%", "100%", "80%"]}
           alignSelf="center"
         >
           <AlertIcon />
           <Box>
-            <AlertTitle>Note</AlertTitle>
+            <AlertTitle>
+              This box was deleted on{" "}
+              {new Date(boxData.deletedOn).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+            </AlertTitle>
             <AlertDescription>
-              {boxInLegacyLocation
-                ? alertMessageForLegacyLocation
-                : alertMessageForBoxWithLostScrapState}
+              Details displayed show historical information of the box prior to deletion. New
+              actions cannot be performed on the box.
             </AlertDescription>
           </Box>
         </Alert>
       )}
-      {boxData && !boxData.qrCode && (
+      {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") &&
+        !boxData?.deletedOn && (
+          <Alert
+            status="info"
+            variant="top-accent"
+            w={["100%", "80%", "100%", "80%"]}
+            alignSelf="center"
+          >
+            <AlertIcon />
+            <Box>
+              <AlertTitle>Note</AlertTitle>
+              <AlertDescription>
+                {boxInLegacyLocation
+                  ? alertMessageForLegacyLocation
+                  : alertMessageForBoxWithLostScrapState}
+              </AlertDescription>
+            </Box>
+          </Alert>
+        )}
+      {boxData && !boxData.qrCode && !boxData?.deletedOn && (
         <Alert
           status="warning"
           variant="top-accent"

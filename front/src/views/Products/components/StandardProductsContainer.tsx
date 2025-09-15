@@ -237,12 +237,6 @@ function StandardProductsContainer() {
         disableFilters: true,
         Cell: DateCell,
       },
-      {
-        Header: "ID",
-        accessor: "id",
-        id: "id",
-        disableFilters: true,
-      },
     ],
     [disableStandardProductMutationLoading, handleDisableOrDeleteProduct, handleEnableProduct],
   );
