@@ -98,47 +98,16 @@ export interface IUseTableConfigReturnType {
 }
 
 // Helper functions for URL parameter sync
-const parseProductIds = (
-  productIdsParam: string | null,
-  products: Array<{ id: string; name: string }> = [],
-): Array<{ name: string; id: string }> => {
-  if (!productIdsParam) return [];
+const parseIds = (idsParam: string | null): string[] => {
+  if (!idsParam) return [];
 
-  return productIdsParam
+  return idsParam
     .split(",")
     .map((id) => id.trim())
-    .filter((id) => id && !isNaN(Number(id)))
-    .map((id) => {
-      const product = products.find((p) => p.id === id);
-      return product ? { name: product.name, id } : null;
-    })
-    .filter((product): product is { name: string; id: string } => product !== null);
+    .filter((id) => id && !isNaN(Number(id)));
 };
 
-const parseStateIds = (stateIdsParam: string | null): Array<{ name: string; id: number }> => {
-  if (!stateIdsParam) return [];
-
-  return stateIdsParam
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id && !isNaN(Number(id)))
-    .map((id) => {
-      const numericId = Number(id);
-      const stateName = Object.entries(boxStateIds).find(
-        ([, stateId]) => stateId === numericId,
-      )?.[0];
-      return stateName ? { name: stateName, id: numericId } : null;
-    })
-    .filter((state): state is { name: string; id: number } => state !== null);
-};
-
-const serializeProductIds = (filters: Array<{ name: string; id: string }>): string | null => {
-  if (!filters.length) return null;
-  return filters.join(",");
-  return filters.map((f) => f.id).join(",");
-};
-
-const serializeStateIds = (filters: Array<string>): string | null => {
+const serializeIds = (filters: string[]): string | null => {
   if (!filters.length) return null;
   return filters.join(",");
 };
@@ -160,7 +129,7 @@ export const useTableConfig = ({
       // Handle product filters
       const productFilter = filters.find((f) => f.id === "product");
       if (productFilter && productFilter.value?.length > 0) {
-        const productIds = serializeProductIds(productFilter.value);
+        const productIds = serializeIds(productFilter.value);
         if (productIds) {
           newSearchParams.set("product_ids", productIds);
         }
@@ -169,7 +138,7 @@ export const useTableConfig = ({
       // Handle state filters
       const stateFilter = filters.find((f) => f.id === "state");
       if (stateFilter && stateFilter.value?.length > 0) {
-        const stateIds = serializeStateIds(stateFilter.value);
+        const stateIds = serializeIds(stateFilter.value);
         if (stateIds) {
           newSearchParams.set("state_ids", stateIds);
         }
@@ -188,11 +157,8 @@ export const useTableConfig = ({
   const stateIdsParam = searchParams.get("state_ids");
 
   // Parse filters from URL
-  const urlProductFilters = useMemo(
-    () => parseProductIds(productIdsParam, products),
-    [productIdsParam, products],
-  );
-  const urlStateFilters = useMemo(() => parseStateIds(stateIdsParam), [stateIdsParam]);
+  const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam, products]);
+  const urlStateFilters = useMemo(() => parseIds(stateIdsParam), [stateIdsParam]);
 
   // Initialization
   if (!tableConfigsState.has(tableConfigKey)) {
