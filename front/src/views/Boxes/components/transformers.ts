@@ -2,6 +2,7 @@ import { differenceInDays } from "date-fns";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
 import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "queries/types";
+import { boxStateIds } from "utils/constants";
 
 export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBoxesViewQuery) =>
   boxesQueryResult.boxes.elements
@@ -11,12 +12,12 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
         ({
           id: element.id,
           labelIdentifier: element.labelIdentifier,
-          product: element.product?.name,
+          product: { name: element.product?.name, id: element.product?.id },
           productCategory: element.product?.category.name,
           gender: element.product?.gender,
           numberOfItems: element.numberOfItems,
           size: element.size?.label,
-          state: element.state,
+          state: { name: element.state, id: boxStateIds[element.state] },
           location: element.location!.name,
           tags: element.tags,
           shipment: element.shipmentDetail?.shipment,
@@ -54,7 +55,10 @@ export const prepareBoxesForBoxesViewQueryVariables = (
   const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
   if (refetchFilters.length > 0) {
     const filterInput = refetchFilters.reduce(
-      (acc, filter) => ({ ...acc, [filterIdToGraphQLVariable(filter.id)]: filter.value }),
+      (acc, filter) => ({
+        ...acc,
+        [filterIdToGraphQLVariable(filter.id)]: filter.value.map((v: { name: string }) => v.name),
+      }),
       {},
     );
     variables.filterInput = filterInput;
