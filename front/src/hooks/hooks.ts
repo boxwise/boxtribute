@@ -82,7 +82,6 @@ export interface ITableConfig {
 interface IUseTableConfigProps {
   tableConfigKey: string;
   defaultTableConfig: ITableConfig;
-  products?: Array<{ id: string; name: string }>;
 }
 
 export interface IUseTableConfigReturnType {
@@ -114,7 +113,6 @@ const serializeIds = (filters: string[]): string | null => {
 export const useTableConfig = ({
   tableConfigKey,
   defaultTableConfig,
-  products = [],
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -186,7 +184,7 @@ export const useTableConfig = ({
   const locationIdsParam = searchParams.get("location_ids");
 
   // Parse filters from URL
-  const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam, products]);
+  const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam]);
   const urlStateFilters = useMemo(() => parseIds(stateIdsParam), [stateIdsParam]);
   const urlProductCategoryFilters = useMemo(
     () => parseIds(productCategoryIdsParam),
