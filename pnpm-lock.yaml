@@ -24,8 +24,8 @@ importers:
         specifier: ^11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@18.3.14)(react@18.3.1))(@types/react@18.3.14)(react@18.3.1)
       '@hookform/resolvers':
-        specifier: ^5.2.1
-        version: 5.2.1(react-hook-form@7.62.0(react@18.3.1))
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.62.0(react@18.3.1))
       '@nivo/bar':
         specifier: 0.99.0
         version: 0.99.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -45,8 +45,8 @@ importers:
         specifier: 0.99.0
         version: 0.99.0(react@18.3.1)
       '@sentry/react':
-        specifier: ^10.10.0
-        version: 10.10.0(react@18.3.1)
+        specifier: ^10.11.0
+        version: 10.11.0(react@18.3.1)
       '@tidyjs/tidy':
         specifier: ^2.5.2
         version: 2.5.2
@@ -1163,8 +1163,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@hookform/resolvers@5.2.1':
-    resolution: {integrity: sha512-u0+6X58gkjMcxur1wRWokA7XsiiBJ6aK17aPZxhkoYiK5J+HcTx0Vhu9ovXe6H+dVpO6cjrn2FkJTryXEMlryQ==}
+  '@hookform/resolvers@5.2.2':
+    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
     peerDependencies:
       react-hook-form: ^7.55.0
 
@@ -1494,36 +1494,32 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
-  '@sentry-internal/browser-utils@10.10.0':
-    resolution: {integrity: sha512-209QN9vsQBwJcS+9DU7B4yl9mb4OqCt2kdL3LYDvqsuOdpICpwfowdK3RMn825Ruf4KLJa0KHM1scQbXZCc4lw==}
+  '@sentry-internal/browser-utils@10.11.0':
+    resolution: {integrity: sha512-fnMlz5ntap6x4vRsLOHwPqXh7t82StgAiRt+EaqcMX0t9l8C0w0df8qwrONKXvE5GdHWTNFJj5qR15FERSkg3Q==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@10.10.0':
-    resolution: {integrity: sha512-oSU4F/ebOsJA9Eof0me9hLpSDTSelpnEY6gmhU9sHyIG+U7hJRuCfeGICxQOzBtteepWRhAaZEv4s9ZBh3iD2w==}
+  '@sentry-internal/feedback@10.11.0':
+    resolution: {integrity: sha512-ADey51IIaa29kepb8B7aSgSGSrcyT7QZdRsN1rhitefzrruHzpSUci5c2EPIvmWfKJq8Wnvukm9BHXZXAAIOzA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@10.10.0':
-    resolution: {integrity: sha512-mJBNB0EBbE3vzL7lgd8lDoWWhRaRwxXdI4Kkx3r39u2+1qTdJP/xHbJDihyemCaw7gRL1FR/GC44JLipzEfkKQ==}
+  '@sentry-internal/replay-canvas@10.11.0':
+    resolution: {integrity: sha512-brWQ90IYQyZr44IpTprlmvbtz4l2ABzLdpP94Egh12Onf/q6n4CjLKaA25N5kX0uggHqX1Rs7dNaG0mP3ETHhA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@10.10.0':
-    resolution: {integrity: sha512-sKFYWBaft0ET6gd5B0pThR6gYTjaUECXCzVAnSYxy64a2/PK6lV93BtnA1C2Q34Yhv/0scdyIbZtfTnSsEgwUg==}
+  '@sentry-internal/replay@10.11.0':
+    resolution: {integrity: sha512-t4M2bxMp2rKGK/l7bkVWjN+xVw9H9V12jAeXmO/Fskz2RcG1ZNLQnKSx/W/zCRMk8k7xOQFsfiApq+zDN+ziKA==}
     engines: {node: '>=18'}
 
-  '@sentry/browser@10.10.0':
-    resolution: {integrity: sha512-STBs29meUk0CvluIOXXnnRGRtjKsJN9fAHS3dUu3GMjmow4rxKBiBbAwoPYftAVdfvGypT7zQCQ+K30dbRxp0g==}
-    engines: {node: '>=18'}
-
-  '@sentry/core@10.10.0':
-    resolution: {integrity: sha512-4O1O6my/vYE98ZgfEuLEwOOuHzqqzfBT6IdRo1yiQM7/AXcmSl0H/k4HJtXCiCTiHm+veEuTDBHp0GQZmpIbtA==}
+  '@sentry/browser@10.11.0':
+    resolution: {integrity: sha512-qemaKCJKJHHCyGBpdLq23xL5u9Xvir20XN7YFTnHcEq4Jvj0GoWsslxKi5cQB2JvpYn62WxTiDgVLeQlleZhSg==}
     engines: {node: '>=18'}
 
   '@sentry/core@10.11.0':
     resolution: {integrity: sha512-39Rxn8cDXConx3+SKOCAhW+/hklM7UDaz+U1OFzFMDlT59vXSpfI6bcXtNiFDrbOxlQ2hX8yAqx8YRltgSftoA==}
     engines: {node: '>=18'}
 
-  '@sentry/react@10.10.0':
-    resolution: {integrity: sha512-wfYq9W36uKBwaxwy3II/LXjs5XCAQ9MZz7OmkDvKhL9ly3YupnOua5DaFcNdlLmePuYVqOfEk2lBCJBj9FliOg==}
+  '@sentry/react@10.11.0':
+    resolution: {integrity: sha512-bE4lJ5Ni/n9JUdLWGG99yucY0/zOUXjKl9gfSTkvUvOiAIX/bY0Y4WgOqeWySvbMz679ZdOwF34k8RA/gI7a8g==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -5894,7 +5890,7 @@ snapshots:
     dependencies:
       graphql: 16.11.0
 
-  '@hookform/resolvers@5.2.1(react-hook-form@7.62.0(react@18.3.1))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.62.0(react@18.3.1))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.62.0(react@18.3.1)
@@ -6307,40 +6303,38 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@sentry-internal/browser-utils@10.10.0':
+  '@sentry-internal/browser-utils@10.11.0':
     dependencies:
-      '@sentry/core': 10.10.0
+      '@sentry/core': 10.11.0
 
-  '@sentry-internal/feedback@10.10.0':
+  '@sentry-internal/feedback@10.11.0':
     dependencies:
-      '@sentry/core': 10.10.0
+      '@sentry/core': 10.11.0
 
-  '@sentry-internal/replay-canvas@10.10.0':
+  '@sentry-internal/replay-canvas@10.11.0':
     dependencies:
-      '@sentry-internal/replay': 10.10.0
-      '@sentry/core': 10.10.0
+      '@sentry-internal/replay': 10.11.0
+      '@sentry/core': 10.11.0
 
-  '@sentry-internal/replay@10.10.0':
+  '@sentry-internal/replay@10.11.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.10.0
-      '@sentry/core': 10.10.0
+      '@sentry-internal/browser-utils': 10.11.0
+      '@sentry/core': 10.11.0
 
-  '@sentry/browser@10.10.0':
+  '@sentry/browser@10.11.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.10.0
-      '@sentry-internal/feedback': 10.10.0
-      '@sentry-internal/replay': 10.10.0
-      '@sentry-internal/replay-canvas': 10.10.0
-      '@sentry/core': 10.10.0
-
-  '@sentry/core@10.10.0': {}
+      '@sentry-internal/browser-utils': 10.11.0
+      '@sentry-internal/feedback': 10.11.0
+      '@sentry-internal/replay': 10.11.0
+      '@sentry-internal/replay-canvas': 10.11.0
+      '@sentry/core': 10.11.0
 
   '@sentry/core@10.11.0': {}
 
-  '@sentry/react@10.10.0(react@18.3.1)':
+  '@sentry/react@10.11.0(react@18.3.1)':
     dependencies:
-      '@sentry/browser': 10.10.0
-      '@sentry/core': 10.10.0
+      '@sentry/browser': 10.11.0
+      '@sentry/core': 10.11.0
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
 
