@@ -211,7 +211,7 @@ function CreateCustomProductForm({
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Add Product
         </Button>
-        <Button size="md" type="button" w="full" variant="cancel" onClick={() => navigate("..")}>
+        <Button size="md" type="button" w="full" variant="outline" onClick={() => navigate("..")}>
           Nevermind
         </Button>
       </Stack>

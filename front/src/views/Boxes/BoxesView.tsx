@@ -389,13 +389,6 @@ function Boxes({
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
-      {
-        Header: "ID",
-        accessor: "id",
-        id: "id",
-        Filter: SelectColumnFilter,
-        disableFilters: true,
-      },
     ],
     [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
   );

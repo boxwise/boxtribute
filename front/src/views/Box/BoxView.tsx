@@ -628,24 +628,25 @@ function BTBox() {
           </Box>
         </Alert>
       )}
-      {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") && (
-        <Alert
-          status="info"
-          variant="top-accent"
-          w={["100%", "80%", "100%", "80%"]}
-          alignSelf="center"
-        >
-          <AlertIcon />
-          <Box>
-            <AlertTitle>Note</AlertTitle>
-            <AlertDescription>
-              {boxInLegacyLocation
-                ? alertMessageForLegacyLocation
-                : alertMessageForBoxWithLostScrapState}
-            </AlertDescription>
-          </Box>
-        </Alert>
-      )}
+      {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") &&
+        !boxData?.deletedOn && (
+          <Alert
+            status="info"
+            variant="top-accent"
+            w={["100%", "80%", "100%", "80%"]}
+            alignSelf="center"
+          >
+            <AlertIcon />
+            <Box>
+              <AlertTitle>Note</AlertTitle>
+              <AlertDescription>
+                {boxInLegacyLocation
+                  ? alertMessageForLegacyLocation
+                  : alertMessageForBoxWithLostScrapState}
+              </AlertDescription>
+            </Box>
+          </Alert>
+        )}
       {boxData && !boxData.qrCode && !boxData?.deletedOn && (
         <Alert
           status="warning"

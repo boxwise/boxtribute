@@ -2,6 +2,8 @@ import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +11,7 @@ import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
 import { ProductGender } from "../../../../../graphql/types";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface ICategoryData {
   name: string;
@@ -130,6 +133,11 @@ function BoxCreate({
     }
   };
 
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const qrCode = useParams<{ qrCode: string }>().qrCode!;
+  const urlSuffix = qrCode ? "qrreader" : "boxes";
+
   const {
     handleSubmit,
     control,
@@ -250,7 +258,7 @@ function BoxCreate({
           >
             Save
           </Button>
-          {onSubmitBoxCreateFormAndCreateAnother && (
+          {onSubmitBoxCreateFormAndCreateAnother && !qrCode && (
             <Button
               isLoading={isSubmitting}
               type="button"
@@ -265,6 +273,16 @@ function BoxCreate({
               Save &amp; Create Another Box
             </Button>
           )}
+          <Button
+            size="md"
+            type="button"
+            borderRadius="0"
+            w="full"
+            variant="outline"
+            onClick={() => navigate(`/bases/${baseId}/${urlSuffix}`)}
+          >
+            Nevermind
+          </Button>
         </Stack>
       </form>
     </Box>
