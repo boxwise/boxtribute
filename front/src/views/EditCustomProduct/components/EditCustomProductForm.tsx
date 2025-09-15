@@ -28,20 +28,14 @@ const EditCustomProductFormSchema = z.object({
     .string()
     .trim()
     .refine((name) => !!name, {
-      message: "Please enter a product name.",
+      error: "Please enter a product name.",
     }),
   category: SingleSelectOptionSchema.optional(),
   gender: SingleSelectOptionSchema.optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
   comment: z.string().optional(),
   inShop: z.boolean().optional(),
-  price: z
-    .number({
-      invalid_type_error: "Please enter a positive integer number.",
-    })
-    .int()
-    .nonnegative()
-    .optional(),
+  price: z.number().int().nonnegative().optional(),
 });
 
 export type EditCustomProductFormInput = z.input<typeof EditCustomProductFormSchema>;
@@ -161,7 +155,13 @@ function EditCustomProductForm({
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Edit Product
         </Button>
-        <Button size="md" type="button" w="full" variant="cancel" onClick={() => navigate("../..")}>
+        <Button
+          size="md"
+          type="button"
+          w="full"
+          variant="outline"
+          onClick={() => navigate("../..")}
+        >
           Nevermind
         </Button>
       </Stack>

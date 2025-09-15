@@ -1,16 +1,9 @@
-import {
-  Box,
-  Button,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +11,7 @@ import _ from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
 import { ProductGender } from "../../../../../graphql/types";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface ICategoryData {
   name: string;
@@ -59,23 +53,17 @@ export const CreateBoxFormDataSchema = z.object({
     // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
     .nullable()
     // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
-    .refine(Boolean, { message: "Please select a product" })
+    .refine(Boolean, { error: "Please select a product" })
     // since the expected return type should not have a null we add this transform at the en.
     .transform((selectedOption) => selectedOption || z.NEVER),
   sizeId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a size" })
+    .refine(Boolean, { error: "Please select a size" })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z
-    .number({
-      required_error: "Please enter a number of items",
-      invalid_type_error: "Please enter an integer number",
-    })
-    .int()
-    .nonnegative(),
+  numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a location" })
+    .refine(Boolean, { error: "Please select a location" })
     .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
@@ -138,6 +126,11 @@ function BoxCreate({
       onSubmitBoxCreateFormAndCreateAnother(data);
     }
   };
+
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const qrCode = useParams<{ qrCode: string }>().qrCode!;
+  const urlSuffix = qrCode ? "qrreader" : "boxes";
 
   const {
     handleSubmit,
@@ -259,7 +252,7 @@ function BoxCreate({
           >
             Save
           </Button>
-          {onSubmitBoxCreateFormAndCreateAnother && (
+          {onSubmitBoxCreateFormAndCreateAnother && !qrCode && (
             <Button
               isLoading={isSubmitting}
               type="button"
@@ -274,6 +267,16 @@ function BoxCreate({
               Save &amp; Create Another Box
             </Button>
           )}
+          <Button
+            size="md"
+            type="button"
+            borderRadius="0"
+            w="full"
+            variant="outline"
+            onClick={() => navigate(`/bases/${baseId}/${urlSuffix}`)}
+          >
+            Nevermind
+          </Button>
         </Stack>
       </form>
     </Box>
