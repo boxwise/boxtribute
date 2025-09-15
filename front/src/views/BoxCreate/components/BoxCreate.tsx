@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";

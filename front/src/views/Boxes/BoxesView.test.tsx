@@ -855,10 +855,10 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
 
     // Wait for the table to load - this validates that URL parameters are parsed correctly
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    
+
     // Verify that the state filter is applied (showing InStock boxes)
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
-    
+
     // Check that the state filter button indicates it has a filter applied
     const stateFilterButton = screen.getByTestId("filter-state");
     expect(stateFilterButton).toBeInTheDocument();
@@ -926,10 +926,10 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     // Should render properly with both parameters
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
-    
+
     // Verify that the product filter is applied (showing Sweatpants)
     expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
-    
+
     // Check that the product filter button indicates it has a filter applied
     const productFilterButton = screen.getByTestId("filter-product");
     expect(productFilterButton).toBeInTheDocument();

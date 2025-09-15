@@ -54,10 +54,13 @@ export const prepareBoxesForBoxesViewQueryVariables = (
   };
   const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
   if (refetchFilters.length > 0) {
+    // Find GraphQL BoxState enum values matching the selected filter IDs
     const filterInput = refetchFilters.reduce(
       (acc, filter) => ({
         ...acc,
-        [filterIdToGraphQLVariable(filter.id)]: filter.value.map((v: { name: string }) => v.name),
+        [filterIdToGraphQLVariable(filter.id)]: filter.value.map((id: string) =>
+          Object.keys(boxStateIds).find((name) => boxStateIds[name] === id),
+        ),
       }),
       {},
     );

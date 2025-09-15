@@ -10,7 +10,7 @@ export type BoxRow = {
   numberOfItems: number;
   size: string;
   location: string;
-  state: { name: BoxState, id: number };
+  state: { name: BoxState; id: string };
   tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[];
   shipment: Shipment | null;
   holdsStandardProduct: boolean;

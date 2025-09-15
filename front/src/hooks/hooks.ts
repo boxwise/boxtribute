@@ -134,12 +134,13 @@ const parseStateIds = (stateIdsParam: string | null): Array<{ name: string; id: 
 
 const serializeProductIds = (filters: Array<{ name: string; id: string }>): string | null => {
   if (!filters.length) return null;
+  return filters.join(",");
   return filters.map((f) => f.id).join(",");
 };
 
-const serializeStateIds = (filters: Array<{ name: string; id: number }>): string | null => {
+const serializeStateIds = (filters: Array<string>): string | null => {
   if (!filters.length) return null;
-  return filters.map((f) => f.id.toString()).join(",");
+  return filters.join(",");
 };
 
 export const useTableConfig = ({
