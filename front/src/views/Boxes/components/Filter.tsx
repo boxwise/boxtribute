@@ -12,7 +12,7 @@ interface ISelectBoxStateFilterProps {
 export function SelectBoxStateFilter({ column }: ISelectBoxStateFilterProps) {
   const options = Object.entries(boxStateIds).map(([name, id]) => ({
     label: name,
-    value: { name, id },
+    value: id,
   }));
 
   return (

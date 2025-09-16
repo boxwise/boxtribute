@@ -76,3 +76,10 @@ export function QrCodeCell({ value }: CellProps<any>) {
   }
   return <chakra.div />;
 }
+
+export function ObjectCell({ value }: CellProps<any>) {
+  if (value) {
+    return <chakra.span>{value.name}</chakra.span>;
+  }
+  return <chakra.div />;
+}

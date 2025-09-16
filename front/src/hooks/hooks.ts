@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { tableConfigsVar } from "queries/cache";
@@ -82,6 +82,7 @@ export interface ITableConfig {
 interface IUseTableConfigProps {
   tableConfigKey: string;
   defaultTableConfig: ITableConfig;
+  syncFiltersAndUrlParams?: boolean;
 }
 
 export interface IUseTableConfigReturnType {
@@ -95,35 +96,220 @@ export interface IUseTableConfigReturnType {
   setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
 }
 
+// Helper functions for URL parameter sync
+const parseIds = (idsParam: string | null): string[] => {
+  if (!idsParam) return [];
+
+  return idsParam
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => id && !isNaN(Number(id)));
+};
+
+const serializeIds = (filters: string[]): string | null => {
+  if (!filters.length) return null;
+  return filters.join(",");
+};
+
 export const useTableConfig = ({
   tableConfigKey,
   defaultTableConfig,
+  syncFiltersAndUrlParams = false,
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
-  // TODO: save table config in url to make it easily shareable and persistable across sessions
-  // Problem: setSearchParams of the useSearchParams hook from react-router-dom
-  // is causing a rerender of all components that are depending on parts of the url,
-  // e.g. being accessed by useLocation hook or the useParams hook.
-  // The react-router-dom team is aware of this issue and is working on a solution.
-  // Alternatively, we could try out use-query-params library.
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isInitialMount = useRef(true);
 
-  // Intialization
+  // Update URL when filters change
+  const updateUrl = useCallback(
+    (filters: Filters<any>) => {
+      const newSearchParams = new URLSearchParams();
+
+      // Handle product filters
+      const productFilter = filters.find((f) => f.id === "product");
+      if (productFilter && productFilter.value?.length > 0) {
+        const productIds = serializeIds(productFilter.value);
+        if (productIds) {
+          newSearchParams.set("product_ids", productIds);
+        }
+      }
+
+      // Handle state filters
+      const stateFilter = filters.find((f) => f.id === "state");
+      if (stateFilter && stateFilter.value?.length > 0) {
+        const stateIds = serializeIds(stateFilter.value);
+        if (stateIds) {
+          newSearchParams.set("state_ids", stateIds);
+        }
+      }
+
+      // Handle product gender filters
+      const genderFilter = filters.find((f) => f.id === "gender");
+      if (genderFilter && genderFilter.value?.length > 0) {
+        const genderIds = serializeIds(genderFilter.value);
+        if (genderIds) {
+          newSearchParams.set("gender_ids", genderIds);
+        }
+      }
+
+      // Handle product category filters
+      const productCategoryFilter = filters.find((f) => f.id === "productCategory");
+      if (productCategoryFilter && productCategoryFilter.value?.length > 0) {
+        const productCategoryIds = serializeIds(productCategoryFilter.value);
+        if (productCategoryIds) {
+          newSearchParams.set("product_category_ids", productCategoryIds);
+        }
+      }
+
+      // Handle size filters
+      const sizeFilter = filters.find((f) => f.id === "size");
+      if (sizeFilter && sizeFilter.value?.length > 0) {
+        const sizeIds = serializeIds(sizeFilter.value);
+        if (sizeIds) {
+          newSearchParams.set("size_ids", sizeIds);
+        }
+      }
+
+      // Handle location filters
+      const locationFilter = filters.find((f) => f.id === "location");
+      if (locationFilter && locationFilter.value?.length > 0) {
+        const locationIds = serializeIds(locationFilter.value);
+        if (locationIds) {
+          newSearchParams.set("location_ids", locationIds);
+        }
+      }
+
+      // Handle tags filters
+      const tagsFilter = filters.find((f) => f.id === "tags");
+      if (tagsFilter && tagsFilter.value?.length > 0) {
+        const tagsIds = serializeIds(tagsFilter.value);
+        if (tagsIds) {
+          newSearchParams.set("tag_ids", tagsIds);
+        }
+      }
+
+      // Only update if something changed
+      if (newSearchParams.toString() !== searchParams.toString()) {
+        setSearchParams(newSearchParams, { replace: true });
+      }
+    },
+    [searchParams, setSearchParams],
+  );
+
+  // Parse URL parameters
+  const productIdsParam = searchParams.get("product_ids");
+  const stateIdsParam = searchParams.get("state_ids");
+  const genderIdsParam = searchParams.get("gender_ids");
+  const productCategoryIdsParam = searchParams.get("product_category_ids");
+  const sizeIdsParam = searchParams.get("size_ids");
+  const locationIdsParam = searchParams.get("location_ids");
+  const tagIdsParam = searchParams.get("tag_ids");
+
+  // Parse filters from URL
+  const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam]);
+  const urlStateFilters = useMemo(() => parseIds(stateIdsParam), [stateIdsParam]);
+  const urlGenderFilters = useMemo(() => parseIds(genderIdsParam), [genderIdsParam]);
+  const urlProductCategoryFilters = useMemo(
+    () => parseIds(productCategoryIdsParam),
+    [productCategoryIdsParam],
+  );
+  const urlSizeFilters = useMemo(() => parseIds(sizeIdsParam), [sizeIdsParam]);
+  const urlLocationFilters = useMemo(() => parseIds(locationIdsParam), [locationIdsParam]);
+  const urlTagFilters = useMemo(() => parseIds(tagIdsParam), [tagIdsParam]);
+
+  // Initialization
   if (!tableConfigsState.has(tableConfigKey)) {
+    // Create initial column filters, prioritizing URL parameters
+    let initialColumnFilters = [...defaultTableConfig.columnFilters];
+
+    // Replace state filter if URL has state_ids
+    if (urlStateFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "state");
+      initialColumnFilters.push({ id: "state", value: urlStateFilters });
+    }
+
+    // Add product filter if URL has product_ids
+    if (urlProductFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "product");
+      initialColumnFilters.push({ id: "product", value: urlProductFilters });
+    }
+
+    // Add gender filter if URL has gender_ids
+    if (urlGenderFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "gender");
+      initialColumnFilters.push({ id: "gender", value: urlGenderFilters });
+    }
+
+    // Add product category filter if URL has product_category_ids
+    if (urlProductCategoryFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter(
+        (filter) => filter.id !== "productCategory",
+      );
+      initialColumnFilters.push({ id: "productCategory", value: urlProductCategoryFilters });
+    }
+
+    // Add size filter if URL has size_ids
+    if (urlSizeFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "size");
+      initialColumnFilters.push({ id: "size", value: urlSizeFilters });
+    }
+
+    // Add location filter if URL has location_ids
+    if (urlLocationFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "location");
+      initialColumnFilters.push({ id: "location", value: urlLocationFilters });
+    }
+
+    // Add tags filter if URL has tag_ids
+    if (urlTagFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "tags");
+      initialColumnFilters.push({ id: "tags", value: urlTagFilters });
+    }
+
     const tableConfig: ITableConfig = {
       globalFilter: defaultTableConfig.globalFilter,
-      columnFilters: searchParams.get("columnFilters")
-        ? JSON.parse(searchParams.get("columnFilters") || "")
-        : defaultTableConfig.columnFilters,
+      columnFilters: initialColumnFilters,
       sortBy: defaultTableConfig.sortBy,
       hiddenColumns: defaultTableConfig.hiddenColumns,
     };
     tableConfigsState.set(tableConfigKey, tableConfig);
     tableConfigsVar(tableConfigsState);
-    // const newSearchParams = new URLSearchParams();
-    // newSearchParams.set("columnFilters", JSON.stringify(tableConfig.columnFilters));
-    // setSearchParams(newSearchParams.toString());
   }
+
+  // Sync default filters to URL on first load if no URL parameters present
+  useEffect(() => {
+    if (isInitialMount.current && syncFiltersAndUrlParams) {
+      const hasUrlParams =
+        productIdsParam ||
+        stateIdsParam ||
+        genderIdsParam ||
+        productCategoryIdsParam ||
+        sizeIdsParam ||
+        tagIdsParam ||
+        locationIdsParam;
+      if (!hasUrlParams) {
+        const currentConfig = tableConfigsState.get(tableConfigKey);
+        if (currentConfig?.columnFilters) {
+          updateUrl(currentConfig.columnFilters);
+        }
+      }
+      isInitialMount.current = false;
+    }
+  }, [
+    syncFiltersAndUrlParams,
+    productIdsParam,
+    stateIdsParam,
+    genderIdsParam,
+    productCategoryIdsParam,
+    sizeIdsParam,
+    locationIdsParam,
+    tagIdsParam,
+    tableConfigKey,
+    tableConfigsState,
+    updateUrl,
+  ]);
+
+  // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
     return tableConfigsState.get(tableConfigKey)?.globalFilter;
@@ -153,6 +339,9 @@ export const useTableConfig = ({
     tableConfig!.columnFilters = columnFilters;
     tableConfigsState.set(tableConfigKey, tableConfig!);
     tableConfigsVar(tableConfigsState);
+
+    // Update URL parameters
+    if (syncFiltersAndUrlParams) updateUrl(columnFilters);
   }
 
   function setSortBy(sortBy: SortingRule<any>[]) {

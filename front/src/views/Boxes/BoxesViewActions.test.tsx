@@ -402,15 +402,19 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
     mocks: [
-      boxesQuery({ state: "MarkedForShipment", stateFilter: [] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: [], paginationInput: 100000 }),
+      boxesQuery({
+        state: "MarkedForShipment",
+        stateFilter: ["MarkedForShipment"],
+        paginationInput: 100000,
+      }),
       actionsQuery(),
     ],
     clicks: [/Move/, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
-    searchParams: "?columnFilters=%5B%5D",
+    searchParams: "?state_ids=3",
   },
   {
     name: "4.8.3.2 - Assign To Shipment Action is successful",
@@ -469,15 +473,15 @@ const boxesViewActionsTests = [
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
     mocks: [
-      boxesQuery({ state: "Donated", stateFilter: [] }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "Donated", stateFilter: [], paginationInput: 100000 }),
+      boxesQuery({ state: "Donated", stateFilter: ["Donated"], paginationInput: 100000 }),
       actionsQuery(),
     ],
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
-    searchParams: "?columnFilters=%5B%5D",
+    searchParams: "?state_ids=5",
   },
   {
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
@@ -485,14 +489,14 @@ const boxesViewActionsTests = [
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
-        stateFilter: [],
+        stateFilter: ["MarkedForShipment"],
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
-        stateFilter: [],
+        stateFilter: ["MarkedForShipment"],
         paginationInput: 100000,
       }),
       actionsQuery(),
@@ -506,7 +510,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /A Box was successfully unassigned/i,
-    searchParams: "?columnFilters=%5B%5D",
+    searchParams: "?state_ids=3",
   },
   {
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
@@ -514,14 +518,14 @@ const boxesViewActionsTests = [
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
-        stateFilter: [],
+        stateFilter: ["MarkedForShipment"],
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
-        stateFilter: [],
+        stateFilter: ["MarkedForShipment"],
         paginationInput: 100000,
       }),
       actionsQuery(),
@@ -533,7 +537,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /Could not remove a box/i,
-    searchParams: "?columnFilters=%5B%5D",
+    searchParams: "?state_ids=3",
   },
   {
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
@@ -541,14 +545,14 @@ const boxesViewActionsTests = [
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
-        stateFilter: [],
+        stateFilter: ["MarkedForShipment"],
       }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
-        stateFilter: [],
+        stateFilter: ["MarkedForShipment"],
         paginationInput: 100000,
       }),
       actionsQuery(),
@@ -560,7 +564,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /Could not remove a box/i,
-    searchParams: "?columnFilters=%5B%5D",
+    searchParams: "?state_ids=3",
   },
   {
     name: "4.8.6.1 - DeleteBoxes Action is loading and shows Table skeleton",
