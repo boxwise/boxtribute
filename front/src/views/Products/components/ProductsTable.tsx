@@ -103,7 +103,7 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
             return (
               <Tr
                 {...row.getRowProps()}
-                key={row.values.id}
+                key={row.original.id}
                 onClick={() =>
                   onRowClick(
                     row.original.isStandard
