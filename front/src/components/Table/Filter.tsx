@@ -162,11 +162,7 @@ export const includesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
   rows.filter((row) =>
     ids.some((id) => {
       const rowTags = row.values[id];
-
-      if (filterValue.every((tagFilter) => tagFilter.name)) {
-        return filterValue.some((tagFilter) => rowTags.some((tag) => tag.name === tagFilter.name));
-      }
-      return filterValue.some((tagName) => rowTags.some((tag) => tag.name === tagName));
+      return filterValue.some((tagId) => rowTags.some((tag) => tag.id === tagId));
     }),
   );
 

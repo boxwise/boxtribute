@@ -177,6 +177,15 @@ export const useTableConfig = ({
         }
       }
 
+      // Handle tags filters
+      const tagsFilter = filters.find((f) => f.id === "tags");
+      if (tagsFilter && tagsFilter.value?.length > 0) {
+        const tagsIds = serializeIds(tagsFilter.value);
+        if (tagsIds) {
+          newSearchParams.set("tag_ids", tagsIds);
+        }
+      }
+
       // Only update if something changed
       if (newSearchParams.toString() !== searchParams.toString()) {
         setSearchParams(newSearchParams, { replace: true });
@@ -192,6 +201,7 @@ export const useTableConfig = ({
   const productCategoryIdsParam = searchParams.get("product_category_ids");
   const sizeIdsParam = searchParams.get("size_ids");
   const locationIdsParam = searchParams.get("location_ids");
+  const tagIdsParam = searchParams.get("tag_ids");
 
   // Parse filters from URL
   const urlProductFilters = useMemo(() => parseIds(productIdsParam), [productIdsParam]);
@@ -203,6 +213,7 @@ export const useTableConfig = ({
   );
   const urlSizeFilters = useMemo(() => parseIds(sizeIdsParam), [sizeIdsParam]);
   const urlLocationFilters = useMemo(() => parseIds(locationIdsParam), [locationIdsParam]);
+  const urlTagFilters = useMemo(() => parseIds(tagIdsParam), [tagIdsParam]);
 
   // Initialization
   if (!tableConfigsState.has(tableConfigKey)) {
@@ -247,6 +258,12 @@ export const useTableConfig = ({
       initialColumnFilters.push({ id: "location", value: urlLocationFilters });
     }
 
+    // Add tags filter if URL has tag_ids
+    if (urlTagFilters.length > 0) {
+      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "tags");
+      initialColumnFilters.push({ id: "tags", value: urlTagFilters });
+    }
+
     const tableConfig: ITableConfig = {
       globalFilter: defaultTableConfig.globalFilter,
       columnFilters: initialColumnFilters,
@@ -266,6 +283,7 @@ export const useTableConfig = ({
         genderIdsParam ||
         productCategoryIdsParam ||
         sizeIdsParam ||
+        tagIdsParam ||
         locationIdsParam;
       if (!hasUrlParams) {
         const currentConfig = tableConfigsState.get(tableConfigKey);
@@ -282,6 +300,7 @@ export const useTableConfig = ({
     productCategoryIdsParam,
     sizeIdsParam,
     locationIdsParam,
+    tagIdsParam,
     tableConfigKey,
     tableConfigsState,
     updateUrl,
