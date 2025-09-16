@@ -82,6 +82,7 @@ export interface ITableConfig {
 interface IUseTableConfigProps {
   tableConfigKey: string;
   defaultTableConfig: ITableConfig;
+  syncFiltersAndUrlParams?: boolean;
 }
 
 export interface IUseTableConfigReturnType {
@@ -113,6 +114,7 @@ const serializeIds = (filters: string[]): string | null => {
 export const useTableConfig = ({
   tableConfigKey,
   defaultTableConfig,
+  syncFiltersAndUrlParams = false,
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const tableConfigsState = useReactiveVar(tableConfigsVar);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -276,7 +278,7 @@ export const useTableConfig = ({
 
   // Sync default filters to URL on first load if no URL parameters present
   useEffect(() => {
-    if (isInitialMount.current) {
+    if (isInitialMount.current && syncFiltersAndUrlParams) {
       const hasUrlParams =
         productIdsParam ||
         stateIdsParam ||
@@ -294,6 +296,7 @@ export const useTableConfig = ({
       isInitialMount.current = false;
     }
   }, [
+    syncFiltersAndUrlParams,
     productIdsParam,
     stateIdsParam,
     genderIdsParam,
@@ -338,7 +341,7 @@ export const useTableConfig = ({
     tableConfigsVar(tableConfigsState);
 
     // Update URL parameters
-    updateUrl(columnFilters);
+    if (syncFiltersAndUrlParams) updateUrl(columnFilters);
   }
 
   function setSortBy(sortBy: SortingRule<any>[]) {

@@ -176,6 +176,7 @@ function Boxes({
         "id",
       ],
     },
+    syncFiltersAndUrlParams: true,
   });
 
   // fetch options for actions on boxes causing the suspense.
