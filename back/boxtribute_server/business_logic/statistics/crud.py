@@ -432,12 +432,13 @@ def compute_moved_boxes(base_id):
     return DataCube(facts=facts, dimensions=dimensions, type="MovedBoxesData")
 
 
-def compute_stock_overview(base_id):
+def compute_stock_overview(base_id, *, tag_ids=None):
     """Compute stock overview (number of boxes and number of contained items) for the
     given base. The result can be filtered by size, location, box state, product
     category, product name, and product gender.
     """
     _validate_existing_base(base_id)
+    tag_filter = (TagsRelation.tag << tag_ids) if tag_ids else True
 
     # Subquery to select distinct boxes with associated tags
     boxes = (
@@ -465,7 +466,7 @@ def compute_stock_overview(base_id):
                 & (TagsRelation.deleted_on.is_null())
             ),
         )
-        .where((~Box.deleted_on) | (Box.deleted_on.is_null()))
+        .where((~Box.deleted_on) | (Box.deleted_on.is_null()), tag_filter)
         .group_by(Box.id)
     )
     facts = (
