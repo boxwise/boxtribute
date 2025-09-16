@@ -12,6 +12,7 @@ import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { useNotification } from "hooks/useNotification";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
@@ -62,6 +63,7 @@ function QrReaderMultiBoxContainer() {
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
     useAssignBoxesToShipment();
 
+  const { createToast } = useNotification();
   const onMoveBoxes = useCallback(
     async (locationId: string) => {
       const moveBoxesResult = await moveBoxes(
@@ -70,8 +72,17 @@ function QrReaderMultiBoxContainer() {
       );
       // To show in the UI which boxes failed (don't show alert for boxes that already are in the
       // target location)
-      if (moveBoxesResult.kind !== IMoveBoxesResultKind.PARTIAL_FAIL)
+      if (moveBoxesResult.kind === IMoveBoxesResultKind.PARTIAL_FAIL) {
+        const nrOfNonMovedBoxes = moveBoxesResult?.failedLabelIdentifiers?.length ?? 0;
+        createToast({
+          message: `${
+            nrOfNonMovedBoxes === 1 ? "One Box is" : `${nrOfNonMovedBoxes} Boxes are`
+          } already in the selected location.`,
+          type: "warning",
+        });
+      } else {
         setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
+      }
     },
     [moveBoxes, scannedBoxesQueryResult.data?.scannedBoxes],
   );

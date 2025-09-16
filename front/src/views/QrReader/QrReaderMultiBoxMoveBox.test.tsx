@@ -227,7 +227,7 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
   // selected boxes remains the same
   expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
 
-  // toast shown
+  // toasts shown
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -236,13 +236,20 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
     ),
   );
 
-  // Alert appears
-  expect(await screen.findByText(/The following boxes were not moved/i)).toBeInTheDocument();
-  expect(screen.getByText(/678/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/One Box is already in the selected location./i),
+      }),
+    ),
+  );
 
-  // click link to remove all not failed boxes
-  await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
-  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /move all/i })).toBeInTheDocument();
+  // // Alert appears
+  // expect(screen.queryByText(/678/i)).not.toBeInTheDocument();
+  //
+  // // click link to remove all not failed boxes
+  // await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
+  // expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
+  // expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  // expect(screen.getByRole("button", { name: /move all/i })).toBeInTheDocument();
 });
