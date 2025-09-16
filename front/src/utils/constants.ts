@@ -17,7 +17,7 @@ export const boxStateIds: { [key in BoxState]?: string } = {
   NotDelivered: "8",
 };
 
-export const genderIds: { [key in ProductGender]: string } = {
+export const genderIds: { [key in NonNullable<ProductGender>]: string } = {
   Women: "1",
   Men: "2",
   UnisexAdult: "3",
