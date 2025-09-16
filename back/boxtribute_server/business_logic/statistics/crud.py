@@ -438,7 +438,7 @@ def compute_stock_overview(base_id, *, tag_ids=None):
     category, product name, and product gender.
     """
     _validate_existing_base(base_id)
-    tag_filter = (TagsRelation.tag << tag_ids) if tag_ids else True
+    tag_filter = (TagsRelation.tag << tag_ids) if tag_ids is not None else True
 
     # Subquery to select distinct boxes with associated tags
     boxes = (
