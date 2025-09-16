@@ -9,7 +9,7 @@ import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
 import { IBoxBasicFields, IGetScannedBoxesQuery } from "types/graphql-local-only";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
-import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
@@ -68,8 +68,10 @@ function QrReaderMultiBoxContainer() {
         (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
         parseInt(locationId, 10),
       );
-      // To show in the UI which boxes failed
-      setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
+      // To show in the UI which boxes failed (don't show alert for boxes that already are in the
+      // target location)
+      if (moveBoxesResult.kind !== IMoveBoxesResultKind.PARTIAL_FAIL)
+        setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
     },
     [moveBoxes, scannedBoxesQueryResult.data?.scannedBoxes],
   );
