@@ -113,7 +113,7 @@ export function SelectColumnFilter({
         (label) =>
           ({
             label: optionValues[label].name ?? label,
-            value: optionValues[label].id,
+            value: optionValues[label].id ?? optionValues[label],
           }) as ISelectOption,
       )
       .sort((a, b) => a.label.localeCompare(b.label));
