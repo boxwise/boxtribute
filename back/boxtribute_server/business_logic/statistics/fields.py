@@ -27,12 +27,11 @@ def resolve_resolved_link_data(resolved_link_obj, _):
 
     elif resolved_link_obj.view == ShareableView.StockOverview:
         tag_ids = None
-        if resolved_link_obj.url_parameters is not None:
-            # Skip leading '?' in URL parameters
-            raw_tag_ids = up.parse_qs(resolved_link_obj.url_parameters[1:]).get("tags")
-            if raw_tag_ids:
-                # parse_qs returns a list with one element; decode the IDs
-                tag_ids = [int(i) for i in raw_tag_ids[0].split(",")]
+        # parse_qs returns empty dict if url_parameters is None
+        raw_tag_ids = up.parse_qs(resolved_link_obj.url_parameters).get("tags")
+        if raw_tag_ids:
+            # parse_qs returns a list with one element; decode the IDs
+            tag_ids = [int(i) for i in raw_tag_ids[0].split(",")]
         return [compute_stock_overview(resolved_link_obj.base_id, tag_ids=tag_ids)]
 
     else:  # pragma: no cover
