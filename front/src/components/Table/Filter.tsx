@@ -90,19 +90,18 @@ export function SelectColumnFilter({
     const optionValues = {};
     preFilteredRows.forEach((row) => {
       const value = row.values[id];
-      // if the data passed to the table is more complex than a string we need to pass the data as value.
-      // This excludes the case for tags filtering where we introduce a second condition in the second if hook.
-      if (typeof value === "object" && value !== null && id.toLowerCase() !== "tags") {
+      // If the data passed to the table is more complex than a string we need to pass IDs as value
+      if (Array.isArray(value)) {
+        // E.g. TagsCell on BoxesView contains a list of tags
+        value.forEach((element: { name: string }) => {
+          const objectToString = ObjectToString(element);
+          groupedOptionLabels.add(objectToString);
+          optionValues[objectToString] = element;
+        });
+      } else if (typeof value === "object" && value !== null) {
         const objectToString = ObjectToString(value);
         groupedOptionLabels.add(objectToString);
         optionValues[objectToString] = value;
-      } else if (typeof value === "object" && value !== null && id.toLowerCase() === "tags") {
-        value.forEach((tag: { name: string }) => {
-          if (tag?.name) {
-            groupedOptionLabels.add(tag.name);
-            optionValues[tag.name] = tag;
-          }
-        });
       } else if (value !== undefined) {
         groupedOptionLabels.add(value);
         optionValues[value] = value;
