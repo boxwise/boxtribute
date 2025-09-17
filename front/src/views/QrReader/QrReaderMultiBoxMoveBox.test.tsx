@@ -67,6 +67,7 @@ const mockLocationsQuery = ({
 const mockMoveBoxesMutation = ({
   networkError = false,
   graphQlError = false,
+  permissionError = false,
   labelIdentifiers = ["123"],
   locationId = 2,
   newBoxState = "Donated",
@@ -81,22 +82,29 @@ const mockMoveBoxesMutation = ({
     : {
         data: graphQlError
           ? null
-          : {
-              moveBoxesToLocation: {
-                __typename: "BoxesResult",
-                updatedBoxes: labelIdentifiers
-                  .filter((id) => id !== failLabelIdentifier)
-                  .map((labelIdentifier) => ({
-                    labelIdentifier,
-                    state: newBoxState,
-                    location: {
-                      id: locationId.toString(),
-                    },
-                    lastModifiedOn: new Date().toISOString(),
-                  })),
-                invalidBoxLabelIdentifiers: failLabelIdentifier ? [failLabelIdentifier] : [],
+          : permissionError
+            ? {
+                moveBoxesToLocation: {
+                  __typename: "InsufficientPermissionError",
+                  name: "location:write",
+                },
+              }
+            : {
+                moveBoxesToLocation: {
+                  __typename: "BoxesResult",
+                  updatedBoxes: labelIdentifiers
+                    .filter((id) => id !== failLabelIdentifier)
+                    .map((labelIdentifier) => ({
+                      labelIdentifier,
+                      state: newBoxState,
+                      location: {
+                        id: locationId.toString(),
+                      },
+                      lastModifiedOn: new Date().toISOString(),
+                    })),
+                  invalidBoxLabelIdentifiers: failLabelIdentifier ? [failLabelIdentifier] : [],
+                },
               },
-            },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
@@ -185,7 +193,7 @@ moveBoxesMutationTests.forEach(({ name, mocks, toast }) => {
   });
 });
 
-it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", async () => {
+it("3.4.6.4 - One Box of two or more Boxes are already in the target location", async () => {
   const user = userEvent.setup();
   mockImplementationOfQrReader(mockedQrReader, "InStockBox1", true, true);
   const { rerender } = render(<QrReaderView />, {
@@ -243,13 +251,60 @@ it("3.4.6.4 - One Box of two or more Boxes fail for the move Box Mutation", asyn
       }),
     ),
   );
+});
 
-  // // Alert appears
-  // expect(screen.queryByText(/678/i)).not.toBeInTheDocument();
-  //
-  // // click link to remove all not failed boxes
-  // await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
-  // expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
-  // expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  // expect(screen.getByRole("button", { name: /move all/i })).toBeInTheDocument();
+it("3.4.6.5 - Two Boxes fail for the move Box Mutation", async () => {
+  const user = userEvent.setup();
+  mockImplementationOfQrReader(mockedQrReader, "InStockBox1", true, true);
+  const { rerender } = render(<QrReaderView />, {
+    routePath: "/bases/:baseId/qrreader",
+    initialUrl: "/bases/1/qrreader",
+    mocks: [
+      mockSuccessfulQrQuery({ hash: "InStockBox1", labelIdentifier: "123" }),
+      mockSuccessfulQrQuery({ hash: "InStockBox2", labelIdentifier: "678" }),
+      mockLocationsQuery({}),
+      mockMoveBoxesMutation({
+        labelIdentifiers: ["123", "678"],
+        locationId: 2,
+        permissionError: true,
+      }),
+    ],
+    cache,
+  });
+
+  // go to the MultiBox Tab
+  user.click(await screen.findByRole("tab", { name: /multi box/i }));
+  expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
+
+  // scan box 123
+  await user.click(await screen.findByTestId("ReturnScannedQr"));
+  expect(await screen.findByText(/boxes selected: 1/i)).toBeInTheDocument();
+
+  // scan box 678
+  mockImplementationOfQrReader(mockedQrReader, "InStockBox2", true, true);
+  rerender(<QrReaderView />);
+  await user.click(await screen.findByTestId("ReturnScannedQr"));
+  expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
+
+  const moveBoxesOption = await screen.findByTestId("MoveBox");
+  await user.click(moveBoxesOption);
+  await selectOptionInSelectField(user, undefined, /shop/i, /please select a location/i);
+
+  // The submit button is shown
+  const submitButton = await screen.findByRole("button", { name: /move all/i });
+  expect(submitButton).not.toBeDisabled();
+  await user.click(submitButton);
+
+  // selected boxes remains the same
+  expect(await screen.findByText(/boxes selected: 2/i)).toBeInTheDocument();
+
+  // Alert appears
+  expect(await screen.findByText(/The following boxes were not moved/i)).toBeInTheDocument();
+  expect(screen.getByText(/123/i)).toBeInTheDocument();
+  expect(screen.getByText(/678/i)).toBeInTheDocument();
+
+  // click link to remove all not failed boxes
+  await user.click(screen.getByText(/Click here to remove all failed boxes from the list/i));
+  expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 });
