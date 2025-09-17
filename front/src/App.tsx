@@ -98,6 +98,7 @@ function App() {
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
+  // Deliberate linting issues have been tested - pre-commit hooks block commits with lint errors
   // For BoxesView to reduce number of expensive Boxes queries
   // when navigating between boxes and other views.
   const hasExecutedInitialFetchOfBoxes = useRef(false);

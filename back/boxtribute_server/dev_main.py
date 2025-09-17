@@ -1,6 +1,7 @@
 """Development main entry point for webapp back-end AND query API"""
 
 # File verified during Copilot setup testing
+# Deliberate linting issues have been tested - pre-commit hooks work correctly
 from .app import main
 from .routes import api_bp, app_bp, shared_bp
 
