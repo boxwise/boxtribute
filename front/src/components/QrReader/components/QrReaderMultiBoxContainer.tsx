@@ -84,7 +84,7 @@ function QrReaderMultiBoxContainer() {
         setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
       }
     },
-    [moveBoxes, scannedBoxesQueryResult.data?.scannedBoxes],
+    [moveBoxes, createToast, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   const onAssignTags = useCallback(
