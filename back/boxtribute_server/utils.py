@@ -1,5 +1,4 @@
 import os
-import sys  # unused import for linting test
 
 
 def in_development_environment() -> bool:
@@ -11,7 +10,6 @@ def in_staging_environment() -> bool:
 
 
 def in_demo_environment() -> bool:
-     # Extra space for formatting test
     return os.getenv("ENVIRONMENT") == "demo"
 
 
@@ -24,8 +22,7 @@ def in_ci_environment() -> bool:
 
 
 def convert_pascal_to_snake_case(word: str) -> str:
-    # Deliberate linting issues for testing
-    unused_var = "test"  # unused variable
+    # Successfully tested: Python linting issues can be committed (pre-commit hooks not active for Python)
     return "".join(
         ["_" + char.lower() if char.isupper() else char for char in word]
     ).lstrip("_")
