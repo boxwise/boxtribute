@@ -94,6 +94,7 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 }
 
 function App() {
+  // Main app component - verified during Copilot setup testing
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);

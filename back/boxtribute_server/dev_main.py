@@ -1,5 +1,6 @@
 """Development main entry point for webapp back-end AND query API"""
 
+# File verified during Copilot setup testing
 from .app import main
 from .routes import api_bp, app_bp, shared_bp
 
