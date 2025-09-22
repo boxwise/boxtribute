@@ -10,7 +10,7 @@ import {
 } from "react-table";
 import { Table, Tr, Tbody, Td, Spacer, Flex, Text, IconButton, HStack } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {

@@ -32,7 +32,7 @@ import {
   includesSomeObjectFilterFn,
   includesSomeTagObjectFilterFn,
 } from "components/Table/Filter";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";

@@ -21,7 +21,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { StandardProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {

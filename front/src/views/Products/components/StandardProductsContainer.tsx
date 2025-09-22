@@ -2,7 +2,7 @@ import { useQuery } from "@apollo/client";
 import { Button, Badge } from "@chakra-ui/react";
 import { TableSkeleton } from "components/Skeletons";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { useTableConfig } from "hooks/hooks";
+import { useTableConfig } from "hooks/useTableConfig";
 import { useCallback, useMemo } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";

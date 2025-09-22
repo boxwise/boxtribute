@@ -7,7 +7,7 @@ import {
   tagToDropdownOptionsTransformer,
 } from "utils/transformers";
 import { Column } from "react-table";
-import { useTableConfig } from "hooks/hooks";
+import { useTableConfig } from "hooks/useTableConfig";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
