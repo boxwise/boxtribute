@@ -34,12 +34,20 @@ const jotaiAtoms = [
   [availableBasesAtom, organisation2.bases],
 ];
 
-const boxesQuery = ({ state = "InStock", paginationInput = 100000 }) => ({
+const boxesQuery = ({
+  state = "InStock",
+  paginationInput = 100000,
+  state2 = undefined,
+}: {
+  state?: string;
+  paginationInput?: number;
+  state2?: string;
+}) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: { states: [state] },
+      filterInput: { states: state2 ? [state, state2] : [state] },
       paginationInput,
     },
   },
@@ -924,8 +932,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     );
 
     // Should render properly with both parameters
-    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+    await screen.findByText(/1481666/i, {}, { timeout: 10000 });
+    expect(screen.getByText(/1481666/i)).toBeInTheDocument();
+    expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument();
 
     // Verify that the product filter is applied (showing Sweatpants)
     expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
@@ -953,7 +962,7 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
           boxesQuery({ paginationInput: 20 }),
-          boxesQuery({}),
+          boxesQuery({ state: "InStock", state2: "Donated" }),
           actionsQuery,
         ],
         cache,
