@@ -1,4 +1,6 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useReactiveVar } from "@apollo/client";
+import { tableConfigsVar } from "queries/cache";
+import { useCallback, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Filters, SortingRule } from "react-table";
 
@@ -118,7 +120,7 @@ export const useTableConfig = ({
   const [searchParams, setSearchParams] = useSearchParams();
   // Parse all URL filters using helper
   const urlFilters = useMemo(() => parseUrlFilters(searchParams), [searchParams]);
-  const [tableConfigsState, setTableConfigsState] = useState<ITableConfig>(defaultTableConfig);
+  const tableConfigsState = useReactiveVar(tableConfigsVar);
 
   const isInitialMount = useRef(true);
 
@@ -136,7 +138,7 @@ export const useTableConfig = ({
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
 
       if (!hasUrlParams) {
-        const currentConfig = tableConfigsState;
+        const currentConfig = tableConfigsState.get(tableConfigKey);
         if (currentConfig?.columnFilters) {
           updateUrl(currentConfig.columnFilters);
         }
@@ -153,7 +155,8 @@ export const useTableConfig = ({
           sortBy: defaultTableConfig.sortBy,
           hiddenColumns: defaultTableConfig.hiddenColumns,
         };
-        setTableConfigsState(tableConfig);
+        tableConfigsState.set(tableConfigKey, tableConfig);
+        tableConfigsVar(tableConfigsState);
       }
 
       isInitialMount.current = false;
@@ -171,46 +174,50 @@ export const useTableConfig = ({
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
-    return tableConfigsState?.globalFilter;
+    return tableConfigsState.get(tableConfigKey)?.globalFilter;
   }
 
   function getColumnFilters() {
-    return tableConfigsState?.columnFilters;
+    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).columnFilters;
   }
 
   function getSortBy() {
-    return tableConfigsState?.sortBy;
+    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).sortBy;
   }
 
   function getHiddenColumns() {
-    return tableConfigsState?.hiddenColumns;
+    return tableConfigsState.get(tableConfigKey)?.hiddenColumns;
   }
 
   function setGlobalFilter(globalFilter: string | undefined) {
-    const tableConfig = tableConfigsState;
+    const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
     tableConfig.globalFilter = globalFilter;
-    setTableConfigsState(tableConfig);
+    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsVar(tableConfigsState);
   }
 
   function setColumnFilters(columnFilters: Filters<any>) {
-    const tableConfig = tableConfigsState;
+    const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
     tableConfig.columnFilters = columnFilters;
-    setTableConfigsState(tableConfig);
+    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsVar(tableConfigsState);
 
     // Update URL parameters
     if (syncFiltersAndUrlParams) updateUrl(columnFilters);
   }
 
   function setSortBy(sortBy: SortingRule<any>[]) {
-    const tableConfig = tableConfigsState;
+    const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
     tableConfig.sortBy = sortBy;
-    setTableConfigsState(tableConfig);
+    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsVar(tableConfigsState);
   }
 
   function setHiddenColumns(hiddenColumns: string[] | undefined) {
-    const tableConfig = tableConfigsState;
+    const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
     tableConfig.hiddenColumns = hiddenColumns;
-    setTableConfigsState(tableConfig);
+    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsVar(tableConfigsState);
   }
 
   return {
