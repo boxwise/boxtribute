@@ -16,6 +16,14 @@ For detailed system architecture understanding:
 - **System Landscape**: `docs/c4-system-landscape.png` - High-level overview of system components and external integrations
 - **Backend Components**: `docs/c4-backend-components.jpg` - Internal backend service architecture and data flow
 
+## General Instructions
+
+**Think first and make a plan before you start implementing.** Always analyze the problem, understand the codebase, and create a clear implementation plan before making any changes.
+
+**CRITICAL**: NEVER modify `.circleci/config.yml` or trigger any deployment manually. If changes to CI configuration are absolutely necessary, request approval in a PR comment.
+
+**Always report issues with building/testing in the PR.** If you encounter build failures, test failures, or other issues during development, document them clearly in your progress reports so stakeholders are aware of any blockers or limitations.
+
 ## Essential Setup Commands
 
 **Note**: These instructions complement the automated setup defined in `.github/workflows/copilot-setup-steps.yml`. The workflow file handles dependency installation in the Copilot environment, while these instructions are for manual development setup.
