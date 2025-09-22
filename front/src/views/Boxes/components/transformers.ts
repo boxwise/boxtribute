@@ -15,7 +15,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           product: { name: element.product?.name, id: element.product?.id },
           productCategory: {
             name: element.product?.category.name,
-            id: element.product?.category?.id,
+            id: element.product?.category.id,
           },
           gender: {
             name: element.product?.gender,
@@ -24,7 +24,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           numberOfItems: element.numberOfItems,
           size: { name: element.size?.label, id: element.size?.id },
           state: { name: element.state, id: boxStateIds[element.state] },
-          location: { name: element.location!.name, id: element.location!.id },
+          location: { name: element.location?.name, id: element.location?.id },
           tags: element.tags,
           shipment: element.shipmentDetail?.shipment,
           holdsStandardProduct: element.product?.type === "StandardInstantiation",
