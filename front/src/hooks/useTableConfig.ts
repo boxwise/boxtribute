@@ -3,6 +3,7 @@ import { tableConfigsVar } from "queries/cache";
 import { useCallback, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Filters, SortingRule } from "react-table";
+import { boxStateIds } from "utils/constants";
 
 export interface ITableConfig {
   globalFilter?: string;
@@ -121,7 +122,16 @@ export const useTableConfig = ({
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const [searchParams, setSearchParams] = useSearchParams();
   // Parse all URL filters using helper
-  const urlFilters = useMemo(() => parseUrlFilters(searchParams), [searchParams]);
+  const urlFilters = useMemo(() => {
+    // Validate state_ids are part of known states
+    const urlFilters = parseUrlFilters(searchParams);
+    if (urlFilters.state?.length > 0) {
+      urlFilters.state = urlFilters.state.filter((stateId) =>
+        Object.values(boxStateIds).includes(stateId),
+      );
+    }
+    return urlFilters;
+  }, [searchParams]);
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
   const isInitialMount = useRef(true);
