@@ -26,6 +26,7 @@ export interface IUseTableConfigReturnType {
   setColumnFilters: (columnFilters: Filters<any>) => void;
   setSortBy: (sortBy: SortingRule<any>[]) => void;
   setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
+  isNotMounted: boolean;
 }
 
 // Helper functions for URL parameter sync
@@ -44,6 +45,7 @@ const serializeIds = (filters: string[]): string | null => {
 };
 
 // Configuration for URL parameter mapping
+// TODO: if we need to generlaize this for other tables, this should become a variable of the hook
 const URL_FILTER_CONFIG = [
   { filterId: "product", urlParam: "product_ids" },
   { filterId: "state", urlParam: "state_ids" },
@@ -174,7 +176,7 @@ export const useTableConfig = ({
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
-    return tableConfigsState.get(tableConfigKey)?.globalFilter;
+    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).globalFilter;
   }
 
   function getColumnFilters() {
@@ -186,7 +188,7 @@ export const useTableConfig = ({
   }
 
   function getHiddenColumns() {
-    return tableConfigsState.get(tableConfigKey)?.hiddenColumns;
+    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).hiddenColumns;
   }
 
   function setGlobalFilter(globalFilter: string | undefined) {
@@ -229,5 +231,6 @@ export const useTableConfig = ({
     setColumnFilters,
     setSortBy,
     setHiddenColumns,
+    isNotMounted: isInitialMount.current,
   };
 };
