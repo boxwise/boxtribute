@@ -243,6 +243,23 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
   [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_ORG_FIELDS_FRAGMENT],
 );
 
+export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_TAGS_QUERY = graphql(
+  `
+    query MultiBoxActionOptionsForLocationsAndTags($baseId: ID!) {
+      base(id: $baseId) {
+        id
+        tags(resourceType: Box) {
+          ...TagBasicFields
+        }
+        locations {
+          ...LocationBasicFields
+        }
+      }
+    }
+  `,
+  [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+);
+
 export const STANDARD_PRODUCT_QUERY = graphql(
   `
     query StandardProductQuery($baseId: ID!) {

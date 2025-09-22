@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useAtomValue } from "jotai";
+import { useAuth0 } from "@auth0/auth0-react";
 import { GET_SCANNED_BOXES } from "queries/local-only";
-import { MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY } from "queries/queries";
+import {
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
+  MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_TAGS_QUERY,
+} from "queries/queries";
 import { IDropdownOption } from "components/Form/SelectField";
 import { AlertWithAction, AlertWithoutAction } from "components/Alerts";
 import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
@@ -21,9 +25,17 @@ import {
   NotInStockAlertText,
 } from "./AlertTexts";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { JWT_ABP } from "utils/constants";
 
 function QrReaderMultiBoxContainer() {
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const { user } = useAuth0();
+
+  // Check if user has shipment:read permission
+  const hasShipmentPermission = useMemo(() => {
+    if (!user || !user[JWT_ABP]) return false;
+    return user[JWT_ABP].includes("shipment:read");
+  }, [user]);
 
   // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(IMultiBoxAction.moveBox);
@@ -40,9 +52,11 @@ function QrReaderMultiBoxContainer() {
   // local-only (cache) query for scanned Boxes
   const scannedBoxesQueryResult = useQuery<IGetScannedBoxesQuery>(GET_SCANNED_BOXES);
 
-  // fetch location and shipments data
+  // fetch location and optionally shipments data based on user permissions
   const optionsQueryResult = useQuery(
-    MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
+    hasShipmentPermission
+      ? MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY
+      : MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_TAGS_QUERY,
     {
       variables: { baseId },
     },
@@ -132,17 +146,20 @@ function QrReaderMultiBoxContainer() {
     [optionsQueryResult.data?.base?.tags],
   );
 
-  const shipmentOptions: IDropdownOption[] = useMemo(
-    () =>
-      optionsQueryResult.data?.shipments
-        ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
-        ?.map((shipment) => ({
-          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
-          value: shipment.id,
-          subTitle: shipment?.labelIdentifier,
-        })) ?? [],
-    [baseId, optionsQueryResult.data?.shipments],
-  );
+  const shipmentOptions: IDropdownOption[] = useMemo(() => {
+    if (!hasShipmentPermission) return [];
+
+    const queryData = optionsQueryResult.data as any; // Type assertion for union handling
+    return (queryData?.shipments || [])
+      .filter(
+        (shipment: any) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId,
+      )
+      .map((shipment: any) => ({
+        label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+        value: shipment.id,
+        subTitle: shipment?.labelIdentifier,
+      }));
+  }, [baseId, hasShipmentPermission, optionsQueryResult.data]);
 
   // Assign To Shipment is default MultiBoxAction if there are shipments
   useEffect(() => {
