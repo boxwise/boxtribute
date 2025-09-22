@@ -1,8 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { tableConfigsVar } from "queries/cache";
-import { useReactiveVar } from "@apollo/client";
 import { Filters, SortingRule } from "react-table";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -116,7 +114,7 @@ export const useTableConfig = ({
   defaultTableConfig,
   syncFiltersAndUrlParams = false,
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
-  const tableConfigsState = useReactiveVar(tableConfigsVar);
+  const [tableConfigsState, setTableConfigsState] = useState<ITableConfig>(defaultTableConfig);
   const [searchParams, setSearchParams] = useSearchParams();
   const isInitialMount = useRef(true);
 
@@ -124,6 +122,7 @@ export const useTableConfig = ({
   const updateUrl = useCallback(
     (filters: Filters<any>) => {
       const newSearchParams = new URLSearchParams();
+      console.log("updateUrl called with filters:", filters);
 
       // Handle product filters
       const productFilter = filters.find((f) => f.id === "product");
@@ -217,65 +216,6 @@ export const useTableConfig = ({
   const urlLocationFilters = useMemo(() => parseIds(locationIdsParam), [locationIdsParam]);
   const urlTagFilters = useMemo(() => parseIds(tagIdsParam), [tagIdsParam]);
 
-  // Initialization
-  if (!tableConfigsState.has(tableConfigKey)) {
-    // Create initial column filters, prioritizing URL parameters
-    let initialColumnFilters = [...defaultTableConfig.columnFilters];
-
-    // Replace state filter if URL has state_ids
-    if (urlStateFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "state");
-      initialColumnFilters.push({ id: "state", value: urlStateFilters });
-    }
-
-    // Add product filter if URL has product_ids
-    if (urlProductFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "product");
-      initialColumnFilters.push({ id: "product", value: urlProductFilters });
-    }
-
-    // Add gender filter if URL has gender_ids
-    if (urlGenderFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "gender");
-      initialColumnFilters.push({ id: "gender", value: urlGenderFilters });
-    }
-
-    // Add product category filter if URL has product_category_ids
-    if (urlProductCategoryFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter(
-        (filter) => filter.id !== "productCategory",
-      );
-      initialColumnFilters.push({ id: "productCategory", value: urlProductCategoryFilters });
-    }
-
-    // Add size filter if URL has size_ids
-    if (urlSizeFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "size");
-      initialColumnFilters.push({ id: "size", value: urlSizeFilters });
-    }
-
-    // Add location filter if URL has location_ids
-    if (urlLocationFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "location");
-      initialColumnFilters.push({ id: "location", value: urlLocationFilters });
-    }
-
-    // Add tags filter if URL has tag_ids
-    if (urlTagFilters.length > 0) {
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "tags");
-      initialColumnFilters.push({ id: "tags", value: urlTagFilters });
-    }
-
-    const tableConfig: ITableConfig = {
-      globalFilter: defaultTableConfig.globalFilter,
-      columnFilters: initialColumnFilters,
-      sortBy: defaultTableConfig.sortBy,
-      hiddenColumns: defaultTableConfig.hiddenColumns,
-    };
-    tableConfigsState.set(tableConfigKey, tableConfig);
-    tableConfigsVar(tableConfigsState);
-  }
-
   // Sync default filters to URL on first load if no URL parameters present
   useEffect(() => {
     if (isInitialMount.current && syncFiltersAndUrlParams) {
@@ -287,12 +227,74 @@ export const useTableConfig = ({
         sizeIdsParam ||
         tagIdsParam ||
         locationIdsParam;
+
+      console.log("hasUrlParams", hasUrlParams);
+      console.log("locationIdsParam", locationIdsParam);
+
       if (!hasUrlParams) {
-        const currentConfig = tableConfigsState.get(tableConfigKey);
+        const currentConfig = tableConfigsState;
         if (currentConfig?.columnFilters) {
+          console.log("currentConfig.columnFilters", currentConfig.columnFilters);
           updateUrl(currentConfig.columnFilters);
         }
+      } else {
+        // Create initial column filters, prioritizing URL parameters
+        let initialColumnFilters = [...defaultTableConfig.columnFilters];
+
+        // Replace state filter if URL has state_ids
+        if (urlStateFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "state");
+          initialColumnFilters.push({ id: "state", value: urlStateFilters });
+        }
+
+        // Add product filter if URL has product_ids
+        if (urlProductFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "product");
+          initialColumnFilters.push({ id: "product", value: urlProductFilters });
+        }
+
+        // Add gender filter if URL has gender_ids
+        if (urlGenderFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "gender");
+          initialColumnFilters.push({ id: "gender", value: urlGenderFilters });
+        }
+
+        // Add product category filter if URL has product_category_ids
+        if (urlProductCategoryFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter(
+            (filter) => filter.id !== "productCategory",
+          );
+          initialColumnFilters.push({ id: "productCategory", value: urlProductCategoryFilters });
+        }
+
+        // Add size filter if URL has size_ids
+        if (urlSizeFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "size");
+          initialColumnFilters.push({ id: "size", value: urlSizeFilters });
+        }
+
+        // Add location filter if URL has location_ids
+        if (urlLocationFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "location");
+          initialColumnFilters.push({ id: "location", value: urlLocationFilters });
+        }
+
+        // Add tags filter if URL has tag_ids
+        if (urlTagFilters.length > 0) {
+          initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "tags");
+          initialColumnFilters.push({ id: "tags", value: urlTagFilters });
+        }
+
+        const tableConfig: ITableConfig = {
+          globalFilter: defaultTableConfig.globalFilter,
+          columnFilters: initialColumnFilters,
+          sortBy: defaultTableConfig.sortBy,
+          hiddenColumns: defaultTableConfig.hiddenColumns,
+        };
+        console.log("tableConfig", tableConfig.columnFilters);
+        setTableConfigsState(tableConfig);
       }
+
       isInitialMount.current = false;
     }
   }, [
@@ -307,55 +309,67 @@ export const useTableConfig = ({
     tableConfigKey,
     tableConfigsState,
     updateUrl,
+    defaultTableConfig.columnFilters,
+    defaultTableConfig.globalFilter,
+    defaultTableConfig.sortBy,
+    defaultTableConfig.hiddenColumns,
+    urlStateFilters,
+    urlProductFilters,
+    urlGenderFilters,
+    urlProductCategoryFilters,
+    urlSizeFilters,
+    urlLocationFilters,
+    urlTagFilters,
   ]);
+
+  console.log("initialMount", isInitialMount.current);
+  console.log("tableConfigsState", tableConfigsState.columnFilters);
 
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
-    return tableConfigsState.get(tableConfigKey)?.globalFilter;
+    return tableConfigsState?.globalFilter;
   }
 
   function getColumnFilters() {
-    return tableConfigsState.get(tableConfigKey)!.columnFilters;
+    return tableConfigsState?.columnFilters;
   }
 
   function getSortBy() {
-    return tableConfigsState.get(tableConfigKey)!.sortBy;
+    return tableConfigsState?.sortBy;
   }
 
   function getHiddenColumns() {
-    return tableConfigsState.get(tableConfigKey)?.hiddenColumns;
+    return tableConfigsState?.hiddenColumns;
   }
 
   function setGlobalFilter(globalFilter: string | undefined) {
-    const tableConfig = tableConfigsState.get(tableConfigKey);
-    tableConfig!.globalFilter = globalFilter;
-    tableConfigsState.set(tableConfigKey, tableConfig!);
-    tableConfigsVar(tableConfigsState);
+    const tableConfig = tableConfigsState;
+    tableConfig.globalFilter = globalFilter;
+    setTableConfigsState(tableConfig);
   }
 
   function setColumnFilters(columnFilters: Filters<any>) {
-    const tableConfig = tableConfigsState.get(tableConfigKey);
-    tableConfig!.columnFilters = columnFilters;
-    tableConfigsState.set(tableConfigKey, tableConfig!);
-    tableConfigsVar(tableConfigsState);
+    const tableConfig = tableConfigsState;
+    tableConfig.columnFilters = columnFilters;
+    setTableConfigsState(tableConfig);
+
+    console.log("setColumnFilters", columnFilters);
 
     // Update URL parameters
     if (syncFiltersAndUrlParams) updateUrl(columnFilters);
   }
 
   function setSortBy(sortBy: SortingRule<any>[]) {
-    const tableConfig = tableConfigsState.get(tableConfigKey);
-    tableConfig!.sortBy = sortBy;
-    tableConfigsState.set(tableConfigKey, tableConfig!);
-    tableConfigsVar(tableConfigsState);
+    const tableConfig = tableConfigsState;
+    tableConfig.sortBy = sortBy;
+    setTableConfigsState(tableConfig);
   }
 
   function setHiddenColumns(hiddenColumns: string[] | undefined) {
-    const tableConfig = tableConfigsState.get(tableConfigKey);
-    tableConfig!.hiddenColumns = hiddenColumns;
-    tableConfigsState.set(tableConfigKey, tableConfig!);
-    tableConfigsVar(tableConfigsState);
+    const tableConfig = tableConfigsState;
+    tableConfig.hiddenColumns = hiddenColumns;
+    setTableConfigsState(tableConfig);
   }
 
   return {
