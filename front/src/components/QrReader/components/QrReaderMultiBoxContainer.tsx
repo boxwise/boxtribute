@@ -31,10 +31,10 @@ function QrReaderMultiBoxContainer() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const { user } = useAuth0();
 
-  // Check if user has shipment:read permission
+  // Check if user has view_shipments permission
   const hasShipmentPermission = useMemo(() => {
     if (!user || !user[JWT_ABP]) return false;
-    return user[JWT_ABP].includes("shipment:read");
+    return user[JWT_ABP].includes("view_shipments");
   }, [user]);
 
   // selected radio button
