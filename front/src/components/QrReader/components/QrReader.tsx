@@ -1,6 +1,5 @@
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { Result } from "@zxing/library";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   FormControl,
   FormErrorMessage,
@@ -16,7 +15,6 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { JWT_ABP } from "utils/constants";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -35,14 +33,6 @@ function QrReader({
   onScan,
   onFindBoxByLabel,
 }: IQrReaderProps) {
-  const { user } = useAuth0();
-
-  // Check if user has view_inventory permission
-  const hasInventoryPermission = useMemo(() => {
-    if (!user || !user[JWT_ABP]) return false;
-    return user[JWT_ABP].includes("view_inventory");
-  }, [user]);
-
   // Zoom
   const [zoomLevel] = useState(1);
 
@@ -81,87 +71,54 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
-        multiScan={isMultiBox && hasInventoryPermission}
+        multiScan={isMultiBox}
         facingMode="environment"
         zoom={zoomLevel}
         scanPeriod={1000}
         onResult={onResult}
       />
-      {hasInventoryPermission ? (
-        <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
-          <TabList justifyContent="center">
-            <Tab>SOLO BOX</Tab>
-            <Tab>MULTI BOX</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <FormControl isInvalid={!!boxLabelInputError}>
-                <FormLabel>Find Box</FormLabel>
-                <InputGroup borderRadius={0}>
-                  <Input
-                    type="string"
-                    onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-                    isDisabled={findBoxByLabelIsLoading}
-                    value={boxLabelInputValue}
-                    borderRadius={0}
+      <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
+        <TabList justifyContent="center">
+          <Tab>SOLO BOX</Tab>
+          <Tab>MULTI BOX</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <FormControl isInvalid={!!boxLabelInputError}>
+              <FormLabel>Find Box</FormLabel>
+              <InputGroup borderRadius={0}>
+                <Input
+                  type="string"
+                  onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
+                  isDisabled={findBoxByLabelIsLoading}
+                  value={boxLabelInputValue}
+                  borderRadius={0}
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label="Find box By label"
+                    icon={<SearchIcon />}
+                    isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+                    isLoading={findBoxByLabelIsLoading}
+                    onClick={() => {
+                      if (boxLabelInputValue) {
+                        onFindBoxByLabel(boxLabelInputValue);
+                        setBoxLabelInputValue("");
+                      } else {
+                        setBoxLabelInputError("Please enter a label id.");
+                      }
+                    }}
                   />
-                  <InputRightElement>
-                    <IconButton
-                      aria-label="Find box By label"
-                      icon={<SearchIcon />}
-                      isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
-                      isLoading={findBoxByLabelIsLoading}
-                      onClick={() => {
-                        if (boxLabelInputValue) {
-                          onFindBoxByLabel(boxLabelInputValue);
-                          setBoxLabelInputValue("");
-                        } else {
-                          setBoxLabelInputError("Please enter a label id.");
-                        }
-                      }}
-                    />
-                  </InputRightElement>
-                </InputGroup>
-                <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
-              </FormControl>
-            </TabPanel>
-            <TabPanel px={0}>
-              <QrReaderMultiBoxContainer />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      ) : (
-        // Show only SOLO BOX interface for users without view_inventory permission
-        <FormControl isInvalid={!!boxLabelInputError}>
-          <FormLabel>Find Box</FormLabel>
-          <InputGroup borderRadius={0}>
-            <Input
-              type="string"
-              onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-              isDisabled={findBoxByLabelIsLoading}
-              value={boxLabelInputValue}
-              borderRadius={0}
-            />
-            <InputRightElement>
-              <IconButton
-                aria-label="Find box By label"
-                icon={<SearchIcon />}
-                isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
-                isLoading={findBoxByLabelIsLoading}
-                onClick={() => {
-                  if (boxLabelInputValue) {
-                    onFindBoxByLabel(boxLabelInputValue);
-                    setBoxLabelInputValue("");
-                  } else {
-                    setBoxLabelInputError("Please enter a label id.");
-                  }
-                }}
-              />
-            </InputRightElement>
-          </InputGroup>
-          <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
-        </FormControl>
-      )}
+                </InputRightElement>
+              </InputGroup>
+              <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
+            </FormControl>
+          </TabPanel>
+          <TabPanel px={0}>
+            <QrReaderMultiBoxContainer />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </>
   );
 }

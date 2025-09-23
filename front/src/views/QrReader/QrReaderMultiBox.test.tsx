@@ -60,7 +60,6 @@ beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", [
     "be_user",
     "view_shipments",
-    "view_inventory",
   ]);
 });
 

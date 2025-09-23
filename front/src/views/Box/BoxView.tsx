@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import { graphql } from "gql.tada";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   Alert,
   AlertDescription,
@@ -28,8 +29,12 @@ import {
 } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
-import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { 
+  BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+  BOX_BY_LABEL_IDENTIFIER_QUERY
+} from "queries/queries";
 import { BoxViewSkeleton } from "components/Skeletons";
+import { JWT_ABP } from "utils/constants";
 
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { boxReconciliationOverlayVar } from "queries/cache";
@@ -144,15 +149,27 @@ function BTBox() {
     unassignBoxesFromShipment,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
+  const { user } = useAuth0();
 
-  const allData = useQuery(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, {
-    variables: {
-      labelIdentifier,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
+  // Check if user has view_shipments permission
+  const hasShipmentPermission = useMemo(() => {
+    if (!user || !user[JWT_ABP]) return false;
+    return user[JWT_ABP].includes("view_shipments");
+  }, [user]);
 
-  const shipmentsQueryResult = allData.data?.shipments;
+  const allData = useQuery(
+    hasShipmentPermission 
+      ? BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY
+      : BOX_BY_LABEL_IDENTIFIER_QUERY,
+    {
+      variables: {
+        labelIdentifier,
+      },
+      notifyOnNetworkStatusChange: true,
+    }
+  );
+
+  const shipmentsQueryResult = hasShipmentPermission ? (allData.data as any)?.shipments : [];
 
   const boxInTransit = currentBoxState
     ? ["Receiving", "MarkedForShipment", "InTransit"].includes(currentBoxState)

@@ -174,6 +174,48 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
   [BOX_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT],
 );
 
+export const BOX_BY_LABEL_IDENTIFIER_QUERY = graphql(
+  `
+    query BoxByLabelIdentifierWithoutShipments($labelIdentifier: String!) {
+      box(labelIdentifier: $labelIdentifier) {
+        ...BoxFields
+        distributionEvent {
+          ...DistroEventFields
+        }
+        location {
+          __typename
+          id
+          name
+          ... on ClassicLocation {
+            defaultBoxState
+          }
+          base {
+            locations {
+              id
+              seq
+              name
+              ... on ClassicLocation {
+                defaultBoxState
+              }
+            }
+            distributionEventsBeforeReturnedFromDistributionState {
+              id
+              state
+              distributionSpot {
+                name
+              }
+              name
+              plannedStartDateTime
+              plannedEndDateTime
+            }
+          }
+        }
+      }
+    }
+  `,
+  [BOX_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT],
+);
+
 export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = graphql(
   `
     query ShipmentByIdWithProductsAndLocations($shipmentId: ID!, $baseId: ID!) {
