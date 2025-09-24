@@ -9,7 +9,7 @@ export enum IMoveBoxesResultKind {
   FAIL = "fail",
   NETWORK_FAIL = "networkFail",
   BAD_USER_INPUT = "badUserInput", // no Boxes were passed to the function
-  PARTIAL_FAIL = "partialFail", // Some Boxes were moved and some not
+  SUCCESS_WITH_BOXES_ALREADY_AT_TARGET = "partialSuccess", // Some Boxes are already at the target location
   NOT_AUTHORIZED = "notAuthorized", // Permission errors
   RESOURCE_NOT_FOUND = "resourceNotFound", // Location doesn't exist
   UNAUTHORIZED_FOR_BASE = "unauthorizedForBase", // Base access issue
@@ -195,7 +195,7 @@ export const useMoveBoxes = () => {
             // Not all Boxes were moved
             if (failedLabelIdentifiers.length) {
               return {
-                kind: IMoveBoxesResultKind.PARTIAL_FAIL,
+                kind: IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET,
                 requestedLabelIdentifiers: labelIdentifiers,
                 movedLabelIdentifiers,
                 failedLabelIdentifiers,

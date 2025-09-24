@@ -72,7 +72,7 @@ function QrReaderMultiBoxContainer() {
       );
       // To show in the UI which boxes failed (don't show alert for boxes that already are in the
       // target location)
-      if (moveBoxesResult.kind === IMoveBoxesResultKind.PARTIAL_FAIL) {
+      if (moveBoxesResult.kind === IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET) {
         const nrOfNonMovedBoxes = moveBoxesResult?.failedLabelIdentifiers?.length ?? 0;
         createToast({
           message: `${
