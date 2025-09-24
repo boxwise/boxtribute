@@ -1217,12 +1217,19 @@ def test_update_box_tag_ids(client, default_box, tags):
                     labelIdentifier: "{label_identifier}"
                     tagIds: [{another_tag_id}] }} ) {{
                         history {{ changes }}
+                        lastModifiedOn
                         tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(today)
     assert updated_box["tags"] == [{"id": another_tag_id}]
     assert updated_box["history"][0] == {
         "changes": f"removed tag '{tag_name}' from box"
     }
+    # Verify that the box changes are actually saved
+    query = f"""query {{ box( labelIdentifier: "{label_identifier}" ) {{
+                    lastModifiedOn }} }}"""
+    box = assert_successful_request(client, query)
+    assert box["lastModifiedOn"].startswith(today)
 
     # Now add tag ID 2 back while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
