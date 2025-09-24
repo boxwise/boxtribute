@@ -1951,3 +1951,176 @@ def test_mutate_box_with_invalid_location_or_product(
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_update_deleted_box_raises_error(client, default_box, mocker):
+    """Test that updating a deleted box raises BoxDeleted exception."""
+    # Set up a deleted box by mocking the database call
+    mock_box = mocker.MagicMock()
+    mock_box.label_identifier = default_box["label_identifier"]
+    mock_box.deleted_on = "2023-01-01 10:00:00"  # Box is deleted
+    mock_box.state_id = BoxState.InStock.value
+    
+    mocker.patch("boxtribute_server.models.definitions.box.Box.get", return_value=mock_box)
+    
+    update_input = f"""{{ labelIdentifier: "{default_box['label_identifier']}"
+                    numberOfItems: 5
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    
+    response = client.post("/graphql", json={"query": mutation})
+    assert response.status_code == 200
+    data = response.get_json()
+    
+    # Should get an error about deleted box
+    assert "errors" in data
+    error_msg = str(data["errors"])
+    assert "is deleted and cannot be updated" in error_msg
+    assert "BAD_USER_INPUT" in error_msg
+
+
+def test_update_box_with_invalid_state_raises_error(client, default_box, mocker):
+    """Test that updating a box in a disallowed state raises InvalidBoxState exception."""
+    # Test with MarkedForShipment state (not allowed)
+    mock_box = mocker.MagicMock()
+    mock_box.label_identifier = default_box["label_identifier"]
+    mock_box.deleted_on = None  # Box is not deleted
+    mock_box.state_id = BoxState.MarkedForShipment.value  # Not allowed state
+    
+    mocker.patch("boxtribute_server.models.definitions.box.Box.get", return_value=mock_box)
+    
+    update_input = f"""{{ labelIdentifier: "{default_box['label_identifier']}"
+                    numberOfItems: 5
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    
+    response = client.post("/graphql", json={"query": mutation})
+    assert response.status_code == 200
+    data = response.get_json()
+    
+    # Should get an error about invalid box state
+    assert "errors" in data
+    error_msg = str(data["errors"])
+    assert "cannot be updated" in error_msg
+    assert "MarkedForShipment" in error_msg
+    assert "BAD_USER_INPUT" in error_msg
+
+
+def test_update_box_with_receiving_state_raises_error(client, default_box, mocker):
+    """Test that updating a box in Receiving state raises InvalidBoxState exception."""
+    mock_box = mocker.MagicMock()
+    mock_box.label_identifier = default_box["label_identifier"]
+    mock_box.deleted_on = None
+    mock_box.state_id = BoxState.Receiving.value  # Not allowed state
+    
+    mocker.patch("boxtribute_server.models.definitions.box.Box.get", return_value=mock_box)
+    
+    update_input = f"""{{ labelIdentifier: "{default_box['label_identifier']}"
+                    numberOfItems: 5 
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    
+    response = client.post("/graphql", json={"query": mutation})
+    assert response.status_code == 200
+    data = response.get_json()
+    
+    assert "errors" in data
+    error_msg = str(data["errors"])
+    assert "cannot be updated" in error_msg
+    assert "Receiving" in error_msg
+    assert "BAD_USER_INPUT" in error_msg
+
+
+def test_update_box_with_in_transit_state_raises_error(client, default_box, mocker):
+    """Test that updating a box in InTransit state raises InvalidBoxState exception."""
+    mock_box = mocker.MagicMock()
+    mock_box.label_identifier = default_box["label_identifier"]
+    mock_box.deleted_on = None
+    mock_box.state_id = BoxState.InTransit.value  # Not allowed state
+    
+    mocker.patch("boxtribute_server.models.definitions.box.Box.get", return_value=mock_box)
+    
+    update_input = f"""{{ labelIdentifier: "{default_box['label_identifier']}"
+                    numberOfItems: 5
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    
+    response = client.post("/graphql", json={"query": mutation})
+    assert response.status_code == 200
+    data = response.get_json()
+    
+    assert "errors" in data
+    error_msg = str(data["errors"])
+    assert "cannot be updated" in error_msg
+    assert "InTransit" in error_msg
+    assert "BAD_USER_INPUT" in error_msg
+
+
+def test_update_box_with_not_delivered_state_raises_error(client, default_box, mocker):
+    """Test that updating a box in NotDelivered state raises InvalidBoxState exception."""
+    mock_box = mocker.MagicMock()
+    mock_box.label_identifier = default_box["label_identifier"]
+    mock_box.deleted_on = None
+    mock_box.state_id = BoxState.NotDelivered.value  # Not allowed state
+    
+    mocker.patch("boxtribute_server.models.definitions.box.Box.get", return_value=mock_box)
+    
+    update_input = f"""{{ labelIdentifier: "{default_box['label_identifier']}"
+                    numberOfItems: 5
+                }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
+    
+    response = client.post("/graphql", json={"query": mutation})
+    assert response.status_code == 200
+    data = response.get_json()
+    
+    assert "errors" in data
+    error_msg = str(data["errors"])
+    assert "cannot be updated" in error_msg
+    assert "NotDelivered" in error_msg
+    assert "BAD_USER_INPUT" in error_msg
+
+
+def test_update_box_with_allowed_states_passes_validation(
+    default_box,
+    mocker,
+):
+    """Test that boxes with allowed states (InStock, Lost, Donated, Scrap) pass validation."""
+    from boxtribute_server.business_logic.warehouse.box.crud import update_box
+    from boxtribute_server.exceptions import BoxDeleted, InvalidBoxState
+    
+    # Test that validation passes for each allowed state
+    allowed_states = [BoxState.InStock, BoxState.Lost, BoxState.Donated, BoxState.Scrap]
+    
+    for state in allowed_states:
+        mock_box = mocker.MagicMock()
+        mock_box.label_identifier = default_box["label_identifier"]
+        mock_box.deleted_on = None  # Box is not deleted
+        mock_box.state_id = state.value  # Allowed state
+        
+        # Mock the Box.get to return our mock box
+        mocker.patch("boxtribute_server.models.definitions.box.Box.get", return_value=mock_box)
+        
+        # Try to call the validation part (this will fail later due to missing mocks, 
+        # but should not fail on our new validation checks)
+        try:
+            # Just test that our validation doesn't raise exceptions
+            # We can't test the full function without extensive mocking
+            update_box(
+                label_identifier=default_box["label_identifier"],
+                user_id=1,
+                now="2023-01-01",
+                comment="test"
+            )
+        except (BoxDeleted, InvalidBoxState):
+            # These should not be raised for allowed states
+            assert False, f"Validation failed for allowed state {state.name}"
+        except Exception:
+            # Other exceptions are expected due to incomplete mocking
+            # We just want to ensure our validation doesn't block allowed states
+            pass
