@@ -145,7 +145,7 @@ const moveBoxesMutationTests = [
       mockLocationsQuery({}),
       mockMoveBoxesMutation({}),
     ],
-    toast: { isError: false, message: /A Box was successfully moved/i },
+    toast: { isError: false, message: /A box was successfully moved/i },
   },
 ];
 

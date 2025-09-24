@@ -186,8 +186,8 @@ export const useMoveBoxes = () => {
               createToast({
                 message: `${
                   movedLabelIdentifiers.length === 1
-                    ? "A Box was"
-                    : `${movedLabelIdentifiers.length} Boxes were`
+                    ? "A box was"
+                    : `${movedLabelIdentifiers.length} boxes were`
                 } successfully moved.`,
               });
             }

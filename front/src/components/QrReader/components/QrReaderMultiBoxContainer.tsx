@@ -76,7 +76,7 @@ function QrReaderMultiBoxContainer() {
         const nrOfNonMovedBoxes = moveBoxesResult?.failedLabelIdentifiers?.length ?? 0;
         createToast({
           message: `${
-            nrOfNonMovedBoxes === 1 ? "One Box is" : `${nrOfNonMovedBoxes} Boxes are`
+            nrOfNonMovedBoxes === 1 ? "One box is" : `${nrOfNonMovedBoxes} boxes are`
           } already in the selected location.`,
           type: "warning",
         });
