@@ -169,8 +169,6 @@ function BTBox() {
     }
   );
 
-  const shipmentsQueryResult = hasShipmentPermission ? (allData.data as any)?.shipments : [];
-
   const boxInTransit = currentBoxState
     ? ["Receiving", "MarkedForShipment", "InTransit"].includes(currentBoxState)
     : false;
@@ -575,17 +573,21 @@ function BTBox() {
     [allData, unassignBoxesFromShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
-  const shipmentOptions: IDropdownOption[] = useMemo(
-    () =>
-      shipmentsQueryResult
-        ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
-        ?.map((shipment) => ({
-          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
-          subTitle: shipment.labelIdentifier,
-          value: shipment.id,
-        })) ?? [],
-    [baseId, shipmentsQueryResult],
-  );
+   const shipmentOptions: IDropdownOption[] = useMemo(
+     () => {
+       const shipmentsQueryResult = hasShipmentPermission ? (allData.data as any)?.shipments : [];
+       return (
+         shipmentsQueryResult
+           ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
+           ?.map((shipment) => ({
+             label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+             subTitle: shipment.labelIdentifier,
+             value: shipment.id,
+           })) ?? []
+       );
+     },
+     [baseId, allData.data, hasShipmentPermission],
+   );
 
   if (error) {
     return (
