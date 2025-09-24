@@ -451,6 +451,50 @@ class HistoryForBoxLoader(DataLoader):
                 .group_by(History.record_id)
             )
             + (
+                History.select(
+                    # This translates to 'GROUP_CONCAT(h.id ORDER BY h.id DESC)'
+                    fn.GROUP_CONCAT(
+                        NodeList((History.id, SQL("ORDER BY"), History.id.desc()))
+                    )
+                    .python_value(partial(convert_ids, converter=str))
+                    .alias("ids"),
+                    fn.GROUP_CONCAT(
+                        NodeList(
+                            (History.change_date, SQL("ORDER BY"), History.id.desc())
+                        )
+                    )
+                    .python_value(
+                        partial(convert_ids, converter=datetime.fromisoformat)
+                    )
+                    .alias("change_dates"),
+                    fn.GROUP_CONCAT(
+                        NodeList(
+                            (
+                                (
+                                    fn.IFNULL(History.user, SQL("NULL")),
+                                    SQL("ORDER BY"),
+                                    History.id.desc(),
+                                )
+                            )
+                        )
+                    )
+                    .python_value(convert_ids)
+                    .alias("user_ids"),
+                    fn.GROUP_CONCAT("created QR code for box").alias("messages"),
+                    Box.id.alias("record_id"),
+                )
+                .join(
+                    Box,
+                    on=(
+                        (History.table_name == "qr")
+                        & (History.record_id == Box.qr_code)
+                        & (Box.id << box_ids)
+                    ),
+                )
+                .where(History.changes == "New QR-code generated")
+                .group_by(Box.id)
+            )
+            + (
                 # Information about tag assignments
                 TagsRelation.select(
                     fn.GROUP_CONCAT(CreatedTagsRelation.c.change_id).alias("ids"),

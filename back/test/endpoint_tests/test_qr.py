@@ -65,6 +65,7 @@ def test_qr_code_mutation(client, box_without_qr_code):
             box {{ ...on Box {{
                 id
                 numberOfItems
+                history {{ changes }}
             }} }}
         }}
     }}"""
@@ -75,6 +76,10 @@ def test_qr_code_mutation(client, box_without_qr_code):
         == box_without_qr_code["number_of_items"]
     )
     assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
+    assert created_qr_code["box"]["history"] == [
+        {"changes": "created QR code for box"},
+        {"changes": "created record"},
+    ]
 
     # Test case 8.2.32
     assert_bad_user_input(
