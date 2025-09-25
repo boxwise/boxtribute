@@ -330,6 +330,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move/i, /warehouse/i],
     toast: /A Box was successfully moved/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
@@ -347,6 +348,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /Could not move box/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
@@ -364,6 +366,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /Network issue: could not move box/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.5.6 - MoveBoxes Action fails due to insufficient permissions",
@@ -381,6 +384,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /You don't have the permissions to move/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.5.7 - MoveBoxes Action fails due to deleted location",
@@ -398,11 +402,12 @@ const boxesViewActionsTests = [
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /The target location has been deleted/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
     mocks: [
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
+      boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
@@ -435,6 +440,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /A Box was successfully assigned/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
@@ -452,6 +458,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /Could not assign a box/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
@@ -469,11 +476,12 @@ const boxesViewActionsTests = [
     ],
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /Could not assign a box/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
     mocks: [
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
+      boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"], paginationInput: 100000 }),
@@ -486,11 +494,7 @@ const boxesViewActionsTests = [
   {
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
     mocks: [
-      boxesQuery({
-        state: "MarkedForShipment",
-        shipmentDetail: shipmentDetail1(),
-        stateFilter: ["MarkedForShipment"],
-      }),
+      boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
@@ -515,11 +519,7 @@ const boxesViewActionsTests = [
   {
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
     mocks: [
-      boxesQuery({
-        state: "MarkedForShipment",
-        shipmentDetail: shipmentDetail1(),
-        stateFilter: ["MarkedForShipment"],
-      }),
+      boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
@@ -542,11 +542,7 @@ const boxesViewActionsTests = [
   {
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
     mocks: [
-      boxesQuery({
-        state: "MarkedForShipment",
-        shipmentDetail: shipmentDetail1(),
-        stateFilter: ["MarkedForShipment"],
-      }),
+      boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({
@@ -577,6 +573,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [], // No action clicks since we're just testing the initial load
     toast: null, // No toast message expected
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.2 - DeleteBoxes Action is successful",
@@ -592,6 +589,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/delete box/i],
     toast: /A box was successfully deleted|Boxes successfully deleted/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.3 - DeleteBoxes Action is failing due to GraphQL error",
@@ -608,6 +606,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/delete box/i],
     triggerError: /Could not delete boxes./i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.4 - DeleteBoxes Action is failing due to Network error",
@@ -624,6 +623,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/delete box/i],
     triggerError: /Could not delete boxes./i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.5 - DeleteBoxes Action fails due to invalid box identifier",
@@ -642,6 +642,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/delete box/i],
     triggerError: /The deletion failed for: 456/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.6 - DeleteBoxes Action fails due to insufficient permissions",
@@ -658,6 +659,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/delete box/i],
     triggerError: /You don't have the permissions to delete these boxes/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.7.1 - Add tags Action is successful",
@@ -674,6 +676,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/add tags/i, "tag1", /apply/i],
     toast: /A Box was successfully assigned tags/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.7.2 - Add tags Action is failing due to GraphQL error",
@@ -691,6 +694,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/add tags/i, "tag1", /apply/i],
     triggerError: /could not assign tags to box/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.7.3 - Add tags Action is failing due to Network error",
@@ -708,6 +712,7 @@ const boxesViewActionsTests = [
     ],
     clicks: [/add tags/i, "tag1", /apply/i],
     triggerError: /network issue: could not assign tags to box/i,
+    searchParams: "?state_ids=1",
   },
   {
     name: "4.8.7.4 - Remove tags Action is successful",
@@ -735,6 +740,7 @@ const boxesViewActionsTests = [
     })(),
     clicks: [/remove tags/i, /remove test tag/i, /apply/i],
     toast: /A Box was successfully unassigned tags/i,
+    searchParams: "?state_ids=1",
   },
 ];
 
