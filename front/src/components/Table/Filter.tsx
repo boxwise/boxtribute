@@ -101,7 +101,15 @@ export function SelectColumnFilter({
       } else if (typeof value === "object" && value !== null) {
         const objectToString = ObjectToString(value);
         groupedOptionLabels.add(objectToString);
-        optionValues[objectToString] = value;
+        if (id === "product") {
+          // Show gender info for BoxesView product filter
+          optionValues[objectToString] = {
+            id: value.id,
+            name: `${value.name} (${row.values.gender?.name})`,
+          };
+        } else {
+          optionValues[objectToString] = value;
+        }
       } else if (value !== undefined) {
         groupedOptionLabels.add(value);
         optionValues[value] = value;
