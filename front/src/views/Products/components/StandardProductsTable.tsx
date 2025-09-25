@@ -124,7 +124,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
                 <Tr
                   backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
                   {...row.getRowProps()}
-                  key={row.values.id}
+                  key={row.original.id}
                 >
                   {row.cells.map((cell) => (
                     <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>
