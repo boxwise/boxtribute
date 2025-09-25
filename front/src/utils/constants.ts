@@ -1,4 +1,5 @@
-import { BoxState, ProductGender } from "queries/types";
+import { BoxState } from "queries/types";
+import { NonNullProductGender } from "../../../graphql/types";
 
 export const JWT_ROLE = "https://www.boxtribute.com/roles";
 export const JWT_ABP = "https://www.boxtribute.com/actions";
@@ -17,7 +18,7 @@ export const boxStateIds: { [key in BoxState]?: string } = {
   NotDelivered: "8",
 };
 
-export const genderIds: { [key in NonNullable<ProductGender>]: string } = {
+export const genderIds: { [key in NonNullProductGender]: string } = {
   Women: "1",
   Men: "2",
   UnisexAdult: "3",

@@ -1,6 +1,7 @@
 import { FragmentOf } from "gql.tada";
 import { TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
-import { BoxState, ProductGender, Shipment } from "queries/types";
+import { BoxState, Shipment } from "queries/types";
+import { ProductGender } from "../../../../../graphql/types";
 
 export type BoxRow = {
   labelIdentifier: string;
