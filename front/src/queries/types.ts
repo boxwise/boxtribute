@@ -20,6 +20,9 @@ import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/componen
 export type DistributionEventState = FragmentOf<typeof DISTRO_EVENT_FIELDS_FRAGMENT>["state"];
 export type BoxState = FragmentOf<typeof BOX_FIELDS_FRAGMENT>["state"];
 export type ShipmentState = Shipment["state"];
+export type ProductGender = NonNullable<
+  FragmentOf<typeof BOX_FIELDS_FRAGMENT>["product"]
+>["gender"];
 
 /** @todo Move types hints from this to a local query/fragment. */
 export type Box = ResultOf<typeof BOX_QUERY>["box"];

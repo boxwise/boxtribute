@@ -2,7 +2,7 @@ import { differenceInDays } from "date-fns";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
 import { BoxesForBoxesViewQuery, BoxesForBoxesViewVariables } from "queries/types";
-import { boxStateIds } from "utils/constants";
+import { boxStateIds, genderIds } from "utils/constants";
 
 export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBoxesViewQuery) =>
   boxesQueryResult.boxes.elements
@@ -13,12 +13,18 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           id: element.id,
           labelIdentifier: element.labelIdentifier,
           product: { name: element.product?.name, id: element.product?.id },
-          productCategory: element.product?.category.name,
-          gender: element.product?.gender,
+          productCategory: {
+            name: element.product?.category.name,
+            id: element.product?.category.id,
+          },
+          gender: {
+            name: element.product?.gender,
+            id: element.product?.gender ? genderIds[element.product.gender] : undefined,
+          },
           numberOfItems: element.numberOfItems,
-          size: element.size?.label,
+          size: { name: element.size?.label, id: element.size?.id },
           state: { name: element.state, id: boxStateIds[element.state] },
-          location: element.location!.name,
+          location: { name: element.location?.name, id: element.location?.id },
           tags: element.tags,
           shipment: element.shipmentDetail?.shipment,
           holdsStandardProduct: element.product?.type === "StandardInstantiation",
@@ -54,10 +60,13 @@ export const prepareBoxesForBoxesViewQueryVariables = (
   };
   const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
   if (refetchFilters.length > 0) {
+    // Find GraphQL BoxState enum values matching the selected filter IDs
     const filterInput = refetchFilters.reduce(
       (acc, filter) => ({
         ...acc,
-        [filterIdToGraphQLVariable(filter.id)]: filter.value.map((v: { name: string }) => v.name),
+        [filterIdToGraphQLVariable(filter.id)]: filter.value.map((id: string) =>
+          Object.keys(boxStateIds).find((name) => boxStateIds[name] === id),
+        ),
       }),
       {},
     );
