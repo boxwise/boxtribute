@@ -398,34 +398,6 @@ const actionsQuery = {
             type: "Box",
           },
         ],
-        products: [
-          {
-            __typename: "Product",
-            id: "267",
-            name: "Sweatpants",
-            type: "Custom",
-            gender: "Men",
-            deletedOn: null,
-            category: {
-              __typename: "ProductCategory",
-              id: "1",
-              name: "Bottoms",
-            },
-          },
-          {
-            __typename: "Product",
-            id: "350",
-            name: "T-shirt",
-            type: "Custom",
-            gender: "Women",
-            deletedOn: null,
-            category: {
-              __typename: "ProductCategory",
-              id: "2",
-              name: "Tops",
-            },
-          },
-        ],
       },
       shipments: [
         {
