@@ -1205,13 +1205,13 @@ def test_box_mutations(
 
 
 def test_update_box_tag_ids(client, default_box, tags):
-    # Test case 8.2.11c
     label_identifier = default_box["label_identifier"]
     tag_id = str(tags[1]["id"])
     tag_name = tags[1]["name"]
     another_tag_id = str(tags[2]["id"])
     another_tag_name = tags[2]["name"]
 
+    # Test case 8.2.11f
     # Run updateBox without any actual changes
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}" }}
@@ -1227,7 +1227,25 @@ def test_update_box_tag_ids(client, default_box, tags):
     assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
     assert updated_box["numberOfItems"] == default_box["number_of_items"]
 
-    # Default box has tags 2 and 3 assigned already. Remove 2 and keep 3
+    # Default box has tags 2 and 3 assigned already
+    # Run updateBox without any actual tag changes
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [{tag_id}, {another_tag_id}] }}
+                    ) {{
+                        tags {{ id }}
+                        lastModifiedOn
+                        numberOfItems
+                    }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(
+        default_box["last_modified_on"].isoformat()
+    )
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["numberOfItems"] == default_box["number_of_items"]
+
+    # Test case 8.2.11c
+    # Remove tag ID 2 and while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
                     tagIds: [{another_tag_id}] }} ) {{
