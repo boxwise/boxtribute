@@ -45,7 +45,7 @@ export const standardProductRawToFormDataTransformer = (
           },
           category: {
             label: category.name,
-            value: id,
+            value: category.id,
           },
           gender,
           sizeRange: {

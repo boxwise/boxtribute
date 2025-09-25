@@ -53,7 +53,7 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
-            link: `/bases/${baseId}/boxes`,
+            link: `/bases/${baseId}/boxes?state_ids=1`,
             name: "Manage Boxes",
             requiredAbps: ["manage_inventory"],
           },

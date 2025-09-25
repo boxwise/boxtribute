@@ -12,6 +12,7 @@ import { useAssignTags } from "hooks/useAssignTags";
 import { useUnassignTags } from "hooks/useUnassignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
+import { BoxState } from "queries/types";
 
 function useBoxesActions(
   selectedBoxes: Row<BoxRow>[],
@@ -38,7 +39,7 @@ function useBoxesActions(
       }
       const movableLabelIdentifiers = selectedBoxes
         .filter(
-          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state),
+          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state.name),
         )
         .map((box) => box.values.labelIdentifier);
 
@@ -127,7 +128,13 @@ function useBoxesActions(
       }
       assignBoxesToShipment(
         shipmentId,
-        selectedBoxes.map((box) => box.values as IBoxBasicFields),
+        selectedBoxes.map((box) => {
+          const { labelIdentifier, state } = box.original;
+          return {
+            labelIdentifier,
+            state: state.name as BoxState,
+          } as IBoxBasicFields;
+        }),
         true,
         false,
       ).then((assignBoxesToShipmentResult) => {
@@ -184,7 +191,7 @@ function useBoxesActions(
         const { labelIdentifier, state, shipment } = box.original;
         return {
           labelIdentifier,
-          state,
+          state: state.name as BoxState,
           shipmentDetail: shipment
             ? {
                 shipment,
