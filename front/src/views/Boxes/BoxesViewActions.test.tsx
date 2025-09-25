@@ -329,7 +329,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move/i, /warehouse/i],
-    toast: /A Box was successfully moved/i,
+    toast: /A box was successfully moved/i,
     searchParams: "?state_ids=1",
   },
   {

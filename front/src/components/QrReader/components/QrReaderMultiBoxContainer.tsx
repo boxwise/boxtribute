@@ -9,9 +9,10 @@ import { QrReaderMultiBoxSkeleton } from "components/Skeletons";
 import { Stack } from "@chakra-ui/react";
 import { IBoxBasicFields, IGetScannedBoxesQuery } from "types/graphql-local-only";
 import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
-import { useMoveBoxes } from "hooks/useMoveBoxes";
+import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
+import { useNotification } from "hooks/useNotification";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
@@ -62,16 +63,28 @@ function QrReaderMultiBoxContainer() {
   const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
     useAssignBoxesToShipment();
 
+  const { createToast } = useNotification();
   const onMoveBoxes = useCallback(
     async (locationId: string) => {
       const moveBoxesResult = await moveBoxes(
         (scannedBoxesQueryResult.data?.scannedBoxes ?? []).map((box) => box.labelIdentifier),
         parseInt(locationId, 10),
       );
-      // To show in the UI which boxes failed
-      setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
+      // To show in the UI which boxes failed (don't show alert for boxes that already are in the
+      // target location)
+      if (moveBoxesResult.kind === IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET) {
+        const nrOfNonMovedBoxes = moveBoxesResult?.failedLabelIdentifiers?.length ?? 0;
+        createToast({
+          message: `${
+            nrOfNonMovedBoxes === 1 ? "One box is" : `${nrOfNonMovedBoxes} boxes are`
+          } already in the selected location.`,
+          type: "warning",
+        });
+      } else {
+        setFailedBoxesFromMoveBoxes(moveBoxesResult?.failedLabelIdentifiers ?? []);
+      }
     },
-    [moveBoxes, scannedBoxesQueryResult.data?.scannedBoxes],
+    [moveBoxes, createToast, scannedBoxesQueryResult.data?.scannedBoxes],
   );
 
   const onAssignTags = useCallback(

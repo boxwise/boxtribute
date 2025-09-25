@@ -58,7 +58,7 @@ function useBoxesActions(
           if (
             moveBoxesResult.failedLabelIdentifiers &&
             moveBoxesResult.failedLabelIdentifiers.length > 0 &&
-            moveBoxesResult.kind !== IMoveBoxesResultKind.PARTIAL_FAIL
+            moveBoxesResult.kind !== IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET
           ) {
             // Full failure - none of the boxes moved
             createToast({
