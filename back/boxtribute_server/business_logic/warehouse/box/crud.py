@@ -316,6 +316,13 @@ def update_box(
         ]
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
+        # If a tags update is the only effective change for updateBox, the
+        # save_update_to_history function would not set the last_modified_* fields for
+        # the box, hence we explicitly do it here. But only if the tags actually changed
+        if assigned_tag_ids != updated_tag_ids:
+            box.last_modified_on = now
+            box.last_modified_by = user_id
+
     if tag_ids_to_be_added is not None:
         _validate_base_of_tags(tag_ids=tag_ids_to_be_added, location=new_location)
 
