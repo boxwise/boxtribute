@@ -96,3 +96,29 @@ def test_metrics_query_for_god_user(
         "numberOfFamiliesServed": number_of_families_served,
         "numberOfSales": number_of_sales,
     }
+
+
+@pytest.mark.parametrize(
+    "lastMonth, lastQuarter, lastYear",
+    [
+        [0, 0, 0],
+    ],
+)
+def test_public_beneficiary_numbers(
+    read_only_client,
+    lastMonth,
+    lastQuarter,
+    lastYear,
+):
+    query = """query { newlyRegisteredBeneficiaryNumbers {
+                      lastMonth
+                      lastQuarter
+                      lastYear
+                      } }"""
+
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == {
+        "lastMonth": lastMonth,
+        "lastQuarter": lastQuarter,
+        "lastYear": lastYear,
+    }
