@@ -1550,3 +1550,10 @@ type StandardProductInfo {
   gender: ProductGender!
   version: Int!
 }
+
+
+type BeneficiaryNumbers {
+    lastMonth: Int!
+    lastQuarter: Int!
+    lastYear: Int!
+}

@@ -109,6 +109,23 @@ def another_male_beneficiary_data():
     }
 
 
+# def recent_beneficiary_data():
+#     return {
+#         "id": 6,
+#         "first_name": "Any",
+#         "last_name": "Body",
+#         "base": base_data()[0]["id"],
+#         "date_of_birth": date(1995, 5, 5),
+#         "created_on": datetime.now(),
+#         "created_by": None,
+#         "family_id": 10,
+#         "family_head": None,
+#         "seq": 1,
+#         "group_identifier": "123",
+#         "gender": HumanGender.Male,
+#     }
+
+
 @pytest.fixture
 def default_beneficiaries():
     return [
@@ -153,3 +170,4 @@ def create():
     Beneficiary.create(**org2_base3_beneficiary_data())
     Beneficiary.create(**another_relative_beneficiary_data())
     Beneficiary.create(**another_male_beneficiary_data())
+    # Beneficiary.create(**recent_beneficiary_data())
