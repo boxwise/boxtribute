@@ -47,16 +47,18 @@ class SimpleDataLoader(DataLoader):
     Authorization may be skipped for base-specific resources.
     """
 
-    def __init__(self, model, skip_authorize=False):
+    def __init__(self, model, skip_authorize=False, permission=None):
         super().__init__()
         self.model = model
         self.skip_authorize = skip_authorize
+        self.permission = permission
+        if not self.permission:
+            resource = convert_pascal_to_snake_case(self.model.__name__)
+            self.permission = f"{resource}:read"
 
     async def batch_load_fn(self, ids):
         if not self.skip_authorize:
-            resource = convert_pascal_to_snake_case(self.model.__name__)
-            permission = f"{resource}:read"
-            authorize(permission=permission)
+            authorize(permission=self.permission)
 
         rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
         return [rows.get(i) for i in ids]
