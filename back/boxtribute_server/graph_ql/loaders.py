@@ -17,6 +17,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
@@ -87,6 +88,11 @@ class BoxLoader(SimpleDataLoader):
 class TransferAgreementLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(TransferAgreement, skip_authorize=True)
+
+
+class QrCodeLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(QrCode, permission="qr:read")
 
 
 class SizeLoader(SimpleDataLoader):
