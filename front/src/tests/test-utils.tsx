@@ -21,6 +21,7 @@ import {
 } from "stores/globalPreferenceStore";
 import { basicBase1 } from "mocks/bases";
 import { basicOrg1 } from "mocks/organisations";
+import { cache } from "queries/cache";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -78,7 +79,7 @@ function render(
   ui,
   {
     mocks = [],
-    cache = undefined,
+    cache: customCache = undefined,
     routePath,
     initialUrl,
     additionalRoute = undefined,
@@ -95,12 +96,13 @@ function render(
     mediaQueryReturnValue?: boolean;
   },
 ) {
-  // Simple MockedProvider setup for Apollo Client v4
+  // Use the shared cache with local state configuration, or a custom cache if provided
+  const testCache = customCache || cache;
   mockMatchMediaQuery(mediaQueryReturnValue);
 
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <ChakraProvider theme={theme}>
-      <MockedProvider mocks={mocks} defaultOptions={defaultOptions} cache={cache}>
+      <MockedProvider mocks={mocks} defaultOptions={defaultOptions} cache={testCache}>
         <JotaiTestProvider initialValues={jotaiAtoms}>
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>

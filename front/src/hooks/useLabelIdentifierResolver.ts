@@ -35,6 +35,22 @@ export const useLabelIdentifierResolver = () => {
         })
         .then(({ data, error }) => {
           if (error) {
+            // Check for GraphQL errors with extensions (Apollo Client v4 format)
+            const graphQLError = error.errors?.[0] || error.graphQLErrors?.[0];
+            if (graphQLError?.extensions?.code === "FORBIDDEN") {
+              return {
+                kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,
+                labelIdentifier,
+              } as ILabelIdentifierResolvedValue;
+            }
+            if (graphQLError?.extensions?.code === "BAD_USER_INPUT") {
+              return {
+                kind: ILabelIdentifierResolverResultKind.NOT_FOUND,
+                labelIdentifier,
+              } as ILabelIdentifierResolvedValue;
+            }
+
+            // Fallback to checking error message for backward compatibility
             const errorMessage = error.message || "";
             if (errorMessage.includes("FORBIDDEN")) {
               return {
@@ -51,6 +67,7 @@ export const useLabelIdentifierResolver = () => {
             return {
               kind: ILabelIdentifierResolverResultKind.FAIL,
               labelIdentifier,
+              error,
             } as ILabelIdentifierResolvedValue;
           }
           return {
