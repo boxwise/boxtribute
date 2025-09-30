@@ -4,7 +4,7 @@ from ariadne import QueryType
 from flask import g
 
 from ...authz import authorize
-from ...models.definitions.beneficiary import Beneficiary
+from .crud import number_of_beneficiaries_registered_between
 
 query = QueryType()
 public_query = QueryType()
@@ -23,67 +23,44 @@ def resolve_metrics(*_, organisation_id=None):
 
 
 @public_query.field("newlyRegisteredBeneficiaryNumbers")
-def resolve_newlyRegisteredBeneficiaryNumbers(*_):
-    now = datetime.now()
+def resolve_newly_registered_beneficiary_numbers(*_):
+    now = datetime.today()
 
     # Last month
-    first_day_this_month = now.replace(day=1)
-    last_day_of_last_month = first_day_this_month - timedelta(days=1)
-    first_day_of_last_month = last_day_of_last_month.replace(day=1)
+    start_this_month = now.replace(day=1)
+    end_last_month = start_this_month - timedelta(days=1)
+    start_last_month = end_last_month.replace(day=1)
 
     # Last quarter
     curr_quarter = (now.month - 1) // 3 + 1
     last_quarter = curr_quarter - 1
 
-    year = now.year
     if last_quarter == 0:
+        # Previous quarter was Q4 of last year
         last_quarter = 4
-        year -= 1
-
-    first_month_last_quarter = 3 * (last_quarter - 1) + 1
-    quarter_start = date(year, first_month_last_quarter, 1)
-
-    if last_quarter == 4:
-        next_quarter_start = date(year + 1, 1, 1)
+        year = now.year - 1
+        start_quarter = date(year, 10, 1)  # October 1st
+        end_quarter = date(year, 12, 31)  # December 31st
     else:
+        # Previous quarter was in current year
+        year = now.year
+        first_month_last_quarter = 3 * (last_quarter - 1) + 1
+        start_quarter = date(year, first_month_last_quarter, 1)
         next_quarter_start = date(year, first_month_last_quarter + 3, 1)
+        end_quarter = next_quarter_start - timedelta(days=1)
 
-    quarter_end = next_quarter_start - timedelta(days=1)
-
-    # Last year
-    start_last_year = date(now.year - 1, 1, 1)
-    end_last_year = date(now.year - 1, 12, 31)
-
-    # Query counts
-    last_month_count = (
-        Beneficiary.select()
-        .where(
-            (Beneficiary.created_on >= first_day_of_last_month)
-            & (Beneficiary.created_on <= last_day_of_last_month)
-        )
-        .count()
-    )
-
-    last_quarter_count = (
-        Beneficiary.select()
-        .where(
-            (Beneficiary.created_on >= quarter_start)
-            & (Beneficiary.created_on <= quarter_end)
-        )
-        .count()
-    )
-
-    last_year_count = (
-        Beneficiary.select()
-        .where(
-            (Beneficiary.created_on >= start_last_year)
-            & (Beneficiary.created_on <= end_last_year)
-        )
-        .count()
-    )
+        # Last year
+        start_last_year = date(now.year - 1, 1, 1)
+        end_last_year = date(now.year - 1, 12, 31)
 
     return {
-        "last_month": last_month_count or 0,
-        "last_quarter": last_quarter_count or 0,
-        "last_year": last_year_count or 0,
+        "last_month": number_of_beneficiaries_registered_between(
+            start_last_month, end_last_month
+        ),
+        "last_quarter": number_of_beneficiaries_registered_between(
+            start_quarter, end_quarter
+        ),
+        "last_year": number_of_beneficiaries_registered_between(
+            start_last_year, end_last_year
+        ),
     }
