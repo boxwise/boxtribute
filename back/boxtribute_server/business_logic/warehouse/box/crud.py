@@ -213,11 +213,9 @@ def update_box(
     """
     box = Box.get(Box.label_identifier == label_identifier)
 
-    # Check if box is deleted
     if box.deleted_on is not None:
         raise BoxDeleted(label_identifier=label_identifier)
 
-    # Check if box is in an allowed state for updates
     allowed_states = {BoxState.InStock, BoxState.Donated, BoxState.Scrap, BoxState.Lost}
     if box.state_id not in allowed_states:
         raise InvalidBoxState(
