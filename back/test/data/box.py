@@ -233,6 +233,11 @@ def another_box():
 
 
 @pytest.fixture
+def donated_box():
+    return donated_box_data()
+
+
+@pytest.fixture
 def lost_box():
     return lost_box_data()
 
