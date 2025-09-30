@@ -39,6 +39,13 @@ from ....models.utils import (
     utcnow,
 )
 
+WAREHOUSE_BOX_STATES = {
+    BoxState.InStock,
+    BoxState.Donated,
+    BoxState.Scrap,
+    BoxState.Lost,
+}
+
 
 def is_measure_product(product):
     """Return True if the product's size range is either Mass or Volume, False
@@ -216,8 +223,7 @@ def update_box(
     if box.deleted_on is not None:
         raise BoxDeleted(label_identifier=label_identifier)
 
-    allowed_states = {BoxState.InStock, BoxState.Donated, BoxState.Scrap, BoxState.Lost}
-    if box.state_id not in allowed_states:
+    if box.state_id not in WAREHOUSE_BOX_STATES:
         raise InvalidBoxState(
             state=BoxState(box.state_id).name, label_identifier=label_identifier
         )
