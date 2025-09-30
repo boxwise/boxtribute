@@ -475,7 +475,6 @@ it("3.1.1.10 - Content: Display a warning alert and disable actions if a box is 
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxDeletedState],
-    addTypename: true,
   });
 
   // Test case 3.1.1.10 - Content: Display a warning alert if a box is deleted
