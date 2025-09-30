@@ -285,7 +285,8 @@ class BoxDeleted(Exception):
     def __init__(self, *args, label_identifier, **kwargs):
         self.extensions = {
             "code": "BAD_USER_INPUT",
-            "description": f"Box with label identifier '{label_identifier}' is deleted and cannot be updated",
+            "description": f"Box with label identifier '{label_identifier}' is deleted "
+            "and cannot be updated",
         }
         super().__init__(*args, **kwargs)
 
@@ -294,6 +295,8 @@ class InvalidBoxState(Exception):
     def __init__(self, *args, state, label_identifier, **kwargs):
         self.extensions = {
             "code": "BAD_USER_INPUT",
-            "description": f"Box with label identifier '{label_identifier}' is in state '{state}' and cannot be updated. Only boxes in states InStock, Donated, Scrap, or Lost can be updated",
+            "description": f"Box with label identifier '{label_identifier}' is in "
+            f"state '{state}' and cannot be updated. Only boxes in states InStock, "
+            "Donated, Scrap, or Lost can be updated",
         }
         super().__init__(*args, **kwargs)
