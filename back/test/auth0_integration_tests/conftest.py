@@ -42,4 +42,5 @@ def auth0_testing(monkeypatch):
     secret = os.environ["TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
     monkeypatch.setenv("AUTH0_MANAGEMENT_API_CLIENT_ID", client_id)
     monkeypatch.setenv("AUTH0_MANAGEMENT_API_CLIENT_SECRET", secret)
+    # Force downloading and extracting of public key
     monkeypatch.setenv("AUTH0_PUBLIC_KEY", "")

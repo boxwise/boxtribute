@@ -34,6 +34,7 @@ export const generateMockBox = ({
   tags = [tag2],
   histories = [history1, history2],
   qrCode = { id: "2", code: "default-qr" },
+  deletedOn = null as string | null,
 }) => ({
   id,
   labelIdentifier,
@@ -52,7 +53,7 @@ export const generateMockBox = ({
   lastModifiedOn: "2023-11-19T10:24:29+00:00",
   lastModifiedBy: user1,
   distributionEvent: null,
-  deletedOn: null,
+  deletedOn,
   __typename: "Box",
 });
 

@@ -329,7 +329,7 @@ const boxesViewActionsTests = [
       }),
     ],
     clicks: [/move/i, /warehouse/i],
-    toast: /A Box was successfully moved/i,
+    toast: /A box was successfully moved/i,
   },
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",

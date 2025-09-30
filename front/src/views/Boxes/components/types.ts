@@ -14,6 +14,7 @@ export type BoxRow = {
   tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[];
   shipment: Shipment | null;
   holdsStandardProduct: boolean;
+  hasQrCode: boolean;
   comment: string | null;
   age: number;
   lastModified: Date | null;

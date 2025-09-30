@@ -246,10 +246,10 @@ info:
   x-introItems:
     # Can be a Title (for the Nav panel) + URL to simply add a link to somewhere
     - title: boxtribute website
-      url: https://www.boxtribute.org
+      url: https://boxtribute.org
     # Can be a Title (for the Nav panel) + description (for the Content panel)
     - title: Login to boxtribute web app
-      url: https://www.app.boxtribute.org
+      url: https://app.boxtribute.org
     - title: Query API
       url: https://api.boxtribute.org
     - title: Query API changelog

@@ -22,6 +22,7 @@ from .box import (
     default_box,
     default_boxes,
     default_location_boxes,
+    donated_box,
     in_transit_box,
     lost_box,
     marked_for_shipment_box,
@@ -74,7 +75,12 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
-from .shareable_link import expired_link, shareable_link, stock_overview_link
+from .shareable_link import (
+    expired_link,
+    shareable_link,
+    stock_overview_link,
+    tagged_stock_overview_link,
+)
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -177,6 +183,7 @@ __all__ = [
     "distro_spot5_distribution_events",
     "distro_spot5_distribution_events_before_return_state",
     "distro_spot5_distribution_events_in_return_state",
+    "donated_box",
     "expired_link",
     "expired_transfer_agreement",
     "god_user",
@@ -216,6 +223,7 @@ __all__ = [
     "standard_products",
     "stock_overview_link",
     "superceding_measure_standard_product",
+    "tagged_stock_overview_link",
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
@@ -248,6 +256,8 @@ _NAMES = [
     "shipment",
     "tag",
     "shareable_link",
+    "distribution_event_tracking_group",
+    "distribution_event",
 ]
 
 
@@ -269,8 +279,9 @@ def setup_models():
         module = importlib.import_module(f"data.{module_name}")
         module.create()
 
-    # Set up remaining models; order is now irrelevant
-    for module_name in module_names:
+    # Set up remaining models; order is now irrelevant. Still sort modules to be
+    # independent from different result order of os.listdir in different envs
+    for module_name in sorted(module_names):
         module = importlib.import_module(f"data.{module_name}")
         module.create()
 

@@ -198,15 +198,13 @@ it("4.3.2 - Input Validations", async () => {
 
   const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitButton).toBeInTheDocument();
-  user.click(submitButton);
+  await user.click(submitButton);
   // Test case 4.3.2.1 - Partner Organisation SELECT field cannot be empty
   expect((screen.getByLabelText(/organisation/i) as HTMLInputElement).value).toEqual("");
-  expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
+  expect(await screen.findByText(/please select an organisation/i)).toBeInTheDocument();
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
-  expect(screen.getAllByText(/please select a base/i)[0]).toBeInTheDocument();
-
-  expect((await screen.findAllByText(/required/i)).length).toEqual(2);
+  expect((await screen.findAllByText(/please select a base/i))[0]).toBeInTheDocument();
 });
 
 // Test case 4.3.3

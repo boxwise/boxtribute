@@ -182,6 +182,15 @@ function BoxCreateView() {
 
   // Handle Submission
   const onSubmitBoxCreateForm = (createBoxData: ICreateBoxFormData) => {
+    submitBoxCreation(createBoxData, false);
+  };
+
+  // Handle Submission for Create Another
+  const onSubmitBoxCreateFormAndCreateAnother = (createBoxData: ICreateBoxFormData) => {
+    submitBoxCreation(createBoxData, true);
+  };
+
+  const submitBoxCreation = (createBoxData: ICreateBoxFormData, createAnother: boolean) => {
     const tagIds = createBoxData?.tags
       ? createBoxData?.tags?.map((tag) => parseInt(tag.value, 10))
       : [];
@@ -228,7 +237,12 @@ function BoxCreateView() {
               )?.name
             }.`,
           });
-          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
+
+          if (createAnother) {
+            navigate(`/bases/${baseId}/boxes/create`);
+          } else {
+            navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
+          }
         }
       })
       .catch((err) => {
@@ -268,6 +282,7 @@ function BoxCreateView() {
         allLocations={allLocations || []}
         productAndSizesData={allProducts || []}
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
+        onSubmitBoxCreateFormAndCreateAnother={onSubmitBoxCreateFormAndCreateAnother}
         allTags={allTags}
         disableSubmission={noLocation || noProducts}
       />

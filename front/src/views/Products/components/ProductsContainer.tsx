@@ -215,12 +215,6 @@ function ProductsContainer() {
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
-      {
-        Header: "ID",
-        accessor: "id",
-        id: "id",
-        disableFilters: true,
-      },
     ],
     [disableStandardProductMutationLoading, handleDisableOrDeleteProduct],
   );

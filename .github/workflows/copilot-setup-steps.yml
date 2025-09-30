@@ -6,11 +6,11 @@ name: "Copilot Setup Steps"
 on:
   workflow_dispatch:
   push:
-    paths:
-      - .github/workflows/copilot-setup-steps.yml
+    branches:
+      - master
   pull_request:
-    paths:
-      - .github/workflows/copilot-setup-steps.yml
+    branches:
+      - master
 
 jobs:
   # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
@@ -49,19 +49,15 @@ jobs:
 
       - name: Install BE dependencies
         run: |
+          python -m venv .venv
+          source .venv/bin/activate
           python -m pip install --upgrade pip setuptools wheel
-          pip install -U -e back -r back/requirements.txt -r back/requirements-dev.txt
+          pip install -U -e back -r back/requirements-dev.txt
 
       - name: Install FE dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install MySQL
-        uses: shogo82148/actions-setup-mysql@v1
-        with:
-          mysql-version: "8.0"
-          root-password: dropapp_root
-      - name: Seed database
+      - name: Start MySQL database
         run: |
-          mysql -h 127.0.0.1 -u root -pdropapp_root -e 'create database dropapp_dev;'
-          mysql -h 127.0.0.1 -u root -pdropapp_root -e 'show databases;'
-          mysql -h 127.0.0.1 -u root -pdropapp_root dropapp_dev < back/init.sql
+          cp example.env .env
+          docker compose up -d db

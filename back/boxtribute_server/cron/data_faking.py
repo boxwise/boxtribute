@@ -156,9 +156,9 @@ class Generator:
         about_ten_hours = 36_012
         about_ten_days = 863_987
 
-        # Start date for data generation, relative to current time. The number of weeks
+        # Start date for data generation, relative to recent time. The number of weeks
         # is chosen such that eventually the newest changes don't happen in the future
-        start = datetime.now() - timedelta(weeks=75)
+        start = datetime(2025, 8, 31) - timedelta(weeks=75)
 
         with freeze_time(start, auto_tick_seconds=about_two_hours + 2):
             self._generate_qr_codes()
@@ -704,6 +704,7 @@ class Generator:
             type=TransferAgreementType.Bidirectional,
             initiating_organisation_base_ids=[1],
             user=org1_user,
+            comment="this is a test agreement",
         )
         reject_transfer_agreement(agreement=agreement, user=org2_user)
 
@@ -726,6 +727,7 @@ class Generator:
             initiating_organisation_base_ids=[1],
             partner_organisation_base_ids=[2, 3],
             user=org1_user,
+            comment="we want this to work forever",
         )
         accept_transfer_agreement(agreement=agreement, user=org2_user)
         self.accepted_agreement = agreement
@@ -767,6 +769,7 @@ class Generator:
             .namedtuples()
         }
 
+        Faker.seed(111)  # set seed for reproducibility
         for b in self.base_ids:
             box_tag_ids = [
                 tag.id for tag in self.tags[b] if tag.type in [TagType.Box, TagType.All]

@@ -186,7 +186,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 if entries:
                     result.last_modified_on = now
                     result.last_modified_by = kwargs["user_id"]
-                    result.save()
+                result.save()
 
             return result
 

@@ -14,7 +14,7 @@ const MakeLabelsButton: React.FC<MakeLabelsButtonProps> = ({ selectedBoxes }) =>
   const { createToast } = useNotification();
 
   const MAKE_LABELS_URL = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/pdf/qr.php?label=`;
-  const selectedBoxIds = selectedBoxes.map((box) => box.values.id).join();
+  const selectedBoxIds = selectedBoxes.map((box) => box.original.id).join();
   const makeLabels = () => {
     if (selectedBoxes.length === 0) {
       createToast({
@@ -23,7 +23,7 @@ const MakeLabelsButton: React.FC<MakeLabelsButtonProps> = ({ selectedBoxes }) =>
       });
       return false;
     }
-    window.location.href = MAKE_LABELS_URL + selectedBoxIds;
+    window.open(MAKE_LABELS_URL + selectedBoxIds, "_blank");
     return true;
   };
 

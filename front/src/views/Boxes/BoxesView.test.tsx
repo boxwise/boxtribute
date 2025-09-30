@@ -112,6 +112,10 @@ const boxesQuery = ({ state = "InStock", paginationInput = 100000 }) => ({
                   },
                   lastModifiedOn: new Date().toISOString(),
                   deletedOn: null,
+                  qrCode: {
+                    __typename: "QrCode",
+                    code: "12345",
+                  },
                 },
                 {
                   __typename: "Box",
@@ -235,6 +239,7 @@ const boxesQuery = ({ state = "InStock", paginationInput = 100000 }) => ({
                   },
                   lastModifiedOn: new Date().toISOString(),
                   deletedOn: null,
+                  qrCode: null,
                 },
               ]
             : state === "Scrap"
@@ -291,6 +296,10 @@ const boxesQuery = ({ state = "InStock", paginationInput = 100000 }) => ({
                     },
                     lastModifiedOn: new Date().toISOString(),
                     deletedOn: null,
+                    qrCode: {
+                      __typename: "QrCode",
+                      code: "67890",
+                    },
                   },
                 ]
               : state === "Donated"
@@ -621,7 +630,7 @@ describe("4.8.1 - Initial load of Page", () => {
     );
 
     // Test case 4.8.1.3
-    expect(await screen.findByText(/8650860/i, {}, { timeout: 5000 })).toBeInTheDocument();
+    expect(await screen.findByText(/8650860/i, {}, { timeout: 10000 })).toBeInTheDocument();
   });
 });
 

@@ -83,7 +83,7 @@ function BoxCard({
         </WrapItem>
         {boxData?.qrCode && (
           <WrapItem pt={2}>
-            <NavLink to={printLabelUrl}>
+            <a href={printLabelUrl} target="_blank" rel="noopener noreferrer">
               <IconButton
                 aria-label="Print label"
                 borderRadius="5"
@@ -92,7 +92,7 @@ function BoxCard({
                 border="2px"
                 isDisabled={isLoading}
               />
-            </NavLink>
+            </a>
           </WrapItem>
         )}
         <Spacer />
@@ -108,7 +108,8 @@ function BoxCard({
                 "Lost" === boxData?.state ||
                 "Scrap" === boxData?.state ||
                 "NotDelivered" === boxData?.state ||
-                boxInTransit
+                boxInTransit ||
+                !!boxData?.deletedOn
               }
             />
           </NavLink>
@@ -155,7 +156,8 @@ function BoxCard({
                     "Scrap" === boxData?.state ||
                     "NotDelivered" === boxData?.state ||
                     boxInTransit ||
-                    isLoading
+                    isLoading ||
+                    !!boxData?.deletedOn
                   }
                   size="sm"
                   border="2px"
@@ -184,7 +186,8 @@ function BoxCard({
                     "Scrap" === boxData?.state ||
                     "NotDelivered" === boxData?.state ||
                     boxInTransit ||
-                    isLoading
+                    isLoading ||
+                    !!boxData?.deletedOn
                   }
                   borderRadius="0"
                   isRound
@@ -247,7 +250,8 @@ function BoxCard({
                   boxInTransit ||
                   boxData?.state === "NotDelivered" ||
                   (boxData?.location?.__typename === "ClassicLocation" &&
-                    boxData?.location?.defaultBoxState === "Lost")
+                    boxData?.location?.defaultBoxState === "Lost") ||
+                  !!boxData?.deletedOn
                 }
                 isReadOnly={isLoading}
                 isChecked={boxData?.state === "Scrap"}
@@ -279,7 +283,8 @@ function BoxCard({
                   boxInTransit ||
                   boxData?.state === "NotDelivered" ||
                   (boxData?.location?.__typename !== "DistributionSpot" &&
-                    boxData?.location?.defaultBoxState === "Lost")
+                    boxData?.location?.defaultBoxState === "Lost") ||
+                  !!boxData?.deletedOn
                 }
                 onChange={() =>
                   onStateChange(

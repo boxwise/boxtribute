@@ -17,6 +17,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
@@ -25,6 +26,7 @@ from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
 from ..models.utils import convert_ids
@@ -46,16 +48,18 @@ class SimpleDataLoader(DataLoader):
     Authorization may be skipped for base-specific resources.
     """
 
-    def __init__(self, model, skip_authorize=False):
+    def __init__(self, model, skip_authorize=False, permission=None):
         super().__init__()
         self.model = model
         self.skip_authorize = skip_authorize
+        self.permission = permission
+        if not self.permission:
+            resource = convert_pascal_to_snake_case(self.model.__name__)
+            self.permission = f"{resource}:read"
 
     async def batch_load_fn(self, ids):
         if not self.skip_authorize:
-            resource = convert_pascal_to_snake_case(self.model.__name__)
-            permission = f"{resource}:read"
-            authorize(permission=permission)
+            authorize(permission=self.permission)
 
         rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
         return [rows.get(i) for i in ids]
@@ -84,6 +88,11 @@ class BoxLoader(SimpleDataLoader):
 class TransferAgreementLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(TransferAgreement, skip_authorize=True)
+
+
+class QrCodeLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(QrCode, permission="qr:read")
 
 
 class SizeLoader(SimpleDataLoader):
@@ -131,6 +140,53 @@ class ShipmentLoader(DataLoader):
             )
         }
         return [shipments.get(i) for i in keys]
+
+
+async def load_agreement_bases(*, type, agreement_ids):
+    source_bases = defaultdict(list)
+    base_ids = []
+    for base in (
+        Base.select(Base, TransferAgreementDetail.transfer_agreement)
+        .join(
+            TransferAgreementDetail,
+            on=((TransferAgreementDetail.source_base == Base.id)),
+        )
+        .where(
+            TransferAgreementDetail.transfer_agreement << agreement_ids,
+        )
+        .distinct()
+    ):
+        source_bases[base.source_base.transfer_agreement_id].append(base)
+        base_ids.append(base.id)
+
+    target_bases = defaultdict(list)
+    for base in (
+        Base.select(Base, TransferAgreementDetail.transfer_agreement)
+        .join(
+            TransferAgreementDetail,
+            on=((TransferAgreementDetail.target_base == Base.id)),
+        )
+        .where(
+            TransferAgreementDetail.transfer_agreement << agreement_ids,
+        )
+        .distinct()
+    ):
+        target_bases[base.target_base.transfer_agreement_id].append(base)
+        base_ids.append(base.id)
+    authorize(permission="base:read", base_ids=base_ids)
+    if type == "source":
+        return [source_bases.get(i, []) for i in agreement_ids]
+    return [target_bases.get(i, []) for i in agreement_ids]
+
+
+class SourceBasesForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        return await load_agreement_bases(type="source", agreement_ids=agreement_ids)
+
+
+class TargetBasesForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        return await load_agreement_bases(type="target", agreement_ids=agreement_ids)
 
 
 class ShipmentsForAgreementLoader(DataLoader):
