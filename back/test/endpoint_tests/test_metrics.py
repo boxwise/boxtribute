@@ -100,9 +100,7 @@ def test_metrics_query_for_god_user(
 
 @pytest.mark.parametrize(
     "lastMonth, lastQuarter, lastYear",
-    [
-        [0, 0, 0],
-    ],
+    [0, 0, 0],
 )
 def test_public_beneficiary_numbers(
     read_only_client,
