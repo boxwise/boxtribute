@@ -1,3 +1,4 @@
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
@@ -98,12 +99,12 @@ export const useAssignBoxesToShipment = () => {
       })
         .then(({ data, error }) => {
           setIsLoading(false);
-          if (error) {
-            // In Apollo Client v4, error structure has changed
-            const errorMessage = error.message || "";
+          if (error && CombinedGraphQLErrors.is(error)) {
+            const graphQlError = error.errors[0];
+            const errorCode = graphQlError.extensions?.code;
 
             // Example: the user is not of the sending base
-            if (errorMessage.includes("FORBIDDEN") || errorMessage.includes("Forbidden")) {
+            if (errorCode === "FORBIDDEN") {
               if (showErrors)
                 triggerError({
                   message: "You don't have the permissions to assign boxes to this shipment.",
@@ -113,11 +114,11 @@ export const useAssignBoxesToShipment = () => {
                 requestedBoxes: boxes,
                 notInStockBoxes,
                 failedBoxes: inStockBoxes,
-                error: error,
+                error: graphQlError,
               } as IAssignBoxToShipmentResult;
             }
             // The shipment is not in the preparing state
-            if (errorMessage.includes("BAD_USER_INPUT")) {
+            if (errorCode === "BAD_USER_INPUT") {
               if (showErrors)
                 triggerError({
                   message: "The shipment is not in the Preparing state.",
@@ -127,7 +128,7 @@ export const useAssignBoxesToShipment = () => {
                 requestedBoxes: boxes,
                 notInStockBoxes,
                 failedBoxes: inStockBoxes,
-                error: error,
+                error: graphQlError,
               } as IAssignBoxToShipmentResult;
             }
             if (showErrors)
@@ -140,7 +141,7 @@ export const useAssignBoxesToShipment = () => {
               requestedBoxes: boxes,
               notInStockBoxes,
               failedBoxes: inStockBoxes,
-              error: error,
+              error: graphQlError,
             } as IAssignBoxToShipmentResult;
           }
           const boxesInShipment: IBoxBasicFields[] =
@@ -183,7 +184,6 @@ export const useAssignBoxesToShipment = () => {
             requestedBoxes: boxes,
             assignedBoxes,
             notInStockBoxes,
-            error: error ? error : undefined,
           } as IAssignBoxToShipmentResult;
         })
         .catch(
