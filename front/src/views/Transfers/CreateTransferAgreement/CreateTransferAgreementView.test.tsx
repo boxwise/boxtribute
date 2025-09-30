@@ -111,7 +111,6 @@ it("4.1.1 - Initial load of Page", async () => {
     routePath: "/bases/:baseId/transfers/agreements/create",
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery],
-    addTypename: true,
   });
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
@@ -149,7 +148,6 @@ it("4.1.2 - Input Validations", async () => {
     routePath: "/bases/:baseId/transfers/agreements/create",
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery, successfulMutation],
-    addTypename: true,
   });
 
   const submitButton = await screen.findByRole("button", { name: /link new partner/i });
@@ -190,7 +188,6 @@ it("4.1.3 - Click on Submit Button", async () => {
     initialUrl: "/bases/1/transfers/agreements/create",
     additionalRoute: "/bases/1/transfers/agreements",
     mocks: [initialQuery, successfulMutation],
-    addTypename: true,
   });
 
   const submitButton = await screen.findByRole("button", { name: /link new partner/i });
@@ -217,7 +214,6 @@ it("4.1.3 - Click on Submit Button", async () => {
     routePath: "/bases/:baseId/transfers/agreements/create",
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery, mutationNetworkError],
-    addTypename: true,
   });
 
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /link new partner/i });
@@ -240,7 +236,6 @@ it("4.1.4 - Failed to Fetch Initial Data", async () => {
     routePath: "/bases/:baseId/transfers/agreements/create",
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQueryNetworkError],
-    addTypename: true,
   });
 
   // Test case 4.1.4.1 - No Partner Organisations and Bases Data
@@ -260,7 +255,6 @@ it("4.1.5 - Failed due to the identical agreement", async () => {
     routePath: "/bases/:baseId/transfers/agreements/create",
     initialUrl: "/bases/1/transfers/agreements/create",
     mocks: [initialQuery, mutationIdenticalAgreementError],
-    addTypename: true,
   });
 
   const rerenderedSubmitButton = await screen.findByRole("button", { name: /link new partner/i });

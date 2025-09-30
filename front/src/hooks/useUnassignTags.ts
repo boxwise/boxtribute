@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
@@ -41,7 +41,7 @@ export const useUnassignTags = () => {
           tagIds,
         },
       })
-        .then(({ data, errors }) => {
+        .then(({ data, error }) => {
           const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
           const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
 
@@ -54,8 +54,8 @@ export const useUnassignTags = () => {
             });
           }
 
-          // unexpected graphQL error
-          if (errors?.length && showToasts) {
+          // unexpected GraphQL error
+          if (error && showToasts) {
             triggerError({
               message: "Could not unassign tags from boxes. Try again?",
             });

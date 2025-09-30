@@ -3,22 +3,16 @@
 
 import React, { ReactNode } from "react";
 import { render as rtlRender } from "@testing-library/react";
-import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
-import { onError } from "@apollo/client/link/error";
+import { MockedResponse } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { theme } from "utils/theme";
 import { ChakraProvider } from "@chakra-ui/react";
 import "mutationobserver-shim";
-import {
-  ApolloClient,
-  ApolloLink,
-  InMemoryCache,
-  HttpLink,
-  ApolloProvider,
-  DefaultOptions,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, HttpLink, DefaultOptions } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import { useHydrateAtoms } from "jotai/utils";
-import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
+import { mockMatchMediaQuery } from "mocks/functions";
 import { Provider } from "jotai";
 import {
   availableBasesAtom,
@@ -27,6 +21,7 @@ import {
 } from "stores/globalPreferenceStore";
 import { basicBase1 } from "mocks/bases";
 import { basicOrg1 } from "mocks/organisations";
+import { cache } from "queries/cache";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -84,11 +79,10 @@ function render(
   ui,
   {
     mocks = [],
-    cache = undefined,
+    cache: customCache = undefined,
     routePath,
     initialUrl,
     additionalRoute = undefined,
-    addTypename = false,
     jotaiAtoms = jotaiAtomsInitialValues,
     mediaQueryReturnValue = true,
     ...renderOptions
@@ -98,52 +92,17 @@ function render(
     routePath: string;
     initialUrl: string;
     additionalRoute?: string;
-    addTypename?: boolean;
     jotaiAtoms?: Iterable<any>;
     mediaQueryReturnValue?: boolean;
   },
 ) {
-  // set showWarnings to false, as we'll log them via the onError callback instead
-  const mockLink = new MockLink(mocks, undefined, { showWarnings: false });
-  const errorLoggingLink = onError((error: any) => {
-    const { graphQLErrors, networkError } = error;
-    if (graphQLErrors) {
-      for (const error of graphQLErrors) {
-        // log errors, but only if they aren't ones we set up in a mock
-        // TODO: figure out how to fail the outer test once these are fixed
-        if (!(error instanceof FakeGraphQLError)) {
-          console.error(`[GraphQL error]: ${error}`);
-        }
-      }
-      return;
-    }
-    if (networkError) {
-      // log errors, but only if they aren't ones we set up in a mock
-      // TODO: figure out how to fail the outer test once these are fixed
-      if (!(networkError instanceof FakeGraphQLNetworkError)) {
-        console.error(`[GraphQL network error]: ${networkError}`);
-      }
-      return;
-    }
-    console.error(`[Unknown Error]: ${error}`);
-  });
-  mockLink.setOnError((error) => {
-    console.error(`[MockLink Error]: ${error}`);
-  });
-
-  const link = ApolloLink.from([errorLoggingLink, mockLink]);
-
+  // Use the shared cache with local state configuration, or a custom cache if provided
+  const testCache = customCache || cache;
   mockMatchMediaQuery(mediaQueryReturnValue);
 
-  const Wrapper: React.FC = ({ children }: any) => (
+  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <ChakraProvider theme={theme}>
-      <MockedProvider
-        mocks={mocks}
-        addTypename={addTypename}
-        link={link}
-        defaultOptions={defaultOptions}
-        cache={cache}
-      >
+      <MockedProvider mocks={mocks} defaultOptions={defaultOptions} cache={testCache}>
         <JotaiTestProvider initialValues={jotaiAtoms}>
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>

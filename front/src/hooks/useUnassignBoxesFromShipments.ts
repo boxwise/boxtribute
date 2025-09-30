@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useState, useCallback } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import {
@@ -73,7 +73,7 @@ export const useUnassignBoxesFromShipments = () => {
           variables: gqlRequestPrep.variables,
         })
         .then(({ data }) => {
-          const stillAssignedLabelIdentifiers: string[] = Object.values(data).reduce(
+          const stillAssignedLabelIdentifiers: string[] = Object.values(data as any).reduce(
             (result: string[], unassignment) => {
               if (isUnassignmentFromShipment(unassignment)) {
                 const typedUnassignment = unassignment as IUnassignmentFromShipment;

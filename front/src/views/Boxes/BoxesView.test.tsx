@@ -538,7 +538,6 @@ describe("4.8.1 - Initial load of Page", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );
@@ -588,7 +587,6 @@ describe("4.8.1 - Initial load of Page", () => {
             initialUrl: "/bases/2/boxes",
             mocks,
             cache,
-            addTypename: true,
             jotaiAtoms,
           },
         );
@@ -627,7 +625,6 @@ describe("4.8.1 - Initial load of Page", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );
@@ -662,7 +659,6 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
           moveBoxesMutation,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );
@@ -747,7 +743,6 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );

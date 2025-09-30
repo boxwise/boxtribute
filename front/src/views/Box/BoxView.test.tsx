@@ -378,7 +378,6 @@ it("3.1.1 - Initial load of Page", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
     mocks: [initialQuery],
-    addTypename: true,
   });
 
   // Test case 3.1.1.1 - Is the Loading State Shown First?
@@ -419,7 +418,6 @@ it("3.1.1.7 - Content: Display an warning note if a box is located in a legacy l
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxInLegacyLostLocation],
-    addTypename: true,
   });
 
   // Test case 3.1.1.7 - Content: Display an warning note if a box is located in a legacy location
@@ -441,7 +439,6 @@ it("3.1.1.8 - Content: Display an info alert if a box status is Lost", async () 
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxLostState],
-    addTypename: true,
   });
 
   // Test case 3.1.1.8 - Content: Display an info alert if a box status is Lost
@@ -459,7 +456,6 @@ it("3.1.1.9 - Content: Display an info alert if a box status is Scrap", async ()
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxScrapState],
-    addTypename: true,
   });
 
   // Test case 3.1.1.9 - Content: Display an info alert if a box status is Scrap
@@ -479,7 +475,6 @@ it("3.1.1.10 - Content: Display a warning alert and disable actions if a box is 
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxDeletedState],
-    addTypename: true,
   });
 
   // Test case 3.1.1.10 - Content: Display a warning alert if a box is deleted
@@ -511,7 +506,6 @@ it("3.1.1.11 - Content: Display an info alert if a box status is mark for shipme
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/1234",
     mocks: [initialQueryForBoxMarkedForShipmentState],
-    addTypename: true,
   });
 
   // Test case 3.1.1.11 - Content: Display an info alert if a box status is mark for shipment
@@ -520,7 +514,7 @@ it("3.1.1.11 - Content: Display an info alert if a box status is mark for shipme
   expect(title).toBeInTheDocument();
 
   const moveTab = screen.getByRole("tab", { name: /move/i });
-  user.click(moveTab);
+  await user.click(moveTab);
 
   expect(await screen.findByRole("alert")).toBeInTheDocument();
   expect(screen.getByText(/markedforshipment boxes are not movable/i)).toBeInTheDocument();
@@ -533,7 +527,6 @@ it("3.1.2 - Change Number of Items", async () => {
     initialUrl: "/bases/2/boxes/1235",
     mocks: [initialQueryForChangeNumberOfBoxes, updateNumberOfItemsMutation],
     cache,
-    addTypename: true,
   });
 
   const title = await screen.findByRole("heading", { name: "Box 1235" });
@@ -594,7 +587,6 @@ it("3.1.3.1 - Change State to Scrap", async () => {
     initialUrl: "/bases/2/boxes/123",
     mocks: [initialQuery, updateBoxStateToScrapMutation, updateBoxStateToLostMutation],
     cache,
-    addTypename: true,
   });
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
@@ -602,7 +594,7 @@ it("3.1.3.1 - Change State to Scrap", async () => {
   const boxSubheading = screen.getByTestId("box-subheader");
   await waitFor(() => expect(boxSubheading).toHaveTextContent("Status: InStock"));
   // Test case 3.1.3.1 - Click on Scrap
-  user.click(screen.getByTestId("box-scrap-btn"));
+  await user.click(screen.getByTestId("box-scrap-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.1.1 - Change state on Scrap Toggled
@@ -618,14 +610,13 @@ it("3.1.3.2 - Change State to Lost", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
     mocks: [initialQuery, updateBoxStateToLostMutation],
-    addTypename: true,
     cache,
   });
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
 
   // Test case 3.1.3.2 - Click on Lost
-  user.click(screen.getByTestId("box-lost-btn"));
+  await user.click(screen.getByTestId("box-lost-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.2.1 - Change state on Lost Toggled
@@ -649,7 +640,6 @@ it("3.1.4 - Move location", async () => {
     initialUrl: "/bases/1/boxes/125",
     mocks: [initialQueryMoveLocationOfBox, moveLocationOfBoxMutation],
     cache,
-    addTypename: true,
   });
 
   expect(await screen.findByText(/move this box from/i)).toBeInTheDocument();
@@ -658,7 +648,7 @@ it("3.1.4 - Move location", async () => {
   expect(boxLocationLabel).toHaveTextContent("WH Men to:");
   // Test case 3.1.4.1- Click to move box from WH Men to WH Women
   const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
-  user.click(whWomenLocation);
+  await user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
@@ -689,7 +679,6 @@ it("3.1.5 - Redirect to Edit Box", async () => {
     initialUrl: "/bases/1/boxes/127",
     additionalRoute: "/bases/1/boxes/127/edit",
     mocks: [initialQueryBeforeRedirect, boxEditInitialQuery],
-    addTypename: true,
   });
 
   const title = await screen.findByRole("heading", { name: "Box 127" });
@@ -697,7 +686,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
 
   // Test case 3.1.5.1 - Click on edit Icon
   const editButton = screen.getByRole("button", { name: /edit box/i });
-  user.click(editButton);
+  await user.click(editButton);
 
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/127/edit" }),
@@ -710,7 +699,6 @@ it("3.1.6 - Product Gender", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/123",
     mocks: [productWithoutGenderQuery],
-    addTypename: true,
   });
 
   const title = await screen.findByRole("heading", { name: "Box 123" });
@@ -727,7 +715,6 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/124",
     mocks: [initialForFailedQuery, updateNumberOfItemsFailedMutation],
-    addTypename: true,
   });
 
   const title = await screen.findByRole("heading", { name: "Box 124" });
@@ -735,11 +722,11 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
 
   // Test case 3.1.7.1 - Correct input is entered, but there is a processing error (item mutation query returns and error message)
   const takeItemsButton = screen.getByTestId("decrease-items");
-  user.click(takeItemsButton);
+  await user.click(takeItemsButton);
   expect(await screen.findByText(/take items from the box/i)).toBeInTheDocument();
 
   await user.type(screen.getByRole("spinbutton"), "1");
-  user.click(screen.getByText(/Submit/i));
+  await user.click(screen.getByText(/Submit/i));
 
   await waitFor(
     () =>
@@ -759,7 +746,6 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/124",
     mocks: [initialForFailedQuery, moveLocationOfBoxFailedMutation],
-    addTypename: true,
   });
 
   const title = await screen.findByRole("heading", { name: "Box 124" });
@@ -769,7 +755,7 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
-  user.click(whWomenLocation);
+  await user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
@@ -787,7 +773,6 @@ it("3.1.8 - Error When Move Locations", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/124",
     mocks: [initialForFailedQuery, moveLocationOfBoxNetworkFailedMutation],
-    addTypename: true,
   });
   await waitFor(() => {
     expect(screen.getByTestId("box-header")).toBeInTheDocument();
@@ -798,7 +783,7 @@ it("3.1.8 - Error When Move Locations", async () => {
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
-  user.click(whWomenLocation);
+  await user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
@@ -815,7 +800,6 @@ it("3.1.9 - Given Invalid Box Label Identifier in the URL/Link", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/1111",
     mocks: [initialFailedQuery],
-    addTypename: true,
   });
 
   await screen.findByText(/could not fetch box data! please try reloading the page./i);
@@ -844,7 +828,6 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       routePath: "/bases/:baseId/boxes/:labelIdentifier",
       initialUrl: "/bases/2/boxes/1111",
       mocks: [initialFailedQuery],
-      addTypename: true,
     },
   );
 
@@ -858,7 +841,6 @@ it("4.6.1.3 - Box is InStock and query for shipments returns no shipments in pre
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/129",
     mocks: [initialWithoutShipmentQuery],
-    addTypename: true,
   });
 
   await waitFor(() => {
@@ -889,7 +871,6 @@ it('4.6.1.3b - When there are no shipments, the "Transfer" tab should not be vis
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/2/boxes/129",
     mocks: [initialWithoutShipmentQuery],
-    addTypename: true,
   });
 
   await waitFor(() => {
@@ -1018,7 +999,6 @@ it("QR.1 - Display warning alert for box without QR code and create button", asy
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/noqr123",
     mocks: [initialQueryForBoxWithoutQrCode],
-    addTypename: true,
   });
 
   expect(await screen.findByRole("heading", { name: /box noqr123/i })).toBeInTheDocument();
@@ -1041,7 +1021,6 @@ it("QR.2 - No warning alert for box with QR code", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/withqr123",
     mocks: [initialQueryForBoxWithQrCode],
-    addTypename: true,
   });
 
   expect(await screen.findByRole("heading", { name: /box withqr123/i })).toBeInTheDocument();
@@ -1063,7 +1042,6 @@ it("QR.3 - Successful QR code creation", async () => {
     initialUrl: "/bases/1/boxes/noqr123",
     mocks: [initialQueryForBoxWithoutQrCode, createQrCodeMutation],
     cache,
-    addTypename: true,
   });
 
   expect(await screen.findByRole("heading", { name: /box noqr123/i })).toBeInTheDocument();
@@ -1100,7 +1078,6 @@ it("QR.4 - Failed QR code creation for box with deleted product", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/deletedprod123",
     mocks: [initialQueryForBoxWithDeletedProduct],
-    addTypename: true,
   });
 
   expect(await screen.findByRole("heading", { name: /box deletedprod123/i })).toBeInTheDocument();
@@ -1126,7 +1103,6 @@ it("QR.5 - Failed QR code creation with GraphQL error", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier",
     initialUrl: "/bases/1/boxes/errorbox123",
     mocks: [initialQueryForBoxWithErrorScenario, createQrCodeMutationError],
-    addTypename: true,
   });
 
   expect(await screen.findByRole("heading", { name: /box errorbox123/i })).toBeInTheDocument();
