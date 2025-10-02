@@ -157,6 +157,8 @@ def test_box_mutations(
     box_without_qr_code,
     in_transit_box,
     not_delivered_box,
+    lost_box,
+    donated_box,
     default_size,
     another_size,
     products,
@@ -831,6 +833,33 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
     }
 
+    # Test cases 8.2.11g, 8.2.11h
+    non_updatable_boxes = [
+        created_box,  # already deleted
+        box_without_qr_code,  # MarkedForShipment
+        in_transit_box,
+        not_delivered_box,
+    ]
+    created_box["label_identifier"] = created_box["labelIdentifier"]
+    for box in non_updatable_boxes:
+        mutation = f"""mutation {{ updateBox(updateInput : {{
+                        labelIdentifier: "{box['label_identifier']}"
+                        }} ) {{ id }} }}"""
+        assert_bad_user_input(client, mutation)
+
+    updatable_boxes = [
+        lost_box,
+        donated_box,
+        lost_box,  # now Scrap
+    ]
+    for box in updatable_boxes:
+        mutation = f"""mutation {{ updateBox(updateInput : {{
+                        labelIdentifier: "{box['label_identifier']}"
+                        state: {BoxState.Scrap.name}
+                        }} ) {{ state }} }}"""
+        scrapped_box = assert_successful_request(client, mutation)
+        assert scrapped_box == {"state": BoxState.Scrap.name}
+
     # Test case 8.2.22j
     mock_user_for_request(mocker, base_ids=[1, 3])
     another_location_id = str(yet_another_location["id"])  # in base 3
@@ -1184,6 +1213,28 @@ def test_box_mutations(
             "from_int": None,
             "to_int": None,
             "record_id": box_id + 1,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.Lost.value,
+            "to_int": BoxState.Scrap.value,
+            "record_id": lost_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.Donated.value,
+            "to_int": BoxState.Scrap.value,
+            "record_id": donated_box["id"],
             "table_name": "stock",
             "user": 8,
             "ip": None,

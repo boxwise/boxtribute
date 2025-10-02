@@ -7,9 +7,11 @@ from ....db import db
 from ....enums import BoxState, TaggableObjectType
 from ....exceptions import (
     BoxCreationFailed,
+    BoxDeleted,
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
+    InvalidBoxState,
     LocationBaseMismatch,
     LocationTagBaseMismatch,
     MissingInputField,
@@ -36,6 +38,13 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
+
+WAREHOUSE_BOX_STATES = {
+    BoxState.InStock,
+    BoxState.Donated,
+    BoxState.Scrap,
+    BoxState.Lost,
+}
 
 
 def is_measure_product(product):
@@ -210,6 +219,15 @@ def update_box(
     Insert timestamp for modification and return the box.
     """
     box = Box.get(Box.label_identifier == label_identifier)
+
+    if box.deleted_on is not None:
+        raise BoxDeleted(label_identifier=label_identifier)
+
+    if box.state_id not in WAREHOUSE_BOX_STATES:
+        raise InvalidBoxState(
+            state=BoxState(box.state_id).name, label_identifier=label_identifier
+        )
+
     box_contains_measure_product = box.size_id is None
     new_product = Product.get_by_id(product_id or box.product_id)
     new_product_is_measure_product = is_measure_product(new_product)
