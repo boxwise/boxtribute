@@ -1,24 +1,19 @@
 import { SelectColumnFilterUI } from "components/Table/Filter";
 import { ColumnInstance } from "react-table";
 import { BoxRow } from "./types";
-import { BoxState } from "queries/types";
+import { boxStateIds } from "utils/constants";
 
 interface ISelectBoxStateFilterProps {
   column: ColumnInstance<BoxRow>;
 }
 
+// Custom filter-selection UI to display all states for selection, not just the ones that are
+// present in the table data
 export function SelectBoxStateFilter({ column }: ISelectBoxStateFilterProps) {
-  const boxState: BoxState[] = [
-    "Donated",
-    "InStock",
-    "InTransit",
-    "Lost",
-    "MarkedForShipment",
-    "NotDelivered",
-    "Receiving",
-    "Scrap",
-  ];
-  const options = boxState.map((state) => ({ label: state, value: state }));
+  const options = Object.entries(boxStateIds).map(([name, id]) => ({
+    label: name,
+    value: id,
+  }));
 
   return (
     <SelectColumnFilterUI

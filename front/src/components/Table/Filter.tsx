@@ -54,18 +54,8 @@ export function SelectColumnFilterUI({
         <PopoverBody textStyle="h1">
           <Select
             size="sm"
-            value={
-              filterValue &&
-              filterValue.map((value) => {
-                if (value.__typename === "Tag" && typeof value === "object" && value !== null) {
-                  return { value, label: value.name };
-                }
-                if (typeof value === "object" && value !== null) {
-                  return { value, label: ObjectToString(value) };
-                }
-                return { value, label: value };
-              })
-            }
+            // filterValue is an array of IDs; display the matching options
+            value={options.filter((o) => filterValue?.includes(o.value))}
             placeholder="All"
             onChange={(selectedOptions) => {
               setFilter(selectedOptions.map((selectedOption) => selectedOption.value) || undefined);
@@ -100,34 +90,42 @@ export function SelectColumnFilter({
     const optionValues = {};
     preFilteredRows.forEach((row) => {
       const value = row.values[id];
-      // if the data passed to the table is more complex than a string we need to pass the data as value.
-      // This excludes the case for tags filtering where we introduce a second condition in the second if hook.
-      if (typeof value === "object" && value !== null && id.toLowerCase() !== "tags") {
+      // If the data passed to the table is more complex than a string we need to pass IDs as value
+      if (Array.isArray(value)) {
+        // E.g. TagsCell on BoxesView contains a list of tags
+        value.forEach((element: { name: string }) => {
+          const objectToString = ObjectToString(element);
+          groupedOptionLabels.add(objectToString);
+          optionValues[objectToString] = element;
+        });
+      } else if (typeof value === "object" && value !== null) {
         const objectToString = ObjectToString(value);
         groupedOptionLabels.add(objectToString);
-        optionValues[objectToString] = value;
-      } else if (typeof value === "object" && value !== null && id.toLowerCase() === "tags") {
-        value.forEach((tag: { name: string }) => {
-          if (tag?.name) {
-            groupedOptionLabels.add(tag.name);
-            optionValues[tag.name] = tag;
-          }
-        });
+        if (id === "product") {
+          // Show gender info for BoxesView product filter
+          optionValues[objectToString] = {
+            id: value.id,
+            name: `${value.name} (${row.values.gender?.name})`,
+          };
+        } else {
+          optionValues[objectToString] = value;
+        }
       } else if (value !== undefined) {
         groupedOptionLabels.add(value);
         optionValues[value] = value;
       }
     });
 
-    return Array.from(groupedOptionLabels.values())
+    const result = Array.from(groupedOptionLabels.values())
       .map(
         (label) =>
           ({
-            label,
-            value: optionValues[label],
+            label: optionValues[label].name ?? label,
+            value: optionValues[label].id ?? optionValues[label],
           }) as ISelectOption,
       )
       .sort((a, b) => a.label.localeCompare(b.label));
+    return result;
   }, [id, preFilteredRows]);
 
   return (
@@ -147,16 +145,11 @@ export const includesSomeObjectFilterFn = (rows, ids, filterValue) =>
   rows.filter((row) =>
     ids.some((id) => {
       const rowValue = row.values[id];
-      return (
-        rowValue &&
-        filterValue.some((valObject) => JSON.stringify(rowValue) === JSON.stringify(valObject))
-      );
+      return rowValue && filterValue.some((filterId) => rowValue.id === filterId);
     }),
   );
 includesSomeObjectFilterFn.autoRemove = (val) => !val || !val.length;
 
-// This is a custom filter function for columns that consist of objects
-// https://react-table-v7.tanstack.com/docs/examples/filtering
 export const includesOneOfMultipleStringsFilterFn = (rows, ids, filterValue) =>
   rows.filter((row) =>
     ids.some((id) => {
@@ -176,11 +169,7 @@ export const includesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
   rows.filter((row) =>
     ids.some((id) => {
       const rowTags = row.values[id];
-
-      if (filterValue.every((tagFilter) => tagFilter.name)) {
-        return filterValue.some((tagFilter) => rowTags.some((tag) => tag.name === tagFilter.name));
-      }
-      return filterValue.some((tagName) => rowTags.some((tag) => tag.name === tagName));
+      return filterValue.some((tagId) => rowTags.some((tag) => tag.id === tagId));
     }),
   );
 

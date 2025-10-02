@@ -7,7 +7,7 @@ import {
   tagToDropdownOptionsTransformer,
 } from "utils/transformers";
 import { Column } from "react-table";
-import { useTableConfig } from "hooks/hooks";
+import { useTableConfig } from "hooks/useTableConfig";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
@@ -15,7 +15,14 @@ import {
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { DaysCell, ShipmentCell, StateCell, TagsCell, QrCodeCell } from "./components/TableCells";
+import {
+  DaysCell,
+  ObjectCell,
+  ShipmentCell,
+  StateCell,
+  TagsCell,
+  QrCodeCell,
+} from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
@@ -149,10 +156,11 @@ function Boxes({
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
+
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
+      columnFilters: [{ id: "state", value: ["1"] }], // for InStock (see boxStateIds)
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "qrLabel",
@@ -168,6 +176,7 @@ function Boxes({
         "id",
       ],
     },
+    syncFiltersAndUrlParams: true,
   });
 
   // fetch options for actions on boxes causing the suspense.
@@ -251,33 +260,36 @@ function Boxes({
         id: "product",
         Cell: ProductWithSPCheckmarkCell,
         sortType: (rowA, rowB) => {
-          const a = rowA.values.product?.toLowerCase() ?? "";
-          const b = rowB.values.product?.toLowerCase() ?? "";
+          const a = rowA.values.product?.name.toLowerCase() ?? "";
+          const b = rowB.values.product?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Product Category",
         accessor: "productCategory",
         id: "productCategory",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Size",
         accessor: "size",
         id: "size",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Items",
@@ -291,14 +303,15 @@ function Boxes({
         id: "state",
         Cell: StateCell,
         Filter: SelectBoxStateFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Location",
         accessor: "location",
         id: "location",
+        Cell: ObjectCell,
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Tags",
