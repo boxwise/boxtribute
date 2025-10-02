@@ -116,11 +116,9 @@ def compute_stock_overview(*, organisation_id):
 
 
 def number_of_beneficiaries_registered_between(start, end):
-    res = (
+
+    return (
         Beneficiary.select()
         .where((Beneficiary.created_on >= start) & (Beneficiary.created_on <= end))
         .count()
     )
-
-    # if none .count() returns 0 anyway
-    return res

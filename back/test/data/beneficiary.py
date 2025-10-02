@@ -3,6 +3,7 @@ from datetime import date, datetime
 import pytest
 from boxtribute_server.enums import HumanGender
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
+from dateutil.relativedelta import relativedelta
 
 from .base import data as base_data
 
@@ -99,7 +100,7 @@ def another_male_beneficiary_data():
         "last_name": "Body",
         "base": base_data()[0]["id"],
         "date_of_birth": date(1995, 5, 5),
-        "created_on": datetime(2019, 6, 30),
+        "created_on": (datetime.today().replace(day=1) - relativedelta(days=1)),
         "created_by": None,
         "family_id": 10,
         "family_head": None,
@@ -153,4 +154,3 @@ def create():
     Beneficiary.create(**org2_base3_beneficiary_data())
     Beneficiary.create(**another_relative_beneficiary_data())
     Beneficiary.create(**another_male_beneficiary_data())
-    # Beneficiary.create(**recent_beneficiary_data())
