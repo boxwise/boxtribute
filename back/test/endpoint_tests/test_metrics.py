@@ -111,20 +111,10 @@ def test_public_beneficiary_numbers(
 
     response = assert_successful_request(read_only_client, query, endpoint="public")
 
-    # current_month = datetime.today().month
+    current_month = datetime.today().month
 
-    if datetime.today().month in [1, 4, 7, 10]:
-
-        assert response == {
-            "lastMonth": 1,
-            "lastQuarter": 1,
-            "lastYear": 0,
-        }
-
-    else:
-
-        assert response == {
-            "lastMonth": 1,
-            "lastQuarter": 0,
-            "lastYear": 0,
-        }
+    assert response == {
+        "lastMonth": 1,
+        "lastQuarter": 1 if current_month in [1, 4, 7, 10] else 0,
+        "lastYear": 1 if current_month == 1 else 0,
+    }
