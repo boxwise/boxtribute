@@ -113,3 +113,11 @@ def compute_stock_overview(*, organisation_id):
         .get()
     )
     return {n: getattr(overview, n) for n in ["number_of_boxes", "number_of_items"]}
+
+
+def number_of_beneficiaries_registered_between(start, end):
+    return (
+        Beneficiary.select()
+        .where((Beneficiary.created_on >= start) & (Beneficiary.created_on <= end))
+        .count()
+    )
