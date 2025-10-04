@@ -100,9 +100,7 @@ def test_metrics_query_for_god_user(
     }
 
 
-def test_public_beneficiary_numbers(
-    read_only_client,
-):
+def test_public_beneficiary_numbers(read_only_client):
     query = """query { newlyRegisteredBeneficiaryNumbers {
                       lastMonth
                       lastQuarter
@@ -112,7 +110,6 @@ def test_public_beneficiary_numbers(
     response = assert_successful_request(read_only_client, query, endpoint="public")
 
     current_month = datetime.today().month
-
     assert response == {
         "lastMonth": 1,
         "lastQuarter": 1 if current_month in [1, 4, 7, 10] else 0,
