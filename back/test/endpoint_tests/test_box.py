@@ -157,6 +157,8 @@ def test_box_mutations(
     box_without_qr_code,
     in_transit_box,
     not_delivered_box,
+    lost_box,
+    donated_box,
     default_size,
     another_size,
     products,
@@ -831,6 +833,33 @@ def test_box_mutations(
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
     }
 
+    # Test cases 8.2.11g, 8.2.11h
+    non_updatable_boxes = [
+        created_box,  # already deleted
+        box_without_qr_code,  # MarkedForShipment
+        in_transit_box,
+        not_delivered_box,
+    ]
+    created_box["label_identifier"] = created_box["labelIdentifier"]
+    for box in non_updatable_boxes:
+        mutation = f"""mutation {{ updateBox(updateInput : {{
+                        labelIdentifier: "{box['label_identifier']}"
+                        }} ) {{ id }} }}"""
+        assert_bad_user_input(client, mutation)
+
+    updatable_boxes = [
+        lost_box,
+        donated_box,
+        lost_box,  # now Scrap
+    ]
+    for box in updatable_boxes:
+        mutation = f"""mutation {{ updateBox(updateInput : {{
+                        labelIdentifier: "{box['label_identifier']}"
+                        state: {BoxState.Scrap.name}
+                        }} ) {{ state }} }}"""
+        scrapped_box = assert_successful_request(client, mutation)
+        assert scrapped_box == {"state": BoxState.Scrap.name}
+
     # Test case 8.2.22j
     mock_user_for_request(mocker, base_ids=[1, 3])
     another_location_id = str(yet_another_location["id"])  # in base 3
@@ -1191,6 +1220,28 @@ def test_box_mutations(
             "to_float": None,
         },
         {
+            "changes": "box_state_id",
+            "from_int": BoxState.Lost.value,
+            "to_int": BoxState.Scrap.value,
+            "record_id": lost_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.Donated.value,
+            "to_int": BoxState.Scrap.value,
+            "record_id": donated_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
             "changes": "location_id",
             "from_int": 2,
             "to_int": int(another_location_id),
@@ -1205,24 +1256,64 @@ def test_box_mutations(
 
 
 def test_update_box_tag_ids(client, default_box, tags):
-    # Test case 8.2.11c
     label_identifier = default_box["label_identifier"]
     tag_id = str(tags[1]["id"])
     tag_name = tags[1]["name"]
     another_tag_id = str(tags[2]["id"])
     another_tag_name = tags[2]["name"]
 
-    # Default box has tags 2 and 3 assigned already. Remove 2 and keep 3
+    # Test case 8.2.11f
+    # Run updateBox without any actual changes
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}" }}
+                    ) {{
+                        tags {{ id }}
+                        lastModifiedOn
+                        numberOfItems
+                    }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(
+        default_box["last_modified_on"].isoformat()
+    )
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["numberOfItems"] == default_box["number_of_items"]
+
+    # Default box has tags 2 and 3 assigned already
+    # Run updateBox without any actual tag changes
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [{tag_id}, {another_tag_id}] }}
+                    ) {{
+                        tags {{ id }}
+                        lastModifiedOn
+                        numberOfItems
+                    }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(
+        default_box["last_modified_on"].isoformat()
+    )
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["numberOfItems"] == default_box["number_of_items"]
+
+    # Test case 8.2.11c
+    # Remove tag ID 2 and while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
                     tagIds: [{another_tag_id}] }} ) {{
                         history {{ changes }}
+                        lastModifiedOn
                         tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(today)
     assert updated_box["tags"] == [{"id": another_tag_id}]
     assert updated_box["history"][0] == {
         "changes": f"removed tag '{tag_name}' from box"
     }
+    # Verify that the box changes are actually saved
+    query = f"""query {{ box( labelIdentifier: "{label_identifier}" ) {{
+                    lastModifiedOn }} }}"""
+    box = assert_successful_request(client, query)
+    assert box["lastModifiedOn"].startswith(today)
 
     # Now add tag ID 2 back while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{

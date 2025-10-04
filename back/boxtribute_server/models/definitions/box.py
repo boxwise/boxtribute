@@ -85,6 +85,7 @@ class Box(db.Model):  # type: ignore
         null=True,
         on_update="CASCADE",
         on_delete="RESTRICT",
+        object_id_name="qr_code_id",
         # unique index created below
     )
     size = UIntForeignKeyField(

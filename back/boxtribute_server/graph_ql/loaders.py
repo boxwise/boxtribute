@@ -17,6 +17,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
@@ -47,16 +48,18 @@ class SimpleDataLoader(DataLoader):
     Authorization may be skipped for base-specific resources.
     """
 
-    def __init__(self, model, skip_authorize=False):
+    def __init__(self, model, skip_authorize=False, permission=None):
         super().__init__()
         self.model = model
         self.skip_authorize = skip_authorize
+        self.permission = permission
+        if not self.permission:
+            resource = convert_pascal_to_snake_case(self.model.__name__)
+            self.permission = f"{resource}:read"
 
     async def batch_load_fn(self, ids):
         if not self.skip_authorize:
-            resource = convert_pascal_to_snake_case(self.model.__name__)
-            permission = f"{resource}:read"
-            authorize(permission=permission)
+            authorize(permission=self.permission)
 
         rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
         return [rows.get(i) for i in ids]
@@ -85,6 +88,11 @@ class BoxLoader(SimpleDataLoader):
 class TransferAgreementLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(TransferAgreement, skip_authorize=True)
+
+
+class QrCodeLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(QrCode, permission="qr:read")
 
 
 class SizeLoader(SimpleDataLoader):

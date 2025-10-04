@@ -28,20 +28,14 @@ const EditCustomProductFormSchema = z.object({
     .string()
     .trim()
     .refine((name) => !!name, {
-      message: "Please enter a product name.",
+      error: "Please enter a product name.",
     }),
   category: SingleSelectOptionSchema.optional(),
   gender: SingleSelectOptionSchema.optional(),
   sizeRange: SingleSelectOptionSchema.optional(),
   comment: z.string().optional(),
   inShop: z.boolean().optional(),
-  price: z
-    .number({
-      invalid_type_error: "Please enter a positive integer number.",
-    })
-    .int()
-    .nonnegative()
-    .optional(),
+  price: z.number().int().nonnegative().optional(),
 });
 
 export type EditCustomProductFormInput = z.input<typeof EditCustomProductFormSchema>;
