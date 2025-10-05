@@ -41,3 +41,12 @@ type BeneficiaryNumbers {
   " during the year before the current one "
   lastYear: Int!
 }
+
+"""
+Information on newly created boxes
+"""
+type BoxNumbers {
+  lastMonth: Int!
+  lastQuarter: Int!
+  lastYear: Int!
+}

@@ -4,7 +4,9 @@ from ariadne import QueryType
 from flask import g
 
 from ...authz import authorize
-from .crud import number_of_beneficiaries_registered_between
+from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.box import Box
+from .crud import number_of_created_records_between
 
 query = QueryType()
 public_query = QueryType()
@@ -24,6 +26,37 @@ def resolve_metrics(*_, organisation_id=None):
 
 @public_query.field("newlyRegisteredBeneficiaryNumbers")
 def resolve_newly_registered_beneficiary_numbers(*_):
+
+    ranges = get_time_ranges()
+
+    last_month = ranges["lastMonth"]
+    last_quarter = ranges["lastQuarter"]
+    last_year = ranges["lastYear"]
+
+    return {
+        "last_month": number_of_created_records_between(Beneficiary, *last_month),
+        "last_quarter": number_of_created_records_between(Beneficiary, *last_quarter),
+        "last_year": number_of_created_records_between(Beneficiary, *last_year),
+    }
+
+
+@public_query.field("newlyCreatedBoxes")
+def resolve_newly_created_boxes(*_):
+
+    ranges = get_time_ranges()
+
+    last_month = ranges["lastMonth"]
+    last_quarter = ranges["lastQuarter"]
+    last_year = ranges["lastYear"]
+
+    return {
+        "last_month": number_of_created_records_between(Box, *last_month),
+        "last_quarter": number_of_created_records_between(Box, *last_quarter),
+        "last_year": number_of_created_records_between(Box, *last_year),
+    }
+
+
+def get_time_ranges():
     now = datetime.today()
 
     # Last month
@@ -55,13 +88,7 @@ def resolve_newly_registered_beneficiary_numbers(*_):
     end_last_year = datetime(now.year, 1, 1) - timedelta(microseconds=1)
 
     return {
-        "last_month": number_of_beneficiaries_registered_between(
-            start_last_month, end_last_month
-        ),
-        "last_quarter": number_of_beneficiaries_registered_between(
-            start_last_quarter, end_last_quarter
-        ),
-        "last_year": number_of_beneficiaries_registered_between(
-            start_last_year, end_last_year
-        ),
+        "lastMonth": [start_last_month, end_last_month],
+        "lastQuarter": [start_last_quarter, end_last_quarter],
+        "lastYear": [start_last_year, end_last_year],
     }
