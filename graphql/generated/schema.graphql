@@ -1550,3 +1550,15 @@ type StandardProductInfo {
   gender: ProductGender!
   version: Int!
 }
+
+"""
+Information about beneficiary registrations...
+"""
+type BeneficiaryNumbers {
+  " during the month before the current one "
+  lastMonth: Int!
+  " during the quarter before the current one "
+  lastQuarter: Int!
+  " during the year before the current one "
+  lastYear: Int!
+}
