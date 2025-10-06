@@ -9,6 +9,7 @@ from ..authz import authorize, authorized_bases_filter
 from ..db import db
 from ..enums import BoxState as BoxStateEnum
 from ..enums import TaggableObjectType
+from ..exceptions import Forbidden
 from ..models.definitions.base import Base
 from ..models.definitions.box import Box
 from ..models.definitions.box_state import BoxState
@@ -537,6 +538,14 @@ class ShipmentDetailsForShipmentLoader(DataLoader):
 
 class ShipmentDetailForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
+        # Return null for box's shipment detail instead of throwing an error to enable
+        # the queries GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE and
+        # BOX_BY_LABEL_IDENTIFIER_QUERY to run smoothly for low-privilege users (e.g.
+        # freeshop volunteers without view_shipments ABP)
+        try:
+            authorize(permission="shipment_detail:read")
+        except Forbidden:
+            return [None for _ in keys]
         details = {
             detail.box_id: detail
             for detail in ShipmentDetail.select().where(
