@@ -37,5 +37,13 @@ def create_qr_code(*, user_id, box_label_identifier=None):
             box = Box.get(Box.label_identifier == box_label_identifier)
             box.qr_code = new_qr_code.id
             box.save()
+            DbChangeHistory.create(
+                changes="New Qr-code assigned by pdf generation.",
+                table_name=box._meta.table_name,
+                record_id=box.id,
+                user=user_id,
+                ip=None,
+                change_date=now,
+            )
 
     return new_qr_code
