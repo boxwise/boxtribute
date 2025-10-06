@@ -1,6 +1,5 @@
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { Result } from "@zxing/library";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   FormControl,
   FormErrorMessage,
@@ -16,7 +15,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { JWT_ABP } from "utils/constants";
+import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -35,13 +34,7 @@ function QrReader({
   onScan,
   onFindBoxByLabel,
 }: IQrReaderProps) {
-  const { user } = useAuth0();
-
-  // Check if user has manage_inventory permission
-  const hasManageInventoryPermission = useMemo(() => {
-    if (!user || !user[JWT_ABP]) return false;
-    return user[JWT_ABP].includes("manage_inventory");
-  }, [user]);
+  const hasManageInventoryPermission = useHasPermission("manage_inventory");
 
   // Zoom
   const [zoomLevel] = useState(1);

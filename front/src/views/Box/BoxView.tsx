@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import { graphql } from "gql.tada";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Alert,
   AlertDescription,
@@ -22,6 +21,7 @@ import {
 import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
+import { useHasPermission } from "hooks/hooks";
 import {
   IAssignBoxToShipmentResult,
   IAssignBoxToShipmentResultKind,
@@ -29,12 +29,11 @@ import {
 } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
-import { 
+import {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-  BOX_BY_LABEL_IDENTIFIER_QUERY
+  BOX_BY_LABEL_IDENTIFIER_QUERY,
 } from "queries/queries";
 import { BoxViewSkeleton } from "components/Skeletons";
-import { JWT_ABP } from "utils/constants";
 
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { boxReconciliationOverlayVar } from "queries/cache";
@@ -149,16 +148,10 @@ function BTBox() {
     unassignBoxesFromShipment,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
-  const { user } = useAuth0();
-
-  // Check if user has view_shipments permission
-  const hasShipmentPermission = useMemo(() => {
-    if (!user || !user[JWT_ABP]) return false;
-    return user[JWT_ABP].includes("view_shipments");
-  }, [user]);
+  const hasShipmentPermission = useHasPermission("view_shipments");
 
   const allData = useQuery(
-    hasShipmentPermission 
+    hasShipmentPermission
       ? BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY
       : BOX_BY_LABEL_IDENTIFIER_QUERY,
     {
@@ -166,7 +159,7 @@ function BTBox() {
         labelIdentifier,
       },
       notifyOnNetworkStatusChange: true,
-    }
+    },
   );
 
   const boxInTransit = currentBoxState
@@ -573,21 +566,18 @@ function BTBox() {
     [allData, unassignBoxesFromShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
-   const shipmentOptions: IDropdownOption[] = useMemo(
-     () => {
-       const shipmentsQueryResult = hasShipmentPermission ? (allData.data as any)?.shipments : [];
-       return (
-         shipmentsQueryResult
-           ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
-           ?.map((shipment) => ({
-             label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
-             subTitle: shipment.labelIdentifier,
-             value: shipment.id,
-           })) ?? []
-       );
-     },
-     [baseId, allData.data, hasShipmentPermission],
-   );
+  const shipmentOptions: IDropdownOption[] = useMemo(() => {
+    const shipmentsQueryResult = hasShipmentPermission ? (allData.data as any)?.shipments : [];
+    return (
+      shipmentsQueryResult
+        ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
+        ?.map((shipment) => ({
+          label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
+          subTitle: shipment.labelIdentifier,
+          value: shipment.id,
+        })) ?? []
+    );
+  }, [baseId, allData.data, hasShipmentPermission]);
 
   if (error) {
     return (

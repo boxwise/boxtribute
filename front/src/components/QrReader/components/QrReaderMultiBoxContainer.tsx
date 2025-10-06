@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useAtomValue } from "jotai";
-import { useAuth0 } from "@auth0/auth0-react";
 import { GET_SCANNED_BOXES } from "queries/local-only";
 import {
   MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY,
@@ -17,6 +16,7 @@ import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
 import { useNotification } from "hooks/useNotification";
+import { useHasPermission } from "hooks/hooks";
 import { locationToDropdownOptionTransformer } from "utils/transformers";
 import QrReaderMultiBox, { IMultiBoxAction } from "./QrReaderMultiBox";
 import {
@@ -26,17 +26,10 @@ import {
   NotInStockAlertText,
 } from "./AlertTexts";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { JWT_ABP } from "utils/constants";
 
 function QrReaderMultiBoxContainer() {
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const { user } = useAuth0();
-
-  // Check if user has view_shipments permission
-  const hasShipmentPermission = useMemo(() => {
-    if (!user || !user[JWT_ABP]) return false;
-    return user[JWT_ABP].includes("view_shipments");
-  }, [user]);
+  const hasShipmentPermission = useHasPermission("view_shipments");
 
   // selected radio button
   const [multiBoxAction, setMultiBoxAction] = useState<IMultiBoxAction>(IMultiBoxAction.moveBox);
