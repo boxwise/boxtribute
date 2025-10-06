@@ -6,7 +6,7 @@ from flask import g
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import authorize, authorized_bases_filter, handle_unauthorized
-from ....enums import BoxState, TaggableObjectType, TagType
+from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
     DeletedTag,
@@ -21,6 +21,7 @@ from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.utils import execute_sql
 from .crud import (
+    WAREHOUSE_BOX_STATES,
     assign_missing_tags_to_boxes,
     create_box,
     delete_boxes,
@@ -111,8 +112,7 @@ def resolve_delete_boxes(*_, label_identifiers):
         .where(
             Box.label_identifier << label_identifiers,
             authorized_bases_filter(Location, permission="stock:write"),
-            Box.state
-            << (BoxState.InStock, BoxState.Lost, BoxState.Donated, BoxState.Scrap),
+            Box.state << WAREHOUSE_BOX_STATES,
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
@@ -148,6 +148,7 @@ def resolve_move_boxes_to_location(*_, update_input):
             # Any boxes in a base other than the one of the requested location are
             # ignored. No need for authz filter because already applied above
             Location.base == location.base_id,
+            Box.state << WAREHOUSE_BOX_STATES,
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)
@@ -266,6 +267,7 @@ def resolve_assign_tags_to_boxes(*_, update_input):
     valid_boxes = execute_sql(
         label_identifiers,
         tags_base_id,
+        WAREHOUSE_BOX_STATES,
         valid_tag_ids,
         query=BOXES_WITH_MISSING_TAGS_QUERY,
     )
@@ -315,6 +317,7 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
             Box.label_identifier << label_identifiers,
             # Boxes in bases different from the tags' common base are filtered out
             Location.base == tags_base_id,
+            Box.state << WAREHOUSE_BOX_STATES,
             (~Box.deleted_on | Box.deleted_on.is_null()),
         )
         .order_by(Box.id)

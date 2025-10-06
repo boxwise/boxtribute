@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from auth import mock_user_for_request
 from utils import assert_successful_request
@@ -95,4 +97,21 @@ def test_metrics_query_for_god_user(
     assert response == {
         "numberOfFamiliesServed": number_of_families_served,
         "numberOfSales": number_of_sales,
+    }
+
+
+def test_public_beneficiary_numbers(read_only_client):
+    query = """query { newlyRegisteredBeneficiaryNumbers {
+                      lastMonth
+                      lastQuarter
+                      lastYear
+                      } }"""
+
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+
+    current_month = datetime.today().month
+    assert response == {
+        "lastMonth": 1,
+        "lastQuarter": 1 if current_month in [1, 4, 7, 10] else 0,
+        "lastYear": 1 if current_month == 1 else 0,
     }

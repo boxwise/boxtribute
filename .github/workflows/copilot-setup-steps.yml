@@ -55,7 +55,7 @@ jobs:
           pip install -U -e back -r back/requirements-dev.txt
 
       - name: Install FE dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Start MySQL database
         run: |

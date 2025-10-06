@@ -10,6 +10,8 @@ WITH box_ids AS (
     AND (s.deleted IS NULL OR NOT s.deleted)
     -- filter out boxes in bases different from the tags' base
     AND l.camp_id = %s
+    -- filter out non-warehouse-state boxes
+    AND s.box_state_id IN %s
 ),
 tag_ids AS (
     SELECT id

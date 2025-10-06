@@ -9,9 +9,8 @@ history_entry = ObjectType("HistoryEntry")
 
 
 @box.field("qrCode")
-def resolve_box_qr_code(box_obj, _):
-    authorize(permission="qr:read")
-    return box_obj.qr_code
+def resolve_box_qr_code(box_obj, info):
+    return info.context["qr_code_loader"].load(box_obj.qr_code_id)
 
 
 @box.field("tags")
