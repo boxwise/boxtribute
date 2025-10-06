@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { Result } from "@zxing/library";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   FormControl,
   FormErrorMessage,
@@ -15,6 +16,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { JWT_ABP } from "utils/constants";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -33,6 +35,14 @@ function QrReader({
   onScan,
   onFindBoxByLabel,
 }: IQrReaderProps) {
+  const { user } = useAuth0();
+
+  // Check if user has manage_inventory permission
+  const hasManageInventoryPermission = useMemo(() => {
+    if (!user || !user[JWT_ABP]) return false;
+    return user[JWT_ABP].includes("manage_inventory");
+  }, [user]);
+
   // Zoom
   const [zoomLevel] = useState(1);
 
@@ -71,16 +81,16 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
-        multiScan={isMultiBox}
+        multiScan={isMultiBox && hasManageInventoryPermission}
         facingMode="environment"
         zoom={zoomLevel}
         scanPeriod={1000}
         onResult={onResult}
       />
-      <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
+      <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
-          <Tab>MULTI BOX</Tab>
+          <Tab isDisabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -115,7 +125,7 @@ function QrReader({
             </FormControl>
           </TabPanel>
           <TabPanel px={0}>
-            <QrReaderMultiBoxContainer />
+            {hasManageInventoryPermission && <QrReaderMultiBoxContainer />}
           </TabPanel>
         </TabPanels>
       </Tabs>

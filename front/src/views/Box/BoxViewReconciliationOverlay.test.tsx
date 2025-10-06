@@ -1,5 +1,6 @@
-import { beforeEach, it, expect } from "vitest";
+import { beforeEach, it, expect, vi } from "vitest";
 import { screen, render } from "tests/test-utils";
+import { useAuth0 } from "@auth0/auth0-react";
 import { cache } from "queries/cache";
 import {
   BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
@@ -10,7 +11,18 @@ import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
 import { generateMockShipment } from "mocks/shipments";
 import { mockMatchMediaQuery } from "mocks/functions";
+import { mockAuthenticatedUser } from "mocks/hooks";
 import BTBox from "./BoxView";
+
+vi.mock("@auth0/auth0-react");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org", [
+    "be_user",
+    "view_shipments",
+  ]);
+});
 
 const initialQueryForBoxInReceivingState = {
   request: {

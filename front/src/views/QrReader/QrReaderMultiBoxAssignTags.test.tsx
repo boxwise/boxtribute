@@ -144,6 +144,7 @@ beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", [
     "be_user",
     "view_shipments",
+    "manage_inventory",
   ]);
 });
 
@@ -191,7 +192,7 @@ assignTagsMutationTests.forEach(({ name, mocks, toast }) => {
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    user.click(multiBoxTab);
+    await user.click(multiBoxTab);
 
     const assignToShipmentOption = await screen.findByTestId("AssignTags");
     await user.click(assignToShipmentOption);
@@ -236,7 +237,7 @@ it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", as
   });
 
   // go to the MultiBox Tab
-  user.click(await screen.findByRole("tab", { name: /multi box/i }));
+  await user.click(await screen.findByRole("tab", { name: /multi box/i }));
   expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
 
   // scan box 123
