@@ -1341,41 +1341,6 @@ def test_update_box_tag_ids(client, default_box, tags):
         "changes": f"removed tag '{tag_name}' from box"
     }
 
-    # Add tag ID 2
-    mutation = f"""mutation {{ updateBox(updateInput : {{
-                    labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tag_id}] }} ) {{
-                        history {{ changes }}
-                        tags {{ id }} }} }}"""
-    updated_box = assert_successful_request(client, mutation)
-    assert updated_box["tags"] == [{"id": tag_id}]
-    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
-    assert updated_box["history"][1] == {
-        "changes": f"removed tag '{another_tag_name}' from box"
-    }
-
-    time.sleep(1)
-    # Add the same tag again without an error being thrown
-    updated_box = assert_successful_request(client, mutation)
-    assert updated_box["tags"] == [{"id": tag_id}]
-    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
-    assert updated_box["history"][1] == {
-        "changes": f"removed tag '{another_tag_name}' from box"
-    }
-
-    time.sleep(1)
-    # Add tag ID 3. Both tags are assigned to the box
-    mutation = f"""mutation {{ updateBox(updateInput : {{
-                    labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{
-                        history {{ changes }}
-                        tags {{ id }} }} }}"""
-    updated_box = assert_successful_request(client, mutation)
-    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
-    assert updated_box["history"][0] == {
-        "changes": f"assigned tag '{another_tag_name}' to box"
-    }
-
 
 def _format(parameter):
     try:
@@ -2024,20 +1989,6 @@ def test_mutate_box_with_invalid_location_or_product(
 
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
                     tagIds: [{tags[5]["id"]}, {tags[6]["id"]}]
-                }}"""
-    mutation = f"""mutation {{
-            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
-
-    update_input = f"""{{ labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tags[6]["id"]}]
-                }}"""
-    mutation = f"""mutation {{
-            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
-
-    update_input = f"""{{ labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tags[5]["id"]}, {tags[6]["id"]}]
                 }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""

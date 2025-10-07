@@ -23,8 +23,6 @@ input BoxUpdateInput {
   state: BoxState
   " List of all tags that shall be assigned to the box. Any requested tags already assigned to the box will not be assigned again "
   tagIds: [Int!]
-  " List of tags that shall be assigned in addition to already assigned tags. Any requested tags already assigned to the box will not be assigned again "
-  tagIdsToBeAdded: [Int!]
 }
 
 input BoxMoveInput {
