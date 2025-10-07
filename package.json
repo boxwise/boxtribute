@@ -30,7 +30,7 @@
     "@nivo/sankey": "0.99.0",
     "@nivo/sunburst": "0.99.0",
     "@nivo/theming": "0.99.0",
-    "@sentry/react": "^10.11.0",
+    "@sentry/react": "^10.15.0",
     "@tidyjs/tidy": "^2.5.2",
     "@visx/axis": "^3.12.0",
     "@visx/event": "^3.12.0",
@@ -51,7 +51,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.62.0",
     "react-router-dom": "^6.30.1",
-    "zod": "^4.1.8"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@sentry/types": "^10.15.0",
