@@ -116,7 +116,11 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
-  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", [
+    "be_user",
+    "view_shipments",
+    "manage_inventory",
+  ]);
 });
 
 const moveBoxesMutationTests = [
@@ -163,7 +167,7 @@ moveBoxesMutationTests.forEach(({ name, mocks, toast }) => {
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    user.click(multiBoxTab);
+    await user.click(multiBoxTab);
 
     // query for locations returns two options
     const assignToShipmentOption = await screen.findByTestId("MoveBox");
@@ -209,7 +213,7 @@ it("3.4.6.4 - One Box of two or more Boxes are already in the target location", 
   });
 
   // go to the MultiBox Tab
-  user.click(await screen.findByRole("tab", { name: /multi box/i }));
+  await user.click(await screen.findByRole("tab", { name: /multi box/i }));
   expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
 
   // scan box 123
@@ -273,7 +277,7 @@ it("3.4.6.5 - Two Boxes fail for the move Box Mutation", async () => {
   });
 
   // go to the MultiBox Tab
-  user.click(await screen.findByRole("tab", { name: /multi box/i }));
+  await user.click(await screen.findByRole("tab", { name: /multi box/i }));
   expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
 
   // scan box 123

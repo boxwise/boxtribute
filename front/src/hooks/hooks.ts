@@ -1,8 +1,23 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { JWT_ABP } from "utils/constants";
+
+/**
+ * Hook to check if the current user has a specific permission
+ * @param permission - The permission string to check (e.g., "view_shipments", "manage_inventory")
+ * @returns boolean indicating if the user has the permission
+ */
+export const useHasPermission = (permission: string): boolean => {
+  const { user } = useAuth0();
+
+  return useMemo(() => {
+    if (!user || !user[JWT_ABP]) return false;
+    return user[JWT_ABP].includes(permission);
+  }, [user, permission]);
+};
 
 // logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
 export const useHandleLogout = () => {
