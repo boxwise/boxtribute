@@ -12,7 +12,7 @@ module.exports = {
     // TODO: try out plugin:@typescript-eslint/recommended-type-checked
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
+    "plugin:react-hooks/recommended-legacy",
     "plugin:jsx-a11y/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
