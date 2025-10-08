@@ -115,21 +115,27 @@ export const UPDATE_BOX_MUTATION = graphql(
   [HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT],
 );
 
-export const CREATE_QR_CODE_MUTATION = graphql(`
-  mutation CreateQrCode($boxLabelIdentifier: String!) {
-    createQrCode(boxLabelIdentifier: $boxLabelIdentifier) {
-      code
-      box {
-        ... on Box {
-          labelIdentifier
-          qrCode {
-            code
+export const CREATE_QR_CODE_MUTATION = graphql(
+  `
+    mutation CreateQrCode($boxLabelIdentifier: String!) {
+      createQrCode(boxLabelIdentifier: $boxLabelIdentifier) {
+        code
+        box {
+          ... on Box {
+            labelIdentifier
+            qrCode {
+              code
+            }
+            history {
+              ...HistoryFields
+            }
           }
         }
       }
     }
-  }
-`);
+  `,
+  [HISTORY_FIELDS_FRAGMENT],
+);
 
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;
