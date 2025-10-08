@@ -100,13 +100,10 @@ def test_metrics_query_for_god_user(
     }
 
 
-def test_public_beneficiary_numbers(read_only_client):
-    query = """query { newlyRegisteredBeneficiaryNumbers {
-                      lastMonth
-                      lastQuarter
-                      lastYear
-                      } }"""
-
+def test_public_beneficiary_numbers(
+    read_only_client,
+):
+    query = build_newly_created_query("newlyRegisteredBeneficiaryNumbers")
     response = assert_successful_request(read_only_client, query, endpoint="public")
 
     current_month = datetime.today().month
@@ -115,3 +112,23 @@ def test_public_beneficiary_numbers(read_only_client):
         "lastQuarter": 1 if current_month in [1, 4, 7, 10] else 0,
         "lastYear": 1 if current_month == 1 else 0,
     }
+
+
+def test_public_box_number(
+    read_only_client,
+):
+
+    query = build_newly_created_query("newlyCreatedBoxes")
+
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+
+    current_month = datetime.today().month
+    assert response == {
+        "lastMonth": 14,
+        "lastQuarter": 14 if current_month in [1, 4, 7, 10] else 0,
+        "lastYear": 1 if current_month == 1 else 0,
+    }
+
+
+def build_newly_created_query(string):
+    return f"query {{ {string} {{ lastMonth lastQuarter lastYear }} }}"

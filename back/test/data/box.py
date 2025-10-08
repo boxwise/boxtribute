@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 from boxtribute_server.enums import BoxState
@@ -41,6 +41,7 @@ def default_box_data():
 def box_without_qr_code_data():
     data = default_box_data()
     data["id"] = 3
+    data["created_on"] = datetime.today().replace(day=1) - timedelta(days=1)
     data["label_identifier"] = "23456789"
     data["number_of_items"] = 10
     data["qr_code"] = None

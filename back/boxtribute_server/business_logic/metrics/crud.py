@@ -115,9 +115,9 @@ def compute_stock_overview(*, organisation_id):
     return {n: getattr(overview, n) for n in ["number_of_boxes", "number_of_items"]}
 
 
-def number_of_beneficiaries_registered_between(start, end):
+def number_of_created_records_between(model, start, end):
     return (
-        Beneficiary.select()
-        .where((Beneficiary.created_on >= start) & (Beneficiary.created_on <= end))
+        model.select()
+        .where((model.created_on >= start) & (model.created_on <= end))
         .count()
     )
