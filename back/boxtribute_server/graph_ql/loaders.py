@@ -379,6 +379,13 @@ class HistoryForBoxLoader(DataLoader):
                                                     " record",
                                                 ),
                                             ),
+                                            (
+                                                (
+                                                    History.changes
+                                                    == "New Qr-code assigned by pdf generation."  # noqa
+                                                ),
+                                                "created QR code label for box",
+                                            ),
                                         ),
                                         History.changes,
                                     ),
