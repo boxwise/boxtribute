@@ -35,4 +35,16 @@ export const history3 = {
   },
 };
 
+export const history4 = {
+  __typename: "HistoryEntry",
+  changeDate: "2024-03-20T10:30:00+00:00",
+  changes: "created QR code label for box",
+  id: "4",
+  user: {
+    __typename: "User",
+    id: "8",
+    name: "Dev Coordinator",
+  },
+};
+
 export const histories = [history1, history2, history3];
