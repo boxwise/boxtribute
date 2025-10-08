@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from "react";
+import { MutableRefObject, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
 import { Result } from "@zxing/library";
 import { styles } from "./QrReaderScannerStyles";
@@ -31,19 +31,27 @@ export type QrReaderScannerProps = {
   scanPeriod?: number;
 };
 
+export type QrReaderScannerHandle = {
+  stopCamera: () => Promise<void>;
+};
+
 const isMediaDevicesAPIAvailable = () => {
   const isMediaDevicesAPIAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices;
 
   return isMediaDevicesAPIAvailable;
 };
 
-export function QrReaderScanner({
-  multiScan,
-  zoom = 1,
-  facingMode = "environment",
-  onResult,
-  scanPeriod: delayBetweenScanAttempts = 500,
-}: QrReaderScannerProps) {
+export const QrReaderScanner = forwardRef<QrReaderScannerHandle, QrReaderScannerProps>(
+  (
+    {
+      multiScan,
+      zoom = 1,
+      facingMode = "environment",
+      onResult,
+      scanPeriod: delayBetweenScanAttempts = 500,
+    },
+    ref,
+  ) => {
   // this ref is needed to pass/preview the video stream coming from BrowserQrCodeReader to the the user
   const previewVideoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
   // this ref is to store the controls for the BrowerQRCodeReader. We only need it to tell it to stop scanning at certain points.
@@ -51,6 +59,30 @@ export function QrReaderScanner({
   // this ref is to store the BrowerQRCodeReader. We need a reference with useRef to ensure that multiple scanning processes are started by the different renders.
   const browserQRCodeReaderRef: MutableRefObject<BrowserQRCodeReader | null> =
     useRef<BrowserQRCodeReader>(null);
+
+  // Expose stopCamera function to parent components
+  useImperativeHandle(ref, () => ({
+    stopCamera: async () => {
+      return new Promise<void>((resolve) => {
+        // Stop the scanner controls
+        controlsRef.current?.stop();
+        browserQRCodeReaderRef.current = null;
+
+        // Stop all video tracks to ensure camera is fully released
+        if (previewVideoRef.current?.srcObject) {
+          const stream = previewVideoRef.current.srcObject as MediaStream;
+          stream.getTracks().forEach((track) => {
+            track.stop();
+          });
+          previewVideoRef.current.srcObject = null;
+        }
+
+        // Resolve immediately - the actual hardware release is asynchronous
+        // but we've done all we can synchronously
+        resolve();
+      });
+    },
+  }));
 
   useEffect(() => {
     const constraints = {
@@ -116,25 +148,26 @@ export function QrReaderScanner({
     };
   }, [multiScan]);
 
-  return (
-    <section>
-      <div
-        style={{
-          ...styles.container,
-        }}
-      >
-        <ViewFinder />
-        <video
-          muted
-          ref={previewVideoRef}
+    return (
+      <section>
+        <div
           style={{
-            ...styles.video,
-            transform: facingMode === "user" && "scaleX(-1)",
+            ...styles.container,
           }}
-        />
-      </div>
-    </section>
-  );
-}
+        >
+          <ViewFinder />
+          <video
+            muted
+            ref={previewVideoRef}
+            style={{
+              ...styles.video,
+              transform: facingMode === "user" && "scaleX(-1)",
+            }}
+          />
+        </div>
+      </section>
+    );
+  },
+);
 
 QrReaderScanner.displayName = "QrReader";
