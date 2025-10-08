@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -12,7 +12,7 @@ import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
-import QrReader from "./components/QrReader";
+import QrReader, { QrReaderHandle } from "./components/QrReader";
 import { QrReaderSkeleton } from "components/Skeletons";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
@@ -38,6 +38,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
   const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
   const [boxNotOwned, setBoxNotOwned] = useState("");
+  const qrReaderRef = useRef<QrReaderHandle>(null);
   const setIsProcessingQrCodeDelayed = useCallback(
     (state: boolean) => {
       setTimeout(() => {
@@ -93,7 +94,19 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             const boxBaseId = qrResolvedValue.box?.location?.base?.id;
             setIsProcessingQrCode(false);
             onSuccess();
-            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+            // Stop the camera and wait for it to be fully released before navigating
+            // This prevents iOS from blocking the subsequent network request due to resource contention
+            if (qrReaderRef.current) {
+              qrReaderRef.current.stopCamera().then(() => {
+                // Add a small delay to ensure iOS has fully released camera resources
+                setTimeout(() => {
+                  navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+                }, 150);
+              });
+            } else {
+              // Fallback if ref is not available
+              navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+            }
           } else {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
@@ -134,7 +147,19 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
           const boxLabelIdentifier = labelIdentifierResolvedValue?.box?.labelIdentifier;
           const boxBaseId = labelIdentifierResolvedValue?.box?.location?.base?.id;
           onSuccess();
-          navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+          // Stop the camera and wait for it to be fully released before navigating
+          // This prevents iOS from blocking the subsequent network request due to resource contention
+          if (qrReaderRef.current) {
+            qrReaderRef.current.stopCamera().then(() => {
+              // Add a small delay to ensure iOS has fully released camera resources
+              setTimeout(() => {
+                navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+              }, 150);
+            });
+          } else {
+            // Fallback if ref is not available
+            navigate(`/bases/${boxBaseId}/boxes/${boxLabelIdentifier}`);
+          }
           break;
         }
         case ILabelIdentifierResolverResultKind.NOT_AUTHORIZED: {
@@ -192,6 +217,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
       )}
       {cameraPermissionChecked ? (
         <QrReader
+          ref={qrReaderRef}
           isMultiBox={isMultiBox}
           onTabSwitch={(index) => setIsMultiBox(index === 1)}
           onScan={onScan}
