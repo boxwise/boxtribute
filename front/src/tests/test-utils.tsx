@@ -76,7 +76,6 @@ export const jotaiAtomsInitialValues = [
  * @param {string} options.routePath - A string representing the path of the route that the `ui` component should be rendered at.
  * @param {string} options.initialUrl - A string representing the initial URL that the `MemoryRouter` should be initialized with.
  * @param {string} [options.additionalRoute] - A string representing a path the `ui` component might redirect to.
- * @param {boolean} [options.addTypename=false] - Whether to include the `__typename` field in query results.
  * @param {Iterable<any>} [options.jotaiAtoms] - An iterable mocking jotai atoms for the rendered component.
  * @param {boolean} [options.mediaQueryReturnValue=true] - The return value for the mocked `window.matchMedia` function. This function is needed if the useMediaQuery is called.
  * @param {Object} options.renderOptions - Additional options that can be passed to the `rtlRender` function from `@testing-library/react`.
@@ -91,7 +90,6 @@ function render(
     routePath,
     initialUrl,
     additionalRoute = undefined,
-    addTypename = false,
     jotaiAtoms = jotaiAtomsInitialValues,
     mediaQueryReturnValue = true,
     ...renderOptions
@@ -101,7 +99,6 @@ function render(
     routePath: string;
     initialUrl: string;
     additionalRoute?: string;
-    addTypename?: boolean;
     jotaiAtoms?: Iterable<any>;
     mediaQueryReturnValue?: boolean;
   },
@@ -144,7 +141,6 @@ function render(
     <ChakraProvider theme={theme}>
       <MockedProvider
         mocks={mocks}
-        addTypename={addTypename}
         link={link}
         defaultOptions={defaultOptions}
         cache={testCache}
