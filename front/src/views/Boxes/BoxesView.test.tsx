@@ -823,7 +823,6 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );
@@ -861,7 +860,6 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );
@@ -893,7 +891,6 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );
@@ -933,7 +930,6 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
           actionsQuery,
         ],
         cache,
-        addTypename: true,
         jotaiAtoms,
       },
     );

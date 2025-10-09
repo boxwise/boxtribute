@@ -1,5 +1,5 @@
+import { CombinedGraphQLErrors , gql } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { gql } from "@apollo/client";
 import { useApolloClient } from "@apollo/client/react";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
@@ -65,7 +65,8 @@ export const useAssignTags = () => {
 
         setIsLoading(false);
 
-        if (error) {
+        if (CombinedGraphQLErrors.is(error)) {
+          // GraphQL error
           if (showToastMessage)
             triggerError({
               message: `Could not assign tags to ${
@@ -74,6 +75,19 @@ export const useAssignTags = () => {
             });
           return {
             kind: IAssignTagsResultKind.FAIL,
+            requestedLabelIdentifiers: labelIdentifiers,
+            error: error.errors[0],
+          };
+        } else if (error) {
+          // Network error
+          if (showToastMessage)
+            triggerError({
+              message: `Network issue: could not assign tags to ${
+                labelIdentifiers.length === 1 ? "box" : "boxes"
+              }. Try again?`,
+            });
+          return {
+            kind: IAssignTagsResultKind.NETWORK_FAIL,
             requestedLabelIdentifiers: labelIdentifiers,
             error: error,
           };
@@ -111,10 +125,11 @@ export const useAssignTags = () => {
           successfulLabelIdentifiers,
         };
       } catch (err) {
+        // This should not happen with errorPolicy: "all", but keep for safety
         setIsLoading(false);
         if (showToastMessage)
           triggerError({
-            message: `Network issue: could not assign tags to ${
+            message: `Unexpected error: could not assign tags to ${
               labelIdentifiers.length === 1 ? "box" : "boxes"
             }. Try again?`,
           });
