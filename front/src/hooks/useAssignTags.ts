@@ -1,4 +1,4 @@
-import { CombinedGraphQLErrors , gql } from "@apollo/client";
+import { CombinedGraphQLErrors, gql } from "@apollo/client";
 import { useCallback, useState } from "react";
 import { useApolloClient } from "@apollo/client/react";
 import { useErrorHandling } from "./useErrorHandling";

@@ -9,7 +9,8 @@ import {
   HttpLink,
   DefaultOptions,
   ApolloLink,
- Observable } from "@apollo/client";
+  Observable,
+} from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
