@@ -296,7 +296,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/error while trying to create a new shipment/i),
+        message: expect.stringMatching(/Network error: Could not create shipment./i),
       }),
     ),
   );
