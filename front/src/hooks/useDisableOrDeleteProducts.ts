@@ -1,3 +1,4 @@
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useCallback } from "react";
 import { useMutation } from "@apollo/client/react";
 
@@ -132,47 +133,61 @@ export const useDisableOrDeleteProducts = () => {
           variables: {
             instantiationId: customProductOrinstantiationId,
           },
-        })
-          .then(({ data }) => {
-            const result = data?.disableStandardProduct;
-            if (!result) return;
-
-            displayMessageToUser(
-              result.__typename,
-              (result.__typename === "UnauthorizedForBaseError" && result.organisationName) || "",
-              (result.__typename === "BoxesStillAssignedToProductError" &&
-                result.labelIdentifiers) || [""],
-            );
-          })
-          .catch(() => {
-            // Handle network or other errors
+        }).then(({ data, error }) => {
+          if (CombinedGraphQLErrors.is(error)) {
+            // GraphQL error
             triggerError({
               message: "Could not disable this ASSORT standard product! Try again?",
             });
-          });
+            return;
+          } else if (error) {
+            // Network error
+            triggerError({
+              message: "Network issue: Could not disable this ASSORT standard product! Try again?",
+            });
+            return;
+          }
+
+          const result = data?.disableStandardProduct;
+          if (!result) return;
+
+          displayMessageToUser(
+            result.__typename,
+            (result.__typename === "UnauthorizedForBaseError" && result.organisationName) || "",
+            (result.__typename === "BoxesStillAssignedToProductError" &&
+              result.labelIdentifiers) || [""],
+          );
+        });
       } else if (customProductOrinstantiationId && disableOrDelete === "delete") {
         deleteProductMutation({
           variables: {
             productId: customProductOrinstantiationId,
           },
-        })
-          .then(({ data }) => {
-            const result = data?.deleteProduct;
-            if (!result) return;
-
-            displayMessageToUser(
-              result.__typename,
-              (result.__typename === "UnauthorizedForBaseError" && result.organisationName) || "",
-              (result.__typename === "BoxesStillAssignedToProductError" &&
-                result.labelIdentifiers) || [""],
-            );
-          })
-          .catch(() => {
-            // Handle network or other errors
+        }).then(({ data, error }) => {
+          if (CombinedGraphQLErrors.is(error)) {
+            // GraphQL error
             triggerError({
               message: "Could not delete this product! Try again?",
             });
-          });
+            return;
+          } else if (error) {
+            // Network error
+            triggerError({
+              message: "Network issue: Could not delete this product! Try again?",
+            });
+            return;
+          }
+
+          const result = data?.deleteProduct;
+          if (!result) return;
+
+          displayMessageToUser(
+            result.__typename,
+            (result.__typename === "UnauthorizedForBaseError" && result.organisationName) || "",
+            (result.__typename === "BoxesStillAssignedToProductError" &&
+              result.labelIdentifiers) || [""],
+          );
+        });
       } else {
         triggerError({
           message:

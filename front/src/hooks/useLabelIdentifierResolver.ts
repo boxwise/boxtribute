@@ -36,7 +36,7 @@ export const useLabelIdentifierResolver = () => {
         .then(({ data, error }) => {
           if (error) {
             // Check for GraphQL errors with extensions (Apollo Client v4 format)
-            const graphQLError = error.errors?.[0] || error.graphQLErrors?.[0];
+            const graphQLError = (error as any).errors?.[0] || (error as any).graphQLErrors?.[0];
             if (graphQLError?.extensions?.code === "FORBIDDEN") {
               return {
                 kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,

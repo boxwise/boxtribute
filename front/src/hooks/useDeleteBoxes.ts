@@ -1,3 +1,4 @@
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
@@ -65,87 +66,86 @@ export const useDeleteBoxes = () => {
         variables: {
           labelIdentifiers,
         },
-      })
-        .then(({ data, error }) => {
-          setIsLoading(false);
+      }).then(({ data, error }) => {
+        setIsLoading(false);
 
-          if (error) {
-            if (showErrors) {
-              triggerError({
-                message: "Could not delete boxes. Try again?",
-              });
-            }
-            return {
-              kind: IDeleteBoxResultKind.FAIL,
-              requestedBoxes: boxes,
-              error: error,
-            } as IDeleteBoxResult;
-          }
-
-          const resultType = data?.deleteBoxes?.__typename;
-          if (resultType === "InsufficientPermissionError") {
-            if (showErrors) {
-              triggerError({
-                message: "You don't have the permissions to delete these boxes.",
-              });
-            }
-            return {
-              kind: IDeleteBoxResultKind.NOT_AUTHORIZED,
-              requestedBoxes: boxes,
-            } as IDeleteBoxResult;
-          }
-
-          if (resultType === "BoxesResult") {
-            const deletedBoxes = data?.deleteBoxes?.updatedBoxes || [];
-            const invalidIdentifiers = data?.deleteBoxes?.invalidBoxLabelIdentifiers || [];
-
-            if (deletedBoxes.length && showToasts) {
-              createToast({
-                message: `${deletedBoxes.length === 1 ? "A box was" : `${deletedBoxes.length} boxes were`} successfully deleted.`,
-              });
-            }
-
-            if (invalidIdentifiers.length) {
-              if (showErrors) {
-                triggerError({
-                  message: `The deletion failed for: ${invalidIdentifiers.join(", ")}`,
-                });
-              }
-              if (invalidIdentifiers.length === labelIdentifiers.length) {
-                return {
-                  kind: IDeleteBoxResultKind.FAIL,
-                  requestedBoxes: boxes,
-                  invalidIdentifiers,
-                } as IDeleteBoxResult;
-              }
-            }
-
-            return {
-              kind: IDeleteBoxResultKind.SUCCESS,
-              requestedBoxes: boxes,
-              deletedBoxes,
-              invalidIdentifiers,
-            } as IDeleteBoxResult;
-          }
-
-          return {
-            kind: IDeleteBoxResultKind.FAIL,
-            requestedBoxes: boxes,
-          } as IDeleteBoxResult;
-        })
-        .catch((err) => {
-          setIsLoading(false);
+        if (CombinedGraphQLErrors.is(error)) {
+          // GraphQL error
           if (showErrors) {
             triggerError({
               message: "Could not delete boxes. Try again?",
             });
           }
           return {
+            kind: IDeleteBoxResultKind.FAIL,
+            requestedBoxes: boxes,
+            error: error.errors[0],
+          } as IDeleteBoxResult;
+        } else if (error) {
+          // Network error
+          if (showErrors) {
+            triggerError({
+              message: "Network issue: Could not delete boxes. Try again?",
+            });
+          }
+          return {
             kind: IDeleteBoxResultKind.NETWORK_FAIL,
             requestedBoxes: boxes,
-            error: err,
+            error: error,
           } as IDeleteBoxResult;
-        });
+        }
+
+        const resultType = data?.deleteBoxes?.__typename;
+        if (resultType === "InsufficientPermissionError") {
+          if (showErrors) {
+            triggerError({
+              message: "You don't have the permissions to delete these boxes.",
+            });
+          }
+          return {
+            kind: IDeleteBoxResultKind.NOT_AUTHORIZED,
+            requestedBoxes: boxes,
+          } as IDeleteBoxResult;
+        }
+
+        if (resultType === "BoxesResult") {
+          const deletedBoxes = data?.deleteBoxes?.updatedBoxes || [];
+          const invalidIdentifiers = data?.deleteBoxes?.invalidBoxLabelIdentifiers || [];
+
+          if (deletedBoxes.length && showToasts) {
+            createToast({
+              message: `${deletedBoxes.length === 1 ? "A box was" : `${deletedBoxes.length} boxes were`} successfully deleted.`,
+            });
+          }
+
+          if (invalidIdentifiers.length) {
+            if (showErrors) {
+              triggerError({
+                message: `The deletion failed for: ${invalidIdentifiers.join(", ")}`,
+              });
+            }
+            if (invalidIdentifiers.length === labelIdentifiers.length) {
+              return {
+                kind: IDeleteBoxResultKind.FAIL,
+                requestedBoxes: boxes,
+                invalidIdentifiers,
+              } as IDeleteBoxResult;
+            }
+          }
+
+          return {
+            kind: IDeleteBoxResultKind.SUCCESS,
+            requestedBoxes: boxes,
+            deletedBoxes,
+            invalidIdentifiers,
+          } as IDeleteBoxResult;
+        }
+
+        return {
+          kind: IDeleteBoxResultKind.FAIL,
+          requestedBoxes: boxes,
+        } as IDeleteBoxResult;
+      });
     },
     [deleteBoxesMutation, createToast, triggerError],
   );

@@ -9,8 +9,7 @@ import {
   HttpLink,
   DefaultOptions,
   ApolloLink,
-} from "@apollo/client";
-import { Observable } from "@apollo/client/core";
+ Observable } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -53,7 +52,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   }
 
   const createSpanLink = new ApolloLink((operation, forward) => {
-    const result = startSpanManual({ name: `gql.${operation.operationName}` }, (span) => {
+    return startSpanManual({ name: `gql.${operation.operationName}` }, (span) => {
       operation.setContext(({ headers = {} }) => ({
         headers: {
           ...headers,
@@ -76,7 +75,6 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
         return () => subscription.unsubscribe();
       });
     });
-    return result;
   });
 
   const errorLink = new ErrorLink(({ error }) => {
