@@ -3,12 +3,18 @@
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
 import { useState, useEffect, ReactNode } from "react";
-import { ApolloClient, HttpLink, DefaultOptions, ApolloLink } from "@apollo/client";
+import {
+  ApolloClient,
+  CombinedGraphQLErrors,
+  HttpLink,
+  DefaultOptions,
+  ApolloLink,
+} from "@apollo/client";
 import { Observable } from "@apollo/client/core";
 import { ApolloProvider } from "@apollo/client/react";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
-import { onError } from "@apollo/client/link/error";
+import { ErrorLink } from "@apollo/client/link/error";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { cache } from "queries/cache";
 import { getActiveSpan, startSpanManual } from "@sentry/react";
@@ -55,7 +61,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
         },
       }));
 
-      return new Observable(observer => {
+      return new Observable((observer) => {
         const subscription = forward(operation).subscribe({
           next: (data) => {
             span.end();
@@ -73,18 +79,17 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
     return result;
   });
 
-  const errorLink = onError(({ graphQLErrors, networkError }: any) => {
-    if (graphQLErrors) {
-      graphQLErrors.forEach(({ message, locations, path, extensions }) => {
+  const errorLink = new ErrorLink(({ error }) => {
+    if (CombinedGraphQLErrors.is(error)) {
+      error.errors.forEach(({ message, locations, path, extensions }) => {
         triggerError({
           message: `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations)}, Path: ${path}, Extensions: ${JSON.stringify(extensions?.description)}`,
           userMessage: "Something went wrong!",
         });
       });
-    }
-    if (networkError) {
+    } else {
       triggerError({
-        message: `[Network error]: ${networkError}`,
+        message: `[Network error]: ${error}`,
         userMessage: "Network Error! Please check your Internet connection!",
       });
     }
