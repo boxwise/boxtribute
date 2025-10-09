@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { NetworkStatus } from "@apollo/client";
+import { CombinedGraphQLErrors, NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import {
@@ -301,26 +301,24 @@ function BTBox() {
               boxLabelIdentifier: labelIdentifier,
               numberOfItems: (boxData?.numberOfItems || 0) - (boxFormValues?.numberOfItems || 0),
             },
-          })
-            .then((mutationResult) => {
-              if (mutationResult?.error) {
-                triggerError({
-                  message: "Error: Could not remove item from the box",
-                });
-              } else {
-                createToast({
-                  title: `Box ${boxData.labelIdentifier}`,
-                  type: "success",
-                  message: `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
-                });
-                onMinusClose();
-              }
-            })
-            .catch(() => {
+          }).then(({ error }) => {
+            if (CombinedGraphQLErrors.is(error)) {
+              triggerError({
+                message: "Error: Could not remove item from the box",
+              });
+            } else if (error) {
               triggerError({
                 message: "Could not remove items from the box.",
               });
-            });
+            } else {
+              createToast({
+                title: `Box ${boxData.labelIdentifier}`,
+                type: "success",
+                message: `Successfully removed ${boxFormValues?.numberOfItems} items from box`,
+              });
+              onMinusClose();
+            }
+          });
         }
       }
     },
@@ -434,26 +432,24 @@ function BTBox() {
       variables: {
         boxLabelIdentifier: labelIdentifier,
       },
-    })
-      .then((mutationResult) => {
-        if (mutationResult?.error) {
-          triggerError({
-            message: "Error: Could not create QR code",
-          });
-        } else {
-          createToast({
-            title: `Box ${labelIdentifier}`,
-            type: "success",
-            message:
-              "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
-          });
-        }
-      })
-      .catch(() => {
+    }).then(({ error }) => {
+      if (CombinedGraphQLErrors.is(error)) {
+        triggerError({
+          message: "Error: Could not create QR code",
+        });
+      } else if (error) {
         triggerError({
           message: "Could not create QR code",
         });
-      });
+      } else {
+        createToast({
+          title: `Box ${labelIdentifier}`,
+          type: "success",
+          message:
+            "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
+        });
+      }
+    });
   }, [createQrCodeMutation, triggerError, createToast, labelIdentifier, boxData]);
 
   const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
