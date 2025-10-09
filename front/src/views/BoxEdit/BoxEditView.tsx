@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../graphql/graphql";
 import { useNavigate, useParams } from "react-router-dom";
@@ -135,35 +136,32 @@ function BoxEditView() {
         tagIds,
         comment: boxEditFormData?.comment,
       },
-    })
-      .then((mutationResult) => {
-        if (mutationResult?.error) {
-          triggerError({
-            message: "Could not update Box.",
-          });
-        } else {
-          createToast({
-            title: `Box ${labelIdentifier}`,
-            type: "success",
-            message: `Successfully modified with ${
-              allBoxAndFormData.data?.base?.products.find(
-                (p) => p.id === boxEditFormData.productId.value,
-              )?.name || boxEditFormData.productId.label
-            } (${boxEditFormData?.numberOfItems}x) in ${
-              allBoxAndFormData.data?.base?.locations.find(
-                (l) => l.id === boxEditFormData.locationId.value,
-              )?.name || boxEditFormData.locationId.label
-            }.`,
-          });
-          navigate(`/bases/${baseId}/boxes/${mutationResult.data?.updateBox?.labelIdentifier}`);
-        }
-      })
-      .catch((error) => {
+    }).then(({ data, error }) => {
+      if (CombinedGraphQLErrors.is(error)) {
         triggerError({
           message: "Could not update Box.",
-          statusCode: error?.graphQLErrors?.code,
         });
-      });
+      } else if (error) {
+        triggerError({
+          message: "Network error: Could not update Box.",
+        });
+      } else {
+        createToast({
+          title: `Box ${labelIdentifier}`,
+          type: "success",
+          message: `Successfully modified with ${
+            allBoxAndFormData.data?.base?.products.find(
+              (p) => p.id === boxEditFormData.productId.value,
+            )?.name || boxEditFormData.productId.label
+          } (${boxEditFormData?.numberOfItems}x) in ${
+            allBoxAndFormData.data?.base?.locations.find(
+              (l) => l.id === boxEditFormData.locationId.value,
+            )?.name || boxEditFormData.locationId.label
+          }.`,
+        });
+        navigate(`/bases/${baseId}/boxes/${data?.updateBox?.labelIdentifier}`);
+      }
+    });
   };
 
   // Prep data for Form

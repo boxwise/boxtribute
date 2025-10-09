@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useMutation, useQuery, useReactiveVar } from "@apollo/client/react";
 import { useAtomValue } from "jotai";
 import { boxReconciliationOverlayVar } from "queries/cache";
@@ -104,29 +105,27 @@ export function BoxReconciliationOverlay({
             id: shipmentId,
             lostBoxLabelIdentifiers: [labelIdentifier],
           },
-        })
-          .then((mutationResult) => {
-            if (mutationResult?.error) {
-              triggerError({
-                message: "Could not change state of the box.",
-              });
-            } else {
-              setBoxUndeliveredAYSState("");
-              onOverlayClose();
-              createToast({
-                title: `Box ${labelIdentifier}`,
-                type: "success",
-                message: "Box marked as undelivered.",
-              });
-              if (redirectToShipmentView)
-                navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
-            }
-          })
-          .catch(() => {
+        }).then(({ error }) => {
+          if (CombinedGraphQLErrors.is(error)) {
             triggerError({
               message: "Could not change state of the box.",
             });
-          });
+          } else if (error) {
+            triggerError({
+              message: "Network error: Could not change state of the box.",
+            });
+          } else {
+            setBoxUndeliveredAYSState("");
+            onOverlayClose();
+            createToast({
+              title: `Box ${labelIdentifier}`,
+              type: "success",
+              message: "Box marked as undelivered.",
+            });
+            if (redirectToShipmentView)
+              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
+          }
+        });
       }
     },
     [
@@ -165,29 +164,27 @@ export function BoxReconciliationOverlay({
               },
             ],
           },
-        })
-          .then((mutationResult) => {
-            if (mutationResult?.error) {
-              triggerError({
-                message: "Could not change state of the box.",
-              });
-            } else {
-              const locationName = allLocations?.find(
-                (location) => location.id === locationId.toString(),
-              )?.name;
-              onOverlayClose();
-              createToast({
-                title: `Box ${labelIdentifier}`,
-                type: "success",
-                message: `Box ${labelIdentifier} was received to ${locationName}`,
-              });
-            }
-          })
-          .catch(() => {
+        }).then(({ error }) => {
+          if (CombinedGraphQLErrors.is(error)) {
             triggerError({
               message: "Could not change state of the box.",
             });
-          });
+          } else if (error) {
+            triggerError({
+              message: "Network error: Could not change state of the box.",
+            });
+          } else {
+            const locationName = allLocations?.find(
+              (location) => location.id === locationId.toString(),
+            )?.name;
+            onOverlayClose();
+            createToast({
+              title: `Box ${labelIdentifier}`,
+              type: "success",
+              message: `Box ${labelIdentifier} was received to ${locationName}`,
+            });
+          }
+        });
       }
     },
     [

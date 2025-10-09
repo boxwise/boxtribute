@@ -1,3 +1,4 @@
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
@@ -171,28 +172,25 @@ function CreateTransferAgreementView() {
         partnerOrganisationBaseIds: partnerBaseIds,
         comment: createTransferAgreementData.comment,
       },
-    })
-      .then((mutationResult) => {
-        if (mutationResult.error) {
-          triggerError({
-            message: "Error while trying to create transfer agreement",
-          });
-        } else {
-          createToast({
-            title: `Transfer Agreement ${mutationResult.data?.createTransferAgreement?.id}`,
-            type: "success",
-            message: "Successfully created a transfer agreement",
-          });
-
-          navigate(`/bases/${baseId}/transfers/agreements`);
-        }
-      })
-      .catch((err) => {
+    }).then(({ data, error }) => {
+      if (CombinedGraphQLErrors.is(error)) {
         triggerError({
-          message: "Your changes could not be saved!",
-          statusCode: err.code,
+          message: "Error while trying to create transfer agreement",
         });
-      });
+      } else if (error) {
+        triggerError({
+          message: "Network error: Could not save transfer agreement.",
+        });
+      } else {
+        createToast({
+          title: `Transfer Agreement ${data?.createTransferAgreement?.id}`,
+          type: "success",
+          message: "Successfully created a transfer agreement",
+        });
+
+        navigate(`/bases/${baseId}/transfers/agreements`);
+      }
+    });
   };
 
   // Handle Loading State

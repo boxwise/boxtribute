@@ -1,3 +1,4 @@
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../../graphql/graphql";
 import { formatDateKey } from "utils/helpers";
@@ -252,26 +253,24 @@ function ShipmentView() {
         id: shipmentId,
         lostBoxLabelIdentifiers,
       },
-    })
-      .then((mutationResult) => {
-        if (mutationResult?.error) {
-          triggerError({
-            message: "Error: Could not change state of remaining boxes.",
-          });
-        } else {
-          onShipmentOverlayClose();
-          createToast({
-            title: `Box ${lostBoxLabelIdentifiers}`,
-            type: "success",
-            message: "Changed the state of remaining boxes to undelivered",
-          });
-        }
-      })
-      .catch(() => {
+    }).then(({ error }) => {
+      if (CombinedGraphQLErrors.is(error)) {
         triggerError({
-          message: "Could not remove the box from the shipment.",
+          message: "Error: Could not change state of remaining boxes.",
         });
-      });
+      } else if (error) {
+        triggerError({
+          message: "Network error: Could not change state of remaining boxes.",
+        });
+      } else {
+        onShipmentOverlayClose();
+        createToast({
+          title: `Box ${lostBoxLabelIdentifiers}`,
+          type: "success",
+          message: "Changed the state of remaining boxes to undelivered",
+        });
+      }
+    });
   }, [
     triggerError,
     createToast,
@@ -288,25 +287,23 @@ function ShipmentView() {
           id: shipmentId,
           removedBoxLabelIdentifiers: [boxLabelIdentifier],
         },
-      })
-        .then((mutationResult) => {
-          if (mutationResult?.error) {
-            triggerError({
-              message: "Error: Could not remove box.",
-            });
-          } else {
-            createToast({
-              title: `Box ${boxLabelIdentifier}`,
-              type: "success",
-              message: "Successfully removed the box from the shipment.",
-            });
-          }
-        })
-        .catch(() => {
+      }).then(({ error }) => {
+        if (CombinedGraphQLErrors.is(error)) {
           triggerError({
-            message: "Could not remove the box from the shipment.",
+            message: "Error: Could not remove box.",
           });
-        });
+        } else if (error) {
+          triggerError({
+            message: "Network error: Could not remove box.",
+          });
+        } else {
+          createToast({
+            title: `Box ${boxLabelIdentifier}`,
+            type: "success",
+            message: "Successfully removed the box from the shipment.",
+          });
+        }
+      });
     },
     [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );
@@ -319,25 +316,23 @@ function ShipmentView() {
           id: shipmentId,
           removedBoxLabelIdentifiers: boxLabelIdentifiers,
         },
-      })
-        .then((mutationResult) => {
-          if (mutationResult?.error) {
-            triggerError({
-              message: "Error: Could not remove box.",
-            });
-          } else {
-            createToast({
-              title: `Box ${boxLabelIdentifiers}`,
-              type: "success",
-              message: "Successfully removed the box from the shipment.",
-            });
-          }
-        })
-        .catch(() => {
+      }).then(({ error }) => {
+        if (CombinedGraphQLErrors.is(error)) {
           triggerError({
-            message: "Could not remove the box from the shipment.",
+            message: "Error: Could not remove box.",
           });
-        });
+        } else if (error) {
+          triggerError({
+            message: "Network error: Could not remove box.",
+          });
+        } else {
+          createToast({
+            title: `Box ${boxLabelIdentifiers}`,
+            type: "success",
+            message: "Successfully removed the box from the shipment.",
+          });
+        }
+      });
     },
     [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );

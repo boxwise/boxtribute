@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
@@ -219,29 +220,26 @@ function CreateShipmentView() {
             sourceBaseId: parseInt(baseId, 10),
             targetBaseId: parseInt(createShipmentFormData.receivingBase.value, 10),
           },
-        })
-          .then((mutationResult) => {
-            if (mutationResult.error) {
-              triggerError({
-                message: "Error while trying to create a new shipment!",
-              });
-            } else {
-              const shipmentId = mutationResult.data?.createShipment?.id;
-              createToast({
-                title: `Transfer Shipment ${shipmentId}`,
-                type: "success",
-                message: "Successfully created a new shipment",
-              });
-
-              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
-            }
-          })
-          .catch((err) => {
+        }).then(({ data, error }) => {
+          if (CombinedGraphQLErrors.is(error)) {
             triggerError({
               message: "Error while trying to create a new shipment!",
-              statusCode: err.code,
             });
-          });
+          } else if (error) {
+            triggerError({
+              message: "Network error: Could not create shipment.",
+            });
+          } else {
+            const shipmentId = data?.createShipment?.id;
+            createToast({
+              title: `Transfer Shipment ${shipmentId}`,
+              type: "success",
+              message: "Successfully created a new shipment",
+            });
+
+            navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
+          }
+        });
       }
     },
     [
