@@ -223,7 +223,7 @@ it("4.1.3 - Click on Submit Button", async () => {
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/your changes could not be saved!/i),
+        message: expect.stringMatching(/Network error: Could not save transfer agreement./i),
       }),
     ),
   );
