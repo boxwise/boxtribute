@@ -1,4 +1,5 @@
 import { useMutation } from "@apollo/client/react";
+import { CombinedGraphQLErrors } from "@apollo/client";
 import { useCallback, useState } from "react";
 import { graphql } from "../../../graphql/graphql";
 import { useErrorHandling } from "./useErrorHandling";
@@ -98,143 +99,140 @@ export const useMoveBoxes = () => {
           labelIdentifiers,
           locationId: newLocationId,
         },
-      })
-        .then(({ data, error }) => {
-          setIsLoading(false);
+      }).then(({ data, error }) => {
+        setIsLoading(false);
 
-          if (error) {
-            // General error
-            if (showErrors) {
-              triggerError({
-                message: `Could not move ${
-                  labelIdentifiers.length === 1 ? "box" : "boxes"
-                }. Try again?`,
-              });
-            }
-
-            return {
-              kind: IMoveBoxesResultKind.FAIL,
-              requestedLabelIdentifiers: labelIdentifiers,
-              failedLabelIdentifiers: labelIdentifiers,
-              error: error,
-            } as IMoveBoxesResult;
+        if (CombinedGraphQLErrors.is(error)) {
+          // General GraphQL error
+          if (showErrors) {
+            triggerError({
+              message: `Could not move ${
+                labelIdentifiers.length === 1 ? "box" : "boxes"
+              }. Try again?`,
+            });
           }
 
-          const resultType = data?.moveBoxesToLocation?.__typename;
-
-          if (resultType === "InsufficientPermissionError") {
-            if (showErrors)
-              triggerError({
-                message: `You don't have the permissions to move ${
-                  labelIdentifiers.length === 1 ? "this box" : "these boxes"
-                }.`,
-              });
-            return {
-              kind: IMoveBoxesResultKind.NOT_AUTHORIZED,
-              requestedLabelIdentifiers: labelIdentifiers,
-              failedLabelIdentifiers: labelIdentifiers,
-            } as IMoveBoxesResult;
-          }
-
-          if (resultType === "ResourceDoesNotExistError") {
-            if (showErrors)
-              triggerError({
-                message: `The target location does not exist.`,
-              });
-            return {
-              kind: IMoveBoxesResultKind.RESOURCE_NOT_FOUND,
-              requestedLabelIdentifiers: labelIdentifiers,
-              failedLabelIdentifiers: labelIdentifiers,
-            } as IMoveBoxesResult;
-          }
-
-          if (resultType === "UnauthorizedForBaseError") {
-            if (showErrors)
-              triggerError({
-                message: `You don't have access to base
-                ${data?.moveBoxesToLocation?.name}.`,
-              });
-            return {
-              kind: IMoveBoxesResultKind.UNAUTHORIZED_FOR_BASE,
-              requestedLabelIdentifiers: labelIdentifiers,
-              failedLabelIdentifiers: labelIdentifiers,
-            } as IMoveBoxesResult;
-          }
-
-          if (resultType === "DeletedLocationError") {
-            if (showErrors)
-              triggerError({
-                message: `The target location has been deleted.`,
-              });
-            return {
-              kind: IMoveBoxesResultKind.DELETED_LOCATION,
-              requestedLabelIdentifiers: labelIdentifiers,
-              failedLabelIdentifiers: labelIdentifiers,
-            } as IMoveBoxesResult;
-          }
-
-          if (resultType === "BoxesResult") {
-            const updatedBoxes = data?.moveBoxesToLocation?.updatedBoxes || [];
-            const failedLabelIdentifiers =
-              data?.moveBoxesToLocation?.invalidBoxLabelIdentifiers || [];
-
-            const movedLabelIdentifiers: string[] = updatedBoxes
-              .filter((box) => box.location && parseInt(box.location.id, 10) === newLocationId)
-              .map((box) => box.labelIdentifier);
-
-            if (showToasts && movedLabelIdentifiers.length > 0) {
-              createToast({
-                message: `${
-                  movedLabelIdentifiers.length === 1
-                    ? "A box was"
-                    : `${movedLabelIdentifiers.length} boxes were`
-                } successfully moved.`,
-              });
-            }
-
-            // Not all Boxes were moved
-            if (failedLabelIdentifiers.length) {
-              return {
-                kind: IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET,
-                requestedLabelIdentifiers: labelIdentifiers,
-                movedLabelIdentifiers,
-                failedLabelIdentifiers,
-              } as IMoveBoxesResult;
-            }
-
-            // All Boxes were moved
-            return {
-              kind: IMoveBoxesResultKind.SUCCESS,
-              requestedLabelIdentifiers: labelIdentifiers,
-              movedLabelIdentifiers,
-            } as IMoveBoxesResult;
-          }
-
-          // Fallback for unknown result type
           return {
             kind: IMoveBoxesResultKind.FAIL,
             requestedLabelIdentifiers: labelIdentifiers,
             failedLabelIdentifiers: labelIdentifiers,
+            error: error.errors[0],
           } as IMoveBoxesResult;
-        })
-        .catch(
+        } else if (error) {
           // Network error
-          (err) => {
-            setIsLoading(false);
-            if (showErrors)
-              triggerError({
-                message: `Network issue: could not move ${
-                  labelIdentifiers.length === 1 ? "box" : "boxes"
-                }. Try again?`,
-              });
+          setIsLoading(false);
+          if (showErrors)
+            triggerError({
+              message: `Network issue: could not move ${
+                labelIdentifiers.length === 1 ? "box" : "boxes"
+              }. Try again?`,
+            });
+
+          return {
+            kind: IMoveBoxesResultKind.NETWORK_FAIL,
+            requestedLabelIdentifiers: labelIdentifiers,
+            failedLabelIdentifiers: labelIdentifiers,
+            error: error,
+          } as IMoveBoxesResult;
+        }
+
+        const resultType = data?.moveBoxesToLocation?.__typename;
+
+        if (resultType === "InsufficientPermissionError") {
+          if (showErrors)
+            triggerError({
+              message: `You don't have the permissions to move ${
+                labelIdentifiers.length === 1 ? "this box" : "these boxes"
+              }.`,
+            });
+          return {
+            kind: IMoveBoxesResultKind.NOT_AUTHORIZED,
+            requestedLabelIdentifiers: labelIdentifiers,
+            failedLabelIdentifiers: labelIdentifiers,
+          } as IMoveBoxesResult;
+        }
+
+        if (resultType === "ResourceDoesNotExistError") {
+          if (showErrors)
+            triggerError({
+              message: `The target location does not exist.`,
+            });
+          return {
+            kind: IMoveBoxesResultKind.RESOURCE_NOT_FOUND,
+            requestedLabelIdentifiers: labelIdentifiers,
+            failedLabelIdentifiers: labelIdentifiers,
+          } as IMoveBoxesResult;
+        }
+
+        if (resultType === "UnauthorizedForBaseError") {
+          if (showErrors)
+            triggerError({
+              message: `You don't have access to base
+                ${data?.moveBoxesToLocation?.name}.`,
+            });
+          return {
+            kind: IMoveBoxesResultKind.UNAUTHORIZED_FOR_BASE,
+            requestedLabelIdentifiers: labelIdentifiers,
+            failedLabelIdentifiers: labelIdentifiers,
+          } as IMoveBoxesResult;
+        }
+
+        if (resultType === "DeletedLocationError") {
+          if (showErrors)
+            triggerError({
+              message: `The target location has been deleted.`,
+            });
+          return {
+            kind: IMoveBoxesResultKind.DELETED_LOCATION,
+            requestedLabelIdentifiers: labelIdentifiers,
+            failedLabelIdentifiers: labelIdentifiers,
+          } as IMoveBoxesResult;
+        }
+
+        if (resultType === "BoxesResult") {
+          const updatedBoxes = data?.moveBoxesToLocation?.updatedBoxes || [];
+          const failedLabelIdentifiers =
+            data?.moveBoxesToLocation?.invalidBoxLabelIdentifiers || [];
+
+          const movedLabelIdentifiers: string[] = updatedBoxes
+            .filter((box) => box.location && parseInt(box.location.id, 10) === newLocationId)
+            .map((box) => box.labelIdentifier);
+
+          if (showToasts && movedLabelIdentifiers.length > 0) {
+            createToast({
+              message: `${
+                movedLabelIdentifiers.length === 1
+                  ? "A box was"
+                  : `${movedLabelIdentifiers.length} boxes were`
+              } successfully moved.`,
+            });
+          }
+
+          // Not all Boxes were moved
+          if (failedLabelIdentifiers.length) {
             return {
-              kind: IMoveBoxesResultKind.NETWORK_FAIL,
+              kind: IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET,
               requestedLabelIdentifiers: labelIdentifiers,
-              failedLabelIdentifiers: labelIdentifiers,
-              error: err,
+              movedLabelIdentifiers,
+              failedLabelIdentifiers,
             } as IMoveBoxesResult;
-          },
-        );
+          }
+
+          // All Boxes were moved
+          return {
+            kind: IMoveBoxesResultKind.SUCCESS,
+            requestedLabelIdentifiers: labelIdentifiers,
+            movedLabelIdentifiers,
+          } as IMoveBoxesResult;
+        }
+
+        // Fallback for unknown result type
+        return {
+          kind: IMoveBoxesResultKind.FAIL,
+          requestedLabelIdentifiers: labelIdentifiers,
+          failedLabelIdentifiers: labelIdentifiers,
+        } as IMoveBoxesResult;
+      });
     },
     [moveBoxesMutation, createToast, triggerError],
   );
