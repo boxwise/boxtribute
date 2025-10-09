@@ -32,7 +32,7 @@ import {
   includesSomeObjectFilterFn,
   includesSomeTagObjectFilterFn,
 } from "components/Table/Filter";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -214,7 +214,9 @@ function BoxesTable({
               Total
             </Td>
             <Td fontWeight="bold" key={"boxes-count"}>
-              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+              {isBackgroundFetchOfBoxesLoading ||
+              refetchBoxesIsPending ||
+              tableConfig.isNotMounted ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{boxCount} boxes</Text>
@@ -223,7 +225,9 @@ function BoxesTable({
               )}
             </Td>
             <Td fontWeight="bold" key={"item-count"}>
-              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+              {isBackgroundFetchOfBoxesLoading ||
+              refetchBoxesIsPending ||
+              tableConfig.isNotMounted ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{itemsCount} items</Text>
@@ -233,14 +237,14 @@ function BoxesTable({
             </Td>
             <Td colSpan={20}></Td>
           </Tr>
-          {refetchBoxesIsPending && (
+          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
             <Tr key="refetchIsPending1">
               <Td colSpan={columns.length + 1}>
                 <Skeleton height={5} />
               </Td>
             </Tr>
           )}
-          {refetchBoxesIsPending && (
+          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
             <Tr key="refetchIsPending2">
               <Td colSpan={columns.length + 1}>
                 <Skeleton height={5} />

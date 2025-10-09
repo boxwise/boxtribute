@@ -30,6 +30,7 @@ from ..business_logic.core.product_category.queries import (
 from ..business_logic.core.size_range.fields import size, size_range
 from ..business_logic.core.size_range.queries import query as size_range_query
 from ..business_logic.metrics.fields import metrics
+from ..business_logic.metrics.queries import public_query as metrics_public_query
 from ..business_logic.metrics.queries import query as metrics_query
 from ..business_logic.mobile_distribution.event.fields import distribution_event
 from ..business_logic.mobile_distribution.event.mutations import (
@@ -211,6 +212,7 @@ public_api_types = (
     public_standard_products_query,
     shareable_link_query,
     resolved_link,
+    metrics_public_query,
     UnionType("ResolvedLinkResult", resolve_type_by_class_name),
     InterfaceType("DataCube", resolve_data_cube_type),
 )

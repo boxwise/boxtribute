@@ -1,6 +1,7 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
+import { useAuth0 } from "@auth0/auth0-react";
 import { cache } from "queries/cache";
 import { generateMockBox } from "mocks/boxes";
 import { generateMockLocationWithBase, locations } from "mocks/locations";
@@ -11,6 +12,7 @@ import { textContentMatcher } from "tests/helpers";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
+import { mockAuthenticatedUser } from "mocks/hooks";
 import BoxDetails from "./components/BoxDetails";
 import BTBox, {
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
@@ -18,6 +20,16 @@ import BTBox, {
   UPDATE_BOX_MUTATION,
   CREATE_QR_CODE_MUTATION,
 } from "./BoxView";
+
+vi.mock("@auth0/auth0-react");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org", [
+    "be_user",
+    "view_shipments",
+  ]);
+});
 
 const initialQuery = {
   request: {

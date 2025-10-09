@@ -22,6 +22,7 @@ import {
 import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
+import { useHasPermission } from "hooks/hooks";
 import {
   IAssignBoxToShipmentResult,
   IAssignBoxToShipmentResultKind,
@@ -29,7 +30,10 @@ import {
 } from "hooks/useAssignBoxesToShipment";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { IDropdownOption } from "components/Form/SelectField";
-import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
+import {
+  BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
+  BOX_BY_LABEL_IDENTIFIER_QUERY,
+} from "queries/queries";
 import { BoxViewSkeleton } from "components/Skeletons";
 
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
@@ -145,15 +149,19 @@ function BTBox() {
     unassignBoxesFromShipment,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
+  const hasShipmentPermission = useHasPermission("view_shipments");
 
-  const allData = useQuery(BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY, {
-    variables: {
-      labelIdentifier,
+  const allData = useQuery(
+    hasShipmentPermission
+      ? BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY
+      : BOX_BY_LABEL_IDENTIFIER_QUERY,
+    {
+      variables: {
+        labelIdentifier,
+      },
+      notifyOnNetworkStatusChange: true,
     },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const shipmentsQueryResult = allData.data?.shipments;
+  );
 
   const boxInTransit = currentBoxState
     ? ["Receiving", "MarkedForShipment", "InTransit"].includes(currentBoxState)
@@ -559,17 +567,18 @@ function BTBox() {
     [allData, unassignBoxesFromShipment, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
-  const shipmentOptions: IDropdownOption[] = useMemo(
-    () =>
+  const shipmentOptions: IDropdownOption[] = useMemo(() => {
+    const shipmentsQueryResult = hasShipmentPermission ? (allData.data as any)?.shipments : [];
+    return (
       shipmentsQueryResult
         ?.filter((shipment) => shipment.state === "Preparing" && shipment.sourceBase.id === baseId)
         ?.map((shipment) => ({
           label: `${shipment.targetBase.name} - ${shipment.targetBase.organisation.name}`,
           subTitle: shipment.labelIdentifier,
           value: shipment.id,
-        })) ?? [],
-    [baseId, shipmentsQueryResult],
-  );
+        })) ?? []
+    );
+  }, [baseId, allData.data, hasShipmentPermission]);
 
   if (error) {
     return (

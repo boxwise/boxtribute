@@ -7,23 +7,24 @@ import { colorIsBright } from "utils/helpers";
 
 export function StateCell({ value }: CellProps<any>) {
   let color = "inherit";
+  const name = value.name;
 
   if (
-    value === "MarkedForShipment" ||
-    value === "InTransit" ||
-    value === "Receiving" ||
-    value === "Donated"
+    name === "MarkedForShipment" ||
+    name === "InTransit" ||
+    name === "Receiving" ||
+    name === "Donated"
   ) {
     color = "blue.700";
-  } else if (value === "InStock") {
+  } else if (name === "InStock") {
     color = "green.700";
-  } else if (value === "Scrap" || value === "Lost" || value === "NotDelivered") {
+  } else if (name === "Scrap" || name === "Lost" || name === "NotDelivered") {
     color = "red.700";
   }
 
   return (
     <chakra.span as="b" color={color}>
-      {value}
+      {name}
     </chakra.span>
   );
 }
@@ -72,6 +73,13 @@ export function DaysCell({ value }: CellProps<any>) {
 export function QrCodeCell({ value }: CellProps<any>) {
   if (value) {
     return <RiQrCodeLine color="black" size="1.5em" />;
+  }
+  return <chakra.div />;
+}
+
+export function ObjectCell({ value }: CellProps<any>) {
+  if (value) {
+    return <chakra.span>{value.name}</chakra.span>;
   }
   return <chakra.div />;
 }

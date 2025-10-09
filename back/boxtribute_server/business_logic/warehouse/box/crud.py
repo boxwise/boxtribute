@@ -213,7 +213,6 @@ def update_box(
     measure_value=None,
     state=None,
     tag_ids=None,
-    tag_ids_to_be_added=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
@@ -340,32 +339,6 @@ def update_box(
         if assigned_tag_ids != updated_tag_ids:
             box.last_modified_on = now
             box.last_modified_by = user_id
-
-    if tag_ids_to_be_added is not None:
-        _validate_base_of_tags(tag_ids=tag_ids_to_be_added, location=new_location)
-
-        # Find all tag IDs that are currently assigned to the box
-        assigned_tag_ids = set(
-            r.tag_id
-            for r in TagsRelation.select(TagsRelation.tag_id).where(
-                TagsRelation.object_type == TaggableObjectType.Box,
-                TagsRelation.object_id == box.id,
-                TagsRelation.deleted_on.is_null(),
-            )
-        )
-        # Assign all tags that are part of the set of tags requested to be added but
-        # were previously not assigned to the box
-        tags_relations = [
-            TagsRelation(
-                object_id=box.id,
-                object_type=TaggableObjectType.Box,
-                tag=tag_id,
-                created_on=now,
-                created_by=user_id,
-            )
-            for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids)
-        ]
-        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     return box
 

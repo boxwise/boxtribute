@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import pytest
 from boxtribute_server.enums import HumanGender
@@ -99,7 +99,7 @@ def another_male_beneficiary_data():
         "last_name": "Body",
         "base": base_data()[0]["id"],
         "date_of_birth": date(1995, 5, 5),
-        "created_on": datetime(2019, 6, 30),
+        "created_on": (datetime.today().replace(day=1) - timedelta(days=1)),
         "created_by": None,
         "family_id": 10,
         "family_head": None,

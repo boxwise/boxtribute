@@ -15,6 +15,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -33,6 +34,8 @@ function QrReader({
   onScan,
   onFindBoxByLabel,
 }: IQrReaderProps) {
+  const hasManageInventoryPermission = useHasPermission("manage_inventory");
+
   // Zoom
   const [zoomLevel] = useState(1);
 
@@ -71,16 +74,16 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
-        multiScan={isMultiBox}
+        multiScan={isMultiBox && hasManageInventoryPermission}
         facingMode="environment"
         zoom={zoomLevel}
         scanPeriod={1000}
         onResult={onResult}
       />
-      <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
+      <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
-          <Tab>MULTI BOX</Tab>
+          <Tab isDisabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -115,7 +118,7 @@ function QrReader({
             </FormControl>
           </TabPanel>
           <TabPanel px={0}>
-            <QrReaderMultiBoxContainer />
+            {hasManageInventoryPermission && <QrReaderMultiBoxContainer />}
           </TabPanel>
         </TabPanels>
       </Tabs>
