@@ -104,7 +104,7 @@ function render(
   },
 ) {
   // set showWarnings to false, as we'll log them via the onError callback instead
-  const mockLink = new MockLink(mocks, undefined, { showWarnings: false });
+  const mockLink = new MockLink(mocks, { showWarnings: false });
   const errorLoggingLink = new ErrorLink(({ error }) => {
     if (CombinedGraphQLErrors.is(error)) {
       for (const err of error.errors) {
