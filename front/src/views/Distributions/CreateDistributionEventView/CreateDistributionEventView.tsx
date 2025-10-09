@@ -1,4 +1,5 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../../graphql/graphql";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback } from "react";
@@ -66,19 +67,18 @@ const CreateDistributionEventView = () => {
           plannedStartDateTime: plannedStartDateTime.toISOString(),
           plannedEndDateTime: plannedEndDateTime.toISOString(),
         },
-      })
-        .then((mutationResult) => {
-          if ((mutationResult.errors?.length || 0) > 0) {
-            // TODO: Improve Error handling
-            throw new Error(JSON.stringify(mutationResult.errors));
-          }
+      }).then(({ data, error }) => {
+        if (CombinedGraphQLErrors.is(error)) {
+          // TODO: Improve Error handling
+          console.error("GraphQL error while creating Distribution Event", error);
+        } else if (error) {
+          console.error("Network error while creating Distribution Event", error);
+        } else {
           navigate(
-            `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${mutationResult.data?.createDistributionEvent?.id}`,
+            `/bases/${baseId}/distributions/spots/${distributionSpotId}/events/${data?.createDistributionEvent?.id}`,
           );
-        })
-        .catch((error) => {
-          console.error("Error while trying to create Distribution Event", error);
-        });
+        }
+      });
     },
     [baseId, createDistributionEventMutation, distributionSpotId, navigate],
   );

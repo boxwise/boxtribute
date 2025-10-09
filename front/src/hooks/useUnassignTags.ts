@@ -1,4 +1,5 @@
-import { useMutation } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
@@ -40,43 +41,43 @@ export const useUnassignTags = () => {
           labelIdentifiers,
           tagIds,
         },
-      })
-        .then(({ data, errors }) => {
-          const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
-          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
+      }).then(({ data, error }) => {
+        const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
+        const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
 
-          setIsLoading(false);
+        setIsLoading(false);
 
-          // unassign fails since one ore more tags causes an error
-          if (tagErrorInfoArray && tagErrorInfoArray.length > 0 && showToasts) {
-            triggerError({
-              message: `Could not unassign ${tagErrorInfoArray.length === 1 ? "one tag" : "multiple tags"} from boxes. Try again?`,
-            });
-          }
+        // unassign fails since one ore more tags causes an error
+        if (tagErrorInfoArray && tagErrorInfoArray.length > 0 && showToasts) {
+          triggerError({
+            message: `Could not unassign ${tagErrorInfoArray.length === 1 ? "one tag" : "multiple tags"} from boxes. Try again?`,
+          });
+        }
 
-          // unexpected graphQL error
-          if (errors?.length && showToasts) {
+        // GraphQL error
+        if (CombinedGraphQLErrors.is(error)) {
+          if (showToasts) {
             triggerError({
               message: "Could not unassign tags from boxes. Try again?",
             });
           }
-
-          if (showToasts && successfulBoxes && successfulBoxes.length > 0) {
-            createToast({
-              message: `${
-                successfulBoxes.length === 1 ? "A Box was" : `${successfulBoxes.length} Boxes were`
-              } successfully unassigned tags.`,
-            });
-          }
-        })
-        .catch((err) => {
-          setIsLoading(false);
+        } else if (error) {
+          // Network error
           if (showToasts) {
             triggerError({
-              message: err + "Could not unassign tags from boxes. Try again?",
+              message: "Network issue: Could not unassign tags from boxes. Try again?",
             });
           }
-        });
+        }
+
+        if (showToasts && successfulBoxes && successfulBoxes.length > 0) {
+          createToast({
+            message: `${
+              successfulBoxes.length === 1 ? "A Box was" : `${successfulBoxes.length} Boxes were`
+            } successfully unassigned tags.`,
+          });
+        }
+      });
     },
     [unassignTagsMutation, triggerError, createToast],
   );

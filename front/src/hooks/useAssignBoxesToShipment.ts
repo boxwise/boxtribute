@@ -1,4 +1,5 @@
-import { useMutation } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
@@ -96,10 +97,12 @@ export const useAssignBoxesToShipment = () => {
           labelIdentifiers: inStockBoxes.map((box) => box.labelIdentifier),
         },
       })
-        .then(({ data, errors }) => {
+        .then(({ data, error }) => {
           setIsLoading(false);
-          if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions?.code : undefined;
+          if (error && CombinedGraphQLErrors.is(error)) {
+            const graphQlError = error.errors[0];
+            const errorCode = graphQlError.extensions?.code;
+
             // Example: the user is not of the sending base
             if (errorCode === "FORBIDDEN") {
               if (showErrors)
@@ -111,7 +114,7 @@ export const useAssignBoxesToShipment = () => {
                 requestedBoxes: boxes,
                 notInStockBoxes,
                 failedBoxes: inStockBoxes,
-                error: errors ? errors[0] : undefined,
+                error: graphQlError,
               } as IAssignBoxToShipmentResult;
             }
             // The shipment is not in the preparing state
@@ -125,7 +128,7 @@ export const useAssignBoxesToShipment = () => {
                 requestedBoxes: boxes,
                 notInStockBoxes,
                 failedBoxes: inStockBoxes,
-                error: errors ? errors[0] : undefined,
+                error: graphQlError,
               } as IAssignBoxToShipmentResult;
             }
             if (showErrors)
@@ -138,7 +141,7 @@ export const useAssignBoxesToShipment = () => {
               requestedBoxes: boxes,
               notInStockBoxes,
               failedBoxes: inStockBoxes,
-              error: errors ? errors[0] : undefined,
+              error: graphQlError,
             } as IAssignBoxToShipmentResult;
           }
           const boxesInShipment: IBoxBasicFields[] =
@@ -181,7 +184,6 @@ export const useAssignBoxesToShipment = () => {
             requestedBoxes: boxes,
             assignedBoxes,
             notInStockBoxes,
-            error: errors ? errors[0] : undefined,
           } as IAssignBoxToShipmentResult;
         })
         .catch(
@@ -220,12 +222,12 @@ export const useAssignBoxesToShipment = () => {
           labelIdentifiers: inStockLabelIdentifiers,
         },
       })
-        .then(({ data, errors }) => {
+        .then(({ data, error }) => {
           setIsLoading(false);
-          if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions?.code : undefined;
+          if (error) {
+            const errorMessage = error.message || "";
             // Example: the user is not of the sending base
-            if (errorCode === "FORBIDDEN") {
+            if (errorMessage.includes("FORBIDDEN")) {
               if (showToastMessage)
                 triggerError({
                   message: "You don't have the permissions to remove boxes from this shipment.",
@@ -233,11 +235,11 @@ export const useAssignBoxesToShipment = () => {
               return {
                 kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
                 requestedBoxes: boxes,
-                error: errors ? errors[0] : undefined,
+                error: error,
               } as IAssignBoxToShipmentResult;
             }
             // The shipment is not in the preparing state
-            if (errorCode === "BAD_USER_INPUT") {
+            if (errorMessage.includes("BAD_USER_INPUT")) {
               if (showToastMessage)
                 triggerError({
                   message: "The shipment is not in the Preparing state.",
@@ -245,7 +247,7 @@ export const useAssignBoxesToShipment = () => {
               return {
                 kind: IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE,
                 requestedBoxes: boxes,
-                error: errors ? errors[0] : undefined,
+                error: error,
               } as IAssignBoxToShipmentResult;
             }
             if (showToastMessage)
@@ -256,7 +258,7 @@ export const useAssignBoxesToShipment = () => {
             return {
               kind: IAssignBoxToShipmentResultKind.FAIL,
               requestedBoxes: boxes,
-              error: errors ? errors[0] : undefined,
+              error: error,
             } as IAssignBoxToShipmentResult;
           }
           const boxesInShipment =
@@ -302,7 +304,7 @@ export const useAssignBoxesToShipment = () => {
             kind: IAssignBoxToShipmentResultKind.SUCCESS,
             requestedBoxes: boxes,
             unassignedBoxes,
-            error: errors ? errors[0] : undefined,
+            error: error ? error : undefined,
           } as IAssignBoxToShipmentResult;
         })
         .catch(

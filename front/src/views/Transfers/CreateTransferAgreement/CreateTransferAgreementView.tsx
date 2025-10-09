@@ -1,4 +1,5 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -171,28 +172,25 @@ function CreateTransferAgreementView() {
         partnerOrganisationBaseIds: partnerBaseIds,
         comment: createTransferAgreementData.comment,
       },
-    })
-      .then((mutationResult) => {
-        if (mutationResult.errors) {
-          triggerError({
-            message: "Error while trying to create transfer agreement",
-          });
-        } else {
-          createToast({
-            title: `Transfer Agreement ${mutationResult.data?.createTransferAgreement?.id}`,
-            type: "success",
-            message: "Successfully created a transfer agreement",
-          });
-
-          navigate(`/bases/${baseId}/transfers/agreements`);
-        }
-      })
-      .catch((err) => {
+    }).then(({ data, error }) => {
+      if (CombinedGraphQLErrors.is(error)) {
         triggerError({
-          message: "Your changes could not be saved!",
-          statusCode: err.code,
+          message: "Error while trying to create transfer agreement",
         });
-      });
+      } else if (error) {
+        triggerError({
+          message: "Network error: Could not save transfer agreement.",
+        });
+      } else {
+        createToast({
+          title: `Transfer Agreement ${data?.createTransferAgreement?.id}`,
+          type: "success",
+          message: "Successfully created a transfer agreement",
+        });
+
+        navigate(`/bases/${baseId}/transfers/agreements`);
+      }
+    });
   };
 
   // Handle Loading State
@@ -217,10 +215,8 @@ function CreateTransferAgreementView() {
     <>
       <MobileBreadcrumbButton label="Back to Manage Network" linkPath=".." />
       {createTransferAgreementMutationState.error &&
-        createTransferAgreementMutationState.error.graphQLErrors.some(
-          (error: any) =>
-            error.extensions?.code === "BAD_USER_INPUT" &&
-            error.extensions?.description.includes("An identical agreement already exists"),
+        createTransferAgreementMutationState.error.message?.includes(
+          "An identical agreement already exists",
         ) && (
           <Box mx={1} my={1}>
             {" "}

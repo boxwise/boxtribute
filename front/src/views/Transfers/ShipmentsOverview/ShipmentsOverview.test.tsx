@@ -74,7 +74,7 @@ it("4.4.1.4 - Initial Load of Page", async () => {
   //   expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
   const user = userEvent.setup();
-  user.click(screen.getByText(/Sending \(/i));
+  await user.click(screen.getByText(/Sending \(/i));
   // Data of Mock Transfer is shown correctly
   expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
   // Display the filtered count for "Sending" shipments.

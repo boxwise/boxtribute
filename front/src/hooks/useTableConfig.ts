@@ -1,4 +1,4 @@
-import { useReactiveVar } from "@apollo/client";
+import { useReactiveVar } from "@apollo/client/react";
 import { tableConfigsVar } from "queries/cache";
 import { useCallback, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";

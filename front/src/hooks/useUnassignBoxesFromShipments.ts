@@ -1,4 +1,5 @@
-import { useApolloClient } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useState, useCallback } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import {
@@ -72,8 +73,32 @@ export const useUnassignBoxesFromShipments = () => {
           mutation: gqlRequestPrep.gqlRequest,
           variables: gqlRequestPrep.variables,
         })
-        .then(({ data }) => {
-          const stillAssignedLabelIdentifiers: string[] = Object.values(data).reduce(
+        .then(({ data, error }) => {
+          setIsLoading(false);
+
+          if (CombinedGraphQLErrors.is(error)) {
+            // GraphQL error
+            setUnassignBoxesFromShipmentsResult({
+              kind: IUnassignBoxesFromShipmentsResultKind.FAIL,
+              requestedBoxes: boxes,
+              notMarkedForShipmentBoxes,
+              failedBoxes: markedForShipmentBoxes,
+              error: error.errors[0],
+            } as IUnassignBoxesFromShipmentsResult);
+            return;
+          } else if (error) {
+            // Network error
+            setUnassignBoxesFromShipmentsResult({
+              kind: IUnassignBoxesFromShipmentsResultKind.NETWORK_FAIL,
+              requestedBoxes: boxes,
+              notMarkedForShipmentBoxes,
+              failedBoxes: markedForShipmentBoxes,
+              error,
+            } as IUnassignBoxesFromShipmentsResult);
+            return;
+          }
+
+          const stillAssignedLabelIdentifiers: string[] = Object.values(data as any).reduce(
             (result: string[], unassignment) => {
               if (isUnassignmentFromShipment(unassignment)) {
                 const typedUnassignment = unassignment as IUnassignmentFromShipment;
@@ -100,8 +125,6 @@ export const useUnassignBoxesFromShipments = () => {
                 (labelIdentifier) => labelIdentifier === box.labelIdentifier,
               ),
           );
-
-          setIsLoading(false);
 
           // no boxes were unassigned
           if (unassignedBoxes.length === 0) {
@@ -139,16 +162,6 @@ export const useUnassignBoxesFromShipments = () => {
             requestedBoxes: boxes,
             notMarkedForShipmentBoxes,
             unassignedBoxes,
-          } as IUnassignBoxesFromShipmentsResult);
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          setUnassignBoxesFromShipmentsResult({
-            kind: IUnassignBoxesFromShipmentsResultKind.NETWORK_FAIL,
-            requestedBoxes: boxes,
-            notMarkedForShipmentBoxes,
-            failedBoxes: markedForShipmentBoxes,
-            error,
           } as IUnassignBoxesFromShipmentsResult);
         });
     },

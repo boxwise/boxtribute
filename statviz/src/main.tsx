@@ -2,15 +2,20 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import * as Sentry from "@sentry/react";
 import { captureConsoleIntegration } from "@sentry/react";
 
 import App from "./App";
 import { theme } from "@boxtribute/shared-components/utils/theme";
 
-const client = new ApolloClient({
+const httpLink = new HttpLink({
   uri: import.meta.env.STATVIZ_GRAPHQL_SERVER,
+});
+
+const client = new ApolloClient({
+  link: httpLink,
   cache: new InMemoryCache({
     typePolicies: {
       DimensionInfo: {
