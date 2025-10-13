@@ -145,8 +145,11 @@ function ShipmentsOverviewView() {
       location.state?.partnerBaseOrg
         ? {
             filters: [{ id: "partnerBaseOrg", value: [location.state.partnerBaseOrg] }],
+            sortBy: [{ id: "lastUpdated", desc: true }],
           }
-        : {},
+        : {
+            sortBy: [{ id: "lastUpdated", desc: true }],
+          },
     [location],
   );
 
