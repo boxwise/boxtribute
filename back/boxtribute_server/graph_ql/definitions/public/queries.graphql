@@ -3,5 +3,5 @@ type Query {
 
   standardProducts: [StandardProductInfo!]!
   newlyRegisteredBeneficiaryNumbers: BeneficiaryNumbers
-  newlyCreatedBoxes: BoxNumbers
+  newlyCreatedBoxNumbers: BoxNumbers
 }

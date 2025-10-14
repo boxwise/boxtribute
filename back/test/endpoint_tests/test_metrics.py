@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 from auth import mock_user_for_request
+from freezegun import freeze_time
 from utils import assert_successful_request
 
 
@@ -114,21 +115,26 @@ def test_public_beneficiary_numbers(
     }
 
 
-def test_public_box_number(
-    read_only_client,
-):
+@pytest.mark.parametrize(
+    "time,last_month,last_quarter,last_year",
+    [
+        ("2021-01-27 12:00:01", 0, 16, 16),
+        ("2021-04-27 12:00:01", 0, 0, 16),
+        ("2020-12-27 12:00:01", 16, 0, 0),
+        ("2020-11-26 12:00:01", 0, 0, 0),
+    ],
+)
+def test_public_box_number(read_only_client, time, last_month, last_quarter, last_year):
+    query = build_newly_created_query("newlyCreatedBoxNumbers")
 
-    query = build_newly_created_query("newlyCreatedBoxes")
-
-    response = assert_successful_request(read_only_client, query, endpoint="public")
-
-    current_month = datetime.today().month
-    assert response == {
-        "lastMonth": 14,
-        "lastQuarter": 14 if current_month in [1, 4, 7, 10] else 0,
-        "lastYear": 1 if current_month == 1 else 0,
-    }
+    with freeze_time(time):
+        response = assert_successful_request(read_only_client, query, endpoint="public")
+        assert response == {
+            "lastMonth": last_month,
+            "lastQuarter": last_quarter,
+            "lastYear": last_year,
+        }
 
 
-def build_newly_created_query(string):
-    return f"query {{ {string} {{ lastMonth lastQuarter lastYear }} }}"
+def build_newly_created_query(query_string):
+    return f"query {{ {query_string} {{ lastMonth lastQuarter lastYear }} }}"

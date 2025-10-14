@@ -1567,7 +1567,10 @@ type BeneficiaryNumbers {
 Information on newly created boxes
 """
 type BoxNumbers {
+  " during the month before the current one "
   lastMonth: Int!
+  " during the quarter before the current one "
   lastQuarter: Int!
+  " during the year before the current one "
   lastYear: Int!
 }

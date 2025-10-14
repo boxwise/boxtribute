@@ -41,7 +41,6 @@ def default_box_data():
 def box_without_qr_code_data():
     data = default_box_data()
     data["id"] = 3
-    data["created_on"] = datetime.today().replace(day=1) - timedelta(days=1)
     data["label_identifier"] = "23456789"
     data["number_of_items"] = 10
     data["qr_code"] = None
@@ -187,6 +186,16 @@ def donated_boxes_data():
     ]
 
 
+def box_created_last_month_data():
+    data = default_box_data()
+    data["id"] = 18
+    data["label_identifier"] = "11811809"
+    data["created_on"] = datetime.today() - timedelta(days=30)
+    data["number_of_items"] = 10
+    data["qr_code"] = None
+    return data
+
+
 def data():
     return [
         another_box_data(),
@@ -206,6 +215,11 @@ def data():
         measure_product_box_data(),
         box_in_another_location_with_qr_code_data(),
     ]
+
+
+@pytest.fixture
+def box_created_last_month():
+    return box_created_last_month_data()
 
 
 @pytest.fixture
