@@ -859,8 +859,8 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           await user.click(actionButton);
 
           if (clicks[1]) {
-            // Add a small delay to ensure menu is fully rendered before clicking sub-action
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            // Add a delay to ensure menu is fully rendered before clicking sub-action
+            await new Promise((resolve) => setTimeout(resolve, 300));
 
             // For other actions, click the sub-action button if specified
             const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });

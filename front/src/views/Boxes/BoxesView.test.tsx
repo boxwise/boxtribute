@@ -676,6 +676,9 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     );
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
+    // Wait for data to be fully loaded
+    await screen.findByText(/2 boxes/i, {}, { timeout: 15000 });
+
     const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 10000 });
     const checkbox1 = within(row1).getByRole("checkbox", {
       name: /toggle row selected/i,
@@ -696,7 +699,15 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       await waitFor(() => expect(checkbox2).toBeChecked(), { timeout: 10000 });
 
       // Add a delay to ensure state propagation in CI environments
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Wait for the action buttons to be available (not in error state)
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId("ErrorAlert")).not.toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
       const moveBoxesButton = await screen.findByRole(
         "button",

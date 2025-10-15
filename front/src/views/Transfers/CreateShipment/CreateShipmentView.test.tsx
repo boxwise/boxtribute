@@ -180,13 +180,13 @@ it("4.3.1 - Initial load of Page", async () => {
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
   await selectOptionInSelectField(user, /organisation/i, "BoxCare");
   // Add a delay to ensure state propagation after selection
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 300));
   expect(await screen.findByText("BoxCare", {}, { timeout: 10000 })).toBeInTheDocument();
   // Test case 4.3.1.3 - Content: Displays Partner Bases Select Options When Partner Organisation Selected
   await assertOptionsInSelectField(user, /base/i, [/samos/i, /thessaloniki/i, /athens/i], title);
   await selectOptionInSelectField(user, /base/i, "Samos");
   // Add a delay to ensure state propagation after selection
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   // Breadcrumbs are there
   expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
