@@ -139,12 +139,7 @@ function render(
 
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <ChakraProvider theme={theme}>
-      <MockedProvider
-        mocks={mocks}
-        link={link}
-        defaultOptions={defaultOptions}
-        cache={testCache}
-      >
+      <MockedProvider mocks={mocks} link={link} defaultOptions={defaultOptions} cache={testCache}>
         <JotaiTestProvider initialValues={jotaiAtoms}>
           <MemoryRouter initialEntries={[initialUrl]}>
             <Routes>
