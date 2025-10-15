@@ -1093,7 +1093,7 @@ it("QR.3 - Successful QR code creation", async () => {
         title: "Box noqr123",
         type: "success",
         message:
-          "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
+          "A QR code label was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
       }),
     ),
   );
