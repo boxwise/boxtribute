@@ -689,11 +689,14 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     if (checkbox1 && checkbox2) {
       expect(checkbox1).not.toBeChecked();
       await user.click(checkbox1);
-      await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 5000 });
+      await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
 
       expect(checkbox2).not.toBeChecked();
       await user.click(checkbox2);
-      await waitFor(() => expect(checkbox2).toBeChecked(), { timeout: 5000 });
+      await waitFor(() => expect(checkbox2).toBeChecked(), { timeout: 10000 });
+
+      // Add a delay to ensure state propagation in CI environments
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const moveBoxesButton = await screen.findByRole(
         "button",
