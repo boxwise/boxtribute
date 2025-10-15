@@ -24,15 +24,6 @@ def create_qr_code(*, user_id, box_label_identifier=None):
         ).hexdigest()
         new_qr_code.save()
 
-        DbChangeHistory.create(
-            changes="New QR-code generated",  # text copied from dropapp
-            table_name=new_qr_code._meta.table_name,
-            record_id=new_qr_code.id,
-            user=user_id,
-            ip=None,
-            change_date=now,
-        )
-
         if box_label_identifier is not None:
             box = Box.get(Box.label_identifier == box_label_identifier)
             box.qr_code = new_qr_code.id
