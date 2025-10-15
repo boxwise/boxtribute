@@ -1,6 +1,7 @@
 import { vi, beforeEach, it, expect } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
+import { useAuth0 } from "@auth0/auth0-react";
 import { cache } from "queries/cache";
 import { generateMockBox } from "mocks/boxes";
 import { generateMockLocationWithBase, locations } from "mocks/locations";
@@ -11,6 +12,7 @@ import { textContentMatcher } from "tests/helpers";
 import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "mocks/functions";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
+import { mockAuthenticatedUser } from "mocks/hooks";
 import BoxDetails from "./components/BoxDetails";
 import BTBox, {
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
@@ -18,6 +20,16 @@ import BTBox, {
   UPDATE_BOX_MUTATION,
   CREATE_QR_CODE_MUTATION,
 } from "./BoxView";
+
+vi.mock("@auth0/auth0-react");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org", [
+    "be_user",
+    "view_shipments",
+  ]);
+});
 
 const initialQuery = {
   request: {
@@ -520,7 +532,7 @@ it("3.1.1.11 - Content: Display an info alert if a box status is mark for shipme
   expect(title).toBeInTheDocument();
 
   const moveTab = screen.getByRole("tab", { name: /move/i });
-  user.click(moveTab);
+  await user.click(moveTab);
 
   expect(await screen.findByRole("alert")).toBeInTheDocument();
   expect(screen.getByText(/markedforshipment boxes are not movable/i)).toBeInTheDocument();
@@ -602,7 +614,7 @@ it("3.1.3.1 - Change State to Scrap", async () => {
   const boxSubheading = screen.getByTestId("box-subheader");
   await waitFor(() => expect(boxSubheading).toHaveTextContent("Status: InStock"));
   // Test case 3.1.3.1 - Click on Scrap
-  user.click(screen.getByTestId("box-scrap-btn"));
+  await user.click(screen.getByTestId("box-scrap-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.1.1 - Change state on Scrap Toggled
@@ -625,7 +637,7 @@ it("3.1.3.2 - Change State to Lost", async () => {
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
 
   // Test case 3.1.3.2 - Click on Lost
-  user.click(screen.getByTestId("box-lost-btn"));
+  await user.click(screen.getByTestId("box-lost-btn"));
 
   expect(await screen.findByText(/status:/i)).toBeInTheDocument();
   // Test case 3.1.3.2.1 - Change state on Lost Toggled
@@ -658,7 +670,7 @@ it("3.1.4 - Move location", async () => {
   expect(boxLocationLabel).toHaveTextContent("WH Men to:");
   // Test case 3.1.4.1- Click to move box from WH Men to WH Women
   const whWomenLocation = screen.getByRole("button", { name: /wh women/i });
-  user.click(whWomenLocation);
+  await user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedCreateToast).toHaveBeenCalledWith(
@@ -697,7 +709,7 @@ it("3.1.5 - Redirect to Edit Box", async () => {
 
   // Test case 3.1.5.1 - Click on edit Icon
   const editButton = screen.getByRole("button", { name: /edit box/i });
-  user.click(editButton);
+  await user.click(editButton);
 
   expect(
     await screen.findByRole("heading", { name: "/bases/1/boxes/127/edit" }),
@@ -735,11 +747,11 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
 
   // Test case 3.1.7.1 - Correct input is entered, but there is a processing error (item mutation query returns and error message)
   const takeItemsButton = screen.getByTestId("decrease-items");
-  user.click(takeItemsButton);
+  await user.click(takeItemsButton);
   expect(await screen.findByText(/take items from the box/i)).toBeInTheDocument();
 
   await user.type(screen.getByRole("spinbutton"), "1");
-  user.click(screen.getByText(/Submit/i));
+  await user.click(screen.getByText(/Submit/i));
 
   await waitFor(
     () =>
@@ -769,7 +781,7 @@ it("3.1.7.2 - Form data was valid, but the mutation failed", async () => {
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
-  user.click(whWomenLocation);
+  await user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
@@ -798,7 +810,7 @@ it("3.1.8 - Error When Move Locations", async () => {
   expect(boxLocationLabel).toHaveTextContent("Move this box from WH Men to:");
 
   const whWomenLocation = screen.getByRole("button", { name: /wh shoes/i });
-  user.click(whWomenLocation);
+  await user.click(whWomenLocation);
 
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(

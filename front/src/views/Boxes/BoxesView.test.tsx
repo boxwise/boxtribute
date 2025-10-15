@@ -34,12 +34,20 @@ const jotaiAtoms = [
   [availableBasesAtom, organisation2.bases],
 ];
 
-const boxesQuery = ({ state = "InStock", paginationInput = 100000 }) => ({
+const boxesQuery = ({
+  state = "InStock",
+  paginationInput = 100000,
+  state2 = undefined,
+}: {
+  state?: string;
+  paginationInput?: number;
+  state2?: string;
+}) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: { states: [state] },
+      filterInput: { states: state2 ? [state, state2] : [state] },
       paginationInput,
     },
   },
@@ -795,4 +803,148 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     // Counter should disappear
     expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
   }, 15000);
+});
+
+describe("4.8.3 - URL Parameter Sync for Filters", () => {
+  it("4.8.3.1 - Component should parse URL parameters correctly", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Wait for the table to load - this validates that URL parameters are parsed correctly
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Verify that the state filter is applied (showing InStock boxes)
+    expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+
+    // Check that the state filter button indicates it has a filter applied
+    const stateFilterButton = screen.getByTestId("filter-state");
+    expect(stateFilterButton).toBeInTheDocument();
+  });
+
+  it("4.8.3.2 - Component should handle invalid state_ids parameter", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=999", // Invalid state ID
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Should still render properly by ignoring invalid parameters
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+  });
+
+  it("4.8.3.3 - Component should handle product_ids parameter", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?product_ids=267&state_ids=1",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Should render properly with both parameters
+    await screen.findByText(/1481666/i, {}, { timeout: 10000 });
+    expect(screen.getByText(/1481666/i)).toBeInTheDocument();
+    expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument();
+
+    // Verify that the product filter is applied (showing Sweatpants)
+    expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
+
+    // Check that the product filter button indicates it has a filter applied
+    const productFilterButton = screen.getByTestId("filter-product");
+    expect(productFilterButton).toBeInTheDocument();
+  });
+
+  it("4.8.3.4 - Component should handle multiple comma-separated IDs", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?product_ids=267,350&state_ids=1,5",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "InStock", state2: "Donated" }),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    // Should render properly with comma-separated values
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+  });
 });

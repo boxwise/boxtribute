@@ -21,7 +21,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { StandardProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
@@ -124,7 +124,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
                 <Tr
                   backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
                   {...row.getRowProps()}
-                  key={row.values.id}
+                  key={row.original.id}
                 >
                   {row.cells.map((cell) => (
                     <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>

@@ -873,12 +873,6 @@ class Generator:
                     tag_ids=self.fake.random_sample(box_tag_ids, length=2),
                     user_id=self._user_id(b),
                 )
-            for box in self.fake.random_elements(boxes, length=25):
-                update_box(
-                    label_identifier=box.label_identifier,
-                    tag_ids_to_be_added=[self.fake.random_element(box_tag_ids)],
-                    user_id=self._user_id(b),
-                )
 
             self.boxes[b] = boxes
 

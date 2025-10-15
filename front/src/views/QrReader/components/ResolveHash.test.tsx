@@ -17,7 +17,10 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
-  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", [
+    "be_user",
+    "manage_inventory",
+  ]);
 });
 
 const mockSuccessfulQrQuery = ({

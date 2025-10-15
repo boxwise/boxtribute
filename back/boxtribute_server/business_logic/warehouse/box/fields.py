@@ -78,7 +78,6 @@ def resolve_box_state(box_obj, _):
 
 @box.field("shipmentDetail")
 def resolve_box_shipment_detail(box_obj, info):
-    authorize(permission="shipment_detail:read")
     return info.context["shipment_detail_for_box_loader"].load(box_obj.id)
 
 
