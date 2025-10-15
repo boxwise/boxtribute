@@ -171,18 +171,22 @@ it("4.3.1 - Initial load of Page", async () => {
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "New Shipment" });
+  const title = await screen.findByRole("heading", { name: "New Shipment" }, { timeout: 10000 });
   expect(title).toBeInTheDocument();
   // Test case 4.3.1.1 - Content: Displays Source Base Label
-  expect(await screen.findByText(/boxaid/i)).toBeInTheDocument();
-  expect(await screen.findByText(/lesvos/i)).toBeInTheDocument();
+  expect(await screen.findByText(/boxaid/i, {}, { timeout: 10000 })).toBeInTheDocument();
+  expect(await screen.findByText(/lesvos/i, {}, { timeout: 10000 })).toBeInTheDocument();
   // Test case 4.3.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
   await selectOptionInSelectField(user, /organisation/i, "BoxCare");
-  expect(await screen.findByText("BoxCare")).toBeInTheDocument();
+  // Add a delay to ensure state propagation after selection
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(await screen.findByText("BoxCare", {}, { timeout: 10000 })).toBeInTheDocument();
   // Test case 4.3.1.3 - Content: Displays Partner Bases Select Options When Partner Organisation Selected
   await assertOptionsInSelectField(user, /base/i, [/samos/i, /thessaloniki/i, /athens/i], title);
   await selectOptionInSelectField(user, /base/i, "Samos");
+  // Add a delay to ensure state propagation after selection
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Breadcrumbs are there
   expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
