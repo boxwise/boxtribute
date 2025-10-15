@@ -95,6 +95,7 @@ function QrReader({
                   onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
                   isDisabled={findBoxByLabelIsLoading}
                   value={boxLabelInputValue}
+                  placeholder={12345678}
                   borderRadius={0}
                 />
                 <InputRightElement>
