@@ -4,10 +4,14 @@ from ariadne import QueryType
 from flask import g
 
 from ...authz import authorize
-from .crud import number_of_beneficiaries_registered_between
+from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.box import Box
+from .crud import number_of_created_records_between
 
 query = QueryType()
 public_query = QueryType()
+
+RANGE_NAMES = ("last_month", "last_quarter", "last_year")
 
 
 @query.field("metrics")
@@ -24,6 +28,22 @@ def resolve_metrics(*_, organisation_id=None):
 
 @public_query.field("newlyRegisteredBeneficiaryNumbers")
 def resolve_newly_registered_beneficiary_numbers(*_):
+    ranges = get_time_ranges()
+
+    return {
+        r: number_of_created_records_between(Beneficiary, *ranges[r])
+        for r in RANGE_NAMES
+    }
+
+
+@public_query.field("newlyCreatedBoxNumbers")
+def resolve_newly_created_box_numbers(*_):
+    ranges = get_time_ranges()
+
+    return {r: number_of_created_records_between(Box, *ranges[r]) for r in RANGE_NAMES}
+
+
+def get_time_ranges():
     now = datetime.today()
 
     # Last month
@@ -55,13 +75,7 @@ def resolve_newly_registered_beneficiary_numbers(*_):
     end_last_year = datetime(now.year, 1, 1) - timedelta(microseconds=1)
 
     return {
-        "last_month": number_of_beneficiaries_registered_between(
-            start_last_month, end_last_month
-        ),
-        "last_quarter": number_of_beneficiaries_registered_between(
-            start_last_quarter, end_last_quarter
-        ),
-        "last_year": number_of_beneficiaries_registered_between(
-            start_last_year, end_last_year
-        ),
+        "last_month": [start_last_month, end_last_month],
+        "last_quarter": [start_last_quarter, end_last_quarter],
+        "last_year": [start_last_year, end_last_year],
     }

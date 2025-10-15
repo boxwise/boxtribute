@@ -31,7 +31,7 @@ export function DateCell({ value }: CellProps<any>) {
 export function ProductWithSPCheckmarkCell({ value, row }: CellProps<any>) {
   return (
     <chakra.span display="flex" gap={2}>
-      {value.name}{" "}
+      {value.name || value}{" "}
       {(row.original.holdsStandardProduct || row.original.isStandard) && (
         <Popover closeOnEsc closeOnBlur isLazy>
           <PopoverTrigger>
