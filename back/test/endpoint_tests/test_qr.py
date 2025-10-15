@@ -77,7 +77,7 @@ def test_qr_code_mutation(client, box_without_qr_code):
             "numberOfItems": box_without_qr_code["number_of_items"],
             "history": [
                 {"changes": "created QR code label for box"},
-                {"changes": "created record"},
+                {"changes": "created box"},
             ],
         },
     }

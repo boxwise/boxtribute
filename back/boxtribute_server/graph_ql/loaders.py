@@ -372,11 +372,11 @@ class HistoryForBoxLoader(DataLoader):
                                             ),
                                             (
                                                 # Convert "Record created/deleted"
-                                                # into "created/deleted record"
+                                                # into "created/deleted box"
                                                 (History.changes.startswith("Record")),
                                                 fn.CONCAT(
                                                     fn.SUBSTRING(History.changes, 8),
-                                                    " record",
+                                                    " box",
                                                 ),
                                             ),
                                             (

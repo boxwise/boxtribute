@@ -2,7 +2,7 @@ export const history1 = {
   __typename: "HistoryEntry",
   changeDate: "2023-01-12T08:39:44+00:00",
 
-  changes: "created record",
+  changes: "created box",
   id: "1",
   user: {
     __typename: "User",
