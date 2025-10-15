@@ -88,7 +88,7 @@ def test_box_query_by_label_identifier(
             {"id": "ta4", "changes": "assigned tag 'pallet1' to box"},
             {"id": "tr3", "changes": "removed tag 'pallet1' from box"},
             {"id": "ta3", "changes": "assigned tag 'pallet1' to box"},
-            {"id": "2", "changes": "created record"},
+            {"id": "2", "changes": "created box"},
         ],
     }
 
@@ -248,7 +248,7 @@ def test_box_mutations(
         "qrCode": {"id": str(qr_code_without_box["id"])},
         "state": BoxState.InStock.name,
         "tags": [{"id": tag_id}],
-        "history": [{"changes": "created record"}],
+        "history": [{"changes": "created box"}],
     }
 
     # Test case 8.2.2d
@@ -403,7 +403,7 @@ def test_box_mutations(
         },
         {
             "id": "116",
-            "changes": "created record",
+            "changes": "created box",
             "user": {"name": "coord"},
         },
     ]
@@ -525,7 +525,7 @@ def test_box_mutations(
             },
             {
                 "id": "126",
-                "changes": "created record",
+                "changes": "created box",
                 "user": {"name": "coord"},
             },
         ],
@@ -744,7 +744,7 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     for box in response["updatedBoxes"]:
         assert box["deletedOn"].startswith(today)
-        assert box["history"][0]["changes"] == "deleted record"
+        assert box["history"][0]["changes"] == "deleted box"
     assert response["invalidBoxLabelIdentifiers"] == []
 
     # Test case 8.2.22b, 8.2.22d, 8.2.22h
