@@ -37,7 +37,7 @@ def resolve_newly_registered_beneficiary_numbers(*_):
 
 
 @public_query.field("newlyCreatedBoxNumbers")
-def resolve_newly_created_boxes(*_):
+def resolve_newly_created_box_numbers(*_):
     ranges = get_time_ranges()
 
     return {r: number_of_created_records_between(Box, *ranges[r]) for r in RANGE_NAMES}
