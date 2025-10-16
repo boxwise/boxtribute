@@ -36,12 +36,18 @@ function QrReader({
 }: IQrReaderProps) {
   const hasManageInventoryPermission = useHasPermission("manage_inventory");
 
-  // Zoom
-  const [zoomLevel] = useState(1);
-
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
-    (multiScan: boolean, qrReaderResult: Result | undefined | null) => {
+    (
+      multiScan: boolean,
+      qrReaderResult: Result | undefined | null,
+      error?: Error | undefined | null,
+    ) => {
+      if (error) {
+        // Log the error but don't interrupt the scanning process
+        console.error("QR Reader error:", error);
+        return;
+      }
       if (qrReaderResult) {
         onScan(qrReaderResult.getText(), multiScan);
       }
@@ -76,7 +82,6 @@ function QrReader({
         key="qrReaderScanner"
         multiScan={isMultiBox && hasManageInventoryPermission}
         facingMode="environment"
-        zoom={zoomLevel}
         scanPeriod={1000}
         onResult={onResult}
       />
