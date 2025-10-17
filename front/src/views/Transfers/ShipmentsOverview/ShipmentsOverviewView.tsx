@@ -5,7 +5,6 @@ import { Link, useLocation } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { AddIcon } from "@chakra-ui/icons";
-import { compareDesc } from "date-fns";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
@@ -16,6 +15,7 @@ import { selectedBaseIdAtom, selectedBaseAtom } from "stores/globalPreferenceSto
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { ShipmentState } from "queries/types";
+import { DateCell } from "components/Table/Cells";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow =
@@ -29,7 +29,7 @@ type ShipmentRow =
       };
       state: ShipmentState | null | undefined; // Infer from shipment state
       boxes: number;
-      lastUpdated: string;
+      lastUpdated: Date | undefined;
       href: string;
     }
   | undefined;
@@ -64,7 +64,7 @@ function ShipmentsOverviewView() {
           },
           state: element.state,
           boxes: 0,
-          lastUpdated: "",
+          lastUpdated: undefined,
           href: element.id,
         };
 
@@ -118,14 +118,12 @@ function ShipmentsOverviewView() {
         );
 
         // get max date for last updates
-        shipmentRow.lastUpdated = new Intl.DateTimeFormat().format(
-          new Date(Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date!).getTime()))),
+        shipmentRow.lastUpdated = new Date(
+          Math.max(...shipmentUpdateDateTimes.map((date) => new Date(date!).getTime())),
         );
 
         return shipmentRow;
-      })
-      // Default to list by last updated.
-      .sort((a, b) => compareDesc(a?.lastUpdated || "", b?.lastUpdated || "")) || [];
+      }) || [];
 
   const shipmentFilter = ["Completed", "Canceled", "Lost"];
 
@@ -179,6 +177,8 @@ function ShipmentsOverviewView() {
         Header: "Last Updated",
         accessor: "lastUpdated",
         disableFilters: true,
+        Cell: DateCell,
+        sortType: "datetime",
       },
       {
         Header: "Contains",

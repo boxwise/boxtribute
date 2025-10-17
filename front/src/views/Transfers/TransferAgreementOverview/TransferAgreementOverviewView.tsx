@@ -378,7 +378,7 @@ function TransferAgreementOverviewView() {
         columns={columns}
         tableData={graphqlToTableTransformer(data)}
         initialState={{
-          sortBy: [{ id: "partnerOrg", desc: true }],
+          sortBy: [{ id: "partnerOrg", desc: false }],
         }}
       />
     );
