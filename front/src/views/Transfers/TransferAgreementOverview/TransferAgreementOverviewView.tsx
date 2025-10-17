@@ -374,7 +374,13 @@ function TransferAgreementOverviewView() {
     transferAgreementTable = <TableSkeleton />;
   } else {
     transferAgreementTable = (
-      <FilteringSortingTable columns={columns} tableData={graphqlToTableTransformer(data)} />
+      <FilteringSortingTable
+        columns={columns}
+        tableData={graphqlToTableTransformer(data)}
+        initialState={{
+          sortBy: [{ id: "partnerOrg", desc: false }],
+        }}
+      />
     );
   }
 
