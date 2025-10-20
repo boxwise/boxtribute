@@ -160,7 +160,7 @@ function Boxes({
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["1"] }], // for InStock (see boxStateIds)
+      columnFilters: [],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "qrLabel",
