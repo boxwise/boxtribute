@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.5.0",
+    "@auth0/auth0-react": "^2.8.0",
     "@boxtribute/shared-components": "workspace:*",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
