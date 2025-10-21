@@ -43,6 +43,7 @@ interface IInitialStateFilters {
 
 interface IInitialState {
   filters?: IInitialStateFilters[];
+  sortBy?: { id: string; desc: boolean }[];
 }
 
 interface IBasicTableProps {
