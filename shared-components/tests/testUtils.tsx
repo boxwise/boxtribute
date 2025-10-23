@@ -3,7 +3,8 @@
 
 import React from "react";
 import { render as rtlRender } from "@testing-library/react";
-import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
+import { MockedResponse, MockLink } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { onError } from "@apollo/client/link/error";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
