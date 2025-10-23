@@ -211,21 +211,34 @@ function CreateTransferAgreementView() {
     );
   }
 
+  const identicalAgreementExists = (() => {
+    const err = createTransferAgreementMutationState.error;
+    if (!err) return false;
+    if (!CombinedGraphQLErrors.is(err)) return false;
+
+    const first = err.errors?.[0];
+    if (!first || typeof first !== "object") return false;
+
+    // extensions may be any shape; check description is a string before calling includes
+    const description = (first as any).extensions?.description;
+    return (
+      typeof description === "string" &&
+      description.includes("An identical agreement already exists")
+    );
+  })();
+
   return (
     <>
       <MobileBreadcrumbButton label="Back to Manage Network" linkPath=".." />
-      {createTransferAgreementMutationState.error &&
-        createTransferAgreementMutationState.error.message?.includes(
-          "An identical agreement already exists",
-        ) && (
-          <Box mx={1} my={1}>
-            {" "}
-            <Alert status="error">
-              <AlertIcon />
-              Can&rsquo;t link new partner, an active identical agreement exists.
-            </Alert>
-          </Box>
-        )}
+      {identicalAgreementExists && (
+        <Box mx={1} my={1}>
+          {" "}
+          <Alert status="error">
+            <AlertIcon />
+            Can&rsquo;t link new partner, an active identical agreement exists.
+          </Alert>
+        </Box>
+      )}
       <Center>
         <CreateTransferAgreement
           currentOrganisation={currentOrganisationAuthorizedBases}
