@@ -96,113 +96,108 @@ export const useAssignBoxesToShipment = () => {
           id: shipmentId,
           labelIdentifiers: inStockBoxes.map((box) => box.labelIdentifier),
         },
-      })
-        .then(({ data, error }) => {
-          setIsLoading(false);
-          if (error && CombinedGraphQLErrors.is(error)) {
-            const graphQlError = error.errors[0];
-            const errorCode = graphQlError.extensions?.code;
+      }).then(({ data, error }) => {
+        setIsLoading(false);
+        if (CombinedGraphQLErrors.is(error)) {
+          const graphQlError = error.errors[0];
+          const errorCode = graphQlError.extensions?.code;
 
-            // Example: the user is not of the sending base
-            if (errorCode === "FORBIDDEN") {
-              if (showErrors)
-                triggerError({
-                  message: "You don't have the permissions to assign boxes to this shipment.",
-                });
-              return {
-                kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
-                requestedBoxes: boxes,
-                notInStockBoxes,
-                failedBoxes: inStockBoxes,
-                error: graphQlError,
-              } as IAssignBoxToShipmentResult;
-            }
-            // The shipment is not in the preparing state
-            if (errorCode === "BAD_USER_INPUT") {
-              if (showErrors)
-                triggerError({
-                  message: "The shipment is not in the Preparing state.",
-                });
-              return {
-                kind: IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE,
-                requestedBoxes: boxes,
-                notInStockBoxes,
-                failedBoxes: inStockBoxes,
-                error: graphQlError,
-              } as IAssignBoxToShipmentResult;
-            }
+          // Example: the user is not of the sending base
+          if (errorCode === "FORBIDDEN") {
             if (showErrors)
               triggerError({
-                message: "Could not assign boxes to shipment. Try again?",
+                message: "You don't have the permissions to assign boxes to this shipment.",
               });
-            // General error
             return {
-              kind: IAssignBoxToShipmentResultKind.FAIL,
+              kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
               requestedBoxes: boxes,
               notInStockBoxes,
               failedBoxes: inStockBoxes,
               error: graphQlError,
             } as IAssignBoxToShipmentResult;
           }
-          const boxesInShipment: IBoxBasicFields[] =
-            data?.updateShipmentWhenPreparing?.details
-              .filter((detail) => detail.removedOn === null)
-              .filter((detail) => detail.box.state === "MarkedForShipment")
-              .map((detail) => detail.box as IBoxBasicFields) ?? [];
-          const failedBoxes: IBoxBasicFields[] = inStockBoxes.filter(
-            (box) =>
-              !boxesInShipment.some(
-                (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
-              ),
-          );
-          const assignedBoxes: IBoxBasicFields[] = inStockBoxes.filter((box) =>
-            boxesInShipment.find(
-              (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
-            ),
-          );
-          if (assignedBoxes.length) {
-            if (showToasts)
-              createToast({
-                message: `${
-                  assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
-                } successfully assigned to the shipment.`,
-              });
-          }
-          // Not all Boxes were assigned
-          if (failedBoxes.length) {
-            return {
-              kind: IAssignBoxToShipmentResultKind.BOX_FAIL,
-              requestedBoxes: boxes,
-              assignedBoxes,
-              failedBoxes,
-              notInStockBoxes,
-            } as IAssignBoxToShipmentResult;
-          }
-          // all Boxes were assigned
-          return {
-            kind: IAssignBoxToShipmentResultKind.SUCCESS,
-            requestedBoxes: boxes,
-            assignedBoxes,
-            notInStockBoxes,
-          } as IAssignBoxToShipmentResult;
-        })
-        .catch(
-          // Network error
-          (err) => {
-            setIsLoading(false);
+          // The shipment is not in the preparing state
+          if (errorCode === "BAD_USER_INPUT") {
             if (showErrors)
               triggerError({
-                message: "Could not assign boxes to shipment. Try again?",
+                message: "The shipment is not in the Preparing state.",
               });
             return {
-              kind: IAssignBoxToShipmentResultKind.NETWORK_FAIL,
+              kind: IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE,
               requestedBoxes: boxes,
               notInStockBoxes,
               failedBoxes: inStockBoxes,
-              error: err,
+              error: graphQlError,
             } as IAssignBoxToShipmentResult;
-          },
+          }
+          if (showErrors)
+            triggerError({
+              message: "Could not assign boxes to shipment. Try again?",
+            });
+          // General error
+          return {
+            kind: IAssignBoxToShipmentResultKind.FAIL,
+            requestedBoxes: boxes,
+            notInStockBoxes,
+            failedBoxes: inStockBoxes,
+            error: graphQlError,
+          } as IAssignBoxToShipmentResult;
+        } else if (error) {
+          setIsLoading(false);
+          if (showErrors)
+            triggerError({
+              message: "Could not assign boxes to shipment. Try again?",
+            });
+          return {
+            kind: IAssignBoxToShipmentResultKind.NETWORK_FAIL,
+            requestedBoxes: boxes,
+            notInStockBoxes,
+            failedBoxes: inStockBoxes,
+            error: error,
+          } as IAssignBoxToShipmentResult;
+        }
+        const boxesInShipment: IBoxBasicFields[] =
+          data?.updateShipmentWhenPreparing?.details
+            .filter((detail) => detail.removedOn === null)
+            .filter((detail) => detail.box.state === "MarkedForShipment")
+            .map((detail) => detail.box as IBoxBasicFields) ?? [];
+        const failedBoxes: IBoxBasicFields[] = inStockBoxes.filter(
+          (box) =>
+            !boxesInShipment.some(
+              (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
+            ),
         );
+        const assignedBoxes: IBoxBasicFields[] = inStockBoxes.filter((box) =>
+          boxesInShipment.find(
+            (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
+          ),
+        );
+        if (assignedBoxes.length) {
+          if (showToasts)
+            createToast({
+              message: `${
+                assignedBoxes.length === 1 ? "A Box was" : `${assignedBoxes.length} Boxes were`
+              } successfully assigned to the shipment.`,
+            });
+        }
+        // Not all Boxes were assigned
+        if (failedBoxes.length) {
+          return {
+            kind: IAssignBoxToShipmentResultKind.BOX_FAIL,
+            requestedBoxes: boxes,
+            assignedBoxes,
+            failedBoxes,
+            notInStockBoxes,
+          } as IAssignBoxToShipmentResult;
+        }
+        // all Boxes were assigned
+        return {
+          kind: IAssignBoxToShipmentResultKind.SUCCESS,
+          requestedBoxes: boxes,
+          assignedBoxes,
+          notInStockBoxes,
+        } as IAssignBoxToShipmentResult;
+      });
     },
     [assignBoxesToShipmentMutation, createToast, triggerError],
   );
