@@ -31,7 +31,7 @@ export function FailedBoxesFromAssingToShipmentAlert({
   failedBoxes,
 }: IFailedBoxesFromAssingToShipmentAlertProps) {
   return (
-    <Text>
+    <Text as="div">
       The following boxes were not assigned to the shipment:
       <UnorderedList>
         {failedBoxes.map((box) => (
@@ -52,7 +52,7 @@ export function FailedBoxesFromMoveBoxesAlert({
   failedBoxes,
 }: IFailedBoxesFromMoveBoxesAlertProps) {
   return (
-    <Text>
+    <Text as="div">
       The following boxes were not moved:
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
@@ -69,7 +69,7 @@ export function FailedBoxesFromAssignTagsAlert({
   failedBoxes,
 }: IFailedBoxesFromMoveBoxesAlertProps) {
   return (
-    <Text>
+    <Text as="div">
       The following boxes were not assigned tags:
       <UnorderedList>
         {failedBoxes.map((labelIdentifier) => (
