@@ -98,7 +98,7 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
     await screen.findByText(/may 15, 2023/i);
     await screen.findByText(/dev coordinator changed box location from wh men to wh women/i);
     await screen.findByText(/jan 12, 2023/i);
-    await screen.findByText(/dev coordinator created record/i);
+    await screen.findByText(/dev coordinator created box/i);
 
     // Get all date elements in the overlay - they should be ordered chronologically (newest first)
     // Note: formatDateKey formats dates with newlines, so we need to check for the right pattern

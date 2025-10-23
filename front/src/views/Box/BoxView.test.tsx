@@ -13,6 +13,7 @@ import { FakeGraphQLError, FakeGraphQLNetworkError, mockMatchMediaQuery } from "
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import { mockAuthenticatedUser } from "mocks/hooks";
+import { history4 } from "mocks/histories";
 import BoxDetails from "./components/BoxDetails";
 import BTBox, {
   UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
@@ -970,6 +971,7 @@ const createQrCodeMutation = {
             id: "abc123def456",
             code: "abc123def456",
           },
+          history: [history4],
         },
       },
     },
@@ -1069,7 +1071,7 @@ it("QR.3 - Successful QR code creation", async () => {
         title: "Box noqr123",
         type: "success",
         message:
-          "A label with QR code was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
+          "A QR code label was successfully created. To show a printable PDF, please click the QR code icon next to the box number.",
       }),
     ),
   );
@@ -1081,6 +1083,11 @@ it("QR.3 - Successful QR code creation", async () => {
 
   // Verify no alerts with "Missing Label" title
   expect(screen.queryByText("Missing Label")).not.toBeInTheDocument();
+
+  // Verify that box history shows QR creation message
+  const historyEntry = screen.getByTestId("history-4");
+  expect(historyEntry).toBeInTheDocument();
+  expect(historyEntry).toHaveTextContent("created QR code label for box");
 }, 10000);
 
 // Test case QR.4 - Failed QR code creation for box with deleted product

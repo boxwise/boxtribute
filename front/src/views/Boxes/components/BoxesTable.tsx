@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useTransition } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -21,7 +21,6 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
-  Row,
   CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
@@ -57,8 +56,6 @@ interface IBoxesTableProps {
   locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
-  actionButtons?: React.ReactNode[];
-  selectedBoxes?: Row<BoxRow>[];
 }
 
 function BoxesTable({

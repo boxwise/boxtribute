@@ -1,5 +1,3 @@
-from datetime import date
-
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_bad_user_input, assert_successful_request
 
@@ -65,16 +63,22 @@ def test_qr_code_mutation(client, box_without_qr_code):
             box {{ ...on Box {{
                 id
                 numberOfItems
+                history {{ changes }}
             }} }}
         }}
     }}"""
     created_qr_code = assert_successful_request(client, mutation)
-    assert int(created_qr_code["id"]) == qr_code_id + 1
-    assert (
-        created_qr_code["box"]["numberOfItems"]
-        == box_without_qr_code["number_of_items"]
-    )
-    assert int(created_qr_code["box"]["id"]) == box_without_qr_code["id"]
+    assert created_qr_code == {
+        "id": str(qr_code_id + 1),
+        "box": {
+            "id": str(box_without_qr_code["id"]),
+            "numberOfItems": box_without_qr_code["number_of_items"],
+            "history": [
+                {"changes": "created QR code label for box"},
+                {"changes": "created box"},
+            ],
+        },
+    }
 
     # Test case 8.2.32
     assert_bad_user_input(
@@ -92,20 +96,4 @@ def test_qr_code_mutation(client, box_without_qr_code):
         .where(DbChangeHistory.table_name == "qr")
         .dicts()
     )
-    today = date.today().isoformat()
-    for i in range(len(history_entries)):
-        assert history_entries[i].pop("change_date").isoformat().startswith(today)
-    assert history_entries == [
-        {
-            "changes": "New QR-code generated",
-            "record_id": int(qr_code_id),
-            "from_int": None,
-            "to_int": None,
-        },
-        {
-            "changes": "New QR-code generated",
-            "record_id": int(created_qr_code["id"]),
-            "from_int": None,
-            "to_int": None,
-        },
-    ]
+    assert history_entries == []
