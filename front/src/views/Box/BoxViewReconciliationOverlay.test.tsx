@@ -1,5 +1,5 @@
 import { beforeEach, it, expect, vi } from "vitest";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { useAuth0 } from "@auth0/auth0-react";
 import { cache } from "queries/cache";
 import {
@@ -9,7 +9,7 @@ import {
 import { generateMockLocationWithBase } from "mocks/locations";
 import { products } from "mocks/products";
 import { tag1, tag2 } from "mocks/tags";
-import { generateMockShipment } from "mocks/shipments";
+import { generateMockShipment, generateMockShipmentMinimal } from "mocks/shipments";
 import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import BTBox from "./BoxView";
@@ -36,6 +36,8 @@ const initialQueryForBoxInReceivingState = {
     data: {
       box: {
         __typename: "Box",
+        id: "1",
+        qrCode: null,
         comment: null,
         distributionEvent: null,
         history: [],
@@ -43,40 +45,48 @@ const initialQueryForBoxInReceivingState = {
         location: null,
         numberOfItems: 10,
         product: null,
+        createdOn: "2023-01-08T17:24:29+00:00",
+        lastModifiedOn: "2024-01-08T17:24:29+00:00",
+        deletedOn: null,
         shipmentDetail: {
           __typename: "ShipmentDetail",
+          id: "1",
+          box: {
+            __typename: "Box",
+            labelIdentifier: "123",
+            location: null,
+          },
+          sourceLocation: {
+            __typename: "ClassicLocation",
+            defaultBoxState: "InStock",
+            id: "18",
+            name: "WH2",
+            seq: 18,
+          },
+          sourceProduct: {
+            __typename: "Product",
+            gender: "UnisexBaby",
+            id: "399",
+            name: "baby gloves",
+            type: "Custom",
+            deletedOn: null,
+            category: {
+              id: "4",
+              name: "Jackets / Outerwear",
+              __typename: "ProductCategory",
+            },
+          },
+          sourceQuantity: 10,
+          sourceSize: {
+            __typename: "Size",
+            id: "52",
+            label: "Mixed",
+          },
+          autoMatchingTargetProduct: null,
           shipment: {
             __typename: "Shipment",
-            details: [
-              {
-                __typename: "ShipmentDetail",
-                box: {
-                  __typename: "Box",
-                  labelIdentifier: "123",
-                  location: null,
-                },
-                sourceLocation: {
-                  __typename: "ClassicLocation",
-                  defaultBoxState: "InStock",
-                  id: "18",
-                  name: "WH2",
-                  seq: 18,
-                },
-                sourceProduct: {
-                  __typename: "Product",
-                  gender: "UnisexBaby",
-                  id: "399",
-                  name: "baby gloves",
-                },
-                sourceQuantity: 10,
-                sourceSize: {
-                  __typename: "Size",
-                  id: "52",
-                  label: "Mixed",
-                },
-              },
-            ],
             id: "1",
+            labelIdentifier: "S001-231111-LExTH",
             state: "Receiving",
             targetBase: {
               __typename: "Base",
@@ -98,7 +108,7 @@ const initialQueryForBoxInReceivingState = {
         state: "Receiving",
         tags: [],
       },
-      shipments: [generateMockShipment({ state: "Receiving" })],
+      shipments: [generateMockShipmentMinimal({ state: "Receiving" })],
     },
   },
 };
@@ -114,6 +124,7 @@ const queryShipmentDetailForBoxReconciliation = {
   result: {
     data: {
       base: {
+        id: "1",
         locations: [generateMockLocationWithBase({})],
         products,
         tags: [tag1, tag2],
@@ -139,7 +150,13 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
   });
 
   expect(await screen.findByRole("heading", { name: /box 123/i })).toBeInTheDocument();
+  expect(screen.getByText(/receiving/i)).toBeInTheDocument();
 
-  expect(screen.getByText(/match products/i)).toBeInTheDocument();
-  expect(screen.getByText(/receive location/i)).toBeInTheDocument();
+  await waitFor(
+    () => {
+      expect(screen.getByText(/match products/i)).toBeInTheDocument();
+      expect(screen.getByText(/receive location/i)).toBeInTheDocument();
+    },
+    { timeout: 5000 },
+  );
 }, 20000);
