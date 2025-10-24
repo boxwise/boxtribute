@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "gql.tada";
 import { Alert, AlertIcon, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -124,14 +125,13 @@ function CreateShipmentView() {
       error: allBasesOfCurrentOrgError,
       data: AllBasesOfCurrentOrg,
     },
-  ] = useLazyQuery(ALL_BASES_OF_CURRENT_ORG_QUERY, {
-    variables: {
-      orgId: currentOrganisationId || "0",
-    },
-  });
+  ] = useLazyQuery(ALL_BASES_OF_CURRENT_ORG_QUERY);
 
   useEffect(() => {
-    if (currentOrganisationId) runAllBasesOfCurrentOrg();
+    if (currentOrganisationId)
+      runAllBasesOfCurrentOrg({
+        variables: { orgId: currentOrganisationId },
+      });
   }, [runAllBasesOfCurrentOrg, currentOrganisationId]);
 
   const currentOrganisationBases = AllBasesOfCurrentOrg?.organisation?.bases;
@@ -220,29 +220,26 @@ function CreateShipmentView() {
             sourceBaseId: parseInt(baseId, 10),
             targetBaseId: parseInt(createShipmentFormData.receivingBase.value, 10),
           },
-        })
-          .then((mutationResult) => {
-            if (mutationResult.errors) {
-              triggerError({
-                message: "Error while trying to create a new shipment!",
-              });
-            } else {
-              const shipmentId = mutationResult.data?.createShipment?.id;
-              createToast({
-                title: `Transfer Shipment ${shipmentId}`,
-                type: "success",
-                message: "Successfully created a new shipment",
-              });
-
-              navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
-            }
-          })
-          .catch((err) => {
+        }).then(({ data, error }) => {
+          if (CombinedGraphQLErrors.is(error)) {
             triggerError({
               message: "Error while trying to create a new shipment!",
-              statusCode: err.code,
             });
-          });
+          } else if (error) {
+            triggerError({
+              message: "Network error: Could not create shipment.",
+            });
+          } else {
+            const shipmentId = data?.createShipment?.id;
+            createToast({
+              title: `Transfer Shipment ${shipmentId}`,
+              type: "success",
+              message: "Successfully created a new shipment",
+            });
+
+            navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
+          }
+        });
       }
     },
     [
@@ -280,7 +277,7 @@ function CreateShipmentView() {
           currentOrganisationId={currentOrganisationId || ""}
           currentOrganisationName={currentOrganisationName || ""}
           currentOrganisationBase={currentOrganisationBase || ""}
-          currentOrganisationBases={currentOrganisationBases || []}
+          currentOrganisationBases={(currentOrganisationBases || []).filter(Boolean)}
           organisationBaseData={partnerOrganisationBaseData || []}
           onSubmit={onSubmitCreateShipmentForm}
           noAcceptedAgreements={noAcceptedAgreements || noPartnerOrgBaseData}

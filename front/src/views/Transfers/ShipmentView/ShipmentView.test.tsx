@@ -191,7 +191,6 @@ describe("4.5 Test Cases", () => {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialQuery],
-      addTypename: true,
     });
 
     // Wait for initial loader to appear
@@ -273,7 +272,6 @@ describe("4.5 Test Cases", () => {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialWithoutBoxQuery],
-      addTypename: true,
     });
 
     await waitFor(() => {
@@ -296,7 +294,6 @@ describe("4.5 Test Cases", () => {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialWithGroupedItemQuery],
-      addTypename: true,
     });
 
     await waitFor(() => {
@@ -370,7 +367,6 @@ describe("4.5 Test Cases", () => {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialQueryNetworkError],
-      addTypename: true,
     });
 
     expect(
@@ -385,7 +381,6 @@ describe("4.5 Test Cases", () => {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialRecevingUIAsTargetOrgQuery],
-      addTypename: true,
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -407,7 +402,6 @@ describe("4.5 Test Cases", () => {
       routePath: "/bases/:baseId/transfers/shipments/:id",
       initialUrl: "/bases/1/transfers/shipments/1",
       mocks: [initialRecevingUIAsSourceOrgQuery],
-      addTypename: true,
     });
 
     expect(screen.getByTestId("loader")).toBeInTheDocument();
@@ -426,7 +420,6 @@ it("4.5.5 - Shows total count of the boxes when shipment completed", async () =>
     routePath: "/bases/:baseId/transfers/shipments/:id",
     initialUrl: "/bases/1/transfers/shipments/1",
     mocks: [initialCompletedShipemntQuery],
-    addTypename: true,
   });
 
   expect(screen.getByTestId("loader")).toBeInTheDocument();

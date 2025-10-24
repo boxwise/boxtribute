@@ -182,7 +182,7 @@ jobs:
       - run:
           name: Test front app and create reports
           command: |
-            DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000
+            DEBUG_PRINT_LIMIT=10000 pnpm test:coverage --test-timeout=40000 --no-file-parallelism
       - run:
           name: Test shared-components and create reports
           when: always

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client/react";
 import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
@@ -237,8 +237,8 @@ function Boxes({
         variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
         fetchPolicy: "network-only",
       })
-      .then(({ data, errors }) => {
-        if ((errors?.length || 0) === 0 && data?.boxes?.elements) {
+      .then(({ data, error }) => {
+        if (!error && data?.boxes?.elements) {
           hasExecutedInitialFetchOfBoxes.current = true;
         }
       })

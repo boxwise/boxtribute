@@ -3,10 +3,18 @@
 // https://www.youtube.com/watch?v=FROhOGcnQxs
 
 import { useState, useEffect, ReactNode } from "react";
-import { ApolloClient, HttpLink, ApolloProvider, DefaultOptions, ApolloLink } from "@apollo/client";
+import {
+  ApolloClient,
+  CombinedGraphQLErrors,
+  HttpLink,
+  DefaultOptions,
+  ApolloLink,
+  Observable,
+} from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
 import { setContext } from "@apollo/client/link/context";
 import { useAuth0 } from "@auth0/auth0-react";
-import { onError } from "@apollo/client/link/error";
+import { ErrorLink } from "@apollo/client/link/error";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { cache } from "queries/cache";
 import { getActiveSpan, startSpanManual } from "@sentry/react";
@@ -45,33 +53,42 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   }
 
   const createSpanLink = new ApolloLink((operation, forward) => {
-    const result = startSpanManual({ name: `gql.${operation.operationName}` }, (span) => {
+    return startSpanManual({ name: `gql.${operation.operationName}` }, (span) => {
       operation.setContext(({ headers = {} }) => ({
         headers: {
           ...headers,
           traceparent: getTraceparentString(),
         },
       }));
-      return forward(operation).map((data) => {
-        span.end();
-        return data;
+
+      return new Observable((observer) => {
+        const subscription = forward(operation).subscribe({
+          next: (data) => {
+            span.end();
+            observer.next(data);
+          },
+          error: (err) => {
+            span.end();
+            observer.error(err);
+          },
+          complete: () => observer.complete(),
+        });
+        return () => subscription.unsubscribe();
       });
     });
-    return result;
   });
 
-  const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors) {
-      graphQLErrors.forEach(({ message, locations, path, extensions }) => {
+  const errorLink = new ErrorLink(({ error }) => {
+    if (CombinedGraphQLErrors.is(error)) {
+      error.errors.forEach(({ message, locations, path, extensions }) => {
         triggerError({
           message: `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(locations)}, Path: ${path}, Extensions: ${JSON.stringify(extensions?.description)}`,
           userMessage: "Something went wrong!",
         });
       });
-    }
-    if (networkError) {
+    } else {
       triggerError({
-        message: `[Network error]: ${networkError}`,
+        message: `[Network error]: ${error}`,
         userMessage: "Network Error! Please check your Internet connection!",
       });
     }
@@ -88,7 +105,6 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   const client = new ApolloClient({
     cache,
-    connectToDevTools: import.meta.env.FRONT_ENVIRONMENT !== "production",
     link: auth0Link.concat(errorLink).concat(createSpanLink).concat(httpLink),
     defaultOptions,
   });

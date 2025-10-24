@@ -110,7 +110,6 @@ describe("BoxCreateView", () => {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
       mocks: [initialQuery],
-      addTypename: true,
     });
 
     expect(await screen.findByRole("heading", { name: /create new box/i })).toBeInTheDocument();
@@ -124,7 +123,6 @@ describe("BoxCreateView", () => {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
       mocks: [initialQuery, successfulCreateBoxMutation],
-      addTypename: true,
     });
 
     // Wait for form to load
@@ -164,7 +162,6 @@ describe("BoxCreateView", () => {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
       mocks: [initialQuery, successfulCreateBoxMutation],
-      addTypename: true,
     });
 
     // Wait for form to load
@@ -206,7 +203,6 @@ describe("BoxCreateView", () => {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
       mocks: [initialQuery],
-      addTypename: true,
     });
 
     await screen.findByRole("heading", { name: /create new box/i });
@@ -246,7 +242,6 @@ describe("BoxCreateView", () => {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
       mocks: [initialQuery, errorMutation],
-      addTypename: true,
     });
 
     await screen.findByRole("heading", { name: /create new box/i });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -101,13 +102,11 @@ function BoxCreateView() {
   const [
     runCheckIfQRExistsInDB,
     { loading: qrCodeExistsLoading, error: qrCodeExistsError, data: qrCodeExistsData },
-  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB, {
-    variables: { qrCode },
-  });
+  ] = useLazyQuery(CHECK_IF_QR_EXISTS_IN_DB);
 
   // Check the QR Code if there is a qrCode param (user read a box QR-Code)
   useEffect(() => {
-    if (qrCode) runCheckIfQRExistsInDB();
+    if (qrCode) runCheckIfQRExistsInDB({ variables: { qrCode } });
 
     if (qrCode && qrCodeExistsData?.qrExists === false) {
       createToast({
@@ -207,52 +206,48 @@ function BoxCreateView() {
         tagIds,
         qrCode,
       },
-    })
-      .then((mutationResult) => {
-        if (mutationResult.errors) {
-          const errorCode = mutationResult.errors[0]?.extensions?.code;
-          if (errorCode === "BAD_USER_INPUT") {
-            triggerError({
-              message: "The QR code is already used for another box.",
-            });
-          } else if (errorCode === "INTERNAL_SERVER_ERROR") {
-            // Box label-identifier generation failed
-            triggerError({
-              message: "Could not create box. Please try again.",
-            });
-          } else {
-            triggerError({
-              message: "Error while trying to create Box",
-            });
-          }
-        } else {
-          createToast({
-            title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
-            type: "success",
-            message: `Successfully created with ${
-              allFormOptions.data?.base?.products.find(
-                (p) => p.id === createBoxData.productId.value,
-              )?.name
-            } (${createBoxData?.numberOfItems}x) in ${
-              allFormOptions.data?.base?.locations.find(
-                (l) => l.id === createBoxData.locationId.value,
-              )?.name
-            }.`,
+    }).then(({ data, error }) => {
+      if (CombinedGraphQLErrors.is(error)) {
+        const errorCode = error.errors[0]?.extensions?.code;
+        if (errorCode === "BAD_USER_INPUT") {
+          triggerError({
+            message: "The QR code is already used for another box.",
           });
-
-          if (createAnother) {
-            navigate(`/bases/${baseId}/boxes/create`);
-          } else {
-            navigate(`/bases/${baseId}/boxes/${mutationResult.data?.createBox?.labelIdentifier}`);
-          }
+        } else if (errorCode === "INTERNAL_SERVER_ERROR") {
+          // Box label-identifier generation failed
+          triggerError({
+            message: "Could not create box. Please try again.",
+          });
+        } else {
+          triggerError({
+            message: "Error while trying to create Box",
+          });
         }
-      })
-      .catch((err) => {
+      } else if (error) {
         triggerError({
-          message: "Your changes could not be saved!",
-          statusCode: err.code,
+          message: "Network error: Could not create box.",
         });
-      });
+      } else {
+        createToast({
+          title: `Box ${data?.createBox?.labelIdentifier}`,
+          type: "success",
+          message: `Successfully created with ${
+            allFormOptions.data?.base?.products.find((p) => p.id === createBoxData.productId.value)
+              ?.name
+          } (${createBoxData?.numberOfItems}x) in ${
+            allFormOptions.data?.base?.locations.find(
+              (l) => l.id === createBoxData.locationId.value,
+            )?.name
+          }.`,
+        });
+
+        if (createAnother) {
+          navigate(`/bases/${baseId}/boxes/create`);
+        } else {
+          navigate(`/bases/${baseId}/boxes/${data?.createBox?.labelIdentifier}`);
+        }
+      }
+    });
   };
 
   // Handle Loading State

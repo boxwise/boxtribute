@@ -166,7 +166,6 @@ it("4.3.1 - Initial load of Page", async () => {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
-    addTypename: true,
   });
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
@@ -199,7 +198,6 @@ it("4.3.2 - Input Validations", async () => {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
-    addTypename: true,
   });
 
   const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
@@ -245,7 +243,6 @@ it("4.3.3 (4.3.3.1 and 4.3.3.2) - Click on Submit Button", async () => {
       successfulMutation,
       initialWithoutBoxQuery,
     ],
-    addTypename: true,
     cache,
   });
 
@@ -285,7 +282,6 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery, mutationNetworkError],
-    addTypename: true,
   });
 
   // Test case 4.3.3.3 - Form data was valid, but the mutation failed
@@ -304,7 +300,7 @@ it("4.3.3.3 - Form data was valid, but the mutation failed", async () => {
   await waitFor(() =>
     expect(mockedTriggerError).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: expect.stringMatching(/error while trying to create a new shipment/i),
+        message: expect.stringMatching(/Network error: Could not create shipment./i),
       }),
     ),
   );
@@ -317,7 +313,6 @@ it("4.3.3.4 - Form data was valid, but the mutation response has errors", async 
     routePath: "/bases/:baseId/transfers/shipments/create",
     initialUrl: "/bases/1/transfers/shipments/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery, mutationGraphQLError],
-    addTypename: true,
   });
 
   // Test case 4.3.3.4 - Form data was valid, but the mutation response has errors
@@ -377,7 +372,6 @@ it.skip("4.3.3.5 - Click on Submit Button - Intra-org Shipment", async () => {
       successfulMutation,
       initialWithoutBoxQuery,
     ],
-    addTypename: true,
     cache,
   });
 
@@ -418,7 +412,6 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       routePath: "/bases/:baseId/transfers/shipment/create",
       initialUrl: "/bases/1/transfers/shipment/create",
       mocks: [initialQueryAllBasesOfCurrentOrg, initialQueryNetworkError],
-      addTypename: true,
     });
 
     // Test case 4.3.4.1 - No Partner Organisations and Bases Data
@@ -435,7 +428,6 @@ describe("4.3.4 - Failed to Fetch Initial Data", () => {
       routePath: "/bases/:baseId/transfers/shipment/create",
       initialUrl: "/bases/1/transfers/shipment/create",
       mocks: [initialQueryAllBasesOfCurrentOrg, initialQueryWithoutAgreement],
-      addTypename: true,
     });
 
     // Test case 4.3.4.2 - No Accepeted Agreements Found
@@ -455,7 +447,6 @@ it("4.3.5 - Click on Link New Partner navigates to create transfer agreement", a
     initialUrl: "/bases/1/transfers/shipments/create",
     additionalRoute: "/bases/1/transfers/agreements/create",
     mocks: [initialQueryAllBasesOfCurrentOrg, initialQuery],
-    addTypename: true,
   });
 
   const title = await screen.findByRole("heading", { name: "New Shipment" });

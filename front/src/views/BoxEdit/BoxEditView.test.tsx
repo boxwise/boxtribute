@@ -135,7 +135,6 @@ it("3.2.1 - Initial load of Page", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQuery],
-    addTypename: true,
   });
 
   // 3.2.1.0 Show loading state
@@ -181,7 +180,6 @@ it("3.2.2 - Cancel Button", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQuery],
-    addTypename: true,
     additionalRoute: "/bases/1/boxes/123",
   });
   const cancelButton = await screen.findByRole("button", { name: /cancel/i });
@@ -195,7 +193,6 @@ it("3.2.3 - Change Product", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQuery, successfulMutation, refetchQuery],
-    addTypename: true,
     additionalRoute: "/bases/1/boxes/123",
   });
 
@@ -233,7 +230,6 @@ it("3.2.4 - No Data is loaded due to Network error", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQueryNetworkError],
-    addTypename: true,
   });
   // The correct error notifications appear
   await waitFor(() =>
@@ -266,7 +262,6 @@ it("3.2.5 - No Data is loaded due to GraphQL error", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQueryGraphQLError],
-    addTypename: true,
   });
   // The correct error notifications appear
   await waitFor(() =>
@@ -301,7 +296,6 @@ it("3.2.6 - Mutation Failure due to Network Error", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQuery, mutationNetworkError],
-    addTypename: true,
     additionalRoute: "/bases/1/boxes/123",
   });
 
@@ -323,7 +317,6 @@ it("3.2.7 - Mutation failure due to GraphQL Error", async () => {
     routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
     initialUrl: "/bases/1/boxes/123/edit",
     mocks: [initialQuery, mutationGraphQLError],
-    addTypename: true,
     additionalRoute: "/bases/1/boxes/123",
   });
 

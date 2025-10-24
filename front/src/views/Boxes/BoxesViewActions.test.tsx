@@ -323,6 +323,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -339,6 +340,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
@@ -358,6 +360,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -376,6 +379,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -393,6 +397,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
@@ -430,6 +435,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -451,6 +457,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -468,6 +475,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
@@ -574,6 +582,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
     ],
     clicks: [], // No action clicks since we're just testing the initial load
@@ -586,6 +595,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
@@ -603,6 +613,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -619,6 +630,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
@@ -673,6 +685,7 @@ const boxesViewActionsTests = [
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ paginationInput: 100000 }),
+      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       assignTagsMutation({
         labelIdentifiers: ["123"],
@@ -689,6 +702,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       assignTagsMutation({
@@ -707,6 +721,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ paginationInput: 100000 }),
       boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       assignTagsMutation({
@@ -767,7 +782,6 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         {
           routePath: "/bases/:baseId/boxes",
           initialUrl: `/bases/1/boxes${searchParams || ""}`,
-          addTypename: true,
           mocks,
           cache,
         },

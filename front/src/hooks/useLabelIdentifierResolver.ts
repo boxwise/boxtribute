@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { Box } from "queries/types";
 import { BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY } from "queries/queries";
 
@@ -33,16 +33,32 @@ export const useLabelIdentifierResolver = () => {
           variables: { labelIdentifier },
           fetchPolicy: "network-only",
         })
-        .then(({ data, errors }) => {
-          if ((errors?.length || 0) > 0) {
-            const errorCode = errors ? errors[0].extensions?.code : undefined;
-            if (errorCode === "FORBIDDEN") {
+        .then(({ data, error }) => {
+          if (error) {
+            // Check for GraphQL errors with extensions (Apollo Client v4 format)
+            const graphQLError = (error as any).errors?.[0] || (error as any).graphQLErrors?.[0];
+            if (graphQLError?.extensions?.code === "FORBIDDEN") {
               return {
                 kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,
                 labelIdentifier,
               } as ILabelIdentifierResolvedValue;
             }
-            if (errorCode === "BAD_USER_INPUT") {
+            if (graphQLError?.extensions?.code === "BAD_USER_INPUT") {
+              return {
+                kind: ILabelIdentifierResolverResultKind.NOT_FOUND,
+                labelIdentifier,
+              } as ILabelIdentifierResolvedValue;
+            }
+
+            // Fallback to checking error message for backward compatibility
+            const errorMessage = error.message || "";
+            if (errorMessage.includes("FORBIDDEN")) {
+              return {
+                kind: ILabelIdentifierResolverResultKind.NOT_AUTHORIZED,
+                labelIdentifier,
+              } as ILabelIdentifierResolvedValue;
+            }
+            if (errorMessage.includes("BAD_USER_INPUT")) {
               return {
                 kind: ILabelIdentifierResolverResultKind.NOT_FOUND,
                 labelIdentifier,
@@ -51,6 +67,7 @@ export const useLabelIdentifierResolver = () => {
             return {
               kind: ILabelIdentifierResolverResultKind.FAIL,
               labelIdentifier,
+              error,
             } as ILabelIdentifierResolvedValue;
           }
           return {

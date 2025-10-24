@@ -1,5 +1,6 @@
+import { CombinedGraphQLErrors, gql } from "@apollo/client";
 import { useCallback, useState } from "react";
-import { gql, useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 
@@ -57,14 +58,15 @@ export const useAssignTags = () => {
       }
 
       try {
-        const { data, errors } = await apolloClient.mutate({
+        const { data, error } = await apolloClient.mutate({
           mutation: ASSIGN_TAGS_TO_BOXES,
           variables: { labelIdentifiers, tagIds },
         });
 
         setIsLoading(false);
 
-        if ((errors?.length || 0) > 0) {
+        if (CombinedGraphQLErrors.is(error)) {
+          // GraphQL error
           if (showToastMessage)
             triggerError({
               message: `Could not assign tags to ${
@@ -74,12 +76,26 @@ export const useAssignTags = () => {
           return {
             kind: IAssignTagsResultKind.FAIL,
             requestedLabelIdentifiers: labelIdentifiers,
-            error: errors?.[0],
+            error: error.errors[0],
+          };
+        } else if (error) {
+          // Network error
+          if (showToastMessage)
+            triggerError({
+              message: `Network issue: could not assign tags to ${
+                labelIdentifiers.length === 1 ? "box" : "boxes"
+              }. Try again?`,
+            });
+          return {
+            kind: IAssignTagsResultKind.NETWORK_FAIL,
+            requestedLabelIdentifiers: labelIdentifiers,
+            error: error,
           };
         }
 
-        const assignedBoxes = data?.assignTagsToBoxes?.updatedBoxes ?? [];
-        const failedLabelIdentifiers = data?.assignTagsToBoxes?.invalidBoxLabelIdentifiers ?? [];
+        const assignedBoxes = (data as any)?.assignTagsToBoxes?.updatedBoxes ?? [];
+        const failedLabelIdentifiers =
+          (data as any)?.assignTagsToBoxes?.invalidBoxLabelIdentifiers ?? [];
         const successfulLabelIdentifiers: string[] = assignedBoxes.map(
           (box: any) => box.labelIdentifier,
         );
@@ -109,10 +125,11 @@ export const useAssignTags = () => {
           successfulLabelIdentifiers,
         };
       } catch (err) {
+        // This should not happen with errorPolicy: "all", but keep for safety
         setIsLoading(false);
         if (showToastMessage)
           triggerError({
-            message: `Network issue: could not assign tags to ${
+            message: `Unexpected error: could not assign tags to ${
               labelIdentifiers.length === 1 ? "box" : "boxes"
             }. Try again?`,
           });

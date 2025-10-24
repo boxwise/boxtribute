@@ -1,4 +1,5 @@
-import { useMutation } from "@apollo/client";
+import { CombinedGraphQLErrors } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { graphql } from "../../../../../graphql/graphql";
 import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -66,18 +67,18 @@ const CreateDistributionSpotView = () => {
           },
         },
       ],
-    })
-      .then((mutationResult) => {
-        const distributionSpotId = mutationResult.data?.createDistributionSpot?.id;
-        if (distributionSpotId === null || (mutationResult.errors?.length || 0) > 0) {
+    }).then(({ data, error }) => {
+      if (CombinedGraphQLErrors.is(error) || error) {
+        showErrorToast();
+        if (error) console.error(error);
+      } else {
+        const distributionSpotId = data?.createDistributionSpot?.id;
+        if (distributionSpotId === null) {
           showErrorToast();
         }
         navigate(`/bases/${baseId}/distributions/spots`);
-      })
-      .catch((error) => {
-        showErrorToast();
-        console.error(error);
-      });
+      }
+    });
   };
 
   return (
