@@ -49,7 +49,7 @@ const boxesQuery = ({
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: state === "" ? {} : { states: state2 ? [state, state2] : [state] },
+      filterInput: state === "ALL" ? {} : { states: state2 ? [state, state2] : [state] },
       paginationInput,
     },
   },
@@ -875,8 +875,8 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=999", // Invalid state ID
         mocks: [
-          boxesQuery({ state: "", paginationInput: 20 }),
-          boxesQuery({ state: "" }),
+          boxesQuery({ state: "ALL", paginationInput: 20 }),
+          boxesQuery({ state: "ALL" }),
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
           boxesQuery({ paginationInput: 20 }),
