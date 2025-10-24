@@ -1,6 +1,5 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
-import { configDefaults } from 'vitest/config';
 import react from "@vitejs/plugin-react-swc";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import { viteStaticCopy } from "vite-plugin-static-copy";
@@ -37,10 +36,6 @@ export default defineConfig({
     setupFiles: "./src/tests/setupTests.ts",
     // Junit is needed for CircleCI test results
     reporters: ["default", "junit"],
-    exclude: [
-      ...configDefaults.exclude,
-      '**/BoxesView*.test.tsx',
-    ],
     outputFile: {
       junit: "./coverage/junit.xml",
     },
