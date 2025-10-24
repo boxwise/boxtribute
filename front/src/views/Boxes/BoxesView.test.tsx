@@ -6,7 +6,7 @@ import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
-import { cache } from "queries/cache";
+import { cache, tableConfigsVar } from "queries/cache";
 import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import {
@@ -26,6 +26,8 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxcare.org");
+  void cache.reset();
+  tableConfigsVar(new Map());
 });
 
 const jotaiAtoms = [
@@ -47,7 +49,7 @@ const boxesQuery = ({
     query: BOXES_FOR_BOXESVIEW_QUERY,
     variables: {
       baseId: "2",
-      filterInput: { states: state2 ? [state, state2] : [state] },
+      filterInput: state === "ALL" ? {} : { states: state2 ? [state, state2] : [state] },
       paginationInput,
     },
   },
@@ -537,7 +539,7 @@ describe("4.8.1 - Initial load of Page", () => {
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
@@ -592,7 +594,7 @@ describe("4.8.1 - Initial load of Page", () => {
           </ErrorBoundary>,
           {
             routePath: "/bases/:baseId/boxes",
-            initialUrl: "/bases/2/boxes",
+            initialUrl: "/bases/2/boxes?state_ids=1",
             mocks,
             cache,
             jotaiAtoms,
@@ -624,7 +626,7 @@ describe("4.8.1 - Initial load of Page", () => {
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
@@ -657,7 +659,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
@@ -756,7 +758,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
@@ -867,10 +869,11 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=999", // Invalid state ID
         mocks: [
+          boxesQuery({ state: "ALL", paginationInput: 20 }),
+          boxesQuery({ state: "ALL" }),
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
           boxesQuery({ paginationInput: 20 }),
-          boxesQuery({}),
           actionsQuery,
         ],
         cache,
@@ -939,7 +942,7 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "InStock", state2: "Donated", paginationInput: 20 }),
           boxesQuery({ state: "InStock", state2: "Donated" }),
           actionsQuery,
         ],
