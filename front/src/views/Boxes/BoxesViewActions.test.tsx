@@ -410,6 +410,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         stateFilter: ["MarkedForShipment"],
@@ -497,6 +498,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
@@ -522,6 +524,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
@@ -545,6 +548,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
