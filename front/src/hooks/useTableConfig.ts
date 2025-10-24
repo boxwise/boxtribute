@@ -156,32 +156,34 @@ export const useTableConfig = ({
     [searchParams, setSearchParams],
   );
 
-/* Initial mount logic (one-time):
- *
- * - We compute `initialColumnFilters` earlier so callers can synchronously read
- *   URL-applied filters from the getters during render (avoids the race where
- *   react-table/queries initialize with defaults before the effect runs).
- *
- * - Here in the effect we persist a table config only if there is no existing
- *   saved config for the key. This avoids stomping user-saved settings on first load.
- *
- * - If URL params exist, we persist the URL-merged filters (URL wins over defaults).
- *   If the URL is empty and there's no saved config, we persist the default filters
- *   (and write them into the URL via the existing updateUrl logic).
- *
- * - Important: we avoid performing any synchronous state mutation during render.
- *   The getters return the precomputed values and this effect performs the side
- *   effect of persisting them after mount. This pattern prevents the race that
- *   previously caused initial queries to use the default "InStock" filter even
- *   when the URL requested e.g. "Donated".
- */
+  /* Initial mount logic (one-time):
+   *
+   * - We compute `initialColumnFilters` earlier so callers can synchronously read
+   *   URL-applied filters from the getters during render (avoids the race where
+   *   react-table/queries initialize with defaults before the effect runs).
+   *
+   * - Here in the effect we persist a table config only if there is no existing
+   *   saved config for the key. This avoids stomping user-saved settings on first load.
+   *
+   * - If URL params exist, we persist the URL-merged filters (URL wins over defaults).
+   *   If the URL is empty and there's no saved config, we persist the default filters
+   *   (and write them into the URL via the existing updateUrl logic).
+   *
+   * - Important: we avoid performing any synchronous state mutation during render.
+   *   The getters return the precomputed values and this effect performs the side
+   *   effect of persisting them after mount. This pattern prevents the race that
+   *   previously caused initial queries to use the default "InStock" filter even
+   *   when the URL requested e.g. "Donated".
+   */
   useEffect(() => {
     if (isInitialMount.current && syncFiltersAndUrlParams) {
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
 
       const existingConfig = tableConfigsState.get(tableConfigKey);
       if (!existingConfig) {
-        const initialFiltersToPersist = hasUrlParams ? initialColumnFilters : defaultTableConfig.columnFilters;
+        const initialFiltersToPersist = hasUrlParams
+          ? initialColumnFilters
+          : defaultTableConfig.columnFilters;
         const tableConfig: ITableConfig = {
           globalFilter: defaultTableConfig.globalFilter,
           columnFilters: initialFiltersToPersist,
