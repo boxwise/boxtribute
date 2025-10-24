@@ -212,7 +212,7 @@ function Boxes({
       (tableConfig.getColumnFilters().find((f) => f.id === "state")?.value as string[]) ?? [];
 
     for (const state of states) {
-      const stateId = (boxStateIds as Record<string, string>)[state];
+      const stateId = boxStateIds[state];
       // If the table is already filtered to this state ID, skip preloading it.
       if (stateId && stateFilterValues.includes(stateId)) {
         continue;
