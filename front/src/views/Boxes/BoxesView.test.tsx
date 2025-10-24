@@ -909,6 +909,7 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
           boxesQuery({ state: "Donated", paginationInput: 20 }),
           boxesQuery({ paginationInput: 20 }),
           boxesQuery({}),
+          boxesQuery({}),
           actionsQuery,
         ],
         cache,
