@@ -172,6 +172,7 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  void cache.reset();
   tableConfigsVar(new Map());
 });
 
