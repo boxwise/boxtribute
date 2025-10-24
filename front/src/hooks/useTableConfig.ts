@@ -132,6 +132,18 @@ export const useTableConfig = ({
     }
     return urlFilters;
   }, [searchParams]);
+
+  // Compute the initial filters if there is no saved config
+  const initialColumnFilters = useMemo(() => {
+    if (!syncFiltersAndUrlParams) return defaultTableConfig.columnFilters;
+
+    // If URL params exist, merge them into defaults (URL wins)
+    const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
+    return hasUrlParams
+      ? createInitialColumnFilters(defaultTableConfig.columnFilters, urlFilters)
+      : defaultTableConfig.columnFilters;
+  }, [defaultTableConfig.columnFilters, syncFiltersAndUrlParams, searchParams, urlFilters]);
+
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
   const isInitialMount = useRef(true);
@@ -144,31 +156,43 @@ export const useTableConfig = ({
     [searchParams, setSearchParams],
   );
 
-  // Sync default filters to URL on first load if no URL parameters present
+/* Initial mount logic (one-time):
+ *
+ * - We compute `initialColumnFilters` earlier so callers can synchronously read
+ *   URL-applied filters from the getters during render (avoids the race where
+ *   react-table/queries initialize with defaults before the effect runs).
+ *
+ * - Here in the effect we persist a table config only if there is no existing
+ *   saved config for the key. This avoids stomping user-saved settings on first load.
+ *
+ * - If URL params exist, we persist the URL-merged filters (URL wins over defaults).
+ *   If the URL is empty and there's no saved config, we persist the default filters
+ *   (and write them into the URL via the existing updateUrl logic).
+ *
+ * - Important: we avoid performing any synchronous state mutation during render.
+ *   The getters return the precomputed values and this effect performs the side
+ *   effect of persisting them after mount. This pattern prevents the race that
+ *   previously caused initial queries to use the default "InStock" filter even
+ *   when the URL requested e.g. "Donated".
+ */
   useEffect(() => {
     if (isInitialMount.current && syncFiltersAndUrlParams) {
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
 
-      if (!hasUrlParams) {
-        const currentConfig = tableConfigsState.get(tableConfigKey);
-        if (currentConfig?.columnFilters) {
-          updateUrl(currentConfig.columnFilters);
-        }
-      } else {
-        // Create initial column filters, prioritizing URL parameters
-        const initialColumnFilters = createInitialColumnFilters(
-          defaultTableConfig.columnFilters,
-          urlFilters,
-        );
-
+      const existingConfig = tableConfigsState.get(tableConfigKey);
+      if (!existingConfig) {
+        const initialFiltersToPersist = hasUrlParams ? initialColumnFilters : defaultTableConfig.columnFilters;
         const tableConfig: ITableConfig = {
           globalFilter: defaultTableConfig.globalFilter,
-          columnFilters: initialColumnFilters,
+          columnFilters: initialFiltersToPersist,
           sortBy: defaultTableConfig.sortBy,
           hiddenColumns: defaultTableConfig.hiddenColumns,
         };
         tableConfigsState.set(tableConfigKey, tableConfig);
         tableConfigsVar(tableConfigsState);
+      } else if (!hasUrlParams) {
+        // If URL is empty, write the default filters into the URL
+        updateUrl(existingConfig.columnFilters);
       }
 
       isInitialMount.current = false;
@@ -181,24 +205,29 @@ export const useTableConfig = ({
     updateUrl,
     defaultTableConfig,
     urlFilters,
+    initialColumnFilters,
   ]);
 
   // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
-    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).globalFilter;
+    const cfg = tableConfigsState.get(tableConfigKey);
+    return cfg?.globalFilter ?? defaultTableConfig.globalFilter;
   }
 
   function getColumnFilters() {
-    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).columnFilters;
+    const cfg = tableConfigsState.get(tableConfigKey);
+    return cfg?.columnFilters ?? initialColumnFilters;
   }
 
   function getSortBy() {
-    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).sortBy;
+    const cfg = tableConfigsState.get(tableConfigKey);
+    return cfg?.sortBy ?? defaultTableConfig.sortBy;
   }
 
   function getHiddenColumns() {
-    return (tableConfigsState.get(tableConfigKey) || defaultTableConfig).hiddenColumns;
+    const cfg = tableConfigsState.get(tableConfigKey);
+    return cfg?.hiddenColumns ?? defaultTableConfig.hiddenColumns;
   }
 
   function setGlobalFilter(globalFilter: string | undefined) {
