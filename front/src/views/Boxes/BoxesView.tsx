@@ -43,6 +43,7 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 import BoxesTable from "./components/BoxesTable";
+import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
@@ -160,7 +161,7 @@ function Boxes({
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["1"] }], // for InStock (see boxStateIds)
+      columnFilters: [],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: [
         "qrLabel",
@@ -199,10 +200,24 @@ function Boxes({
       return;
     }
 
-    // Only on very initial mount, query 20 boxes of the most used other than InStock state to
-    // preload the data into Apollo cache.
-    const states = ["Donated", "Scrap"] satisfies Partial<BoxState>[];
+    // Only on very initial mount, query 20 boxes of the most used states to preload the data into
+    // Apollo cache.
+    // But skip preloading a state if the current table config already requests it via filters.
+    // e.g. if tableConfig.getColumnFilters() already contains the id for "Donated" (boxStateIds.Donated),
+    // do not query Donated here.
+    const states = ["InStock", "Donated", "Scrap"] satisfies Partial<BoxState>[];
+
+    // Read the current state filter values (these are state IDs like "5", "6" etc.)
+    const stateFilterValues: string[] =
+      (tableConfig.getColumnFilters().find((f) => f.id === "state")?.value as string[]) ?? [];
+
     for (const state of states) {
+      const stateId = boxStateIds[state];
+      // If the table is already filtered to this state ID, skip preloading it.
+      if (stateId && stateFilterValues.includes(stateId)) {
+        continue;
+      }
+
       apolloClient.query({
         query: BOXES_FOR_BOXESVIEW_QUERY,
         variables: {

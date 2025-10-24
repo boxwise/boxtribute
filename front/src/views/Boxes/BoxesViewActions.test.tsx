@@ -172,6 +172,7 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 
 beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  void cache.reset();
   tableConfigsVar(new Map());
 });
 
@@ -410,6 +411,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         stateFilter: ["MarkedForShipment"],
@@ -497,6 +499,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
@@ -522,6 +525,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
@@ -545,6 +549,7 @@ const boxesViewActionsTests = [
       boxesQuery({}),
       boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
       boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
+      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
