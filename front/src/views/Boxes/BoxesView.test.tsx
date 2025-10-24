@@ -537,7 +537,7 @@ describe("4.8.1 - Initial load of Page", () => {
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
@@ -593,7 +593,7 @@ describe("4.8.1 - Initial load of Page", () => {
           </ErrorBoundary>,
           {
             routePath: "/bases/:baseId/boxes",
-            initialUrl: "/bases/2/boxes",
+            initialUrl: "/bases/2/boxes?state_ids=1",
             mocks,
             cache,
             addTypename: true,
