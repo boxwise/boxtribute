@@ -201,6 +201,10 @@ export const useTableConfig = ({
       // mark initial mount complete and trigger a re-render so consumers see the change
       setIsInitialMount(false);
     }
+    // Intentionally disable exhaustive-deps: this effect is meant to run only once on initial mount.
+    // The values it uses (updateUrl, urlFilters, initialColumnFilters) are stable/memoized by design.
+    // Adding all inferred deps would cause unwanted re-runs; update dependencies intentionally if behavior changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     syncFiltersAndUrlParams,
     searchParams,
