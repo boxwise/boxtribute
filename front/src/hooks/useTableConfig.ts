@@ -202,8 +202,8 @@ export const useTableConfig = ({
       setIsInitialMount(false);
     }
     // Intentionally disable exhaustive-deps: this effect is meant to run only once on initial mount.
-    // The values it uses (updateUrl, urlFilters, initialColumnFilters) are stable/memoized by design.
-    // Adding all inferred deps would cause unwanted re-runs; update dependencies intentionally if behavior changes.
+    // The dependencies intentionally included are: syncFiltersAndUrlParams, searchParams, tableConfigKey, tableConfigsState, updateUrl, defaultTableConfig, urlFilters, initialColumnFilters.
+    // These values are stable/memoized by design. Adding all inferred deps would cause unwanted re-runs; update dependencies intentionally if behavior changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     syncFiltersAndUrlParams,
