@@ -34,7 +34,7 @@ from .loaders import (
 )
 
 
-def execute_async(*, schema, introspection=None):
+def execute_async(*, schema, introspection=None, data=None):
     """Create coroutine and execute it with high-level `asyncio.run` which takes care of
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
@@ -75,7 +75,7 @@ def execute_async(*, schema, introspection=None):
         # Execute the GraphQL request against schema, passing in context
         results = await graphql(
             schema,
-            data=request.get_json(),
+            data=data or request.get_json(),
             context_value=context,
             debug=current_app.debug,
             introspection=current_app.debug if introspection is None else introspection,
