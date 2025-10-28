@@ -59,6 +59,32 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     response = assert_successful_request(cron_client, query)
     assert response == {"email": user["email"]}
 
+    # Internal-stats tests
+    url = "http://example.com/webhook"
+    monkeypatch.setenv("SLACK_WEBHOOK_URL_FOR_INTERNAL_STATS", url)
+
+    # Build a contextmanager-like mock to be returned by urlopen
+    mock_response = mocker.MagicMock()
+    mock_response.read.return_value = b'{"ok":true}'
+    mock_response.getcode.return_value = 200
+    cm = mocker.MagicMock()
+    cm.__enter__.return_value = mock_response
+    cm.__exit__.return_value = None
+    mocker.patch("urllib.request.urlopen", return_value=cm)
+
+    # Verify successful execution
+    response = cron_client.get(internal_stats_path, headers=headers)
+    assert response.status_code == 200
+    assert response.json == {"message": "posted 2 stats, 0 failure(s)"}
+
+    # Verify error scenario when posting to Slack
+    http_err = urllib.error.HTTPError(url, 503, "Service Unavailable", None, None)
+    mocker.patch("urllib.request.urlopen", side_effect=http_err)
+
+    response = cron_client.get(internal_stats_path, headers=headers)
+    assert response.status_code == 500
+    assert response.json == {"message": "posted 0 stats, 2 failure(s)"}
+
     # Reseed-DB tests
     monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
 
@@ -136,30 +162,3 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     response = cron_client.get(reseed_db_path, headers=headers)
     assert response.status_code == 400
     assert response.json == {"message": "Reset of 'dropapp_production' not permitted"}
-
-
-def test_post_internal_stats_to_slack(cron_client, mocker, monkeypatch):
-    url = "http://example.com/webhook"
-    monkeypatch.setenv("SLACK_WEBHOOK_URL_FOR_INTERNAL_STATS", url)
-
-    # Build a contextmanager-like mock to be returned by urlopen
-    mock_response = mocker.MagicMock()
-    mock_response.read.return_value = b'{"ok":true}'
-    mock_response.getcode.return_value = 200
-    cm = mocker.MagicMock()
-    cm.__enter__.return_value = mock_response
-    cm.__exit__.return_value = None
-    mocker.patch("urllib.request.urlopen", return_value=cm)
-
-    # Verify successful execution
-    response = cron_client.get(internal_stats_path, headers=headers)
-    assert response.status_code == 200
-    assert response.json == {"message": "posted 2 stats, 0 failure(s)"}
-
-    # Verify error scenario when posting to Slack
-    http_err = urllib.error.HTTPError(url, 503, "Service Unavailable", None, None)
-    mocker.patch("urllib.request.urlopen", side_effect=http_err)
-
-    response = cron_client.get(internal_stats_path, headers=headers)
-    assert response.status_code == 500
-    assert response.json == {"message": "posted 0 stats, 2 failure(s)"}
