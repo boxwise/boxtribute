@@ -31,7 +31,7 @@ updates:
       - "/"
       - "/front"
       - "/shared-components"
-      - "/statviz"
+      - "/shared-front"
     schedule:
       interval: "weekly"
     # Always increase the minimum version requirement to match the new version.

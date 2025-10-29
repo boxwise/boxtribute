@@ -10,7 +10,7 @@ import App from "./App";
 import { theme } from "@boxtribute/shared-components/utils/theme";
 
 const client = new ApolloClient({
-  uri: import.meta.env.STATVIZ_GRAPHQL_SERVER,
+  uri: import.meta.env.SHARED_FRONT_GRAPHQL_SERVER,
   cache: new InMemoryCache({
     typePolicies: {
       DimensionInfo: {
@@ -22,7 +22,7 @@ const client = new ApolloClient({
 
 const SentryProfiledApp = Sentry.withProfiler(() => <App />);
 
-const sentryDsn = import.meta.env.STATVIZ_SENTRY_FE_DSN;
+const sentryDsn = import.meta.env.SHARED_FRONT_SENTRY_DSN;
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
@@ -31,8 +31,8 @@ if (sentryDsn) {
         levels: ["error"],
       }),
     ],
-    tracesSampleRate: parseFloat(import.meta.env.STATVIZ_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
-    environment: import.meta.env.STATVIZ_SENTRY_ENVIRONMENT,
+    tracesSampleRate: parseFloat(import.meta.env.SHARED_FRONT_SENTRY_TRACES_SAMPLE_RATE || "0.0"),
+    environment: import.meta.env.SHARED_FRONT_SENTRY_ENVIRONMENT,
   });
 }
 

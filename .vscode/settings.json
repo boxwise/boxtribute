@@ -13,7 +13,7 @@
   "editor.formatOnSave": true,
 
   // eslint
-  "eslint.workingDirectories": ["./", "./front", "./shared-components", "./statviz"],
+  "eslint.workingDirectories": ["./", "./front", "./shared-components", "./shared-front"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
