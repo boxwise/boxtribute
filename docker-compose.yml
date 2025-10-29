@@ -71,7 +71,7 @@ services:
         SERVICE_DIR: shared-front
     environment:
       NODE_ENV: development
-      STATVIZ_GRAPHQL_SERVER: http://localhost:5005/public
+      SHARED_FRONT_GRAPHQL_SERVER: http://localhost:5005/public
     ports:
       - "5173:5173"
     stdin_open: true
