@@ -8,7 +8,7 @@ Boxtribute is a humanitarian relief web application supporting the distribution 
 
 - **Frontend**: React TypeScript app built with Vite, Chakra UI, Apollo Client
 - **Backend**: Python Flask GraphQL API using Ariadne, Peewee ORM, MySQL
-- **Additional Apps**: Statistics visualization (statviz), shared components
+- **Additional Apps**: Statistics visualization (shared-front), shared components
 - **Architecture**: Docker-based development, deployed on Google App Engine
 
 ### Architecture Diagrams
@@ -58,7 +58,7 @@ pip install -U -e back -r back/requirements-dev.txt
 Start the complete development environment:
 
 ```bash
-# Start all services (database, backend, frontend, statviz)
+# Start all services (database, backend, frontend, shared-front)
 docker compose up
 
 # NEVER CANCEL: Initial Docker build can take 15-30 minutes
@@ -150,7 +150,7 @@ pnpm build
 # Timeout: Set to 3+ minutes
 
 # Build statistics app
-pnpm -C statviz build
+pnpm -C shared-front build
 # Takes ~30-60 seconds
 ```
 
@@ -331,7 +331,7 @@ pnpm check-types
 pnpm lint:all
 pnpm test:coverage
 pnpm -C front build
-pnpm -C statviz build
+pnpm -C shared-front build
 cd back && pytest --ignore=test/auth0_integration_tests/
 git ls-files -- back | SKIP=generate-graphql-ts-types xargs pre-commit run --files
 ```
