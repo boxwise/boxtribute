@@ -26,7 +26,6 @@ export type OnResultFunction = (
 export type QrReaderScannerProps = {
   multiScan: boolean;
   facingMode?: string;
-  zoom?: number;
   onResult: OnResultFunction;
   scanPeriod?: number;
 };
@@ -39,7 +38,6 @@ const isMediaDevicesAPIAvailable = () => {
 
 export function QrReaderScanner({
   multiScan,
-  zoom = 1,
   facingMode = "environment",
   onResult,
   scanPeriod: delayBetweenScanAttempts = 500,
@@ -55,7 +53,6 @@ export function QrReaderScanner({
   useEffect(() => {
     const constraints = {
       facingMode,
-      zoom,
     };
 
     if (previewVideoRef.current == null) {
@@ -104,7 +101,7 @@ export function QrReaderScanner({
           }
         });
     }
-  }, [delayBetweenScanAttempts, onResult, facingMode, zoom, previewVideoRef, multiScan]);
+  }, [delayBetweenScanAttempts, onResult, facingMode, previewVideoRef, multiScan]);
 
   useEffect(() => {
     // This is the clean up function stopping the scanning.
