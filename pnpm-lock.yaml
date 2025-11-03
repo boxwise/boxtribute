@@ -253,7 +253,7 @@ importers:
 
   shared-components: {}
 
-  statviz:
+  shared-front:
     dependencies:
       '@boxtribute/shared-components':
         specifier: workspace:*
