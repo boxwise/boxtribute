@@ -56,7 +56,7 @@ jobs:
             - .pnpm-store
             - node_modules
             - front/node_modules
-            - statviz/node_modules
+            - shared-front/node_modules
             - shared-components/node_modules
       - persist_to_workspace:
           root: ~/
@@ -64,7 +64,7 @@ jobs:
             - .pnpm-store
             - node_modules
             - front/node_modules
-            - statviz/node_modules
+            - shared-front/node_modules
             - shared-components/node_modules
 
   build-back:
@@ -139,7 +139,7 @@ jobs:
 
   build-shared:
     executor: node-executor
-    working_directory: ~/statviz
+    working_directory: ~/shared-front
     resource_class: medium+
     steps:
       - attach_workspace:
@@ -148,11 +148,11 @@ jobs:
           name: Generate .env File
           command: |
             echo "
-              STATVIZ_GRAPHQL_SERVER=${STATVIZ_GRAPHQL_SERVER}
-              STATVIZ_SENTRY_FE_DSN=${SENTRY_STATVIZ_DSN}
-              STATVIZ_SENTRY_ENVIRONMENT=${ENVIRONMENT}
-              STATVIZ_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
-              STATVIZ_ENVIRONMENT=${ENVIRONMENT}
+              SHARED_FRONT_GRAPHQL_SERVER=${STATVIZ_GRAPHQL_SERVER}
+              SHARED_FRONT_SENTRY_DSN=${SENTRY_STATVIZ_DSN}
+              SHARED_FRONT_SENTRY_ENVIRONMENT=${ENVIRONMENT}
+              SHARED_FRONT_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
+              SHARED_FRONT_ENVIRONMENT=${ENVIRONMENT}
             " > .env
       - run:
           name: Run style checks
@@ -161,7 +161,7 @@ jobs:
             pnpm format:write:all
             pnpm -C .. graphql-gen
       - run:
-          name: Build statviz
+          name: Build shared-front
           command: |
             pnpm build
       - slack/notify-on-failure:
@@ -170,7 +170,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - statviz/dist
+            - shared-front/dist
 
   test-front:
     executor: node-executor
@@ -339,6 +339,7 @@ jobs:
               SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               SENTRY_PROFILES_SAMPLE_RATE=${SENTRY_PROFILES_SAMPLE_RATE}
               SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM=${SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM}
+              SLACK_WEBHOOK_URL_FOR_INTERNAL_STATS=${SLACK_WEBHOOK_URL_FOR_INTERNAL_STATS}
               ENVIRONMENT=${ENVIRONMENT}
               " > .env
       - run:
@@ -472,13 +473,13 @@ jobs:
       # install gcloud orb
       - gcp-cli/install
       - run:
-          name: Inject Heap Analytics Script to index.html in /statviz
+          name: Inject Heap Analytics Script to index.html in /shared-front
           command: |
-            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../statviz/dist/heapanalytics.js
-            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../statviz/dist/index.html
+            sed -i "s/HEAPIO_APP_ID/${HEAPIO_APP_ID}/" ../shared-front/dist/heapanalytics.js
+            sed -i 's|</head>|<script src="/heapanalytics.js"></script></head>|' ../shared-front/dist/index.html
       - run:
-          name: Copy /statviz react build into flask app for deployment
-          command: mv ../statviz/dist shared-build
+          name: Copy /shared-front react build into flask app for deployment
+          command: mv ../shared-front/dist shared-build
       - run:
           name: Create version.txt
           command: |

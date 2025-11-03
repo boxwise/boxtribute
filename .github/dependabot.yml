@@ -31,7 +31,7 @@ updates:
       - "/"
       - "/front"
       - "/shared-components"
-      - "/statviz"
+      - "/shared-front"
     schedule:
       interval: "weekly"
     # Always increase the minimum version requirement to match the new version.
@@ -40,6 +40,9 @@ updates:
     ignore:
       # https://github.com/boxwise/boxtribute/pull/2408
       - dependency-name: "react-hook-form"
+      # v4 requires Node 20.19+ or 22+
+      - dependency-name: "@vitejs/plugin-react-swc"
+        versions: ["4.x"]
     groups:
       front-dev-minor-update:
         dependency-type: development

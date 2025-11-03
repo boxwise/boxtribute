@@ -1,6 +1,6 @@
 import { useReactiveVar } from "@apollo/client";
 import { tableConfigsVar } from "queries/cache";
-import { useCallback, useMemo, useEffect, useRef } from "react";
+import { useCallback, useMemo, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Filters, SortingRule } from "react-table";
 import { boxStateIds } from "utils/constants";
@@ -146,7 +146,8 @@ export const useTableConfig = ({
 
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
-  const isInitialMount = useRef(true);
+  // Use state so changes cause a re-render and callers pick up the updated isNotMounted value
+  const [isInitialMount, setIsInitialMount] = useState(true);
 
   // Update URL when filters change
   const updateUrl = useCallback(
@@ -176,7 +177,7 @@ export const useTableConfig = ({
    *   when the URL requested e.g. "Donated".
    */
   useEffect(() => {
-    if (isInitialMount.current && syncFiltersAndUrlParams) {
+    if (isInitialMount && syncFiltersAndUrlParams) {
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
 
       const existingConfig = tableConfigsState.get(tableConfigKey);
@@ -197,8 +198,13 @@ export const useTableConfig = ({
         updateUrl(existingConfig.columnFilters);
       }
 
-      isInitialMount.current = false;
+      // mark initial mount complete and trigger a re-render so consumers see the change
+      setIsInitialMount(false);
     }
+    // Intentionally disable exhaustive-deps: this effect is meant to run only once on initial mount.
+    // The dependencies intentionally included are: syncFiltersAndUrlParams, searchParams, tableConfigKey, tableConfigsState, updateUrl, defaultTableConfig, urlFilters, initialColumnFilters.
+    // These values are stable/memoized by design. Adding all inferred deps would cause unwanted re-runs; update dependencies intentionally if behavior changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     syncFiltersAndUrlParams,
     searchParams,
@@ -272,6 +278,6 @@ export const useTableConfig = ({
     setColumnFilters,
     setSortBy,
     setHiddenColumns,
-    isNotMounted: isInitialMount.current,
+    isNotMounted: isInitialMount,
   };
 };
