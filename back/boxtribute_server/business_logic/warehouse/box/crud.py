@@ -4,7 +4,7 @@ from decimal import Decimal
 import peewee
 
 from ....db import db
-from ....enums import BoxState, TaggableObjectType
+from ....enums import BoxState, TaggableObjectType, TagType
 from ....exceptions import (
     BoxCreationFailed,
     BoxDeleted,
@@ -38,6 +38,7 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
+from ...tag.crud import create_tag
 
 WAREHOUSE_BOX_STATES = {
     BoxState.InStock,
@@ -107,6 +108,8 @@ def create_box(
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatch()
 
+    if tag_ids is None:
+        tag_ids = []
     if tag_ids:
         _validate_base_of_tags(tag_ids=tag_ids, location=location)
 
@@ -130,7 +133,14 @@ def create_box(
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
     if new_tag_names:
-        pass
+        for name in new_tag_names:
+            tag = create_tag(
+                name=name,
+                type=TagType.Box,
+                user_id=user_id,
+                base_id=location.base_id,
+            )
+            tag_ids.append(tag.id)
 
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
