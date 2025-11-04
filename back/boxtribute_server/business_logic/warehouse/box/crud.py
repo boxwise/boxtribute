@@ -82,6 +82,7 @@ def create_box(
     number_of_items=None,
     qr_code=None,
     tag_ids=None,
+    new_tag_names=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
@@ -128,6 +129,8 @@ def create_box(
     box_state = (
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
+    if new_tag_names:
+        pass
 
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
@@ -213,6 +216,7 @@ def update_box(
     measure_value=None,
     state=None,
     tag_ids=None,
+    new_tag_names=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
@@ -296,6 +300,8 @@ def update_box(
         box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
+    if new_tag_names:
+        pass
     if tag_ids is not None:
         _validate_base_of_tags(tag_ids=tag_ids, location=new_location)
 
