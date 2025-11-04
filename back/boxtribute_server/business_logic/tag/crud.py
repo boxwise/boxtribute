@@ -1,3 +1,5 @@
+import random
+
 from peewee import JOIN
 
 from ...db import db
@@ -20,7 +22,7 @@ def create_tag(
     *,
     name,
     description="",
-    color,
+    color=None,
     type,
     user_id,
     base_id,
@@ -28,7 +30,7 @@ def create_tag(
 ):
     """Insert information for a new Tag in the database."""
     return Tag.create(
-        color=color,
+        color=color or f"#{random.randint(0, 0xFFFFFF):06x}",
         created=now,
         created_by=user_id,
         description=description,
