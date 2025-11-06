@@ -199,7 +199,9 @@ function BoxCreateView() {
       ? createBoxData?.tags?.filter((tag) => !tag.__isNew__).map((tag) => parseInt(tag.value, 10))
       : [];
 
-    const newTagNames = createBoxData?.tags?.filter((tag) => tag.__isNew__).map((tag) => tag.label);
+    const newTagNames = createBoxData?.tags
+      ? createBoxData?.tags?.filter((tag) => tag.__isNew__).map((tag) => tag.label)
+      : [];
 
     createBoxMutation({
       variables: {

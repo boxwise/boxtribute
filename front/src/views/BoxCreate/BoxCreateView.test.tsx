@@ -234,6 +234,7 @@ describe("BoxCreateView", () => {
           numberOfItems: 5,
           comment: "",
           tagIds: [],
+          newTagNames: [],
           qrCode: undefined,
         },
       },
