@@ -310,27 +310,6 @@ def update_box(
         box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
-    if new_tag_names:
-        new_tag_ids = []
-        for name in new_tag_names:
-            tag = create_tag(
-                name=name,
-                type=TagType.Box,
-                user_id=user_id,
-                base_id=new_location.base_id,
-            )
-            new_tag_ids.append(tag.id)
-        tags_relations = [
-            TagsRelation(
-                object_id=box.id,
-                object_type=TaggableObjectType.Box,
-                tag=tag_id,
-                created_on=now,
-                created_by=user_id,
-            )
-            for tag_id in new_tag_ids
-        ]
-        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
     if tag_ids is not None:
         _validate_base_of_tags(tag_ids=tag_ids, location=new_location)
 
@@ -374,6 +353,29 @@ def update_box(
         if assigned_tag_ids != updated_tag_ids:
             box.last_modified_on = now
             box.last_modified_by = user_id
+    if new_tag_names:
+        # Add new tags only after processing tag_ids. Otherwise the new tags will be
+        # added to and removed from the box immediately
+        new_tag_ids = []
+        for name in new_tag_names:
+            tag = create_tag(
+                name=name,
+                type=TagType.Box,
+                user_id=user_id,
+                base_id=new_location.base_id,
+            )
+            new_tag_ids.append(tag.id)
+        tags_relations = [
+            TagsRelation(
+                object_id=box.id,
+                object_type=TaggableObjectType.Box,
+                tag=tag_id,
+                created_on=now,
+                created_by=user_id,
+            )
+            for tag_id in new_tag_ids
+        ]
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     return box
 

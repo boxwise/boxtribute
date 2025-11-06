@@ -310,6 +310,7 @@ def test_box_mutations(
                     productId: {new_product_id},
                     state: {state}
                     newTagNames: ["{cool_tag_name}"]
+                    tagIds: []
                 }} ) {{
                 id
                 numberOfItems
