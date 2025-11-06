@@ -75,7 +75,6 @@ const successfulCreateBoxMutation = {
       numberOfItems: 5,
       comment: "",
       tagIds: [],
-      newTagNames: [],
       qrCode: undefined,
     },
   },

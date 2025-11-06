@@ -231,8 +231,6 @@ export function BoxCreate({
               isMulti
               isRequired={false}
               control={control}
-              creatable
-              helperText="New Tags can be created by typing the name and pressing Enter"
             />
           </ListItem>
           <ListItem>
