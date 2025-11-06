@@ -133,7 +133,7 @@ def create_box(
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
     if new_tag_names:
-        for name in new_tag_names:
+        for name in set(new_tag_names):
             tag = create_tag(
                 name=name,
                 type=TagType.Box,
@@ -357,7 +357,7 @@ def update_box(
         # Add new tags only after processing tag_ids. Otherwise the new tags will be
         # added to and removed from the box immediately
         new_tag_ids = []
-        for name in new_tag_names:
+        for name in set(new_tag_names):
             tag = create_tag(
                 name=name,
                 type=TagType.Box,

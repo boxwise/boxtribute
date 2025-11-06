@@ -225,7 +225,7 @@ def test_box_mutations(
                     comment: "{comment}"
                     qrCode: "{qr_code_without_box["code"]}"
                     tagIds: [{tag_id}]
-                    newTagNames: ["{new_tag_name}"]
+                    newTagNames: ["{new_tag_name}", "{new_tag_name}"]
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
@@ -309,7 +309,7 @@ def test_box_mutations(
                     sizeId: {new_size_id},
                     productId: {new_product_id},
                     state: {state}
-                    newTagNames: ["{cool_tag_name}"]
+                    newTagNames: ["{cool_tag_name}", "{cool_tag_name}"]
                     tagIds: []
                 }} ) {{
                 id
