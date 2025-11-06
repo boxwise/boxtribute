@@ -35,8 +35,6 @@ def create_tag(
         created_by=user_id,
         description=description,
         name=name,
-        modified=now,
-        modified_by=user_id,
         type=type,
         base=base_id,
     )
