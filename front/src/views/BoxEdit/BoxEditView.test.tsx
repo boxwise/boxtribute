@@ -68,6 +68,7 @@ const successfulMutation = {
       numberOfItems: 62,
       locationId: 1,
       tagIds: [1],
+      newTagNames: [],
       comment: "Test",
     },
   },
