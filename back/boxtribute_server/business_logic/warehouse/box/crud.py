@@ -139,6 +139,7 @@ def create_box(
                 type=TagType.Box,
                 user_id=user_id,
                 base_id=location.base_id,
+                now=now,
             )
             tag_ids.append(tag.id)
 
@@ -363,6 +364,7 @@ def update_box(
                 type=TagType.Box,
                 user_id=user_id,
                 base_id=new_location.base_id,
+                now=now,
             )
             new_tag_ids.append(tag.id)
         tags_relations = [
