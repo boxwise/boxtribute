@@ -2060,3 +2060,68 @@ def test_mutate_box_with_invalid_location_or_product(
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_create_boxes(
+    client,
+    default_product,
+    default_location,
+    default_size,
+    mixed_size,
+    tags,
+    monkeypatch,
+):
+    product_id = str(default_product["id"])
+    location_id = str(default_location["id"])
+    tag_id = str(tags[1]["id"])
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "small"
+            numberOfItems: 1
+            locationId: {location_id}
+            comment: "3 packages, 12 piece each"
+            tagIds: []
+            newTagNames: []
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "unknown"
+            numberOfItems: 5
+            locationId: {location_id}
+            comment: ""
+            tagIds: [{tag_id}]
+            newTagNames: []
+        }}
+    ]) {{
+        labelIdentifier
+        product {{ id }}
+        size {{ id }}
+        numberOfItems
+        state
+        tags {{ id }}
+    }} }}
+    """
+    boxes = assert_successful_request(client, mutation)
+    assert len(boxes[0].pop("labelIdentifier")) == 8
+    assert len(boxes[1].pop("labelIdentifier")) == 8
+    assert boxes == [
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(default_size["id"])},
+            "numberOfItems": 1,
+            "state": BoxState.InStock.name,
+            "tags": [],
+        },
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(mixed_size["id"])},
+            "numberOfItems": 5,
+            "state": BoxState.InStock.name,
+            "tags": [],  # {"id": tag_id}],
+        },
+    ]
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    boxes = assert_successful_request(client, mutation)
+    assert boxes == []

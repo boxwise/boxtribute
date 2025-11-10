@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 from decimal import Decimal
 
 import peewee
@@ -26,11 +27,13 @@ from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
+from ....models.definitions.size import Size
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
+    HISTORY_CREATION_MESSAGE,
     HISTORY_DELETION_MESSAGE,
     RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
     convert_ids,
@@ -535,3 +538,77 @@ def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
         ).execute()
 
     return list(Box.select().where(Box.id << box_ids))
+
+
+def create_boxes(*, user_id, creation_input):
+    # validation
+
+    # Find size (default to Mixed)
+    product_ids = {i["product_id"] for i in creation_input}
+    all_sizes = (
+        Product.select(Product.id, Size.id, Size.label)
+        .join(Size, on=(Product.size_range == Size.size_range))
+        .where(Product.id << product_ids)
+    )
+    sizes_for_product = defaultdict(dict)
+    for row in all_sizes:
+        sizes_for_product[row.id][row.size.label] = row.size.id
+
+    # or set unit + measure value
+
+    # Create and assign tags
+    # all_tag_ids = {tag_id for row in creation_input for tag_id in row["tag_ids"]}
+
+    # Bulk create
+    now = utcnow()
+    complete_data = []
+    for row in creation_input:
+        sizes = sizes_for_product[row["product_id"]]
+        complete_data.append(
+            {
+                "label_identifier": "".join(random.choices("0123456789", k=8)),
+                "product_id": row["product_id"],
+                "location_id": row["location_id"],
+                "number_of_items": row["number_of_items"],
+                "comment": row["comment"],
+                "size_id": sizes.get(row["size_name"], sizes["Mixed"]),
+                "created_by": user_id,
+                "created_on": now,
+            }
+        )
+
+    with db.database.atomic():
+        first_inserted_id = Box.insert_many(complete_data).execute()
+        boxes = list(
+            Box.select().where(
+                Box.id >= first_inserted_id,
+                Box.id < first_inserted_id + len(complete_data),
+            )
+        )
+
+        history_entries = [
+            DbChangeHistory(
+                changes=HISTORY_CREATION_MESSAGE,
+                table_name=Box._meta.table_name,
+                record_id=box.id,
+                user=user_id,
+                change_date=now,
+            )
+            for box in boxes
+        ]
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+
+        # tags_relations = [
+        #     {
+        #         "object_id": box.id,
+        #         "object_type": TaggableObjectType.Box,
+        #         "tag": tag_id,
+        #         "created_on": now,
+        #         "created_by": user_id,
+        #     }
+        #     for box, tag_ids in zip(boxes, all_tag_ids)
+        #     for tag_id in tag_ids
+        # ]
+        # TagsRelation.insert_many(tags_relations).execute()
+
+        return boxes

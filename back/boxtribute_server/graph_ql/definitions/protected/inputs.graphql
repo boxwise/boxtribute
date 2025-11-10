@@ -39,6 +39,18 @@ input BoxesTagsOperationInput {
   tagIds: [Int!]!
 }
 
+input BoxBulkCreationInput {
+  productId: Int!
+  sizeName: String!
+  # displayUnitId: Int
+  # measureValue: Float
+  numberOfItems: Int
+  locationId: Int!
+  comment: String
+  tagIds: [Int!]
+  newTagNames: [String!]
+}
+
 input CustomProductCreationInput {
   name: String!
   categoryId: Int!
