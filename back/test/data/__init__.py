@@ -97,7 +97,7 @@ from .shipment_detail import (
     prepared_shipment_detail,
     removed_shipment_detail,
 )
-from .size import another_size, default_size
+from .size import another_size, default_size, mixed_size
 from .size_range import another_size_range, default_size_range, size_ranges
 from .standard_product import (
     another_standard_product,
@@ -197,6 +197,7 @@ __all__ = [
     "mass_units",
     "measure_product_box",
     "measure_standard_product",
+    "mixed_size",
     "newest_standard_product",
     "non_default_box_state_location",
     "not_delivered_box",
