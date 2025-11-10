@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import _ from "lodash";
+import { groupBy } from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
 import { ProductGender } from "../../../../../graphql/types";
@@ -44,6 +44,7 @@ interface ILocationData {
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
+  __isNew__: z.boolean().optional(),
 });
 
 export const CreateBoxFormDataSchema = z.object({
@@ -80,7 +81,7 @@ export interface IBoxCreateProps {
   onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
 
-function BoxCreate({
+export function BoxCreate({
   productAndSizesData,
   allLocations,
   allTags,
@@ -88,7 +89,7 @@ function BoxCreate({
   onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
-  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
+  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
@@ -230,6 +231,8 @@ function BoxCreate({
               isMulti
               isRequired={false}
               control={control}
+              creatable
+              helperText="New Tags can be created by typing the name and pressing Enter"
             />
           </ListItem>
           <ListItem>
@@ -282,5 +285,3 @@ function BoxCreate({
     </Box>
   );
 }
-
-export default BoxCreate;

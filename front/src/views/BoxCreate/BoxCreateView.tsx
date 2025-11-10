@@ -8,7 +8,7 @@ import APILoadingIndicator from "components/APILoadingIndicator";
 import { useNavigate, useParams } from "react-router-dom";
 import { TAG_OPTIONS_FRAGMENT, PRODUCT_FIELDS_FRAGMENT } from "queries/fragments";
 import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
-import BoxCreate, { ICreateBoxFormData } from "./components/BoxCreate";
+import { BoxCreate, ICreateBoxFormData } from "./components/BoxCreate";
 import { AlertWithoutAction } from "components/Alerts";
 import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useAtomValue } from "jotai";
@@ -52,6 +52,7 @@ export const CREATE_BOX_MUTATION = graphql(
       $numberOfItems: Int!
       $comment: String
       $tagIds: [Int!]
+      $newTagNames: [String!]
       $qrCode: String
     ) {
       createBox(
@@ -63,6 +64,7 @@ export const CREATE_BOX_MUTATION = graphql(
           qrCode: $qrCode
           comment: $comment
           tagIds: $tagIds
+          newTagNames: $newTagNames
         }
       ) {
         ...BoxesQueryElementField
@@ -194,7 +196,11 @@ function BoxCreateView() {
 
   const submitBoxCreation = (createBoxData: ICreateBoxFormData, createAnother: boolean) => {
     const tagIds = createBoxData?.tags
-      ? createBoxData?.tags?.map((tag) => parseInt(tag.value, 10))
+      ? createBoxData?.tags?.filter((tag) => !tag.__isNew__).map((tag) => parseInt(tag.value, 10))
+      : [];
+
+    const newTagNames = createBoxData?.tags
+      ? createBoxData?.tags?.filter((tag) => tag.__isNew__).map((tag) => tag.label)
       : [];
 
     createBoxMutation({
@@ -205,6 +211,7 @@ function BoxCreateView() {
         numberOfItems: createBoxData.numberOfItems,
         comment: createBoxData?.comment,
         tagIds,
+        newTagNames,
         qrCode,
       },
     })

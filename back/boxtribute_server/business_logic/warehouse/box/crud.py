@@ -4,7 +4,7 @@ from decimal import Decimal
 import peewee
 
 from ....db import db
-from ....enums import BoxState, TaggableObjectType
+from ....enums import BoxState, TaggableObjectType, TagType
 from ....exceptions import (
     BoxCreationFailed,
     BoxDeleted,
@@ -38,6 +38,7 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
+from ...tag.crud import create_tag
 
 WAREHOUSE_BOX_STATES = {
     BoxState.InStock,
@@ -82,6 +83,7 @@ def create_box(
     number_of_items=None,
     qr_code=None,
     tag_ids=None,
+    new_tag_names=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
@@ -106,6 +108,8 @@ def create_box(
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatch()
 
+    if tag_ids is None:
+        tag_ids = []
     if tag_ids:
         _validate_base_of_tags(tag_ids=tag_ids, location=location)
 
@@ -128,6 +132,16 @@ def create_box(
     box_state = (
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
+    if new_tag_names:
+        for name in set(new_tag_names):
+            tag = create_tag(
+                name=name,
+                type=TagType.Box,
+                user_id=user_id,
+                base_id=location.base_id,
+                now=now,
+            )
+            tag_ids.append(tag.id)
 
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
@@ -213,6 +227,7 @@ def update_box(
     measure_value=None,
     state=None,
     tag_ids=None,
+    new_tag_names=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
@@ -339,6 +354,30 @@ def update_box(
         if assigned_tag_ids != updated_tag_ids:
             box.last_modified_on = now
             box.last_modified_by = user_id
+    if new_tag_names:
+        # Add new tags only after processing tag_ids. Otherwise the new tags will be
+        # added to and removed from the box immediately
+        new_tag_ids = []
+        for name in set(new_tag_names):
+            tag = create_tag(
+                name=name,
+                type=TagType.Box,
+                user_id=user_id,
+                base_id=new_location.base_id,
+                now=now,
+            )
+            new_tag_ids.append(tag.id)
+        tags_relations = [
+            TagsRelation(
+                object_id=box.id,
+                object_type=TaggableObjectType.Box,
+                tag=tag_id,
+                created_on=now,
+                created_by=user_id,
+            )
+            for tag_id in new_tag_ids
+        ]
+        TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
     return box
 

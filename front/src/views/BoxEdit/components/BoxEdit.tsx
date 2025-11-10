@@ -54,6 +54,7 @@ interface ILocationData {
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
+  __isNew__: z.boolean().optional(),
 });
 
 export const BoxEditFormDataSchema = z.object({
@@ -275,6 +276,8 @@ function BoxEdit({
               isMulti
               isRequired={false}
               control={control}
+              creatable
+              helperText="New Tags can be created by typing the name and pressing Enter"
             />
           </ListItem>
           <ListItem>

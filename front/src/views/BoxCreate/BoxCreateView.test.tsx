@@ -75,7 +75,7 @@ const successfulCreateBoxMutation = {
       numberOfItems: 5,
       comment: "",
       tagIds: [],
-      qrCode: undefined,
+      newTagNames: ["epic"],
     },
   },
   result: {
@@ -89,7 +89,12 @@ const successfulCreateBoxMutation = {
         numberOfItems: 5,
         location: location1,
         comment: "",
-        tags: [],
+        tags: [
+          {
+            id: 3,
+            name: "epic",
+          },
+        ],
         qrCode: null,
         history: [],
         createdOn: "2023-11-09T17:24:29+00:00",
@@ -139,6 +144,12 @@ describe("BoxCreateView", () => {
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
 
+    //added new Tags
+    await user.type(screen.getByLabelText(/Tags/), "epic");
+    const createOption = await screen.findByText('Create "epic"');
+    await user.click(createOption);
+    expect(await screen.findByText("epic")).toBeInTheDocument();
+
     // Click the "Save" button
     const createBoxButton = screen.getByRole("button", { name: /^save$/i });
     await user.click(createBoxButton);
@@ -178,6 +189,12 @@ describe("BoxCreateView", () => {
     const numberOfItemsInput = screen.getByRole("spinbutton");
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
+
+    //added new Tags
+    await user.type(screen.getByLabelText(/Tags/), "epic");
+    const createOption = await screen.findByText('Create "epic"');
+    await user.click(createOption);
+    expect(await screen.findByText("epic")).toBeInTheDocument();
 
     // Click the "Save & Create Another Box" button
     const createAnotherButton = screen.getByRole("button", {
@@ -233,7 +250,7 @@ describe("BoxCreateView", () => {
           numberOfItems: 5,
           comment: "",
           tagIds: [],
-          qrCode: undefined,
+          newTagNames: [],
         },
       },
       result: {
