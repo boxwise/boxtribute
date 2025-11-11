@@ -2060,3 +2060,104 @@ def test_mutate_box_with_invalid_location_or_product(
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_create_boxes(
+    client,
+    default_product,
+    default_location,
+    default_size,
+    mass_product,
+    mixed_size,
+    tags,
+    monkeypatch,
+):
+    product_id = str(default_product["id"])
+    mass_product_id = str(mass_product["id"])
+    location_id = str(default_location["id"])
+    tag_id = str(tags[1]["id"])
+    comment = "3 packages, 12 piece each"
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+            comment: "{comment}"
+            tagIds: []
+            newTagNames: []
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "unknown"
+            numberOfItems: 5
+            locationId: {location_id}
+            comment: ""
+            tagIds: [{tag_id}]
+            newTagNames: ["new"]
+        }},
+        {{
+            productId: {mass_product_id}
+            sizeName: "500 G "
+            numberOfItems: 2
+            locationId: {location_id}
+            comment: ""
+            tagIds: []
+            newTagNames: []
+        }},
+    ]) {{
+        labelIdentifier
+        product {{ id }}
+        size {{ id }}
+        measureValue
+        displayUnit {{ symbol }}
+        numberOfItems
+        state
+        comment
+        tags {{ id }}
+        history {{ changes }}
+    }} }}
+    """
+    boxes = assert_successful_request(client, mutation)
+    assert len(boxes[0].pop("labelIdentifier")) == 8
+    assert len(boxes[1].pop("labelIdentifier")) == 8
+    assert len(boxes[2].pop("labelIdentifier")) == 8
+    assert boxes == [
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(default_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 1,
+            "state": BoxState.InStock.name,
+            "comment": comment,
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(mixed_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 5,
+            "state": BoxState.InStock.name,
+            "comment": "; original size: 'unknown'",
+            "tags": [{"id": tag_id}, {"id": "8"}],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": mass_product_id},
+            "size": None,
+            "measureValue": 500.0,
+            "displayUnit": {"symbol": "g"},
+            "numberOfItems": 2,
+            "state": BoxState.InStock.name,
+            "comment": "",
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+    ]
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    boxes = assert_successful_request(client, mutation)
+    assert boxes == []

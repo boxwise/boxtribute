@@ -29,7 +29,12 @@ def test_distribution_event_query(
 
 
 def test_update_selected_products_for_distribution_event_packing_list(
-    client, default_distribution_event, default_product, default_size, another_size
+    client,
+    default_distribution_event,
+    default_product,
+    default_size,
+    another_size,
+    mixed_size,
 ):
     distribution_event_id = default_distribution_event["id"]
     product_id = str(default_product["id"])
@@ -58,6 +63,11 @@ def test_update_selected_products_for_distribution_event_packing_list(
             {
                 "product": {"id": str(default_product["id"])},
                 "size": {"id": str(another_size["id"])},
+                "numberOfItems": 0,
+            },
+            {
+                "product": {"id": str(default_product["id"])},
+                "size": {"id": str(mixed_size["id"])},
                 "numberOfItems": 0,
             },
         ],

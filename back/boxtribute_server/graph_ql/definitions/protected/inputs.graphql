@@ -39,6 +39,17 @@ input BoxesTagsOperationInput {
   tagIds: [Int!]!
 }
 
+input BoxBulkCreationInput {
+  productId: Int!
+  " Name of discrete size (XL, Size 4, 39, ...); or measure (1.5kg, 300ml, ...)
+  sizeName: String!
+  numberOfItems: Int
+  locationId: Int!
+  comment: String
+  tagIds: [Int!]
+  newTagNames: [String!]
+}
+
 input CustomProductCreationInput {
   name: String!
   categoryId: Int!
