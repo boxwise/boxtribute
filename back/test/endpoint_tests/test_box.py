@@ -2074,13 +2074,14 @@ def test_create_boxes(
     product_id = str(default_product["id"])
     location_id = str(default_location["id"])
     tag_id = str(tags[1]["id"])
+    comment = "3 packages, 12 piece each"
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             productId: {product_id}
             sizeName: "Small"
             numberOfItems: 1
             locationId: {location_id}
-            comment: "3 packages, 12 piece each"
+            comment: "{comment}"
             tagIds: []
             newTagNames: []
         }},
@@ -2091,7 +2092,7 @@ def test_create_boxes(
             locationId: {location_id}
             comment: ""
             tagIds: [{tag_id}]
-            newTagNames: []
+            newTagNames: ["new"]
         }}
     ]) {{
         labelIdentifier
@@ -2099,6 +2100,7 @@ def test_create_boxes(
         size {{ id }}
         numberOfItems
         state
+        comment
         tags {{ id }}
     }} }}
     """
@@ -2111,6 +2113,7 @@ def test_create_boxes(
             "size": {"id": str(default_size["id"])},
             "numberOfItems": 1,
             "state": BoxState.InStock.name,
+            "comment": comment,
             "tags": [],
         },
         {
@@ -2118,7 +2121,8 @@ def test_create_boxes(
             "size": {"id": str(mixed_size["id"])},
             "numberOfItems": 5,
             "state": BoxState.InStock.name,
-            "tags": [],  # {"id": tag_id}],
+            "comment": "",
+            "tags": [{"id": tag_id}, {"id": "8"}],
         },
     ]
 

@@ -67,7 +67,7 @@ def resolve_create_boxes(*_, creation_input):
     if not in_staging_environment() and not in_development_environment():
         # Mutation has no effect in production due to missing authz and validation
         return []
-    return create_boxes(user_id=g.user.id, creation_input=creation_input)
+    return create_boxes(user_id=g.user.id, data=creation_input)
 
 
 @mutation.field("updateBox")

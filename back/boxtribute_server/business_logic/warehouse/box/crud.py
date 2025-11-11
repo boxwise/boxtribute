@@ -540,11 +540,57 @@ def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def create_boxes(*, user_id, creation_input):
-    # validation
+def sanitize_input(data, new_tag_ids):
+    sanitized_data = []
+    all_tag_ids = []
+    for entry in data:
+        entry["size_name"] = entry["size_name"].lower()
+
+        # Remove tag IDs from input because they're inserted into a different table
+        tag_ids = set(entry.pop("tag_ids", []))  # remove duplicated IDs
+        all_tag_ids.append(tag_ids)
+
+        new_tag_names = set(entry.pop("new_tag_names", []))
+        all_tag_ids[-1].update({new_tag_ids[name] for name in new_tag_names})
+
+        sanitized_data.append(entry)
+    return sanitized_data, all_tag_ids
+
+
+def create_boxes(*, user_id, data):
+    now = utcnow()
+
+    # Find base corresponding to given locations
+    location_ids = {row["location_id"] for row in data}
+    base_ids = {
+        loc.base_id
+        for loc in Location.select(Location.base).where(Location.id << location_ids)
+    }
+    if len(base_ids) != 1:
+        raise ValueError(f"Invalid base IDs: {','.join(base_ids)}")
+
+    # Authz should happen now
+
+    # More validation: product and location base ID matching? Deleted location/product?
+
+    # Create new tags
+    new_tag_names = {n for row in data for n in row["new_tag_names"]}
+    new_tag_ids = {}
+    for tag_name in new_tag_names:
+        tag = create_tag(
+            name=tag_name,
+            type=TagType.Box,
+            user_id=user_id,
+            base_id=list(base_ids)[0],
+            now=now,
+        )
+        new_tag_ids[tag_name] = tag.id
+
+    # Data preparation
+    sanitized_data, all_tag_ids = sanitize_input(data, new_tag_ids)
 
     # Find size (default to Mixed)
-    product_ids = {i["product_id"] for i in creation_input}
+    product_ids = {row["product_id"] for row in data}
     all_sizes = (
         Product.select(Product.id, Size.id, Size.label)
         .join(Size, on=(Product.size_range == Size.size_range))
@@ -556,22 +602,19 @@ def create_boxes(*, user_id, creation_input):
 
     # or set unit + measure value
 
-    # Create and assign tags
-    # all_tag_ids = {tag_id for row in creation_input for tag_id in row["tag_ids"]}
-
     # Bulk create
-    now = utcnow()
     complete_data = []
-    for row in creation_input:
+    for row in sanitized_data:
         sizes = sizes_for_product[row["product_id"]]
         complete_data.append(
             {
+                # Is this safe enough for a large number of boxes?
                 "label_identifier": "".join(random.choices("0123456789", k=8)),
                 "product_id": row["product_id"],
                 "location_id": row["location_id"],
                 "number_of_items": row["number_of_items"],
                 "comment": row["comment"],
-                "size_id": sizes.get(row["size_name"].lower(), sizes["mixed"]),
+                "size_id": sizes.get(row["size_name"], sizes["mixed"]),
                 "created_by": user_id,
                 "created_on": now,
             }
@@ -598,17 +641,17 @@ def create_boxes(*, user_id, creation_input):
         ]
         DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
-        # tags_relations = [
-        #     {
-        #         "object_id": box.id,
-        #         "object_type": TaggableObjectType.Box,
-        #         "tag": tag_id,
-        #         "created_on": now,
-        #         "created_by": user_id,
-        #     }
-        #     for box, tag_ids in zip(boxes, all_tag_ids)
-        #     for tag_id in tag_ids
-        # ]
-        # TagsRelation.insert_many(tags_relations).execute()
+        tags_relations = [
+            {
+                "object_id": box.id,
+                "object_type": TaggableObjectType.Box,
+                "tag": tag_id,
+                "created_on": now,
+                "created_by": user_id,
+            }
+            for box, tag_ids in zip(boxes, all_tag_ids)
+            for tag_id in tag_ids
+        ]
+        TagsRelation.insert_many(tags_relations).execute()
 
         return boxes
