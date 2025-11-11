@@ -172,6 +172,7 @@ function BoxesTable({
     if (sortBy !== tableConfig.getSortBy()) {
       tableConfig.setSortBy(sortBy);
     }
+
     if (hiddenColumns !== tableConfig.getHiddenColumns()) {
       tableConfig.setHiddenColumns(hiddenColumns);
     }
@@ -206,11 +207,11 @@ function BoxesTable({
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
-          <Tr key={"boxes-count-row"} bg={"gray.100"}>
-            <Td fontWeight="bold" key={"product-total"}>
+          <Tr key="boxes-count-row" bg="gray.100">
+            <Td fontWeight="bold" key="product-total">
               Total
             </Td>
-            <Td fontWeight="bold" key={"boxes-count"}>
+            <Td fontWeight="bold" key="boxes-count">
               {isBackgroundFetchOfBoxesLoading ||
               refetchBoxesIsPending ||
               tableConfig.isNotMounted ? (

@@ -179,23 +179,53 @@ export const useTableConfig = ({
   useEffect(() => {
     if (isInitialMount && syncFiltersAndUrlParams) {
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
-
       const existingConfig = tableConfigsState.get(tableConfigKey);
       if (!existingConfig) {
         const initialFiltersToPersist = hasUrlParams
           ? initialColumnFilters
           : defaultTableConfig.columnFilters;
+
+        // Clone default config to avoid mutation
         const tableConfig: ITableConfig = {
           globalFilter: defaultTableConfig.globalFilter,
           columnFilters: initialFiltersToPersist,
           sortBy: defaultTableConfig.sortBy,
-          hiddenColumns: defaultTableConfig.hiddenColumns,
+          hiddenColumns: defaultTableConfig.hiddenColumns
+            ? [...defaultTableConfig.hiddenColumns]
+            : undefined,
         };
+
+        // Filter hiddenColumns based on filters
+        if (hasUrlParams) {
+          initialFiltersToPersist.forEach((filter) => {
+            tableConfig.hiddenColumns = tableConfig.hiddenColumns?.filter(
+              (col) => col !== filter.id,
+            );
+          });
+        }
+
         tableConfigsState.set(tableConfigKey, tableConfig);
         tableConfigsVar(tableConfigsState);
       } else if (!hasUrlParams) {
         // If URL is empty, write the default filters into the URL
         updateUrl(existingConfig.columnFilters);
+
+        // Clone config before updating
+        const newConfig: ITableConfig = {
+          globalFilter: existingConfig.globalFilter,
+          columnFilters: existingConfig.columnFilters,
+          sortBy: existingConfig.sortBy,
+          hiddenColumns: existingConfig.hiddenColumns
+            ? [...existingConfig.hiddenColumns]
+            : undefined,
+        };
+
+        newConfig.columnFilters.forEach((filter) => {
+          newConfig.hiddenColumns = newConfig.hiddenColumns?.filter((col) => col !== filter.id);
+        });
+
+        tableConfigsState.set(tableConfigKey, newConfig);
+        tableConfigsVar(tableConfigsState);
       }
 
       // mark initial mount complete and trigger a re-render so consumers see the change
@@ -235,7 +265,16 @@ export const useTableConfig = ({
 
   function getHiddenColumns() {
     const cfg = tableConfigsState.get(tableConfigKey);
-    return cfg?.hiddenColumns ?? defaultTableConfig.hiddenColumns;
+    if (cfg?.hiddenColumns !== undefined) return cfg.hiddenColumns;
+
+    // Compute filtered hiddenColumns for initial render
+    let hiddenColumns = defaultTableConfig.hiddenColumns
+      ? [...defaultTableConfig.hiddenColumns]
+      : undefined;
+    initialColumnFilters.forEach((filter) => {
+      hiddenColumns = hiddenColumns?.filter((col) => col !== filter.id);
+    });
+    return hiddenColumns;
   }
 
   function setGlobalFilter(globalFilter: string | undefined) {
@@ -246,8 +285,20 @@ export const useTableConfig = ({
   }
 
   function setColumnFilters(columnFilters: Filters<any>) {
-    const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.columnFilters = columnFilters;
+    // Clone config to avoid mutation
+    const prevConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
+    const tableConfig: ITableConfig = {
+      globalFilter: prevConfig.globalFilter,
+      columnFilters,
+      sortBy: prevConfig.sortBy,
+      hiddenColumns: prevConfig.hiddenColumns ? [...prevConfig.hiddenColumns] : undefined,
+    };
+
+    // Filter hiddenColumns based on filters
+    columnFilters.forEach((filter) => {
+      tableConfig.hiddenColumns = tableConfig.hiddenColumns?.filter((col) => col !== filter.id);
+    });
+
     tableConfigsState.set(tableConfigKey, tableConfig);
     tableConfigsVar(tableConfigsState);
 
