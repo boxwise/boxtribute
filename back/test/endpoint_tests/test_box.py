@@ -2077,7 +2077,7 @@ def test_create_boxes(
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             productId: {product_id}
-            sizeName: "small"
+            sizeName: "Small"
             numberOfItems: 1
             locationId: {location_id}
             comment: "3 packages, 12 piece each"

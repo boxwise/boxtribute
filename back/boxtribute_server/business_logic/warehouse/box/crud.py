@@ -552,7 +552,7 @@ def create_boxes(*, user_id, creation_input):
     )
     sizes_for_product = defaultdict(dict)
     for row in all_sizes:
-        sizes_for_product[row.id][row.size.label] = row.size.id
+        sizes_for_product[row.id][row.size.label.lower()] = row.size.id
 
     # or set unit + measure value
 
@@ -571,7 +571,7 @@ def create_boxes(*, user_id, creation_input):
                 "location_id": row["location_id"],
                 "number_of_items": row["number_of_items"],
                 "comment": row["comment"],
-                "size_id": sizes.get(row["size_name"], sizes["Mixed"]),
+                "size_id": sizes.get(row["size_name"].lower(), sizes["mixed"]),
                 "created_by": user_id,
                 "created_on": now,
             }
