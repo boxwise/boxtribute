@@ -583,7 +583,7 @@ def create_boxes(*, user_id, data):
         for loc in Location.select(Location.base).where(Location.id << location_ids)
     }
     if len(base_ids) != 1:
-        raise ValueError(f"Invalid base IDs: {','.join(base_ids)}")
+        raise ValueError(f"Invalid base IDs: {','.join([str(i) for i in base_ids])}")
 
     # Authz should happen now
 
@@ -681,6 +681,7 @@ def create_boxes(*, user_id, data):
             for box, tag_ids in zip(boxes, all_tag_ids)
             for tag_id in tag_ids
         ]
-        TagsRelation.insert_many(tags_relations).execute()
+        if tags_relations:
+            TagsRelation.insert_many(tags_relations).execute()
 
         return boxes
