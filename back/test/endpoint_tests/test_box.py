@@ -2115,6 +2115,7 @@ def test_create_boxes(
         state
         comment
         tags {{ id }}
+        history {{ changes }}
     }} }}
     """
     boxes = assert_successful_request(client, mutation)
@@ -2131,6 +2132,7 @@ def test_create_boxes(
             "state": BoxState.InStock.name,
             "comment": comment,
             "tags": [],
+            "history": [{"changes": "created box"}],
         },
         {
             "product": {"id": product_id},
@@ -2141,6 +2143,7 @@ def test_create_boxes(
             "state": BoxState.InStock.name,
             "comment": "",
             "tags": [{"id": tag_id}, {"id": "8"}],
+            "history": [{"changes": "created box"}],
         },
         {
             "product": {"id": mass_product_id},
@@ -2151,6 +2154,7 @@ def test_create_boxes(
             "state": BoxState.InStock.name,
             "comment": "",
             "tags": [],
+            "history": [{"changes": "created box"}],
         },
     ]
 
