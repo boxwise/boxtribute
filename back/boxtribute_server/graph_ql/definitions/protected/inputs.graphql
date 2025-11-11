@@ -41,9 +41,8 @@ input BoxesTagsOperationInput {
 
 input BoxBulkCreationInput {
   productId: Int!
+  " Name of discrete size (XL, Size 4, 39, ...); or measure (1.5kg, 300ml, ...)
   sizeName: String!
-  # displayUnitId: Int
-  # measureValue: Float
   numberOfItems: Int
   locationId: Int!
   comment: String
