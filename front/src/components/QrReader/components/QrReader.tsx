@@ -18,6 +18,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
+import * as Sentry from '@sentry/react'
 
 export interface IQrReaderProps {
   isMultiBox: boolean;
@@ -44,9 +45,13 @@ function QrReader({
       error?: Error | undefined | null,
     ) => {
       if (error) {
-        // Log the error but don't interrupt the scanning process
-        // Can we not log this error, so that the console is not flooded?
-        // console.error("QR Reader error:", error);
+        // Log the error if its unexpected but don't interrupt the scanning process
+        if(error.name !== "NotFoundException2"){
+          //register error with Sentry
+          Sentry.captureException(error);
+          console.error("QR Reader error:", error.name);
+        }
+
         return;
       }
       if (qrReaderResult) {
