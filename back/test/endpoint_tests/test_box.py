@@ -2141,7 +2141,7 @@ def test_create_boxes(
             "displayUnit": None,
             "numberOfItems": 5,
             "state": BoxState.InStock.name,
-            "comment": "",
+            "comment": "; original size: 'unknown'",
             "tags": [{"id": tag_id}, {"id": "8"}],
             "history": [{"changes": "created box"}],
         },

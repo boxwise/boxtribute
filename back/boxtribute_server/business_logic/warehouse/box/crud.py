@@ -622,6 +622,7 @@ def create_boxes(*, user_id, data):
     # Bulk create
     complete_data = []
     for row in sanitized_data:
+        comment = row["comment"]
         sizes = sizes_for_product[row["product_id"]]
         size_id = None
         display_unit_id = None
@@ -632,7 +633,10 @@ def create_boxes(*, user_id, data):
             measure_value = Decimal(quantity.group(1)) / display_unit.conversion_factor
             display_unit_id = display_unit.id
         else:
-            size_id = sizes.get(row["size_name"], sizes["mixed"])
+            size_id = sizes.get(row["size_name"])
+            if size_id is None:
+                size_id = sizes["mixed"]
+                comment += f"""; original size: '{row["size_name"]}'"""
         complete_data.append(
             {
                 # Is this safe enough for a large number of boxes?
@@ -640,7 +644,7 @@ def create_boxes(*, user_id, data):
                 "product_id": row["product_id"],
                 "location_id": row["location_id"],
                 "number_of_items": row["number_of_items"],
-                "comment": row["comment"],
+                "comment": comment,
                 "size_id": size_id,
                 "display_unit": display_unit_id,
                 "measure_value": measure_value,
