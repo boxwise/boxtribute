@@ -45,7 +45,8 @@ function QrReader({
     ) => {
       if (error) {
         // Log the error but don't interrupt the scanning process
-        console.error("QR Reader error:", error);
+        // Can we not log this error, so that the console is not flooded?
+        // console.error("QR Reader error:", error);
         return;
       }
       if (qrReaderResult) {
