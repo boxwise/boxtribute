@@ -1,4 +1,5 @@
 import random
+import re
 from collections import defaultdict
 from decimal import Decimal
 
@@ -557,6 +558,21 @@ def sanitize_input(data, new_tag_ids):
     return sanitized_data, all_tag_ids
 
 
+# The regular expression pattern
+# 1. Start anchor (^) ensures we match from the beginning of the string.
+# 2. Group 1 (Number):
+#    - (\d+\.?\d*): Matches standard numbers like 1, 1.5, 1.
+#    - |: OR
+#    - \.\d+: Matches numbers without a leading zero, like .5
+# 3. \s*: Matches zero or more whitespace characters between the number and unit.
+# 4. Group 2 (Unit):
+#    - (kg|g|ml|l|mg|t|lb|oz): Matches one of the defined units exactly.
+# 5. End anchor ($) ensures we match to the end of the string.
+QUANTITY_REGEX = re.compile(
+    r"^(\d+\.?\d*|\.\d+)\s*(kg|g|ml|l|mg|t|lb|oz)$",
+)
+
+
 def create_boxes(*, user_id, data):
     now = utcnow()
 
@@ -600,12 +616,23 @@ def create_boxes(*, user_id, data):
     for row in all_sizes:
         sizes_for_product[row.id][row.size.label.lower()] = row.size.id
 
-    # or set unit + measure value
+    # Prepare units look-up
+    units = {u.symbol: u for u in Unit.select()}
 
     # Bulk create
     complete_data = []
     for row in sanitized_data:
         sizes = sizes_for_product[row["product_id"]]
+        size_id = None
+        display_unit_id = None
+        measure_value = None
+        quantity = QUANTITY_REGEX.match(row["size_name"].strip())
+        if quantity:
+            display_unit = units[quantity.group(2)]
+            measure_value = Decimal(quantity.group(1)) / display_unit.conversion_factor
+            display_unit_id = display_unit.id
+        else:
+            size_id = sizes.get(row["size_name"], sizes["mixed"])
         complete_data.append(
             {
                 # Is this safe enough for a large number of boxes?
@@ -614,7 +641,9 @@ def create_boxes(*, user_id, data):
                 "location_id": row["location_id"],
                 "number_of_items": row["number_of_items"],
                 "comment": row["comment"],
-                "size_id": sizes.get(row["size_name"], sizes["mixed"]),
+                "size_id": size_id,
+                "display_unit": display_unit_id,
+                "measure_value": measure_value,
                 "created_by": user_id,
                 "created_on": now,
             }

@@ -64,6 +64,7 @@ from .product import (
     base3_products,
     default_product,
     disabled_standard_product,
+    mass_product,
     products,
 )
 from .product_category import default_product_category, product_categories
@@ -194,6 +195,7 @@ __all__ = [
     "liter_unit",
     "lost_box",
     "marked_for_shipment_box",
+    "mass_product",
     "mass_units",
     "measure_product_box",
     "measure_standard_product",

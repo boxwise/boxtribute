@@ -157,6 +157,11 @@ def another_product():
 
 
 @pytest.fixture
+def mass_product():
+    return data()[7]
+
+
+@pytest.fixture
 def products():
     return data()
 

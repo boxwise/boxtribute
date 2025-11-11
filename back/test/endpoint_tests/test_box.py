@@ -2067,11 +2067,13 @@ def test_create_boxes(
     default_product,
     default_location,
     default_size,
+    mass_product,
     mixed_size,
     tags,
     monkeypatch,
 ):
     product_id = str(default_product["id"])
+    mass_product_id = str(mass_product["id"])
     location_id = str(default_location["id"])
     tag_id = str(tags[1]["id"])
     comment = "3 packages, 12 piece each"
@@ -2093,11 +2095,22 @@ def test_create_boxes(
             comment: ""
             tagIds: [{tag_id}]
             newTagNames: ["new"]
-        }}
+        }},
+        {{
+            productId: {mass_product_id}
+            sizeName: "500 G "
+            numberOfItems: 2
+            locationId: {location_id}
+            comment: ""
+            tagIds: []
+            newTagNames: []
+        }},
     ]) {{
         labelIdentifier
         product {{ id }}
         size {{ id }}
+        measureValue
+        displayUnit {{ symbol }}
         numberOfItems
         state
         comment
@@ -2107,10 +2120,13 @@ def test_create_boxes(
     boxes = assert_successful_request(client, mutation)
     assert len(boxes[0].pop("labelIdentifier")) == 8
     assert len(boxes[1].pop("labelIdentifier")) == 8
+    assert len(boxes[2].pop("labelIdentifier")) == 8
     assert boxes == [
         {
             "product": {"id": product_id},
             "size": {"id": str(default_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
             "numberOfItems": 1,
             "state": BoxState.InStock.name,
             "comment": comment,
@@ -2119,10 +2135,22 @@ def test_create_boxes(
         {
             "product": {"id": product_id},
             "size": {"id": str(mixed_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
             "numberOfItems": 5,
             "state": BoxState.InStock.name,
             "comment": "",
             "tags": [{"id": tag_id}, {"id": "8"}],
+        },
+        {
+            "product": {"id": mass_product_id},
+            "size": None,
+            "measureValue": 500.0,
+            "displayUnit": {"symbol": "g"},
+            "numberOfItems": 2,
+            "state": BoxState.InStock.name,
+            "comment": "",
+            "tags": [],
         },
     ]
 
