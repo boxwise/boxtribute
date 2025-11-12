@@ -49,7 +49,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  const checkCameraPermission = () => {
+  const checkCameraPermission = useCallback(() => {
     navigator.mediaDevices
       .getUserMedia({
         audio: false,
@@ -68,7 +68,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         }
       })
       .finally(() => setCameraPermissionChecked(true));
-  };
+  }, [triggerError]);
 
   // handle a scan depending on if the solo box or multi box tab is active
   const onScan = async (qrReaderResultText: string, multiScan: boolean) => {
@@ -170,8 +170,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
 
   useEffect(() => {
     checkCameraPermission();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkCameraPermission]);
 
   return (
     <>
