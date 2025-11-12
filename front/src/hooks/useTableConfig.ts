@@ -157,6 +157,20 @@ export const useTableConfig = ({
     [searchParams, setSearchParams],
   );
 
+  const updateHiddenColumns = (args: {
+    columnFilters: Filters<any>;
+    hiddenColumns: string[] | undefined;
+  }) => {
+    const { hiddenColumns, columnFilters } = args;
+    let newHiddenColumns = [...(hiddenColumns || [])];
+
+    columnFilters.forEach((filter) => {
+      newHiddenColumns = newHiddenColumns?.filter((col) => col !== filter.id);
+    });
+
+    return newHiddenColumns;
+  };
+
   /* Initial mount logic (one-time):
    *
    * - We compute `initialColumnFilters` earlier so callers can synchronously read
@@ -190,19 +204,13 @@ export const useTableConfig = ({
           globalFilter: defaultTableConfig.globalFilter,
           columnFilters: initialFiltersToPersist,
           sortBy: defaultTableConfig.sortBy,
-          hiddenColumns: defaultTableConfig.hiddenColumns
-            ? [...defaultTableConfig.hiddenColumns]
-            : undefined,
+          hiddenColumns: defaultTableConfig.hiddenColumns,
         };
 
-        // Filter hiddenColumns based on filters
-        if (hasUrlParams) {
-          initialFiltersToPersist.forEach((filter) => {
-            tableConfig.hiddenColumns = tableConfig.hiddenColumns?.filter(
-              (col) => col !== filter.id,
-            );
-          });
-        }
+        tableConfig.hiddenColumns = updateHiddenColumns({
+          columnFilters: initialFiltersToPersist,
+          hiddenColumns: tableConfig.hiddenColumns,
+        });
 
         tableConfigsState.set(tableConfigKey, tableConfig);
         tableConfigsVar(tableConfigsState);
@@ -215,13 +223,12 @@ export const useTableConfig = ({
           globalFilter: existingConfig.globalFilter,
           columnFilters: existingConfig.columnFilters,
           sortBy: existingConfig.sortBy,
-          hiddenColumns: existingConfig.hiddenColumns
-            ? [...existingConfig.hiddenColumns]
-            : undefined,
+          hiddenColumns: existingConfig.hiddenColumns,
         };
 
-        newConfig.columnFilters.forEach((filter) => {
-          newConfig.hiddenColumns = newConfig.hiddenColumns?.filter((col) => col !== filter.id);
+        newConfig.hiddenColumns = updateHiddenColumns({
+          columnFilters: newConfig.columnFilters,
+          hiddenColumns: newConfig.hiddenColumns,
         });
 
         tableConfigsState.set(tableConfigKey, newConfig);
@@ -267,13 +274,11 @@ export const useTableConfig = ({
     const cfg = tableConfigsState.get(tableConfigKey);
     if (cfg?.hiddenColumns !== undefined) return cfg.hiddenColumns;
 
-    // Compute filtered hiddenColumns for initial render
-    let hiddenColumns = defaultTableConfig.hiddenColumns
-      ? [...defaultTableConfig.hiddenColumns]
-      : undefined;
-    initialColumnFilters.forEach((filter) => {
-      hiddenColumns = hiddenColumns?.filter((col) => col !== filter.id);
+    const hiddenColumns = updateHiddenColumns({
+      columnFilters: initialColumnFilters,
+      hiddenColumns: defaultTableConfig.hiddenColumns,
     });
+
     return hiddenColumns;
   }
 
@@ -291,7 +296,7 @@ export const useTableConfig = ({
       globalFilter: prevConfig.globalFilter,
       columnFilters,
       sortBy: prevConfig.sortBy,
-      hiddenColumns: prevConfig.hiddenColumns ? [...prevConfig.hiddenColumns] : undefined,
+      hiddenColumns: prevConfig.hiddenColumns,
     };
 
     // Filter hiddenColumns based on filters
