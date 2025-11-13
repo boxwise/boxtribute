@@ -422,19 +422,23 @@ function Boxes({
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Boxes
       </Heading>
-      <BoxesTable
-        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
-        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
-        tableConfig={tableConfig}
-        onRefetch={refetchBoxes}
-        boxesQueryRef={boxesQueryRef}
-        columns={availableColumns}
-        shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
-        locationOptions={locationToDropdownOptionTransformer(
-          actionOptionsData.base?.locations ?? [],
-        )}
-        tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
-      />
+      {tableConfig.isNotMounted ? (
+        <></>
+      ) : (
+        <BoxesTable
+          isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
+          hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
+          tableConfig={tableConfig}
+          onRefetch={refetchBoxes}
+          boxesQueryRef={boxesQueryRef}
+          columns={availableColumns}
+          shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
+          locationOptions={locationToDropdownOptionTransformer(
+            actionOptionsData.base?.locations ?? [],
+          )}
+          tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
+        />
+      )}
     </>
   );
 }
