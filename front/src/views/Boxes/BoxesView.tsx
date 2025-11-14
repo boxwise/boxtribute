@@ -7,7 +7,7 @@ import {
   tagToDropdownOptionsTransformer,
 } from "utils/transformers";
 import { Column } from "react-table";
-import { useTableConfig } from "hooks/useTableConfig";
+import { URL_FILTER_CONFIG, useTableConfig } from "hooks/useTableConfig";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
@@ -44,6 +44,7 @@ import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 import BoxesTable from "./components/BoxesTable";
 import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
+import { useSearchParams } from "react-router-dom";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
@@ -153,29 +154,46 @@ function Boxes({
 }: {
   hasExecutedInitialFetchOfBoxes: { current: boolean };
 }) {
+  const [searchParams] = useSearchParams();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
+
+  const defaultHiddenColumns = useMemo(() => {
+    const start = [
+      "qrLabel",
+      "gender",
+      "size",
+      "shipment",
+      "comment",
+      "age",
+      "lastModified",
+      "lastModifiedBy",
+      "createdBy",
+      "productCategory",
+      "id",
+    ];
+
+    const filterIds: string[] = [];
+    // Validate state_ids are part of known states
+    URL_FILTER_CONFIG.forEach(({ filterId, urlParam }) => {
+      const param = searchParams.get(urlParam);
+
+      if (param) {
+        filterIds.push(filterId);
+      }
+    });
+
+    return start.filter((colId) => !filterIds.includes(colId));
+  }, [searchParams]);
 
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
       sortBy: [{ id: "lastModified", desc: true }],
-      hiddenColumns: [
-        "qrLabel",
-        "gender",
-        "size",
-        "shipment",
-        "comment",
-        "age",
-        "lastModified",
-        "lastModifiedBy",
-        "createdBy",
-        "productCategory",
-        "id",
-      ],
+      hiddenColumns: defaultHiddenColumns,
     },
     syncFiltersAndUrlParams: true,
   });
@@ -422,23 +440,19 @@ function Boxes({
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Boxes
       </Heading>
-      {tableConfig.isNotMounted ? (
-        <></>
-      ) : (
-        <BoxesTable
-          isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
-          hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
-          tableConfig={tableConfig}
-          onRefetch={refetchBoxes}
-          boxesQueryRef={boxesQueryRef}
-          columns={availableColumns}
-          shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
-          locationOptions={locationToDropdownOptionTransformer(
-            actionOptionsData.base?.locations ?? [],
-          )}
-          tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
-        />
-      )}
+      <BoxesTable
+        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
+        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
+        tableConfig={tableConfig}
+        onRefetch={refetchBoxes}
+        boxesQueryRef={boxesQueryRef}
+        columns={availableColumns}
+        shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
+        locationOptions={locationToDropdownOptionTransformer(
+          actionOptionsData.base?.locations ?? [],
+        )}
+        tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
+      />
     </>
   );
 }
