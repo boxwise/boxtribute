@@ -157,20 +157,6 @@ export const useTableConfig = ({
     [searchParams, setSearchParams],
   );
 
-  // const updateHiddenColumns = (currentTableConfig: ITableConfig) => {
-  //   const newCurrentTableConfig = { ...currentTableConfig };
-
-  //   let newHiddenColumns = [...(newCurrentTableConfig?.hiddenColumns || [])];
-
-  //   newCurrentTableConfig.columnFilters.forEach((filter) => {
-  //     newHiddenColumns = newHiddenColumns?.filter((col) => col !== filter.id);
-  //   });
-
-  //   newCurrentTableConfig.hiddenColumns = newHiddenColumns;
-
-  //   return newCurrentTableConfig;
-  // };
-
   /* Initial mount logic (one-time):
    *
    * - We compute `initialColumnFilters` earlier so callers can synchronously read
@@ -199,12 +185,6 @@ export const useTableConfig = ({
           ? initialColumnFilters
           : defaultTableConfig.columnFilters;
 
-        // Clone default config to avoid mutation
-        // const newTableConfig = updateHiddenColumns({
-        //   ...defaultTableConfig,
-        //   columnFilters: initialFiltersToPersist,
-        // });
-
         tableConfigsState.set(tableConfigKey, {
           ...defaultTableConfig,
           columnFilters: initialFiltersToPersist,
@@ -213,12 +193,6 @@ export const useTableConfig = ({
       } else if (!hasUrlParams) {
         // If URL is empty, write the default filters into the URL
         updateUrl(existingConfig.columnFilters);
-
-        // Clone config before updating
-        // const newConfig = updateHiddenColumns(existingConfig);
-
-        // tableConfigsState.set(tableConfigKey, newConfig);
-        // tableConfigsVar(tableConfigsState);
       }
 
       // mark initial mount complete and trigger a re-render so consumers see the change
@@ -270,16 +244,7 @@ export const useTableConfig = ({
   }
 
   function setColumnFilters(columnFilters: Filters<any>) {
-    // Clone config to avoid mutation
     const prevConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-
-    // Filter hiddenColumns based on filters
-    // const newTableConfig = updateHiddenColumns({
-    //   globalFilter: prevConfig.globalFilter,
-    //   columnFilters,
-    //   sortBy: prevConfig.sortBy,
-    //   hiddenColumns: prevConfig.hiddenColumns,
-    // });
 
     tableConfigsState.set(tableConfigKey, {
       globalFilter: prevConfig.globalFilter,
