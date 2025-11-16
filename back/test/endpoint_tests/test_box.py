@@ -216,6 +216,7 @@ def test_box_mutations(
     number_of_items = 3
     comment = "good box"
     tag_id = str(tags[1]["id"])
+    new_tag_name = "new"
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
@@ -224,6 +225,7 @@ def test_box_mutations(
                     comment: "{comment}"
                     qrCode: "{qr_code_without_box["code"]}"
                     tagIds: [{tag_id}]
+                    newTagNames: ["{new_tag_name}", "{new_tag_name}"]
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
@@ -234,12 +236,14 @@ def test_box_mutations(
                 size {{ id }}
                 qrCode {{ id }}
                 state
-                tags {{ id }}
+                tags {{ id name }}
                 history {{ changes }}
             }}
         }}"""
     another_created_box = assert_successful_request(client, mutation)
     another_created_box_label_identifier = another_created_box.pop("labelIdentifier")
+    assert another_created_box["tags"][0].pop("id") == tag_id
+    new_tag_id = another_created_box["tags"][1].pop("id")
     assert another_created_box == {
         "numberOfItems": number_of_items,
         "location": {"id": location_id},
@@ -247,7 +251,7 @@ def test_box_mutations(
         "size": {"id": size_id},
         "qrCode": {"id": str(qr_code_without_box["id"])},
         "state": BoxState.InStock.name,
-        "tags": [{"id": tag_id}],
+        "tags": [{"name": tags[1]["name"]}, {"name": new_tag_name}],
         "history": [{"changes": "created box"}],
     }
 
@@ -294,6 +298,7 @@ def test_box_mutations(
     state = BoxState.Lost.name
     comment = "updatedComment"
     nr_items = 7777
+    cool_tag_name = "cool"
     mutation = f"""mutation {{
             updateBox(
                 updateInput : {{
@@ -304,6 +309,8 @@ def test_box_mutations(
                     sizeId: {new_size_id},
                     productId: {new_product_id},
                     state: {state}
+                    newTagNames: ["{cool_tag_name}", "{cool_tag_name}"]
+                    tagIds: []
                 }} ) {{
                 id
                 numberOfItems
@@ -315,6 +322,7 @@ def test_box_mutations(
                 size {{ id }}
                 product {{ id }}
                 state
+                tags {{ id name }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
@@ -325,6 +333,8 @@ def test_box_mutations(
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["state"] == state
+    another_new_tag_id = updated_box["tags"][0].pop("id")
+    assert updated_box["tags"][0]["name"] == cool_tag_name
 
     # Test case 8.2.11d
     # Switch size-product -> measure-product
@@ -357,53 +367,58 @@ def test_box_mutations(
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "124",
+            "id": "126",
             "changes": 'changed units of measure from "" to 250.00g',
             "user": {"name": "coord"},
         },
         {
-            "id": "123",
+            "id": "125",
             "changes": f"changed product type from {products[2]['name']} to "
             + f"{products[7]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "122",
+            "id": "124",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "121",
+            "id": "123",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "120",
+            "id": "122",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "119",
+            "id": "121",
             "changes": f"changed the number of items from {original_number_of_items} "
             + f"to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "120",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "119",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
+            "id": "118",
             "changes": "created box",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "ta12",
+            "changes": "assigned tag 'cool' to box",
             "user": {"name": "coord"},
         },
     ]
@@ -488,43 +503,43 @@ def test_box_mutations(
         "size": {"id": size_id},
         "history": [
             {
-                "id": "132",
+                "id": "134",
                 "changes": f"changed units of measure from {newest_measure_value}0g to "
                 + '""',
                 "user": {"name": "coord"},
             },
             {
-                "id": "131",
+                "id": "133",
                 "changes": f"changed product type from {products[7]['name']} to "
                 + f"{products[0]['name']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "130",
+                "id": "132",
                 "changes": f"changed units of measure from {new_measure_value}0lb to "
                 + f"{newest_measure_value}0g",
                 "user": {"name": "coord"},
             },
             {
-                "id": "129",
+                "id": "131",
                 "changes": f"changed unit from {pound_unit['symbol']} to "
                 + f"{gram_unit['symbol']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "128",
+                "id": "130",
                 "changes": f"changed units of measure from {rounded_measure_value}lb to"
                 + f" {new_measure_value}0lb",
                 "user": {"name": "coord"},
             },
             {
-                "id": "127",
+                "id": "129",
                 "changes": f"changed unit from {gram_unit['symbol']} to "
                 + f"{pound_unit['symbol']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "126",
+                "id": "128",
                 "changes": "created box",
                 "user": {"name": "coord"},
             },
@@ -583,7 +598,14 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {
         "updatedBoxes": [
-            {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": generic_tag_id},
+                    {"id": another_new_tag_id},
+                ]
+            },
+            {"tags": [{"id": tag_id}, {"id": generic_tag_id}, {"id": new_tag_id}]},
         ],
         "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
@@ -618,9 +640,17 @@ def test_box_mutations(
                     {"id": tag_id},
                     {"id": generic_tag_id},
                     {"id": another_generic_tag_id},
+                    {"id": another_new_tag_id},
                 ]
-            }
-            for _ in range(2)
+            },
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": generic_tag_id},
+                    {"id": another_generic_tag_id},
+                    {"id": new_tag_id},
+                ]
+            },
         ],
         "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
@@ -637,7 +667,9 @@ def test_box_mutations(
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": another_generic_tag_id}]}],
+        "updatedBoxes": [
+            {"tags": [{"id": another_generic_tag_id}, {"id": another_new_tag_id}]}
+        ],
         "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
     }
@@ -653,7 +685,12 @@ def test_box_mutations(
                     {{ tags {{ id }} }} }}"""
     response = assert_successful_request(client, query)
     assert response == {
-        "tags": [{"id": tag_id}, {"id": generic_tag_id}, {"id": another_generic_tag_id}]
+        "tags": [
+            {"id": tag_id},
+            {"id": generic_tag_id},
+            {"id": another_generic_tag_id},
+            {"id": new_tag_id},
+        ]
     }
 
     # Test case 8.2.24c
@@ -665,7 +702,15 @@ def test_box_mutations(
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
+        "updatedBoxes": [
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": another_generic_tag_id},
+                    {"id": new_tag_id},
+                ]
+            }
+        ],
         "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"]],
         "tagErrorInfo": [],
     }
@@ -954,6 +999,17 @@ def test_box_mutations(
             "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
+            "record_id": int(new_tag_id),
+            "table_name": "tags",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "from_int": None,
+            "to_int": None,
             "record_id": box_id + 1,
             "table_name": "stock",
             "user": 8,
@@ -967,6 +1023,17 @@ def test_box_mutations(
             "to_int": None,
             "record_id": box_id + 2,
             "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "from_int": None,
+            "to_int": None,
+            "record_id": int(another_new_tag_id),
+            "table_name": "tags",
             "user": 8,
             "ip": None,
             "from_float": None,
@@ -1993,3 +2060,104 @@ def test_mutate_box_with_invalid_location_or_product(
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
     assert_bad_user_input(read_only_client, mutation)
+
+
+def test_create_boxes(
+    client,
+    default_product,
+    default_location,
+    default_size,
+    mass_product,
+    mixed_size,
+    tags,
+    monkeypatch,
+):
+    product_id = str(default_product["id"])
+    mass_product_id = str(mass_product["id"])
+    location_id = str(default_location["id"])
+    tag_id = str(tags[1]["id"])
+    comment = "3 packages, 12 piece each"
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+            comment: "{comment}"
+            tagIds: []
+            newTagNames: []
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "unknown"
+            numberOfItems: 5
+            locationId: {location_id}
+            comment: ""
+            tagIds: [{tag_id}]
+            newTagNames: ["new"]
+        }},
+        {{
+            productId: {mass_product_id}
+            sizeName: "500 G "
+            numberOfItems: 2
+            locationId: {location_id}
+            comment: ""
+            tagIds: []
+            newTagNames: []
+        }},
+    ]) {{
+        labelIdentifier
+        product {{ id }}
+        size {{ id }}
+        measureValue
+        displayUnit {{ symbol }}
+        numberOfItems
+        state
+        comment
+        tags {{ id }}
+        history {{ changes }}
+    }} }}
+    """
+    boxes = assert_successful_request(client, mutation)
+    assert len(boxes[0].pop("labelIdentifier")) == 8
+    assert len(boxes[1].pop("labelIdentifier")) == 8
+    assert len(boxes[2].pop("labelIdentifier")) == 8
+    assert boxes == [
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(default_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 1,
+            "state": BoxState.InStock.name,
+            "comment": comment,
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(mixed_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 5,
+            "state": BoxState.InStock.name,
+            "comment": "; original size: 'unknown'",
+            "tags": [{"id": tag_id}, {"id": "8"}],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": mass_product_id},
+            "size": None,
+            "measureValue": 500.0,
+            "displayUnit": {"symbol": "g"},
+            "numberOfItems": 2,
+            "state": BoxState.InStock.name,
+            "comment": "",
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+    ]
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    boxes = assert_successful_request(client, mutation)
+    assert boxes == []

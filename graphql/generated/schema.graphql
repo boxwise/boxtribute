@@ -337,6 +337,8 @@ input BoxCreationInput {
   comment: String
   qrCode: String
   tagIds: [Int!]
+  " Names of new tags to be created on-the-fly "
+  newTagNames: [String!]
 }
 
 input BoxUpdateInput {
@@ -351,6 +353,8 @@ input BoxUpdateInput {
   state: BoxState
   " List of all tags that shall be assigned to the box. Any requested tags already assigned to the box will not be assigned again "
   tagIds: [Int!]
+  " Names of new tags to be created on-the-fly "
+  newTagNames: [String!]
 }
 
 input BoxMoveInput {
@@ -361,6 +365,17 @@ input BoxMoveInput {
 input BoxesTagsOperationInput {
   labelIdentifiers: [String!]!
   tagIds: [Int!]!
+}
+
+input BoxBulkCreationInput {
+  productId: Int!
+  " Name of discrete size (XL, Size 4, 39, ...); or measure (1.5kg, 300ml, ...) "
+  sizeName: String!
+  numberOfItems: Int
+  locationId: Int!
+  comment: String
+  tagIds: [Int!]
+  newTagNames: [String!]
 }
 
 input CustomProductCreationInput {
@@ -572,6 +587,8 @@ type Mutation {
   assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
   " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Create boxes by importing raw data. Prototypical! "
+  createBoxes(creationInput: [BoxBulkCreationInput!]): [Box!]
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary

@@ -15,6 +15,8 @@ type Mutation {
   assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
   " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Create boxes by importing raw data. Prototypical! "
+  createBoxes(creationInput: [BoxBulkCreationInput!]): [Box!]
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary

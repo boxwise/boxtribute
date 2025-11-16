@@ -378,7 +378,10 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 # ### BETA-LEVEL 6 ###
 # In addition to level 4,
 # - bulk-create beneficiaries (esp. for Google-Sheets add-on)
-MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + ("createBeneficiaries",)
+MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
+    "createBeneficiaries",
+    "createBoxes",
+)
 
 # ### BETA-LEVEL 98 ###
 # In addition to level 5,
@@ -393,6 +396,7 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "deactivateBeneficiary",
     "assignTag",
     "unassignTag",
+    "createBoxes",
 )
 
 # ### BETA-LEVEL 99 ###
