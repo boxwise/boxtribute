@@ -172,7 +172,6 @@ function Boxes({
       "lastModifiedBy",
       "createdBy",
       "productCategory",
-      "id",
     ];
 
     const filterIds: string[] = [];
