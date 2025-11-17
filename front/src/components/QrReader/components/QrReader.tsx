@@ -18,6 +18,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
+import * as Sentry from "@sentry/react";
 
 export interface IQrReaderProps {
   isMultiBox: boolean;
@@ -36,12 +37,23 @@ function QrReader({
 }: IQrReaderProps) {
   const hasManageInventoryPermission = useHasPermission("manage_inventory");
 
-  // Zoom
-  const [zoomLevel] = useState(1);
-
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
-    (multiScan: boolean, qrReaderResult: Result | undefined | null) => {
+    (
+      multiScan: boolean,
+      qrReaderResult: Result | undefined | null,
+      error?: Error | undefined | null,
+    ) => {
+      if (error) {
+        // Log the error if its unexpected but don't interrupt the scanning process
+        if (error.name !== "NotFoundException2") {
+          //register error with Sentry
+          Sentry.captureException(error);
+          console.error("QR Reader error:", error.name);
+        }
+
+        return;
+      }
       if (qrReaderResult) {
         onScan(qrReaderResult.getText(), multiScan);
       }
@@ -76,7 +88,6 @@ function QrReader({
         key="qrReaderScanner"
         multiScan={isMultiBox && hasManageInventoryPermission}
         facingMode="environment"
-        zoom={zoomLevel}
         scanPeriod={1000}
         onResult={onResult}
       />
