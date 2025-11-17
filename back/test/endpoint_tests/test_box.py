@@ -2096,6 +2096,49 @@ def test_create_boxes(
             tagIds: [{tag_id}]
             newTagNames: ["new"]
         }},
+    ]) {{
+        labelIdentifier
+        product {{ id }}
+        size {{ id }}
+        measureValue
+        displayUnit {{ symbol }}
+        numberOfItems
+        state
+        comment
+        tags {{ id }}
+        history {{ changes }}
+    }} }}
+    """
+    boxes = assert_successful_request(client, mutation)
+    assert len(boxes[0].pop("labelIdentifier")) == 8
+    assert len(boxes[1].pop("labelIdentifier")) == 8
+    assert boxes == [
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(default_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 1,
+            "state": BoxState.InStock.name,
+            "comment": comment,
+            "tags": [{"id": "8"}],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(mixed_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 5,
+            "state": BoxState.InStock.name,
+            "comment": "; original size: 'unknown'",
+            "tags": [{"id": tag_id}, {"id": "8"}, {"id": "9"}],
+            "history": [{"changes": "created box"}],
+        },
+    ]
+
+    # On the second run, the _IMPORTED_ tag should not be created extra
+    mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             productId: {mass_product_id}
             sizeName: "500 G "
@@ -2120,31 +2163,7 @@ def test_create_boxes(
     """
     boxes = assert_successful_request(client, mutation)
     assert len(boxes[0].pop("labelIdentifier")) == 8
-    assert len(boxes[1].pop("labelIdentifier")) == 8
-    assert len(boxes[2].pop("labelIdentifier")) == 8
     assert boxes == [
-        {
-            "product": {"id": product_id},
-            "size": {"id": str(default_size["id"])},
-            "measureValue": None,
-            "displayUnit": None,
-            "numberOfItems": 1,
-            "state": BoxState.InStock.name,
-            "comment": comment,
-            "tags": [],
-            "history": [{"changes": "created box"}],
-        },
-        {
-            "product": {"id": product_id},
-            "size": {"id": str(mixed_size["id"])},
-            "measureValue": None,
-            "displayUnit": None,
-            "numberOfItems": 5,
-            "state": BoxState.InStock.name,
-            "comment": "; original size: 'unknown'",
-            "tags": [{"id": tag_id}, {"id": "8"}],
-            "history": [{"changes": "created box"}],
-        },
         {
             "product": {"id": mass_product_id},
             "size": None,
@@ -2153,7 +2172,7 @@ def test_create_boxes(
             "numberOfItems": 2,
             "state": BoxState.InStock.name,
             "comment": "",
-            "tags": [],
+            "tags": [{"id": "8"}],
             "history": [{"changes": "created box"}],
         },
     ]

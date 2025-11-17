@@ -586,8 +586,30 @@ def create_boxes(*, user_id, data):
         raise ValueError(f"Invalid base IDs: {','.join([str(i) for i in base_ids])}")
 
     # Authz should happen now
+    base_id = list(base_ids)[0]
 
     # More validation: product and location base ID matching? Deleted location/product?
+
+    # Check for "imported" tag
+    imported_tag_name = "_IMPORTED_"
+    imported_tag = (
+        Tag.select()
+        .where(
+            Tag.base == base_id,
+            Tag.type == TagType.Box,
+            Tag.name == imported_tag_name,
+            Tag.deleted_on.is_null(),
+        )
+        .get_or_none()
+    )
+    if imported_tag is None:
+        # "imported" tag name needs to be added to every new box
+        for row in data:
+            row["new_tag_names"].append(imported_tag_name)
+    else:
+        # "imported" tag already exists, add its ID to every new box
+        for row in data:
+            row["tag_ids"].append(imported_tag.id)
 
     # Create new tags
     new_tag_names = {n for row in data for n in row["new_tag_names"]}
@@ -597,7 +619,7 @@ def create_boxes(*, user_id, data):
             name=tag_name,
             type=TagType.Box,
             user_id=user_id,
-            base_id=list(base_ids)[0],
+            base_id=base_id,
             now=now,
         )
         new_tag_ids[tag_name] = tag.id
