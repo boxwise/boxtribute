@@ -176,7 +176,6 @@ function Boxes({
     ];
 
     const filterIds: string[] = [];
-    // Validate state_ids are part of known states
     URL_FILTER_CONFIG.forEach(({ filterId, urlParam }) => {
       const param = searchParams.get(urlParam);
 

@@ -232,7 +232,6 @@ export const useTableConfig = ({
 
   function getHiddenColumns() {
     const cfg = tableConfigsState.get(tableConfigKey);
-
     return cfg?.hiddenColumns ?? defaultTableConfig.hiddenColumns;
   }
 
