@@ -18,7 +18,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
-import * as Sentry from '@sentry/react'
+import * as Sentry from "@sentry/react";
 
 export interface IQrReaderProps {
   isMultiBox: boolean;
@@ -46,7 +46,7 @@ function QrReader({
     ) => {
       if (error) {
         // Log the error if its unexpected but don't interrupt the scanning process
-        if(error.name !== "NotFoundException2"){
+        if (error.name !== "NotFoundException2") {
           //register error with Sentry
           Sentry.captureException(error);
           console.error("QR Reader error:", error.name);
