@@ -724,6 +724,28 @@ def test_mutate_insufficient_permission(
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],
+        # Test case 4.2.2
+        [
+            "createTag",
+            """creationInput: { name: "new tag", color: "#112233", type: All,
+                baseId: 2 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 4.2.6
+        [
+            "updateTag",
+            'updateInput: { id: 4, name: "name" }',
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 4.2.12
+        [
+            "deleteTag",
+            "id: 4",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
     ],
 )
 def test_mutate_unauthorized_for_base(

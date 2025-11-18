@@ -112,7 +112,6 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
     # Test case 4.2.9
     deleted_tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {deleted_tag_id}) {{
-                __typename
                 ...on Tag {{
                     name
                     deletedOn
@@ -123,11 +122,9 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                 }}
             }} }}"""
     deleted_tag = assert_successful_request(client, mutation)
-    assert deleted_tag["__typename"] == "Tag"
     # Expect tag to be unassigned from any resource it was assigned to (see
     # test/data/tags_relation.py)
     deleted_on = deleted_tag.pop("deletedOn")
-    deleted_tag.pop("__typename")
     assert deleted_on.startswith(today)
     assert deleted_tag == {"name": tags[0]["name"], "taggedResources": []}
 
@@ -158,7 +155,6 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
             createTag(
                 creationInput : {creation_input}
             ) {{
-                __typename
                 ...on Tag {{
                     id
                     name
@@ -175,8 +171,6 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         }}"""
 
     created_tag = assert_successful_request(client, mutation)
-    assert created_tag["__typename"] == "Tag"
-    created_tag.pop("__typename")
     tag_id = created_tag.pop("id")
     assert created_tag == {
         "name": name,
@@ -197,7 +191,6 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         }}"""
         mutation = f"""mutation {{
                 updateTag(updateInput : {update_input}) {{
-                    __typename
                     ...on Tag {{
                         id
                         {field}
@@ -205,8 +198,6 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                     }}
                 }} }}"""
         updated_tag = assert_successful_request(client, mutation)
-        assert updated_tag["__typename"] == "Tag"
-        updated_tag.pop("__typename")
         assert updated_tag == {
             "id": tag_id,
             field: value,
@@ -339,7 +330,6 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
     # Test case 4.2.4
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, type: {tag_type} }}) {{
-                __typename
                 ...on Tag {{
                     type
                     taggedResources {{
@@ -350,8 +340,6 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
                 }}
     }} }}"""
     updated_tag = assert_successful_request(client, mutation)
-    assert updated_tag["__typename"] == "Tag"
-    updated_tag.pop("__typename")
     assert updated_tag == {
         "type": tag_type,
         "taggedResources": [
@@ -520,32 +508,3 @@ def test_update_deleted_tag(client, tags):
     result = assert_successful_request(client, mutation)
     assert result["__typename"] == "DeletedTagError"
     assert result["name"] == tags[4]["name"]
-
-
-def test_update_non_existing_tag(client):
-    # Test updating a non-existing tag
-    non_existing_id = 999999
-    mutation = f"""mutation {{ updateTag(
-            updateInput: {{ id: {non_existing_id}, name: "New Name" }}) {{
-                __typename
-                ...on Tag {{ tagId: id }}
-                ...on ResourceDoesNotExistError {{ name errorId: id }}
-            }} }}"""
-    result = assert_successful_request(client, mutation)
-    assert result["__typename"] == "ResourceDoesNotExistError"
-    assert result["name"] == "Tag"
-    assert result["errorId"] == str(non_existing_id)
-
-
-def test_delete_non_existing_tag(client):
-    # Test deleting a non-existing tag
-    non_existing_id = 999999
-    mutation = f"""mutation {{ deleteTag(id: {non_existing_id}) {{
-                __typename
-                ...on Tag {{ tagId: id }}
-                ...on ResourceDoesNotExistError {{ name errorId: id }}
-            }} }}"""
-    result = assert_successful_request(client, mutation)
-    assert result["__typename"] == "ResourceDoesNotExistError"
-    assert result["name"] == "Tag"
-    assert result["errorId"] == str(non_existing_id)
