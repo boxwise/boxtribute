@@ -348,7 +348,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
     }
 
 
-def test_assign_tag_with_invalid_base(client, tags):
+def test_assign_tag_with_invalid_base(read_only_client, tags):
     tag_id = tags[3]["id"]
     # Test case 4.2.39
     assignment_input = f"""{{
@@ -359,13 +359,13 @@ def test_assign_tag_with_invalid_base(client, tags):
     mutation = f"""mutation {{
             assignTag( assignmentInput: {assignment_input} ) {{
                 ...on Box {{ id }} }} }}"""
-    assert_forbidden_request(client, mutation)
+    assert_forbidden_request(read_only_client, mutation)
 
     # Test case 4.2.40
     mutation = f"""mutation {{
             unassignTag( unassignmentInput: {assignment_input} ) {{
                 ...on Box {{ id }} }} }}"""
-    assert_forbidden_request(client, mutation)
+    assert_forbidden_request(read_only_client, mutation)
 
 
 def test_assign_tag_with_invalid_resource_type(
@@ -412,7 +412,7 @@ def test_base_tags_query(read_only_client, filter_input, tag_ids):
     assert tags == [{"id": i} for i in tag_ids]
 
 
-def test_create_tag_with_invalid_color(client):
+def test_create_tag_with_invalid_color(read_only_client):
     # Test invalid color format
     creation_input = """{
         name: "Invalid Color Tag",
@@ -427,12 +427,12 @@ def test_create_tag_with_invalid_color(client):
                 ...on InvalidColorError {{ color }}
             }}
         }}"""
-    result = assert_successful_request(client, mutation)
+    result = assert_successful_request(read_only_client, mutation)
     assert result["__typename"] == "InvalidColorError"
     assert result["color"] == "not-a-color"
 
 
-def test_update_tag_with_invalid_color(client, tags):
+def test_update_tag_with_invalid_color(read_only_client, tags):
     # Test invalid color format for update
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ updateTag(
@@ -441,12 +441,12 @@ def test_update_tag_with_invalid_color(client, tags):
                 ...on Tag {{ id }}
                 ...on InvalidColorError {{ color }}
             }} }}"""
-    result = assert_successful_request(client, mutation)
+    result = assert_successful_request(read_only_client, mutation)
     assert result["__typename"] == "InvalidColorError"
     assert result["color"] == "invalid"
 
 
-def test_update_tag_with_empty_name(client, tags):
+def test_update_tag_with_empty_name(read_only_client, tags):
     # Test empty name validation
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ updateTag(
@@ -455,11 +455,11 @@ def test_update_tag_with_empty_name(client, tags):
                 ...on Tag {{ id }}
                 ...on EmptyNameError {{ __typename }}
             }} }}"""
-    result = assert_successful_request(client, mutation)
+    result = assert_successful_request(read_only_client, mutation)
     assert result["__typename"] == "EmptyNameError"
 
 
-def test_update_deleted_tag(client, tags):
+def test_update_deleted_tag(read_only_client, tags):
     # Test updating a deleted tag
     tag_id = tags[4]["id"]  # Deleted tag in test data
     mutation = f"""mutation {{ updateTag(
@@ -468,6 +468,6 @@ def test_update_deleted_tag(client, tags):
                 ...on Tag {{ id }}
                 ...on DeletedTagError {{ name }}
             }} }}"""
-    result = assert_successful_request(client, mutation)
+    result = assert_successful_request(read_only_client, mutation)
     assert result["__typename"] == "DeletedTagError"
     assert result["name"] == tags[4]["name"]
