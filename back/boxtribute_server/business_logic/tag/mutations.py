@@ -12,8 +12,7 @@ mutation = MutationType()
 @mutation.field("createTag")
 @handle_unauthorized
 def resolve_create_tag(*_, creation_input):
-    base_id = creation_input["base_id"]
-    authorize(permission="tag:write", base_id=base_id)
+    authorize(permission="tag:write", base_id=creation_input["base_id"])
     return create_tag(user_id=g.user.id, **creation_input)
 
 

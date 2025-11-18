@@ -119,11 +119,10 @@ def update_tag(
 
 @safely_handle_deletion
 @handle_non_existing_resource
-def delete_tag(*, user_id, tag, **_):
+def delete_tag(*, user_id, tag, now):
     """Soft-delete given tag. Unassign the tag from any resources by soft-deleting
     respective rows of the TagsRelation model.
     """
-    now = utcnow()
     TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
         TagsRelation.tag == tag.id,
         TagsRelation.deleted_on.is_null(),
