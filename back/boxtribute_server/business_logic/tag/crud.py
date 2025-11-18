@@ -1,15 +1,18 @@
 import random
+import re
 
 from peewee import JOIN
 
 from ...db import db
 from ...enums import TaggableObjectType, TagType
+from ...errors import DeletedTag, EmptyName, InvalidColor
 from ...exceptions import IncompatibleTagTypeAndResourceType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.utils import (
+    handle_non_existing_resource,
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
@@ -17,7 +20,17 @@ from ...models.utils import (
 )
 
 
+def _is_valid_hex_color(color):
+    """Validate if a string is a valid hex color code (e.g., #RRGGBB or #RGB)."""
+    if not color:
+        return False
+    # Match #RGB or #RRGGBB format
+    pattern = r"^#(?:[0-9a-fA-F]{3}){1,2}$"
+    return bool(re.match(pattern, color))
+
+
 @save_creation_to_history
+@handle_non_existing_resource
 def create_tag(
     *,
     name,
@@ -29,8 +42,13 @@ def create_tag(
     now,
 ):
     """Insert information for a new Tag in the database."""
+    if color is None:
+        color = f"#{random.randint(0, 0xFFFFFF):06x}"
+    elif not _is_valid_hex_color(color):
+        return InvalidColor(color=color)
+
     return Tag.create(
-        color=color or f"#{random.randint(0, 0xFFFFFF):06x}",
+        color=color,
         created=now,
         created_by=user_id,
         description=description,
@@ -40,6 +58,7 @@ def create_tag(
     )
 
 
+@handle_non_existing_resource
 @save_update_to_history(
     fields=[
         Tag.name,
@@ -65,11 +84,18 @@ def update_tag(
     All/Box to Beneficiary).
     Insert timestamp for modification and return the tag.
     """
+    if tag.deleted_on is not None:
+        return DeletedTag(name=tag.name)
+
     if name is not None:
+        if not name:
+            return EmptyName()
         tag.name = name
     if description is not None:
         tag.description = description
     if color is not None:
+        if not _is_valid_hex_color(color):
+            return InvalidColor(color=color)
         tag.color = color
 
     object_type_for_deletion = None
@@ -92,10 +118,12 @@ def update_tag(
 
 
 @safely_handle_deletion
-def delete_tag(*, user_id, tag, now):
+@handle_non_existing_resource
+def delete_tag(*, user_id, tag, **_):
     """Soft-delete given tag. Unassign the tag from any resources by soft-deleting
     respective rows of the TagsRelation model.
     """
+    now = utcnow()
     TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
         TagsRelation.tag == tag.id,
         TagsRelation.deleted_on.is_null(),

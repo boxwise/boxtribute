@@ -1,7 +1,8 @@
 from ariadne import MutationType
 from flask import g
 
-from ...authz import authorize
+from ...authz import authorize, handle_unauthorized
+from ...errors import ResourceDoesNotExist
 from ...models.definitions.tag import Tag
 from .crud import assign_tag, create_tag, delete_tag, unassign_tag, update_tag
 
@@ -9,14 +10,19 @@ mutation = MutationType()
 
 
 @mutation.field("createTag")
+@handle_unauthorized
 def resolve_create_tag(*_, creation_input):
-    authorize(permission="tag:write", base_id=creation_input["base_id"])
+    base_id = creation_input["base_id"]
+    authorize(permission="tag:write", base_id=base_id)
     return create_tag(user_id=g.user.id, **creation_input)
 
 
 @mutation.field("updateTag")
+@handle_unauthorized
 def resolve_update_tag(*_, update_input):
-    tag = Tag.get_by_id(update_input["id"])
+    id = int(update_input["id"])
+    if (tag := Tag.get_or_none(id)) is None:
+        return ResourceDoesNotExist(name="Tag", id=id)
     authorize(permission="tag:write", base_id=tag.base_id)
     return update_tag(user_id=g.user.id, tag=tag, **update_input)
 
@@ -36,8 +42,10 @@ def resolve_unassign_tag(*_, unassignment_input):
 
 
 @mutation.field("deleteTag")
+@handle_unauthorized
 def resolve_delete_tag(*_, id):
-    tag = Tag.get_by_id(id)
+    if (tag := Tag.get_or_none(int(id))) is None:
+        return ResourceDoesNotExist(name="Tag", id=id)
     authorize(permission="tag:write", base_id=tag.base_id)
     if tag.deleted_on is not None:
         # If already deleted, return tag without updating the deleted_on field, nor
