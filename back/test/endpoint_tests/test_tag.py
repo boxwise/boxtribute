@@ -376,7 +376,8 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
                 ...on Tag {{ id }}
                 ...on UnauthorizedForBaseError {{ name }}
             }} }}"""
-    assert_forbidden_request(client, mutation)
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "UnauthorizedForBaseError"
 
     # Test case 4.2.6
     tag_id = tags[3]["id"]
@@ -386,7 +387,8 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
                 ...on Tag {{ id }}
                 ...on UnauthorizedForBaseError {{ name }}
             }} }}"""
-    assert_forbidden_request(client, mutation)
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "UnauthorizedForBaseError"
 
     # Test case 4.2.12
     mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{
@@ -394,7 +396,8 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
                 ...on Tag {{ id }}
                 ...on UnauthorizedForBaseError {{ name }}
             }} }}"""
-    assert_forbidden_request(client, mutation)
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "UnauthorizedForBaseError"
 
     # Test case 4.2.39
     assignment_input = f"""{{
@@ -525,13 +528,13 @@ def test_update_non_existing_tag(client):
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {non_existing_id}, name: "New Name" }}) {{
                 __typename
-                ...on Tag {{ id }}
-                ...on ResourceDoesNotExistError {{ name id }}
+                ...on Tag {{ tagId: id }}
+                ...on ResourceDoesNotExistError {{ name errorId: id }}
             }} }}"""
     result = assert_successful_request(client, mutation)
     assert result["__typename"] == "ResourceDoesNotExistError"
     assert result["name"] == "Tag"
-    assert result["id"] == str(non_existing_id)
+    assert result["errorId"] == str(non_existing_id)
 
 
 def test_delete_non_existing_tag(client):
@@ -539,10 +542,10 @@ def test_delete_non_existing_tag(client):
     non_existing_id = 999999
     mutation = f"""mutation {{ deleteTag(id: {non_existing_id}) {{
                 __typename
-                ...on Tag {{ id }}
-                ...on ResourceDoesNotExistError {{ name id }}
+                ...on Tag {{ tagId: id }}
+                ...on ResourceDoesNotExistError {{ name errorId: id }}
             }} }}"""
     result = assert_successful_request(client, mutation)
     assert result["__typename"] == "ResourceDoesNotExistError"
     assert result["name"] == "Tag"
-    assert result["id"] == str(non_existing_id)
+    assert result["errorId"] == str(non_existing_id)
