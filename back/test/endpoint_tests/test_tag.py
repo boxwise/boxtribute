@@ -413,7 +413,7 @@ def test_base_tags_query(read_only_client, filter_input, tag_ids):
 
 
 def test_create_tag_with_invalid_color(read_only_client):
-    # Test invalid color format
+    # Test case 4.2.41
     creation_input = """{
         name: "Invalid Color Tag",
         color: "not-a-color",
@@ -433,7 +433,7 @@ def test_create_tag_with_invalid_color(read_only_client):
 
 
 def test_update_tag_with_invalid_color(read_only_client, tags):
-    # Test invalid color format for update
+    # Test case 4.2.42
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, color: "invalid" }}) {{
@@ -447,7 +447,7 @@ def test_update_tag_with_invalid_color(read_only_client, tags):
 
 
 def test_update_tag_with_empty_name(read_only_client, tags):
-    # Test empty name validation
+    # Test case 4.2.43
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, name: "" }}) {{
@@ -460,7 +460,7 @@ def test_update_tag_with_empty_name(read_only_client, tags):
 
 
 def test_update_deleted_tag(read_only_client, tags):
-    # Test updating a deleted tag
+    # Test case 4.2.44
     tag_id = tags[4]["id"]  # Deleted tag in test data
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, name: "New Name" }}) {{
