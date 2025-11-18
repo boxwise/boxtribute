@@ -38,7 +38,15 @@ Pros:
 
 - Intermittant issues with the QRCode reader should decrease or be removed completely.
 - If issues arrise due to lack of support, easier paths to support will be open (due to an active community on the packages)
-- A MUCH smaller bundle size, as the current zxing library embed more parts of the zxing engine then required by more modern browsers
+- A MUCH smaller bundle size, as the current zxing library embed more parts of the zxing engine then required by more modern browsers.
+
+For context, these are a couple of important figures
+
+1. @zxing/library size (unpacked) - 9.46Mb
+2. @zxing/browser size (unpacked) - 5.4Mb
+3. zxing/wasm size (unpacked) - 3.41Mb (Note: The maintainer has also provided sizes for importing zxing-wasm/reader only, which should only be about 919 KiB)
+
+General Note about size: NPM (and other tools like PNPM) implement their own tree shaking, so these sizes are always worst case senarios)
 
 Cons:
 
