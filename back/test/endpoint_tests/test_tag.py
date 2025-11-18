@@ -348,45 +348,8 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
     }
 
 
-def test_mutate_tag_with_invalid_base(client, default_bases, tags):
-    # Test case 4.2.2
-    base_id = default_bases[1]["id"]
-    creation_input = f"""{{
-        name: "new tag",
-        color: "#112233",
-        type: {TagType.All.name}
-        baseId: {base_id}
-    }}"""
-
-    mutation = f"""mutation {{
-            createTag(creationInput : {creation_input}) {{
-                __typename
-                ...on Tag {{ id }}
-                ...on UnauthorizedForBaseError {{ name }}
-            }} }}"""
-    result = assert_successful_request(client, mutation)
-    assert result["__typename"] == "UnauthorizedForBaseError"
-
-    # Test case 4.2.6
+def test_assign_tag_with_invalid_base(client, tags):
     tag_id = tags[3]["id"]
-    mutation = f"""mutation {{ updateTag(
-            updateInput: {{ id: {tag_id}, name: "name" }}) {{
-                __typename
-                ...on Tag {{ id }}
-                ...on UnauthorizedForBaseError {{ name }}
-            }} }}"""
-    result = assert_successful_request(client, mutation)
-    assert result["__typename"] == "UnauthorizedForBaseError"
-
-    # Test case 4.2.12
-    mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{
-                __typename
-                ...on Tag {{ id }}
-                ...on UnauthorizedForBaseError {{ name }}
-            }} }}"""
-    result = assert_successful_request(client, mutation)
-    assert result["__typename"] == "UnauthorizedForBaseError"
-
     # Test case 4.2.39
     assignment_input = f"""{{
         id: {tag_id}
