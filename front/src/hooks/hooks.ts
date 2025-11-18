@@ -3,7 +3,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { JWT_ABP } from "utils/constants";
+import { JWT_ABP, JWT_ROLE } from "utils/constants";
 
 /**
  * Hook to check if the current user has a specific permission
@@ -14,7 +14,10 @@ export const useHasPermission = (permission: string): boolean => {
   const { user } = useAuth0();
 
   return useMemo(() => {
-    if (!user || !user[JWT_ABP]) return false;
+    if (!user) return false;
+    const isGod: boolean = user[JWT_ROLE]?.includes("boxtribute_god") || false;
+    if (isGod) return true;
+    if (!user[JWT_ABP]) return false;
     return user[JWT_ABP].includes(permission);
   }, [user, permission]);
 };
