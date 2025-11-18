@@ -112,16 +112,22 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
     # Test case 4.2.9
     deleted_tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {deleted_tag_id}) {{
-                name
-                deletedOn
-                taggedResources {{
-                    ...on Beneficiary {{ id }}
-                    ...on Box {{ id }}
-                }} }} }}"""
+                __typename
+                ...on Tag {{
+                    name
+                    deletedOn
+                    taggedResources {{
+                        ...on Beneficiary {{ id }}
+                        ...on Box {{ id }}
+                    }}
+                }}
+            }} }}"""
     deleted_tag = assert_successful_request(client, mutation)
+    assert deleted_tag["__typename"] == "Tag"
     # Expect tag to be unassigned from any resource it was assigned to (see
     # test/data/tags_relation.py)
     deleted_on = deleted_tag.pop("deletedOn")
+    deleted_tag.pop("__typename")
     assert deleted_on.startswith(today)
     assert deleted_tag == {"name": tags[0]["name"], "taggedResources": []}
 
@@ -152,20 +158,25 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
             createTag(
                 creationInput : {creation_input}
             ) {{
-                id
-                name
-                description
-                color
-                type
-                base {{ id }}
-                taggedResources {{
-                    ...on Beneficiary {{ id }}
-                    ...on Box {{ id }}
+                __typename
+                ...on Tag {{
+                    id
+                    name
+                    description
+                    color
+                    type
+                    base {{ id }}
+                    taggedResources {{
+                        ...on Beneficiary {{ id }}
+                        ...on Box {{ id }}
+                    }}
                 }}
             }}
         }}"""
 
     created_tag = assert_successful_request(client, mutation)
+    assert created_tag["__typename"] == "Tag"
+    created_tag.pop("__typename")
     tag_id = created_tag.pop("id")
     assert created_tag == {
         "name": name,
@@ -186,11 +197,16 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         }}"""
         mutation = f"""mutation {{
                 updateTag(updateInput : {update_input}) {{
-                    id
-                    {field}
-                    type
+                    __typename
+                    ...on Tag {{
+                        id
+                        {field}
+                        type
+                    }}
                 }} }}"""
         updated_tag = assert_successful_request(client, mutation)
+        assert updated_tag["__typename"] == "Tag"
+        updated_tag.pop("__typename")
         assert updated_tag == {
             "id": tag_id,
             field: value,
@@ -323,14 +339,19 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
     # Test case 4.2.4
     mutation = f"""mutation {{ updateTag(
             updateInput: {{ id: {tag_id}, type: {tag_type} }}) {{
-                type
-                taggedResources {{
-                    __typename
-                    ...on Beneficiary {{ id }}
-                    ...on Box {{ id }}
+                __typename
+                ...on Tag {{
+                    type
+                    taggedResources {{
+                        __typename
+                        ...on Beneficiary {{ id }}
+                        ...on Box {{ id }}
+                    }}
                 }}
     }} }}"""
     updated_tag = assert_successful_request(client, mutation)
+    assert updated_tag["__typename"] == "Tag"
+    updated_tag.pop("__typename")
     assert updated_tag == {
         "type": tag_type,
         "taggedResources": [
@@ -350,17 +371,29 @@ def test_mutate_tag_with_invalid_base(client, default_bases, tags):
     }}"""
 
     mutation = f"""mutation {{
-            createTag(creationInput : {creation_input}) {{ id }} }}"""
+            createTag(creationInput : {creation_input}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on UnauthorizedForBaseError {{ name }}
+            }} }}"""
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.6
     tag_id = tags[3]["id"]
     mutation = f"""mutation {{ updateTag(
-            updateInput: {{ id: {tag_id}, name: "name" }}) {{ id }} }}"""
+            updateInput: {{ id: {tag_id}, name: "name" }}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on UnauthorizedForBaseError {{ name }}
+            }} }}"""
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.12
-    mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{ id }} }}"""
+    mutation = f"""mutation {{ deleteTag( id: {tag_id} ) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on UnauthorizedForBaseError {{ name }}
+            }} }}"""
     assert_forbidden_request(client, mutation)
 
     # Test case 4.2.39
@@ -423,3 +456,93 @@ def test_base_tags_query(read_only_client, filter_input, tag_ids):
     query = f"""query {{ base(id: 1) {{ tags{filter_input} {{ id }} }} }}"""
     tags = assert_successful_request(read_only_client, query)["tags"]
     assert tags == [{"id": i} for i in tag_ids]
+
+
+def test_create_tag_with_invalid_color(client):
+    # Test invalid color format
+    creation_input = """{
+        name: "Invalid Color Tag",
+        color: "not-a-color",
+        type: All
+        baseId: 1
+    }"""
+    mutation = f"""mutation {{
+            createTag(creationInput : {creation_input}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on InvalidColorError {{ color }}
+            }}
+        }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "InvalidColorError"
+    assert result["color"] == "not-a-color"
+
+
+def test_update_tag_with_invalid_color(client, tags):
+    # Test invalid color format for update
+    tag_id = tags[0]["id"]
+    mutation = f"""mutation {{ updateTag(
+            updateInput: {{ id: {tag_id}, color: "invalid" }}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on InvalidColorError {{ color }}
+            }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "InvalidColorError"
+    assert result["color"] == "invalid"
+
+
+def test_update_tag_with_empty_name(client, tags):
+    # Test empty name validation
+    tag_id = tags[0]["id"]
+    mutation = f"""mutation {{ updateTag(
+            updateInput: {{ id: {tag_id}, name: "" }}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on EmptyNameError {{ __typename }}
+            }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "EmptyNameError"
+
+
+def test_update_deleted_tag(client, tags):
+    # Test updating a deleted tag
+    tag_id = tags[4]["id"]  # Deleted tag in test data
+    mutation = f"""mutation {{ updateTag(
+            updateInput: {{ id: {tag_id}, name: "New Name" }}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on DeletedTagError {{ name }}
+            }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "DeletedTagError"
+    assert result["name"] == tags[4]["name"]
+
+
+def test_update_non_existing_tag(client):
+    # Test updating a non-existing tag
+    non_existing_id = 999999
+    mutation = f"""mutation {{ updateTag(
+            updateInput: {{ id: {non_existing_id}, name: "New Name" }}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on ResourceDoesNotExistError {{ name id }}
+            }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "ResourceDoesNotExistError"
+    assert result["name"] == "Tag"
+    assert result["id"] == str(non_existing_id)
+
+
+def test_delete_non_existing_tag(client):
+    # Test deleting a non-existing tag
+    non_existing_id = 999999
+    mutation = f"""mutation {{ deleteTag(id: {non_existing_id}) {{
+                __typename
+                ...on Tag {{ id }}
+                ...on ResourceDoesNotExistError {{ name id }}
+            }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["__typename"] == "ResourceDoesNotExistError"
+    assert result["name"] == "Tag"
+    assert result["id"] == str(non_existing_id)
