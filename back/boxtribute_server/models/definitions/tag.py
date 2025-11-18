@@ -12,6 +12,7 @@ class Tag(db.Model):  # type: ignore
         column_name="camp_id",
         field="id",
         model=Base,
+        on_update="CASCADE",
         object_id_name="base_id",
     )
     color = CharField()
@@ -21,6 +22,8 @@ class Tag(db.Model):  # type: ignore
         field="id",
         model=User,
         null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
     )
     deleted_on = ZeroDateTimeField(column_name="deleted", null=True)
     description = TextField()
@@ -31,6 +34,8 @@ class Tag(db.Model):  # type: ignore
         field="id",
         model=User,
         null=True,
+        on_delete="SET NULL",
+        on_update="CASCADE",
         object_id_name="last_modified_by_id",
     )
     seq = IntegerField(null=True)
