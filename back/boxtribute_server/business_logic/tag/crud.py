@@ -49,7 +49,7 @@ def create_tag(
 
     return Tag.create(
         color=color,
-        created=now,
+        created_on=now,
         created_by=user_id,
         description=description,
         name=name,

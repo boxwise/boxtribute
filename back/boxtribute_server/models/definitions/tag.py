@@ -15,16 +15,23 @@ class Tag(db.Model):  # type: ignore
         object_id_name="base_id",
     )
     color = CharField()
-    created = DateTimeField(null=True)
+    created_on = DateTimeField(column_name="created", null=True)
     created_by = UIntForeignKeyField(
-        column_name="created_by", field="id", model=User, null=True
+        column_name="created_by",
+        field="id",
+        model=User,
+        null=True,
     )
     deleted_on = ZeroDateTimeField(column_name="deleted", null=True)
     description = TextField()
     name = CharField(column_name="label")
     last_modified_on = DateTimeField(column_name="modified", null=True)
     last_modified_by = UIntForeignKeyField(
-        column_name="modified_by", field="id", model=User, null=True
+        column_name="modified_by",
+        field="id",
+        model=User,
+        null=True,
+        object_id_name="last_modified_by_id",
     )
     seq = IntegerField(null=True)
     type = EnumCharField(

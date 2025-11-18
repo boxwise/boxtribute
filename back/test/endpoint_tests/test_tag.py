@@ -19,12 +19,22 @@ def test_tag_query(read_only_client, tags):
     # Test case 4.1.2
     tag = tags[0]
     tag_id = str(tag["id"])
-    query = f"query {{ tag(id: {tag_id}) {{ id name type }} }}"
+    query = f"""query {{ tag(id: {tag_id}) {{
+            id name type
+            createdOn
+            createdBy {{ id }}
+            lastModifiedOn
+            lastModifiedBy {{ id }}
+        }} }}"""
     queried_tag = assert_successful_request(read_only_client, query)
     assert queried_tag == {
         "id": tag_id,
         "name": tag["name"],
         "type": tag["type"].name,
+        "createdOn": tag["created_on"].isoformat() + "+00:00",
+        "createdBy": {"id": str(tag["created_by"])},
+        "lastModifiedOn": None,
+        "lastModifiedBy": None,
     }
 
 
@@ -161,6 +171,10 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                     description
                     color
                     type
+                    createdOn
+                    createdBy {{ id }}
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
                     base {{ id }}
                     taggedResources {{
                         ...on Beneficiary {{ id }}
@@ -172,6 +186,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
 
     created_tag = assert_successful_request(client, mutation)
     tag_id = created_tag.pop("id")
+    assert created_tag.pop("createdOn").startswith(today)
     assert created_tag == {
         "name": name,
         "description": description,
@@ -179,6 +194,9 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         "type": type,
         "taggedResources": [],
         "base": {"id": base_id},
+        "createdBy": {"id": "8"},
+        "lastModifiedOn": None,
+        "lastModifiedBy": None,
     }
 
     # Test case 4.2.3
@@ -195,13 +213,17 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                         id
                         {field}
                         type
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
                     }}
                 }} }}"""
         updated_tag = assert_successful_request(client, mutation)
+        assert updated_tag.pop("lastModifiedOn").startswith(today)
         assert updated_tag == {
             "id": tag_id,
             field: value,
             "type": type,
+            "lastModifiedBy": {"id": "8"},
         }
 
     # Test case 4.2.13
