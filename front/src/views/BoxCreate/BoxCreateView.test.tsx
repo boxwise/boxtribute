@@ -7,6 +7,7 @@ import BoxCreateView, {
   ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
   CREATE_BOX_MUTATION,
 } from "./BoxCreateView";
+import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import { FakeGraphQLError } from "mocks/functions";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
@@ -109,6 +110,61 @@ const successfulCreateBoxMutation = {
   },
 };
 
+const checkIfQrExistsQuery = {
+  request: {
+    query: CHECK_IF_QR_EXISTS_IN_DB,
+    variables: { qrCode: "abcdef0123456789" },
+  },
+  result: {
+    data: { qrExists: true },
+  },
+};
+
+const successfulCreateBoxWithQrMutation = {
+  request: {
+    query: CREATE_BOX_MUTATION,
+    variables: {
+      locationId: 1,
+      productId: 2, // Use testProduct ID
+      sizeId: 1,
+      numberOfItems: 5,
+      comment: "",
+      tagIds: [],
+      newTagNames: [],
+      qrCode: "abcdef0123456789",
+    },
+  },
+  result: {
+    data: {
+      createBox: {
+        labelIdentifier: "12345",
+        id: "1",
+        state: "InStock",
+        product: testProduct,
+        size: { id: "1", label: "S" },
+        numberOfItems: 5,
+        location: location1,
+        comment: "",
+        tags: [],
+        qrCode: {
+          code: "abcdef0123456789",
+          box: {
+            labelIdentifier: "12345",
+          },
+        },
+        history: [],
+        createdOn: "2023-11-09T17:24:29+00:00",
+        lastModifiedOn: "2023-11-19T10:24:29+00:00",
+        createdBy: null,
+        lastModifiedBy: null,
+        shipmentDetail: null,
+        deletedOn: null,
+        __typename: "Box",
+      },
+    },
+  },
+};
+
 describe("BoxCreateView", () => {
   it("renders the create box form", async () => {
     render(<BoxCreateView />, {
@@ -149,6 +205,46 @@ describe("BoxCreateView", () => {
     const createOption = await screen.findByText('Create "epic"');
     await user.click(createOption);
     expect(await screen.findByText("epic")).toBeInTheDocument();
+
+    // Click the "Save" button
+    const createBoxButton = screen.getByRole("button", { name: /^save$/i });
+    await user.click(createBoxButton);
+
+    // Verify success toast is shown
+    await waitFor(() =>
+      expect(mockedCreateToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+          title: "Box 12345",
+          message: expect.stringMatching(/successfully created/i),
+        }),
+      ),
+    );
+
+    // Verify navigation to box details page
+    expect(mockNavigate).toHaveBeenCalledWith("/bases/1/boxes/12345");
+  });
+
+  it("successfully creates a box with QR label and navigates to box details", async () => {
+    const user = userEvent.setup();
+    render(<BoxCreateView />, {
+      routePath: "/bases/:baseId/boxes/create/:qrCode",
+      initialUrl: "/bases/1/boxes/create/abcdef0123456789",
+      mocks: [initialQuery, checkIfQrExistsQuery, successfulCreateBoxWithQrMutation],
+      addTypename: true,
+    });
+
+    // Wait for form to load
+    await screen.findByRole("heading", { name: /create new box/i });
+
+    // Fill in the form
+    await selectOptionInSelectField(user, /product/i, "Snow trousers (Boy)", "Create New Box");
+    await selectOptionInSelectField(user, /size/i, "S", "Create New Box");
+    await selectOptionInSelectField(user, /location/i, "Warehouse", "Create New Box");
+
+    const numberOfItemsInput = screen.getByRole("spinbutton");
+    await user.clear(numberOfItemsInput);
+    await user.type(numberOfItemsInput, "5");
 
     // Click the "Save" button
     const createBoxButton = screen.getByRole("button", { name: /^save$/i });

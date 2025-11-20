@@ -47,7 +47,7 @@ const serializeIds = (filters: string[]): string | null => {
 
 // Configuration for URL parameter mapping
 // TODO: if we need to generlaize this for other tables, this should become a variable of the hook
-const URL_FILTER_CONFIG = [
+export const URL_FILTER_CONFIG = [
   { filterId: "product", urlParam: "product_ids" },
   { filterId: "state", urlParam: "state_ids" },
   { filterId: "gender", urlParam: "gender_ids" },
@@ -179,19 +179,16 @@ export const useTableConfig = ({
   useEffect(() => {
     if (isInitialMount && syncFiltersAndUrlParams) {
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
-
       const existingConfig = tableConfigsState.get(tableConfigKey);
       if (!existingConfig) {
         const initialFiltersToPersist = hasUrlParams
           ? initialColumnFilters
           : defaultTableConfig.columnFilters;
-        const tableConfig: ITableConfig = {
-          globalFilter: defaultTableConfig.globalFilter,
+
+        tableConfigsState.set(tableConfigKey, {
+          ...defaultTableConfig,
           columnFilters: initialFiltersToPersist,
-          sortBy: defaultTableConfig.sortBy,
-          hiddenColumns: defaultTableConfig.hiddenColumns,
-        };
-        tableConfigsState.set(tableConfigKey, tableConfig);
+        });
         tableConfigsVar(tableConfigsState);
       } else if (!hasUrlParams) {
         // If URL is empty, write the default filters into the URL
@@ -246,9 +243,14 @@ export const useTableConfig = ({
   }
 
   function setColumnFilters(columnFilters: Filters<any>) {
-    const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.columnFilters = columnFilters;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    const prevConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
+
+    tableConfigsState.set(tableConfigKey, {
+      globalFilter: prevConfig.globalFilter,
+      columnFilters,
+      sortBy: prevConfig.sortBy,
+      hiddenColumns: prevConfig.hiddenColumns,
+    });
     tableConfigsVar(tableConfigsState);
 
     // Update URL parameters
