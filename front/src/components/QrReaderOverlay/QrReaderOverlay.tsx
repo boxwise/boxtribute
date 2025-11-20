@@ -20,17 +20,15 @@ function QrReaderOverlay({ isOpen, onClose }: IQrReaderOverlayProps) {
     <Modal isOpen={isOpen} closeOnOverlayClick={false} closeOnEsc onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <div className="flex flex-row justify-end">
-          <ModalHeader>Boxtribute QR Scanner</ModalHeader>
-          <ModalCloseButton />
-        </div>
+        <ModalHeader display="flex" justifyContent="space-between" alignItems="center">
+          Boxtribute QR Scanner
+          <ModalCloseButton position="static" />
+        </ModalHeader>
         <ModalBody>
           <QrReaderContainer onSuccess={onClose} />
         </ModalBody>
         <ModalFooter>
-          <Button mr={3} onClick={onClose}>
-            Close QR Scanner
-          </Button>
+          <Button onClick={onClose}>Close QR Scanner</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
