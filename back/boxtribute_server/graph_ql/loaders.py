@@ -672,64 +672,42 @@ class ShipmentDetailAutoMatchingLoader(DataLoader):
 class ResourcesForTagLoader(DataLoader):
     async def batch_load_fn(self, tag_ids):
         authorize(permission="tag_relation:read")
-        print(tag_ids)
 
-        # Single query to get all tag relations for the requested tags
-        relations = TagsRelation.select(
-            TagsRelation.tag, TagsRelation.object_type, TagsRelation.object_id
-        ).where(
-            TagsRelation.tag << tag_ids,
-            TagsRelation.deleted_on.is_null(),
+        # Get all tag relations and resources for the requested tags
+        relations = (
+            TagsRelation.select(TagsRelation.tag, Beneficiary, Box)
+            .left_outer_join(
+                Box,
+                on=(
+                    (Box.id == TagsRelation.object_id)
+                    & (TagsRelation.object_type == TaggableObjectType.Box)
+                ),
+                src=TagsRelation,
+            )
+            .left_outer_join(
+                Beneficiary,
+                on=(
+                    (Beneficiary.id == TagsRelation.object_id)
+                    & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                    & authorized_bases_filter(Beneficiary)
+                ),
+                src=TagsRelation,
+            )
+            .where(
+                TagsRelation.tag << tag_ids,
+                TagsRelation.deleted_on.is_null(),
+            )
         )
 
-        # Map tag_id -> sets of object ids per type
-        tag_to_box_ids = defaultdict(set)
-        tag_to_beneficiary_ids = defaultdict(set)
-        all_box_ids = set()
-        all_beneficiary_ids = set()
-
+        resources = defaultdict(list)
         for rel in relations:
-            if rel.object_type == TaggableObjectType.Box:
-                tag_to_box_ids[rel.tag_id].add(rel.object_id)
-                all_box_ids.add(rel.object_id)
-            else:  # TaggableObjectType.Beneficiary:
-                tag_to_beneficiary_ids[rel.tag_id].add(rel.object_id)
-                all_beneficiary_ids.add(rel.object_id)
+            if hasattr(rel, "beneficiary"):
+                resources[rel.tag_id].append(rel.beneficiary)
+            else:
+                resources[rel.tag_id].append(rel.box)
 
-        # Fetch all Boxes and Beneficiaries in two queries
-        boxes_by_id = {}
-        if all_box_ids:
-            for b in (
-                Box.select()
-                .join(Location)
-                .where(
-                    Box.id << list(all_box_ids),
-                    authorized_bases_filter(Location, permission="stock:read"),
-                )
-            ):
-                boxes_by_id[b.id] = b
-
-        beneficiaries_by_id = {}
-        if all_beneficiary_ids:
-            for ben in Beneficiary.select().where(
-                Beneficiary.id << list(all_beneficiary_ids),
-                authorized_bases_filter(Beneficiary),
-            ):
-                beneficiaries_by_id[ben.id] = ben
-
-        # Build result list in same order as input tag_ids.
-        results = []
-        for tag_id in tag_ids:
-            ben_list = [
-                beneficiaries_by_id[i]
-                for i in tag_to_beneficiary_ids.get(tag_id, [])
-                if i in beneficiaries_by_id
-            ]
-            box_list = [
-                boxes_by_id[i]
-                for i in tag_to_box_ids.get(tag_id, [])
-                if i in boxes_by_id
-            ]
-            results.append(ben_list + box_list)
-
-        return results
+        # Build result list in same order as input tag_ids (inner lists sorted for
+        # reproducibility)
+        return [
+            sorted(resources.get(tag_id, []), key=lambda r: r.id) for tag_id in tag_ids
+        ]
