@@ -96,15 +96,15 @@ def test_tags_query(
                 },
                 {
                     "__typename": "Box",
+                    "id": str(in_transit_box["id"]),
+                },
+                {
+                    "__typename": "Box",
                     "id": str(default_box["id"]),
                 },
                 {
                     "__typename": "Box",
                     "id": str(box_without_qr_code["id"]),
-                },
-                {
-                    "__typename": "Box",
-                    "id": str(in_transit_box["id"]),
                 },
             ],
         },
@@ -343,7 +343,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
     [
         [1, TagType.Box.name, [], "Box"],
         [2, TagType.Beneficiary.name, [], "Beneficiary"],
-        [3, TagType.Box.name, [2, 3, 9], "Box"],
+        [3, TagType.Box.name, [9, 2, 3], "Box"],
         [3, TagType.Beneficiary.name, [1], "Beneficiary"],
         [1, TagType.All.name, [1, 6], "Beneficiary"],
     ],
