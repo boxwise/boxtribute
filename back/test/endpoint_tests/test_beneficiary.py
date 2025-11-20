@@ -111,7 +111,11 @@ def test_beneficiary_query(
                 age
                 dateOfBirth }} }}"""
     beneficiary = assert_successful_request(read_only_client, query)
-    assert beneficiary == {"gender": None, "age": None, "dateOfBirth": None}
+    assert beneficiary == {
+        "gender": HumanGender.Diverse.name,
+        "age": None,
+        "dateOfBirth": None,
+    }
 
 
 def test_beneficiary_mutations(
@@ -343,7 +347,7 @@ def test_beneficiary_mutations(
                 "lastName": "",
                 "groupIdentifier": group_id,
                 "dateOfBirth": None,
-                "gender": None,
+                "gender": HumanGender.Diverse.name,
                 "comment": "",
                 "isVolunteer": False,
                 "registered": True,
@@ -405,6 +409,7 @@ def test_beneficiary_mutations(
             first_name=first_name,
             last_name="",
             comment="",
+            gender=HumanGender.Diverse,
             # These values are simulated to be off for some reason
             group_identifier="X",
             base=0,

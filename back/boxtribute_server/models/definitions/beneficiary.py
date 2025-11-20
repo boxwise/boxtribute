@@ -21,13 +21,15 @@ class HumanGenderField(EnumCharField):
         super().__init__(*args, choices=HumanGender, **kwargs)
 
     def db_value(self, value):
-        if value is None:
+        if value is None or value == HumanGender.Diverse:
             return ""
         return value.value
 
     def python_value(self, name):
-        if name == "":
-            return
+        if name == "":  # called by Beneficiary.select
+            return HumanGender.Diverse
+        if name is None:  # called in ResourcesForTagLoader
+            return HumanGender.Diverse
         return self.enum_class(name)
 
 
