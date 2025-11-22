@@ -4,7 +4,9 @@ Trello-card: [Link to Task](https://trello.com/c/Zv00dw2j/1864-20-fe-replace-zxi
 
 Decision Deadline: N/A
 
-Author: Maurovic Cachia
+Author: [Maurovic Cachia](https://github.com/MomoRazor)
+
+Participants: [Philipp Metzner](https://github.com/pylipp), [Hans Peter Gürtner](https://github.com/HaGuesto), [Roanna Kong](https://github.com/aerinsol)
 
 ## Status
 
@@ -30,9 +32,15 @@ Apart from this, more modern packages could bring secondary benefits, such as sm
 
 - It will also make sure that the package remains compatible with ecosystem well, and re-opens the possible of asking for support to an active community, if issues arise related to QR Scanning that might be coming from under the hood.
 
+3. Performance
+
+- Older packages using old code and old practices can affect negatively performance and bundle size. This leads to increase loading times and network bandwidth requirements. More modern implementations will utilize more current practices and stratagies to mitigate these effects.
+
 ## Considered Options
 
 There are a couple of possible replacements that I have found up till now:
+
+### zxing-wasm
 
 - [zxing-wasm](https://www.npmjs.com/package/zxing-wasm) - This is another zxing based package that is however, kept up to date (last upload was 9 days ago as of writing). The package will probably be the easier replacements as the API will be the closest to the current implementation (due to it also working with zxing under the hood). The package is fairly popular with a 100k weekly downloads and an upwards trend.
 
@@ -40,7 +48,7 @@ For added context, zxing based here means that both of these packages use the zx
 
 Using a port of the same engine ensure that we will have the same functionality supported as before, written in more modern code, bundled with more tree shaking capabilities. This will result in a smaller final bundle, as will be shown later in this document.
 
-### Implementation zxing-wasm (broadly)
+Broad Implementation:
 
 1. The addition of a hidden canvas element within the scanner, from which to capture specific frames of the webcam.
 2. Through this canvas, each frame will be fed into the `zxing-wasm` API at specific intervals, to check for a QR Code.
@@ -49,15 +57,22 @@ Using a port of the same engine ensure that we will have the same functionality 
 
 Estimated Time of Implementation: 1.5 hours
 
+Bundle Size (unpacked): 3.41Mb (Note: The maintainer has also provided sizes for importing `zxing-wasm/reader` only, which should only be about 919 KiB)
+
+### @yudiel/react-qr-scanner
+
 - [@yudiel/react-qr-scanner](https://www.npmjs.com/package/@yudiel/react-qr-scanner) - This is another maintained version that is more popular then zxing-wasm. Unlike zxing-wasm however, it is not a headless package, as suggested by its title, which referenced React, suggesting it offers prebuilt React Components, which could result in certain visual customization limitations, when compared with headless packages.
 
 It might also be important to mention that this package depends on a package called [barcode-detector](https://www.npmjs.com/package/barcode-detector) which in turn, depends on [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp), similar to `zxing-wasm`. `barcode-detector` is also a very well maintained bridging package for `zxing-wasm`.
 
-### Implementation react-qr-scanner (broadly)
-
+Broad Implementation:
 Due to this being a react specific package, and therefore providing a react component, this implementation is significantly quicker, as all it requires is the addition of the `Scanner` component, with some predefined props. What is unknown is if the `ViewFinder` component can function well with this `Scanner` component, and if further visual customization will be possible to do (and possible) to keep within the project's design principles.
 
 Estimated Time of Implementation: 15 mins
+
+Bundle Size (unpacked): 226 kB (Note: In this case, this package depends on `zxing/wasm`, so it would add both sizes, + `barcode-decoder` which is a further 246 kB)
+
+General Note about size: NPM (and other tools like PNPM) implement their own tree shaking, so these sizes are always worst case senarios)
 
 ## Decision
 
@@ -71,21 +86,10 @@ Pros:
 - If issues arrise within QR Code Scanning, it would become possible to ask for support within an active community.
 - A MUCH smaller bundle size, as the current zxing library embed more parts of the zxing engine then required by more modern browsers.
 
-For context, these are a couple of important figures
-
-Current libraries in use:
+For comparision to the size figures given in the options section, the following are the sizes of the current libraries:
 
 1. `@zxing/library` size (unpacked) - 9.46Mb
 2. `@zxing/browser` size (unpacked) - 5.4Mb
-
----
-
-Options:
-
-1. `zxing/wasm` size (unpacked) - 3.41Mb (Note: The maintainer has also provided sizes for importing `zxing-wasm/reader` only, which should only be about 919 KiB)
-2. `@yudiel/react-qr-scanner` size (unpacked) - 226 kB (Note: In this case, this package depends on `zxing/wasm`, so it would add both sizes, + `barcode-decoder` which is a further 246 kB)
-
-General Note about size: NPM (and other tools like PNPM) implement their own tree shaking, so these sizes are always worst case senarios)
 
 Cons:
 
