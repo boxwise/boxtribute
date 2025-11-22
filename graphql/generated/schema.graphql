@@ -600,11 +600,11 @@ type Mutation {
   createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
-  createTag(creationInput: TagCreationInput): Tag
+  createTag(creationInput: TagCreationInput): CreateTagResult
   " Update one or more properties of a tag with specified ID. "
-  updateTag(updateInput: TagUpdateInput): Tag
+  updateTag(updateInput: TagUpdateInput): UpdateTagResult
   " Soft-delete tag with specified ID. "
-  deleteTag(id: ID!): Tag
+  deleteTag(id: ID!): DeleteTagResult
   " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
   assignTag(assignmentInput: TagOperationInput): TaggableResource
   " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
@@ -971,6 +971,10 @@ type Tag {
   " List of boxes and/or beneficiaries that have this tag assigned "
   taggedResources: [TaggableResource!]
   base: Base!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
   deletedOn: Datetime
 }
 
@@ -1490,9 +1494,15 @@ type DeletedBaseError {
 type InvalidDateError {
   date: Datetime!
 }
+type InvalidColorError {
+  color: String!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
+union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
+union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError

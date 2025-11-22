@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from ...db import db
-from ...enums import TaggableObjectType
+from ...enums import HumanGender, TaggableObjectType
 from ...errors import DeletedBase, ResourceDoesNotExist
 from ...exceptions import InvalidBeneficiaryImport
 from ...models.definitions.base import Base
@@ -235,7 +235,12 @@ def validate_imported_beneficiaries(input_data, imported_entries):
         for field in fields:
             input_value = input_element[field]
             imported_value = getattr(imported_entry, field)
-            if input_value != imported_value:
+            if field == "gender":
+                if input_value is None and imported_value != HumanGender.Diverse:
+                    invalid_fields[i].append(
+                        {field: [input_value, imported_value.name]}
+                    )
+            elif input_value != imported_value:
                 invalid_fields[i].append({field: [input_value, imported_value]})
         if input_element["base"] != imported_entry.base_id:
             invalid_fields[i].append(

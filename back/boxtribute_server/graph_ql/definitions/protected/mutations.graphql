@@ -28,11 +28,11 @@ type Mutation {
   createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
-  createTag(creationInput: TagCreationInput): Tag
+  createTag(creationInput: TagCreationInput): CreateTagResult
   " Update one or more properties of a tag with specified ID. "
-  updateTag(updateInput: TagUpdateInput): Tag
+  updateTag(updateInput: TagUpdateInput): UpdateTagResult
   " Soft-delete tag with specified ID. "
-  deleteTag(id: ID!): Tag
+  deleteTag(id: ID!): DeleteTagResult
   " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
   assignTag(assignmentInput: TagOperationInput): TaggableResource
   " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "

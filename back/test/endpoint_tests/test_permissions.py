@@ -172,18 +172,6 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
         "markShipmentAsLost( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
         "startReceivingShipment( id : 1 ) { id }",
-        # Test case 4.2.8
-        """createTag(
-            creationInput : {
-                name: "cool tag",
-                color: "#aabbcc",
-                type: All,
-                baseId: 1
-            }) { id }""",
-        # Test case 4.2.7
-        "updateTag( updateInput : { id: 1 }) { id }",
-        # Test case 4.2.11
-        "deleteTag( id: 1 ) { id }",
         # Test case 4.2.19, 4.2.20
         """assignTag(
             assignmentInput: {
@@ -613,6 +601,32 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "beneficiary:create"},
         ],
+        # Test case 4.2.8
+        [
+            "createTag",
+            """creationInput: {
+                name: "cool tag",
+                color: "#aabbcc",
+                type: All,
+                baseId: 1
+            }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "tag:write"},
+        ],
+        # Test case 4.2.7
+        [
+            "updateTag",
+            "updateInput: { id: 1 }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "tag:write"},
+        ],
+        # Test case 4.2.11
+        [
+            "deleteTag",
+            "id: 1",
+            "...on InsufficientPermissionError { name }",
+            {"name": "tag:write"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -709,6 +723,28 @@ def test_mutate_insufficient_permission(
             "creationInput: { baseId: 3, beneficiaryData: []}",
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
+        ],
+        # Test case 4.2.2
+        [
+            "createTag",
+            """creationInput: { name: "new tag", color: "#112233", type: All,
+                baseId: 2 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 4.2.6
+        [
+            "updateTag",
+            'updateInput: { id: 4, name: "name" }',
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 4.2.12
+        [
+            "deleteTag",
+            "id: 4",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
         ],
     ],
 )

@@ -89,6 +89,7 @@ def another_relative_beneficiary_data():
         "group_identifier": "1234",
         "is_volunteer": True,
         "not_registered": True,
+        "gender": HumanGender.Diverse,
     }
 
 
