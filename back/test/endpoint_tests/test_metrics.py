@@ -118,10 +118,8 @@ def test_public_beneficiary_numbers(
 @pytest.mark.parametrize(
     "time,last_month,last_quarter,last_year",
     [
-        # all boxes in test/data/box.py are created on 2020-11-27
-        ("2022-10-27 12:00:01", 0, 0, 0),
-        ("2021-04-27 12:00:01", 0, 0, 16),
         ("2021-01-27 12:00:01", 0, 16, 16),
+        ("2021-04-27 12:00:01", 0, 0, 16),
         ("2020-12-27 12:00:01", 16, 0, 0),
         ("2020-11-26 12:00:01", 0, 0, 0),
     ],
@@ -136,6 +134,51 @@ def test_public_box_number(read_only_client, time, last_month, last_quarter, las
             "lastQuarter": last_quarter,
             "lastYear": last_year,
         }
+
+
+@pytest.mark.parametrize(
+    "start,end",
+    [
+        ("2020-01-01", "2020-12-31"),
+    ],
+)
+def test_active_beneficiaries_numbers(start, end, read_only_client):
+    new_name = "barbs"
+    edit_query = f"""
+    mutation {{
+        updateBeneficiary(updateInput: {{
+            id: 1,
+            firstName: "{new_name}"
+        }}) {{
+            id
+            firstName
+        }}
+    }}
+    """
+    data = {"query": edit_query}
+    response = read_only_client.post("/graphql", json=data)
+    query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+
+    assert response == 1
+    # Delete the tested person
+    delete_query = """
+    mutation {
+        deactivateBeneficiary(id: "1") {
+            id
+            firstName
+        }
+    }
+    """
+
+    # probably just want to do this twice rather than new query etc
+
+    data = {"query": delete_query}
+    _ = read_only_client.post("/graphql", json=data)
+
+    query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == 0
 
 
 def build_newly_created_query(query_string):

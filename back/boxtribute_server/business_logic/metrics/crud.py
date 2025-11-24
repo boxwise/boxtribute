@@ -1,10 +1,13 @@
 """Computation of various metrics"""
 
+from datetime import datetime, timedelta
+
 from peewee import JOIN, fn
 
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
+from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.transaction import Transaction
 
@@ -121,3 +124,49 @@ def number_of_created_records_between(model, start, end):
         .where((model.created_on >= start) & (model.created_on <= end))
         .count()
     )
+
+
+def family_heads_edited_last_year():
+    cutoff_datetime = datetime.today() - timedelta(days=365)
+    cutoff_date = cutoff_datetime.date()
+
+    edited_family_heads = (
+        DbChangeHistory.select(DbChangeHistory.record_id)
+        .where(
+            (DbChangeHistory.table_name == "people")
+            & (DbChangeHistory.record_id.in_(unique_family_head_ids()))
+            & (DbChangeHistory.change_date >= cutoff_date)
+        )
+        .distinct()
+    )
+
+    edited_family_head_id_list = [row.record_id for row in edited_family_heads]
+    return edited_family_head_id_list
+
+
+def family_heads_in_transaction_last_year():
+    cutoff_datetime = datetime.today() - timedelta(days=365)
+    cutoff_date = cutoff_datetime.date()
+
+    family_head_with_transaction = (
+        Transaction.select(Transaction.beneficiary)
+        .where(
+            (Transaction.beneficiary.in_(unique_family_head_ids()))
+            & (Transaction.created_on >= cutoff_date)
+        )
+        .distinct()
+        .tuples()
+    )
+    return [id[0] for id in family_head_with_transaction]
+
+
+def unique_family_head_ids():
+    family_head_subquery = Beneficiary.select(Beneficiary.family_head_id).where(
+        (Beneficiary.family_head_id.is_null(False)) & (Beneficiary.deleted_on.is_null())
+    )
+    unique_ids = (
+        Beneficiary.select(Beneficiary.id)
+        .where(Beneficiary.id.in_(family_head_subquery))
+        .distinct()
+    )
+    return unique_ids

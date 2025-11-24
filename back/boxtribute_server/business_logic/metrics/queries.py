@@ -6,12 +6,14 @@ from flask import g
 from ...authz import authorize
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
-from .crud import number_of_created_records_between
+from .crud import (
+    family_heads_edited_last_year,
+    family_heads_in_transaction_last_year,
+    number_of_created_records_between,
+)
 
 query = QueryType()
 public_query = QueryType()
-
-RANGE_NAMES = ("last_month", "last_quarter", "last_year")
 
 
 @query.field("metrics")
@@ -30,17 +32,29 @@ def resolve_metrics(*_, organisation_id=None):
 def resolve_newly_registered_beneficiary_numbers(*_):
     ranges = get_time_ranges()
 
+    range_name = "last_month", "last_quarter", "last_year"
+
     return {
         r: number_of_created_records_between(Beneficiary, *ranges[r])
-        for r in RANGE_NAMES
+        for r in range_name
     }
 
 
 @public_query.field("newlyCreatedBoxNumbers")
-def resolve_newly_created_box_numbers(*_):
+def resolve_newly_created_boxes(*_):
     ranges = get_time_ranges()
 
-    return {r: number_of_created_records_between(Box, *ranges[r]) for r in RANGE_NAMES}
+    range_name = "last_month", "last_quarter", "last_year"
+
+    return {r: number_of_created_records_between(Box, *ranges[r]) for r in range_name}
+
+
+@public_query.field("activeBeneficiariesNumber")
+def resolve_active_beneficiaries_numbers(obj, info, start: str, end: str):
+    return len(
+        set(family_heads_edited_last_year())
+        | set(family_heads_in_transaction_last_year())
+    )
 
 
 def get_time_ranges():

@@ -4,4 +4,5 @@ type Query {
   standardProducts: [StandardProductInfo!]!
   newlyRegisteredBeneficiaryNumbers: BeneficiaryNumbers
   newlyCreatedBoxNumbers: BoxNumbers
+  activeBeneficiariesNumber(start: Date, end: Date): Int
 }
