@@ -84,7 +84,7 @@ Pros:
 
 - Intermittant issues with the QRCode reader (such as [this](https://trello.com/c/ocYoFeZ6/1846-20-fe-fix-unknownerror-setphotooptions-failed)) should decrease or be removed completely.
 - If issues arrise within QR Code Scanning, it would become possible to ask for support within an active community.
-- A MUCH smaller bundle size, as the current zxing library embed more parts of the zxing engine then required by more modern browsers.
+- A MUCH smaller bundle size, as the current zxing package embeds more parts of the zxing engine then required by more modern browsers.
 
 For comparision to the size figures given in the options section, the following are the sizes of the current libraries:
 
