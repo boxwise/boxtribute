@@ -1,4 +1,4 @@
-import { Result } from "@zxing/library";
+import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
 
 /**
  * Mocking the QrReader component in components/QrReader/QrReader by overriding the implemention of the component with a button.
@@ -25,18 +25,23 @@ export function mockImplementationOfQrReader(
     <button
       type="button"
       data-testid="ReturnScannedQr"
-      onClick={() =>
-        props.onResult(
-          multiScan,
-          new Result(
-            isBoxtributeQr ? `barcode=${hash}` : "nonBoxtributeQr",
-            new Uint8Array([0]),
-            0,
-            [],
-            11,
-          ),
-        )
-      }
+      onClick={() => {
+        const mockedResult: IDetectedBarcode[] = [
+          {
+            boundingBox: {
+              height: 100,
+              width: 100,
+              x: 0,
+              y: 0,
+            },
+            cornerPoints: [],
+            rawValue: isBoxtributeQr ? `barcode=${hash}` : "nonBoxtributeQr",
+            format: "qr_code",
+          },
+        ];
+
+        props.onResult(multiScan, mockedResult);
+      }}
     />
   ));
 }
