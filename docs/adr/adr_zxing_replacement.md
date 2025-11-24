@@ -26,7 +26,7 @@ Apart from this, more modern packages could bring secondary benefits, such as sm
 
 1. Reliability
 
-- This will make sure that the mission critical feature of QR Code scanning continues to work optimially and without issues even on newer devices and newer browser versions.
+- This will make sure that the mission critical feature of QR Code scanning continues to work optimally and without issues even on newer devices and newer browser versions.
 
 2. Maintainabilty + Bug Fixing:
 
