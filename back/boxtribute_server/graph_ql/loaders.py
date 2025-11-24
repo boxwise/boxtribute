@@ -11,6 +11,7 @@ from ..enums import BoxState as BoxStateEnum
 from ..enums import TaggableObjectType
 from ..exceptions import Forbidden
 from ..models.definitions.base import Base
+from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.box_state import BoxState
 from ..models.definitions.history import DbChangeHistory
@@ -666,3 +667,47 @@ class ShipmentDetailAutoMatchingLoader(DataLoader):
         # Return products ready to be matched in the target base, corresponding to given
         # shipment detail IDs
         return [matching_target_products.get(i) for i in detail_ids]
+
+
+class ResourcesForTagLoader(DataLoader):
+    async def batch_load_fn(self, tag_ids):
+        authorize(permission="tag_relation:read")
+
+        # Get all tag relations and resources for the requested tags
+        relations = (
+            TagsRelation.select(TagsRelation.tag, Beneficiary, Box)
+            .left_outer_join(
+                Box,
+                on=(
+                    (Box.id == TagsRelation.object_id)
+                    & (TagsRelation.object_type == TaggableObjectType.Box)
+                ),
+                src=TagsRelation,
+            )
+            .left_outer_join(
+                Beneficiary,
+                on=(
+                    (Beneficiary.id == TagsRelation.object_id)
+                    & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                    & authorized_bases_filter(Beneficiary)
+                ),
+                src=TagsRelation,
+            )
+            .where(
+                TagsRelation.tag << tag_ids,
+                TagsRelation.deleted_on.is_null(),
+            )
+        )
+
+        resources = defaultdict(list)
+        for rel in relations:
+            if hasattr(rel, "beneficiary"):
+                resources[rel.tag_id].append(rel.beneficiary)
+            else:
+                resources[rel.tag_id].append(rel.box)
+
+        # Build result list in same order as input tag_ids (inner lists sorted for
+        # reproducibility)
+        return [
+            sorted(resources.get(tag_id, []), key=lambda r: r.id) for tag_id in tag_ids
+        ]

@@ -1,8 +1,11 @@
+from datetime import datetime
+
 import pytest
 from boxtribute_server.enums import TagType
 from boxtribute_server.models.definitions.tag import Tag
 
 from .base import data as base_data
+from .user import default_user_data
 
 
 def data():
@@ -14,6 +17,8 @@ def data():
             "description": "important",
             "name": "group1",
             "type": TagType.Beneficiary,
+            "created_on": datetime(2025, 9, 14),
+            "created_by": default_user_data()["id"],
             "deleted_on": None,
         },
         {

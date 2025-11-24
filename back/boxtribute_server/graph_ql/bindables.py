@@ -198,6 +198,9 @@ union_types = (
     UnionType("BoxResult", resolve_type_by_class_name),
     UnionType("ShareableLinkCreationResult", resolve_type_by_class_name),
     UnionType("TagError", resolve_type_by_class_name),
+    UnionType("CreateTagResult", resolve_type_by_class_name),
+    UnionType("UpdateTagResult", resolve_type_by_class_name),
+    UnionType("DeleteTagResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiariesResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiaryResult", resolve_type_by_class_name),
 )
