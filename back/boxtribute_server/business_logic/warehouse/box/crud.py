@@ -636,7 +636,8 @@ def create_boxes(*, user_id, data):
             size_id = sizes.get(row["size_name"])
             if size_id is None:
                 size_id = sizes["mixed"]
-                comment += f"""; original size: '{row["size_name"]}'"""
+                size_comment = f"""original size: '{row["size_name"]}'"""
+                comment = f"{comment}; {size_comment}" if comment else size_comment
         complete_data.append(
             {
                 # Is this safe enough for a large number of boxes?
