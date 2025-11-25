@@ -61,7 +61,7 @@ export default function MultiSelectFilter({
       isMulti
       placeholder={placeholder ?? ""}
       onChangeProp={onFilterChange}
-      isRequired={false}
+      required={false}
       options={values}
       errors={errors}
       control={control}

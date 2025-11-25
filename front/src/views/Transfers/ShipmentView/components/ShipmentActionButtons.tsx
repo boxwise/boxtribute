@@ -29,8 +29,8 @@ function ShipmentActionButtons({
 }: IShipmentActionButtonsProps) {
   const sendButtonProps = {
     leftIcon: <SendingIcon />,
-    colorScheme: "green",
-    isDisabled: shipmentContents.length === 0,
+    colorPalette: "green",
+    disabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "solid",
     onClick: onSend,
@@ -38,8 +38,8 @@ function ShipmentActionButtons({
   };
 
   const cancelButtonProps = {
-    colorScheme: "red",
-    isDisabled: shipmentContents.length === 0,
+    colorPalette: "red",
+    disabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "solid",
     onClick: onCancel,
@@ -48,8 +48,8 @@ function ShipmentActionButtons({
 
   const receiveButtonProps = {
     leftIcon: <ReceivingIcon />,
-    colorScheme: "green",
-    isDisabled: shipmentContents.length === 0,
+    colorPalette: "green",
+    disabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "solid",
     onClick: onReceive,
@@ -59,8 +59,8 @@ function ShipmentActionButtons({
 
   const lostButtonProps = {
     leftIcon: <TbMapOff />,
-    colorScheme: "red",
-    isDisabled: shipmentContents.length === 0,
+    colorPalette: "red",
+    disabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "outline",
     onClick: openShipmentOverlay,
@@ -70,8 +70,8 @@ function ShipmentActionButtons({
 
   const remainingBoxesUndeliveredButtonProps = {
     leftIcon: <BiTrash />,
-    colorScheme: "red",
-    isDisabled: shipmentContents.length === 0,
+    colorPalette: "red",
+    disabled: shipmentContents.length === 0,
     isLoading: isLoadingFromMutation,
     variant: "outline",
     onClick: openShipmentOverlay,

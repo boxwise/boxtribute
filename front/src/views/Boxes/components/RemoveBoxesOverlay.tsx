@@ -6,7 +6,7 @@ import { FaTrashAlt } from "react-icons/fa";
 
 interface IRemoveBoxesOverlayProps {
   isLoading: boolean;
-  isOpen: boolean;
+  open: boolean;
   selectedBoxes: Row<BoxRow>[];
   onClose: () => void;
   onRemove: () => void;
@@ -14,7 +14,7 @@ interface IRemoveBoxesOverlayProps {
 
 function RemoveBoxesOverlay({
   isLoading,
-  isOpen,
+  open,
   selectedBoxes,
   onClose,
   onRemove,
@@ -33,12 +33,12 @@ function RemoveBoxesOverlay({
   );
   const leftButtonText = "Nevermind";
   const leftButtonProps = {
-    colorScheme: "gray",
+    colorPalette: "gray",
   };
   const onLeftButtonClick = () => onClose();
   const rightButtonText = "Yes, Delete";
   const rightButtonProps = {
-    colorScheme: "red",
+    colorPalette: "red",
     leftIcon: <FaTrashAlt />,
   };
   const onRightButtonClick = () => onRemove();
@@ -52,7 +52,7 @@ function RemoveBoxesOverlay({
       rightButtonText={rightButtonText}
       rightButtonProps={rightButtonProps}
       isLoading={isLoading}
-      isOpen={isOpen}
+      open={open}
       onClose={onClose}
       onLeftButtonClick={onLeftButtonClick}
       onRightButtonClick={onRightButtonClick}

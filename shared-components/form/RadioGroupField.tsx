@@ -17,7 +17,7 @@ export interface IRadioGroupFieldProps {
   errors: object;
   control: any;
   direction: StackDirection;
-  isRequired?: boolean;
+  required?: boolean;
 }
 
 function RadioGroupField({
@@ -27,13 +27,13 @@ function RadioGroupField({
   errors,
   control,
   direction = "column",
-  isRequired = true,
+  required = true,
 }: IRadioGroupFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
       <FormLabel htmlFor={fieldId}>
         {fieldLabel}{" "}
-        {isRequired && (
+        {required && (
           <Text as="span" color="red.500">
             *
           </Text>

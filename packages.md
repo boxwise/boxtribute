@@ -5,13 +5,11 @@
 ### dependencies
 
 - @apollo/client: graphQL
-- @chakra-ui/icons: chakra UI
 - @chakra-ui/react: chakra UI
-- @emotion/react: chakra UI
-- @emotion/styled: chakra UI,
+- react-icons: chakra UI
+- next-themes: ckakra UI
 - @hookform/resolvers": react-hook-form
 - date-fns: utility functions around dates
-- framer-motion: chakra UI
 - graphQL
 - lodash: utility functions for arrays
 - react
@@ -66,9 +64,6 @@ tsc-files (only needed for pre-commit), typescript,
 ## Chakra UI
 
 - "@chakra-ui/react"
-- "@emotion/react"
-- "@emotion/styled"
-- "framer-motion"
 
 ## React-Router
 
@@ -81,7 +76,7 @@ tsc-files (only needed for pre-commit), typescript,
 
 ## Icons
 
-- "@chakra-ui/icons"
+- "react-icons"
 
   "@hookform/resolvers": "^2.9.11",
   "date-fns": "^2.29.3",

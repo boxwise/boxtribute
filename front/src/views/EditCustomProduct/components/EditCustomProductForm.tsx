@@ -78,7 +78,7 @@ function EditCustomProductForm({
           </Text>
         </HStack>
         <VStack spacing={4} p={2} mt={2}>
-          <FormControl isInvalid={!!errors.name}>
+          <FormControl invalid={!!errors.name}>
             <FormLabel htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">

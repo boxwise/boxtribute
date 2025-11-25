@@ -14,7 +14,7 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
+import { IoSearch } from "react-icons/io5";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
@@ -94,17 +94,17 @@ function QrReader({
       <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
-          <Tab isDisabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
+          <Tab disabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
-            <FormControl isInvalid={!!boxLabelInputError}>
+            <FormControl invalid={!!boxLabelInputError}>
               <FormLabel>Find Box</FormLabel>
               <InputGroup borderRadius={0}>
                 <Input
                   type="string"
                   onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-                  isDisabled={findBoxByLabelIsLoading}
+                  disabled={findBoxByLabelIsLoading}
                   value={boxLabelInputValue}
                   placeholder="12345678"
                   borderRadius={0}
@@ -112,8 +112,8 @@ function QrReader({
                 <InputRightElement>
                   <IconButton
                     aria-label="Find box By label"
-                    icon={<SearchIcon />}
-                    isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+                    icon={<IoSearch />}
+                    disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
                     isLoading={findBoxByLabelIsLoading}
                     onClick={() => {
                       if (boxLabelInputValue) {

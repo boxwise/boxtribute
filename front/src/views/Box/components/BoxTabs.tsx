@@ -61,7 +61,7 @@ function BoxTabs({
                     </Text>
                   )}
                   {isLoading && (
-                    <SkeletonText width="140px" noOfLines={1}>
+                    <SkeletonText width="140px" lineClamp={1}>
                       <Text as="h4" fontWeight="bold" fontSize={16} />
                     </SkeletonText>
                   )}
@@ -79,7 +79,7 @@ function BoxTabs({
                 </Text>
               )}
               {isLoading && (
-                <SkeletonText width="140px" noOfLines={1}>
+                <SkeletonText width="140px" lineClamp={1}>
                   <Text alignItems="center" alignContent="center" />
                 </SkeletonText>
               )}

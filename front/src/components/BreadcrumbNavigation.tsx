@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { BreadcrumbNavigationSkeleton } from "./Skeletons";
@@ -27,7 +27,7 @@ export function MobileBreadcrumbButton({ label, linkPath }: IBreadcrumbItemData)
       border="2px"
       borderRadius={0}
       mb={4}
-      leftIcon={<ChevronLeftIcon />}
+      leftIcon={<IoChevronBack />}
     >
       {label}
     </Button>
@@ -44,7 +44,7 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
   if (isGlobalStateLoading) return <BreadcrumbNavigationSkeleton />;
 
   return (
-    <Breadcrumb separator={<ChevronRightIcon />} fontSize="md" mb={4}>
+    <Breadcrumb separator={<IoChevronForward />} fontSize="md" mb={4}>
       <BreadcrumbItem>
         <BreadcrumbLink as={Link} to="#">
           {orgName}

@@ -3,7 +3,6 @@ import {
   List,
   ListItem,
   Spacer,
-  StackDivider,
   VStack,
   Text,
   Box,
@@ -13,6 +12,7 @@ import {
   IconButton,
   Heading,
   Stack,
+  Separator,
   Tooltip,
 } from "@chakra-ui/react";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
@@ -59,14 +59,7 @@ function ShipmentCard({
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
-      <VStack
-        padding={0}
-        rounded="md"
-        bg="white"
-        divider={<StackDivider borderColor="blackAlpha.800" />}
-        spacing={1}
-        align="stretch"
-      >
+      <VStack padding={0} rounded="md" bg="white" spacing={1} align="stretch">
         <Flex minWidth="max-content" justifyContent="flex-start" p={4}>
           <VStack alignItems="flex-start">
             <Heading>
@@ -102,7 +95,7 @@ function ShipmentCard({
             />
           )}
         </Flex>
-
+        <Separator borderColor="blackAlpha.800" />
         <>
           <Flex
             minWidth="max-content"
@@ -166,7 +159,7 @@ function ShipmentCard({
             </Flex>
           )}
         </>
-        <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
+        <Separator borderColor="blackAlpha.800" />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" p={0}>
             <Box bg="black" px={1} mt={-10}>
@@ -204,7 +197,7 @@ function ShipmentCard({
                     isLoading={isLoadingMutation}
                     onClick={() =>
                       qrReaderOverlayVar({
-                        isOpen: true,
+                        open: true,
                         isMultiBox: true,
                         selectedShipmentId: shipment?.id,
                       })
@@ -217,7 +210,7 @@ function ShipmentCard({
                     isRound
                     height={8}
                     icon={<BiMinusCircle size={30} />}
-                    isDisabled={shipment.details?.length === 0}
+                    disabled={shipment.details?.length === 0}
                     onClick={onRemove}
                     isLoading={isLoadingMutation}
                     aria-label="remove box"

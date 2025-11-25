@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useTransition } from "react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { IoChevronForward, IoChevronBack } from "react-icons/io5";
 import {
   Skeleton,
   Table,
@@ -283,8 +283,8 @@ function BoxesTable({
           <IconButton
             aria-label="Previous Page"
             onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
+            disabled={!canPreviousPage}
+            icon={<IoChevronBack size={24} />}
           />
         </Flex>
 
@@ -309,8 +309,8 @@ function BoxesTable({
           <IconButton
             aria-label="Next Page"
             onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
+            disabled={!canNextPage}
+            icon={<IoChevronForward size={24} />}
           />
         </Flex>
       </Flex>

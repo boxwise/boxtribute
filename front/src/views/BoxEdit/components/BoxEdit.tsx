@@ -274,7 +274,7 @@ function BoxEdit({
               options={tagsForDropdownGroups}
               errors={errors}
               isMulti
-              isRequired={false}
+              required={false}
               control={control}
               creatable
               helperText="New Tags can be created by typing the name and pressing Enter"
@@ -293,7 +293,7 @@ function BoxEdit({
             <Button
               mt={4}
               isLoading={isSubmitting}
-              colorScheme="blue"
+              colorPalette="blue"
               type="button"
               borderRadius="0"
               w="full"

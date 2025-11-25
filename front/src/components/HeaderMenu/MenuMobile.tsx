@@ -15,7 +15,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { IoMenu } from "react-icons/io5";
 import { useHandleLogout } from "hooks/hooks";
 import { NavLink } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -50,7 +50,7 @@ function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; p
 }
 
 function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const selectedBase = useAtomValue(selectedBaseAtom);
@@ -62,7 +62,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   return (
     // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
     <Flex as="nav" py={4} zIndex="1300">
-      <BaseSwitcher isOpen={isOpen} onClose={onClose} />
+      <BaseSwitcher open={open} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
         <Menu isLazy>
@@ -72,7 +72,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 as={IconButton}
                 aria-label="Options"
                 data-testid="menu-button"
-                icon={<HamburgerIcon />}
+                icon={<IoMenu />}
                 bg="transparent"
                 _hover={{ bg: "transparent" }}
                 _expanded={{ bg: "transparent" }}

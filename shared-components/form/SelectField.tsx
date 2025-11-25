@@ -19,7 +19,7 @@ export interface ISelectFieldProps {
   control: any;
   placeholder: string;
   isMulti?: boolean;
-  isRequired?: boolean;
+  required?: boolean;
   showLabel?: boolean;
   showError?: boolean;
   defaultValue?: string;
@@ -40,7 +40,7 @@ function SelectField({
   errors,
   control,
   isMulti = false,
-  isRequired = true,
+  required = true,
   defaultValue = undefined,
   onChangeProp = undefined,
   inlineLabel = false,
@@ -48,7 +48,7 @@ function SelectField({
   const labelElement = showLabel && (
     <FormLabel htmlFor={fieldId} mb={inlineLabel ? 0 : undefined} mr={inlineLabel ? 3 : undefined}>
       {fieldLabel}
-      {isRequired && <chakra.span color="red.500"> *</chakra.span>}
+      {required && <chakra.span color="red.500"> *</chakra.span>}
     </FormLabel>
   );
 
@@ -106,7 +106,7 @@ function SelectField({
   );
 
   return (
-    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
       {inlineLabel ? (
         <Flex alignItems="center">
           {labelElement}

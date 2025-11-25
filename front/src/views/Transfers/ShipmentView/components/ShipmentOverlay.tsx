@@ -12,7 +12,7 @@ export interface IShipmentOverlayData {
 
 interface IShipmentsOverlayProps {
   isLoading: boolean;
-  isOpen: boolean;
+  open: boolean;
   shipmentOverlayData: IShipmentOverlayData | undefined;
   onClose: () => void;
   onLost: () => void;
@@ -22,7 +22,7 @@ interface IShipmentsOverlayProps {
 
 function ShipmentOverlay({
   isLoading,
-  isOpen,
+  open,
   shipmentOverlayData: data,
   onClose,
   onLost,
@@ -56,7 +56,7 @@ function ShipmentOverlay({
     );
     rightButtonText = "Yes, Cancel";
     rightButtonProps = {
-      colorScheme: "red",
+      colorPalette: "red",
     };
     onRightButtonClick = () => onCancel(data.id);
   } else if (data?.state === "Receiving") {
@@ -92,7 +92,7 @@ function ShipmentOverlay({
     );
     rightButtonText = "Confirm & Complete";
     rightButtonProps = {
-      colorScheme: "red",
+      colorPalette: "red",
     };
     onRightButtonClick = () => onRemainingBoxesUndelivered();
   } else if (data?.state === "Sent") {
@@ -135,7 +135,7 @@ function ShipmentOverlay({
     );
     rightButtonText = "Confirm";
     rightButtonProps = {
-      colorScheme: "red",
+      colorPalette: "red",
     };
     onRightButtonClick = () => onLost();
   }
@@ -146,7 +146,7 @@ function ShipmentOverlay({
       title={title}
       onClose={onClose}
       isLoading={isLoading}
-      isOpen={isOpen}
+      open={open}
       leftButtonText={leftButtonText}
       leftButtonProps={leftButtonProps}
       rightButtonText={rightButtonText}

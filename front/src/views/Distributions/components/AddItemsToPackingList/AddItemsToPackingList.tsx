@@ -157,7 +157,7 @@ const AddItemsToPackingList = ({
           Only show products in stock
         </FormLabel>
       </Box>
-      <Tabs variant="soft-rounded" colorScheme="green" px="30">
+      <Tabs variant="soft-rounded" colorPalette="green" px="30">
         <TabList flexWrap="wrap">
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <Tab key={productsGroupForGender.gender || "No Gender"}>
@@ -195,7 +195,7 @@ const AddItemsToPackingList = ({
           ))}
         </TabPanels>
       </Tabs>
-      <Button type="submit" onClick={onApplyClick} colorScheme="blue">
+      <Button type="submit" onClick={onApplyClick} colorPalette="blue">
         Apply
       </Button>
     </Flex>

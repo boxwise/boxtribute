@@ -2,13 +2,13 @@ import { useQuery } from "@apollo/client";
 import {
   Box,
   Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  DialogRoot,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogBackdrop,
   Tab,
   TabList,
   TabPanel,
@@ -100,34 +100,34 @@ const DistrosDashboardView = () => {
           </TabPanel>
           <TabPanel>
             {selectedEvent && (
-              <Modal
-                isOpen={calendarEventDetailsModalState.isOpen}
-                onClose={calendarEventDetailsModalState.onClose}
+              <DialogRoot
+                open={calendarEventDetailsModalState.open}
+                onOpenChange={(e) => !e.open && calendarEventDetailsModalState.onClose()}
               >
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>
+                <DialogBackdrop />
+                <DialogContent>
+                  <DialogHeader>
                     <>
                       {selectedEvent.distributionSpot.name} -{" "}
                       {new Date(selectedEvent.plannedStartDateTime).toLocaleDateString("en-US")}
                     </>
-                  </ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
+                  </DialogHeader>
+                  <DialogCloseTrigger />
+                  <DialogBody>
                     <Box>Spot: {selectedEvent.distributionSpot.name}</Box>
                     <Box>State: {selectedEvent.state}</Box>
-                  </ModalBody>
+                  </DialogBody>
 
-                  <ModalFooter>
+                  <DialogFooter>
                     <Button
                       variant="ghost"
                       onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}
                     >
                       Go to Event Details
                     </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
+                  </DialogFooter>
+                </DialogContent>
+              </DialogRoot>
             )}
             <DistroEventsCalendarContainer
               distributionEvents={parsedDistributionEventsData}

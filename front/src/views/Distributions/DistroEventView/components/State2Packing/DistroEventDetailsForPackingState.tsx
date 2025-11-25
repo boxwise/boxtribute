@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { AddIcon } from "@chakra-ui/icons";
+import { IoAdd } from "react-icons/io5";
 import {
   Accordion,
   AccordionButton,
@@ -11,8 +11,8 @@ import {
   Flex,
   Heading,
   IconButton,
-  Modal,
-  ModalOverlay,
+  DialogRoot,
+  DialogBackdrop,
   Text,
   useDisclosure,
   useToast,
@@ -43,7 +43,7 @@ const PackingListEntry = ({
   distributionEventId: string;
 }) => {
   const {
-    isOpen: isPackedListOverlayOpen,
+    open: isPackedListOverlayOpen,
     onClose: onPackedListOverlayClose,
     onOpen: onListOpen,
   } = useDisclosure();
@@ -206,7 +206,7 @@ const PackingListEntry = ({
           }}
           backgroundColor="transparent"
           aria-label="Add items"
-          icon={<AddIcon />}
+          icon={<IoAdd />}
           onClick={() => {
             packingAddBoxOrItemsForPackingListEntryOverlayState.onOpen();
           }}
@@ -215,22 +215,25 @@ const PackingListEntry = ({
       </Box>
 
       <PackingAddBoxOrItemsForPackingListEntryOverlay
-        isOpen={packingAddBoxOrItemsForPackingListEntryOverlayState.isOpen}
+        open={packingAddBoxOrItemsForPackingListEntryOverlayState.open}
         onClose={packingAddBoxOrItemsForPackingListEntryOverlayState.onClose}
         packingListEntry={packingListEntry}
         onAddUnboxedItemsToDistributionEvent={onAddUnboxedItemsToDistributionEvent}
         onAddBoxToDistributionEvent={onAddBoxToDistributionEvent}
       />
 
-      <Modal isOpen={isPackedListOverlayOpen} onClose={onPackedListOverlayClose}>
-        <ModalOverlay />
+      <DialogRoot
+        open={isPackedListOverlayOpen}
+        onOpenChange={(e) => !e.open && onPackedListOverlayClose()}
+      >
+        <DialogBackdrop />
         <PackedContentListOverlayContainer
           packingListEntry={packingListEntry}
           onDeleteBoxFromDistribution={function (): void {
             throw new Error("Function not implemented.");
           }}
         />
-      </Modal>
+      </DialogRoot>
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
         boxesData={boxesData}
@@ -345,7 +348,7 @@ DistroEventDetailsForPackingStateProps) => {
             [],
           )}
         </Accordion>
-        {/* <Button my={2} onClick={() => {}} colorScheme="blue">
+        {/* <Button my={2} onClick={() => {}} colorPalette="blue">
           You're all set - move to Distribution Stage.
         </Button> */}
       </VStack>

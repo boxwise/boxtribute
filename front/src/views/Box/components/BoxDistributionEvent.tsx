@@ -70,7 +70,7 @@ function BoxDistributionEvent({
                           onClick={() =>
                             onUnassignBoxFromDistributionEventClick(distributionEvent.id)
                           }
-                          colorScheme="red"
+                          colorPalette="red"
                           borderRadius="0"
                         >
                           Unassign
@@ -79,7 +79,7 @@ function BoxDistributionEvent({
                         <Button
                           mt={2}
                           onClick={() => onAssignBoxToDistributionEventClick(distributionEvent.id)}
-                          colorScheme="blue"
+                          colorPalette="blue"
                           borderRadius="0"
                         >
                           Assign

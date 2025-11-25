@@ -148,7 +148,7 @@ function BTBox() {
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
-  const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
+  const { open: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
     assignBoxesToShipment,
     unassignBoxesFromShipment,
@@ -221,8 +221,8 @@ function BTBox() {
 
   const [createQrCodeMutation, createQrCodeMutationStatus] = useMutation(CREATE_QR_CODE_MUTATION);
 
-  const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
-  const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
+  const { open: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
+  const { open: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
   const boxData = allData.data?.box;
 
@@ -237,7 +237,7 @@ function BTBox() {
     ) {
       boxReconciliationOverlayVar({
         labelIdentifier: boxData.labelIdentifier,
-        isOpen: true,
+        open: true,
         shipmentId,
       });
     } else if (shipmentId && boxData?.state === "InTransit") {
@@ -685,7 +685,7 @@ function BTBox() {
               </AlertDescription>
             </Box>
             <Button
-              colorScheme="orange"
+              colorPalette="orange"
               size="sm"
               onClick={onCreateQrCodeClick}
               isLoading={createQrCodeMutationStatus.loading}
@@ -714,13 +714,13 @@ function BTBox() {
       />
       <AddItemsToBoxOverlay
         isLoading={loading}
-        isOpen={isPlusOpen}
+        open={isPlusOpen}
         onClose={onPlusClose}
         onSubmitAddItemstoBox={onSubmitAddItemstoBox}
       />
       <TakeItemsFromBoxOverlay
         isLoading={loading}
-        isOpen={isMinusOpen}
+        open={isMinusOpen}
         onClose={onMinusClose}
         onSubmitTakeItemsFromBox={onSubmitTakeItemsFromBox}
       />
@@ -730,7 +730,7 @@ function BTBox() {
         redirectToShipmentView
       />
       <HistoryOverlay
-        isOpen={isHistoryOpen}
+        open={isHistoryOpen}
         onClose={onHistoryClose}
         data={sortedGroupedHistoryEntries}
       />

@@ -1,13 +1,13 @@
 import { useMutation } from "@apollo/client";
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
   Flex,
   Heading,
   Link,
@@ -169,39 +169,40 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
         </VStack>
       </VStack>
 
-      <AlertDialog
-        isOpen={nextStageTransitionAlertState.isOpen}
-        leastDestructiveRef={cancelNextStageTransitionRef}
-        onClose={nextStageTransitionAlertState.onClose}
+      <DialogRoot
+        open={nextStageTransitionAlertState.open}
+        onOpenChange={(e) => {
+          if (!e.open) {
+            nextStageTransitionAlertState.onClose();
+          }
+        }}
+        initialFocusEl={() => cancelNextStageTransitionRef.current}
       >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Mark as Returned From Distribution
-            </AlertDialogHeader>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader fontSize="lg" fontWeight="bold">
+            Mark as Returned From Distribution
+          </DialogHeader>
 
-            <AlertDialogBody>
-              Are you sure? You can&apos;t undo this action afterwards.
-            </AlertDialogBody>
+          <DialogBody>Are you sure? You can&apos;t undo this action afterwards.</DialogBody>
 
-            <AlertDialogFooter>
-              <Button
-                ref={cancelNextStageTransitionRef}
-                onClick={nextStageTransitionAlertState.onClose}
-              >
-                Cancel
-              </Button>
-              <Button
-                colorScheme="red"
-                onClick={onConfirmToMarkEventAsReturnedFromDistribution}
-                ml={3}
-              >
-                Mark Event as Returned
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          <DialogFooter>
+            <Button
+              ref={cancelNextStageTransitionRef}
+              onClick={nextStageTransitionAlertState.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              colorPalette="red"
+              onClick={onConfirmToMarkEventAsReturnedFromDistribution}
+              ml={3}
+            >
+              Mark Event as Returned
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 };

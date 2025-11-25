@@ -41,11 +41,11 @@ function AssignBoxToShipment({
   }, [selectedShipmentOption, boxData]);
 
   const allShipmentsDropDown = (
-    <FormControl isRequired mt={2}>
+    <FormControl required mt={2}>
       <Select
         placeholder="Please select a shipment ..."
         isSearchable
-        isDisabled={!!boxData?.deletedOn}
+        disabled={!!boxData?.deletedOn}
         tagVariant="outline"
         tagColorScheme="black"
         focusBorderColor="blue.500"
@@ -68,9 +68,9 @@ function AssignBoxToShipment({
   const assignButton = (
     <Button
       isLoading={isAssignBoxesToShipmentLoading}
-      isDisabled={isSubmitButtonDisabled}
+      disabled={isSubmitButtonDisabled}
       type="button"
-      colorScheme={!currentShipmentId ? "blue" : "green"}
+      colorPalette={!currentShipmentId ? "blue" : "green"}
       mt={4}
       size="md"
       px={20}
@@ -107,10 +107,10 @@ function AssignBoxToShipment({
             <Button
               isLoading={isAssignBoxesToShipmentLoading}
               type="button"
-              colorScheme="blue"
+              colorPalette="blue"
               size="md"
               mt={45}
-              isDisabled={
+              disabled={
                 boxData.state === "InTransit" ||
                 boxData.state === "Receiving" ||
                 !!boxData?.deletedOn

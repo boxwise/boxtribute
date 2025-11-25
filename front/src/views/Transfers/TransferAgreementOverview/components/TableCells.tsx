@@ -25,7 +25,7 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   if (cellProps.value === CanAcceptTransferAgreementState.CanAccept) {
     return (
       <Tooltip label="Click here to accept or reject the request!">
-        <Button colorScheme="blue" onClick={() => onClick(cellProps.row)}>
+        <Button colorPalette="blue" onClick={() => onClick(cellProps.row)}>
           Request Open
         </Button>
       </Tooltip>
@@ -34,7 +34,7 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   if (cellProps.value === "Accepted") {
     return (
       <Tooltip label="Click here if you want to terminate the agreement!">
-        <Button colorScheme="green" onClick={() => onClick(cellProps.row)}>
+        <Button colorPalette="green" onClick={() => onClick(cellProps.row)}>
           Accepted
         </Button>
       </Tooltip>

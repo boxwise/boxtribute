@@ -228,7 +228,7 @@ export function MatchProductsForm({
             w="full"
             bgColor="green.500"
             color="white"
-            isDisabled={isSubmitting || loading}
+            disabled={isSubmitting || loading}
           >
             Confirm Delivered Items
           </Button>

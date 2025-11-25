@@ -1,39 +1,33 @@
 import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  DialogRoot,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogBackdrop,
 } from "@chakra-ui/react";
 import Timeline, { IGroupedRecordEntry } from "../Timeline/Timeline";
 
 interface IHistoryOverlay {
   data: IGroupedRecordEntry[];
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
 }
 
-function HistoryOverlay({ data, isOpen, onClose }: IHistoryOverlay) {
+function HistoryOverlay({ data, open, onClose }: IHistoryOverlay) {
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      blockScrollOnMount={false}
-      size="3xl"
-      scrollBehavior="inside"
-    >
-      <ModalOverlay />
-      <ModalContent borderRadius="0">
-        <ModalHeader>Box History</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
+    <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()} size="xl">
+      <DialogBackdrop />
+      <DialogContent borderRadius="0" maxW="3xl" overflowY="auto">
+        <DialogHeader>Box History</DialogHeader>
+        <DialogCloseTrigger />
+        <DialogBody>
           <Timeline records={data} />
-        </ModalBody>
-        <ModalFooter />
-      </ModalContent>
-    </Modal>
+        </DialogBody>
+        <DialogFooter />
+      </DialogContent>
+    </DialogRoot>
   );
 }
 

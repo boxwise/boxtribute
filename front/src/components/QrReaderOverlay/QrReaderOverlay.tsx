@@ -1,37 +1,42 @@
 import {
   Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  DialogRoot,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogBackdrop,
 } from "@chakra-ui/react";
 import QrReaderContainer from "components/QrReader/QrReaderContainer";
 
 export interface IQrReaderOverlayProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
 }
 
-function QrReaderOverlay({ isOpen, onClose }: IQrReaderOverlayProps) {
+function QrReaderOverlay({ open, onClose }: IQrReaderOverlayProps) {
   return (
-    <Modal isOpen={isOpen} closeOnOverlayClick={false} closeOnEsc onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader display="flex" justifyContent="space-between" alignItems="center">
+    <DialogRoot
+      open={open}
+      closeOnInteractOutside={false}
+      closeOnEscape
+      onOpenChange={(e) => !e.open && onClose()}
+    >
+      <DialogBackdrop />
+      <DialogContent>
+        <DialogHeader display="flex" justifyContent="space-between" alignItems="center">
           Boxtribute QR Scanner
-          <ModalCloseButton position="static" />
-        </ModalHeader>
-        <ModalBody>
+          <DialogCloseTrigger position="static" />
+        </DialogHeader>
+        <DialogBody>
           <QrReaderContainer onSuccess={onClose} />
-        </ModalBody>
-        <ModalFooter>
+        </DialogBody>
+        <DialogFooter>
           <Button onClick={onClose}>Close QR Scanner</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }
 

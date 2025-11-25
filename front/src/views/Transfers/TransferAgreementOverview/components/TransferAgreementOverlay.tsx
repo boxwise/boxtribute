@@ -1,4 +1,4 @@
-import { CheckIcon, RepeatIcon, SmallCloseIcon } from "@chakra-ui/icons";
+import { IoCheckmark, IoRefresh, IoClose } from "react-icons/io5";
 import { VStack, Text, chakra } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { AreYouSureDialog } from "components/AreYouSure";
@@ -6,7 +6,7 @@ import { CanAcceptTransferAgreementState } from "./TableCells";
 
 interface ITransferAgreementsOverlayPropsProps {
   isLoading: boolean;
-  isOpen: boolean;
+  open: boolean;
   transferAgreementOverlayData: any;
   onClose: () => void;
   onAccept: (id: string) => void;
@@ -16,7 +16,7 @@ interface ITransferAgreementsOverlayPropsProps {
 
 function TransferAgreementsOverlay({
   isLoading,
-  isOpen,
+  open,
   transferAgreementOverlayData: data,
   onClose,
   onAccept,
@@ -51,14 +51,14 @@ function TransferAgreementsOverlay({
     );
     leftButtonText = "Reject";
     leftButtonProps = {
-      colorScheme: "red",
-      leftIcon: <SmallCloseIcon />,
+      colorPalette: "red",
+      leftIcon: <IoClose />,
     };
     onLeftButtonClick = () => onReject(data.id);
     rightButtonText = "Accept";
     rightButtonProps = {
-      colorScheme: "green",
-      leftIcon: <CheckIcon />,
+      colorPalette: "green",
+      leftIcon: <IoCheckmark />,
     };
     onRightButtonClick = () => onAccept(data.id);
   } else if (data.state === "Accepted") {
@@ -78,8 +78,8 @@ function TransferAgreementsOverlay({
     );
     rightButtonText = "Terminate";
     rightButtonProps = {
-      colorScheme: "red",
-      leftIcon: <SmallCloseIcon />,
+      colorPalette: "red",
+      leftIcon: <IoClose />,
     };
     onRightButtonClick = () => onCancel(data.id);
   } else if (data.state === "Rejected") {
@@ -96,8 +96,8 @@ function TransferAgreementsOverlay({
     );
     rightButtonText = "Retry";
     rightButtonProps = {
-      colorScheme: "green",
-      leftIcon: <RepeatIcon />,
+      colorPalette: "green",
+      leftIcon: <IoRefresh />,
     };
     onRightButtonClick = () => navigate("create");
   } else if (data.state === "Expired" || data.state === "Canceled") {
@@ -117,8 +117,8 @@ function TransferAgreementsOverlay({
     );
     rightButtonText = "Renew";
     rightButtonProps = {
-      colorScheme: "green",
-      leftIcon: <RepeatIcon />,
+      colorPalette: "green",
+      leftIcon: <IoRefresh />,
     };
     onRightButtonClick = () => navigate("create");
   }
@@ -132,7 +132,7 @@ function TransferAgreementsOverlay({
       rightButtonText={rightButtonText}
       rightButtonProps={rightButtonProps}
       isLoading={isLoading}
-      isOpen={isOpen}
+      open={open}
       onClose={onClose}
       onLeftButtonClick={onLeftButtonClick}
       onRightButtonClick={onRightButtonClick}

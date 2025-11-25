@@ -66,7 +66,7 @@ export default function ValueFilter({
       fieldLabel={fieldLabel}
       placeholder={defaultFilterValue?.label ?? placeholder ?? ""}
       onChangeProp={onFilterChange}
-      isRequired={false}
+      required={false}
       options={values}
       errors={errors}
       control={control}

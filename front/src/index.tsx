@@ -6,15 +6,15 @@ import {
   useLocation,
   useNavigationType,
 } from "react-router-dom";
-import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
 import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
 import * as Sentry from "@sentry/react";
 import App from "./App";
-import { theme } from "./utils/theme";
 import { captureConsoleIntegration } from "@sentry/react";
 import React from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+import { customSystem } from "@boxtribute/shared-components/utils/theme";
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
@@ -47,8 +47,7 @@ if (sentryDsn) {
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  <ChakraProvider theme={theme}>
-    <CSSReset />
+  <ChakraProvider value={customSystem}>
     <BrowserRouter>
       <Auth0ProviderWithHistory>
         <SentryProfiledProtectedApp />

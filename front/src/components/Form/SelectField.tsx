@@ -21,11 +21,11 @@ export interface ISelectFieldProps {
   control: any;
   placeholder: string;
   isMulti?: boolean;
-  isRequired?: boolean;
+  required?: boolean;
   showLabel?: boolean;
   showError?: boolean;
   helperText?: string;
-  isDisabled?: boolean;
+  disabled?: boolean;
   isReadOnly?: boolean;
   creatable?: boolean;
   onChangeProp?: ((event) => void) | undefined;
@@ -48,20 +48,20 @@ function SelectField({
   errors,
   control,
   isMulti = false,
-  isDisabled = false,
+  disabled = false,
   isReadOnly = false,
-  isRequired = true,
+  required = true,
   onChangeProp = undefined,
   formatOptionLabel,
   creatable,
   helperText,
 }: ISelectFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
       {showLabel && (
         <FormLabel htmlFor={fieldId}>
           {fieldLabel}
-          {isRequired && <chakra.span color="red.500"> *</chakra.span>}
+          {required && <chakra.span color="red.500"> *</chakra.span>}
         </FormLabel>
       )}
       <Controller
@@ -72,7 +72,7 @@ function SelectField({
             name,
             ref,
             isReadOnly,
-            isDisabled,
+            disabled,
             onChange: onChangeProp
               ? (event) => {
                   onChange(event);

@@ -1,14 +1,14 @@
 import { useMutation, useQuery } from "@apollo/client";
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
   Center,
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
   Editable,
   EditableInput,
   EditablePreview,
@@ -303,7 +303,7 @@ const SummaryOfItemsInDistributionEvents = ({
           },
         )}
       </List>
-      <Button my={2} colorScheme="blue" onClick={onDoneWithCountingClick}>
+      <Button my={2} colorPalette="blue" onClick={onDoneWithCountingClick}>
         Done with counting the returned items. *
       </Button>
     </VStack>
@@ -375,39 +375,42 @@ const DistrosReturnTrackingGroupView = () => {
         * This will track all left over number of items as &quot;Distributed&quot;.
       </Text>
 
-      <AlertDialog
-        isOpen={confirmFinishingReturnTrackingAlertState.isOpen}
-        leastDestructiveRef={cancelNextStageTransitionRef}
-        onClose={confirmFinishingReturnTrackingAlertState.onClose}
+      <DialogRoot
+        open={confirmFinishingReturnTrackingAlertState.open}
+        onOpenChange={(e) => {
+          if (!e.open) {
+            confirmFinishingReturnTrackingAlertState.onClose();
+          }
+        }}
+        initialFocusEl={() => cancelNextStageTransitionRef.current}
       >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Mark Return Tracking as Completed
-            </AlertDialogHeader>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader fontSize="lg" fontWeight="bold">
+            Mark Return Tracking as Completed
+          </DialogHeader>
 
-            <AlertDialogBody>
-              Are you sure you tracked all returned items properly? It will end up in setting all
-              Boxes assigned to the Distribution Events to zero. The system will then also calculate
-              the number of distributed items for each Product/Size combination involved in the
-              Distributions. This data will be used for Monitoring and Evaluation purposes. You
-              can&apos;t undo this action afterwards.
-            </AlertDialogBody>
+          <DialogBody>
+            Are you sure you tracked all returned items properly? It will end up in setting all
+            Boxes assigned to the Distribution Events to zero. The system will then also calculate
+            the number of distributed items for each Product/Size combination involved in the
+            Distributions. This data will be used for Monitoring and Evaluation purposes. You
+            can&apos;t undo this action afterwards.
+          </DialogBody>
 
-            <AlertDialogFooter>
-              <Button
-                ref={cancelNextStageTransitionRef}
-                onClick={confirmFinishingReturnTrackingAlertState.onClose}
-              >
-                Cancel
-              </Button>
-              <Button colorScheme="red" onClick={onConfirmToMarkEventAsCompleted} ml={3}>
-                Mark Event as Completed
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          <DialogFooter>
+            <Button
+              ref={cancelNextStageTransitionRef}
+              onClick={confirmFinishingReturnTrackingAlertState.onClose}
+            >
+              Cancel
+            </Button>
+            <Button colorPalette="red" onClick={onConfirmToMarkEventAsCompleted} ml={3}>
+              Mark Event as Completed
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </VStack>
   );
 };

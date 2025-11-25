@@ -44,7 +44,7 @@ function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
                 py={1}
                 px={2}
                 border="1px"
-                colorScheme="gray"
+                colorPalette="gray"
                 borderColor="gray.200"
                 key={`ColumnSelector-${column.id}`}
                 defaultChecked={column.getToggleHiddenProps().checked}

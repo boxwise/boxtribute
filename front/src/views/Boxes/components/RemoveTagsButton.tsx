@@ -104,7 +104,7 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
           <Box marginRight="10px" alignSelf="end" marginBottom="20px">
             <Button
               borderRadius={4}
-              colorScheme="blue"
+              colorPalette="blue"
               onClick={handleConfirmRemoveTags}
               data-testid="apply-remove-tags-button"
             >

@@ -88,7 +88,7 @@ export default function TimeRangeSelect() {
             errors={errors}
             control={control}
             register={register}
-            isRequired={false}
+            required={false}
             maxDate={date2String(new Date())}
             minDate="2023-01-01"
           />
@@ -100,7 +100,7 @@ export default function TimeRangeSelect() {
             errors={errors}
             control={control}
             register={register}
-            isRequired={false}
+            required={false}
             maxDate={date2String(new Date())}
             minDate="2023-01-01"
           />

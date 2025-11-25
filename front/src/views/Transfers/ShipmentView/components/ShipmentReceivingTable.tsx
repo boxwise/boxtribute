@@ -20,7 +20,7 @@ import {
 import { BsFillChatDotsFill, BsFillCheckCircleFill } from "react-icons/bs";
 
 import { Column, useTable, useSortBy } from "react-table";
-import { TriangleDownIcon, TriangleUpIcon, ArrowUpDownIcon } from "@chakra-ui/icons";
+import { IoCaretDown, IoCaretUp, IoSwapVertical } from "react-icons/io5";
 
 interface IShipmentReceivingTablePros {
   columns: Array<Column<any>>;
@@ -79,12 +79,12 @@ function ShipmentReceivingTable({
                             icon={
                               column.isSorted ? (
                                 column.isSortedDesc ? (
-                                  <TriangleDownIcon aria-label="sorted descending" />
+                                  <IoCaretDown aria-label="sorted descending" />
                                 ) : (
-                                  <TriangleUpIcon aria-label="sorted ascending" />
+                                  <IoCaretUp aria-label="sorted ascending" />
                                 )
                               ) : (
-                                <ArrowUpDownIcon />
+                                <IoSwapVertical />
                               )
                             }
                             {...column.getSortByToggleProps()}

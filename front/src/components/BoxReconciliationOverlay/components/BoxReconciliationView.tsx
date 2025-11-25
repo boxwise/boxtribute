@@ -1,14 +1,14 @@
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
+  DialogRoot,
+  DialogBackdrop,
+  DialogContent,
+  DialogHeader,
   Wrap,
   WrapItem,
   IconButton,
-  ModalBody,
+  DialogBody,
   SkeletonText,
-  ModalFooter,
+  DialogFooter,
 } from "@chakra-ui/react";
 import { BiTrash } from "react-icons/bi";
 
@@ -48,7 +48,7 @@ interface IBoxReconciliationViewProps {
   shipmentDetail: ShipmentDetailWithAutomatchProduct;
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
-  isOpen: boolean;
+  open: boolean;
   loading: boolean;
   mutationLoading: boolean;
   closeOnEsc: boolean;
@@ -68,7 +68,7 @@ export function BoxReconciliationView({
   shipmentDetail,
   productAndSizesData,
   allLocations,
-  isOpen,
+  open,
   loading,
   mutationLoading,
   onClose,
@@ -78,30 +78,32 @@ export function BoxReconciliationView({
   closeOnEsc = true,
 }: IBoxReconciliationViewProps) {
   return (
-    <Modal
-      isOpen={isOpen}
-      closeOnOverlayClick={closeOnOverlayClick}
-      closeOnEsc={closeOnEsc}
-      onClose={onClose}
+    <DialogRoot
+      open={open}
+      closeOnInteractOutside={closeOnOverlayClick}
+      closeOnEscape={closeOnEsc}
+      onOpenChange={(e) => !e.open && onClose()}
     >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader fontSize={28} fontWeight="extrabold">
+      <DialogBackdrop />
+      <DialogContent>
+        <DialogHeader fontSize={28} fontWeight="extrabold">
           <Wrap as="span" flex="1" alignItems="center" justifyContent="space-between">
             <WrapItem>Box {shipmentDetail?.box.labelIdentifier}</WrapItem>
             <WrapItem>
               <IconButton
-                isRound
-                icon={<BiTrash size={30} />}
+                rounded="full"
+                variant="ghost"
                 style={{ background: "white" }}
                 aria-label="no delivery"
                 onClick={() => onBoxUndelivered(shipmentDetail?.box.labelIdentifier)}
                 data-testid="NoDeliveryIcon"
-              />
+              >
+                <BiTrash size={30} />
+              </IconButton>
             </WrapItem>
           </Wrap>
-        </ModalHeader>
-        <ModalBody m={0} p={0}>
+        </DialogHeader>
+        <DialogBody m={0} p={0}>
           {!loading && shipmentDetail && (
             <BoxReconcilationAccordion
               loading={mutationLoading}
@@ -112,10 +114,10 @@ export function BoxReconciliationView({
               onBoxDelivered={onBoxDelivered}
             />
           )}
-          {loading && <SkeletonText noOfLines={5} />}
-        </ModalBody>
-        <ModalFooter />
-      </ModalContent>
-    </Modal>
+          {loading && <SkeletonText lineClamp={5} />}
+        </DialogBody>
+        <DialogFooter />
+      </DialogContent>
+    </DialogRoot>
   );
 }

@@ -1,4 +1,4 @@
-import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
+import { IoCheckmark, IoClose } from "react-icons/io5";
 import {
   Badge,
   Box,
@@ -9,13 +9,13 @@ import {
   Heading,
   IconButton,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  DialogRoot,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogBackdrop,
   Stat,
   StatGroup,
   StatLabel,
@@ -58,25 +58,25 @@ function UnboxedItemsCollectionListEntry({
 
   useEffect(() => {
     setNumberOfItemsToRemove(undefined);
-  }, [removeUnboxedItemsOverlayState.isOpen]);
+  }, [removeUnboxedItemsOverlayState.open]);
 
   return (
     <>
-      <Modal
-        isOpen={removeUnboxedItemsOverlayState.isOpen}
-        onClose={removeUnboxedItemsOverlayState.onClose}
+      <DialogRoot
+        open={removeUnboxedItemsOverlayState.open}
+        onOpenChange={(e) => !e.open && removeUnboxedItemsOverlayState.onClose()}
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader mx={4} pb={0}>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader mx={4} pb={0}>
             <>
               <Heading as="h3" size="md">
                 Remove items
               </Heading>
             </>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody mx={4}>
+          </DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody mx={4}>
             <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
               <FormControl display="flex" alignItems="center">
                 <FormLabel fontSize="sm" htmlFor="numberOfItems">
@@ -95,15 +95,15 @@ function UnboxedItemsCollectionListEntry({
                   ctx?.onRemoveUnboxedItems(unboxedItemsCollection.id, numberOfItemsToRemove!);
                   removeUnboxedItemsOverlayState.onClose();
                 }}
-                isDisabled={numberOfItemsToRemove == null || numberOfItemsToRemove < 1}
+                disabled={numberOfItemsToRemove == null || numberOfItemsToRemove < 1}
               >
                 Remove
               </Button>
             </Flex>
-          </ModalBody>
-          <ModalFooter />
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+          <DialogFooter />
+        </DialogContent>
+      </DialogRoot>
 
       <Flex alignItems="start" my={2} justifyContent="space-between">
         <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
@@ -170,7 +170,7 @@ function BoxesList({ boxesData }: { boxesData: BoxData[] }) {
                     onClick={() => ctx?.onUnassignBoxFromDistributionEvent(box.labelIdentifier)}
                     size="sm"
                     aria-label="Unassign Box from Distribution Event"
-                    icon={<CloseIcon />}
+                    icon={<IoClose />}
                   />
                 </Td>
               </Tr>
@@ -203,17 +203,17 @@ PackedContentListOverlayProps) {
     [packingListEntry.numberOfItems, totalNumberOfPackedItems],
   );
   return (
-    <ModalContent>
-      <ModalHeader mx={4} pb={0}>
+    <DialogContent>
+      <DialogHeader mx={4} pb={0}>
         <Heading as="h3" size="md">
           Packed Boxes and Items for: <br />
           <i>
             {packingListEntry.product.name} - {packingListEntry.size?.label}
           </i>
         </Heading>
-      </ModalHeader>
-      <ModalCloseButton />
-      <ModalBody mx={4}>
+      </DialogHeader>
+      <DialogCloseTrigger />
+      <DialogBody mx={4}>
         {boxesData.length > 0 && (
           <Box my={5}>
             <BoxesList boxesData={boxesData} />
@@ -244,17 +244,17 @@ PackedContentListOverlayProps) {
         </StatGroup>
 
         {missingNumberOfItems <= 0 && (
-          <Badge colorScheme="green">
+          <Badge colorPalette="green">
             {/* <CheckIcon /> Target number ({packingListEntry.numberOfItems}) fullfilled (with {totalNumberOfPackedItems} items) */}
-            <CheckIcon /> Enough items packed
+            <IoCheckmark /> Enough items packed
           </Badge>
         )}
         {missingNumberOfItems > 0 && (
-          <Badge colorScheme="red">{missingNumberOfItems} items missing</Badge>
+          <Badge colorPalette="red">{missingNumberOfItems} items missing</Badge>
         )}
-      </ModalBody>
-      <ModalFooter />
-    </ModalContent>
+      </DialogBody>
+      <DialogFooter />
+    </DialogContent>
   );
 }
 

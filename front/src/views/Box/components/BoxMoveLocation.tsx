@@ -23,7 +23,7 @@ function BoxMoveLocation({
           textAlign="center"
           fontSize="xl"
           mb={4}
-          noOfLines={1}
+          lineClamp={1}
         />
       )}
       {!isLoading && boxData?.state !== "MarkedForShipment" && (
@@ -47,7 +47,7 @@ function BoxMoveLocation({
                   borderRadius="0px"
                   isLoading={isLoading}
                   onClick={() => onMoveToLocationClick(location.id)}
-                  isDisabled={
+                  disabled={
                     boxData.location?.__typename === "ClassicLocation" &&
                     boxData.location?.defaultBoxState !== "Lost" &&
                     boxData.location?.defaultBoxState !== "Scrap"

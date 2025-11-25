@@ -4,11 +4,11 @@ import {
   Button,
   Flex,
   Input,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
   useToast,
 } from "@chakra-ui/react";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
@@ -21,7 +21,7 @@ import { BoxData, IPackingListEntry } from "views/Distributions/types";
 interface PackingScanBoxOrFindByLabelOverlayProps {
   packingListEntry: IPackingListEntry;
   onFoundMatchingBox: (boxData: BoxData) => void;
-  // isOpen: boolean;
+  // open: boolean;
   // onClose: () => void;
   // onAddBoxToDistributionEvent: (boxId: string) => void;
   // TODO: add correct signature / type here
@@ -169,20 +169,20 @@ const PackingScanBoxOrFindByLabelOverlay = ({
   );
 
   return (
-    <ModalContent top="0">
-      <ModalHeader pb={0}>Scan the box</ModalHeader>
-      <ModalCloseButton />
-      <ModalBody>
+    <DialogContent top="0">
+      <DialogHeader pb={0}>Scan the box</DialogHeader>
+      <DialogCloseTrigger />
+      <DialogBody>
         <QrReaderScanner
           multiScan={false}
           facingMode={"environment"}
           scanPeriod={1000}
           onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
         />
-      </ModalBody>
+      </DialogBody>
       <Button
         onClick={() => setShowFindBoxByLabelForm(true)}
-        colorScheme="blue"
+        colorPalette="blue"
         variant="outline"
         mx={10}
         mb={4}
@@ -205,14 +205,14 @@ const PackingScanBoxOrFindByLabelOverlay = ({
             onClick={() => {
               onFindAndValidateBoxLabelIdentifier(manualBoxLabelValue.toString());
             }}
-            colorScheme="blue"
+            colorPalette="blue"
           >
             Search
           </Button>
         </Flex>
       ) : null}
       <Button
-        colorScheme="blue"
+        colorPalette="blue"
         variant="outline"
         my={4}
         mx={10}
@@ -221,15 +221,15 @@ const PackingScanBoxOrFindByLabelOverlay = ({
         Show fitting boxes
       </Button>
       <Button
-        colorScheme="blue"
+        colorPalette="blue"
         variant="outline"
         mx={10}
         onClick={() => alert("Not yet implemented")}
       >
         Other source
       </Button>
-      <ModalFooter />
-    </ModalContent>
+      <DialogFooter />
+    </DialogContent>
   );
 };
 

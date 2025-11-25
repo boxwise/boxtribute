@@ -1,4 +1,4 @@
-import { EditIcon } from "@chakra-ui/icons";
+import { IoPencil } from "react-icons/io5";
 import {
   Box,
   Button,
@@ -9,12 +9,12 @@ import {
   IconButton,
   List,
   ListItem,
+  Separator,
   Skeleton,
   SkeletonCircle,
   SkeletonText,
   Spacer,
   Stack,
-  StackDivider,
   VStack,
   Wrap,
   WrapItem,
@@ -40,10 +40,10 @@ export function TabsSkeleton() {
   return (
     <>
       <Skeleton height="50px" my="4" />
-      <SkeletonText mt="2" noOfLines={2} spacing="4" />
+      <SkeletonText mt="2" lineClamp={2} spacing="4" />
       <Skeleton height="50px" my="4" />
       <SkeletonCircle size="5" mt="4" />
-      <SkeletonText mt="4" noOfLines={4} spacing="4" />
+      <SkeletonText mt="4" lineClamp={4} spacing="4" />
     </>
   );
 }
@@ -59,14 +59,7 @@ export function ShipmentCardSkeleton() {
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
-      <VStack
-        padding={0}
-        rounded="md"
-        bg="white"
-        divider={<StackDivider borderColor="blackAlpha.800" />}
-        spacing={1}
-        align="stretch"
-      >
+      <VStack padding={0} rounded="md" bg="white" spacing={1} align="stretch">
         <VStack spacing={2} padding={1} align="center">
           <Wrap fontSize="xl" fontWeight="extrabold">
             <WrapItem>
@@ -85,6 +78,7 @@ export function ShipmentCardSkeleton() {
             </Wrap>
           </Box>
         </VStack>
+        <Separator borderColor="blackAlpha.800" />
         <Box border={0}>
           <Flex minWidth="max-content" alignItems="center" gap="2">
             <Box p="4">
@@ -129,7 +123,7 @@ export function ShipmentCardSkeleton() {
             <Spacer />
           </Center>
         </Box>
-        <StackDivider borderColor="blackAlpha.800" marginTop={-1.5} />
+        <Separator borderColor="blackAlpha.800" marginTop={-1.5} />
         <Box p={4}>
           <Flex minWidth="max-content" alignItems="center" gap={2}>
             <Box bg="gray.200" p={1} marginTop={-15}>
@@ -210,12 +204,12 @@ export function BoxViewSkeleton() {
         mr={["0", "0", "4rem", "4rem"]}
       >
         <Flex py={2} px={4} alignItems="center">
-          <SkeletonText ml="4" noOfLines={1} width="50%" />
+          <SkeletonText ml="4" lineClamp={1} width="50%" />
           <Skeleton ml="auto">
             <IconButton
               aria-label="Edit box"
               borderRadius="0"
-              icon={<EditIcon h={6} w={6} />}
+              icon={<IoPencil size={24} />}
               border="2px"
             />
           </Skeleton>
@@ -223,7 +217,7 @@ export function BoxViewSkeleton() {
         <Skeleton height="18rem" />
       </Box>
       <Flex>
-        <SkeletonText ml="4" noOfLines={1} width="50%" />
+        <SkeletonText ml="4" lineClamp={1} width="50%" />
       </Flex>
       <Box w={["100%", "80%", "30%", "30%"]}>
         <Stack direction="column" alignContent="flex-start" p={2}>
@@ -233,7 +227,7 @@ export function BoxViewSkeleton() {
             </Skeleton>
             <SkeletonText
               ml="4"
-              noOfLines={1}
+              lineClamp={1}
               width="50%"
               alignItems="center"
               alignContent="center"
@@ -245,7 +239,7 @@ export function BoxViewSkeleton() {
             </Skeleton>
             <SkeletonText
               ml="4"
-              noOfLines={1}
+              lineClamp={1}
               width="50%"
               alignItems="center"
               alignContent="center"

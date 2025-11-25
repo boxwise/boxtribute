@@ -9,7 +9,7 @@ import {
   usePagination,
 } from "react-table";
 import { Table, Tr, Tbody, Td, Spacer, Flex, Text, IconButton, HStack } from "@chakra-ui/react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { IoChevronForward, IoChevronBack } from "react-icons/io5";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
@@ -129,8 +129,8 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
           <IconButton
             aria-label="Previous Page"
             onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
+            disabled={!canPreviousPage}
+            icon={<IoChevronBack size={24} />}
           />
         </Flex>
         <Flex justifyContent="center" m={4}>
@@ -149,8 +149,8 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
           <IconButton
             aria-label="Next Page"
             onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
+            disabled={!canNextPage}
+            icon={<IoChevronForward size={24} />}
           />
         </Flex>
       </Flex>

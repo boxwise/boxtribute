@@ -4,7 +4,7 @@ import { Alert, AlertIcon, Button, Heading, Stack, Tab, TabList, Tabs } from "@c
 import { Link, useLocation } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
-import { AddIcon } from "@chakra-ui/icons";
+import { IoAdd } from "react-icons/io5";
 import { TableSkeleton } from "components/Skeletons";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
@@ -224,7 +224,7 @@ function ShipmentsOverviewView() {
       </Heading>
       <Stack direction="row" my={4} spacing={4}>
         <Link to="create">
-          <Button leftIcon={<AddIcon />} borderRadius="0">
+          <Button leftIcon={<IoAdd />} borderRadius="0">
             Create Shipment
           </Button>
         </Link>

@@ -135,7 +135,7 @@ function HeaderMenuContainer() {
         requiredAbps: ["manage_volunteers"],
         links: [
           {
-            link: `/tags`,
+            link: `/bases/${baseId}/tags`,
             name: "Manage Tags",
             requiredAbps: ["manage_tags"],
           },
@@ -182,11 +182,11 @@ function HeaderMenuContainer() {
     <>
       <HeaderMenu
         menuItemsGroups={authorizedMenuItems}
-        onClickScanQrCode={() => qrReaderOverlayVar({ isOpen: true })}
+        onClickScanQrCode={() => qrReaderOverlayVar({ open: true })}
       />
       <QrReaderOverlay
-        isOpen={qrReaderOverlayState.isOpen}
-        onClose={() => qrReaderOverlayVar({ isOpen: false })}
+        open={qrReaderOverlayState.open}
+        onClose={() => qrReaderOverlayVar({ open: false })}
       />
     </>
   );

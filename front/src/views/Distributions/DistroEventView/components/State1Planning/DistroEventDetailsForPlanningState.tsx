@@ -1,13 +1,13 @@
-import { CloseIcon } from "@chakra-ui/icons";
+import { IoClose } from "react-icons/io5";
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
   Editable,
   EditableInput,
   EditablePreview,
@@ -111,7 +111,7 @@ const PackingListEntriesGroupForProduct = ({
           </Heading>
           <IconButton
             backgroundColor="transparent"
-            icon={<CloseIcon />}
+            icon={<IoClose />}
             aria-label="Remove Product from Packing List"
             onClick={() => removeAllEntriesForProductAlertState.onOpen()}
           />
@@ -138,37 +138,40 @@ const PackingListEntriesGroupForProduct = ({
         </TableContainer>
       </Box>
 
-      <AlertDialog
-        isOpen={removeAllEntriesForProductAlertState.isOpen}
-        leastDestructiveRef={cancelRemoveAllEntriesForProductRef}
-        onClose={removeAllEntriesForProductAlertState.onClose}
+      <DialogRoot
+        open={removeAllEntriesForProductAlertState.open}
+        onOpenChange={(e) => {
+          if (!e.open) {
+            removeAllEntriesForProductAlertState.onClose();
+          }
+        }}
+        initialFocusEl={() => cancelRemoveAllEntriesForProductRef.current}
       >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete all packing list entries for this product?
-            </AlertDialogHeader>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader fontSize="lg" fontWeight="bold">
+            Delete all packing list entries for this product?
+          </DialogHeader>
 
-            <AlertDialogBody>Are you sure?</AlertDialogBody>
+          <DialogBody>Are you sure?</DialogBody>
 
-            <AlertDialogFooter>
-              <Button
-                ref={cancelRemoveAllEntriesForProductRef}
-                onClick={removeAllEntriesForProductAlertState.onClose}
-              >
-                Cancel
-              </Button>
-              <Button
-                colorScheme="red"
-                onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
-                ml={3}
-              >
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          <DialogFooter>
+            <Button
+              ref={cancelRemoveAllEntriesForProductRef}
+              onClick={removeAllEntriesForProductAlertState.onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              colorPalette="red"
+              onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
+              ml={3}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 };
@@ -208,7 +211,7 @@ const DistroEventDetailsForPlanningState = ({
         <Button onClick={() => onCopyPackingListFromPreviousEventsClick()}>
           Copy Packing List from Previous Event
         </Button>
-        <Button my={2} onClick={() => onAddItemsClick()} colorScheme="blue">
+        <Button my={2} onClick={() => onAddItemsClick()} colorPalette="blue">
           Select Products for Packing List
         </Button>
       </Flex>

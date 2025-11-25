@@ -375,7 +375,7 @@ function Boxes({
       {
         Header: (
           <Popover
-            isOpen={isPopoverOpen}
+            open={isPopoverOpen}
             onOpen={setIsPopoverOpen.on}
             onClose={setIsPopoverOpen.off}
             closeOnBlur={true}

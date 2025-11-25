@@ -11,7 +11,7 @@ import {
   useDisclosure,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { IoChevronDown } from "react-icons/io5";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ReactElement } from "react";
 
@@ -19,7 +19,7 @@ interface ISelectButtonProps {
   label: string;
   options: IDropdownOption[];
   onSelect: (value: string) => void;
-  isDisabled?: boolean;
+  disabled?: boolean;
   icon?: ReactElement;
 }
 
@@ -27,21 +27,21 @@ export function SelectButton({
   label,
   options,
   onSelect,
-  isDisabled = false,
+  disabled = false,
   icon = undefined,
 }: ISelectButtonProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open, onOpen, onClose } = useDisclosure();
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   return (
     <Menu onOpen={onOpen} onClose={onClose}>
       <MenuButton
         as={Button}
-        isDisabled={isDisabled}
+        disabled={disabled}
         leftIcon={icon}
-        iconSpacing={isLargerThan768 || isOpen ? 2 : 0}
-        rightIcon={isLargerThan768 || isOpen ? <ChevronDownIcon /> : undefined}
+        iconSpacing={isLargerThan768 || open ? 2 : 0}
+        rightIcon={isLargerThan768 || open ? <IoChevronDown /> : undefined}
       >
-        {(isLargerThan768 || isOpen) && label}
+        {(isLargerThan768 || open) && label}
       </MenuButton>
       <MenuList zIndex={3}>
         {options.map(({ label: olabel, value, subTitle }) => {

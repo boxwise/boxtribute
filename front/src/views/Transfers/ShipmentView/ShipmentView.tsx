@@ -131,7 +131,7 @@ function ShipmentView() {
   const availableBases = useAtomValue(availableBasesAtom);
 
   const {
-    isOpen: isShipmentOverlayOpen,
+    open: isShipmentOverlayOpen,
     onClose: onShipmentOverlayClose,
     onOpen: onShipmentOverlayOpen,
   } = useDisclosure();
@@ -233,7 +233,7 @@ function ShipmentView() {
     (labelIdentifier: string) => {
       boxReconciliationOverlayVar({
         labelIdentifier,
-        isOpen: true,
+        open: true,
         shipmentId,
       });
     },
@@ -591,7 +591,7 @@ function ShipmentView() {
       <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath=".." />
       {shipmentViewComponents}
       <ShipmentOverlay
-        isOpen={isShipmentOverlayOpen}
+        open={isShipmentOverlayOpen}
         isLoading={isLoadingFromMutation}
         shipmentOverlayData={shipmentOverlayData}
         onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}

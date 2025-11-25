@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import * as Sentry from "@sentry/react";
 import { captureConsoleIntegration } from "@sentry/react";
 
 import App from "./App";
-import { theme } from "@boxtribute/shared-components/utils/theme";
+import { ChakraProvider } from "@chakra-ui/react";
+import { customSystem } from "@boxtribute/shared-components/utils/theme";
 
 const client = new ApolloClient({
   uri: import.meta.env.SHARED_FRONT_GRAPHQL_SERVER,
@@ -38,8 +38,7 @@ if (sentryDsn) {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ChakraProvider theme={theme}>
-      <CSSReset />
+    <ChakraProvider value={customSystem}>
       <BrowserRouter>
         <ApolloProvider client={client}>
           <SentryProfiledApp />

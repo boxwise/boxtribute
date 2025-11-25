@@ -1,5 +1,5 @@
 import { useApolloClient } from "@apollo/client";
-import { BellIcon } from "@chakra-ui/icons";
+import { IoBell } from "react-icons/io5";
 import {
   Box,
   Button,
@@ -144,7 +144,7 @@ function DistributionListForReturnTracking({
         </Heading>
         {showMessageAboutPastEventsNotYetInReturnState && (
           <Text backgroundColor="orange.100" textAlign="center">
-            <BellIcon /> You still have past events which are not yet in the &quot;Returned&quot;
+            <IoBell /> You still have past events which are not yet in the &quot;Returned&quot;
             state.
             <br />
             In the &quot;Distributions&quot; Tab, you can change their state. <br />
@@ -194,8 +194,8 @@ function DistributionListForReturnTracking({
         <Button
           my={2}
           onClick={onStartReturnTrackingClick}
-          colorScheme="blue"
-          isDisabled={selectedDistributionEventIds.length <= 0}
+          colorPalette="blue"
+          disabled={selectedDistributionEventIds.length <= 0}
         >
           Start return tracking
         </Button>

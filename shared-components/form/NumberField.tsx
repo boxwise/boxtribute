@@ -33,7 +33,7 @@ function NumberField({
   testId,
 }: INumberFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]}>
+    <FormControl invalid={!!errors[fieldId]}>
       {showLabel && (
         <FormLabel htmlFor="numberOfItems" textAlign="left">
           {fieldLabel}{" "}

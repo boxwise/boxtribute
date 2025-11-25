@@ -1,12 +1,12 @@
 import {
   Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
   Radio,
   RadioGroup,
   Stack,
@@ -16,7 +16,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { availableBasesAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
-function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function BaseSwitcher({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const { baseId: urlBaseId } = useParams();
   const { pathname } = useLocation();
@@ -40,12 +40,12 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Switch Base to</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+      <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()}>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader>Switch Base to</DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody>
             <RadioGroup onChange={setValue} value={value}>
               <Stack ml={"30%"}>
                 {currentOrganisationBases?.map((base) => (
@@ -55,17 +55,17 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                 ))}
               </Stack>
             </RadioGroup>
-          </ModalBody>
-          <ModalFooter flexDirection="column" flex={1} justifyContent="center" gap={2}>
+          </DialogBody>
+          <DialogFooter flexDirection="column" flex={1} justifyContent="center" gap={2}>
             <Button onClick={onClose} width="100%">
               Nevermind
             </Button>
-            <Button colorScheme="blue" width="100%" onClick={switchBase} isDisabled={!value}>
+            <Button colorPalette="blue" width="100%" onClick={switchBase} disabled={!value}>
               Switch
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 }

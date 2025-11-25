@@ -9,7 +9,7 @@ import {
   AccordionPanel,
   Button,
 } from "@chakra-ui/react";
-import { CopyIcon } from "@chakra-ui/icons";
+import { IoCopy } from "react-icons/io5";
 import useShareableLink from "../hooks/useShareableLink";
 import { ShareableLinkAlert } from "./ShareableLinkAlert";
 
@@ -59,7 +59,7 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
                     alignSelf="flex-start"
                     maxWidth="max-content"
                   >
-                    <CopyIcon mr={2} /> {shareableLinkURL}
+                    <IoCopy mr={2} /> {shareableLinkURL}
                   </Button>
                 </Flex>
               )}

@@ -4,19 +4,19 @@ import {
   Card,
   CardBody,
   FormLabel,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
+  DialogRoot,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogBackdrop,
   Wrap,
   WrapItem,
   useDisclosure,
 } from "@chakra-ui/react";
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
+import { IoArrowForward, IoArrowBack } from "react-icons/io5";
 import PieChart from "../../nivo/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
@@ -110,7 +110,7 @@ export default function StockOverviewPie({
   const onExport = getOnExport(PieChart);
 
   const {
-    isOpen: showGroupOptions,
+    open: showGroupOptions,
     onOpen: openGroupOptions,
     onClose: closeGroupOptions,
   } = useDisclosure();
@@ -228,12 +228,12 @@ export default function StockOverviewPie({
   };
   return (
     <Card>
-      <Modal isOpen={showGroupOptions} onClose={closeGroupOptions}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalCloseButton />
-          <ModalHeader>Select the next grouping</ModalHeader>
-          <ModalBody>
+      <DialogRoot open={showGroupOptions} onOpenChange={(e) => !e.open && closeGroupOptions()}>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogCloseTrigger />
+          <DialogHeader>Select the next grouping</DialogHeader>
+          <DialogBody>
             {availableGroupOptions.map((groupOption) => (
               <Button
                 borderRadius="0px"
@@ -246,9 +246,9 @@ export default function StockOverviewPie({
                 {groupOptions.find((ago) => ago.value === groupOption)!.label}
               </Button>
             ))}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+        </DialogContent>
+      </DialogRoot>
       <VisHeader
         onExport={onExport}
         defaultHeight={800}
@@ -284,7 +284,7 @@ export default function StockOverviewPie({
           <WrapItem>
             <Box>
               <Button
-                isDisabled={drilldownPath.length < 2}
+                disabled={drilldownPath.length < 2}
                 borderRadius="0px"
                 border="2px"
                 onClick={() => {
@@ -295,7 +295,7 @@ export default function StockOverviewPie({
                   setDrilldownValues(newDrilldownValues);
                 }}
               >
-                <ArrowLeftIcon />
+                <IoArrowBack />
               </Button>
             </Box>
           </WrapItem>
@@ -314,7 +314,7 @@ export default function StockOverviewPie({
               <span key={value}>
                 {" "}
                 {groupOptions.find((option) => value === option.value)?.label}: &quot;
-                {drilldownValues[index]}&quot; <ArrowForwardIcon />
+                {drilldownValues[index]}&quot; <IoArrowForward />
               </span>
             );
           })}

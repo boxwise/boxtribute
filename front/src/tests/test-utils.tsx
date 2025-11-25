@@ -6,8 +6,6 @@ import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
 import { onError } from "@apollo/client/link/error";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { theme } from "utils/theme";
-import { ChakraProvider } from "@chakra-ui/react";
 import "mutationobserver-shim";
 import {
   ApolloClient,
@@ -27,6 +25,8 @@ import {
 } from "stores/globalPreferenceStore";
 import { basicBase1 } from "mocks/bases";
 import { basicOrg1 } from "mocks/organisations";
+import { ChakraProvider } from "@chakra-ui/react";
+import { system } from "@boxtribute/shared-components/utils/theme";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -136,7 +136,7 @@ function render(
   mockMatchMediaQuery(mediaQueryReturnValue);
 
   const Wrapper: React.FC = ({ children }: any) => (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={system}>
       <MockedProvider
         mocks={mocks}
         addTypename={addTypename}

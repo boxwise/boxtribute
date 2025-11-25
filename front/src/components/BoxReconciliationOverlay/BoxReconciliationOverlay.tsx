@@ -39,7 +39,7 @@ export function BoxReconciliationOverlay({
 
   const onOverlayClose = useCallback(() => {
     boxReconciliationOverlayVar({
-      isOpen: false,
+      open: false,
       labelIdentifier: undefined,
       shipmentId: undefined,
     });
@@ -65,7 +65,7 @@ export function BoxReconciliationOverlay({
         message: "Could not fetch data! Please try reloading the page.",
       });
       boxReconciliationOverlayVar({
-        isOpen: false,
+        open: false,
         labelIdentifier: undefined,
         shipmentId: undefined,
       });
@@ -204,7 +204,7 @@ export function BoxReconciliationOverlay({
   return (
     <>
       <BoxReconciliationView
-        isOpen={boxReconciliationOverlayState.isOpen && boxUndeliveredAYSState === ""}
+        open={boxReconciliationOverlayState.open && boxUndeliveredAYSState === ""}
         loading={loading}
         mutationLoading={mutationLoading}
         onClose={onOverlayClose}
@@ -230,9 +230,9 @@ export function BoxReconciliationOverlay({
           </chakra.span>
         }
         rightButtonProps={{
-          colorScheme: "red",
+          colorPalette: "red",
         }}
-        isOpen={boxUndeliveredAYSState !== ""}
+        open={boxUndeliveredAYSState !== ""}
         isLoading={loading}
         leftButtonText="Nevermind"
         rightButtonText="Confirm"

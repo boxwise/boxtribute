@@ -34,7 +34,7 @@ function NumberField({
   testId,
 }: INumberFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]}>
+    <FormControl invalid={!!errors[fieldId]}>
       {showLabel && (
         <FormLabel htmlFor="numberOfItems" textAlign="left">
           {fieldLabel}{" "}
@@ -101,7 +101,7 @@ export interface INewNumberFieldProps extends Omit<FormControlProps, "onChange" 
   control: Control<any>;
   showLabel?: boolean;
   showError?: boolean;
-  isRequired?: boolean;
+  required?: boolean;
   testId?: string;
 }
 
@@ -112,16 +112,16 @@ export function NewNumberField({
   control,
   showLabel = true,
   showError = true,
-  isRequired = false,
+  required = false,
   testId,
   ...props
 }: INewNumberFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]} {...props}>
+    <FormControl invalid={!!errors[fieldId]} {...props}>
       {showLabel && (
         <FormLabel htmlFor={fieldId} textAlign="left">
           {fieldLabel}{" "}
-          {isRequired && (
+          {required && (
             <Text as="span" color="red.500">
               *
             </Text>

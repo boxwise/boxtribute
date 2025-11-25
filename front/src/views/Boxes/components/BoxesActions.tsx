@@ -12,7 +12,7 @@ import AssignTagsButton from "./AssignTagsButton";
 import { IDropdownOption } from "components/Form/SelectField";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
-import { AddIcon } from "@chakra-ui/icons";
+import { IoAdd } from "react-icons/io5";
 import { BiNetworkChart } from "react-icons/bi";
 
 type BoxesActionsProps = {
@@ -66,7 +66,7 @@ function BoxesActions({
         options={locationOptions}
         onSelect={onMoveBoxes}
         icon={<FaDollyFlatbed />}
-        isDisabled={actionsAreLoading || locationOptions.length === 0}
+        disabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />
       <SelectButton
@@ -74,7 +74,7 @@ function BoxesActions({
         options={shipmentOptions}
         onSelect={onAssignBoxesToShipment}
         icon={<BiNetworkChart />}
-        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
+        disabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />
       <Menu key="box-actions" closeOnSelect={false}>
@@ -84,7 +84,7 @@ function BoxesActions({
         <MenuList zIndex={3}>
           <MenuItem as="div">
             <Link to="create">
-              <Button padding={1} variant="ghost" leftIcon={<AddIcon />} iconSpacing={2}>
+              <Button padding={1} variant="ghost" leftIcon={<IoAdd />} iconSpacing={2}>
                 Create Box
               </Button>
             </Link>
@@ -125,7 +125,7 @@ function BoxesActions({
       </Menu>
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
-          <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
+          <Button onClick={() => onUnassignBoxesToShipment()} disabled={actionsAreLoading}>
             Remove from Shipment
           </Button>
         )}

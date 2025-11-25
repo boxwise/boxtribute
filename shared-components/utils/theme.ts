@@ -1,103 +1,153 @@
-import { extendTheme } from "@chakra-ui/react";
+import { createSystem, defaultConfig } from "@chakra-ui/react";
 import { PartialTheme } from "@nivo/theming";
 import { defaultStyles } from "@visx/tooltip";
 import { percent } from "../statviz/utils/chart";
 
 export const getSelectionBackground = (selected: boolean) => (selected ? "blue.100" : "white");
 
-const colors = {
-  brandRed: {
-    300: "#ef404a",
-    200: "#f37167",
-    100: "#f8aa9e",
+export const customSystem = createSystem(defaultConfig, {
+  globalCss: {
+    body: {
+      color: "black",
+    },
   },
-  brandBlue: {
-    300: "#29335f",
-    200: "#315c88",
-    100: "#aacfe3",
-  },
-  brandYellow: {
-    300: "#d89016",
-    200: "#e4aa4f",
-    100: "#f4e6a0",
-  },
-  brandGray: "#848689",
-  // this was additional generated on https://coolors.co/ to have a fitting green
-  brandGreen: "#60a561",
-};
-
-export const theme = extendTheme({
-  colors,
-  fonts: {
-    heading: `'Open Sans', sans-serif`,
-    body: `'Open Sans', sans-serif`,
-  },
-  components: {
-    Button: {
-      baseStyle: {
-        borderRadius: 0,
+  theme: {
+    tokens: {
+      colors: {
+        brandRed: {
+          300: {
+            value: "#ef404a",
+          },
+          200: {
+            value: "#f37167",
+          },
+          100: {
+            value: "#f8aa9e",
+          },
+        },
+        brandBlue: {
+          300: {
+            value: "#29335f",
+          },
+          200: {
+            value: "#315c88",
+          },
+          100: {
+            value: "#aacfe3",
+          },
+        },
+        brandYellow: {
+          300: {
+            value: "#d89016",
+          },
+          200: {
+            value: "#e4aa4f",
+          },
+          100: {
+            value: "#f4e6a0",
+          },
+        },
+        brandGray: {
+          value: "#848689",
+        },
+        // this was additional generated on https://coolors.co/ to have a fitting green
+        brandGreen: {
+          value: "#60a561",
+        },
       },
-      // TODO: we need to define our brand color palette and apply a whole colorScheme to config chakra UI properly.
-      variants: {
-        blue: {
-          bg: "brandBlue.300",
-          color: "white",
-          borderRadius: 0,
+      fonts: {
+        heading: {
+          value: `'Open Sans', sans-serif`,
         },
-        green: {
-          bg: "brandGreen",
-          color: "white",
-          borderRadius: 0,
-        },
-        gray: {
-          bg: "brandGray",
-          color: "white",
-          borderRadius: 0,
-        },
-      },
-    },
-    Link: {
-      // baseStyle: {
-      //   color: "blue",
-      //   textDecoration: "underline",
-      // },
-      variants: {
-        "inline-link": {
-          color: "blue",
-          textDecoration: "underline",
+        body: {
+          value: `'Open Sans', sans-serif`,
         },
       },
     },
-    FormLabel: {
-      baseStyle: {
-        fontWeight: "bold",
+    recipes: {
+      Button: {
+        base: {
+          borderRadius: "0",
+        },
+        // TODO: we need to define our brand color palette and apply a whole colorPalette to config chakra UI properly.
+        variants: {
+          blue: {
+            base: {
+              bg: "brandBlue.300",
+              color: "white",
+              borderRadius: "0",
+            },
+          },
+          green: {
+            base: {
+              bg: "brandGreen",
+              color: "white",
+              borderRadius: "0",
+            },
+          },
+          gray: {
+            base: {
+              bg: "brandGray",
+              color: "white",
+              borderRadius: "0",
+            },
+          },
+          submit: {
+            base: {
+              backgroundColor: "blue.500",
+              color: "white",
+              borderRadius: "0",
+            },
+          },
+          cancel: {
+            base: {
+              border: "2px",
+              borderColor: "black",
+              borderRadius: "0",
+            },
+          },
+        },
       },
-    },
-    // This is fix for https://github.com/chakra-ui/chakra-ui/issues/2925
-    Radio: {
-      baseStyle: {
-        label: {
-          pointerEvents: "none",
+      Link: {
+        // base: {
+        //   color: "blue",
+        //   textDecoration: "underline",
+        // },
+        variants: {
+          "inline-link": {
+            base: {
+              color: "blue",
+              textDecoration: "underline",
+            },
+          },
+        },
+      },
+      FormLabel: {
+        base: {
+          fontWeight: "bold",
+        },
+      },
+      Input: {
+        base: {
+          borderRadius: "0",
         },
       },
     },
-    Checkbox: {
-      baseStyle: {
-        label: {
-          pointerEvents: "none",
+    slotRecipes: {
+      // This is fix for https://github.com/chakra-ui/chakra-ui/issues/2925
+      Radio: {
+        slots: ["root", "label", "control"],
+        base: {
+          label: {
+            pointerEvents: "none",
+          },
         },
       },
-    },
-    Input: {
-      defaultProps: {
-        focusBorderColor: "transparent",
-        borderRadius: "0",
-      },
-      shadows: "none",
-      sizes: {
-        lg: {
-          field: {
-            borderRadius: "none",
+      Checkbox: {
+        slots: ["root", "label", "control"],
+        base: {
+          label: {
+            pointerEvents: "none",
           },
         },
       },

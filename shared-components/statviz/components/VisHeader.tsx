@@ -24,7 +24,7 @@ import {
   Wrap,
   useCheckboxGroup,
 } from "@chakra-ui/react";
-import { DownloadIcon } from "@chakra-ui/icons";
+import { IoDownload } from "react-icons/io5";
 import { useState } from "react";
 import { useReactiveVar } from "@apollo/client";
 import useTimerange from "../hooks/useTimerange";
@@ -218,7 +218,7 @@ export default function VisHeader({
                           onClick={download}
                         >
                           JPG
-                          <DownloadIcon marginLeft="10px" />
+                          <IoDownload marginLeft="10px" />
                         </Button>
                         <Button
                           borderRadius="0px"
@@ -229,7 +229,7 @@ export default function VisHeader({
                           onClick={download}
                         >
                           SVG
-                          <DownloadIcon marginLeft="10px" />
+                          <IoDownload marginLeft="10px" />
                         </Button>
                       </HStack>
                     </Box>

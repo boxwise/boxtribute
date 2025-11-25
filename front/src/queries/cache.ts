@@ -80,13 +80,13 @@ cache.writeQuery({
 
 // apollo reactive variable for BoxReconciliationOverlay
 export interface IBoxReconciliationOverlayVar {
-  isOpen: boolean;
+  open: boolean;
   labelIdentifier: string | undefined;
   shipmentId: string | undefined;
 }
 
 export const boxReconciliationOverlayVar = makeVar<IBoxReconciliationOverlayVar>({
-  isOpen: false,
+  open: false,
   labelIdentifier: undefined,
   shipmentId: undefined,
 });
@@ -95,12 +95,12 @@ export const boxReconciliationOverlayVar = makeVar<IBoxReconciliationOverlayVar>
 
 // apollo reactive variable for QrReaderOverlay
 export interface IQrReaderOverlayVar {
-  isOpen: boolean;
+  open: boolean;
   isMultiBox?: boolean;
   selectedShipmentId?: string;
 }
 
-export const qrReaderOverlayVar = makeVar<IQrReaderOverlayVar>({ isOpen: false });
+export const qrReaderOverlayVar = makeVar<IQrReaderOverlayVar>({ open: false });
 
 export type ITableConfigsVar = Map<string, ITableConfig>;
 export const tableConfigsVar = makeVar<ITableConfigsVar>(new Map());

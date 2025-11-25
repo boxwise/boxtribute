@@ -3,7 +3,7 @@ import { IDropdownOption } from "./SelectField";
 import { GroupBase, OptionProps } from "chakra-react-select";
 
 export function ShipmentOption({
-  isDisabled,
+  disabled,
   innerProps,
   data,
 }: OptionProps<
@@ -11,7 +11,7 @@ export function ShipmentOption({
   false,
   GroupBase<IDropdownOption | ((prevState: IDropdownOption) => IDropdownOption)>
 >) {
-  if (isDisabled) {
+  if (disabled) {
     return null;
   }
   // supporting this scenario is not required

@@ -1,4 +1,4 @@
-import { EditIcon, AddIcon, MinusIcon } from "@chakra-ui/icons";
+import { IoPencil, IoAdd, IoRemove } from "react-icons/io5";
 import {
   Box,
   Text,
@@ -90,7 +90,7 @@ function BoxCard({
                 size="s"
                 icon={<RiQrCodeLine size={24} />}
                 border="2px"
-                isDisabled={isLoading}
+                disabled={isLoading}
               />
             </a>
           </WrapItem>
@@ -101,9 +101,9 @@ function BoxCard({
             <IconButton
               aria-label="Edit box"
               borderRadius="0"
-              icon={<EditIcon h={6} w={6} />}
+              icon={<IoPencil size={24} />}
               border="2px"
-              isDisabled={
+              disabled={
                 isLoading ||
                 "Lost" === boxData?.state ||
                 "Scrap" === boxData?.state ||
@@ -151,7 +151,7 @@ function BoxCard({
               <Tooltip hasArrow shouldWrapChildren mt="3" label="add items" aria-label="A tooltip">
                 <IconButton
                   onClick={onPlusOpen}
-                  isDisabled={
+                  disabled={
                     "Lost" === boxData?.state ||
                     "Scrap" === boxData?.state ||
                     "NotDelivered" === boxData?.state ||
@@ -164,7 +164,7 @@ function BoxCard({
                   isRound
                   borderRadius="0"
                   aria-label="Search database"
-                  icon={<AddIcon />}
+                  icon={<IoAdd />}
                   data-testid="increase-items"
                 />
               </Tooltip>
@@ -181,7 +181,7 @@ function BoxCard({
                   onClick={onMinusOpen}
                   border="2px"
                   size="sm"
-                  isDisabled={
+                  disabled={
                     "Lost" === boxData?.state ||
                     "Scrap" === boxData?.state ||
                     "NotDelivered" === boxData?.state ||
@@ -192,7 +192,7 @@ function BoxCard({
                   borderRadius="0"
                   isRound
                   aria-label="Search database"
-                  icon={<MinusIcon />}
+                  icon={<IoRemove />}
                   data-testid="decrease-items"
                 />
               </Tooltip>
@@ -246,7 +246,7 @@ function BoxCard({
             {!isLoading && (
               <Switch
                 id="scrap"
-                isDisabled={
+                disabled={
                   boxInTransit ||
                   boxData?.state === "NotDelivered" ||
                   (boxData?.location?.__typename === "ClassicLocation" &&
@@ -279,7 +279,7 @@ function BoxCard({
                 id="lost"
                 isFocusable={false}
                 data-testid="box-lost-btn"
-                isDisabled={
+                disabled={
                   boxInTransit ||
                   boxData?.state === "NotDelivered" ||
                   (boxData?.location?.__typename !== "DistributionSpot" &&
@@ -315,7 +315,7 @@ function BoxCard({
               <Flex py={0} px={0} alignContent="space-between" verticalAlign="center">
                 {!isLoading && <HistoryEntries data={boxData?.history} total={1} />}
                 {isLoading && (
-                  <SkeletonText noOfLines={3} width="100%" py={2} px={2} alignContent="center" />
+                  <SkeletonText lineClamp={3} width="100%" py={2} px={2} alignContent="center" />
                 )}
                 {boxData?.history && boxData?.history?.length > 1 && (
                   <>

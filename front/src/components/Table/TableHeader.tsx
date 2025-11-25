@@ -1,4 +1,4 @@
-import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { IoCaretDown, IoCaretUp } from "react-icons/io5";
 import { Thead, Tr, Th, chakra, HStack } from "@chakra-ui/react";
 import { HeaderGroup } from "react-table";
 
@@ -15,10 +15,10 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
             <Th {...column.getHeaderProps()} color="black" key={idx}>
               <HStack alignItems="center" spacing={1}>
                 {column.isSorted && column.isSortedDesc && (
-                  <TriangleDownIcon aria-label="sorted descending" />
+                  <IoCaretDown aria-label="sorted descending" />
                 )}
                 {column.isSorted && !column.isSortedDesc && (
-                  <TriangleUpIcon aria-label="sorted ascending" />
+                  <IoCaretUp aria-label="sorted ascending" />
                 )}
                 <div {...column.getSortByToggleProps()}>{column.render("Header")}</div>
                 {column.Filter && column.canFilter && (

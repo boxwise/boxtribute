@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { graphql } from "../../../../../../../graphql/graphql";
 import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
+  DialogRoot,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogBackdrop,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
@@ -398,22 +398,22 @@ const DistroEventDetailsForPlanningStateContainer = ({
       />
 
       {/* TODO: Consider to extract this into a seperate component */}
-      <Modal
-        isOpen={addItemsToDistroEventsOverlayState.isOpen}
-        onClose={addItemsToDistroEventsOverlayState.onClose}
+      <DialogRoot
+        open={addItemsToDistroEventsOverlayState.open}
+        onOpenChange={(e) => !e.open && addItemsToDistroEventsOverlayState.onClose()}
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{distributionEventDetails.distributionSpot.name}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader>{distributionEventDetails.distributionSpot.name}</DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody>
             <AddItemsToPackingListContainer
               onClose={addItemsToDistroEventsOverlayState.onClose}
               currentPackingListEntries={packingListEntries}
             />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </DialogBody>
+        </DialogContent>
+      </DialogRoot>
     </DistroEventDetailsForPlanningStateContext.Provider>
   );
 };

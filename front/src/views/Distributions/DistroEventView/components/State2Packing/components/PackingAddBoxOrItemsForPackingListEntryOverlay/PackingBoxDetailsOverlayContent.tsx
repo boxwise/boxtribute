@@ -3,11 +3,11 @@ import {
   Flex,
   FormControl,
   Input,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
   Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -26,7 +26,7 @@ export interface StateProps {
 interface PackingBoxDetailsProps {
   // modalProps: ModalProps;
   boxData: BoxData;
-  // isOpen: boolean;
+  // open: boolean;
   // onClose: () => void;
   // packingActionProps: PackingActionProps;
   targetNumberOfItemsToPack: number;
@@ -40,7 +40,7 @@ const PackingBoxDetailsOverlayContent = ({
   boxData,
   onAddBoxToDistributionEvent,
   onAddIndividualItemsToDistribution,
-  // isOpen,
+  // open,
   // onClose,
   // packingActionProps,
   targetNumberOfItemsToPack,
@@ -56,12 +56,12 @@ const PackingBoxDetailsOverlayContent = ({
   // }, []);
 
   return (
-    <ModalContent>
-      <ModalHeader mx={4} pb={0}>
+    <DialogContent>
+      <DialogHeader mx={4} pb={0}>
         Box Details
-      </ModalHeader>
-      <ModalCloseButton />
-      <ModalBody mx={4}>
+      </DialogHeader>
+      <DialogCloseTrigger />
+      <DialogBody mx={4}>
         <Flex direction="column">
           <Flex direction="row" justifyContent="space-between">
             <Flex key={boxData.labelIdentifier} direction="column">
@@ -84,7 +84,7 @@ const PackingBoxDetailsOverlayContent = ({
                 // onClose();
                 onAddBoxToDistributionEvent(boxData.labelIdentifier);
               }}
-              colorScheme="blue"
+              colorPalette="blue"
             >
               Move box to the distribution
             </Button>
@@ -96,7 +96,7 @@ const PackingBoxDetailsOverlayContent = ({
               onClick={() => {
                 setIsMoveIndividualItemsToDistributionMode(true);
               }}
-              colorScheme="blue"
+              colorPalette="blue"
             >
               Move items to the distribution
             </Button>
@@ -126,7 +126,7 @@ const PackingBoxDetailsOverlayContent = ({
                   <Text mr={2}>out of {boxData.numberOfItems}</Text>
                 </Flex>
                 <Button
-                  colorScheme="blue"
+                  colorPalette="blue"
                   type="submit"
                   onClick={() => {
                     onAddIndividualItemsToDistribution(
@@ -141,9 +141,9 @@ const PackingBoxDetailsOverlayContent = ({
             ) : null}
           </Flex>
         </Flex>
-      </ModalBody>
-      <ModalFooter />
-    </ModalContent>
+      </DialogBody>
+      <DialogFooter />
+    </DialogContent>
   );
 };
 

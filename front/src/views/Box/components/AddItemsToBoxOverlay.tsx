@@ -1,13 +1,13 @@
 import {
   Button,
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
   Flex,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Spacer,
 } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
@@ -15,14 +15,14 @@ import { useForm } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
 
 interface IPropsAddItemsToBoxOverlay {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   isLoading: boolean;
   onSubmitAddItemstoBox: (data: IChangeNumberOfItemsBoxData) => void;
 }
 
 function AddItemsToBoxOverlay({
-  isOpen,
+  open,
   onClose,
   onSubmitAddItemstoBox,
   isLoading,
@@ -39,12 +39,12 @@ function AddItemsToBoxOverlay({
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent borderRadius="0">
-        <ModalHeader>Add Items to the Box</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
+    <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()}>
+      <DialogBackdrop />
+      <DialogContent borderRadius="0">
+        <DialogHeader>Add Items to the Box</DialogHeader>
+        <DialogCloseTrigger />
+        <DialogBody>
           <form onSubmit={handleSubmit(onSubmitAddItemstoBox)}>
             <Flex py={1} px={1} alignItems="center" gap={1}>
               <NumberField
@@ -59,15 +59,15 @@ function AddItemsToBoxOverlay({
               />
               <Spacer />
 
-              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting || isLoading}>
+              <Button px={6} borderRadius="0" type="submit" loading={isSubmitting || isLoading}>
                 Submit
               </Button>
             </Flex>
           </form>
-        </ModalBody>
-        <ModalFooter />
-      </ModalContent>
-    </Modal>
+        </DialogBody>
+        <DialogFooter />
+      </DialogContent>
+    </DialogRoot>
   );
 }
 

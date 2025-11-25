@@ -18,7 +18,7 @@ import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { Link } from "react-router-dom";
-import { AddIcon } from "@chakra-ui/icons";
+import { IoAdd } from "react-icons/io5";
 
 function Products() {
   const selectedBase = useAtomValue(selectedBaseAtom);
@@ -45,7 +45,7 @@ function Products() {
         <TabPanels>
           <TabPanel>
             <Link to="create">
-              <Button leftIcon={<AddIcon />} borderRadius="0">
+              <Button leftIcon={<IoAdd />} borderRadius="0">
                 Add New Product
               </Button>
             </Link>

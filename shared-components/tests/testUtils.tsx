@@ -6,9 +6,9 @@ import { render as rtlRender } from "@testing-library/react";
 import { MockedProvider, MockedResponse, MockLink } from "@apollo/client/testing";
 import { onError } from "@apollo/client/link/error";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloLink, DefaultOptions } from "@apollo/client";
-import { theme } from "../utils/theme";
+import { ChakraProvider } from "@chakra-ui/react";
+import { customSystem } from "../utils/theme";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -67,7 +67,7 @@ function render(
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
 
   const Wrapper: React.FC = ({ children }: any) => (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider value={customSystem}>
       <MockedProvider
         mocks={mocks}
         addTypename={addTypename}

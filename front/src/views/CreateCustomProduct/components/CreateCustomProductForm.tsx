@@ -142,7 +142,7 @@ function CreateCustomProductForm({
               </Text>
             </HStack>
           </FormControl>
-          <FormControl isInvalid={!!errors.name}>
+          <FormControl invalid={!!errors.name}>
             <FormLabel htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">

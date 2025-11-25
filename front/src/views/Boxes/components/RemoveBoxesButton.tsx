@@ -47,14 +47,14 @@ const RemoveBoxesButton = ({
         onClick={handleOpenDialog}
         leftIcon={<BiTrash />}
         iconSpacing={2}
-        isDisabled={actionsAreLoading}
+        disabled={actionsAreLoading}
         data-testid="delete-boxes-button"
       >
         {labelIdentifier}
       </Button>
       <RemoveBoxesOverlay
         isLoading={actionsAreLoading}
-        isOpen={isDialogOpen}
+        open={isDialogOpen}
         selectedBoxes={selectedBoxes}
         onClose={() => {
           setIsDialogOpen(false);

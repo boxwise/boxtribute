@@ -65,9 +65,9 @@ function CreateDistributionSpot({
         <br />
         <br />
         <Button
-          isDisabled={isMutationLoading}
+          disabled={isMutationLoading}
           mt={4}
-          colorScheme="teal"
+          colorPalette="teal"
           isLoading={isMutationLoading}
           type="submit"
         >

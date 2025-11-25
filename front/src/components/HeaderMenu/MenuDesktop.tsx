@@ -24,7 +24,7 @@ import {
 } from "stores/globalPreferenceStore";
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open, onOpen, onClose } = useDisclosure();
   const { handleLogout } = useHandleLogout();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const selectedBase = useAtomValue(selectedBaseAtom);
@@ -36,7 +36,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
 
   return (
     <>
-      <BaseSwitcher isOpen={isOpen} onClose={onClose} />
+      <BaseSwitcher open={open} onClose={onClose} />
       <Flex
         id="desktop-nav"
         as="nav"

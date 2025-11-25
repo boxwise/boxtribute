@@ -229,7 +229,7 @@ export function BoxCreate({
               options={tagsForDropdownGroups}
               errors={errors}
               isMulti
-              isRequired={false}
+              required={false}
               control={control}
               creatable
               helperText="New Tags can be created by typing the name and pressing Enter"
@@ -249,8 +249,8 @@ export function BoxCreate({
             type="submit"
             borderRadius="0"
             w="full"
-            isDisabled={disableSubmission}
-            colorScheme="blue"
+            disabled={disableSubmission}
+            colorPalette="blue"
             bg="blue.500"
           >
             Save
@@ -261,8 +261,8 @@ export function BoxCreate({
               type="button"
               borderRadius="0"
               w="full"
-              isDisabled={disableSubmission}
-              colorScheme="blue"
+              disabled={disableSubmission}
+              colorPalette="blue"
               bg="blue.200"
               color="black"
               onClick={handleSubmit(onSubmitAndCreateAnother)}

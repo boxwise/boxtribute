@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { graphql, ResultOf } from "../../../../../graphql/graphql";
-import { AddIcon } from "@chakra-ui/icons";
+import { IoAdd } from "react-icons/io5";
 import { TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -93,7 +93,7 @@ function TransferAgreementOverviewView() {
   const organisation = useAtomValue(organisationAtom);
   const availableBases = useAtomValue(availableBasesAtom);
 
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { open, onClose, onOpen } = useDisclosure();
   // State to pass Data from a row to the Overlay
   const [transferAgreementOverlayData, setTransferAgreementOverlayData] = useState({});
 
@@ -392,7 +392,7 @@ function TransferAgreementOverviewView() {
       </Heading>
       <Stack direction="row" my={4} spacing={4}>
         <Link to="create">
-          <Button leftIcon={<AddIcon />} borderRadius="0">
+          <Button leftIcon={<IoAdd />} borderRadius="0">
             Link New Partner
           </Button>
         </Link>
@@ -400,7 +400,7 @@ function TransferAgreementOverviewView() {
       {transferAgreementTable}
 
       <TransferAgreementsOverlay
-        isOpen={isOpen}
+        open={open}
         isLoading={isLoadingFromMutation}
         transferAgreementOverlayData={transferAgreementOverlayData}
         onClose={onClose}

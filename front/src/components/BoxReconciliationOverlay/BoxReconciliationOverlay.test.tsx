@@ -63,7 +63,7 @@ const failedQueryShipmentDetailForBoxReconciliation = {
 
 it("4.7.2 - Query for shipment, box, available products, sizes and locations returns an error ", async () => {
   boxReconciliationOverlayVar({
-    isOpen: true,
+    open: true,
     labelIdentifier: "123",
     shipmentId: "1",
   } as IBoxReconciliationOverlayVar);
@@ -141,7 +141,7 @@ describe("No Delivery Tests", () => {
       async () => {
         const user = userEvent.setup();
         boxReconciliationOverlayVar({
-          isOpen: true,
+          open: true,
           labelIdentifier: "123",
           shipmentId: "1",
         } as IBoxReconciliationOverlayVar);
@@ -206,7 +206,7 @@ describe("No Delivery Tests", () => {
 it("4.7.1 - Query for shipment, box, available products, sizes and locations is loading ", async () => {
   const user = userEvent.setup();
   boxReconciliationOverlayVar({
-    isOpen: true,
+    open: true,
     labelIdentifier: "123",
     shipmentId: "1",
   } as IBoxReconciliationOverlayVar);

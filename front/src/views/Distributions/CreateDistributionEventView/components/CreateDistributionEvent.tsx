@@ -62,7 +62,7 @@ const CreateDistroEvent = ({ onSubmitNewDistroEvent, distroSpot }: CreateDistroE
           mb={4}
           {...register("name", { required: false })}
         />
-        <Button mt={4} colorScheme="teal" isLoading={isSubmitting} type="submit">
+        <Button mt={4} colorPalette="teal" isLoading={isSubmitting} type="submit">
           Submit
         </Button>
       </form>

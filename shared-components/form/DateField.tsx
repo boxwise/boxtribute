@@ -7,7 +7,7 @@ export interface IDateFieldProps {
   errors: object;
   control: any;
   register: any;
-  isRequired?: boolean;
+  required?: boolean;
   minDate?: any;
   maxDate?: any;
 }
@@ -18,15 +18,15 @@ function DateField({
   errors,
   control,
   register,
-  isRequired = true,
+  required = true,
   minDate = "",
   maxDate = "",
 }: IDateFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
       <FormLabel htmlFor={fieldId}>
         {fieldLabel}{" "}
-        {isRequired && (
+        {required && (
           <Text as="span" color="red.500">
             *
           </Text>

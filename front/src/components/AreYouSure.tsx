@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
+  DialogRoot,
+  DialogBackdrop,
+  DialogContent,
+  DialogHeader,
+  DialogCloseTrigger,
+  DialogBody,
+  DialogFooter,
   HStack,
   Button,
   ButtonProps,
@@ -20,7 +20,7 @@ interface IAreYouSureDialogProps {
   rightButtonText: string;
   rightButtonProps?: ButtonProps;
   isLoading: boolean;
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   onLeftButtonClick: () => void;
   onRightButtonClick: () => void;
@@ -34,22 +34,22 @@ export function AreYouSureDialog({
   rightButtonText,
   rightButtonProps = {},
   isLoading,
-  isOpen,
+  open,
   onClose,
   onLeftButtonClick,
   onRightButtonClick,
 }: IAreYouSureDialogProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent borderRadius="0">
-        <ModalHeader>{title}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>{body}</ModalBody>
-        <ModalFooter>
+    <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()}>
+      <DialogBackdrop />
+      <DialogContent borderRadius="0">
+        <DialogHeader>{title}</DialogHeader>
+        <DialogCloseTrigger />
+        <DialogBody>{body}</DialogBody>
+        <DialogFooter>
           <HStack spacing={4}>
             <Button
-              isLoading={isLoading}
+              loading={isLoading}
               onClick={onLeftButtonClick}
               {...leftButtonProps}
               data-testid="AYSLeftButton"
@@ -57,7 +57,7 @@ export function AreYouSureDialog({
               {leftButtonText}
             </Button>
             <Button
-              isLoading={isLoading}
+              loading={isLoading}
               onClick={onRightButtonClick}
               {...rightButtonProps}
               data-testid="AYSRightButton"
@@ -65,8 +65,8 @@ export function AreYouSureDialog({
               {rightButtonText}
             </Button>
           </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }

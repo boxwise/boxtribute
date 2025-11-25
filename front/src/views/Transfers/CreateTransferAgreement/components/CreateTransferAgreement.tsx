@@ -204,7 +204,7 @@ function CreateTransferAgreement({
               placeholder="All bases (default)"
               errors={errors}
               isMulti
-              isRequired={false}
+              required={false}
               control={control}
               options={basesOptionsForPartnerOrg}
             />
@@ -216,7 +216,7 @@ function CreateTransferAgreement({
               errors={errors}
               control={control}
               register={register}
-              isRequired={false}
+              required={false}
               maxDate="2080-01-01"
               minDate={new Date().toJSON().split("T")[0]}
             />
@@ -228,7 +228,7 @@ function CreateTransferAgreement({
               errors={errors}
               control={control}
               register={register}
-              isRequired={false}
+              required={false}
               maxDate="2080-01-01"
               minDate={validUntilMinDate}
             />

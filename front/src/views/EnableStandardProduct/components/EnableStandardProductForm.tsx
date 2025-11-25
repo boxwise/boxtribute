@@ -147,7 +147,7 @@ function EnableStandardProductForm({
                 <Select
                   value={defaultValues?.category?.value}
                   isReadOnly
-                  isDisabled
+                  disabled
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >
@@ -161,7 +161,7 @@ function EnableStandardProductForm({
                 <Select
                   value={defaultValues?.gender}
                   isReadOnly
-                  isDisabled
+                  disabled
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >
@@ -175,7 +175,7 @@ function EnableStandardProductForm({
                 <Select
                   value={defaultValues?.sizeRange?.value}
                   isReadOnly
-                  isDisabled
+                  disabled
                   _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
                 >

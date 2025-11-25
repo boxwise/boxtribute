@@ -96,7 +96,7 @@ const CreateDirectDistroEvent = ({
           control={control}
           name="distroSpotId"
           render={({ field: { onChange, onBlur, value, name, ref }, fieldState: { error } }) => (
-            <FormControl isInvalid={!!error} id="distroSpotsForDropdown">
+            <FormControl invalid={!!error} id="distroSpotsForDropdown">
               <FormLabel htmlFor="distroSpotsForDropdown">Distribution Spot</FormLabel>
               <Select
                 name={name}
@@ -113,21 +113,21 @@ const CreateDirectDistroEvent = ({
             </FormControl>
           )}
         />
-        <FormControl isInvalid={errors.eventDate != null} id="eventDate">
+        <FormControl invalid={errors.eventDate != null} id="eventDate">
           <FormLabel fontSize="sm" htmlFor="date">
             Date of the event:
           </FormLabel>
           <Input type="date" mb={4} {...register("eventDate", { required: true })} />
           <FormErrorMessage>{errors.eventDate && errors.eventDate.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={errors.eventTime != null} id="eventTime">
+        <FormControl invalid={errors.eventTime != null} id="eventTime">
           <FormLabel fontSize="sm" htmlFor="time">
             Time of the event:
           </FormLabel>
           <Input type="time" mb={4} {...register("eventTime", { required: true })} />
           <FormErrorMessage>{errors.eventTime && errors.eventTime.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={errors.duration != null} id="duration">
+        <FormControl invalid={errors.duration != null} id="duration">
           <FormLabel fontSize="sm" htmlFor="date">
             Expected duration (in hours):
           </FormLabel>
@@ -148,7 +148,7 @@ const CreateDirectDistroEvent = ({
           Name of the event:
         </FormLabel>
         <Input type="text" mb={4} {...register("name", { required: false })} />
-        <Button mt={4} colorScheme="teal" isLoading={isSubmitting} type="submit">
+        <Button mt={4} colorPalette="teal" isLoading={isSubmitting} type="submit">
           Submit
         </Button>
       </form>

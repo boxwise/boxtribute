@@ -177,7 +177,7 @@ function ProductsContainer() {
           return a === b ? 0 : a ? -1 : 1;
         },
         Cell: ({ value }: CellProps<ProductRow, boolean>) =>
-          value && <Badge colorScheme="green">Yes</Badge>,
+          value && <Badge colorPalette="green">Yes</Badge>,
       },
       {
         Header: "Description",

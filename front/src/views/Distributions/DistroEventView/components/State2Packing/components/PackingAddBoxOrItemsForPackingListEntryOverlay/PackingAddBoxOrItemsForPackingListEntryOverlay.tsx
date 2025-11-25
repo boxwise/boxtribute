@@ -1,4 +1,4 @@
-import { Modal, ModalOverlay } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
@@ -6,7 +6,7 @@ import PackingScanBoxOrFindByLabelOverlayContent from "./PackingScanBoxOrFindByL
 
 interface PackingScanBoxOrFindByLabelOverlayProps {
   packingListEntry: IPackingListEntry;
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   onAddBoxToDistributionEvent: (boxId: string) => void;
   // TODO: add correct signature / type here
@@ -16,7 +16,7 @@ interface PackingScanBoxOrFindByLabelOverlayProps {
 const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
   onAddBoxToDistributionEvent,
   onAddUnboxedItemsToDistributionEvent,
-  isOpen,
+  open,
   onClose,
   packingListEntry,
 }: PackingScanBoxOrFindByLabelOverlayProps) => {
@@ -35,14 +35,16 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
   }, []);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        resetState();
-        onClose();
+    <DialogRoot
+      open={open}
+      onOpenChange={(e) => {
+        if (!e.open) {
+          resetState();
+          onClose();
+        }
       }}
     >
-      <ModalOverlay />
+      <DialogBackdrop />
 
       {!showPackingBoxDetails && (
         <PackingScanBoxOrFindByLabelOverlayContent
@@ -68,7 +70,7 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
           }}
         />
       )}
-    </Modal>
+    </DialogRoot>
   );
 };
 

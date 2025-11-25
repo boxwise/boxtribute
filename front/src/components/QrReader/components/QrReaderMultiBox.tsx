@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { IoTrash } from "react-icons/io5";
 import { BiTag, BiUndo } from "react-icons/bi";
 import {
   Box,
@@ -111,7 +111,7 @@ function QrReaderMultiBox({
           {scannedBoxesCount && (
             <IconButton
               aria-label="Delete list of scanned boxes"
-              icon={<DeleteIcon />}
+              icon={<IoTrash />}
               size="sm"
               background="inherit"
               onClick={onDeleteScannedBoxes}
@@ -157,7 +157,7 @@ function QrReaderMultiBox({
                 </Radio>
                 {/* show select field only if the radio button is selected */}
                 {multiBoxAction === IMultiBoxAction.assignShipment && (
-                  <FormControl isRequired mt={2}>
+                  <FormControl required mt={2}>
                     <Select
                       placeholder="Please select a shipment ..."
                       isSearchable
@@ -182,7 +182,7 @@ function QrReaderMultiBox({
               </>
             )}
             {multiBoxAction === IMultiBoxAction.moveBox && (
-              <FormControl isRequired>
+              <FormControl required>
                 <Select
                   placeholder="Please select a location ..."
                   isSearchable
@@ -204,7 +204,7 @@ function QrReaderMultiBox({
               </FormControl>
             )}
             {multiBoxAction === IMultiBoxAction.assignTags && (
-              <FormControl isRequired>
+              <FormControl required>
                 <Select
                   placeholder="Please select tags ..."
                   isSearchable
@@ -244,9 +244,9 @@ function QrReaderMultiBox({
       {scannedBoxesCount && (
         <Button
           isLoading={isSubmitButtonLoading}
-          isDisabled={isSubmitButtonDisabled}
+          disabled={isSubmitButtonDisabled}
           type="button"
-          colorScheme="blue"
+          colorPalette="blue"
           onClick={() => handleSubmit()}
         >
           {multiBoxAction === IMultiBoxAction.moveBox ? "Move All" : "Assign All"}

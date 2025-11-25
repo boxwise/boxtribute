@@ -1,15 +1,16 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { ChakraProvider } from "@chakra-ui/react";
 import { MockedProvider } from "@apollo/client/testing";
 import GenderProductFilter, {
   categoryFilterId,
   categoryToFilterValue,
 } from "./GenderProductFilter";
+import { ChakraProvider } from "@chakra-ui/react";
+import { customSystem } from "../../../utils/theme";
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ChakraProvider>
+  <ChakraProvider value={customSystem}>
     <MockedProvider>
       <BrowserRouter>{children}</BrowserRouter>
     </MockedProvider>
