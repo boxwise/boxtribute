@@ -13,11 +13,7 @@ import {
   Box,
   FormLabel,
   FormControl,
-  NumberInputField,
   NumberInput,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInputStepper,
   Center,
   CheckboxGroup,
   HStack,
@@ -138,46 +134,46 @@ export default function VisHeader({
                 <Wrap>
                   <Box width="100px">
                     <FormLabel>Width</FormLabel>
-                    <NumberInput
+                    <NumberInput.Root
                       id={randomId()}
                       max={5000}
                       min={100}
                       step={10}
                       size="sm"
                       value={inputWidth}
-                      onChange={(_valueString, valueNumber) => setInputWidth(valueNumber)}
+                      onValueChange={(_valueString, valueNumber) => setInputWidth(valueNumber)}
                     >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
+                      <NumberInput.Input />
+                      <NumberInput.Control>
+                        <NumberInput.IncrementTrigger />
+                        <NumberInput.DecrementTrigger />
+                      </NumberInput.Control>
+                    </NumberInput.Root>
                   </Box>
                   <Box width="100px">
                     <FormLabel>Height</FormLabel>
-                    <NumberInput
+                    <NumberInput.Root
                       id={randomId()}
                       max={5000}
                       min={100}
                       step={10}
                       size="sm"
                       value={inputHeight}
-                      onChange={(_valueString, valueNumber) => setInputHeight(valueNumber)}
+                      onValueChange={(_valueString, valueNumber) => setInputHeight(valueNumber)}
                     >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
+                      <NumberInput.Input />
+                      <NumberInput.Control>
+                        <NumberInput.IncrementTrigger />
+                        <NumberInput.DecrementTrigger />
+                      </NumberInput.Control>
+                    </NumberInput.Root>
                   </Box>
                   <Spacer />
                   <Center>
                     <CheckboxGroup defaultValue={["heading", "timerange"]}>
                       <Box>
                         <FormLabel>Options</FormLabel>
-                        <HStack spacing="24px">
+                        <HStack gap="24px">
                           <Checkbox
                             id={randomId()}
                             checked

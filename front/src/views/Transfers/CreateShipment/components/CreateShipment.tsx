@@ -288,7 +288,7 @@ function CreateShipment({
                   </>
                 )}
               </Box>
-              <Stack spacing={4} mt={8}>
+              <Stack gap={4} mt={8}>
                 <Button
                   isLoading={isSubmitting || isLoading}
                   disabled={noAcceptedAgreements}
@@ -332,7 +332,7 @@ function CreateShipment({
                   options={intraOrganisationOptions}
                 />
               </Box>
-              <Stack spacing={4} mt={8}>
+              <Stack gap={4} mt={8}>
                 <Button
                   isLoading={isSubmittingIntraOrg || isLoading}
                   type="submit"

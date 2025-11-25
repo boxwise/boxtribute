@@ -222,7 +222,7 @@ function ShipmentsOverviewView() {
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Shipments
       </Heading>
-      <Stack direction="row" my={4} spacing={4}>
+      <Stack direction="row" my={4} gap={4}>
         <Link to="create">
           <Button leftIcon={<IoAdd />} borderRadius="0">
             Create Shipment

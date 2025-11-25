@@ -31,7 +31,7 @@ export function StateCell({ value }: CellProps<any>) {
 
 export function TagsCell({ value }: CellProps<any>) {
   return (
-    <Wrap spacing={1}>
+    <Wrap gap={1}>
       {value.map((tag) => (
         <WrapItem key={tag.id}>
           <Tag
@@ -51,8 +51,8 @@ export function ShipmentCell({ value }: CellProps<any>) {
     return <chakra.div />;
   }
   return (
-    <VStack align="start" spacing={0}>
-      <Wrap spacing={1}>
+    <VStack align="start" gap={0}>
+      <Wrap gap={1}>
         <WrapItem fontWeight="semibold">{value.targetBase.name}, </WrapItem>
         <WrapItem>{value.targetBase.organisation.name}</WrapItem>
       </Wrap>

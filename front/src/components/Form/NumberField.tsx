@@ -3,10 +3,6 @@ import {
   FormErrorMessage,
   FormLabel,
   NumberInput,
-  NumberInputField,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  NumberInputStepper,
   Text,
   FormControlProps,
 } from "@chakra-ui/react";
@@ -51,9 +47,9 @@ function NumberField({
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <NumberInput min={0} data-testid={testId}>
+          <NumberInput.Root min={0} data-testid={testId}>
             {/* The NumberInputField only returns strings and needs to be casted before validation is possible */}
-            <NumberInputField
+            <NumberInput.Input
               onKeyDown={(e) => {
                 // prevent entering negetive number
                 if (e.code === "Minus") {
@@ -78,11 +74,11 @@ function NumberField({
                 },
               })}
             />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
+            <NumberInput.Control>
+              <NumberInput.IncrementTrigger />
+              <NumberInput.DecrementTrigger />
+            </NumberInput.Control>
+          </NumberInput.Root>
         )}
       />
       {showError && (
@@ -133,16 +129,16 @@ export function NewNumberField({
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <NumberInput
+          <NumberInput.Root
             min={0}
             data-testid={testId}
             value={field.value ?? ""}
-            onChange={(_valueAsString, valueAsNumber) => {
+            onValueChange={(_valueAsString, valueAsNumber) => {
               // Convert empty string to undefined if you prefer
               field.onChange(Number.isNaN(valueAsNumber) ? undefined : valueAsNumber);
             }}
           >
-            <NumberInputField
+            <NumberInput.Input
               onKeyDown={(e) => {
                 // block negative sign
                 if (e.code === "Minus") {
@@ -153,11 +149,11 @@ export function NewNumberField({
               borderRadius="0"
               borderColor="black"
             />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
+            <NumberInput.Control>
+              <NumberInput.IncrementTrigger />
+              <NumberInput.DecrementTrigger />
+            </NumberInput.Control>
+          </NumberInput.Root>
         )}
       />
       {showError && <FormErrorMessage>{errors[fieldId]?.message as string}</FormErrorMessage>}

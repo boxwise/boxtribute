@@ -13,7 +13,7 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
         <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
           {headerGroup.headers.map((column, idx) => (
             <Th {...column.getHeaderProps()} color="black" key={idx}>
-              <HStack alignItems="center" spacing={1}>
+              <HStack alignItems="center" gap={1}>
                 {column.isSorted && column.isSortedDesc && (
                   <IoCaretDown aria-label="sorted descending" />
                 )}

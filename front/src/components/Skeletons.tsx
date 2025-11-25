@@ -40,10 +40,10 @@ export function TabsSkeleton() {
   return (
     <>
       <Skeleton height="50px" my="4" />
-      <SkeletonText mt="2" lineClamp={2} spacing="4" />
+      <SkeletonText mt="2" lineClamp={2} gap="4" />
       <Skeleton height="50px" my="4" />
       <SkeletonCircle size="5" mt="4" />
-      <SkeletonText mt="4" lineClamp={4} spacing="4" />
+      <SkeletonText mt="4" lineClamp={4} gap="4" />
     </>
   );
 }
@@ -59,8 +59,8 @@ export function ShipmentCardSkeleton() {
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
-      <VStack padding={0} rounded="md" bg="white" spacing={1} align="stretch">
-        <VStack spacing={2} padding={1} align="center">
+      <VStack padding={0} rounded="md" bg="white" gap={1} align="stretch">
+        <VStack gap={2} padding={1} align="center">
           <Wrap fontSize="xl" fontWeight="extrabold">
             <WrapItem>
               <Skeleton height={8} width={24} />
@@ -82,7 +82,7 @@ export function ShipmentCardSkeleton() {
         <Box border={0}>
           <Flex minWidth="max-content" alignItems="center" gap="2">
             <Box p="4">
-              <List spacing={1}>
+              <List gap={1}>
                 <ListItem>
                   <Flex alignContent="right">
                     <Skeleton height={8} width={12} />
@@ -103,7 +103,7 @@ export function ShipmentCardSkeleton() {
             </Box>
             <Spacer />
             <Box p="4">
-              <List spacing={1}>
+              <List gap={1}>
                 <ListItem>
                   <Flex alignContent="left">
                     <Skeleton height={8} width={12} />
@@ -131,7 +131,7 @@ export function ShipmentCardSkeleton() {
             </Box>
             <Spacer />
             <Box>
-              <Wrap spacing={2} align="center">
+              <Wrap gap={2} align="center">
                 <WrapItem>
                   <Center>
                     <SkeletonCircle size="12" />
@@ -142,7 +142,7 @@ export function ShipmentCardSkeleton() {
 
             <Spacer />
             <Box>
-              <VStack spacing={2} align="stretch">
+              <VStack gap={2} align="stretch">
                 <Box>
                   <SkeletonCircle size="8" />
                 </Box>
@@ -178,7 +178,7 @@ export function QrReaderSkeleton() {
 
 export function QrReaderMultiBoxSkeleton() {
   return (
-    <Stack direction="column" spacing={4} data-testid="QrReaderMultiBoxSkeleton">
+    <Stack direction="column" gap={4} data-testid="QrReaderMultiBoxSkeleton">
       {[1, 2, 3].map((num) => (
         <Skeleton key={num} height="50px" />
       ))}
@@ -206,12 +206,9 @@ export function BoxViewSkeleton() {
         <Flex py={2} px={4} alignItems="center">
           <SkeletonText ml="4" lineClamp={1} width="50%" />
           <Skeleton ml="auto">
-            <IconButton
-              aria-label="Edit box"
-              borderRadius="0"
-              icon={<IoPencil size={24} />}
-              border="2px"
-            />
+            <IconButton aria-label="Edit box" borderRadius="0" border="2px">
+              <IoPencil size={24} />
+            </IconButton>
           </Skeleton>
         </Flex>
         <Skeleton height="18rem" />
@@ -221,7 +218,7 @@ export function BoxViewSkeleton() {
       </Flex>
       <Box w={["100%", "80%", "30%", "30%"]}>
         <Stack direction="column" alignContent="flex-start" p={2}>
-          <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
+          <Stack direction="row" alignItems="center" alignContent="center" gap={2}>
             <Skeleton>
               <FaWarehouse size={24} />
             </Skeleton>
@@ -233,7 +230,7 @@ export function BoxViewSkeleton() {
               alignContent="center"
             />
           </Stack>
-          <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
+          <Stack direction="row" alignItems="center" alignContent="center" gap={2}>
             <Skeleton>
               <ShipmentIcon boxSize={6} alignItems="center" />
             </Skeleton>
@@ -256,7 +253,7 @@ export function FormSkeleton() {
   return (
     <>
       <Box mb={4} p={2}>
-        <VStack spacing={4} pt={4}>
+        <VStack gap={4} pt={4}>
           {/* First form field */}
           <FormControl>
             <FormLabel>
@@ -284,7 +281,7 @@ export function FormSkeleton() {
       </Box>
 
       {/* Buttons */}
-      <Stack spacing={2} my={4}>
+      <Stack gap={2} my={4}>
         <ButtonSkeleton />
         <ButtonSkeleton />
       </Stack>

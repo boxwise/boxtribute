@@ -72,11 +72,12 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 as={IconButton}
                 aria-label="Options"
                 data-testid="menu-button"
-                icon={<IoMenu />}
                 bg="transparent"
                 _hover={{ bg: "transparent" }}
                 _expanded={{ bg: "transparent" }}
-              />
+              >
+                <IoMenu />
+              </MenuButton>
               <MenuList zIndex={1300} py={0}>
                 <MenuItem
                   key="qr-code-menu"

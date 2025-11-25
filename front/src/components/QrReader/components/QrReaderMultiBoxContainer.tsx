@@ -184,7 +184,7 @@ function QrReaderMultiBoxContainer() {
   }
 
   return (
-    <Stack direction="column" spacing={2}>
+    <Stack direction="column" gap={2}>
       {optionsQueryResult.error && (
         <AlertWithoutAction alertText="Could not fetch data for options! Please reload the page." />
       )}

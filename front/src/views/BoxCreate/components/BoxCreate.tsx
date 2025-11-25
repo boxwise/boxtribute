@@ -181,7 +181,7 @@ export function BoxCreate({
         Create New Box
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <List spacing={2}>
+        <List gap={2}>
           <ListItem>
             <SelectField
               fieldId="productId"
@@ -243,7 +243,7 @@ export function BoxCreate({
           </ListItem>
         </List>
 
-        <Stack spacing={4} mt={8}>
+        <Stack gap={4} mt={8}>
           <Button
             isLoading={isSubmitting}
             type="submit"

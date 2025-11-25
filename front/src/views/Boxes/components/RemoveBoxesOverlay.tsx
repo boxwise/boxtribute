@@ -21,7 +21,7 @@ function RemoveBoxesOverlay({
 }: IRemoveBoxesOverlayProps) {
   const title = `Delete Box${selectedBoxes.length > 1 ? "es" : ""}`;
   const body = (
-    <VStack align="start" spacing={8}>
+    <VStack align="start" gap={8}>
       <chakra.span>
         Are you sure you want to <b style={{ color: "red" }}>DELETE</b> {selectedBoxes.length} box
         {selectedBoxes.length > 1 ? "es" : ""}?

@@ -59,7 +59,7 @@ function ShipmentCard({
       borderColor="blackAlpha.800"
       borderWidth={1.5}
     >
-      <VStack padding={0} rounded="md" bg="white" spacing={1} align="stretch">
+      <VStack padding={0} rounded="md" bg="white" gap={1} align="stretch">
         <Flex minWidth="max-content" justifyContent="flex-start" p={4}>
           <VStack alignItems="flex-start">
             <Heading>
@@ -105,7 +105,7 @@ function ShipmentCard({
             alignContent="space-between"
           >
             <Box>
-              <List spacing={2}>
+              <List gap={2}>
                 <ListItem>
                   <Flex justifyContent="flex-end">
                     <Text fontSize="md" fontWeight="semibold" alignContent="right">
@@ -130,7 +130,7 @@ function ShipmentCard({
             </Box>
 
             <Box>
-              <List spacing={2}>
+              <List gap={2}>
                 <ListItem>
                   <Flex justifyContent="flex-start">
                     <Text fontSize="md" fontWeight="semibold">
@@ -170,7 +170,7 @@ function ShipmentCard({
             <Spacer />
 
             <Box>
-              <Wrap spacing={2} align="center">
+              <Wrap gap={2} align="center">
                 <WrapItem>
                   <Center>
                     <Text as="h3" fontSize="3xl" fontWeight="bold">
@@ -189,7 +189,7 @@ function ShipmentCard({
             <Spacer />
             <Box>
               {canUpdateShipment && (
-                <VStack spacing={0} align="stretch">
+                <VStack gap={0} align="stretch">
                   <IconButton
                     isRound
                     height={8}
@@ -221,7 +221,7 @@ function ShipmentCard({
               {shipment.state === "Completed" && totalLostBoxes > 0 && (
                 <VStack align="stretch" mr={1}>
                   <Tooltip label="the number of boxes that didn't arrive">
-                    <Wrap spacing={0} align="center" style={{ color: "#909090" }}>
+                    <Wrap gap={0} align="center" style={{ color: "#909090" }}>
                       <WrapItem>
                         <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
                           (

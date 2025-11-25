@@ -1,3 +1,4 @@
+//TODO Charkra v3 issue
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -200,7 +201,7 @@ function EditStandardProductForm({
             p={2}
           />
         </Box>
-        <Stack spacing={2} my={4}>
+        <Stack gap={2} my={4}>
           <Button
             isLoading={isLoading}
             disabled={isLoading}

@@ -45,7 +45,7 @@ function CheckboxGroup({
       >
         {groupName}
       </Checkbox>
-      <Stack pl={6} mt={1} spacing={1}>
+      <Stack pl={6} mt={1} gap={1}>
         {allValuesWithLabels.map(([value, label]) => (
           <Checkbox
             key={value}

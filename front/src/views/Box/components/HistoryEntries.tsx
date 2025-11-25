@@ -36,7 +36,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
   return (
     <Stack py={2} px={2} align="center">
       <Flex align="center" direction="column">
-        <List spacing={1}>
+        <List gap={1}>
           {data.slice(0, total).map((historyEntry) => (
             <ListItem
               key={historyEntry.id}

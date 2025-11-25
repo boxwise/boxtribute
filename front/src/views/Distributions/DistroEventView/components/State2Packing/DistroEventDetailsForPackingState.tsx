@@ -296,7 +296,7 @@ DistroEventDetailsForPackingStateProps) => {
   return (
     <>
       <Button onClick={onClickScanBoxesForDistroEvent}>Scan Boxes for this Distro Event</Button>
-      <VStack spacing={0}>
+      <VStack gap={0}>
         <Heading size="md">Packing List</Heading>
         <Accordion allowToggle px={3} py={3}>
           {packingListEntriesGroupedByProductNameAsArray.map(
@@ -352,7 +352,7 @@ DistroEventDetailsForPackingStateProps) => {
           You're all set - move to Distribution Stage.
         </Button> */}
       </VStack>
-      <VStack spacing={1}>
+      <VStack gap={1}>
         <Button onClick={onAddAdditionalItemsButtonClick} size={"sm"}>
           Add additional items to this Distro Event
         </Button>

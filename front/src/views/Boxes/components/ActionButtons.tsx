@@ -51,8 +51,8 @@ export function SelectButton({
               {!subTitle ? (
                 olabel
               ) : (
-                <VStack align="start" spacing={0}>
-                  <Wrap spacing={1}>
+                <VStack align="start" gap={0}>
+                  <Wrap gap={1}>
                     <WrapItem fontWeight="semibold">{firstPart.trim()}, </WrapItem>
                     <WrapItem>{secondPart.trim()}</WrapItem>
                   </Wrap>

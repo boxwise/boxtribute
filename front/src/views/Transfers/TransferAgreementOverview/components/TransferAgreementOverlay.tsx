@@ -36,7 +36,7 @@ function TransferAgreementsOverlay({
   if (data.state === CanAcceptTransferAgreementState.CanAccept) {
     title = "Transfer Agreement Request Open";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           <Text as="b">{data.partnerOrg}</Text> has a transfer request OPEN with you with the
           following details:
@@ -64,7 +64,7 @@ function TransferAgreementsOverlay({
   } else if (data.state === "Accepted") {
     title = "Terminate Transfer Agreement";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           Your transfer agreement with {data.partnerOrg} is currently <Text as="b">ACCEPTED</Text>.
         </chakra.span>
@@ -85,7 +85,7 @@ function TransferAgreementsOverlay({
   } else if (data.state === "Rejected") {
     title = "Retry Transfer Agreement Request";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           Your transfer agreement with {data.partnerOrg} is currently <Text as="b">DECLINED</Text>.
         </chakra.span>
@@ -103,7 +103,7 @@ function TransferAgreementsOverlay({
   } else if (data.state === "Expired" || data.state === "Canceled") {
     title = "Renew Transfer Agreement";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           Your transfer agreement with {data.partnerOrg} is currently <Text as="b">ENDED</Text>.
         </chakra.span>

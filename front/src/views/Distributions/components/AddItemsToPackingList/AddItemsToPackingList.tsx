@@ -169,7 +169,7 @@ const AddItemsToPackingList = ({
         <TabPanels>
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <TabPanel key={productsGroupForGender.gender || "No Gender"}>
-              <VStack spacing={8}>
+              <VStack gap={8}>
                 {productsGroupForGender.productsForCategory.map((productsGroupForCategory) => (
                   <Box key={productsGroupForCategory.category.id}>
                     <Heading fontSize="lg" fontWeight="bold" textAlign={"center"} mb={15}>

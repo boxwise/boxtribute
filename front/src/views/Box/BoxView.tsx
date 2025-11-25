@@ -618,7 +618,7 @@ function BTBox() {
       location?.defaultBoxState === "Scrap");
 
   return (
-    <VStack spacing={4} align="stretch">
+    <VStack gap={4} align="stretch">
       {boxData?.deletedOn && (
         <Alert
           status="warning"

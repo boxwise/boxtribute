@@ -131,7 +131,7 @@ export default function BarChart(barChart: IBarChart) {
             color: "#eed312",
             rotation: -45,
             lineWidth: 6,
-            spacing: 10,
+            gap: 10,
           },
         ]}
         borderColor={{

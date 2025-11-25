@@ -47,7 +47,7 @@ export function AreYouSureDialog({
         <DialogCloseTrigger />
         <DialogBody>{body}</DialogBody>
         <DialogFooter>
-          <HStack spacing={4}>
+          <HStack gap={4}>
             <Button
               loading={isLoading}
               onClick={onLeftButtonClick}

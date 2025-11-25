@@ -194,7 +194,7 @@ function BoxesTable({
           actionsAreLoading={actionsAreLoading}
         />
         <Spacer />
-        <HStack spacing={2} mb={2}>
+        <HStack gap={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter(
               (column) => column.id !== "shipment" && column.id !== "selection",

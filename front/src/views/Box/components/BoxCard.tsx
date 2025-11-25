@@ -3,7 +3,7 @@ import {
   Box,
   Text,
   ButtonGroup,
-  Divider,
+  Separator,
   Flex,
   FormLabel,
   Heading,
@@ -117,7 +117,7 @@ function BoxCard({
       </Wrap>
       {boxData?.tags !== undefined && (
         <Flex pb={2} px={4} direction="row">
-          <HStack spacing={1} data-testid="box-tags">
+          <HStack gap={1} data-testid="box-tags">
             {boxData.tags?.map((tag) => (
               <Tag
                 key={tag.id}
@@ -138,7 +138,7 @@ function BoxCard({
         </Text>
       </Flex>
 
-      <Divider />
+      <Separator />
       <Stack py={2} px={4}>
         <Flex>
           <Heading as="h3" fontSize="xl" data-testid="boxview-number-items">
@@ -203,7 +203,7 @@ function BoxCard({
 
       <Spacer />
       <Flex py={2} px={4} direction="row">
-        <List spacing={1}>
+        <List gap={1}>
           <ListItem>
             <Flex alignContent="center">
               <Text fontWeight="bold">Size: {size?.label}</Text>
@@ -232,7 +232,7 @@ function BoxCard({
         </List>
       </Flex>
 
-      <Divider />
+      <Separator />
       <Stack py={2} px={4} alignContent="center">
         <Flex alignContent="center" direction="row">
           <Text fontSize="xl" fontWeight="bold">
@@ -305,7 +305,7 @@ function BoxCard({
 
       {boxData?.history && boxData?.history?.length > 0 && (
         <>
-          <Divider />
+          <Separator />
           <Stack py={2} px={4} alignContent="center">
             <Flex alignContent="center" direction="column">
               <Text fontSize="lg" fontWeight="bold">

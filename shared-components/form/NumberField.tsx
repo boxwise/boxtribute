@@ -1,14 +1,4 @@
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  NumberInput,
-  NumberInputField,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  NumberInputStepper,
-  Text,
-} from "@chakra-ui/react";
+import { FormControl, FormErrorMessage, FormLabel, NumberInput, Text } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
 export interface INumberFieldProps {
@@ -50,9 +40,9 @@ function NumberField({
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <NumberInput min={0} data-testid={testId}>
+          <NumberInput.Root min={0} data-testid={testId}>
             {/* The NumberInputField only returns strings and needs to be casted before validation is possible */}
-            <NumberInputField
+            <NumberInput.Input
               onKeyDown={(e) => {
                 // prevent entering negetive number
                 if (e.code === "Minus") {
@@ -77,11 +67,11 @@ function NumberField({
                 },
               })}
             />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
+            <NumberInput.Control>
+              <NumberInput.IncrementTrigger />
+              <NumberInput.DecrementTrigger />
+            </NumberInput.Control>
+          </NumberInput.Root>
         )}
       />
       {showError && (

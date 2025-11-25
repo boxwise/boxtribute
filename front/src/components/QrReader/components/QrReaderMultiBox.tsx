@@ -134,13 +134,13 @@ function QrReaderMultiBox({
         <RadioGroup onChange={onChangeMultiBoxAction} value={multiBoxAction}>
           <Stack direction="column">
             <Radio value="moveBox" data-testid="MoveBox">
-              <Stack direction="row" alignItems="center" spacing={2}>
+              <Stack direction="row" alignItems="center" gap={2}>
                 <Icon as={FaCartFlatbed} boxSize={6} />
                 <Text>Move to Location</Text>
               </Stack>
             </Radio>
             <Radio value="assignTags" data-testid="AssignTags">
-              <Stack direction="row" alignItems="center" spacing={2}>
+              <Stack direction="row" alignItems="center" gap={2}>
                 <Icon as={BiTag} boxSize={6} />
                 Tag Boxes
                 <Text>Tag Boxes</Text>
@@ -150,7 +150,7 @@ function QrReaderMultiBox({
             {shipmentOptions.length > 0 && (
               <>
                 <Radio value="assignShipment" data-testid="AssignShipment">
-                  <Stack direction="row" alignItems="center" spacing={2}>
+                  <Stack direction="row" alignItems="center" gap={2}>
                     <ShipmentIcon boxSize={6} />
                     <Text>Assign to Shipment</Text>
                   </Stack>

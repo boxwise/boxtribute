@@ -129,7 +129,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
   const StateSpecificComponent = eventStateToComponentMapping[distributionEventDetails.state];
   return (
     <>
-      <VStack spacing={25}>
+      <VStack gap={25}>
         {/* <BreadcrumbNavigation
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         /> */}
@@ -164,7 +164,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
             {distroEventStateHumanReadableLabels.get(nextState)})
           </Button>
         )} */}
-        <VStack spacing={5}>
+        <VStack gap={5}>
           <StateSpecificComponent />
         </VStack>
       </VStack>

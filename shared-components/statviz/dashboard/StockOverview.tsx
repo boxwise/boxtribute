@@ -1,25 +1,18 @@
-import {
-  AccordionItem,
-  AccordionButton,
-  Heading,
-  AccordionIcon,
-  AccordionPanel,
-  Box,
-} from "@chakra-ui/react";
+import { Heading, AccordionPanel, Box, Accordion } from "@chakra-ui/react";
 import StockDataContainer from "../components/visualizations/stock/StockDataContainer";
 
 export default function StockOverview() {
   return (
-    <AccordionItem>
-      <AccordionButton padding="15px 10px">
+    <Accordion.Item value="">
+      <Accordion.ItemTrigger padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Stock Overview</Heading>
         </Box>
-        <AccordionIcon />
-      </AccordionButton>
+        <Accordion.ItemIndicator />
+      </Accordion.ItemTrigger>
       <AccordionPanel>
         <StockDataContainer />
       </AccordionPanel>
-    </AccordionItem>
+    </Accordion.Item>
   );
 }

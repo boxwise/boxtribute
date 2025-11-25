@@ -88,7 +88,7 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
     <Flex direction="column" overflowX="auto">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Spacer />
-        <HStack spacing={2} mb={2}>
+        <HStack gap={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
           />

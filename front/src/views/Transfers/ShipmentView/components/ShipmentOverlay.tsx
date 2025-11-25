@@ -41,7 +41,7 @@ function ShipmentOverlay({
   if (data?.state === "Preparing") {
     title = "Cancel Whole Shipment?";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           <Text>
             This will archive this shipment and will return all boxes to their original locations.
@@ -62,7 +62,7 @@ function ShipmentOverlay({
   } else if (data?.state === "Receiving") {
     title = "Remaining Boxes Not Delivered?";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           <Text>
             This will mark the remaining boxes as{" "}
@@ -98,7 +98,7 @@ function ShipmentOverlay({
   } else if (data?.state === "Sent") {
     title = "Cannot Locate Shipment?";
     body = (
-      <VStack align="start" spacing={8}>
+      <VStack align="start" gap={8}>
         <chakra.span>
           <Text>
             Confirming this will mark the shipment as{" "}

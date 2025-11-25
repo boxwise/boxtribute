@@ -77,7 +77,7 @@ function EditCustomProductForm({
             PRODUCT DETAILS
           </Text>
         </HStack>
-        <VStack spacing={4} p={2} mt={2}>
+        <VStack gap={4} p={2} mt={2}>
           <FormControl invalid={!!errors.name}>
             <FormLabel htmlFor="name">
               Name{" "}
@@ -151,7 +151,7 @@ function EditCustomProductForm({
           p={2}
         />
       </Box>
-      <Stack spacing={2} my={4}>
+      <Stack gap={2} my={4}>
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Edit Product
         </Button>

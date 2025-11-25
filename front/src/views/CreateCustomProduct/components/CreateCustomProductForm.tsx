@@ -133,7 +133,7 @@ function CreateCustomProductForm({
             PRODUCT SETUP
           </Text>
         </HStack>
-        <VStack spacing={4} p={2} mt={2}>
+        <VStack gap={4} p={2} mt={2}>
           <FormControl>
             <HStack>
               <Switch id="type-switch" mr={2} isChecked onChange={() => navigate("../enable")} />
@@ -216,7 +216,7 @@ function CreateCustomProductForm({
           p={2}
         />
       </Box>
-      <Stack spacing={2} my={4}>
+      <Stack gap={2} my={4}>
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Add Product
         </Button>

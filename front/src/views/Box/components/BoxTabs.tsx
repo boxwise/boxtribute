@@ -49,7 +49,7 @@ function BoxTabs({
       <Flex direction="column">
         <Stack direction="column" alignContent="flex-start" p={2}>
           {location && (
-            <Stack alignContent="flex-start" spacing={2}>
+            <Stack alignContent="flex-start" gap={2}>
               <Wrap>
                 <WrapItem alignItems="center">
                   <FaWarehouse size={24} />
@@ -70,7 +70,7 @@ function BoxTabs({
             </Stack>
           )}
           {boxData?.shipmentDetail && (
-            <Stack direction="row" alignItems="center" alignContent="center" spacing={2}>
+            <Stack direction="row" alignItems="center" alignContent="center" gap={2}>
               <ShipmentIcon boxSize={6} alignItems="center" />
               {!isLoading && (
                 <Text alignItems="center" alignContent="center">

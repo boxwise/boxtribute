@@ -46,7 +46,7 @@ function BoxDetails({
       direction={["column", "column", "row"]}
       alignSelf="center"
       alignItems={["center", "center", "flex-start"]}
-      spacing={[6, 6, 16]}
+      gap={[6, 6, 16]}
       w={["100%", "80%", "100%", "80%"]}
       justifyContent="center"
       data-testid="box-sections"

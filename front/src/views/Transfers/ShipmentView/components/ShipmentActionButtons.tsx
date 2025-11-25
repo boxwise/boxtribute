@@ -93,7 +93,7 @@ function ShipmentActionButtons({
   }
   if ("Sent" === shipmentState && !isSender) {
     return (
-      <VStack align="stretch" spacing={1}>
+      <VStack align="stretch" gap={1}>
         <Button {...receiveButtonProps}>Receive Shipment</Button>
         <Button {...lostButtonProps}>Cannot Locate Shipment</Button>
       </VStack>

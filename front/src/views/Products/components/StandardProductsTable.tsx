@@ -98,7 +98,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Spacer />
-        <HStack spacing={2} mb={2}>
+        <HStack gap={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
           />

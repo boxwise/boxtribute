@@ -226,7 +226,7 @@ function BoxEdit({
       </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
-        <List spacing={2}>
+        <List gap={2}>
           <ListItem>
             <SelectField
               fieldId="productId"
@@ -288,7 +288,7 @@ function BoxEdit({
           </ListItem>
         </List>
 
-        <Stack spacing={4}>
+        <Stack gap={4}>
           <ButtonGroup gap="4">
             <Button
               mt={4}
