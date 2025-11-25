@@ -1716,6 +1716,7 @@ UNLOCK TABLES;
 -- Table structure for table `services`
 --
 
+DROP TABLE IF EXISTS `services_relations`;
 DROP TABLE IF EXISTS `services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1757,7 +1758,6 @@ UNLOCK TABLES;
 -- Table structure for table `services_relations`
 --
 
-DROP TABLE IF EXISTS `services_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services_relations` (
