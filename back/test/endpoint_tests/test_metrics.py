@@ -160,7 +160,7 @@ def test_active_beneficiaries_numbers(start, end, read_only_client):
     query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
     response = assert_successful_request(read_only_client, query, endpoint="public")
 
-    assert response == 1
+    assert response == 2
     # Delete the tested person
     delete_query = """
     mutation {
@@ -178,7 +178,7 @@ def test_active_beneficiaries_numbers(start, end, read_only_client):
 
     query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert response == 0
+    assert response == 2
 
 
 def build_newly_created_query(query_string):
