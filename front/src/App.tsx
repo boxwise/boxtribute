@@ -334,43 +334,44 @@ function App() {
               </Route>
             </Route>
           </Route>
+
+          <Route path="tags">
+            <Route
+              index
+              element={
+                <Protected
+                  component={<TransferAgreementOverviewView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_tags"]}
+                />
+              }
+            />
+            <Route
+              path=":tagId"
+              element={
+                <Protected
+                  component={<TransferAgreementOverviewView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_tags"]}
+                />
+              }
+            />
+            <Route
+              path="create"
+              element={
+                <Protected
+                  component={<TransferAgreementOverviewView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_tags"]}
+                />
+              }
+            />
+          </Route>
         </Route>
       </Route>
       <Route path="boxes">
         <Route path=":boxId" element={<DropappRedirect path="/boxes/:boxId" />} />
         <Route path="create" element={<DropappRedirect path="/boxes/create/:qrCodeHash" />} />
-      </Route>
-      <Route path="tags">
-        <Route
-          index
-          element={
-            <Protected
-              component={<EditStandardProductView />}
-              redirectPath={prevLocation}
-              requiredAbps={["manage_tags"]}
-            />
-          }
-        />
-        <Route
-          path=":tagId"
-          element={
-            <Protected
-              component={<EditStandardProductView />}
-              redirectPath={prevLocation}
-              requiredAbps={["manage_tags"]}
-            />
-          }
-        />
-        <Route
-          path="create"
-          element={
-            <Protected
-              component={<EditStandardProductView />}
-              redirectPath={prevLocation}
-              requiredAbps={["manage_tags"]}
-            />
-          }
-        />
       </Route>
       <Route path="qrreader">
         <Route index element={<DropappRedirect path="/qrreader" />} />
