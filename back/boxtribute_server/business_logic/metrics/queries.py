@@ -6,12 +6,10 @@ from flask import g
 from ...authz import authorize
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
-from .crud import number_of_created_records_between
+from .crud import get_time_span, number_of_created_records_between
 
 query = QueryType()
 public_query = QueryType()
-
-RANGE_NAMES = ("last_month", "last_quarter", "last_year")
 
 
 @query.field("metrics")
@@ -27,20 +25,17 @@ def resolve_metrics(*_, organisation_id=None):
 
 
 @public_query.field("newlyRegisteredBeneficiaryNumbers")
-def resolve_newly_registered_beneficiary_numbers(*_):
-    ranges = get_time_ranges()
-
-    return {
-        r: number_of_created_records_between(Beneficiary, *ranges[r])
-        for r in RANGE_NAMES
-    }
+def resolve_newly_registered_beneficiary_numbers(
+    *_, start=None, end=None, duration=None
+):
+    time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
+    return number_of_created_records_between(Beneficiary, *time_span)
 
 
 @public_query.field("newlyCreatedBoxNumbers")
-def resolve_newly_created_box_numbers(*_):
-    ranges = get_time_ranges()
-
-    return {r: number_of_created_records_between(Box, *ranges[r]) for r in RANGE_NAMES}
+def resolve_newly_created_box_numbers(*_, start=None, end=None, duration=None):
+    time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
+    return number_of_created_records_between(Box, *time_span)
 
 
 def get_time_ranges():
