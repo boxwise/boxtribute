@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-
 from ariadne import QueryType
 from flask import g
 
@@ -36,41 +34,3 @@ def resolve_newly_registered_beneficiary_numbers(
 def resolve_newly_created_box_numbers(*_, start=None, end=None, duration=None):
     time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
     return number_of_created_records_between(Box, *time_span)
-
-
-def get_time_ranges():
-    now = datetime.today()
-
-    # Last month
-    start_this_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    end_last_month = start_this_month - timedelta(microseconds=1)
-    start_last_month = end_last_month.replace(
-        day=1, hour=0, minute=0, second=0, microsecond=0
-    )
-
-    # Last quarter
-    curr_quarter = (now.month - 1) // 3 + 1
-    last_quarter = curr_quarter - 1
-
-    if last_quarter == 0:
-        # Previous quarter was Q4 of last year
-        year = now.year - 1
-        start_last_quarter = datetime(year, 10, 1)
-        end_last_quarter = datetime(year + 1, 1, 1) - timedelta(microseconds=1)
-    else:
-        # Previous quarter was in current year
-        year = now.year
-        first_month_last_quarter = 3 * (last_quarter - 1) + 1
-        start_last_quarter = datetime(year, first_month_last_quarter, 1)
-        next_quarter_start = datetime(year, first_month_last_quarter + 3, 1)
-        end_last_quarter = next_quarter_start - timedelta(microseconds=1)
-
-    # Last year
-    start_last_year = datetime(now.year - 1, 1, 1)
-    end_last_year = datetime(now.year, 1, 1) - timedelta(microseconds=1)
-
-    return {
-        "last_month": [start_last_month, end_last_month],
-        "last_quarter": [start_last_quarter, end_last_quarter],
-        "last_year": [start_last_year, end_last_year],
-    }
