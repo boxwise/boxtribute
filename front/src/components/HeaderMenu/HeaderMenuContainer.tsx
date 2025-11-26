@@ -131,6 +131,26 @@ function HeaderMenuContainer() {
         ],
       },
       {
+        text: "Services",
+        requiredAbps: [["manage_services", "register_service_usage"]],
+        links: [
+          {
+            link: `${oldAppUrlWithBase}&action=use_service`,
+            name: "Use Service",
+            requiredAbps: ["register_service_usage"],
+            beta: true,
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=services`,
+            name: "Manage Services",
+            requiredAbps: ["manage_services"],
+            beta: true,
+            external: true,
+          },
+        ]
+      },
+      {
         text: "Coordinator Admin",
         requiredAbps: ["manage_volunteers"],
         links: [
