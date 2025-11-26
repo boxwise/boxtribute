@@ -1,6 +1,6 @@
 """Computation of various metrics"""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from peewee import JOIN, fn
 
@@ -136,7 +136,7 @@ def get_time_span(
     Calculates a time span (start_date, end_date) given one or two of three possible
     inputs.
 
-    :param start_date: The start date
+    :param start_date: The start date (earlier than the end date)
     :param end_date: The end date
     :param duration_days: The duration in days (integer).
     :return: A tuple (calculated_start_date, calculated_end_date).
@@ -172,6 +172,7 @@ def get_time_span(
 
     # 5. Only Start Date provided, end date defaults to today
     elif start_date is not None:
+        start_date = start_date.replace(tzinfo=timezone.utc)
         end_date = utcnow()
         if start_date > end_date:
             raise ValueError("Start date cannot be after the end date.")
