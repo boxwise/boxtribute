@@ -1,6 +1,6 @@
 """Computation of various metrics"""
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from peewee import JOIN, fn
 
@@ -9,6 +9,7 @@ from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.location import Location
 from ...models.definitions.transaction import Transaction
+from ...models.utils import utcnow
 
 
 def _build_range_filter(field, *, low, high):
@@ -127,10 +128,10 @@ def number_of_created_records_between(model, start, end):
 
 def get_time_span(
     *,
-    start_date: datetime | date | None = None,
-    end_date: datetime | date | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
     duration_days: int | None = None
-) -> tuple[datetime | date, datetime | date]:
+) -> tuple[datetime, datetime]:
     """
     Calculates a time span (start_date, end_date) given one or two of three possible
     inputs.
@@ -165,13 +166,13 @@ def get_time_span(
     elif duration_days is not None:
         if duration_days < 0:
             raise ValueError("Duration cannot be negative.")
-        end_date = datetime.today()
+        end_date = utcnow()
         calculated_start_date = end_date - timedelta(days=duration_days)
         return (calculated_start_date, end_date)
 
     # 5. Only Start Date provided, end date defaults to today
     elif start_date is not None:
-        end_date = date.today()
+        end_date = utcnow()
         if start_date > end_date:
             raise ValueError("Start date cannot be after the end date.")
         return (start_date, end_date)
