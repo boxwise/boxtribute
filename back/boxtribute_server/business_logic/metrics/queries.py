@@ -50,10 +50,15 @@ def resolve_newly_created_boxes(*_):
 
 
 @public_query.field("activeBeneficiariesNumber")
-def resolve_active_beneficiaries_numbers(obj, info, start: str, end: str):
+def resolve_active_beneficiaries_numbers(obj, info, start, end):
+    if not start and not end:
+        start_datetime = datetime.today() - timedelta(days=365)
+        start = start_datetime.date()
+        end = datetime.today().date()
+
     return len(
-        set(family_heads_edited_last_year())
-        | set(family_heads_in_transaction_last_year())
+        set(family_heads_edited_last_year(start, end))
+        | set(family_heads_in_transaction_last_year(start, end))
     )
 
 
