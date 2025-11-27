@@ -11,7 +11,7 @@ from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import utcnow
+from ...models.utils import HISTORY_DELETION_MESSAGE, utcnow
 
 
 def _build_range_filter(field, *, low, high):
@@ -153,6 +153,7 @@ def family_heads_touched(start, end):
                 Beneficiary.family_head.is_null(),
                 DbChangeHistory.change_date >= start,
                 DbChangeHistory.change_date <= end,
+                DbChangeHistory.changes != HISTORY_DELETION_MESSAGE,
             )
             .distinct()
         )
@@ -164,6 +165,8 @@ def family_heads_touched(start, end):
                 Beneficiary.family_head.is_null(),
                 Transaction.created_on >= start,
                 Transaction.created_on <= end,
+                Transaction.count > 0,
+                Transaction.tokens >= 0,
             )
             .distinct()
         )
