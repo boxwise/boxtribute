@@ -93,16 +93,16 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
-            link: `${oldAppUrlWithBase}&action=people`,
-            name: "Manage Beneficiaries",
-            requiredAbps: ["manage_beneficiaries"],
-            external: true,
-          },
-          {
             link: `${oldAppUrlWithBase}&action=use_service`,
             name: "Use Service",
             requiredAbps: ["register_service_usage"],
             beta: true,
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=people`,
+            name: "Manage Beneficiaries",
+            requiredAbps: ["manage_beneficiaries"],
             external: true,
           },
           {
