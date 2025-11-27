@@ -5,6 +5,7 @@ from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import HISTORY_CREATION_MESSAGE
 
+from .beneficiary import data as beneficiary_data
 from .box import another_marked_for_shipment_box_data
 from .box import data as box_data
 from .box import donated_boxes_data, lost_box_data
@@ -40,6 +41,22 @@ def data():
                 "to_int": BoxState.Donated,
             }
             for i, box in enumerate(donated_boxes_data(), start=1 + len(box_data()))
+        ]
+        + [
+            {
+                "id": i,
+                "changes": HISTORY_CREATION_MESSAGE,
+                "record_id": beneficiary["id"],
+                "change_date": beneficiary["created_on"],
+                "table_name": "people",
+                "user": USER_ID,
+                "from_int": None,
+                "to_int": None,
+            }
+            for i, beneficiary in enumerate(
+                beneficiary_data(),
+                start=1 + len(box_data()) + len(donated_boxes_data()),
+            )
         ]
         + [
             {

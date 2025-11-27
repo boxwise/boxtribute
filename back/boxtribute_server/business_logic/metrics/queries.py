@@ -4,7 +4,11 @@ from flask import g
 from ...authz import authorize
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
-from .crud import get_time_span, number_of_created_records_between
+from .crud import (
+    active_beneficiaries_numbers,
+    get_time_span,
+    number_of_created_records_between,
+)
 
 query = QueryType()
 public_query = QueryType()
@@ -34,3 +38,9 @@ def resolve_newly_registered_beneficiary_numbers(
 def resolve_newly_created_box_numbers(*_, start=None, end=None, duration=None):
     time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
     return number_of_created_records_between(Box, *time_span)
+
+
+@public_query.field("activeBeneficiariesNumbers")
+def resolve_active_beneficiaries_numbers(*_, start=None, end=None, duration=None):
+    time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
+    return active_beneficiaries_numbers(*time_span)
