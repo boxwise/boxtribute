@@ -151,7 +151,3 @@ def test_active_beneficiaries_numbers(start, end, read_only_client):
     query = f'query {{ activeBeneficiariesNumbers(start: "{start}", end: "{end}") }}'
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert response == 4
-
-
-def build_newly_created_query(query_string):
-    return f"query {{ {query_string} {{ lastMonth lastQuarter lastYear }} }}"
