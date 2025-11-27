@@ -1716,11 +1716,12 @@ UNLOCK TABLES;
 -- Table structure for table `services`
 --
 
+DROP TABLE IF EXISTS `services_relations`;
 DROP TABLE IF EXISTS `services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `camp_id` int unsigned NOT NULL,
@@ -1757,13 +1758,12 @@ UNLOCK TABLES;
 -- Table structure for table `services_relations`
 --
 
-DROP TABLE IF EXISTS `services_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services_relations` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `people_id` int unsigned NOT NULL,
-  `service_id` int NOT NULL,
+  `service_id` int unsigned NOT NULL,
   `created` datetime NOT NULL,
   `created_by` int unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),

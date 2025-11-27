@@ -2470,7 +2470,7 @@ DROP TABLE IF EXISTS `services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `camp_id` int(11) unsigned NOT NULL,
@@ -2515,9 +2515,9 @@ DROP TABLE IF EXISTS `services_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services_relations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `people_id` int(11) unsigned NOT NULL,
-  `service_id` int(11) NOT NULL,
+  `service_id` int(11) unsigned NOT NULL,
   `created` datetime NOT NULL,
   `created_by` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),

@@ -70,12 +70,20 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     cm = mocker.MagicMock()
     cm.__enter__.return_value = mock_response
     cm.__exit__.return_value = None
-    mocker.patch("urllib.request.urlopen", return_value=cm)
+    mocked_urlopen = mocker.patch("urllib.request.urlopen", return_value=cm)
 
     # Verify successful execution
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
     assert response.json == {"message": "posted 2 stats, 0 failure(s)"}
+    assert (
+        mocked_urlopen.call_args_list[0].args[0].data
+        == b'{"title": "Newly created boxes", "data": "Last  30 days:     0 (+0.0%)\\nLast  90 days:     0 (+0.0%)\\nLast 365 days:     0 (+0.0%)"}'  # noqa
+    )
+    assert (
+        mocked_urlopen.call_args_list[1].args[0].data
+        == b'{"title": "Newly registered beneficiaries", "data": "Last  30 days:     1 (+0.0%)\\nLast  90 days:     1 (+0.0%)\\nLast 365 days:     1 (+0.0%)"}'  # noqa
+    )
 
     # Verify error scenario when posting to Slack
     http_err = urllib.error.HTTPError(url, 503, "Service Unavailable", None, None)

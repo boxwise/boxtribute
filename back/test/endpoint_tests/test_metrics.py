@@ -1,8 +1,5 @@
-from datetime import datetime
-
 import pytest
 from auth import mock_user_for_request
-from freezegun import freeze_time
 from utils import assert_successful_request
 
 
@@ -101,41 +98,47 @@ def test_metrics_query_for_god_user(
     }
 
 
-def test_public_beneficiary_numbers(
-    read_only_client,
-):
-    query = build_newly_created_query("newlyRegisteredBeneficiaryNumbers")
+@pytest.mark.parametrize(
+    "start,end,duration,result",
+    [
+        ('"2020-01-01"', "null", "null", 6),
+        ('"2020-01-01"', '"2020-07-01"', "null", 1),
+        ('"2020-01-01"', '"2020-07-01"', 30, 1),
+        ('"2021-07-01"', "null", "null", 3),
+        ('"2022-01-01"', "null", 30, 2),
+        ("null", "null", 30, 1),
+    ],
+)
+def test_public_beneficiary_numbers(read_only_client, start, end, duration, result):
+    query = f"""query {{ newlyRegisteredBeneficiaryNumbers(
+            start: {start}
+            end: {end}
+            duration: {duration}
+            ) }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-
-    current_month = datetime.today().month
-    assert response == {
-        "lastMonth": 1,
-        "lastQuarter": 1 if current_month in [1, 4, 7, 10] else 0,
-        "lastYear": 1 if current_month == 1 else 0,
-    }
+    assert response == result
 
 
 @pytest.mark.parametrize(
-    "time,last_month,last_quarter,last_year",
+    "start,end,duration,result",
     [
         # all boxes in test/data/box.py are created on 2020-11-27
-        ("2022-10-27 12:00:01", 0, 0, 0),
-        ("2021-04-27 12:00:01", 0, 0, 16),
-        ("2021-01-27 12:00:01", 0, 16, 16),
-        ("2020-12-27 12:00:01", 16, 0, 0),
-        ("2020-11-26 12:00:01", 0, 0, 0),
+        ('"2020-01-01"', "null", "null", 16),
+        ('"2020-01-01"', '"2020-07-01"', "null", 0),
+        ('"2021-07-01"', "null", "null", 0),
+        ('"2020-11-01"', "null", 30, 16),
+        ("null", "null", 30, 0),
     ],
 )
-def test_public_box_number(read_only_client, time, last_month, last_quarter, last_year):
-    query = build_newly_created_query("newlyCreatedBoxNumbers")
+def test_public_box_number(read_only_client, start, end, duration, result):
+    query = f"""query {{ newlyCreatedBoxNumbers(
+            start: {start}
+            end: {end}
+            duration: {duration}
+            ) }}"""
 
-    with freeze_time(time):
-        response = assert_successful_request(read_only_client, query, endpoint="public")
-        assert response == {
-            "lastMonth": last_month,
-            "lastQuarter": last_quarter,
-            "lastYear": last_year,
-        }
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == result
 
 
 @pytest.mark.parametrize(

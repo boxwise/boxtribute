@@ -76,6 +76,8 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
+from .service import english_lesson_service
+from .services_relation import default_service_relation
 from .shareable_link import (
     expired_link,
     shareable_link,
@@ -185,6 +187,7 @@ __all__ = [
     "distro_spot5_distribution_events_before_return_state",
     "distro_spot5_distribution_events_in_return_state",
     "donated_box",
+    "english_lesson_service",
     "expired_link",
     "expired_transfer_agreement",
     "god_user",
@@ -220,6 +223,7 @@ __all__ = [
     "removed_shipment_detail",
     "reviewed_transfer_agreement",
     "sent_shipment",
+    "default_service_relation",
     "shareable_link",
     "shipments",
     "size_ranges",
@@ -261,6 +265,7 @@ _NAMES = [
     "shareable_link",
     "distribution_event_tracking_group",
     "distribution_event",
+    "service",
 ]
 
 

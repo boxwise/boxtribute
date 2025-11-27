@@ -2,7 +2,7 @@ type Query {
   resolveLink(code: String!): ResolvedLinkResult
 
   standardProducts: [StandardProductInfo!]!
-  newlyRegisteredBeneficiaryNumbers: BeneficiaryNumbers
-  newlyCreatedBoxNumbers: BoxNumbers
+  newlyRegisteredBeneficiaryNumbers(start: Datetime, end: Datetime, duration: Int): Int
+  newlyCreatedBoxNumbers(start: Datetime, end: Datetime, duration: Int): Int
   activeBeneficiariesNumber(start: Date, end: Date): Int
 }
