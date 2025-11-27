@@ -160,11 +160,6 @@ def test_active_beneficiaries_numbers(start, end, client):
     response = assert_successful_request(client, edit_query)
     query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
     response = assert_successful_request(client, query, endpoint="public")
-
-    assert response == 2
-
-    query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
-    response = assert_successful_request(client, query, endpoint="public")
     assert response == 2
 
 
