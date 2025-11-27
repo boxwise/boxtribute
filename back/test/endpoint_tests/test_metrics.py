@@ -118,8 +118,10 @@ def test_public_beneficiary_numbers(
 @pytest.mark.parametrize(
     "time,last_month,last_quarter,last_year",
     [
-        ("2021-01-27 12:00:01", 0, 16, 16),
+        # all boxes in test/data/box.py are created on 2020-11-27
+        ("2022-10-27 12:00:01", 0, 0, 0),
         ("2021-04-27 12:00:01", 0, 0, 16),
+        ("2021-01-27 12:00:01", 0, 16, 16),
         ("2020-12-27 12:00:01", 16, 0, 0),
         ("2020-11-26 12:00:01", 0, 0, 0),
     ],
