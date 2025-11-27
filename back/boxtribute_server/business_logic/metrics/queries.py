@@ -7,8 +7,6 @@ from ...authz import authorize
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from .crud import (
-    family_heads_edited_last_year,
-    family_heads_in_transaction_last_year,
     number_of_created_records_between,
 )
 
@@ -45,19 +43,6 @@ def resolve_newly_created_box_numbers(*_):
     ranges = get_time_ranges()
 
     return {r: number_of_created_records_between(Box, *ranges[r]) for r in RANGE_NAMES}
-
-
-@public_query.field("activeBeneficiariesNumber")
-def resolve_active_beneficiaries_numbers(obj, info, start, end):
-    if not start and not end:
-        start_datetime = datetime.today() - timedelta(days=365)
-        start = start_datetime.date()
-        end = datetime.today().date()
-
-    return len(
-        set(family_heads_edited_last_year(start, end))
-        | set(family_heads_in_transaction_last_year(start, end))
-    )
 
 
 def get_time_ranges():
