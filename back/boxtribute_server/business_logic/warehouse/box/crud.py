@@ -605,7 +605,7 @@ def create_boxes(*, user_id, data):
     # Data preparation
     sanitized_data, all_tag_ids = sanitize_input(data, new_tag_ids)
 
-    # Find size (default to Mixed)
+    # Build look-ups for products with discrete size
     product_ids = {row["product_id"] for row in data}
     all_sizes = (
         Product.select(Product.id, Size.id, Size.label)
@@ -635,8 +635,13 @@ def create_boxes(*, user_id, data):
         else:
             size_id = sizes.get(row["size_name"])
             if size_id is None:
-                size_id = sizes["mixed"]
-                comment += f"""; original size: '{row["size_name"]}'"""
+                # Either it's a product with discrete size, and the specified size is
+                # not available in the product's sizerange, then fallback to "Mixed".
+                # Or it's a measure product, and the specified size does not match the
+                # value-unit regex, then set size to None
+                size_id = sizes.get("mixed")
+                size_comment = f"""original size: '{row["size_name"]}'"""
+                comment = f"{comment}; {size_comment}" if comment else size_comment
         complete_data.append(
             {
                 # Is this safe enough for a large number of boxes?
