@@ -2105,6 +2105,15 @@ def test_create_boxes(
             tagIds: []
             newTagNames: []
         }},
+        {{
+            productId: {mass_product_id}
+            sizeName: "50"  # invalid value for mass product
+            numberOfItems: 3
+            locationId: {location_id}
+            comment: "this is cool"
+            tagIds: []
+            newTagNames: []
+        }},
     ]) {{
         labelIdentifier
         product {{ id }}
@@ -2122,6 +2131,7 @@ def test_create_boxes(
     assert len(boxes[0].pop("labelIdentifier")) == 8
     assert len(boxes[1].pop("labelIdentifier")) == 8
     assert len(boxes[2].pop("labelIdentifier")) == 8
+    assert len(boxes[3].pop("labelIdentifier")) == 8
     assert boxes == [
         {
             "product": {"id": product_id},
@@ -2141,7 +2151,7 @@ def test_create_boxes(
             "displayUnit": None,
             "numberOfItems": 5,
             "state": BoxState.InStock.name,
-            "comment": "; original size: 'unknown'",
+            "comment": "original size: 'unknown'",
             "tags": [{"id": tag_id}, {"id": "8"}],
             "history": [{"changes": "created box"}],
         },
@@ -2153,6 +2163,17 @@ def test_create_boxes(
             "numberOfItems": 2,
             "state": BoxState.InStock.name,
             "comment": "",
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": mass_product_id},
+            "size": None,
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 3,
+            "state": BoxState.InStock.name,
+            "comment": "this is cool; original size: '50'",
             "tags": [],
             "history": [{"changes": "created box"}],
         },
