@@ -129,9 +129,16 @@ def number_of_created_records_between(model, start, end):
 
 
 def active_beneficiaries_numbers(start, end):
-    family_heads = family_heads_touched(start, end)
-    family_members = Beneficiary.select().where(Beneficiary.family_head << family_heads)
-    return family_heads.count() + family_members.count()
+    FamilyHeads = family_heads_touched(start, end)
+    result = (
+        Beneficiary.select(
+            fn.COUNT(Beneficiary.id.distinct()) + fn.COUNT(FamilyHeads.c.id.distinct())
+        )
+        .from_(FamilyHeads)
+        .left_outer_join(Beneficiary, on=(Beneficiary.family_head == FamilyHeads.c.id))
+        .scalar()
+    )
+    return result
 
 
 def family_heads_touched(start, end):
@@ -139,7 +146,7 @@ def family_heads_touched(start, end):
     return (
         (
             # created/edited/deleted
-            DbChangeHistory.select(DbChangeHistory.record_id)
+            DbChangeHistory.select(Beneficiary.id)
             .join(Beneficiary, on=(DbChangeHistory.record_id == Beneficiary.id))
             .where(
                 DbChangeHistory.table_name == Beneficiary._meta.table_name,
