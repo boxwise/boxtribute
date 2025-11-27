@@ -1,31 +1,38 @@
 import json
 import os
 import urllib.request
+from datetime import timedelta
 
 from flask import current_app
 
-from ..graph_ql.execution import execute_async
-from ..graph_ql.schema import public_api_schema
-from ..utils import convert_pascal_to_snake_case
-
-
-def prettify(word):
-    """E.g. newlyCreatedBoxNumbers -> Newly created box numbers"""
-    return convert_pascal_to_snake_case(word).replace("_", " ").capitalize()
+from ..business_logic.metrics.crud import (
+    get_time_span,
+    number_of_created_records_between,
+)
+from ..models.definitions.beneficiary import Beneficiary
+from ..models.definitions.box import Box
+from ..models.utils import utcnow
 
 
 def get_internal_data():
-    stats = ["newlyCreatedBoxNumbers", "newlyRegisteredBeneficiaryNumbers"]
+    titles = ["created boxes", "registered beneficiaries"]
+    models = [Box, Beneficiary]
+    now = utcnow()
     all_data = []
-    for stat in stats:
-        graphql_query = {"query": f"{{ {stat} {{ lastYear lastQuarter lastMonth }} }}"}
-        result, _ = execute_async(schema=public_api_schema, data=graphql_query)
-        all_data.append(
-            {
-                "title": prettify(stat),
-                "data": json.dumps(result.json["data"][stat]),
-            }
-        )
+    for title, model in zip(titles, models):
+        data = []
+        for duration in [30, 90, 365]:
+            time_span = get_time_span(duration_days=duration)
+            result = number_of_created_records_between(model, *time_span)
+
+            # Compute trend compared to previous window
+            compared_end = now - timedelta(days=duration)
+            time_span = get_time_span(duration_days=duration, end_date=compared_end)
+            comparison = number_of_created_records_between(model, *time_span)
+            trend = (result - comparison) / comparison * 100 if comparison else 0
+
+            data.append(f"Last {duration:>3} days: {result:>5} ({trend:+.1f}%)")
+        all_data.append({"title": f"Newly {title}", "data": "\n".join(data)})
     return all_data
 
 
