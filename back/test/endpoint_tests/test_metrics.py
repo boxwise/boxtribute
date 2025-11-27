@@ -142,12 +142,22 @@ def test_public_box_number(read_only_client, start, end, duration, result):
 
 
 @pytest.mark.parametrize(
-    "start,end",
+    "start,end,duration,result",
     [
-        ("2020-01-01", "2020-12-31"),
+        # Bene 1 was created in June 2020 and is family head of benes 2 and 5
+        # Benes 1 and 3 (without family) were involved in transactions in Jan 2020
+        ('"2020-01-01"', '"2020-12-31"', "null", 4),
+        ('"2020-01-01"', "null", 30, 4),
+        ("null", '"2020-07-01"', 30, 3),
+        # Bene 1 was registered for a service in Nov 2025
+        ('"2025-01-01"', "null", "null", 4),
     ],
 )
-def test_active_beneficiaries_numbers(start, end, read_only_client):
-    query = f'query {{ activeBeneficiariesNumbers(start: "{start}", end: "{end}") }}'
+def test_active_beneficiaries_numbers(read_only_client, start, end, duration, result):
+    query = f"""query {{ activeBeneficiariesNumbers(
+            start: {start}
+            end: {end}
+            duration: {duration}
+            ) }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
-    assert response == 4
+    assert response == result
