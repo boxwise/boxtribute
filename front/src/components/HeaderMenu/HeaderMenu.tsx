@@ -21,7 +21,7 @@ export interface IHeaderMenuProps {
 }
 
 function HeaderMenu(props: IHeaderMenuProps) {
-  const [isDesktopScreen] = useMediaQuery("(min-width: 1024px)");
+  const [isDesktopScreen] = useMediaQuery(["(min-width: 1024px)"]);
 
   if (isDesktopScreen) return <MenuDesktop {...props} />;
 

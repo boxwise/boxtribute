@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Text, FormControl, FormErrorMessage, Button, Flex, chakra } from "@chakra-ui/react";
+import { Text, Field, Button, Flex, chakra } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentOption } from "components/Form/ShipmentOption";
@@ -41,33 +41,32 @@ function AssignBoxToShipment({
   }, [selectedShipmentOption, boxData]);
 
   const allShipmentsDropDown = (
-    <FormControl required mt={2}>
+    <Field.Root required mt={2}>
       <Select
         placeholder="Please select a shipment ..."
         isSearchable
         disabled={!!boxData?.deletedOn}
         tagVariant="outline"
-        tagColorScheme="black"
-        focusBorderColor="blue.500"
         components={{ Option: ShipmentOption }}
         chakraStyles={{
-          control: (provided) => ({
+          control: (provided, state) => ({
             ...provided,
             border: "2px",
             borderRadius: "0",
+            borderColor: state.isFocused ? "blue.500" : provided.borderColor,
+            boxShadow: state.isFocused ? "0 0 0 1px blue.500" : provided.boxShadow,
           }),
         }}
         options={shipmentOptions.filter((opt) => opt.value !== currentShipmentId)}
         value={selectedShipmentOption}
         onChange={setSelectedShipmentOption}
       />
-      <FormErrorMessage>{false}</FormErrorMessage>
-    </FormControl>
+    </Field.Root>
   );
 
   const assignButton = (
     <Button
-      isLoading={isAssignBoxesToShipmentLoading}
+      loading={isAssignBoxesToShipmentLoading}
       disabled={isSubmitButtonDisabled}
       type="button"
       colorPalette={!currentShipmentId ? "blue" : "green"}
@@ -105,7 +104,7 @@ function AssignBoxToShipment({
         <Flex direction="column" alignContent="center" alignItems="center">
           <Flex direction="column" alignContent="center" alignItems="center" px={4}>
             <Button
-              isLoading={isAssignBoxesToShipmentLoading}
+              loading={isAssignBoxesToShipmentLoading}
               type="button"
               colorPalette="blue"
               size="md"

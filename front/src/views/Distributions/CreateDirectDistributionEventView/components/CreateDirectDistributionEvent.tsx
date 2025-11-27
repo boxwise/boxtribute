@@ -1,12 +1,4 @@
-import {
-  Button,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  Text,
-} from "@chakra-ui/react";
+import { Button, Flex, Field, Input, Text } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -96,8 +88,8 @@ const CreateDirectDistroEvent = ({
           control={control}
           name="distroSpotId"
           render={({ field: { onChange, onBlur, value, name, ref }, fieldState: { error } }) => (
-            <FormControl invalid={!!error} id="distroSpotsForDropdown">
-              <FormLabel htmlFor="distroSpotsForDropdown">Distribution Spot</FormLabel>
+            <Field.Root invalid={!!error} id="distroSpotsForDropdown">
+              <Field.Label htmlFor="distroSpotsForDropdown">Distribution Spot</Field.Label>
               <Select
                 name={name}
                 ref={ref}
@@ -109,28 +101,28 @@ const CreateDirectDistroEvent = ({
                 isSearchable
                 tagVariant="outline"
               />
-              <FormErrorMessage>{error && error.message}</FormErrorMessage>
-            </FormControl>
+              <Field.ErrorText>{error && error.message}</Field.ErrorText>
+            </Field.Root>
           )}
         />
-        <FormControl invalid={errors.eventDate != null} id="eventDate">
-          <FormLabel fontSize="sm" htmlFor="date">
+        <Field.Root invalid={errors.eventDate != null} id="eventDate">
+          <Field.Label fontSize="sm" htmlFor="date">
             Date of the event:
-          </FormLabel>
+          </Field.Label>
           <Input type="date" mb={4} {...register("eventDate", { required: true })} />
-          <FormErrorMessage>{errors.eventDate && errors.eventDate.message}</FormErrorMessage>
-        </FormControl>
-        <FormControl invalid={errors.eventTime != null} id="eventTime">
-          <FormLabel fontSize="sm" htmlFor="time">
+          <Field.ErrorText>{errors.eventDate && errors.eventDate.message}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root invalid={errors.eventTime != null} id="eventTime">
+          <Field.Label fontSize="sm" htmlFor="time">
             Time of the event:
-          </FormLabel>
+          </Field.Label>
           <Input type="time" mb={4} {...register("eventTime", { required: true })} />
-          <FormErrorMessage>{errors.eventTime && errors.eventTime.message}</FormErrorMessage>
-        </FormControl>
-        <FormControl invalid={errors.duration != null} id="duration">
-          <FormLabel fontSize="sm" htmlFor="date">
+          <Field.ErrorText>{errors.eventTime && errors.eventTime.message}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root invalid={errors.duration != null} id="duration">
+          <Field.Label fontSize="sm" htmlFor="date">
             Expected duration (in hours):
-          </FormLabel>
+          </Field.Label>
           <Input
             placeholder="2"
             type="number"
@@ -140,15 +132,13 @@ const CreateDirectDistroEvent = ({
               setValueAs: (v) => (v === "" ? undefined : parseInt(v, 10)),
             })}
           />
-          <FormErrorMessage>
-            {errors.duration?.message && errors.duration?.message}
-          </FormErrorMessage>
-        </FormControl>
-        <FormLabel fontSize="sm" htmlFor="name">
+          <Field.ErrorText>{errors.duration?.message && errors.duration?.message}</Field.ErrorText>
+        </Field.Root>
+        <Field.Label fontSize="sm" htmlFor="name">
           Name of the event:
-        </FormLabel>
+        </Field.Label>
         <Input type="text" mb={4} {...register("name", { required: false })} />
-        <Button mt={4} colorPalette="teal" isLoading={isSubmitting} type="submit">
+        <Button mt={4} colorPalette="teal" loading={isSubmitting} type="submit">
           Submit
         </Button>
       </form>

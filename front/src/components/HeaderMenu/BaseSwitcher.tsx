@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-  Radio,
   RadioGroup,
   Stack,
 } from "@chakra-ui/react";
@@ -46,15 +45,17 @@ function BaseSwitcher({ open, onClose }: { open: boolean; onClose: () => void })
           <DialogHeader>Switch Base to</DialogHeader>
           <DialogCloseTrigger />
           <DialogBody>
-            <RadioGroup onChange={setValue} value={value}>
+            <RadioGroup.Root onValueChange={(e) => setValue(e.value ?? undefined)} value={value}>
               <Stack ml={"30%"}>
                 {currentOrganisationBases?.map((base) => (
-                  <Radio key={base.id} value={base.id}>
-                    {base.name}
-                  </Radio>
+                  <RadioGroup.Item key={base.id} value={base.id}>
+                    <RadioGroup.ItemHiddenInput />
+                    <RadioGroup.ItemControl />
+                    <RadioGroup.ItemText>{base.name}</RadioGroup.ItemText>
+                  </RadioGroup.Item>
                 ))}
               </Stack>
-            </RadioGroup>
+            </RadioGroup.Root>
           </DialogBody>
           <DialogFooter flexDirection="column" flex={1} justifyContent="center" gap={2}>
             <Button onClick={onClose} width="100%">

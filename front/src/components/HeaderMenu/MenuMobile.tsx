@@ -1,17 +1,14 @@
 import { ReactNode } from "react";
 import {
   Accordion,
-  AccordionButton,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Flex,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
+  MenuContent,
   MenuItem,
-  MenuList,
+  MenuRoot,
+  MenuTrigger,
+  Separator,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -65,108 +62,98 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
       <BaseSwitcher open={open} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
-        <Menu isLazy>
-          {({ onClose }) => (
-            <>
-              <MenuButton
-                as={IconButton}
-                aria-label="Options"
-                data-testid="menu-button"
-                bg="transparent"
-                _hover={{ bg: "transparent" }}
-                _expanded={{ bg: "transparent" }}
-              >
-                <IoMenu />
-              </MenuButton>
-              <MenuList zIndex={1300} py={0}>
-                <MenuItem
-                  key="qr-code-menu"
-                  aria-label="Scan QR code"
-                  data-testid="qr-code-button"
-                  px={2}
-                  pb={0}
-                  bg="transparent"
-                  _hover={{ bg: "transparent" }}
-                  onClick={onClickScanQrCode}
-                >
-                  <SubItemBox py={3}>
-                    <MenuIcon icon="QRCode" />
-                    <Text fontWeight="bold">Scan QR Label</Text>
-                  </SubItemBox>
-                </MenuItem>
-                <MenuDivider />
-                <Accordion defaultIndex={expandedMenuIndex()}>
-                  {menuItemsGroups.map((menu) => (
-                    <AccordionItem key={menu.text} border={"none"}>
-                      <AccordionButton
-                        px={2}
-                        _hover={{ bg: "transparent" }}
-                        _expanded={{ bg: "#DC4F51", color: "white" }}
-                      >
-                        <SubItemBox>
-                          <MenuIcon icon={menu.text as Icon} /> {menu.text}
-                        </SubItemBox>
-                      </AccordionButton>
-                      {menu.links.map((subMenu) => (
-                        <AccordionPanel
-                          key={subMenu.name}
-                          as={NavLink}
-                          to={subMenu.link}
-                          display="inline-flex"
-                          bg="gray.100"
-                          pb={3}
-                          w={"100%"}
-                          onClick={onClose}
-                        >
+        <MenuRoot lazyMount unmountOnExit closeOnSelect={false}>
+          <MenuTrigger asChild>
+            <IconButton
+              aria-label="Options"
+              data-testid="menu-button"
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+            >
+              <IoMenu />
+            </IconButton>
+          </MenuTrigger>
+          <MenuContent zIndex={1300} py={0}>
+            <MenuItem
+              value="qr-code-menu"
+              aria-label="Scan QR code"
+              data-testid="qr-code-button"
+              px={2}
+              pb={0}
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              onClick={onClickScanQrCode}
+            >
+              <SubItemBox py={3}>
+                <MenuIcon icon="QRCode" />
+                <Text fontWeight="bold">Scan QR Label</Text>
+              </SubItemBox>
+            </MenuItem>
+            <Separator />
+            <Accordion.Root defaultValue={expandedMenuIndex()?.map(String)}>
+              {menuItemsGroups.map((menu) => (
+                <Accordion.Item key={menu.text} border={"none"} value={menu.text}>
+                  <Accordion.ItemTrigger
+                    px={2}
+                    _hover={{ bg: "transparent" }}
+                    _expanded={{ bg: "#DC4F51", color: "white" }}
+                  >
+                    <SubItemBox>
+                      <MenuIcon icon={menu.text as Icon} /> {menu.text}
+                    </SubItemBox>
+                  </Accordion.ItemTrigger>
+                  <Accordion.ItemContent>
+                    {menu.links.map((subMenu) => (
+                      <NavLink key={subMenu.name} to={subMenu.link}>
+                        <Box display="inline-flex" bg="gray.100" pb={3} w={"100%"}>
                           {subMenu.name}&nbsp;
                           {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
-                        </AccordionPanel>
-                      ))}
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-                <MenuDivider />
-                <MenuItem
-                  px={2}
-                  bg="transparent"
-                  _hover={{ bg: "transparent" }}
-                  onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
-                  style={{
-                    cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
-                  }}
-                >
-                  <SubItemBox>
-                    <MenuIcon icon="Base" /> You are in: {baseName}
-                  </SubItemBox>
-                </MenuItem>
-                <MenuItem
-                  px={2}
-                  bg="transparent"
-                  _hover={{ bg: "transparent" }}
-                  as={NavLink}
-                  to={ACCOUNT_SETTINGS_URL}
-                  onClick={onClose}
-                >
+                        </Box>
+                      </NavLink>
+                    ))}
+                  </Accordion.ItemContent>
+                </Accordion.Item>
+              ))}
+            </Accordion.Root>
+            <Separator />
+            <MenuItem
+              value="base-switcher"
+              px={2}
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
+              style={{
+                cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
+              }}
+            >
+              <SubItemBox>
+                <MenuIcon icon="Base" /> You are in: {baseName}
+              </SubItemBox>
+            </MenuItem>
+            <MenuItem value="account" asChild>
+              <NavLink to={ACCOUNT_SETTINGS_URL}>
+                <Box px={2} bg="transparent" _hover={{ bg: "transparent" }}>
                   <SubItemBox>
                     <MenuIcon icon="Account" />
                     Account
                   </SubItemBox>
-                </MenuItem>
-                <MenuItem
-                  px={2}
-                  bg="transparent"
-                  _hover={{ bg: "transparent" }}
-                  onClick={handleLogout}
-                >
-                  <SubItemBox>
-                    <MenuIcon icon="Logout" />
-                    Logout
-                  </SubItemBox>
-                </MenuItem>
-              </MenuList>
-            </>
-          )}
-        </Menu>
+                </Box>
+              </NavLink>
+            </MenuItem>
+            <MenuItem
+              value="logout"
+              px={2}
+              bg="transparent"
+              _hover={{ bg: "transparent" }}
+              onClick={handleLogout}
+            >
+              <SubItemBox>
+                <MenuIcon icon="Logout" />
+                Logout
+              </SubItemBox>
+            </MenuItem>
+          </MenuContent>
+        </MenuRoot>
       </Flex>
     </Flex>
   );

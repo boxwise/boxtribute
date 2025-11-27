@@ -14,12 +14,17 @@ function SwitchField({ fieldId, fieldLabel, control }: IInShopSwitchProps) {
       control={control}
       render={({ field: { onChange, value } }) => (
         <HStack p={2}>
-          <Switch
+          <Switch.Root
             id={`${fieldId}-switch`}
             mr={2}
-            isChecked={value ?? false}
-            onChange={(e) => onChange(e.target.checked)}
-          />
+            checked={value ?? false}
+            onCheckedChange={(e) => onChange(e.checked)}
+          >
+            <Switch.HiddenInput />
+            <Switch.Control>
+              <Switch.Thumb />
+            </Switch.Control>
+          </Switch.Root>
           <Text fontWeight="medium" fontSize="md">
             {fieldLabel}
           </Text>

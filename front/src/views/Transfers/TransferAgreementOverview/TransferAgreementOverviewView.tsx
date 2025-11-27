@@ -401,7 +401,7 @@ function TransferAgreementOverviewView() {
 
       <TransferAgreementsOverlay
         open={open}
-        isLoading={isLoadingFromMutation}
+        loading={isLoadingFromMutation}
         transferAgreementOverlayData={transferAgreementOverlayData}
         onClose={onClose}
         onAccept={onAccept}

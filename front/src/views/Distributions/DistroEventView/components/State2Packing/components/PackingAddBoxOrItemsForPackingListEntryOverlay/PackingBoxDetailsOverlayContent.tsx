@@ -1,7 +1,6 @@
 import {
   Button,
   Flex,
-  FormControl,
   Input,
   DialogBody,
   DialogCloseTrigger,
@@ -101,7 +100,7 @@ const PackingBoxDetailsOverlayContent = ({
               Move items to the distribution
             </Button>
             {isMoveIndividualItemsToDistributionMode ? (
-              <FormControl
+              <form
                 onSubmit={() => {
                   // packingActionProps.onMoveItemsToDistribution(
                   //   boxData.id,
@@ -137,7 +136,7 @@ const PackingBoxDetailsOverlayContent = ({
                 >
                   Move
                 </Button>
-              </FormControl>
+              </form>
             ) : null}
           </Flex>
         </Flex>

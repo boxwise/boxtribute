@@ -17,7 +17,7 @@ interface IProps {
 export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
   const [value, setValue] = useState<string>(globalFilter);
   const { open, onToggle } = useDisclosure();
-  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
+  const [isLargerThan768] = useMediaQuery(["(min-width: 768px)"]);
   const onChange = useAsyncDebounce((val: string) => {
     setGlobalFilter(val || undefined);
   }, 200);

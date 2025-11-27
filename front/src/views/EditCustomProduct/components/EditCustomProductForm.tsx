@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  HStack,
-  Input,
-  Stack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Field, HStack, Input, Stack, Text, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
@@ -78,13 +67,13 @@ function EditCustomProductForm({
           </Text>
         </HStack>
         <VStack gap={4} p={2} mt={2}>
-          <FormControl invalid={!!errors.name}>
-            <FormLabel htmlFor="name">
+          <Field.Root invalid={!!errors.name}>
+            <Field.Label htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">
                 *
               </Text>
-            </FormLabel>
+            </Field.Label>
             <Input
               borderColor="black"
               border="2px"
@@ -95,8 +84,8 @@ function EditCustomProductForm({
               type="string"
               {...register("name")}
             />
-            {!!errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}
-          </FormControl>
+            {!!errors.name && <Field.ErrorText>{errors.name.message}</Field.ErrorText>}
+          </Field.Root>
           <SelectField
             fieldId="category"
             fieldLabel="Category"
@@ -121,8 +110,8 @@ function EditCustomProductForm({
             errors={errors}
             control={control}
           />
-          <FormControl>
-            <FormLabel htmlFor="comment">Description</FormLabel>
+          <Field.Root>
+            <Field.Label htmlFor="comment">Description</Field.Label>
             <Input
               borderColor="black"
               border="2px"
@@ -133,7 +122,7 @@ function EditCustomProductForm({
               type="string"
               {...register("comment")}
             />
-          </FormControl>
+          </Field.Root>
         </VStack>
       </Box>
       <Box border="2px" mb={4} p={2}>
@@ -152,7 +141,7 @@ function EditCustomProductForm({
         />
       </Box>
       <Stack gap={2} my={4}>
-        <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
+        <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Edit Product
         </Button>
         <Button

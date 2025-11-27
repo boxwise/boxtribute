@@ -75,19 +75,18 @@ function SelectField({
           placeholder={placeholder}
           isSearchable
           tagVariant="outline"
-          tagColorScheme="black"
+          tagColorPalette="black"
           isMulti={isMulti}
-          focusBorderColor="blue.500"
           menuPortalTarget={document.body}
           styles={{
             menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
           }}
           chakraStyles={{
-            control: (provided) => ({
+            control: (provided, state) => ({
               ...provided,
               border: "2px",
               borderRadius: "0",
-              borderColor: "black",
+              borderColor: state.isFocused ? "blue.500" : "black",
             }),
             multiValue: (provided, state) => ({
               ...provided,

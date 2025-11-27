@@ -1,19 +1,6 @@
 import { useCallback, useState } from "react";
 import { Result } from "@zxing/library";
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from "@chakra-ui/react";
+import { Field, Group, IconButton, Input, Tabs } from "@chakra-ui/react";
 import { IoSearch } from "react-icons/io5";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
@@ -91,49 +78,51 @@ function QrReader({
         scanPeriod={1000}
         onResult={onResult}
       />
-      <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
-        <TabList justifyContent="center">
-          <Tab>SOLO BOX</Tab>
-          <Tab disabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <FormControl invalid={!!boxLabelInputError}>
-              <FormLabel>Find Box</FormLabel>
-              <InputGroup borderRadius={0}>
-                <Input
-                  type="string"
-                  onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
-                  disabled={findBoxByLabelIsLoading}
-                  value={boxLabelInputValue}
-                  placeholder="12345678"
-                  borderRadius={0}
-                />
-                <InputRightElement>
-                  <IconButton
-                    aria-label="Find box By label"
-                    icon={<IoSearch />}
-                    disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
-                    isLoading={findBoxByLabelIsLoading}
-                    onClick={() => {
-                      if (boxLabelInputValue) {
-                        onFindBoxByLabel(boxLabelInputValue);
-                        setBoxLabelInputValue("");
-                      } else {
-                        setBoxLabelInputError("Please enter a label id.");
-                      }
-                    }}
-                  />
-                </InputRightElement>
-              </InputGroup>
-              <FormErrorMessage>{boxLabelInputError}</FormErrorMessage>
-            </FormControl>
-          </TabPanel>
-          <TabPanel px={0}>
-            {hasManageInventoryPermission && <QrReaderMultiBoxContainer />}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+      <Tabs.Root
+        value={isMultiBox && hasManageInventoryPermission ? "multi" : "solo"}
+        onValueChange={(e) => onTabSwitch(e.value === "multi" ? 1 : 0)}
+      >
+        <Tabs.List justifyContent="center">
+          <Tabs.Trigger value="solo">SOLO BOX</Tabs.Trigger>
+          <Tabs.Trigger value="multi" disabled={!hasManageInventoryPermission}>
+            MULTI BOX
+          </Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="solo">
+          <Field.Root invalid={!!boxLabelInputError}>
+            <Field.Label>Find Box</Field.Label>
+            <Group attached borderRadius={0}>
+              <Input
+                type="string"
+                onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
+                disabled={findBoxByLabelIsLoading}
+                value={boxLabelInputValue}
+                placeholder="12345678"
+                borderRadius={0}
+              />
+              <IconButton
+                aria-label="Find box By label"
+                disabled={!!boxLabelInputError || findBoxByLabelIsLoading}
+                loading={findBoxByLabelIsLoading}
+                onClick={() => {
+                  if (boxLabelInputValue) {
+                    onFindBoxByLabel(boxLabelInputValue);
+                    setBoxLabelInputValue("");
+                  } else {
+                    setBoxLabelInputError("Please enter a label id.");
+                  }
+                }}
+              >
+                <IoSearch />
+              </IconButton>
+            </Group>
+            <Field.ErrorText>{boxLabelInputError}</Field.ErrorText>
+          </Field.Root>
+        </Tabs.Content>
+        <Tabs.Content value="multi" px={0}>
+          {hasManageInventoryPermission && <QrReaderMultiBoxContainer />}
+        </Tabs.Content>
+      </Tabs.Root>
     </>
   );
 }

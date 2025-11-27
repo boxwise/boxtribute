@@ -1,12 +1,4 @@
-import {
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  Flex,
-  useDisclosure,
-  useMediaQuery,
-} from "@chakra-ui/react";
+import { Accordion, Flex, useDisclosure, useMediaQuery } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
 import { ACCOUNT_SETTINGS_URL } from "./consts";
@@ -32,7 +24,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
-  const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
+  const [multipleAccordionsOpen] = useMediaQuery(["(min-height: 1080px)"]);
 
   return (
     <>
@@ -50,39 +42,35 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         top="0"
       >
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
-        <Accordion
-          allowToggle={!allowMultipleAccordionsOpen}
-          allowMultiple={allowMultipleAccordionsOpen}
-          defaultIndex={expandedMenuIndex()}
-          overflowY="auto"
+        <Accordion.Root
+          collapsible={!multipleAccordionsOpen}
+          multiple={multipleAccordionsOpen}
+          defaultValue={expandedMenuIndex()?.map(String)}
+          style={{ overflowY: "auto" }}
         >
-          {menuItemsGroups.map((menu) => (
-            <AccordionItem key={menu.text}>
-              <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
+          {menuItemsGroups.map((menu, index) => (
+            <Accordion.Item key={menu.text} value={String(index)}>
+              <Accordion.ItemTrigger _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
                 <MenuIcon icon={menu.text as Icon} /> {menu.text}
-              </AccordionButton>
-              {menu.links.map((subMenu) => (
-                <AccordionPanel
-                  key={subMenu.name}
-                  bg="gray.100"
-                  _hover={{ bg: "gray.200" }}
-                  as={NavLink}
-                  to={subMenu.link}
-                  display="flex"
-                  pb={2}
-                  pl={8}
-                >
-                  {subMenu.name}&nbsp;
-                  {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
-                </AccordionPanel>
-              ))}
-            </AccordionItem>
+                <Accordion.ItemIndicator />
+              </Accordion.ItemTrigger>
+              <Accordion.ItemContent>
+                {menu.links.map((subMenu) => (
+                  <NavLink key={subMenu.name} to={subMenu.link}>
+                    <Flex bg="gray.100" _hover={{ bg: "gray.200" }} pb={2} pl={8}>
+                      {subMenu.name}&nbsp;
+                      {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
+                    </Flex>
+                  </NavLink>
+                ))}
+              </Accordion.ItemContent>
+            </Accordion.Item>
           ))}
-        </Accordion>
-        <Accordion marginTop={"auto"}>
+        </Accordion.Root>
+        <Accordion.Root marginTop={"auto"}>
           <strong style={{ marginLeft: "1rem", textTransform: "uppercase" }}>Settings</strong>
-          <AccordionItem>
-            <AccordionButton
+          <Accordion.Item value="base-switcher">
+            <Accordion.ItemTrigger
               gap={3}
               onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
               style={{
@@ -90,19 +78,21 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
               }}
             >
               <MenuIcon icon={"Base" as Icon} /> You are in: {baseName}
-            </AccordionButton>
-          </AccordionItem>
-          <AccordionItem>
-            <AccordionButton gap={3} as={NavLink} to={ACCOUNT_SETTINGS_URL}>
-              <MenuIcon icon="Account" /> Account
-            </AccordionButton>
-          </AccordionItem>
-          <AccordionItem>
-            <AccordionButton gap={3} onClick={handleLogout}>
+            </Accordion.ItemTrigger>
+          </Accordion.Item>
+          <Accordion.Item value="account">
+            <Accordion.ItemTrigger gap={3} asChild>
+              <NavLink to={ACCOUNT_SETTINGS_URL}>
+                <MenuIcon icon="Account" /> Account
+              </NavLink>
+            </Accordion.ItemTrigger>
+          </Accordion.Item>
+          <Accordion.Item value="logout">
+            <Accordion.ItemTrigger gap={3} onClick={handleLogout}>
               <MenuIcon icon="Logout" /> Logout
-            </AccordionButton>
-          </AccordionItem>
-        </Accordion>
+            </Accordion.ItemTrigger>
+          </Accordion.Item>
+        </Accordion.Root>
       </Flex>
     </>
   );

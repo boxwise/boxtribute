@@ -1,15 +1,4 @@
-import {
-  Accordion,
-  Text,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Spacer,
-  Stack,
-  Flex,
-} from "@chakra-ui/react";
+import { Accordion, Text, Box, Spacer, Stack, Flex } from "@chakra-ui/react";
 import _ from "lodash";
 import { useCallback, useMemo } from "react";
 import { CellProps } from "react-table";
@@ -108,9 +97,9 @@ function ShipmentContent({
   );
 
   return (
-    <Accordion allowToggle w="full">
+    <Accordion.Root collapsible w="full">
       {items.map((item, index) => (
-        <AccordionItem key={item?.product?.id || index} alignItems="center">
+        <Accordion.Item key={item?.product?.id || index} alignItems="center">
           {({ isExpanded }) => (
             <>
               <Stack bg={isExpanded ? "#F4E6A0" : ""} p="1" direction="row" alignItems="center">
@@ -156,28 +145,28 @@ function ShipmentContent({
                     </Box>
                   )}
                 </Flex>
-                <AccordionButton
+                <Accordion.ItemTrigger
                   data-testid={`shipment-accordion-button-${item?.product?.id}`}
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
                   _hover={{ bgColor: "white" }}
                 >
-                  <AccordionIcon
+                  <Accordion.ItemIndicator
                     mr={1}
                     _focus={{
                       boxShadow: "none",
                     }}
                   />
-                </AccordionButton>
+                </Accordion.ItemTrigger>
               </Stack>
-              <AccordionPanel p={0}>
+              <Accordion.ItemContent p={0}>
                 <ShipmentTable columns={columns} data={boxesToTableTransformer(item.boxes)} />
-              </AccordionPanel>
+              </Accordion.ItemContent>
             </>
           )}
-        </AccordionItem>
+        </Accordion.Item>
       ))}
-    </Accordion>
+    </Accordion.Root>
   );
 }
 

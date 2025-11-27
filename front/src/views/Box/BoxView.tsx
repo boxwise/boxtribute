@@ -1,17 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import { graphql } from "gql.tada";
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Button,
-  Flex,
-  useDisclosure,
-  VStack,
-} from "@chakra-ui/react";
+import { Alert, Box, Button, Flex, useDisclosure, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
@@ -500,17 +490,14 @@ function BTBox() {
       if (kind === IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE) {
         triggerError({
           message: "The shipment is not in the Preparing state.",
-          status: "error",
         });
       } else if (kind === IAssignBoxToShipmentResultKind.NOT_AUTHORIZED) {
         triggerError({
           message: `You don't have the permissions to ${type} boxes to this shipment.`,
-          status: "error",
         });
       } else {
         triggerError({
           message: `Could not ${type} the box from the shipment ${shipmentId}. Try again?`,
-          status: "error",
         });
       }
     },
@@ -537,7 +524,6 @@ function BTBox() {
         } else {
           createToast({
             message: `Box has been successfully assigned to the shipment ${shipmentId}.`,
-            status: "success",
           });
           allData.refetch();
         }
@@ -564,7 +550,6 @@ function BTBox() {
       } else {
         createToast({
           message: `Box has been successfully unassigned from the shipment ${shipmentId}`,
-          status: "success",
         });
         allData.refetch();
       }
@@ -587,10 +572,10 @@ function BTBox() {
 
   if (error) {
     return (
-      <Alert status="error" data-testid="ErrorAlert">
-        <AlertIcon />
+      <Alert.Root status="error" data-testid="ErrorAlert">
+        <Alert.Indicator />
         Could not fetch Box Data! Please try reloading the page.
-      </Alert>
+      </Alert.Root>
     );
   }
   if (allData.loading) {
@@ -620,57 +605,57 @@ function BTBox() {
   return (
     <VStack gap={4} align="stretch">
       {boxData?.deletedOn && (
-        <Alert
+        <Alert.Root
           status="warning"
-          variant="top-accent"
+          variant="subtle"
           w={["100%", "80%", "100%", "80%"]}
           alignSelf="center"
         >
-          <AlertIcon />
+          <Alert.Indicator />
           <Box>
-            <AlertTitle>
+            <Alert.Title>
               This box was deleted on{" "}
               {new Date(boxData.deletedOn).toLocaleString("en-GB", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
               })}
-            </AlertTitle>
-            <AlertDescription>
+            </Alert.Title>
+            <Alert.Description>
               Details displayed show historical information of the box prior to deletion. New
               actions cannot be performed on the box.
-            </AlertDescription>
+            </Alert.Description>
           </Box>
-        </Alert>
+        </Alert.Root>
       )}
       {(boxInLegacyLocation || boxData?.state === "Lost" || boxData?.state === "Scrap") &&
         !boxData?.deletedOn && (
-          <Alert
+          <Alert.Root
             status="info"
-            variant="top-accent"
+            variant="subtle"
             w={["100%", "80%", "100%", "80%"]}
             alignSelf="center"
           >
-            <AlertIcon />
+            <Alert.Indicator />
             <Box>
-              <AlertTitle>Note</AlertTitle>
-              <AlertDescription>
+              <Alert.Title>Note</Alert.Title>
+              <Alert.Description>
                 {boxInLegacyLocation
                   ? alertMessageForLegacyLocation
                   : alertMessageForBoxWithLostScrapState}
-              </AlertDescription>
+              </Alert.Description>
             </Box>
-          </Alert>
+          </Alert.Root>
         )}
       {boxData && !boxData.qrCode && !boxData?.deletedOn && (
-        <Alert
+        <Alert.Root
           status="warning"
-          variant="top-accent"
+          variant="subtle"
           w={["100%", "80%", "100%", "80%"]}
           alignSelf="center"
           data-testid="no-qr-code-alert"
         >
-          <AlertIcon />
+          <Alert.Indicator />
           <Flex
             direction={["column", "row"]}
             justify={["center", "space-between"]}
@@ -679,23 +664,23 @@ function BTBox() {
             gap={[2, 0]}
           >
             <Box>
-              <AlertTitle>Missing Label</AlertTitle>
-              <AlertDescription>
+              <Alert.Title>Missing Label</Alert.Title>
+              <Alert.Description>
                 This box does not yet have a QR code label associated with it.
-              </AlertDescription>
+              </Alert.Description>
             </Box>
             <Button
               colorPalette="orange"
               size="sm"
               onClick={onCreateQrCodeClick}
-              isLoading={createQrCodeMutationStatus.loading}
+              loading={createQrCodeMutationStatus.loading}
               data-testid="create-label-button"
               minW={["auto", "120px"]}
             >
               Create label
             </Button>
           </Flex>
-        </Alert>
+        </Alert.Root>
       )}
       <BoxDetails
         boxData={boxData!}

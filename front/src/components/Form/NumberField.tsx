@@ -1,11 +1,4 @@
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  NumberInput,
-  Text,
-  FormControlProps,
-} from "@chakra-ui/react";
+import { Field, NumberInput, Text, FieldRootProps } from "@chakra-ui/react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 
 export interface INumberFieldProps {
@@ -30,14 +23,14 @@ function NumberField({
   testId,
 }: INumberFieldProps) {
   return (
-    <FormControl invalid={!!errors[fieldId]}>
+    <Field.Root invalid={!!errors[fieldId]}>
       {showLabel && (
-        <FormLabel htmlFor="numberOfItems" textAlign="left">
+        <Field.Label htmlFor="numberOfItems" textAlign="left">
           {fieldLabel}{" "}
           <Text as="span" color="red.500">
             *
           </Text>
-        </FormLabel>
+        </Field.Label>
       )}
       {/* The React Form Controller is needed because the Input is actually in NumberInputField and not in Number Input chakraUI components */}
       {/* https://react-hook-form.com/api/usecontroller/controller */}
@@ -82,15 +75,15 @@ function NumberField({
         )}
       />
       {showError && (
-        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+        <Field.ErrorText>{!!errors[fieldId] && errors[fieldId].message}</Field.ErrorText>
       )}
-    </FormControl>
+    </Field.Root>
   );
 }
 export default NumberField;
 
 // TODO: replace NumberField with NewNumberField
-export interface INewNumberFieldProps extends Omit<FormControlProps, "onChange" | "defaultValue"> {
+export interface INewNumberFieldProps extends Omit<FieldRootProps, "onChange" | "defaultValue"> {
   fieldId: string;
   fieldLabel: string;
   errors: FieldErrors<any>;
@@ -113,16 +106,16 @@ export function NewNumberField({
   ...props
 }: INewNumberFieldProps) {
   return (
-    <FormControl invalid={!!errors[fieldId]} {...props}>
+    <Field.Root invalid={!!errors[fieldId]} {...props}>
       {showLabel && (
-        <FormLabel htmlFor={fieldId} textAlign="left">
+        <Field.Label htmlFor={fieldId} textAlign="left">
           {fieldLabel}{" "}
           {required && (
             <Text as="span" color="red.500">
               *
             </Text>
           )}
-        </FormLabel>
+        </Field.Label>
       )}
 
       <Controller
@@ -133,9 +126,11 @@ export function NewNumberField({
             min={0}
             data-testid={testId}
             value={field.value ?? ""}
-            onValueChange={(_valueAsString, valueAsNumber) => {
+            onValueChange={(details) => {
               // Convert empty string to undefined if you prefer
-              field.onChange(Number.isNaN(valueAsNumber) ? undefined : valueAsNumber);
+              field.onChange(
+                Number.isNaN(details.valueAsNumber) ? undefined : details.valueAsNumber,
+              );
             }}
           >
             <NumberInput.Input
@@ -156,7 +151,7 @@ export function NewNumberField({
           </NumberInput.Root>
         )}
       />
-      {showError && <FormErrorMessage>{errors[fieldId]?.message as string}</FormErrorMessage>}
-    </FormControl>
+      {showError && <Field.ErrorText>{errors[fieldId]?.message as string}</Field.ErrorText>}
+    </Field.Root>
   );
 }

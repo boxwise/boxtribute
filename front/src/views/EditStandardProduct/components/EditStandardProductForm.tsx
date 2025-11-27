@@ -12,8 +12,7 @@ import {
   Text,
   Skeleton,
   Select,
-  FormControl,
-  FormLabel,
+  Field,
   VStack,
   Input,
 } from "@chakra-ui/react";
@@ -128,8 +127,8 @@ function EditStandardProductForm({
                 errors={errors}
                 control={control}
               />
-              <FormControl>
-                <FormLabel>Category</FormLabel>
+              <Field.Root>
+                <Field.Label>Category</Field.Label>
                 <Select
                   value={defaultValues?.category?.value}
                   isReadOnly
@@ -141,9 +140,9 @@ function EditStandardProductForm({
                     {defaultValues?.category?.label}
                   </option>
                 </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Gender</FormLabel>
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Gender</Field.Label>
                 <Select
                   value={defaultValues?.gender}
                   isReadOnly
@@ -155,9 +154,9 @@ function EditStandardProductForm({
                     {defaultValues?.gender === "none" ? "-" : defaultValues?.gender}
                   </option>
                 </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Size Range</FormLabel>
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Size Range</Field.Label>
                 <Select
                   value={defaultValues?.sizeRange?.value}
                   isReadOnly
@@ -169,10 +168,10 @@ function EditStandardProductForm({
                     {defaultValues?.sizeRange?.label}
                   </option>
                 </Select>
-              </FormControl>
+              </Field.Root>
             </VStack>
-            <FormControl p={2}>
-              <FormLabel htmlFor="comment">Description</FormLabel>
+            <Field.Root p={2}>
+              <Field.Label htmlFor="comment">Description</Field.Label>
               <Input
                 borderColor="black"
                 border="2px"
@@ -183,7 +182,7 @@ function EditStandardProductForm({
                 type="string"
                 {...register("comment")}
               />
-            </FormControl>
+            </Field.Root>
           </VStack>
         </Box>
         <Box border="2px" mb={4} p={2}>
@@ -202,13 +201,7 @@ function EditStandardProductForm({
           />
         </Box>
         <Stack gap={2} my={4}>
-          <Button
-            isLoading={isLoading}
-            disabled={isLoading}
-            type="submit"
-            w="full"
-            variant="submit"
-          >
+          <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
             Edit Product
           </Button>
           <Button

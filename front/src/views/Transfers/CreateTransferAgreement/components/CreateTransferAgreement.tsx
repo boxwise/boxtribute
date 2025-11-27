@@ -1,4 +1,4 @@
-import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
+import { Box, Button, Heading, Input, List, ListItem, Stack, Field } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -234,7 +234,7 @@ function CreateTransferAgreement({
             />
           </ListItem>
           <ListItem>
-            <FormLabel htmlFor="comment">Comment</FormLabel>
+            <Field.Label htmlFor="comment">Comment</Field.Label>
             <Box border="2px" borderRadius={0}>
               <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
@@ -243,7 +243,7 @@ function CreateTransferAgreement({
 
         <Stack gap={4} mt={8}>
           <Button
-            isLoading={isSubmitting}
+            loading={isSubmitting}
             type="submit"
             borderRadius="0"
             w="full"

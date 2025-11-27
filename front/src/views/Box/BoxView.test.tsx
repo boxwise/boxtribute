@@ -851,7 +851,7 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       onAssignBoxesToShipment={mockFunction}
       onUnassignBoxesToShipment={mockFunction}
       shipmentOptions={[]}
-      isLoading={false}
+      loading={false}
     />,
     {
       routePath: "/bases/:baseId/boxes/:labelIdentifier",

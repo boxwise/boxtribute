@@ -12,8 +12,7 @@ import {
   Text,
   Skeleton,
   Select,
-  FormControl,
-  FormLabel,
+  Field,
   VStack,
   Input,
   Switch,
@@ -103,7 +102,7 @@ function EnableStandardProductForm({
             </Text>
           </HStack>
           <VStack>
-            <FormControl px={2} mt={4}>
+            <Field.Root px={2} mt={4}>
               <HStack>
                 <Switch
                   id="type-switch"
@@ -117,7 +116,7 @@ function EnableStandardProductForm({
                   Custom Product (Base Specific)
                 </Text>
               </HStack>
-            </FormControl>
+            </Field.Root>
             <VStack p={2} w="full" bg="gray.100" borderRadius={10} mt={2}>
               <SelectField
                 fieldId="standardProduct"
@@ -144,8 +143,8 @@ function EnableStandardProductForm({
                 errors={errors}
                 control={control}
               />
-              <FormControl>
-                <FormLabel>Category</FormLabel>
+              <Field.Root>
+                <Field.Label>Category</Field.Label>
                 <Select
                   value={defaultValues?.category?.value}
                   isReadOnly
@@ -157,9 +156,9 @@ function EnableStandardProductForm({
                     {defaultValues?.category?.label}
                   </option>
                 </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Gender</FormLabel>
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Gender</Field.Label>
                 <Select
                   value={defaultValues?.gender}
                   isReadOnly
@@ -171,9 +170,9 @@ function EnableStandardProductForm({
                     {defaultValues?.gender === "none" ? "-" : defaultValues?.gender}
                   </option>
                 </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Size Range</FormLabel>
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Size Range</Field.Label>
                 <Select
                   value={defaultValues?.sizeRange?.value}
                   isReadOnly
@@ -185,10 +184,10 @@ function EnableStandardProductForm({
                     {defaultValues?.sizeRange?.label}
                   </option>
                 </Select>
-              </FormControl>
+              </Field.Root>
             </VStack>
-            <FormControl p={2}>
-              <FormLabel htmlFor="comment">Description</FormLabel>
+            <Field.Root p={2}>
+              <Field.Label htmlFor="comment">Description</Field.Label>
               <Input
                 borderColor="black"
                 border="2px"
@@ -199,7 +198,7 @@ function EnableStandardProductForm({
                 type="string"
                 {...register("comment")}
               />
-            </FormControl>
+            </Field.Root>
           </VStack>
         </Box>
         <Box border="2px" mb={4} p={2}>
@@ -218,13 +217,7 @@ function EnableStandardProductForm({
           />
         </Box>
         <Stack gap={2} my={4}>
-          <Button
-            isLoading={isLoading}
-            disabled={isLoading}
-            type="submit"
-            w="full"
-            variant="submit"
-          >
+          <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
             Enable Product
           </Button>
           <Button

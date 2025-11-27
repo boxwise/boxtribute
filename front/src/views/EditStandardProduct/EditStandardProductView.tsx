@@ -140,7 +140,7 @@ function EditStandardProductFormContainer() {
       standardProductData={standardProductData}
       defaultValues={defaultValues}
       onSubmit={onSubmit}
-      isLoading={isEditStandardProductLoading}
+      loading={isEditStandardProductLoading}
       showAlert={false}
       key={requestedStandardProductId}
     />

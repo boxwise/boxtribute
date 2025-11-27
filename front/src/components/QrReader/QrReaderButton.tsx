@@ -10,8 +10,9 @@ export function QrReaderButton({ onClick }: { onClick: () => void }) {
       colorPalette="gray"
       backgroundColor="transparent"
       aria-label="Scan QR Code"
-      icon={<AiOutlineQrcode />}
       onClick={onClick}
-    />
+    >
+      <AiOutlineQrcode />
+    </IconButton>
   );
 }

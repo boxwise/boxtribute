@@ -1,16 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  HStack,
-  Input,
-  Stack,
-  Switch,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Field, HStack, Input, Stack, Switch, Text, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
@@ -134,21 +122,21 @@ function CreateCustomProductForm({
           </Text>
         </HStack>
         <VStack gap={4} p={2} mt={2}>
-          <FormControl>
+          <Field.Root>
             <HStack>
               <Switch id="type-switch" mr={2} isChecked onChange={() => navigate("../enable")} />
               <Text fontWeight="medium" fontSize="md">
                 Custom Product (Base Specific)
               </Text>
             </HStack>
-          </FormControl>
-          <FormControl invalid={!!errors.name}>
-            <FormLabel htmlFor="name">
+          </Field.Root>
+          <Field.Root invalid={!!errors.name}>
+            <Field.Label htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">
                 *
               </Text>
-            </FormLabel>
+            </Field.Label>
             <Input
               borderColor="black"
               border="2px"
@@ -159,8 +147,8 @@ function CreateCustomProductForm({
               type="string"
               {...register("name")}
             />
-            {!!errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}
-          </FormControl>
+            {!!errors.name && <Field.ErrorText>{errors.name.message}</Field.ErrorText>}
+          </Field.Root>
           <SelectField
             fieldId="category"
             fieldLabel="Category"
@@ -186,8 +174,8 @@ function CreateCustomProductForm({
             control={control}
           />
 
-          <FormControl>
-            <FormLabel htmlFor="comment">Description</FormLabel>
+          <Field.Root>
+            <Field.Label htmlFor="comment">Description</Field.Label>
             <Input
               borderColor="black"
               border="2px"
@@ -198,7 +186,7 @@ function CreateCustomProductForm({
               type="string"
               {...register("comment")}
             />
-          </FormControl>
+          </Field.Root>
         </VStack>
       </Box>
       <Box border="2px" mb={4} p={2}>
@@ -217,7 +205,7 @@ function CreateCustomProductForm({
         />
       </Box>
       <Stack gap={2} my={4}>
-        <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
+        <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
           Add Product
         </Button>
         <Button size="md" type="button" w="full" variant="outline" onClick={() => navigate("..")}>

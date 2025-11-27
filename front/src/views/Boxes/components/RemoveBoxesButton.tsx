@@ -53,7 +53,7 @@ const RemoveBoxesButton = ({
         {labelIdentifier}
       </Button>
       <RemoveBoxesOverlay
-        isLoading={actionsAreLoading}
+        loading={actionsAreLoading}
         open={isDialogOpen}
         selectedBoxes={selectedBoxes}
         onClose={() => {

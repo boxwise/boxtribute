@@ -1,4 +1,4 @@
-import { Button, Flex, FormLabel, Input, Spacer } from "@chakra-ui/react";
+import { Button, Flex, Input, Spacer, Field } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,14 +32,14 @@ function CreateDistributionSpot({
   return (
     <Flex>
       <form onSubmit={handleSubmit(onSubmitNewDistributionSpot)}>
-        <FormLabel fontSize="sm" htmlFor="name">
+        <Field.Label fontSize="sm" htmlFor="name">
           Name of the Distribution Spot:
-        </FormLabel>
+        </Field.Label>
         <Input mb={4} {...register("name")} placeholder="Write a name for a Distro Spot" />
         {errors.name?.message && <p>{errors.name?.message}</p>}
-        <FormLabel fontSize="sm" htmlFor="latitude">
+        <Field.Label fontSize="sm" htmlFor="latitude">
           Geo Location:
-        </FormLabel>
+        </Field.Label>
         <Flex>
           <Input
             mb={4}
@@ -58,9 +58,9 @@ function CreateDistributionSpot({
           />
           {errors.longitude?.message && <p>{errors.longitude?.message}</p>}
         </Flex>
-        <FormLabel fontSize="sm" htmlFor="comment">
+        <Field.Label fontSize="sm" htmlFor="comment">
           Comment:
-        </FormLabel>
+        </Field.Label>
         <Input mb={4} {...register("comment")} placeholder="Comments" />
         <br />
         <br />
@@ -68,7 +68,7 @@ function CreateDistributionSpot({
           disabled={isMutationLoading}
           mt={4}
           colorPalette="teal"
-          isLoading={isMutationLoading}
+          loading={isMutationLoading}
           type="submit"
         >
           Submit

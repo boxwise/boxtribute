@@ -2,10 +2,6 @@ import { useMutation } from "@apollo/client";
 import { IoAdd } from "react-icons/io5";
 import {
   Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Button,
   Flex,
@@ -298,13 +294,14 @@ DistroEventDetailsForPackingStateProps) => {
       <Button onClick={onClickScanBoxesForDistroEvent}>Scan Boxes for this Distro Event</Button>
       <VStack gap={0}>
         <Heading size="md">Packing List</Heading>
-        <Accordion allowToggle px={3} py={3}>
+        <Accordion.Root collapsible px={3} py={3}>
           {packingListEntriesGroupedByProductNameAsArray.map(
             (packingEntriesArrayForProductName) => {
               return (
-                <AccordionItem
+                <Accordion.Item
                   w={[300, 420, 500]}
                   justifyItems="center"
+                  value={packingEntriesArrayForProductName.product.id}
                   key={packingEntriesArrayForProductName.product.id}
                   bg={
                     packingEntriesArrayForProductName.allPackingListEntriesFulfilled
@@ -313,7 +310,7 @@ DistroEventDetailsForPackingStateProps) => {
                   }
                 >
                   <Flex justifyItems="center">
-                    <AccordionButton zIndex="2">
+                    <Accordion.ItemTrigger zIndex="2">
                       {/* <EnoughItemsPackedStateBadge
                         enoughItemsFacked={enoughItemsFacked}
                       /> */}
@@ -323,31 +320,32 @@ DistroEventDetailsForPackingStateProps) => {
                           {packingEntriesArrayForProductName.product.gender})
                         </Text>
                       </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
+                      <Accordion.ItemIndicator />
+                    </Accordion.ItemTrigger>
                   </Flex>
-                  {packingEntriesArrayForProductName.packingListEntries.map((item) => (
-                    <AccordionPanel
-                      py={0}
-                      bg={
-                        item.actualNumberOfItemsPacked >= item.numberOfItems
-                          ? "green.100"
-                          : "red.100"
-                      }
-                      key={item.id}
-                    >
-                      <PackingListEntry
-                        packingListEntry={item}
-                        distributionEventId={distributionEventId}
-                      />
-                    </AccordionPanel>
-                  ))}
-                </AccordionItem>
+                  <Accordion.ItemContent py={0}>
+                    {packingEntriesArrayForProductName.packingListEntries.map((item) => (
+                      <Box
+                        bg={
+                          item.actualNumberOfItemsPacked >= item.numberOfItems
+                            ? "green.100"
+                            : "red.100"
+                        }
+                        key={item.id}
+                      >
+                        <PackingListEntry
+                          packingListEntry={item}
+                          distributionEventId={distributionEventId}
+                        />
+                      </Box>
+                    ))}
+                  </Accordion.ItemContent>
+                </Accordion.Item>
               );
             },
             [],
           )}
-        </Accordion>
+        </Accordion.Root>
         {/* <Button my={2} onClick={() => {}} colorPalette="blue">
           You're all set - move to Distribution Stage.
         </Button> */}

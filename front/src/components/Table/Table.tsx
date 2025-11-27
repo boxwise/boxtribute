@@ -1,4 +1,4 @@
-import { Table, TableContainer, Tbody, Td, Tr } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react";
 import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
@@ -18,7 +18,7 @@ function TableRow({ row, children }: ITableRowProps) {
   const { key, ...props } = row.getRowProps();
   if (typeof row.original.href === "string" && row.original.href.length > 0) {
     return (
-      <Tr
+      <Table.Row
         onClick={() => navigate(row.original.href)}
         _hover={{ bg: "brandYellow.100" }}
         cursor="pointer"
@@ -26,13 +26,13 @@ function TableRow({ row, children }: ITableRowProps) {
         {...props}
       >
         {children}
-      </Tr>
+      </Table.Row>
     );
   }
   return (
-    <Tr key={key} {...props}>
+    <Table.Row key={key} {...props}>
       {children}
-    </Tr>
+    </Table.Row>
   );
 }
 
@@ -76,24 +76,24 @@ export function FilteringSortingTable({ columns, tableData, initialState = {} }:
   );
 
   return (
-    <TableContainer>
-      <Table {...getTableProps()}>
+    <Table.ScrollArea>
+      <Table.Root {...getTableProps()}>
         <FilteringSortingTableHeader headerGroups={headerGroups} />
-        <Tbody {...getTableBodyProps()}>
+        <Table.Body {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row);
             return (
               <TableRow key={row.index} row={row}>
                 {row.cells.map((cell, idx) => (
-                  <Td {...cell.getCellProps()} key={idx}>
+                  <Table.Cell {...cell.getCellProps()} key={idx}>
                     {cell.render("Cell")}
-                  </Td>
+                  </Table.Cell>
                 ))}
               </TableRow>
             );
           })}
-        </Tbody>
-      </Table>
-    </TableContainer>
+        </Table.Body>
+      </Table.Root>
+    </Table.ScrollArea>
   );
 }

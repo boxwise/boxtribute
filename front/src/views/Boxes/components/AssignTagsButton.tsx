@@ -69,13 +69,13 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
               placeholder="Type to find tags"
               isSearchable
               tagVariant="outline"
-              tagColorScheme="black"
-              focusBorderColor="blue.500"
+              tagColorPalette="black"
               chakraStyles={{
-                control: (provided) => ({
+                control: (provided, state) => ({
                   ...provided,
                   border: "2px",
                   borderRadius: "0",
+                  borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                 }),
                 multiValue: (provided, state) => ({
                   ...provided,

@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react";
+import { Breadcrumb, Button } from "@chakra-ui/react";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -22,14 +22,15 @@ export function MobileBreadcrumbButton({ label, linkPath }: IBreadcrumbItemData)
       variant="outline"
       color="black"
       borderColor="black"
-      as={Link}
-      to={linkPath ?? "#"}
+      asChild
       border="2px"
       borderRadius={0}
       mb={4}
-      leftIcon={<IoChevronBack />}
     >
-      {label}
+      <Link to={linkPath ?? "#"}>
+        <IoChevronBack />
+        {label}
+      </Link>
     </Button>
   );
 }
@@ -44,24 +45,39 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
   if (isGlobalStateLoading) return <BreadcrumbNavigationSkeleton />;
 
   return (
-    <Breadcrumb separator={<IoChevronForward />} fontSize="md" mb={4}>
-      <BreadcrumbItem>
-        <BreadcrumbLink as={Link} to="#">
-          {orgName}
-        </BreadcrumbLink>
-      </BreadcrumbItem>
-      <BreadcrumbItem>
-        <BreadcrumbLink as={Link} to="#">
-          {baseName}
-        </BreadcrumbLink>
-      </BreadcrumbItem>
-      {items.map((item) => (
-        <BreadcrumbItem key={`breadcrumb${item.label}`}>
-          <BreadcrumbLink as={Link} to={item.linkPath ?? "#"} relative={item.relative ?? "route"}>
-            {item.label}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-      ))}
-    </Breadcrumb>
+    <Breadcrumb.Root fontSize="md" mb={4}>
+      <Breadcrumb.List>
+        <Breadcrumb.Item>
+          <Breadcrumb.Link asChild>
+            <Link to="#">{orgName}</Link>
+          </Breadcrumb.Link>
+          <Breadcrumb.Separator>
+            <IoChevronForward />
+          </Breadcrumb.Separator>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Breadcrumb.Link asChild>
+            <Link to="#">{baseName}</Link>
+          </Breadcrumb.Link>
+          <Breadcrumb.Separator>
+            <IoChevronForward />
+          </Breadcrumb.Separator>
+        </Breadcrumb.Item>
+        {items.map((item, index) => (
+          <Breadcrumb.Item key={`breadcrumb${item.label}`}>
+            <Breadcrumb.Link asChild>
+              <Link to={item.linkPath ?? "#"} relative={item.relative ?? "route"}>
+                {item.label}
+              </Link>
+            </Breadcrumb.Link>
+            {index < items.length - 1 && (
+              <Breadcrumb.Separator>
+                <IoChevronForward />
+              </Breadcrumb.Separator>
+            )}
+          </Breadcrumb.Item>
+        ))}
+      </Breadcrumb.List>
+    </Breadcrumb.Root>
   );
 }

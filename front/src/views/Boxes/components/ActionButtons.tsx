@@ -31,7 +31,7 @@ export function SelectButton({
   icon = undefined,
 }: ISelectButtonProps) {
   const { open, onOpen, onClose } = useDisclosure();
-  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
+  const [isLargerThan768] = useMediaQuery(["(min-width: 768px)"]);
   return (
     <Menu onOpen={onOpen} onClose={onClose}>
       <MenuButton

@@ -222,18 +222,18 @@ export function MatchProductsForm({
         </Flex>
         <Flex direction="column" gap={1}>
           <Button
-            isLoading={isSubmitting || loading}
+            loading={isSubmitting || loading}
             type="submit"
             borderRadius="0"
             w="full"
             bgColor="green.500"
             color="white"
-            disabled={isSubmitting || loading}
+            disabled={loading}
           >
             Confirm Delivered Items
           </Button>
           <Button
-            isLoading={isSubmitting || loading}
+            loading={isSubmitting || loading}
             onClick={() => onBoxUndelivered(shipmentDetail?.box.labelIdentifier)}
             type="submit"
             borderRadius="0"

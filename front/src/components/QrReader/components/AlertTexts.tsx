@@ -1,4 +1,4 @@
-import { ListItem, Text, UnorderedList } from "@chakra-ui/react";
+import { List, Text } from "@chakra-ui/react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 
 export interface INotInStockAlertTextProps {
@@ -33,13 +33,13 @@ export function FailedBoxesFromAssingToShipmentAlert({
   return (
     <Text as="div">
       The following boxes were not assigned to the shipment:
-      <UnorderedList>
+      <List.Root as="ul">
         {failedBoxes.map((box) => (
-          <ListItem key={box.labelIdentifier} fontWeight="bold">
+          <List.Item key={box.labelIdentifier} fontWeight="bold">
             {box.labelIdentifier}
-          </ListItem>
+          </List.Item>
         ))}
-      </UnorderedList>
+      </List.Root>
     </Text>
   );
 }
@@ -54,13 +54,13 @@ export function FailedBoxesFromMoveBoxesAlert({
   return (
     <Text as="div">
       The following boxes were not moved:
-      <UnorderedList>
+      <List.Root as="ul">
         {failedBoxes.map((labelIdentifier) => (
-          <ListItem key={labelIdentifier} fontWeight="bold">
+          <List.Item key={labelIdentifier} fontWeight="bold">
             {labelIdentifier}
-          </ListItem>
+          </List.Item>
         ))}
-      </UnorderedList>
+      </List.Root>
     </Text>
   );
 }
@@ -71,13 +71,13 @@ export function FailedBoxesFromAssignTagsAlert({
   return (
     <Text as="div">
       The following boxes were not assigned tags:
-      <UnorderedList>
+      <List.Root as="ul">
         {failedBoxes.map((labelIdentifier) => (
-          <ListItem key={labelIdentifier} fontWeight="bold">
+          <List.Item key={labelIdentifier} fontWeight="bold">
             {labelIdentifier}
-          </ListItem>
+          </List.Item>
         ))}
-      </UnorderedList>
+      </List.Root>
     </Text>
   );
 }

@@ -74,7 +74,7 @@ function ShipmentCard({
             <IconButton
               isRound
               icon={<BiTrash size={30} />}
-              isLoading={isLoadingMutation}
+              loading={isLoadingMutation}
               onClick={onCancel}
               style={{ background: "white" }}
               aria-label="cancel shipment"
@@ -85,7 +85,7 @@ function ShipmentCard({
               isRound
               icon={<TbMapOff size={30} />}
               variant="outline"
-              isLoading={isLoadingMutation}
+              loading={isLoadingMutation}
               onClick={onLost}
               style={{
                 background: "white",
@@ -194,7 +194,7 @@ function ShipmentCard({
                     isRound
                     height={8}
                     icon={<BiPlusCircle size={30} />}
-                    isLoading={isLoadingMutation}
+                    loading={isLoadingMutation}
                     onClick={() =>
                       qrReaderOverlayVar({
                         open: true,
@@ -212,7 +212,7 @@ function ShipmentCard({
                     icon={<BiMinusCircle size={30} />}
                     disabled={shipment.details?.length === 0}
                     onClick={onRemove}
-                    isLoading={isLoadingMutation}
+                    loading={isLoadingMutation}
                     aria-label="remove box"
                     style={{ background: "white" }}
                   />

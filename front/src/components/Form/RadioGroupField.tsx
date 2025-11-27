@@ -1,13 +1,4 @@
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  StackDirection,
-  Text,
-} from "@chakra-ui/react";
+import { Field, RadioGroup, Stack, Text } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
 export interface IRadioGroupFieldProps {
@@ -16,7 +7,7 @@ export interface IRadioGroupFieldProps {
   options: string[];
   errors: object;
   control: any;
-  direction: StackDirection;
+  direction: "horizontal" | "vertical";
   required?: boolean;
 }
 
@@ -26,36 +17,38 @@ function RadioGroupField({
   options,
   errors,
   control,
-  direction = "column",
+  direction = "vertical",
   required = true,
 }: IRadioGroupFieldProps) {
   return (
-    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
-      <FormLabel htmlFor={fieldId}>
+    <Field.Root invalid={!!errors[fieldId]} id={fieldId}>
+      <Field.Label htmlFor={fieldId}>
         {fieldLabel}{" "}
         {required && (
           <Text as="span" color="red.500">
             *
           </Text>
         )}
-      </FormLabel>
+      </Field.Label>
       <Controller
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <RadioGroup {...field} defaultChecked={field.value}>
-            <Stack direction={direction}>
+          <RadioGroup.Root {...field} defaultValue={field.value}>
+            <Stack direction={direction === "vertical" ? "column" : "row"}>
               {options.map((opt) => (
-                <Radio key={opt} value={opt}>
-                  {opt}
-                </Radio>
+                <RadioGroup.Item key={opt} value={opt}>
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemControl />
+                  <RadioGroup.ItemText>{opt}</RadioGroup.ItemText>
+                </RadioGroup.Item>
               ))}
             </Stack>
-          </RadioGroup>
+          </RadioGroup.Root>
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
-    </FormControl>
+      <Field.ErrorText>{!!errors[fieldId] && errors[fieldId].message}</Field.ErrorText>
+    </Field.Root>
   );
 }
 export default RadioGroupField;

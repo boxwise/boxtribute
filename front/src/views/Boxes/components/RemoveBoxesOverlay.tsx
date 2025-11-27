@@ -51,7 +51,7 @@ function RemoveBoxesOverlay({
       leftButtonProps={leftButtonProps}
       rightButtonText={rightButtonText}
       rightButtonProps={rightButtonProps}
-      isLoading={isLoading}
+      loading={isLoading}
       open={open}
       onClose={onClose}
       onLeftButtonClick={onLeftButtonClick}

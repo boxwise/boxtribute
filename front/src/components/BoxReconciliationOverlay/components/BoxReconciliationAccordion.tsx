@@ -1,14 +1,4 @@
-import {
-  Accordion,
-  AccordionButton,
-  AccordionItem,
-  AccordionPanel,
-  Alert,
-  AlertIcon,
-  Box,
-  Spacer,
-  Text,
-} from "@chakra-ui/react";
+import { Accordion, Alert, Box, Spacer, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { RiQuestionFill } from "react-icons/ri";
@@ -108,16 +98,22 @@ export function BoxReconcilationAccordion({
   // accordion states
   const isProductAccordionInitiallyNotOpen =
     !isSourceProductInCache && isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct;
-  const [accordionIndex, setAccordionIndex] = useState(isProductAccordionInitiallyNotOpen ? 1 : 0);
+  const [accordionValue, setAccordionValue] = useState<string[]>(
+    isProductAccordionInitiallyNotOpen ? ["receive-location"] : ["match-products"],
+  );
   const successfullyMatched = productManuallyMatched || isProductAccordionInitiallyNotOpen;
 
   return (
-    <Accordion allowToggle index={accordionIndex}>
-      <AccordionItem>
-        <AccordionButton
+    <Accordion.Root
+      collapsible
+      value={accordionValue}
+      onValueChange={(details) => setAccordionValue(details.value)}
+    >
+      <Accordion.Item value="match-products">
+        <Accordion.ItemTrigger
           p={4}
           borderBottomWidth={1}
-          onClick={() => setAccordionIndex(0)}
+          onClick={() => setAccordionValue(["match-products"])}
           position="relative"
         >
           <Box
@@ -143,23 +139,25 @@ export function BoxReconcilationAccordion({
             )}
           </Box>
           {isProductAccordionInitiallyNotOpen &&
-            accordionIndex !== 0 &&
+            !accordionValue.includes("match-products") &&
             !productManuallyMatched && (
               <Text as="i" fontSize="xs" position="absolute" bottom={0.5} left={8}>
                 Click here to view auto-matched items
               </Text>
             )}
-        </AccordionButton>
-        <AccordionPanel p={6} position="relative">
+        </Accordion.ItemTrigger>
+        <Accordion.ItemContent p={6} position="relative">
           {!isSourceProductInCache && isTargetProductAutoMatched && !productManuallyMatched && (
             <>
-              <Alert status="info" left={0} top={0} position="absolute">
-                <AlertIcon />
-                <Text as="i" fontSize="sm" lineHeight={8}>
-                  Items were pre-matched using your enabled ASSORT products. To modify, change the
-                  values below.
-                </Text>
-              </Alert>
+              <Alert.Root status="info" left={0} top={0} position="absolute">
+                <Alert.Indicator />
+                <Alert.Content>
+                  <Alert.Description as="i" fontSize="sm" lineHeight={8}>
+                    Items were pre-matched using your enabled ASSORT products. To modify, change the
+                    values below.
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert.Root>
               <Spacer height="88px" />
             </>
           )}
@@ -184,7 +182,7 @@ export function BoxReconcilationAccordion({
             onSubmitMatchProductsForm={(matchedProductsFormData: MatchProductsFormData) => {
               if (matchedProductsFormData.productId && matchedProductsFormData.sizeId) {
                 setProductManuallyMatched(true);
-                setAccordionIndex(1);
+                setAccordionValue(["receive-location"]);
 
                 if (shipmentDetail.sourceProduct?.id) {
                   reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
@@ -200,25 +198,24 @@ export function BoxReconcilationAccordion({
               }
             }}
           />
-        </AccordionPanel>
-      </AccordionItem>
-
-      <AccordionItem>
+        </Accordion.ItemContent>
+      </Accordion.Item>
+      <Accordion.Item value="receive-location">
         <h2>
-          <AccordionButton
+          <Accordion.ItemTrigger
             color={!locationSpecified ? "#000" : "#659A7E"}
             p={4}
             borderBottomWidth={1}
-            onClick={() => setAccordionIndex(1)}
+            onClick={() => setAccordionValue(["receive-location"])}
           >
             <Box flex="1" textAlign="left" fontWeight="bold">
               2. RECEIVE LOCATION
             </Box>
             {!locationSpecified && <RiQuestionFill size={20} />}
             {locationSpecified && <BsFillCheckCircleFill color="#659A7E" size={18} />}
-          </AccordionButton>
+          </Accordion.ItemTrigger>
         </h2>
-        <AccordionPanel p={6}>
+        <Accordion.ItemContent p={6}>
           <ReceiveLocationForm
             loading={loading}
             onLocationSpecified={setLocationSpecified}
@@ -229,11 +226,11 @@ export function BoxReconcilationAccordion({
                 !productFormData.sizeId ||
                 !productFormData.numberOfItems
               ) {
-                setAccordionIndex(0);
+                setAccordionValue(["match-products"]);
               } else if (receiveLocationFormData.locationId.value === "") {
-                setAccordionIndex(1);
+                setAccordionValue(["receive-location"]);
               } else {
-                setAccordionIndex(-1);
+                setAccordionValue([]);
                 setLocationSpecified(true);
                 setReconciliationReceiveLocationCache(receiveLocationFormData);
                 onBoxDelivered(
@@ -246,8 +243,8 @@ export function BoxReconcilationAccordion({
               }
             }}
           />
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+        </Accordion.ItemContent>
+      </Accordion.Item>
+    </Accordion.Root>
   );
 }

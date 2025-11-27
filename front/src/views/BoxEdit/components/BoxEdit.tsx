@@ -3,7 +3,7 @@ import {
   List,
   ListItem,
   Button,
-  FormLabel,
+  Field,
   Heading,
   Input,
   ButtonGroup,
@@ -281,7 +281,7 @@ function BoxEdit({
             />
           </ListItem>
           <ListItem>
-            <FormLabel htmlFor="comment">Comment</FormLabel>
+            <Field.Label htmlFor="comment">Comment</Field.Label>
             <Box border="2px" borderRadius={0}>
               <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
@@ -292,7 +292,7 @@ function BoxEdit({
           <ButtonGroup gap="4">
             <Button
               mt={4}
-              isLoading={isSubmitting}
+              loading={isSubmitting}
               colorPalette="blue"
               type="button"
               borderRadius="0"
@@ -303,7 +303,7 @@ function BoxEdit({
               Cancel
             </Button>
 
-            <Button mt={4} isLoading={isSubmitting} type="submit" borderRadius="0" w="full">
+            <Button mt={4} loading={isSubmitting} type="submit" borderRadius="0" w="full">
               Update Box
             </Button>
           </ButtonGroup>

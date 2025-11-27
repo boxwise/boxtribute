@@ -5,11 +5,9 @@ import {
   Box,
   Button,
   Center,
-  FormControl,
-  FormErrorMessage,
+  Field,
   Icon,
   IconButton,
-  Radio,
   RadioGroup,
   Stack,
   Text,
@@ -111,112 +109,125 @@ function QrReaderMultiBox({
           {scannedBoxesCount && (
             <IconButton
               aria-label="Delete list of scanned boxes"
-              icon={<IoTrash />}
               size="sm"
               background="inherit"
               onClick={onDeleteScannedBoxes}
-            />
+            >
+              <IoTrash />
+            </IconButton>
           )}
           <Text as="b">Boxes Selected: {scannedBoxesCount}</Text>
           {scannedBoxesCount && (
             <IconButton
               aria-label="Undo last scan"
-              icon={<BiUndo size={20} />}
               size="sm"
               background="inherit"
               onClick={onUndoLastScannedBox}
-            />
+            >
+              <BiUndo size={20} />
+            </IconButton>
           )}
         </Stack>
       </Center>
 
       <Box border="2px" borderRadius={0} p={4}>
-        <RadioGroup onChange={onChangeMultiBoxAction} value={multiBoxAction}>
+        <RadioGroup.Root
+          onValueChange={(e) => onChangeMultiBoxAction(e.value as IMultiBoxAction)}
+          value={multiBoxAction}
+        >
           <Stack direction="column">
-            <Radio value="moveBox" data-testid="MoveBox">
-              <Stack direction="row" alignItems="center" gap={2}>
-                <Icon as={FaCartFlatbed} boxSize={6} />
-                <Text>Move to Location</Text>
-              </Stack>
-            </Radio>
-            <Radio value="assignTags" data-testid="AssignTags">
-              <Stack direction="row" alignItems="center" gap={2}>
-                <Icon as={BiTag} boxSize={6} />
-                Tag Boxes
-                <Text>Tag Boxes</Text>
-              </Stack>
-            </Radio>
+            <RadioGroup.Item value="moveBox" data-testid="MoveBox">
+              <RadioGroup.ItemHiddenInput />
+              <RadioGroup.ItemControl />
+              <RadioGroup.ItemText>
+                <Stack direction="row" alignItems="center" gap={2}>
+                  <Icon as={FaCartFlatbed} boxSize={6} />
+                  <Text>Move to Location</Text>
+                </Stack>
+              </RadioGroup.ItemText>
+            </RadioGroup.Item>
+            <RadioGroup.Item value="assignTags" data-testid="AssignTags">
+              <RadioGroup.ItemHiddenInput />
+              <RadioGroup.ItemControl />
+              <RadioGroup.ItemText>
+                <Stack direction="row" alignItems="center" gap={2}>
+                  <Icon as={BiTag} boxSize={6} />
+                  <Text>Tag Boxes</Text>
+                </Stack>
+              </RadioGroup.ItemText>
+            </RadioGroup.Item>
             {/* show Radio Button only if there are shipments */}
             {shipmentOptions.length > 0 && (
               <>
-                <Radio value="assignShipment" data-testid="AssignShipment">
-                  <Stack direction="row" alignItems="center" gap={2}>
-                    <ShipmentIcon boxSize={6} />
-                    <Text>Assign to Shipment</Text>
-                  </Stack>
-                </Radio>
+                <RadioGroup.Item value="assignShipment" data-testid="AssignShipment">
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemControl />
+                  <RadioGroup.ItemText>
+                    <Stack direction="row" alignItems="center" gap={2}>
+                      <ShipmentIcon boxSize={6} />
+                      <Text>Assign to Shipment</Text>
+                    </Stack>
+                  </RadioGroup.ItemText>
+                </RadioGroup.Item>
                 {/* show select field only if the radio button is selected */}
                 {multiBoxAction === IMultiBoxAction.assignShipment && (
-                  <FormControl required mt={2}>
+                  <Field.Root required mt={2}>
                     <Select
                       placeholder="Please select a shipment ..."
                       isSearchable
                       tagVariant="outline"
-                      tagColorScheme="black"
-                      focusBorderColor="blue.500"
-                      components={{ Option: ShipmentOption }}
+                      components={{ Option: ShipmentOption as any }}
                       chakraStyles={{
-                        control: (provided) => ({
+                        control: (provided, state) => ({
                           ...provided,
                           border: "2px",
                           borderRadius: "0",
+                          borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                         }),
                       }}
                       options={shipmentOptions}
                       value={selectedShipmentOption}
                       onChange={setSelectedShipmentOption}
                     />
-                    <FormErrorMessage>{false}</FormErrorMessage>
-                  </FormControl>
+                    <Field.ErrorText>{false}</Field.ErrorText>
+                  </Field.Root>
                 )}
               </>
             )}
             {multiBoxAction === IMultiBoxAction.moveBox && (
-              <FormControl required>
+              <Field.Root required>
                 <Select
                   placeholder="Please select a location ..."
                   isSearchable
                   tagVariant="outline"
-                  tagColorScheme="black"
-                  focusBorderColor="blue.500"
                   chakraStyles={{
-                    control: (provided) => ({
+                    control: (provided, state) => ({
                       ...provided,
                       border: "2px",
                       borderRadius: "0",
+                      borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                     }),
                   }}
                   options={locationOptions}
                   value={selectedLocationOption}
                   onChange={setSelectedLocationOption}
                 />
-                <FormErrorMessage>{false}</FormErrorMessage>
-              </FormControl>
+                <Field.ErrorText>{false}</Field.ErrorText>
+              </Field.Root>
             )}
             {multiBoxAction === IMultiBoxAction.assignTags && (
-              <FormControl required>
+              <Field.Root required>
                 <Select
                   placeholder="Please select tags ..."
                   isSearchable
                   tagVariant="outline"
-                  tagColorScheme="black"
                   isMulti
-                  focusBorderColor="blue.500"
                   chakraStyles={{
-                    control: (provided) => ({
+                    control: (provided, state) => ({
                       ...provided,
                       border: "2px",
                       borderRadius: "0",
+                      borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                     }),
                     multiValue: (provided, state) => {
                       return {
@@ -235,15 +246,15 @@ function QrReaderMultiBox({
                   value={selectedTagOptions}
                   onChange={(s: any) => setSelectedTagOptions(s)}
                 />
-                <FormErrorMessage>{false}</FormErrorMessage>
-              </FormControl>
+                <Field.ErrorText>{false}</Field.ErrorText>
+              </Field.Root>
             )}
           </Stack>
-        </RadioGroup>
+        </RadioGroup.Root>
       </Box>
       {scannedBoxesCount && (
         <Button
-          isLoading={isSubmitButtonLoading}
+          loading={isSubmitButtonLoading}
           disabled={isSubmitButtonDisabled}
           type="button"
           colorPalette="blue"

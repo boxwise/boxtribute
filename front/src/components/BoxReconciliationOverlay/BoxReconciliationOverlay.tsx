@@ -233,7 +233,7 @@ export function BoxReconciliationOverlay({
           colorPalette: "red",
         }}
         open={boxUndeliveredAYSState !== ""}
-        isLoading={loading}
+        loading={loading}
         leftButtonText="Nevermind"
         rightButtonText="Confirm"
         onClose={() => setBoxUndeliveredAYSState("")}

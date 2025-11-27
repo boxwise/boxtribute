@@ -139,7 +139,7 @@ function StandardProductsContainer() {
                 }
                 size="sm"
                 disabled={disableStandardProductMutationLoading}
-                isLoading={disableStandardProductMutationLoading}
+                loading={disableStandardProductMutationLoading}
               >
                 Disable
               </Button>

@@ -1,18 +1,15 @@
 import {
   IconButton,
-  Popover,
   PopoverArrow,
   PopoverBody,
   PopoverContent,
-  PopoverTrigger as OrigPopoverTrigger,
+  PopoverRoot,
+  PopoverTrigger,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
-import { FC, ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { MdFilterList, MdFilterListAlt } from "react-icons/md";
 import { FilterValue } from "react-table";
-
-// Fix for https://github.com/chakra-ui/chakra-ui/issues/5896
-export const PopoverTrigger: FC<{ children: ReactNode }> = OrigPopoverTrigger;
 
 interface ISelectOption {
   label: string;
@@ -39,15 +36,16 @@ export function SelectColumnFilterUI({
 }) {
   // Render a multi-select box
   return (
-    <Popover isLazy={true}>
-      <PopoverTrigger>
+    <PopoverRoot lazyMount unmountOnExit>
+      <PopoverTrigger asChild>
         <IconButton
           size="xs"
           background="inherit"
-          icon={filterValue ? <MdFilterListAlt /> : <MdFilterList />}
           aria-label={`Filter for '${render("Header")}'`}
           data-testid={`filter-${id}`}
-        />
+        >
+          {filterValue ? <MdFilterListAlt /> : <MdFilterList />}
+        </IconButton>
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
@@ -65,7 +63,7 @@ export function SelectColumnFilterUI({
           />
         </PopoverBody>
       </PopoverContent>
-    </Popover>
+    </PopoverRoot>
   );
 }
 

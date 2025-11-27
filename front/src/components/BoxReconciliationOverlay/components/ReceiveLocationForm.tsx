@@ -100,7 +100,7 @@ export function ReceiveLocationForm({
 
         <Flex alignContent="center" alignItems="center">
           <Button
-            isLoading={isSubmitting || loading}
+            loading={isSubmitting || loading}
             type="submit"
             borderRadius="0"
             w="full"

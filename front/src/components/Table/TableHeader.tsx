@@ -1,5 +1,5 @@
 import { IoCaretDown, IoCaretUp } from "react-icons/io5";
-import { Thead, Tr, Th, chakra, HStack } from "@chakra-ui/react";
+import { Table, chakra, HStack } from "@chakra-ui/react";
 import { HeaderGroup } from "react-table";
 
 interface IFilteringSortingTableHeaderProps {
@@ -8,11 +8,11 @@ interface IFilteringSortingTableHeaderProps {
 
 export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingTableHeaderProps) {
   return (
-    <Thead position="sticky" top={0} background="white" zIndex={2}>
+    <Table.Header position="sticky" top={0} background="white" zIndex={2}>
       {headerGroups.map((headerGroup: HeaderGroup, idx) => (
-        <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
+        <Table.Row {...headerGroup.getHeaderGroupProps()} key={idx}>
           {headerGroup.headers.map((column, idx) => (
-            <Th {...column.getHeaderProps()} color="black" key={idx}>
+            <Table.ColumnHeader {...column.getHeaderProps()} color="black" key={idx}>
               <HStack alignItems="center" gap={1}>
                 {column.isSorted && column.isSortedDesc && (
                   <IoCaretDown aria-label="sorted descending" />
@@ -25,10 +25,10 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
                   <chakra.span>{column.render("Filter")}</chakra.span>
                 )}
               </HStack>
-            </Th>
+            </Table.ColumnHeader>
           ))}
-        </Tr>
+        </Table.Row>
       ))}
-    </Thead>
+    </Table.Header>
   );
 }

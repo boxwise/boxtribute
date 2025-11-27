@@ -1,16 +1,4 @@
-import {
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  Box,
-  AccordionIcon,
-  AccordionPanel,
-  VStack,
-  List,
-  ListItem,
-  Text,
-  Button,
-} from "@chakra-ui/react";
+import { Accordion, Box, VStack, List, ListItem, Text, Button } from "@chakra-ui/react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionSpotEnrichedData, DistroEventForSpot } from "views/Distributions/types";
@@ -30,12 +18,12 @@ const DistroSpots = ({
 }: DistroSpotsProps) => {
   return (
     <VStack>
-      <Accordion w={[300, 420, 500]} allowToggle mb={4}>
+      <Accordion.Root w={[300, 420, 500]} collapsible mb={4}>
         {distroSpots.map((distroSpot) => {
           return (
-            <AccordionItem key={distroSpot.id}>
+            <Accordion.Item key={distroSpot.id}>
               <h2>
-                <AccordionButton>
+                <Accordion.ItemTrigger>
                   <VStack flex="1" textAlign="left">
                     <Box fontWeight="bold">{distroSpot.name}</Box>
                     {distroSpot.nextDistroEventDate ? (
@@ -45,10 +33,10 @@ const DistroSpots = ({
                       </Box>
                     ) : null}
                   </VStack>
-                  <AccordionIcon />
-                </AccordionButton>
+                  <Accordion.ItemIndicator />
+                </Accordion.ItemTrigger>
               </h2>
-              <AccordionPanel pb={4}>
+              <Accordion.ItemContent pb={4}>
                 {distroSpot.comment ? (
                   <Box my={2}>
                     <strong>Comment:</strong> {distroSpot.comment}
@@ -70,11 +58,11 @@ const DistroSpots = ({
                 <Button onClick={() => onCreateNewDistroEventForDistroSpotClick(distroSpot.id)}>
                   Create New Event
                 </Button>
-              </AccordionPanel>
-            </AccordionItem>
+              </Accordion.ItemContent>
+            </Accordion.Item>
           );
         })}
-      </Accordion>
+      </Accordion.Root>
       <Button onClick={() => onCreateNewDistroSpotClick()}>Create New</Button>
     </VStack>
   );
@@ -136,17 +124,17 @@ const DistroEventsAccordionForDistroSpotContainer = ({
       })}
       {completedEvents.length > 0 && (
         <ListItem>
-          <Accordion w={[250, 380, 450]} allowToggle mb={4}>
-            <AccordionItem>
+          <Accordion.Root w={[250, 380, 450]} collapsible mb={4}>
+            <Accordion.Item>
               <h2>
-                <AccordionButton>
+                <Accordion.ItemTrigger>
                   <VStack flex="1" textAlign="left">
                     <Box fontWeight="bold">Completed Events</Box>
                   </VStack>
-                  <AccordionIcon />
-                </AccordionButton>
+                  <Accordion.ItemIndicator />
+                </Accordion.ItemTrigger>
               </h2>
-              <AccordionPanel pb={4}>
+              <Accordion.ItemContent pb={4}>
                 {completedEvents.map((distroEvent) => {
                   return (
                     <DistributionEventListItem
@@ -156,9 +144,9 @@ const DistroEventsAccordionForDistroSpotContainer = ({
                     />
                   );
                 })}
-              </AccordionPanel>
-            </AccordionItem>
-          </Accordion>
+              </Accordion.ItemContent>
+            </Accordion.Item>
+          </Accordion.Root>
         </ListItem>
       )}
     </List>

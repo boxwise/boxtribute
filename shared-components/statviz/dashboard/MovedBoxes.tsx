@@ -1,25 +1,18 @@
-import {
-  AccordionItem,
-  AccordionButton,
-  Heading,
-  AccordionIcon,
-  AccordionPanel,
-  Box,
-} from "@chakra-ui/react";
+import { Heading, Box, Accordion } from "@chakra-ui/react";
 import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
 
 export default function MovedBoxes() {
   return (
-    <AccordionItem>
-      <AccordionButton padding="15px 10px">
+    <Accordion.Item value="moved-boxes">
+      <Accordion.ItemTrigger padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Shipments</Heading>
         </Box>
-        <AccordionIcon />
-      </AccordionButton>
-      <AccordionPanel>
+        <Accordion.ItemIndicator />
+      </Accordion.ItemTrigger>
+      <Accordion.ItemContent>
         <MovedBoxesDataContainer />
-      </AccordionPanel>
-    </AccordionItem>
+      </Accordion.ItemContent>
+    </Accordion.Item>
   );
 }

@@ -5,7 +5,7 @@ import {
   ButtonGroup,
   Separator,
   Flex,
-  FormLabel,
+  Field,
   Heading,
   HStack,
   IconButton,
@@ -241,7 +241,7 @@ function BoxCard({
         </Flex>
         <Flex py={2} px={2} minWidth="max-content" alignItems="center">
           <Flex alignContent="center" direction="row">
-            <FormLabel htmlFor="scrap">Scrap:</FormLabel>
+            <Field.Label htmlFor="scrap">Scrap:</Field.Label>
             {isLoading && <SkeletonCircle height="20px" width="34px" />}
             {!isLoading && (
               <Switch
@@ -272,7 +272,7 @@ function BoxCard({
           </Flex>
           <Spacer />
           <Flex alignContent="center" direction="row">
-            <FormLabel htmlFor="lost">Lost:</FormLabel>
+            <Field.Label htmlFor="lost">Lost:</Field.Label>
             {isLoading && <SkeletonCircle height="20px" width="34px" mr={2} />}
             {!isLoading && (
               <Switch

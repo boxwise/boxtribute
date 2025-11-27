@@ -1,27 +1,20 @@
-import {
-  Box,
-  AccordionItem,
-  AccordionButton,
-  Heading,
-  AccordionIcon,
-  AccordionPanel,
-} from "@chakra-ui/react";
+import { Box, Accordion, Heading } from "@chakra-ui/react";
 import CreatedBoxesDataContainer from "../components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 
 export type BoxesOrItemsCount = "boxesCount" | "itemsCount";
 
 export default function ItemsAndBoxes() {
   return (
-    <AccordionItem>
-      <AccordionButton padding="15px 10px">
+    <Accordion.Item value="items-and-boxes">
+      <Accordion.ItemTrigger padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Items and Boxes</Heading>
         </Box>
-        <AccordionIcon />
-      </AccordionButton>
-      <AccordionPanel>
+        <Accordion.ItemIndicator />
+      </Accordion.ItemTrigger>
+      <Accordion.ItemContent>
         <CreatedBoxesDataContainer />
-      </AccordionPanel>
-    </AccordionItem>
+      </Accordion.ItemContent>
+    </Accordion.Item>
   );
 }

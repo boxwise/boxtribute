@@ -1,4 +1,4 @@
-import { FormControl, FormErrorMessage, FormLabel, chakra } from "@chakra-ui/react";
+import { Field, chakra } from "@chakra-ui/react";
 import { CreatableSelect, OptionBase, Select } from "chakra-react-select";
 import { Controller } from "react-hook-form";
 import { colorIsBright } from "utils/helpers";
@@ -57,12 +57,12 @@ function SelectField({
   helperText,
 }: ISelectFieldProps) {
   return (
-    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
+    <Field.Root invalid={!!errors[fieldId]} id={fieldId}>
       {showLabel && (
-        <FormLabel htmlFor={fieldId}>
+        <Field.Label htmlFor={fieldId}>
           {fieldLabel}
           {required && <chakra.span color="red.500"> *</chakra.span>}
-        </FormLabel>
+        </Field.Label>
       )}
       <Controller
         control={control}
@@ -118,14 +118,14 @@ function SelectField({
         }}
       />
       {showError && (
-        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+        <Field.ErrorText>{!!errors[fieldId] && errors[fieldId].message}</Field.ErrorText>
       )}
       {helperText && (
         <chakra.p fontSize="sm" color="gray.600" mt={1}>
           {helperText}
         </chakra.p>
       )}
-    </FormControl>
+    </Field.Root>
   );
 }
 

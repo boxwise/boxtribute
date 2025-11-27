@@ -3,7 +3,7 @@ import { isDate } from "date-fns";
 import {
   Box,
   chakra,
-  Popover,
+  PopoverRoot,
   PopoverArrow,
   PopoverBody,
   PopoverContent,
@@ -33,7 +33,7 @@ export function ProductWithSPCheckmarkCell({ value, row }: CellProps<any>) {
     <chakra.span display="flex" gap={2}>
       {value.name || value}{" "}
       {(row.original.holdsStandardProduct || row.original.isStandard) && (
-        <Popover closeOnEsc closeOnBlur isLazy>
+        <PopoverRoot closeOnEscape closeOnInteractOutside lazyMount unmountOnExit>
           <PopoverTrigger>
             <Box onClick={(e) => e.stopPropagation()}>
               <BsFillCheckCircleFill color="#659A7E" size={18} />
@@ -45,7 +45,7 @@ export function ProductWithSPCheckmarkCell({ value, row }: CellProps<any>) {
               This product is part of the ASSORT standard
             </PopoverBody>
           </PopoverContent>
-        </Popover>
+        </PopoverRoot>
       )}
     </chakra.span>
   );

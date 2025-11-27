@@ -4,8 +4,7 @@ import {
   Box,
   Button,
   Flex,
-  FormControl,
-  FormLabel,
+  Field,
   Heading,
   IconButton,
   Input,
@@ -78,10 +77,10 @@ function UnboxedItemsCollectionListEntry({
           <DialogCloseTrigger />
           <DialogBody mx={4}>
             <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
-              <FormControl display="flex" alignItems="center">
-                <FormLabel fontSize="sm" htmlFor="numberOfItems">
+              <Field.Root display="flex" alignItems="center">
+                <Field.Label fontSize="sm" htmlFor="numberOfItems">
                   # of items:
-                </FormLabel>
+                </Field.Label>
                 <Input
                   type="number"
                   width={20}
@@ -89,7 +88,7 @@ function UnboxedItemsCollectionListEntry({
                   onChange={(ev) => setNumberOfItemsToRemove(parseInt(ev.target.value))}
                   value={numberOfItemsToRemove}
                 />
-              </FormControl>
+              </Field.Root>
               <Button
                 onClick={() => {
                   ctx?.onRemoveUnboxedItems(unboxedItemsCollection.id, numberOfItemsToRemove!);

@@ -145,7 +145,7 @@ function ShipmentOverlay({
       body={body}
       title={title}
       onClose={onClose}
-      isLoading={isLoading}
+      loading={isLoading}
       open={open}
       leftButtonText={leftButtonText}
       leftButtonProps={leftButtonProps}

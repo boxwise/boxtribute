@@ -31,7 +31,7 @@ function BoxMoveLocation({
           Move this box from <strong>{boxData?.location?.name}</strong> to:
         </Text>
       )}
-      <List>
+      <List.Root>
         <Flex wrap="wrap" justifyContent="center">
           {boxData?.location?.base?.locations
             ?.filter((location) => location.id !== boxData?.location?.id)
@@ -45,7 +45,7 @@ function BoxMoveLocation({
                 <Button
                   data-testid={`location-${location.name?.replace(/\s+/g, "_").toLowerCase()}-btn`}
                   borderRadius="0px"
-                  isLoading={isLoading}
+                  loading={isLoading}
                   onClick={() => onMoveToLocationClick(location.id)}
                   disabled={
                     boxData.location?.__typename === "ClassicLocation" &&
@@ -71,7 +71,7 @@ function BoxMoveLocation({
               </WrapItem>
             ))}
         </Flex>
-      </List>
+      </List.Root>
     </>
   );
 }

@@ -1,10 +1,6 @@
 import {
   Box,
   Tabs,
-  TabList,
-  TabPanels,
-  TabPanel,
-  Tab,
   Flex,
   Stack,
   WrapItem,
@@ -12,7 +8,6 @@ import {
   Text,
   SkeletonText,
   Alert,
-  AlertIcon,
 } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
@@ -86,61 +81,59 @@ function BoxTabs({
             </Stack>
           )}
         </Stack>
-        <Tabs w="100%" isFitted defaultIndex={boxData?.shipmentDetail ? 1 : 0}>
-          <TabList>
-            <Tab>
+        <Tabs.Root w="100%" fitted defaultValue={boxData?.shipmentDetail ? "1" : "0"}>
+          <Tabs.List>
+            <Tabs.Trigger value="0">
               <Stack direction="row" alignContent="center" alignItems="center">
                 <FaDollyFlatbed />
                 <Text>Move</Text>
               </Stack>
-            </Tab>
+            </Tabs.Trigger>
             {shipmentOptions.length !== 0 && (
-              <Tab>
+              <Tabs.Trigger value="1">
                 <Stack direction="row" alignContent="center" alignItems="center">
                   <BiNetworkChart />
                   <Text>Transfer</Text>
                 </Stack>
-              </Tab>
+              </Tabs.Trigger>
             )}
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              {boxData?.location !== null && (
-                <>
-                  {boxData?.state === "MarkedForShipment" && (
-                    <Alert status="warning" my={4}>
-                      <AlertIcon />
-                      MarkedForShipment Boxes are not movable.
-                    </Alert>
-                  )}
-                  <BoxMoveLocation
-                    boxData={boxData!}
-                    boxInTransit={boxInTransit}
-                    onMoveToLocationClick={onMoveToLocationClick}
-                    isLoading={isLoading}
-                  />
-                </>
-              )}
-            </TabPanel>
-
-            <TabPanel>
-              {shipmentOptions.length === 0 && (
-                <Text px={4} py={8} alignContent="center">
-                  No shipments are being prepared from your base!
-                </Text>
-              )}
-              {shipmentOptions.length > 0 && (
-                <AssignBoxToShipment
-                  boxData={boxData}
-                  isAssignBoxesToShipmentLoading={isLoading}
-                  shipmentOptions={shipmentOptions}
-                  onAssignBoxesToShipment={onAssignBoxesToShipment}
-                  onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+          </Tabs.List>
+          <Tabs.Content value="0">
+            {boxData?.location !== null && (
+              <>
+                {boxData?.state === "MarkedForShipment" && (
+                  <Alert.Root status="warning" my={4}>
+                    <Alert.Indicator />
+                    MarkedForShipment Boxes are not movable.
+                  </Alert.Root>
+                )}
+                <BoxMoveLocation
+                  boxData={boxData!}
+                  boxInTransit={boxInTransit}
+                  onMoveToLocationClick={onMoveToLocationClick}
+                  isLoading={isLoading}
                 />
-              )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+              </>
+            )}
+          </Tabs.Content>
+
+          <Tabs.Content value="1">
+            {shipmentOptions.length === 0 && (
+              <Text px={4} py={8} alignContent="center">
+                No shipments are being prepared from your base!
+              </Text>
+            )}
+            {shipmentOptions.length > 0 && (
+              <AssignBoxToShipment
+                boxData={boxData}
+                isAssignBoxesToShipmentLoading={isLoading}
+                shipmentOptions={shipmentOptions}
+                onAssignBoxesToShipment={onAssignBoxesToShipment}
+                onUnassignBoxesToShipment={onUnassignBoxesToShipment}
+              />
+            )}
+          </Tabs.Content>
+        </Tabs.Root>
       </Flex>
     </Box>
   );

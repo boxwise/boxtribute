@@ -19,7 +19,7 @@ interface IAreYouSureDialogProps {
   leftButtonProps?: ButtonProps;
   rightButtonText: string;
   rightButtonProps?: ButtonProps;
-  isLoading: boolean;
+  loading: boolean;
   open: boolean;
   onClose: () => void;
   onLeftButtonClick: () => void;
@@ -33,7 +33,7 @@ export function AreYouSureDialog({
   leftButtonProps = {},
   rightButtonText,
   rightButtonProps = {},
-  isLoading,
+  loading,
   open,
   onClose,
   onLeftButtonClick,
@@ -49,7 +49,7 @@ export function AreYouSureDialog({
         <DialogFooter>
           <HStack gap={4}>
             <Button
-              loading={isLoading}
+              loading={loading}
               onClick={onLeftButtonClick}
               {...leftButtonProps}
               data-testid="AYSLeftButton"
@@ -57,7 +57,7 @@ export function AreYouSureDialog({
               {leftButtonText}
             </Button>
             <Button
-              loading={isLoading}
+              loading={loading}
               onClick={onRightButtonClick}
               {...rightButtonProps}
               data-testid="AYSRightButton"

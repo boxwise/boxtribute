@@ -77,12 +77,12 @@ export default function Dashboard() {
         </WrapItem>
       </Wrap>
 
-      <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
+      <Accordion.Root defaultValue={["items-and-boxes"]} multiple marginBottom="100px">
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />
         <StockOverview />
-      </Accordion>
+      </Accordion.Root>
     </div>
   );
 }

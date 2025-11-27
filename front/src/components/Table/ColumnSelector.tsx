@@ -1,19 +1,17 @@
 import {
-  Popover,
+  PopoverRoot,
   Box,
   PopoverContent,
   PopoverArrow,
-  PopoverCloseButton,
+  PopoverCloseTrigger,
   PopoverBody,
   Flex,
   Checkbox,
-  PopoverTrigger as OrigPopoverTrigger,
+  PopoverTrigger,
   Button,
 } from "@chakra-ui/react";
 import { ColumnInstance } from "react-table";
 import { RiLayoutColumnFill } from "react-icons/ri";
-
-const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
 interface IColumnSelectorProps {
   availableColumns: ColumnInstance<Record<string, unknown>>[];
@@ -25,21 +23,22 @@ function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
   ).length;
 
   return (
-    <Popover>
-      <PopoverTrigger>
+    <PopoverRoot>
+      <PopoverTrigger asChild>
         <Box position="relative">
-          <Button aria-label="Columns Shown" leftIcon={<RiLayoutColumnFill />}>
+          <Button aria-label="Columns Shown">
+            <RiLayoutColumnFill />
             {selectedColumnsCount}
           </Button>
         </Box>
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
-        <PopoverCloseButton />
+        <PopoverCloseTrigger />
         <PopoverBody textStyle="h1">
           <Flex flexWrap="wrap">
             {availableColumns.map((column) => (
-              <Checkbox
+              <Checkbox.Root
                 m={1}
                 py={1}
                 px={2}
@@ -50,13 +49,15 @@ function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
                 defaultChecked={column.getToggleHiddenProps().checked}
                 {...column.getToggleHiddenProps()}
               >
-                {column.render("Header")}
-              </Checkbox>
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>{column.render("Header")}</Checkbox.Label>
+              </Checkbox.Root>
             ))}
           </Flex>
         </PopoverBody>
       </PopoverContent>
-    </Popover>
+    </PopoverRoot>
   );
 }
 

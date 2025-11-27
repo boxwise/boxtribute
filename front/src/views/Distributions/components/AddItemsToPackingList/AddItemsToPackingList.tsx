@@ -3,7 +3,7 @@ import {
   Button,
   Checkbox,
   Flex,
-  FormLabel,
+  Field,
   Heading,
   Switch,
   Tab,
@@ -153,9 +153,9 @@ const AddItemsToPackingList = ({
       </Heading>
       <Box my={7}>
         <Switch id="show-only-products-in-stock" />{" "}
-        <FormLabel htmlFor="show-only-products-in-stock" display="inline">
+        <Field.Label htmlFor="show-only-products-in-stock" display="inline">
           Only show products in stock
-        </FormLabel>
+        </Field.Label>
       </Box>
       <Tabs variant="soft-rounded" colorPalette="green" px="30">
         <TabList flexWrap="wrap">

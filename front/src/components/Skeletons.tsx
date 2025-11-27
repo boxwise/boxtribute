@@ -4,8 +4,7 @@ import {
   Button,
   Center,
   Flex,
-  FormControl,
-  FormLabel,
+  Field,
   IconButton,
   List,
   ListItem,
@@ -82,7 +81,7 @@ export function ShipmentCardSkeleton() {
         <Box border={0}>
           <Flex minWidth="max-content" alignItems="center" gap="2">
             <Box p="4">
-              <List gap={1}>
+              <List.Root gap={1}>
                 <ListItem>
                   <Flex alignContent="right">
                     <Skeleton height={8} width={12} />
@@ -93,7 +92,7 @@ export function ShipmentCardSkeleton() {
                     <Skeleton height={6} width={12} />
                   </Flex>
                 </ListItem>
-              </List>
+              </List.Root>
             </Box>
             <Spacer />
             <Box>
@@ -103,7 +102,7 @@ export function ShipmentCardSkeleton() {
             </Box>
             <Spacer />
             <Box p="4">
-              <List gap={1}>
+              <List.Root gap={1}>
                 <ListItem>
                   <Flex alignContent="left">
                     <Skeleton height={8} width={12} />
@@ -114,7 +113,7 @@ export function ShipmentCardSkeleton() {
                     <Skeleton height={6} width={12} />
                   </Flex>
                 </ListItem>
-              </List>
+              </List.Root>
             </Box>
           </Flex>
           <Center alignContent="stretch">
@@ -160,7 +159,8 @@ export function ShipmentCardSkeleton() {
 
 export function ButtonSkeleton() {
   return (
-    <Button leftIcon={<SkeletonCircle size="12" />} variant="solid" marginTop={2}>
+    <Button variant="solid" marginTop={2}>
+      <SkeletonCircle size="12" />
       <Skeleton height="20px" width="150px" />
     </Button>
   );
@@ -255,28 +255,28 @@ export function FormSkeleton() {
       <Box mb={4} p={2}>
         <VStack gap={4} pt={4}>
           {/* First form field */}
-          <FormControl>
-            <FormLabel>
+          <Field.Root>
+            <Field.Label>
               <Skeleton height="20px" width="80px" />
-            </FormLabel>
+            </Field.Label>
             <Skeleton height="40px" width="100%" />
-          </FormControl>
+          </Field.Root>
 
           {/* Second form field */}
-          <FormControl>
-            <FormLabel>
+          <Field.Root>
+            <Field.Label>
               <Skeleton height="20px" width="100px" />
-            </FormLabel>
+            </Field.Label>
             <Skeleton height="40px" width="100%" />
-          </FormControl>
+          </Field.Root>
 
           {/* Third form field */}
-          <FormControl>
-            <FormLabel>
+          <Field.Root>
+            <Field.Label>
               <Skeleton height="20px" width="90px" />
-            </FormLabel>
+            </Field.Label>
             <Skeleton height="40px" width="100%" />
-          </FormControl>
+          </Field.Root>
         </VStack>
       </Box>
 

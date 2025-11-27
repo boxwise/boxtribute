@@ -5,8 +5,7 @@ import {
   Box,
   Button,
   Center,
-  FormControl,
-  FormLabel,
+  Field,
   Heading,
   HStack,
   Stack,
@@ -280,17 +279,17 @@ function CreateShipment({
                       options={basesOptions}
                     />
                     {agreementNote && (
-                      <FormControl>
-                        <FormLabel>Note</FormLabel>
+                      <Field.Root>
+                        <Field.Label>Note</Field.Label>
                         <Textarea readOnly value={agreementNote} />
-                      </FormControl>
+                      </Field.Root>
                     )}
                   </>
                 )}
               </Box>
               <Stack gap={4} mt={8}>
                 <Button
-                  isLoading={isSubmitting || isLoading}
+                  loading={isSubmitting || isLoading}
                   disabled={noAcceptedAgreements}
                   type="submit"
                   borderRadius="0"
@@ -334,7 +333,7 @@ function CreateShipment({
               </Box>
               <Stack gap={4} mt={8}>
                 <Button
-                  isLoading={isSubmittingIntraOrg || isLoading}
+                  loading={isSubmittingIntraOrg || isLoading}
                   type="submit"
                   borderRadius="0"
                   w="full"

@@ -122,7 +122,7 @@ function ProductsContainer() {
             }}
             size="sm"
             disabled={disableStandardProductMutationLoading}
-            isLoading={disableStandardProductMutationLoading}
+            loading={disableStandardProductMutationLoading}
             bgColor={row.original.isStandard ? "gray.200" : "red.500"}
             _hover={{
               bgColor: row.original.isStandard ? "gray.100" : "red.300",

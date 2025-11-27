@@ -592,7 +592,7 @@ function ShipmentView() {
       {shipmentViewComponents}
       <ShipmentOverlay
         open={isShipmentOverlayOpen}
-        isLoading={isLoadingFromMutation}
+        loading={isLoadingFromMutation}
         shipmentOverlayData={shipmentOverlayData}
         onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
         onClose={onShipmentOverlayClose}
