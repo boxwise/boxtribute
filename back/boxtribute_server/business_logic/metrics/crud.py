@@ -9,6 +9,7 @@ from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
+from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import utcnow
 
@@ -127,37 +128,50 @@ def number_of_created_records_between(model, start, end):
     )
 
 
-def family_heads_edited_last_year(start, end):
-    edited_family_heads = (
-        DbChangeHistory.select(DbChangeHistory.record_id)
-        .join(Beneficiary, on=(DbChangeHistory.record_id == Beneficiary.id))
-        .where(
-            (DbChangeHistory.table_name == "people")
-            & (Beneficiary.family_head.is_null(True))
-            & (DbChangeHistory.change_date >= start)
-            & (DbChangeHistory.change_date <= end)
+def active_beneficiaries_numbers(start, end):
+    family_heads = family_heads_touched(start, end)
+    family_members = Beneficiary.select().where(Beneficiary.family_head << family_heads)
+    return family_heads.count() + family_members.count()
+
+
+def family_heads_touched(start, end):
+    # Return UNION of three sources of family heads "touched" in given time span
+    return (
+        (
+            # created/edited/deleted
+            DbChangeHistory.select(DbChangeHistory.record_id)
+            .join(Beneficiary, on=(DbChangeHistory.record_id == Beneficiary.id))
+            .where(
+                DbChangeHistory.table_name == Beneficiary._meta.table_name,
+                Beneficiary.family_head.is_null(),
+                DbChangeHistory.change_date >= start,
+                DbChangeHistory.change_date <= end,
+            )
+            .distinct()
         )
-        .distinct()
-    )
-
-    edited_family_head_id_list = [row.record_id for row in edited_family_heads]
-    return edited_family_head_id_list
-
-
-def family_heads_in_transaction_last_year(start, end):
-    family_head_with_transaction = (
-        Transaction.select(Beneficiary.id)
-        .join(Beneficiary, on=(Transaction.beneficiary == Beneficiary.id))
-        .where(
-            (Beneficiary.family_head.is_null(True))  # Changed to family_head
-            & (Transaction.created_on >= start)
-            & (Transaction.created_on <= end)
+        | (
+            # involved in transactions
+            Transaction.select(Beneficiary.id)
+            .join(Beneficiary)
+            .where(
+                Beneficiary.family_head.is_null(),
+                Transaction.created_on >= start,
+                Transaction.created_on <= end,
+            )
+            .distinct()
         )
-        .distinct()
-        .tuples()
+        | (
+            # involved in services
+            ServicesRelation.select(Beneficiary.id)
+            .join(Beneficiary)
+            .where(
+                Beneficiary.family_head.is_null(),
+                ServicesRelation.created_on >= start,
+                ServicesRelation.created_on <= end,
+            )
+            .distinct()
+        )
     )
-
-    return [row[0] for row in family_head_with_transaction]
 
 
 def get_time_span(

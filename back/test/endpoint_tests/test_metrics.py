@@ -147,23 +147,10 @@ def test_public_box_number(read_only_client, start, end, duration, result):
         ("2020-01-01", "2020-12-31"),
     ],
 )
-def test_active_beneficiaries_numbers(start, end, client):
-    new_name = "barbs"
-    edit_query = f"""
-    mutation {{
-        updateBeneficiary(updateInput: {{
-            id: 1,
-            firstName: "{new_name}"
-        }}) {{
-            id
-            firstName
-        }}
-    }}
-    """
-    response = assert_successful_request(client, edit_query)
-    query = f'query {{ activeBeneficiariesNumber(start: "{start}", end: "{end}") }}'
-    response = assert_successful_request(client, query, endpoint="public")
-    assert response == 2
+def test_active_beneficiaries_numbers(start, end, read_only_client):
+    query = f'query {{ activeBeneficiariesNumbers(start: "{start}", end: "{end}") }}'
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == 4
 
 
 def build_newly_created_query(query_string):
