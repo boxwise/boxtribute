@@ -1,5 +1,5 @@
 import { BiSolidStore } from "react-icons/bi";
-import { BsPersonVcardFill, BsBox2HeartFill, BsClipboardHeartFill } from "react-icons/bs";
+import { BsBox2HeartFill, BsClipboardHeartFill } from "react-icons/bs";
 import { FaTruckPlane } from "react-icons/fa6";
 import {
   RiAccountCircleFill,
@@ -36,8 +36,6 @@ function MenuIcons({ icon }: { icon: Icon }) {
       return <BsClipboardHeartFill />;
     case "Free Shop":
       return <BiSolidStore />;
-    case "Services":
-      return <BsPersonVcardFill />;
     case "Coordinator Admin":
       return <RiLockStarFill />;
     case "Base":
