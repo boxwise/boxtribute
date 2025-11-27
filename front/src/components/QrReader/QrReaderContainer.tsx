@@ -12,7 +12,7 @@ import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
-import QrReader from "./components/QrReader";
+import { QrReader } from "./components/QrReader";
 import { QrReaderSkeleton } from "components/Skeletons";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 

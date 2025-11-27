@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Result } from "@zxing/library";
+import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import {
   FormControl,
   FormErrorMessage,
@@ -28,7 +28,7 @@ export interface IQrReaderProps {
   onFindBoxByLabel: (label: string) => void;
 }
 
-function QrReader({
+export function QrReader({
   isMultiBox,
   findBoxByLabelIsLoading,
   onTabSwitch,
@@ -41,21 +41,18 @@ function QrReader({
   const onResult = useCallback(
     (
       multiScan: boolean,
-      qrReaderResult: Result | undefined | null,
+      qrReaderResult: IDetectedBarcode[] | undefined | null,
       error?: Error | undefined | null,
     ) => {
       if (error) {
-        // Log the error if its unexpected but don't interrupt the scanning process
-        if (error.name !== "NotFoundException2") {
-          //register error with Sentry
-          Sentry.captureException(error);
-          console.error("QR Reader error:", error.name);
-        }
+        //register error with Sentry
+        Sentry.captureException(error);
+        console.error("QR Reader error:", error.name);
 
         return;
       }
-      if (qrReaderResult) {
-        onScan(qrReaderResult.getText(), multiScan);
+      if (qrReaderResult && qrReaderResult.length > 0) {
+        onScan(qrReaderResult[0].rawValue, multiScan);
       }
     },
     [onScan],
@@ -137,5 +134,3 @@ function QrReader({
     </>
   );
 }
-
-export default QrReader;
