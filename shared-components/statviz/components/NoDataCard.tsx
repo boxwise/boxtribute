@@ -1,4 +1,4 @@
-import { Card, CardHeader, Heading } from "@chakra-ui/react";
+import { Card, Heading } from "@chakra-ui/react";
 
 interface INoDataCardProps {
   header: string;
@@ -10,11 +10,11 @@ export default function NoDataCard({
   message = "No data for the selected time range or selected filters",
 }: INoDataCardProps) {
   return (
-    <Card h="200px" w="300px">
-      <CardHeader>
+    <Card.Root h="200px" w="300px">
+      <Card.Header>
         <Heading size="md">{header}</Heading>
-      </CardHeader>
-      <CardHeader>{message}</CardHeader>
-    </Card>
+      </Card.Header>
+      <Card.Header>{message}</Card.Header>
+    </Card.Root>
   );
 }

@@ -1,10 +1,10 @@
 import {
   Button,
   chakra,
-  Menu,
-  MenuButton,
+  MenuContent,
   MenuItem,
-  MenuList,
+  MenuRoot,
+  MenuTrigger,
   VStack,
   Wrap,
   WrapItem,
@@ -33,21 +33,32 @@ export function SelectButton({
   const { open, onOpen, onClose } = useDisclosure();
   const [isLargerThan768] = useMediaQuery(["(min-width: 768px)"]);
   return (
-    <Menu onOpen={onOpen} onClose={onClose}>
-      <MenuButton
-        as={Button}
-        disabled={disabled}
-        leftIcon={icon}
-        iconSpacing={isLargerThan768 || open ? 2 : 0}
-        rightIcon={isLargerThan768 || open ? <IoChevronDown /> : undefined}
-      >
-        {(isLargerThan768 || open) && label}
-      </MenuButton>
-      <MenuList zIndex={3}>
+    <MenuRoot
+      open={open}
+      onOpenChange={(e) => {
+        if (e.open) {
+          onOpen();
+        } else {
+          onClose();
+        }
+      }}
+    >
+      <MenuTrigger asChild>
+        <Button disabled={disabled}>
+          {icon}
+          {(isLargerThan768 || open) && label}
+          {(isLargerThan768 || open) && <IoChevronDown />}
+        </Button>
+      </MenuTrigger>
+      <MenuContent zIndex={3}>
         {options.map(({ label: olabel, value, subTitle }) => {
           const [firstPart, secondPart] = olabel.split("-");
           return (
-            <MenuItem key={`SelectButtonOption${value}`} onClick={() => onSelect(value)}>
+            <MenuItem
+              key={`SelectButtonOption${value}`}
+              value={value}
+              onClick={() => onSelect(value)}
+            >
               {!subTitle ? (
                 olabel
               ) : (
@@ -64,7 +75,7 @@ export function SelectButton({
             </MenuItem>
           );
         })}
-      </MenuList>
-    </Menu>
+      </MenuContent>
+    </MenuRoot>
   );
 }

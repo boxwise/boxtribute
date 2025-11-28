@@ -33,11 +33,10 @@ const MakeLabelsButton: React.FC<MakeLabelsButtonProps> = ({ selectedBoxes }) =>
         key="make-labels"
         variant="ghost"
         data-testid="make-labels-button"
-        leftIcon={<RiQrCodeLine />}
-        iconSpacing={2}
         padding={1}
         onClick={makeLabels}
       >
+        <RiQrCodeLine />
         Make Labels
       </Button>
     </>

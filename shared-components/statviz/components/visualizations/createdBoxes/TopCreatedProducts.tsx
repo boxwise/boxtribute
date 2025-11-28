@@ -1,4 +1,4 @@
-import { Card, CardBody } from "@chakra-ui/react";
+import { Card } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { arrange, desc, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import BarChart from "../../nivo/BarChart";
@@ -54,7 +54,7 @@ export default function TopCreatedProducts(props: {
   }
 
   return (
-    <Card>
+    <Card.Root>
       <VisHeader
         maxWidthPx={props.width}
         heading={heading}
@@ -63,9 +63,9 @@ export default function TopCreatedProducts(props: {
         defaultWidth={500}
         chartProps={chartProps}
       />
-      <CardBody>
+      <Card.Body>
         <BarChart {...chartProps} />
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 }

@@ -1,4 +1,4 @@
-import { FormControl, FormErrorMessage, FormLabel, chakra, Flex } from "@chakra-ui/react";
+import { Field, chakra, Flex } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
 import { Controller } from "react-hook-form";
 import { colorIsBright } from "../utils/helpers";
@@ -46,10 +46,14 @@ function SelectField({
   inlineLabel = false,
 }: ISelectFieldProps) {
   const labelElement = showLabel && (
-    <FormLabel htmlFor={fieldId} mb={inlineLabel ? 0 : undefined} mr={inlineLabel ? 3 : undefined}>
+    <Field.Label
+      htmlFor={fieldId}
+      mb={inlineLabel ? 0 : undefined}
+      mr={inlineLabel ? 3 : undefined}
+    >
       {fieldLabel}
       {required && <chakra.span color="red.500"> *</chakra.span>}
-    </FormLabel>
+    </Field.Label>
   );
 
   const selectElement = (
@@ -75,7 +79,6 @@ function SelectField({
           placeholder={placeholder}
           isSearchable
           tagVariant="outline"
-          tagColorPalette="black"
           isMulti={isMulti}
           menuPortalTarget={document.body}
           styles={{
@@ -105,7 +108,7 @@ function SelectField({
   );
 
   return (
-    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
+    <Field.Root invalid={!!errors[fieldId]} id={fieldId}>
       {inlineLabel ? (
         <Flex alignItems="center">
           {labelElement}
@@ -118,9 +121,9 @@ function SelectField({
         </>
       )}
       {showError && (
-        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+        <Field.ErrorText>{!!errors[fieldId] && errors[fieldId].message}</Field.ErrorText>
       )}
-    </FormControl>
+    </Field.Root>
   );
 }
 

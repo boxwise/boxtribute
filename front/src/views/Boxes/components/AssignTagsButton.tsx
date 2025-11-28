@@ -50,15 +50,14 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
           w="full"
           justifyContent="flex-start"
           padding={4}
-          iconSpacing={2}
           onClick={(e) => {
             e.stopPropagation();
             handleOpenInput();
           }}
-          leftIcon={<BiTag />}
           variant="ghost"
           data-testid="assign-tags-button"
         >
+          <BiTag />
           Add Tags
         </Button>
       </Box>

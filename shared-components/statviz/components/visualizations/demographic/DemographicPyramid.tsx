@@ -1,4 +1,4 @@
-import { Card, CardBody, Text, chakra, Box } from "@chakra-ui/react";
+import { Card, Text, chakra, Box } from "@chakra-ui/react";
 import { range } from "lodash";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
 import { useMemo } from "react";
@@ -177,7 +177,7 @@ export default function DemographicPyramid({
   };
 
   return (
-    <Card>
+    <Card.Root>
       <VisHeader
         maxWidthPx={width}
         heading={heading}
@@ -186,10 +186,10 @@ export default function DemographicPyramid({
         defaultHeight={800}
         defaultWidth={600}
       />
-      <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
+      <Card.Body id="chart-container" style={{ width: "100%", height: "100%" }}>
         {beneficiariesRegistrationsText}
         <BarChartCenterAxis {...chartProps} />
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 }

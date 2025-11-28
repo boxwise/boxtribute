@@ -28,13 +28,12 @@ import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
-  Popover,
+  PopoverRoot,
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
   HStack,
   PopoverAnchor,
-  useBoolean,
   Box,
 } from "@chakra-ui/react";
 import { FaInfoCircle } from "react-icons/fa";
@@ -157,7 +156,7 @@ function Boxes({
   const [searchParams] = useSearchParams();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
-  const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const tableConfigKey = `bases/${baseId}/boxes`;
 
   const defaultHiddenColumns = useMemo(() => {
@@ -374,13 +373,12 @@ function Boxes({
       },
       {
         Header: (
-          <Popover
+          <PopoverRoot
             open={isPopoverOpen}
-            onOpen={setIsPopoverOpen.on}
-            onClose={setIsPopoverOpen.off}
-            closeOnBlur={true}
-            isLazy
-            lazyBehavior="keepMounted"
+            onOpenChange={(e) => setIsPopoverOpen(e.open)}
+            closeOnInteractOutside={true}
+            lazyMount
+            unmountOnExit={false}
           >
             <HStack>
               <PopoverAnchor>
@@ -399,7 +397,7 @@ function Boxes({
                 it was first created in Boxtribute.
               </PopoverBody>
             </PopoverContent>
-          </Popover>
+          </PopoverRoot>
         ),
         accessor: "age",
         id: "age",
@@ -429,7 +427,7 @@ function Boxes({
         filter: "includesOneOfMultipleStrings",
       },
     ],
-    [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
+    [isPopoverOpen],
   );
 
   return (

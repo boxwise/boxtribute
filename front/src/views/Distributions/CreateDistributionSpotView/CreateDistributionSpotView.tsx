@@ -1,11 +1,12 @@
 import { useMutation } from "@apollo/client";
 import { graphql } from "../../../../../graphql/graphql";
-import { Center, Heading, useToast, VStack } from "@chakra-ui/react";
+import { Center, Heading, VStack } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DISTRO_SPOTS_FOR_BASE_ID } from "../queries";
 import CreateDistributionSpot, {
   CreateDistributionSpotFormData,
 } from "./components/CreateDistributionSpot";
+import { useNotification } from "hooks/useNotification";
 
 export const CREATE_NEW_DISTRIBUTION_SPOT_MUTATION = graphql(`
   mutation CreateDistributionSpot(
@@ -36,16 +37,12 @@ const CreateDistributionSpotView = () => {
 
   const baseId = useParams<{ baseId: string }>().baseId!;
   const navigate = useNavigate();
-  const toast = useToast();
+  const { createToast } = useNotification();
 
   const showErrorToast = () =>
-    toast({
-      title: "Error",
-      description: "Distribution Spot couldn't be created",
-      status: "error",
-      duration: 2000,
-      isClosable: true,
-      position: "top-right",
+    createToast({
+      type: "error",
+      message: "Distribution Spot couldn't be created",
     });
 
   const onSubmitNewDitroSpot = (distroSpot: CreateDistributionSpotFormData) => {

@@ -124,7 +124,15 @@ function CreateCustomProductForm({
         <VStack gap={4} p={2} mt={2}>
           <Field.Root>
             <HStack>
-              <Switch id="type-switch" mr={2} isChecked onChange={() => navigate("../enable")} />
+              <Switch.Root
+                id="type-switch"
+                mr={2}
+                checked={true}
+                onCheckedChange={() => navigate("../enable")}
+              >
+                <Switch.HiddenInput />
+                <Switch.Control />
+              </Switch.Root>
               <Text fontWeight="medium" fontSize="md">
                 Custom Product (Base Specific)
               </Text>
@@ -205,7 +213,7 @@ function CreateCustomProductForm({
         />
       </Box>
       <Stack gap={2} my={4}>
-        <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
+        <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="solid">
           Add Product
         </Button>
         <Button size="md" type="button" w="full" variant="outline" onClick={() => navigate("..")}>

@@ -58,7 +58,7 @@ function BoxDetails({
         onMinusOpen={onMinusOpen}
         onPlusOpen={onPlusOpen}
         onStateChange={onStateChange}
-        loading={isLoading}
+        isLoading={isLoading}
       />
       <BoxTabs
         boxData={boxData}
@@ -67,7 +67,7 @@ function BoxDetails({
         onAssignBoxesToShipment={onAssignBoxesToShipment}
         onUnassignBoxesToShipment={onUnassignBoxesToShipment}
         shipmentOptions={shipmentOptions}
-        loading={isLoading}
+        isLoading={isLoading}
       />
       {boxData.distributionEvent && (
         <BoxDistributionEvent

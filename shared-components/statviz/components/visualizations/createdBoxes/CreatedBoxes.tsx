@@ -1,4 +1,4 @@
-import { Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
+import { Card, Wrap, WrapItem } from "@chakra-ui/react";
 import { useMemo } from "react";
 import {
   filter,
@@ -146,7 +146,7 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
   };
 
   return (
-    <Card>
+    <Card.Root>
       <VisHeader
         maxWidthPx={width}
         heading={heading}
@@ -155,14 +155,14 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
         defaultWidth={1000}
         chartProps={chartProps}
       />
-      <CardBody mt="-25">
+      <Card.Body mt="-25">
         <Wrap>
           <WrapItem>
             <CreatedBoxesGrouping />
           </WrapItem>
         </Wrap>
         <BarChart {...chartProps} />
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 }

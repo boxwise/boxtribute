@@ -1,14 +1,4 @@
-import {
-  Box,
-  List,
-  ListItem,
-  Button,
-  Field,
-  Heading,
-  Input,
-  ButtonGroup,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, List, Button, Field, Heading, Input, ButtonGroup, Stack } from "@chakra-ui/react";
 import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useEffect, useRef, useState } from "react";
@@ -226,8 +216,8 @@ function BoxEdit({
       </Heading>
 
       <form onSubmit={handleSubmit(onSubmitBoxEditForm)}>
-        <List gap={2}>
-          <ListItem>
+        <List.Root gap={2}>
+          <List.Item>
             <SelectField
               fieldId="productId"
               fieldLabel="Product"
@@ -236,8 +226,8 @@ function BoxEdit({
               errors={errors}
               control={control}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <SelectField
               fieldId="sizeId"
               fieldLabel="Size"
@@ -246,8 +236,8 @@ function BoxEdit({
               errors={errors}
               control={control}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <NumberField
               fieldId="numberOfItems"
               fieldLabel="Number Of Items"
@@ -255,8 +245,8 @@ function BoxEdit({
               control={control}
               register={register}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <SelectField
               fieldId="locationId"
               fieldLabel="Location"
@@ -265,8 +255,8 @@ function BoxEdit({
               errors={errors}
               control={control}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <SelectField
               fieldId="tags"
               fieldLabel="Tags"
@@ -279,14 +269,14 @@ function BoxEdit({
               creatable
               helperText="New Tags can be created by typing the name and pressing Enter"
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <Field.Label htmlFor="comment">Comment</Field.Label>
             <Box border="2px" borderRadius={0}>
               <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
-          </ListItem>
-        </List>
+          </List.Item>
+        </List.Root>
 
         <Stack gap={4}>
           <ButtonGroup gap="4">
@@ -297,7 +287,7 @@ function BoxEdit({
               type="button"
               borderRadius="0"
               w="full"
-              variant="link"
+              variant="plain"
               onClick={() => navigate(`/bases/${baseId}/boxes/${labelIdentifier}`)}
             >
               Cancel

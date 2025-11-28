@@ -10,12 +10,10 @@ import {
   HStack,
   IconButton,
   List,
-  ListItem,
   Spacer,
   Stack,
   Switch,
   Tag,
-  TagLabel,
   Tooltip,
   Wrap,
   WrapItem,
@@ -87,11 +85,12 @@ function BoxCard({
               <IconButton
                 aria-label="Print label"
                 borderRadius="5"
-                size="s"
-                icon={<RiQrCodeLine size={24} />}
+                size="sm"
                 border="2px"
                 disabled={isLoading}
-              />
+              >
+                <RiQrCodeLine size={24} />
+              </IconButton>
             </a>
           </WrapItem>
         )}
@@ -101,7 +100,6 @@ function BoxCard({
             <IconButton
               aria-label="Edit box"
               borderRadius="0"
-              icon={<IoPencil size={24} />}
               border="2px"
               disabled={
                 isLoading ||
@@ -111,7 +109,9 @@ function BoxCard({
                 boxInTransit ||
                 !!boxData?.deletedOn
               }
-            />
+            >
+              <IoPencil size={24} />
+            </IconButton>
           </NavLink>
         </WrapItem>
       </Wrap>
@@ -119,13 +119,13 @@ function BoxCard({
         <Flex pb={2} px={4} direction="row">
           <HStack gap={1} data-testid="box-tags">
             {boxData.tags?.map((tag) => (
-              <Tag
+              <Tag.Root
                 key={tag.id}
                 bg={Style.toTransformString(tag.color)}
                 color={colorIsBright(tag.color) ? "black" : "white"}
               >
-                <TagLabel>{tag.name}</TagLabel>
-              </Tag>
+                <Tag.Label>{tag.name}</Tag.Label>
+              </Tag.Root>
             ))}
           </HStack>
         </Flex>
@@ -148,54 +148,60 @@ function BoxCard({
           <Spacer />
           <ButtonGroup gap="1">
             <Box alignContent="flex-end" marginLeft={2}>
-              <Tooltip hasArrow shouldWrapChildren mt="3" label="add items" aria-label="A tooltip">
-                <IconButton
-                  onClick={onPlusOpen}
-                  disabled={
-                    "Lost" === boxData?.state ||
-                    "Scrap" === boxData?.state ||
-                    "NotDelivered" === boxData?.state ||
-                    boxInTransit ||
-                    isLoading ||
-                    !!boxData?.deletedOn
-                  }
-                  size="sm"
-                  border="2px"
-                  isRound
-                  borderRadius="0"
-                  aria-label="Search database"
-                  icon={<IoAdd />}
-                  data-testid="increase-items"
-                />
-              </Tooltip>
+              <Tooltip.Root openDelay={300}>
+                <Tooltip.Trigger asChild>
+                  <IconButton
+                    onClick={onPlusOpen}
+                    disabled={
+                      "Lost" === boxData?.state ||
+                      "Scrap" === boxData?.state ||
+                      "NotDelivered" === boxData?.state ||
+                      boxInTransit ||
+                      isLoading ||
+                      !!boxData?.deletedOn
+                    }
+                    size="sm"
+                    border="2px"
+                    borderRadius="full"
+                    aria-label="Search database"
+                    data-testid="increase-items"
+                  >
+                    <IoAdd />
+                  </IconButton>
+                </Tooltip.Trigger>
+                <Tooltip.Positioner>
+                  <Tooltip.Arrow />
+                  <Tooltip.Content>add items</Tooltip.Content>
+                </Tooltip.Positioner>
+              </Tooltip.Root>
             </Box>
             <Box alignContent="flex-end" marginRight={1}>
-              <Tooltip
-                hasArrow
-                label="remove items"
-                shouldWrapChildren
-                mt="3"
-                aria-label="A tooltip"
-              >
-                <IconButton
-                  onClick={onMinusOpen}
-                  border="2px"
-                  size="sm"
-                  disabled={
-                    "Lost" === boxData?.state ||
-                    "Scrap" === boxData?.state ||
-                    "NotDelivered" === boxData?.state ||
-                    boxInTransit ||
-                    isLoading ||
-                    !!boxData?.deletedOn
-                  }
-                  borderRadius="0"
-                  isRound
-                  aria-label="Search database"
-                  icon={<IoRemove />}
-                  data-testid="decrease-items"
-                />
-              </Tooltip>
+              <Tooltip.Root openDelay={300}>
+                <Tooltip.Trigger asChild>
+                  <IconButton
+                    onClick={onMinusOpen}
+                    border="2px"
+                    size="sm"
+                    disabled={
+                      "Lost" === boxData?.state ||
+                      "Scrap" === boxData?.state ||
+                      "NotDelivered" === boxData?.state ||
+                      boxInTransit ||
+                      isLoading ||
+                      !!boxData?.deletedOn
+                    }
+                    borderRadius="full"
+                    aria-label="Search database"
+                    data-testid="decrease-items"
+                  >
+                    <IoRemove />
+                  </IconButton>
+                </Tooltip.Trigger>
+                <Tooltip.Positioner>
+                  <Tooltip.Arrow />
+                  <Tooltip.Content>remove items</Tooltip.Content>
+                </Tooltip.Positioner>
+              </Tooltip.Root>
             </Box>
           </ButtonGroup>
         </Flex>
@@ -203,33 +209,33 @@ function BoxCard({
 
       <Spacer />
       <Flex py={2} px={4} direction="row">
-        <List gap={1}>
-          <ListItem>
+        <List.Root gap={1}>
+          <List.Item>
             <Flex alignContent="center">
               <Text fontWeight="bold">Size: {size?.label}</Text>
             </Flex>
-          </ListItem>
+          </List.Item>
           {product?.gender !== "none" && (
-            <ListItem>
+            <List.Item>
               <Flex direction="row">
                 <Text fontWeight="bold">
                   Gender: <b>{product?.gender}</b>
                 </Text>
               </Flex>
-            </ListItem>
+            </List.Item>
           )}
 
           {boxData?.comment !== "" && boxData?.comment !== null && (
-            <ListItem>
+            <List.Item>
               <Flex direction="row">
                 <Text>
                   <b>Comment: </b>
                   {boxData?.comment}
                 </Text>
               </Flex>
-            </ListItem>
+            </List.Item>
           )}
-        </List>
+        </List.Root>
       </Flex>
 
       <Separator />
@@ -244,7 +250,7 @@ function BoxCard({
             <Field.Label htmlFor="scrap">Scrap:</Field.Label>
             {isLoading && <SkeletonCircle height="20px" width="34px" />}
             {!isLoading && (
-              <Switch
+              <Switch.Root
                 id="scrap"
                 disabled={
                   boxInTransit ||
@@ -253,11 +259,10 @@ function BoxCard({
                     boxData?.location?.defaultBoxState === "Lost") ||
                   !!boxData?.deletedOn
                 }
-                isReadOnly={isLoading}
-                isChecked={boxData?.state === "Scrap"}
+                readOnly={isLoading}
+                checked={boxData?.state === "Scrap"}
                 data-testid="box-scrap-btn"
-                isFocusable={false}
-                onChange={() =>
+                onCheckedChange={() =>
                   onStateChange(
                     // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
                     boxData?.state === "Scrap" &&
@@ -267,7 +272,10 @@ function BoxCard({
                   )
                 }
                 mr={2}
-              />
+              >
+                <Switch.HiddenInput />
+                <Switch.Control />
+              </Switch.Root>
             )}
           </Flex>
           <Spacer />
@@ -275,9 +283,8 @@ function BoxCard({
             <Field.Label htmlFor="lost">Lost:</Field.Label>
             {isLoading && <SkeletonCircle height="20px" width="34px" mr={2} />}
             {!isLoading && (
-              <Switch
+              <Switch.Root
                 id="lost"
-                isFocusable={false}
                 data-testid="box-lost-btn"
                 disabled={
                   boxInTransit ||
@@ -286,7 +293,7 @@ function BoxCard({
                     boxData?.location?.defaultBoxState === "Lost") ||
                   !!boxData?.deletedOn
                 }
-                onChange={() =>
+                onCheckedChange={() =>
                   onStateChange(
                     // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
                     boxData?.state === "Lost" &&
@@ -296,8 +303,11 @@ function BoxCard({
                   )
                 }
                 mr={2}
-                isChecked={boxData?.state === "Lost"}
-              />
+                checked={boxData?.state === "Lost"}
+              >
+                <Switch.HiddenInput />
+                <Switch.Control />
+              </Switch.Root>
             )}
           </Flex>
         </Flex>
@@ -324,11 +334,11 @@ function BoxCard({
                       onClick={onHistoryOpen}
                       border="2px"
                       size="sm"
-                      borderRadius="0"
-                      isRound
+                      borderRadius="full"
                       aria-label="Show detail history"
-                      icon={<Icon as={MdHistory} h={6} w={6} />}
-                    />
+                    >
+                      <Icon as={MdHistory} h={6} w={6} />
+                    </IconButton>
                   </>
                 )}
               </Flex>

@@ -1,4 +1,4 @@
-import { Box, Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, Card, Wrap, WrapItem } from "@chakra-ui/react";
 import { ResultOf } from "gql.tada";
 import { groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { sample } from "lodash";
@@ -171,7 +171,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   }
 
   return (
-    <Card>
+    <Card.Root>
       <VisHeader
         onExport={onExport}
         defaultHeight={500}
@@ -180,7 +180,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         chartProps={chartProps}
         maxWidthPx={1000}
       />
-      <CardBody>
+      <Card.Body>
         <Wrap>
           <WrapItem>
             <Targetfilter />
@@ -196,7 +196,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
             location to instock storage.
           </WrapItem>
         </Wrap>
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 }

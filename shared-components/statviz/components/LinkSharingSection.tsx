@@ -1,14 +1,4 @@
-import {
-  Accordion,
-  AccordionItem,
-  Flex,
-  Spacer,
-  AccordionButton,
-  Box,
-  AccordionIcon,
-  AccordionPanel,
-  Button,
-} from "@chakra-ui/react";
+import { Accordion, Flex, Spacer, Box, Button } from "@chakra-ui/react";
 import { IoCopy } from "react-icons/io5";
 import useShareableLink from "../hooks/useShareableLink";
 import { ShareableLinkAlert } from "./ShareableLinkAlert";
@@ -30,19 +20,19 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
   return (
     <>
       {isLinkSharingEnabled && (
-        <Accordion allowMultiple>
-          <AccordionItem border="none">
+        <Accordion.Root collapsible>
+          <Accordion.Item value="share-link" border="none">
             <Flex>
               <Spacer display={["none", "block"]} />
-              <AccordionButton w="150px">
+              <Accordion.ItemTrigger w="150px">
                 <Box as="span" flex="1" textAlign="left">
                   Share Link
                 </Box>
-                <AccordionIcon />
-              </AccordionButton>
+                <Accordion.ItemIndicator />
+              </Accordion.ItemTrigger>
             </Flex>
             {/* TODO: Improve responsiveness for the info box and shareable link button. */}
-            <AccordionPanel display="flex" flexDirection="column" gap={8}>
+            <Accordion.ItemContent display="flex" flexDirection="column" gap={8}>
               <Flex justifyContent="space-between" gap={2}>
                 <ShareableLinkAlert
                   alertType={alertType}
@@ -59,13 +49,15 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
                     alignSelf="flex-start"
                     maxWidth="max-content"
                   >
-                    <IoCopy mr={2} /> {shareableLinkURL}
+                    <Flex gap={2} align="center">
+                      <IoCopy /> {shareableLinkURL}
+                    </Flex>
                   </Button>
                 </Flex>
               )}
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
+            </Accordion.ItemContent>
+          </Accordion.Item>
+        </Accordion.Root>
       )}
     </>
   );

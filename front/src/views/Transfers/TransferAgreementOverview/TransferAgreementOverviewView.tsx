@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
+import { Alert, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
@@ -365,10 +365,10 @@ function TransferAgreementOverviewView() {
   let transferAgreementTable;
   if (error) {
     transferAgreementTable = (
-      <Alert status="error" data-testid="ErrorAlert">
-        <AlertIcon />
+      <Alert.Root status="error" data-testid="ErrorAlert">
+        <Alert.Indicator />
         Could not fetch transfer agreement data! Please try reloading the page.
-      </Alert>
+      </Alert.Root>
     );
   } else if (loading || isGlobalStateLoading) {
     transferAgreementTable = <TableSkeleton />;
@@ -392,7 +392,8 @@ function TransferAgreementOverviewView() {
       </Heading>
       <Stack direction="row" my={4} gap={4}>
         <Link to="create">
-          <Button leftIcon={<IoAdd />} borderRadius="0">
+          <Button borderRadius="0">
+            <IoAdd />
             Link New Partner
           </Button>
         </Link>
@@ -401,7 +402,7 @@ function TransferAgreementOverviewView() {
 
       <TransferAgreementsOverlay
         open={open}
-        loading={isLoadingFromMutation}
+        isLoading={isLoadingFromMutation}
         transferAgreementOverlayData={transferAgreementOverlayData}
         onClose={onClose}
         onAccept={onAccept}

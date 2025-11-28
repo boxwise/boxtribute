@@ -1,4 +1,4 @@
-import { FormControl, FormErrorMessage, FormLabel, NumberInput, Text } from "@chakra-ui/react";
+import { Field, NumberInput, Text } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
 export interface INumberFieldProps {
@@ -23,14 +23,14 @@ function NumberField({
   testId,
 }: INumberFieldProps) {
   return (
-    <FormControl invalid={!!errors[fieldId]}>
+    <Field.Root invalid={!!errors[fieldId]}>
       {showLabel && (
-        <FormLabel htmlFor="numberOfItems" textAlign="left">
+        <Field.Label htmlFor="numberOfItems" textAlign="left">
           {fieldLabel}{" "}
           <Text as="span" color="red.500">
             *
           </Text>
-        </FormLabel>
+        </Field.Label>
       )}
       {/* The React Form Controller is needed because the Input is actually in NumberInputField and not in Number Input chakraUI components */}
       {/* https://react-hook-form.com/api/usecontroller/controller */}
@@ -75,9 +75,9 @@ function NumberField({
         )}
       />
       {showError && (
-        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+        <Field.ErrorText>{!!errors[fieldId] && errors[fieldId].message}</Field.ErrorText>
       )}
-    </FormControl>
+    </Field.Root>
   );
 }
 export default NumberField;

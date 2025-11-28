@@ -1,4 +1,11 @@
-import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  MenuContent,
+  MenuItem,
+  MenuRoot,
+  MenuTrigger,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
@@ -77,19 +84,22 @@ function BoxesActions({
         disabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />
-      <Menu key="box-actions" closeOnSelect={false}>
-        <MenuButton as={Button}>
-          <BsBox2HeartFill />
-        </MenuButton>
-        <MenuList zIndex={3}>
-          <MenuItem as="div">
+      <MenuRoot key="box-actions" closeOnSelect={false}>
+        <MenuTrigger asChild>
+          <Button>
+            <BsBox2HeartFill />
+          </Button>
+        </MenuTrigger>
+        <MenuContent zIndex={3}>
+          <MenuItem value="create" asChild>
             <Link to="create">
-              <Button padding={1} variant="ghost" leftIcon={<IoAdd />} iconSpacing={2}>
+              <Button padding={1} variant="ghost">
+                <IoAdd />
                 Create Box
               </Button>
             </Link>
           </MenuItem>
-          <MenuItem as="div">
+          <MenuItem value="delete" asChild>
             <RemoveBoxesButton
               labelIdentifier="Delete Boxes"
               onDeleteBoxes={onDeleteBoxes}
@@ -98,18 +108,18 @@ function BoxesActions({
               key="remove-boxes"
             />
           </MenuItem>
-          <MenuItem as="div">
+          <MenuItem value="export" asChild>
             <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
           </MenuItem>
-          <Menu>
+          <MenuItem value="assign-tags" asChild>
             <AssignTagsButton
               selectedBoxes={selectedBoxes}
               key="assign-tags"
               onAssignTags={onAssignTags}
               allTagOptions={tagOptions}
             />
-          </Menu>
-          <Menu>
+          </MenuItem>
+          <MenuItem value="remove-tags" asChild>
             <RemoveTagsButton
               selectedBoxes={selectedBoxes}
               key="remove-tags"
@@ -117,12 +127,12 @@ function BoxesActions({
               allTagOptions={getSelectedBoxTags}
               currentTagOptions={getSelectedBoxTags}
             />
-          </Menu>
-          <MenuItem as="div">
+          </MenuItem>
+          <MenuItem value="make-labels" asChild>
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
-        </MenuList>
-      </Menu>
+        </MenuContent>
+      </MenuRoot>
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
           <Button onClick={() => onUnassignBoxesToShipment()} disabled={actionsAreLoading}>

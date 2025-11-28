@@ -1,4 +1,3 @@
-//TODO Charkra v3 issue
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";

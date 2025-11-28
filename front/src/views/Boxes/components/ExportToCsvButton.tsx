@@ -28,14 +28,8 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
   const filename = `Stock_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
   return (
     <>
-      <Button
-        key="export"
-        data-testid="export-button"
-        variant="ghost"
-        leftIcon={<RiFileDownloadLine />}
-        iconSpacing={2}
-        padding={1}
-      >
+      <Button key="export" data-testid="export-button" variant="ghost" padding={1}>
+        <RiFileDownloadLine />
         <CSVLink
           onClick={checkForSelectedBoxes}
           data={selectedBoxes.map((box) => {

@@ -1,13 +1,7 @@
 import { useState, ChangeEventHandler } from "react";
 import { useAsyncDebounce } from "react-table";
 import { IoSearch } from "react-icons/io5";
-import {
-  Input,
-  InputGroup,
-  InputLeftElement,
-  useDisclosure,
-  useMediaQuery,
-} from "@chakra-ui/react";
+import { Input, Group, InputElement, useDisclosure, useMediaQuery } from "@chakra-ui/react";
 
 interface IProps {
   globalFilter: string;
@@ -29,11 +23,16 @@ export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
   };
 
   return (
-    <InputGroup width="auto" variant="filled">
-      <InputLeftElement onClick={onToggle} cursor={isLargerThan768 ? "inherit" : "pointer"}>
+    <Group width="auto" attached>
+      <InputElement
+        pointerEvents="auto"
+        onClick={onToggle}
+        cursor={isLargerThan768 ? "inherit" : "pointer"}
+      >
         <IoSearch />
-      </InputLeftElement>
+      </InputElement>
       <Input
+        variant="subtle"
         _focus={{ bg: "gray.200" }}
         w={isLargerThan768 || open ? "auto" : "0"}
         pr={isLargerThan768 || open ? "auto" : "0"}
@@ -42,6 +41,6 @@ export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
         onChange={handleChange}
         placeholder="Search"
       />
-    </InputGroup>
+    </Group>
   );
 }

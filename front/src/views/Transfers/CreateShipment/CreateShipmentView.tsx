@@ -276,7 +276,7 @@ function CreateShipmentView() {
       <MobileBreadcrumbButton label="Back to Manage Shipments" linkPath=".." />
       <Center>
         <CreateShipment
-          loading={createShipmentMutationState.loading}
+          isLoading={createShipmentMutationState.loading}
           currentOrganisationId={currentOrganisationId || ""}
           currentOrganisationName={currentOrganisationName || ""}
           currentOrganisationBase={currentOrganisationBase || ""}

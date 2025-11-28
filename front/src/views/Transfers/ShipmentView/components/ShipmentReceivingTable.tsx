@@ -6,13 +6,7 @@ import {
   IconButton,
   Spacer,
   Table,
-  TableContainer,
   Text,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
   useBreakpointValue,
   Wrap,
   WrapItem,
@@ -52,12 +46,12 @@ function ShipmentReceivingTable({
 
   return (
     <BoxWrapper overflowX="hidden" border={1} borderColor="black" borderWidth="1px">
-      <TableContainer maxW={maxTableWidth}>
-        <Table {...getTableProps()} variant="simple" size="sm" borderColor="black">
-          <Thead borderColor="black" borderWidth="1px">
+      <Table.ScrollArea maxW={maxTableWidth}>
+        <Table.Root {...getTableProps()} size="sm" borderColor="black">
+          <Table.Header borderColor="black" borderWidth="1px">
             {headerGroups.map((headerGroup, idx) => (
-              <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
-                <Th
+              <Table.Row {...headerGroup.getHeaderGroupProps()} key={idx}>
+                <Table.ColumnHeader
                   style={{
                     borderBottom: "1px solid black",
                   }}
@@ -92,17 +86,17 @@ function ShipmentReceivingTable({
                       </Flex>
                     ))}
                   </Flex>
-                </Th>
-              </Tr>
+                </Table.ColumnHeader>
+              </Table.Row>
             ))}
-          </Thead>
-          <Tbody {...getTableBodyProps()}>
+          </Table.Header>
+          <Table.Body {...getTableBodyProps()}>
             {}
             {rows.map((row, idx) => {
               prepareRow(row);
 
               return (
-                <Tr
+                <Table.Row
                   {...row.getRowProps()}
                   key={idx}
                   style={{
@@ -112,7 +106,7 @@ function ShipmentReceivingTable({
                   }}
                   onClick={() => onReconciliationBox(row.original.labelIdentifier)}
                 >
-                  <Td
+                  <Table.Cell
                     colSpan={3}
                     {...row.cells[1].getCellProps()}
                     style={{
@@ -168,13 +162,13 @@ function ShipmentReceivingTable({
                         </Box>
                       </Flex>
                     </Box>
-                  </Td>
-                </Tr>
+                  </Table.Cell>
+                </Table.Row>
               );
             })}
-          </Tbody>
-        </Table>
-      </TableContainer>
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
     </BoxWrapper>
   );
 }

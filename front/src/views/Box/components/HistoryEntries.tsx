@@ -1,4 +1,4 @@
-import { ListItem, ListIcon, List, Stack, Flex, Text, Box } from "@chakra-ui/react";
+import { List, Stack, Flex, Text, Box, Icon } from "@chakra-ui/react";
 import { ResultOf } from "gql.tada";
 import { IconType } from "react-icons";
 import { MdCheckCircle, MdSettings, MdHistory } from "react-icons/md";
@@ -36,9 +36,9 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
   return (
     <Stack py={2} px={2} align="center">
       <Flex align="center" direction="column">
-        <List gap={1}>
+        <List.Root gap={1}>
           {data.slice(0, total).map((historyEntry) => (
-            <ListItem
+            <List.Item
               key={historyEntry.id}
               data-testid={`history-${historyEntry.id}`}
               fontSize="sm"
@@ -46,7 +46,7 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
               display="flex"
               alignItems="flex-start"
             >
-              <ListIcon
+              <Icon
                 as={getHistoryIcon(historyEntry?.changes)}
                 h={4}
                 w={4}
@@ -63,9 +63,9 @@ function HistoryEntries({ data, total }: IHistoryEntriesProps) {
                   {prepareBoxHistoryEntryText(historyEntry?.changes)}
                 </Text>
               </Box>
-            </ListItem>
+            </List.Item>
           ))}
-        </List>
+        </List.Root>
       </Flex>
     </Stack>
   );

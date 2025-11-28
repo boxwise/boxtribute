@@ -2,8 +2,7 @@ import {
   Box,
   Button,
   Card,
-  CardBody,
-  FormLabel,
+  Field,
   DialogRoot,
   DialogBody,
   DialogCloseTrigger,
@@ -227,7 +226,7 @@ export default function StockOverviewPie({
     height,
   };
   return (
-    <Card>
+    <Card.Root>
       <DialogRoot open={showGroupOptions} onOpenChange={(e) => !e.open && closeGroupOptions()}>
         <DialogBackdrop />
         <DialogContent>
@@ -259,10 +258,10 @@ export default function StockOverviewPie({
         customIncludes={[{ prop: { centerData: centerDataProp }, value: "include center data" }]}
         view="StockOverview"
       />
-      <CardBody>
+      <Card.Body>
         <Wrap align="end">
           <WrapItem>
-            <FormLabel />
+            <Field.Label />
             <ValueFilter
               values={groupOptions}
               defaultFilterValue={groupOptions[0]}
@@ -320,7 +319,7 @@ export default function StockOverviewPie({
           })}
         </Box>
         <PieChart {...chartProps} centerData={centerDataProp} animate />
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 }

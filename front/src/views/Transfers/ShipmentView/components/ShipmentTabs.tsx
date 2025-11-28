@@ -1,4 +1,4 @@
-import { TabList, TabPanels, Tabs, TabPanel, Tab, Center } from "@chakra-ui/react";
+import { Tabs, Center } from "@chakra-ui/react";
 import ShipmentHistory, { IGroupedRecordEntry } from "components/Timeline/Timeline";
 import _ from "lodash";
 import ShipmentContent, { IShipmentContent } from "./ShipmentContent";
@@ -74,30 +74,28 @@ function ShipmentTabs({
   )! as IShipmentContent[];
 
   return (
-    <Tabs w="100%" isFitted variant="enclosed-colored">
-      <TabList>
-        <Tab>Content</Tab>
-        <Tab>History</Tab>
-      </TabList>
-      <TabPanels>
-        <TabPanel p={0}>
-          {(details?.length || 0) === 0 && (
-            <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
-          )}
-          <ShipmentContent
-            shipmentState={shipmentState}
-            isLoadingMutation={isLoadingMutation}
-            items={boxGroupedByProductGender}
-            onRemoveBox={onRemoveBox}
-            onBulkRemoveBox={onBulkRemoveBox}
-            showRemoveIcon={showRemoveIcon}
-          />
-        </TabPanel>
-        <TabPanel>
-          <ShipmentHistory records={histories} />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+    <Tabs.Root w="100%" fitted variant="enclosed" defaultValue="content">
+      <Tabs.List>
+        <Tabs.Trigger value="content">Content</Tabs.Trigger>
+        <Tabs.Trigger value="history">History</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="content" p={0}>
+        {(details?.length || 0) === 0 && (
+          <Center p={8}>No boxes have been assigned to this shipment yet!</Center>
+        )}
+        <ShipmentContent
+          shipmentState={shipmentState}
+          isLoadingMutation={isLoadingMutation}
+          items={boxGroupedByProductGender}
+          onRemoveBox={onRemoveBox}
+          onBulkRemoveBox={onBulkRemoveBox}
+          showRemoveIcon={showRemoveIcon}
+        />
+      </Tabs.Content>
+      <Tabs.Content value="history">
+        <ShipmentHistory records={histories} />
+      </Tabs.Content>
+    </Tabs.Root>
   );
 }
 

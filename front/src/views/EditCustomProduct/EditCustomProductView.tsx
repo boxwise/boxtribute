@@ -184,7 +184,7 @@ function EditCustomProductFormContainer() {
       sizeRangeOptions={sizeRangeOptions}
       genderOptions={genderOptions}
       onSubmit={onSubmit}
-      loading={isEditCustomProductLoading}
+      isLoading={isEditCustomProductLoading}
       defaultValues={defaultValues}
     />
   );

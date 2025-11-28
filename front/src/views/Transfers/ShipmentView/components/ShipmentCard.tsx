@@ -72,7 +72,7 @@ function ShipmentCard({
           <Spacer />
           {canCancelShipment && (
             <IconButton
-              isRound
+              rounded="full"
               icon={<BiTrash size={30} />}
               loading={isLoadingMutation}
               onClick={onCancel}

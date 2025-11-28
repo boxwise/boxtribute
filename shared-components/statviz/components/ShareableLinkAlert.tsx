@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, AlertIcon, Box } from "@chakra-ui/react";
+import { Alert, Box } from "@chakra-ui/react";
 import { IBoxesOrItemsFilter } from "./filter/BoxesOrItemsSelect";
 import { ITagFilterValue } from "../state/filter";
 import { IFilterValue } from "./filter/ValueFilter";
@@ -29,26 +29,29 @@ export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
   const expirationText = expirationDate ? `Link will expire on ${expirationDate}.` : "";
 
   return (
-    <Alert status={alertType} maxWidth={["300px", "500px", "max-content"]}>
-      <AlertIcon />
-      {alertType === "info" ? (
-        <p>
-          <strong>Shareable Link Created</strong>
-          <br />
-          This link will show your inventory in {boiText}
-          {tagText}.
-          <br />
-          {expirationText}
-        </p>
-      ) : (
-        <p>
-          <strong>Warning</strong>
-          <br />
-          Your current view uses different units and/or filters from those used in your public link.
-          <br />
-          Click <strong>Create Link</strong> to generate a new link with the changes.
-        </p>
-      )}
-    </Alert>
+    <Alert.Root status={alertType} maxWidth={["300px", "500px", "max-content"]}>
+      <Alert.Indicator />
+      <Alert.Content>
+        {alertType === "info" ? (
+          <p>
+            <strong>Shareable Link Created</strong>
+            <br />
+            This link will show your inventory in {boiText}
+            {tagText}.
+            <br />
+            {expirationText}
+          </p>
+        ) : (
+          <p>
+            <strong>Warning</strong>
+            <br />
+            Your current view uses different units and/or filters from those used in your public
+            link.
+            <br />
+            Click <strong>Create Link</strong> to generate a new link with the changes.
+          </p>
+        )}
+      </Alert.Content>
+    </Alert.Root>
   );
 };

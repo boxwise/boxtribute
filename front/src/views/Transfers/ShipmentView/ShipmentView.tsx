@@ -9,7 +9,6 @@ import {
   Flex,
   Spacer,
   Alert,
-  AlertIcon,
   Skeleton,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -486,10 +485,10 @@ function ShipmentView() {
 
   if (error) {
     shipmentTab = (
-      <Alert status="error" data-testid="ErrorAlert">
-        <AlertIcon />
+      <Alert.Root status="error" data-testid="ErrorAlert">
+        <Alert.Indicator />
         Could not fetch Shipment data! Please try reloading the page.
-      </Alert>
+      </Alert.Root>
     );
   } else if (loading || isGlobalStateLoading || isSender === undefined) {
     shipmentTitle = <Skeleton height="50px" width="200px" data-testid="loader" />;
@@ -592,7 +591,7 @@ function ShipmentView() {
       {shipmentViewComponents}
       <ShipmentOverlay
         open={isShipmentOverlayOpen}
-        loading={isLoadingFromMutation}
+        isLoading={isLoadingFromMutation}
         shipmentOverlayData={shipmentOverlayData}
         onRemainingBoxesUndelivered={onRemainingBoxesUndelivered}
         onClose={onShipmentOverlayClose}

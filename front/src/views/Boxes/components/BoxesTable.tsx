@@ -1,18 +1,6 @@
 import { useEffect, useMemo, useTransition } from "react";
 import { IoChevronForward, IoChevronBack } from "react-icons/io5";
-import {
-  Skeleton,
-  Table,
-  Tr,
-  Tbody,
-  Td,
-  Spacer,
-  Flex,
-  Text,
-  IconButton,
-  HStack,
-  Box,
-} from "@chakra-ui/react";
+import { Skeleton, Table, Spacer, Flex, Text, IconButton, HStack, Box } from "@chakra-ui/react";
 import {
   Column,
   useTable,
@@ -203,14 +191,14 @@ function BoxesTable({
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-      <Table key="boxes-table">
+      <Table.Root key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
-        <Tbody>
-          <Tr key={"boxes-count-row"} bg={"gray.100"}>
-            <Td fontWeight="bold" key={"product-total"}>
+        <Table.Body>
+          <Table.Row key={"boxes-count-row"} bg={"gray.100"}>
+            <Table.Cell fontWeight="bold" key={"product-total"}>
               Total
-            </Td>
-            <Td fontWeight="bold" key={"boxes-count"}>
+            </Table.Cell>
+            <Table.Cell fontWeight="bold" key={"boxes-count"}>
               {isBackgroundFetchOfBoxesLoading ||
               refetchBoxesIsPending ||
               tableConfig.isNotMounted ? (
@@ -220,8 +208,8 @@ function BoxesTable({
               ) : (
                 <Text as="span">Data unavailable</Text>
               )}
-            </Td>
-            <Td fontWeight="bold" key={"item-count"}>
+            </Table.Cell>
+            <Table.Cell fontWeight="bold" key={"item-count"}>
               {isBackgroundFetchOfBoxesLoading ||
               refetchBoxesIsPending ||
               tableConfig.isNotMounted ? (
@@ -231,61 +219,58 @@ function BoxesTable({
               ) : (
                 <Text as="span">Data unavailable</Text>
               )}
-            </Td>
-            <Td colSpan={20}></Td>
-          </Tr>
+            </Table.Cell>
+            <Table.Cell colSpan={20}></Table.Cell>
+          </Table.Row>
           {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-            <Tr key="refetchIsPending1">
-              <Td colSpan={columns.length + 1}>
+            <Table.Row key="refetchIsPending1">
+              <Table.Cell colSpan={columns.length + 1}>
                 <Skeleton height={5} />
-              </Td>
-            </Tr>
+              </Table.Cell>
+            </Table.Row>
           )}
           {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-            <Tr key="refetchIsPending2">
-              <Td colSpan={columns.length + 1}>
+            <Table.Row key="refetchIsPending2">
+              <Table.Cell colSpan={columns.length + 1}>
                 <Skeleton height={5} />
-              </Td>
-            </Tr>
+              </Table.Cell>
+            </Table.Row>
           )}
 
           {page.map((row) => {
             prepareRow(row);
             if (row.isSelected && actionsAreLoading) {
               return (
-                <Tr key={row.original.labelIdentifier}>
-                  <Td colSpan={columns.length + 1}>
+                <Table.Row key={row.original.labelIdentifier}>
+                  <Table.Cell colSpan={columns.length + 1}>
                     <Skeleton height={5} />
-                  </Td>
-                </Tr>
+                  </Table.Cell>
+                </Table.Row>
               );
             }
 
             return (
-              <Tr
+              <Table.Row
                 cursor="pointer"
                 {...row.getRowProps()}
                 onClick={() => onBoxRowClick(row.original.labelIdentifier)}
                 key={row.original.labelIdentifier}
               >
                 {row.cells.map((cell) => (
-                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                  <Table.Cell key={`${row.original.labelIdentifier}-${cell.column.id}`}>
                     {cell.render("Cell")}
-                  </Td>
+                  </Table.Cell>
                 ))}
-              </Tr>
+              </Table.Row>
             );
           })}
-        </Tbody>
-      </Table>
+        </Table.Body>
+      </Table.Root>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            disabled={!canPreviousPage}
-            icon={<IoChevronBack size={24} />}
-          />
+          <IconButton aria-label="Previous Page" onClick={previousPage} disabled={!canPreviousPage}>
+            <IoChevronBack size={24} />
+          </IconButton>
         </Flex>
 
         <Flex justifyContent="center" m={4}>
@@ -306,12 +291,9 @@ function BoxesTable({
         </Flex>
 
         <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            disabled={!canNextPage}
-            icon={<IoChevronForward size={24} />}
-          />
+          <IconButton aria-label="Next Page" onClick={nextPage} disabled={!canNextPage}>
+            <IoChevronForward size={24} />
+          </IconButton>
         </Flex>
       </Flex>
 

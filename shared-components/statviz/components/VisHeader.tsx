@@ -6,13 +6,8 @@ import {
   Checkbox,
   Button,
   Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
   Box,
-  FormLabel,
-  FormControl,
+  Field,
   NumberInput,
   Center,
   CheckboxGroup,
@@ -72,7 +67,7 @@ export default function VisHeader({
 
   const { timerange } = useTimerange();
 
-  const { value, getCheckboxProps } = useCheckboxGroup({
+  const { value, getItemProps } = useCheckboxGroup({
     defaultValue: ["heading", "timerange"],
   });
 
@@ -116,32 +111,32 @@ export default function VisHeader({
 
   return (
     <CardHeader maxWidth={getMaxWidth()}>
-      <Accordion allowMultiple>
+      <Accordion.Root multiple>
         {!isPublicView && (
-          <AccordionItem border="none">
+          <Accordion.Item value="download" border="none">
             <Flex>
               <Heading size="md">{heading}</Heading>
               <Spacer />
-              <AccordionButton w="150px">
+              <Accordion.ItemTrigger w="150px">
                 <Box as="span" flex="1" textAlign="left">
                   Download
                 </Box>
-                <AccordionIcon />
-              </AccordionButton>
+                <Accordion.ItemIndicator />
+              </Accordion.ItemTrigger>
             </Flex>
-            <AccordionPanel>
-              <FormControl>
+            <Accordion.ItemContent>
+              <Field.Root>
                 <Wrap>
                   <Box width="100px">
-                    <FormLabel>Width</FormLabel>
+                    <Field.Label>Width</Field.Label>
                     <NumberInput.Root
                       id={randomId()}
                       max={5000}
                       min={100}
                       step={10}
                       size="sm"
-                      value={inputWidth}
-                      onValueChange={(_valueString, valueNumber) => setInputWidth(valueNumber)}
+                      value={inputWidth.toString()}
+                      onValueChange={(details) => setInputWidth(details.valueAsNumber)}
                     >
                       <NumberInput.Input />
                       <NumberInput.Control>
@@ -151,15 +146,15 @@ export default function VisHeader({
                     </NumberInput.Root>
                   </Box>
                   <Box width="100px">
-                    <FormLabel>Height</FormLabel>
+                    <Field.Label>Height</Field.Label>
                     <NumberInput.Root
                       id={randomId()}
                       max={5000}
                       min={100}
                       step={10}
                       size="sm"
-                      value={inputHeight}
-                      onValueChange={(_valueString, valueNumber) => setInputHeight(valueNumber)}
+                      value={inputHeight.toString()}
+                      onValueChange={(details) => setInputHeight(details.valueAsNumber)}
                     >
                       <NumberInput.Input />
                       <NumberInput.Control>
@@ -172,29 +167,33 @@ export default function VisHeader({
                   <Center>
                     <CheckboxGroup defaultValue={["heading", "timerange"]}>
                       <Box>
-                        <FormLabel>Options</FormLabel>
+                        <Field.Label>Options</Field.Label>
                         <HStack gap="24px">
-                          <Checkbox
-                            id={randomId()}
-                            checked
-                            {...getCheckboxProps({ value: "heading" })}
-                          >
-                            Heading
-                          </Checkbox>
-                          <Checkbox id={randomId()} {...getCheckboxProps({ value: "timerange" })}>
-                            Time Range
-                          </Checkbox>
-                          <Checkbox {...getCheckboxProps({ value: "timestamp" })}>
-                            Timestamp
-                          </Checkbox>
+                          <Checkbox.Root id={randomId()} {...getItemProps({ value: "heading" })}>
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                            <Checkbox.Label>Heading</Checkbox.Label>
+                          </Checkbox.Root>
+                          <Checkbox.Root id={randomId()} {...getItemProps({ value: "timerange" })}>
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                            <Checkbox.Label>Time Range</Checkbox.Label>
+                          </Checkbox.Root>
+                          <Checkbox.Root {...getItemProps({ value: "timestamp" })}>
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                            <Checkbox.Label>Timestamp</Checkbox.Label>
+                          </Checkbox.Root>
                           {customIncludes!.map((option) => (
-                            <Checkbox
+                            <Checkbox.Root
                               id={randomId()}
-                              {...getCheckboxProps({ value: option.value })}
+                              {...getItemProps({ value: option.value })}
                               key={option.value}
                             >
-                              {option.value}
-                            </Checkbox>
+                              <Checkbox.HiddenInput />
+                              <Checkbox.Control />
+                              <Checkbox.Label>{option.value}</Checkbox.Label>
+                            </Checkbox.Root>
                           ))}
                         </HStack>
                       </Box>
@@ -203,39 +202,43 @@ export default function VisHeader({
                   <Spacer />
                   <Center>
                     <Box>
-                      <FormLabel>Downloads</FormLabel>
+                      <Field.Label>Downloads</Field.Label>
                       <HStack>
                         <Button
                           borderRadius="0px"
                           border="2px"
-                          isLoading={isExporting}
+                          loading={isExporting}
                           backgroundColor="white"
                           value="jpg"
                           onClick={download}
                         >
                           JPG
-                          <IoDownload marginLeft="10px" />
+                          <Box ml="10px">
+                            <IoDownload />
+                          </Box>
                         </Button>
                         <Button
                           borderRadius="0px"
                           border="2px"
-                          isLoading={isExporting}
+                          loading={isExporting}
                           backgroundColor="white"
                           value="svg"
                           onClick={download}
                         >
                           SVG
-                          <IoDownload marginLeft="10px" />
+                          <Box ml="10px">
+                            <IoDownload />
+                          </Box>
                         </Button>
                       </HStack>
                     </Box>
                   </Center>
                 </Wrap>
-              </FormControl>
-            </AccordionPanel>
-          </AccordionItem>
+              </Field.Root>
+            </Accordion.ItemContent>
+          </Accordion.Item>
         )}
-      </Accordion>
+      </Accordion.Root>
       <LinkSharingSection view={view} />
     </CardHeader>
   );

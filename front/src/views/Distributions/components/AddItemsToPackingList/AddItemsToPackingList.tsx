@@ -6,10 +6,6 @@ import {
   Field,
   Heading,
   Switch,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   VStack,
 } from "@chakra-ui/react";
@@ -152,23 +148,32 @@ const AddItemsToPackingList = ({
         Select Products for Packing List
       </Heading>
       <Box my={7}>
-        <Switch id="show-only-products-in-stock" />{" "}
+        <Switch.Root id="show-only-products-in-stock">
+          <Switch.HiddenInput />
+          <Switch.Control />
+        </Switch.Root>{" "}
         <Field.Label htmlFor="show-only-products-in-stock" display="inline">
           Only show products in stock
         </Field.Label>
       </Box>
-      <Tabs variant="soft-rounded" colorPalette="green" px="30">
-        <TabList flexWrap="wrap">
+      <Tabs.Root variant="enclosed" colorPalette="green" px="30">
+        <Tabs.List flexWrap="wrap">
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
-            <Tab key={productsGroupForGender.gender || "No Gender"}>
+            <Tabs.Trigger
+              key={productsGroupForGender.gender || "No Gender"}
+              value={productsGroupForGender.gender || "No Gender"}
+            >
               {productsGroupForGender.gender || "No Gender"}
-            </Tab>
+            </Tabs.Trigger>
           ))}
-        </TabList>
+        </Tabs.List>
 
-        <TabPanels>
+        <Tabs.ContentGroup>
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
-            <TabPanel key={productsGroupForGender.gender || "No Gender"}>
+            <Tabs.Content
+              key={productsGroupForGender.gender || "No Gender"}
+              value={productsGroupForGender.gender || "No Gender"}
+            >
               <VStack gap={8}>
                 {productsGroupForGender.productsForCategory.map((productsGroupForCategory) => (
                   <Box key={productsGroupForCategory.category.id}>
@@ -177,24 +182,30 @@ const AddItemsToPackingList = ({
                     </Heading>
                     <VStack>
                       {productsGroupForCategory.products.map((product) => (
-                        <Checkbox
+                        <Checkbox.Root
                           key={product.id}
                           value={product.id}
                           checked={checkedProductIds.includes(product.id)}
-                          onChange={handleCheckboxChange}
+                          onCheckedChange={(e) =>
+                            handleCheckboxChange({
+                              target: { checked: e.checked, value: product.id },
+                            } as React.ChangeEvent<HTMLInputElement>)
+                          }
                           defaultChecked={product.hasPackingListEntries}
                         >
-                          {product.name}
-                        </Checkbox>
+                          <Checkbox.HiddenInput />
+                          <Checkbox.Control />
+                          <Checkbox.Label>{product.name}</Checkbox.Label>
+                        </Checkbox.Root>
                       ))}
                     </VStack>
                   </Box>
                 ))}
               </VStack>
-            </TabPanel>
+            </Tabs.Content>
           ))}
-        </TabPanels>
-      </Tabs>
+        </Tabs.ContentGroup>
+      </Tabs.Root>
       <Button type="submit" onClick={onApplyClick} colorPalette="blue">
         Apply
       </Button>

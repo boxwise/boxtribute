@@ -29,7 +29,7 @@ function BoxDistributionEvent({
         Assign this Box to Distribution Event:
       </Text>
 
-      <List>
+      <List.Root>
         {/* <Flex wrap="wrap" justifyContent="center"> */}
         {boxData.location?.base?.distributionEventsBeforeReturnedFromDistributionState
           // .map(el => DistributionEventDetailsSchema.parse(el))
@@ -92,7 +92,7 @@ function BoxDistributionEvent({
             );
           })}
         {/* </Flex> */}
-      </List>
+      </List.Root>
 
       {/* <TableContainer>
           <Table variant="simple">

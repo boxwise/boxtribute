@@ -1,4 +1,4 @@
-import { FormControl, FormErrorMessage, FormLabel, Input, Text } from "@chakra-ui/react";
+import { Field, Input, Text } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
 export interface IDateFieldProps {
@@ -23,15 +23,15 @@ function DateField({
   maxDate = "",
 }: IDateFieldProps) {
   return (
-    <FormControl invalid={!!errors[fieldId]} id={fieldId}>
-      <FormLabel htmlFor={fieldId}>
+    <Field.Root invalid={!!errors[fieldId]} id={fieldId}>
+      <Field.Label htmlFor={fieldId}>
         {fieldLabel}{" "}
         {required && (
           <Text as="span" color="red.500">
             *
           </Text>
         )}
-      </FormLabel>
+      </Field.Label>
       <Controller
         name={fieldId}
         control={control}
@@ -58,8 +58,8 @@ function DateField({
           />
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
-    </FormControl>
+      <Field.ErrorText>{!!errors[fieldId] && errors[fieldId].message}</Field.ErrorText>
+    </Field.Root>
   );
 }
 export default DateField;

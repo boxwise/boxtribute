@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Input, List, ListItem, Stack, Field } from "@chakra-ui/react";
+import { Box, Button, Heading, Input, List, Stack, Field } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -181,8 +181,8 @@ export function BoxCreate({
         Create New Box
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <List gap={2}>
-          <ListItem>
+        <List.Root gap={2}>
+          <List.Item>
             <SelectField
               fieldId="productId"
               fieldLabel="Product"
@@ -191,8 +191,8 @@ export function BoxCreate({
               errors={errors}
               control={control}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <SelectField
               fieldId="sizeId"
               fieldLabel="Size"
@@ -201,8 +201,8 @@ export function BoxCreate({
               errors={errors}
               control={control}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <NumberField
               fieldId="numberOfItems"
               fieldLabel="Number Of Items"
@@ -210,8 +210,8 @@ export function BoxCreate({
               control={control}
               register={register}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <SelectField
               fieldId="locationId"
               fieldLabel="Location"
@@ -220,8 +220,8 @@ export function BoxCreate({
               errors={errors}
               control={control}
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <SelectField
               fieldId="tags"
               fieldLabel="Tags"
@@ -234,14 +234,14 @@ export function BoxCreate({
               creatable
               helperText="New Tags can be created by typing the name and pressing Enter"
             />
-          </ListItem>
-          <ListItem>
+          </List.Item>
+          <List.Item>
             <Field.Label htmlFor="comment">Comment</Field.Label>
             <Box border="2px" borderRadius={0}>
               <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
-          </ListItem>
-        </List>
+          </List.Item>
+        </List.Root>
 
         <Stack gap={4} mt={8}>
           <Button
