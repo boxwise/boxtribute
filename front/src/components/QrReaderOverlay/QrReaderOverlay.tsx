@@ -1,4 +1,4 @@
-import { Button, Dialog, Portal } from "@chakra-ui/react";
+import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
 import QrReaderContainer from "components/QrReader/QrReaderContainer";
 
 export interface IQrReaderOverlayProps {
@@ -20,7 +20,9 @@ function QrReaderOverlay({ open, onClose }: IQrReaderOverlayProps) {
           <Dialog.Content>
             <Dialog.Header display="flex" justifyContent="space-between" alignItems="center">
               Boxtribute QR Scanner
-              <Dialog.CloseTrigger position="static" />
+              <Dialog.CloseTrigger position="static">
+                <CloseButton aria-label="Close QR Scanner" />
+              </Dialog.CloseTrigger>
             </Dialog.Header>
             <Dialog.Body>
               <QrReaderContainer onSuccess={onClose} />

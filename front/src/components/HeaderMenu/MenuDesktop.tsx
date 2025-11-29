@@ -40,6 +40,8 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         bg="white"
         pos="sticky"
         top="0"
+        borderRight="1px solid"
+        borderColor="gray.200"
       >
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
         <Accordion.Root
@@ -49,7 +51,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           style={{ overflowY: "auto" }}
         >
           {menuItemsGroups.map((menu, index) => (
-            <Accordion.Item key={menu.text} value={String(index)}>
+            <Accordion.Item key={menu.text} value={String(index)} _hover={{ bg: "gray.50" }}>
               <Accordion.ItemTrigger
                 _expanded={{ bg: "#DC4F51", color: "white" }}
                 gap={3}
@@ -62,7 +64,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
               <Accordion.ItemContent>
                 {menu.links.map((subMenu) => (
                   <NavLink key={subMenu.name} to={subMenu.link}>
-                    <Flex bg="gray.100" _hover={{ bg: "gray.200" }} pt={2} pb={2} pl={8}>
+                    <Flex bg="gray.100" _hover={{ bg: "gray.200" }} py={2} pl={8}>
                       {subMenu.name}&nbsp;
                       {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
                     </Flex>
@@ -72,9 +74,15 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
             </Accordion.Item>
           ))}
         </Accordion.Root>
-        <Accordion.Root marginTop={"auto"}>
+        <Accordion.Root marginTop="auto">
           <strong style={{ marginLeft: "1rem", textTransform: "uppercase" }}>Settings</strong>
-          <Accordion.Item value="base-switcher">
+          <Accordion.Item
+            value="base-switcher"
+            pl="1rem"
+            borderTop="1px solid"
+            borderColor="gray.200"
+            _hover={{ bg: "gray.50" }}
+          >
             <Accordion.ItemTrigger
               gap={3}
               onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
@@ -85,14 +93,14 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
               <MenuIcon icon={"Base" as Icon} /> You are in: {baseName}
             </Accordion.ItemTrigger>
           </Accordion.Item>
-          <Accordion.Item value="account">
+          <Accordion.Item value="account" pl="1rem" _hover={{ bg: "gray.50" }}>
             <Accordion.ItemTrigger gap={3} asChild>
               <NavLink to={ACCOUNT_SETTINGS_URL}>
                 <MenuIcon icon="Account" /> Account
               </NavLink>
             </Accordion.ItemTrigger>
           </Accordion.Item>
-          <Accordion.Item value="logout">
+          <Accordion.Item value="logout" pl="1rem" _hover={{ bg: "gray.50" }}>
             <Accordion.ItemTrigger gap={3} onClick={handleLogout}>
               <MenuIcon icon="Logout" /> Logout
             </Accordion.ItemTrigger>
