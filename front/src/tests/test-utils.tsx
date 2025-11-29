@@ -27,6 +27,7 @@ import { basicBase1 } from "mocks/bases";
 import { basicOrg1 } from "mocks/organisations";
 import { ChakraProvider } from "@chakra-ui/react";
 import { customSystem } from "@boxtribute/shared-components/utils/theme";
+import { Toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -155,6 +156,7 @@ function render(
           </MemoryRouter>
         </JotaiTestProvider>
       </MockedProvider>
+      <Toaster />
     </ChakraProvider>
   );
   return rtlRender(ui, {

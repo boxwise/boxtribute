@@ -103,7 +103,7 @@ function ShipmentCard({
             minWidth="max-content"
             justifyContent="center"
             alignItems="center"
-            gap="4"
+            gap={4}
             alignContent="space-between"
           >
             <Box>

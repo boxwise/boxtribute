@@ -45,10 +45,10 @@ export default function Dashboard() {
 
       <Wrap
         borderWidth="1"
-        gap="10"
+        gap={10}
         direction={["column", "row"]}
-        padding="15"
-        marginBottom="15"
+        padding={15}
+        marginBottom={15}
         shadow="md"
         pos="sticky"
         top="0"

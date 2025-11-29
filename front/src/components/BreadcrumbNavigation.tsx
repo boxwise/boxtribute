@@ -1,6 +1,7 @@
 import { Breadcrumb, Button } from "@chakra-ui/react";
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { IoChevronBack } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import { Fragment } from "react";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { BreadcrumbNavigationSkeleton } from "./Skeletons";
 import { useAtomValue } from "jotai";
@@ -48,34 +49,20 @@ export function BreadcrumbNavigation({ items }: IBreadcrumbNavigationProps) {
     <Breadcrumb.Root fontSize="md" mb={4}>
       <Breadcrumb.List>
         <Breadcrumb.Item>
-          <Breadcrumb.Link asChild>
-            <Link to="#">{orgName}</Link>
-          </Breadcrumb.Link>
-          <Breadcrumb.Separator>
-            <IoChevronForward />
-          </Breadcrumb.Separator>
+          <Breadcrumb.Link href="#">{orgName}</Breadcrumb.Link>
         </Breadcrumb.Item>
+        <Breadcrumb.Separator />
         <Breadcrumb.Item>
-          <Breadcrumb.Link asChild>
-            <Link to="#">{baseName}</Link>
-          </Breadcrumb.Link>
-          <Breadcrumb.Separator>
-            <IoChevronForward />
-          </Breadcrumb.Separator>
+          <Breadcrumb.Link href="#">{baseName}</Breadcrumb.Link>
         </Breadcrumb.Item>
+        <Breadcrumb.Separator />
         {items.map((item, index) => (
-          <Breadcrumb.Item key={`breadcrumb${item.label}`}>
-            <Breadcrumb.Link asChild>
-              <Link to={item.linkPath ?? "#"} relative={item.relative ?? "route"}>
-                {item.label}
-              </Link>
-            </Breadcrumb.Link>
-            {index < items.length - 1 && (
-              <Breadcrumb.Separator>
-                <IoChevronForward />
-              </Breadcrumb.Separator>
-            )}
-          </Breadcrumb.Item>
+          <Fragment key={`breadcrumb${item.label}`}>
+            <Breadcrumb.Item>
+              <Breadcrumb.Link href={item.linkPath ?? "#"}>{item.label}</Breadcrumb.Link>
+            </Breadcrumb.Item>
+            {index < items.length - 1 && <Breadcrumb.Separator />}
+          </Fragment>
         ))}
       </Breadcrumb.List>
     </Breadcrumb.Root>

@@ -5,7 +5,6 @@ import {
   ButtonGroup,
   Separator,
   Flex,
-  Field,
   Heading,
   HStack,
   IconButton,
@@ -146,7 +145,7 @@ function BoxCard({
           </Heading>
 
           <Spacer />
-          <ButtonGroup gap="1">
+          <ButtonGroup gap={1}>
             <Box alignContent="flex-end" marginLeft={2}>
               <Tooltip content="add items" openDelay={300}>
                 <IconButton
@@ -235,7 +234,6 @@ function BoxCard({
         </Flex>
         <Flex py={2} px={2} minWidth="max-content" alignItems="center">
           <Flex alignContent="center" direction="row">
-            <Field.Label htmlFor="scrap">Scrap:</Field.Label>
             {isLoading && <SkeletonCircle height="20px" width="34px" />}
             {!isLoading && (
               <Switch.Root
@@ -261,6 +259,7 @@ function BoxCard({
                 }
                 mr={2}
               >
+                <Switch.Label>Scrap:</Switch.Label>
                 <Switch.HiddenInput />
                 <Switch.Control />
               </Switch.Root>
@@ -268,7 +267,6 @@ function BoxCard({
           </Flex>
           <Spacer />
           <Flex alignContent="center" direction="row">
-            <Field.Label htmlFor="lost">Lost:</Field.Label>
             {isLoading && <SkeletonCircle height="20px" width="34px" mr={2} />}
             {!isLoading && (
               <Switch.Root
@@ -293,6 +291,7 @@ function BoxCard({
                 mr={2}
                 checked={boxData?.state === "Lost"}
               >
+                <Switch.Label>Lost:</Switch.Label>
                 <Switch.HiddenInput />
                 <Switch.Control />
               </Switch.Root>

@@ -4,7 +4,7 @@ import DemographicDataContainer from "../components/visualizations/demographic/D
 export default function Demographics() {
   return (
     <Accordion.Item value="demographics">
-      <Accordion.ItemTrigger padding="15px 10px">
+      <Accordion.ItemTrigger padding="15px 10px" _hover={{ bg: "gray.50" }} cursor="pointer">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Demographics</Heading>
         </Box>
@@ -12,7 +12,7 @@ export default function Demographics() {
       </Accordion.ItemTrigger>
       <Accordion.ItemContent>
         <Wrap gap={6}>
-          <WrapItem overflow="auto" padding="5px">
+          <WrapItem overflow="auto" padding={5}>
             <DemographicDataContainer />
           </WrapItem>
         </Wrap>

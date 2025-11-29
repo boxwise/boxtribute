@@ -1,14 +1,6 @@
 import { CellProps } from "react-table";
 import { isDate } from "date-fns";
-import {
-  Box,
-  chakra,
-  PopoverRoot,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-} from "@chakra-ui/react";
+import { Box, chakra, Popover } from "@chakra-ui/react";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 
 export function DateCell({ value }: CellProps<any>) {
@@ -33,19 +25,21 @@ export function ProductWithSPCheckmarkCell({ value, row }: CellProps<any>) {
     <chakra.span display="flex" gap={2}>
       {value.name || value}{" "}
       {(row.original.holdsStandardProduct || row.original.isStandard) && (
-        <PopoverRoot closeOnEscape closeOnInteractOutside lazyMount unmountOnExit>
-          <PopoverTrigger>
+        <Popover.Root closeOnEscape closeOnInteractOutside lazyMount unmountOnExit>
+          <Popover.Trigger>
             <Box onClick={(e) => e.stopPropagation()}>
               <BsFillCheckCircleFill color="#659A7E" size={18} />
             </Box>
-          </PopoverTrigger>
-          <PopoverContent w={"100%"}>
-            <PopoverArrow />
-            <PopoverBody onClick={(e) => e.stopPropagation()}>
-              This product is part of the ASSORT standard
-            </PopoverBody>
-          </PopoverContent>
-        </PopoverRoot>
+          </Popover.Trigger>
+          <Popover.Positioner>
+            <Popover.Content w={"100%"}>
+              <Popover.Arrow />
+              <Popover.Body onClick={(e) => e.stopPropagation()}>
+                This product is part of the ASSORT standard
+              </Popover.Body>
+            </Popover.Content>
+          </Popover.Positioner>
+        </Popover.Root>
       )}
     </chakra.span>
   );

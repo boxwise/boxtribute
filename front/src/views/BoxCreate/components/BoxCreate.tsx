@@ -236,10 +236,12 @@ export function BoxCreate({
             />
           </List.Item>
           <List.Item>
-            <Field.Label htmlFor="comment">Comment</Field.Label>
-            <Box border="2px" borderRadius={0}>
-              <Input border="0" borderRadius={0} type="string" {...register("comment")} />
-            </Box>
+            <Field.Root>
+              <Field.Label htmlFor="comment">Comment</Field.Label>
+              <Box border="2px" borderRadius={0}>
+                <Input border="0" borderRadius={0} type="string" {...register("comment")} />
+              </Box>
+            </Field.Root>
           </List.Item>
         </List.Root>
 

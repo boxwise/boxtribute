@@ -8,6 +8,7 @@ import { captureConsoleIntegration } from "@sentry/react";
 import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
 import { customSystem } from "@boxtribute/shared-components/utils/theme";
+import { Toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 
 const client = new ApolloClient({
   uri: import.meta.env.SHARED_FRONT_GRAPHQL_SERVER,
@@ -45,5 +46,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ApolloProvider>
       </BrowserRouter>
     </ChakraProvider>
+    <Toaster />
   </React.StrictMode>,
 );

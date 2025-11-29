@@ -10,7 +10,7 @@ export default function CreatedBoxesCharts(props: {
 }) {
   return (
     <Wrap gap={6}>
-      <WrapItem overflow="auto" padding="5px">
+      <WrapItem overflow="auto" padding={5}>
         <Box>
           <CreatedBoxes
             width="900px"
@@ -20,7 +20,7 @@ export default function CreatedBoxesCharts(props: {
           />
         </Box>
       </WrapItem>
-      <WrapItem overflow="auto" padding="5px">
+      <WrapItem overflow="auto" padding={5}>
         <Box>
           <TopCreatedProducts
             boxesOrItems={props.boxesOrItems}

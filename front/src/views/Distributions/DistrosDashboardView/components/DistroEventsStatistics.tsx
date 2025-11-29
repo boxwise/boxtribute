@@ -128,7 +128,7 @@ const DistroEventsStatistics = () => {
       <Button my={7} onClick={() => downloadCsvExport(getBaseId())}>
         Download Data
       </Button>
-      <Wrap gap="8">
+      <Wrap gap={8}>
         <WrapItem>
           <CardWithTwoElements
             topElement={<VictoryPie />}

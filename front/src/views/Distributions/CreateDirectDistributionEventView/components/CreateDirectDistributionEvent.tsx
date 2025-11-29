@@ -134,10 +134,12 @@ const CreateDirectDistroEvent = ({
           />
           <Field.ErrorText>{errors.duration?.message && errors.duration?.message}</Field.ErrorText>
         </Field.Root>
-        <Field.Label fontSize="sm" htmlFor="name">
-          Name of the event:
-        </Field.Label>
-        <Input type="text" mb={4} {...register("name", { required: false })} />
+        <Field.Root id="name">
+          <Field.Label fontSize="sm" htmlFor="name">
+            Name of the event:
+          </Field.Label>
+          <Input type="text" mb={4} {...register("name", { required: false })} />
+        </Field.Root>
         <Button mt={4} colorPalette="teal" loading={isSubmitting} type="submit">
           Submit
         </Button>

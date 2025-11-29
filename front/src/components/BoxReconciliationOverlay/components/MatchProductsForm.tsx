@@ -136,7 +136,7 @@ export function MatchProductsForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmitMatchProductsForm)}>
-      <Flex direction="column" gap="4" alignItems="stretch">
+      <Flex direction="column" gap={4} alignItems="stretch">
         <Box>
           <Text fontSize={16} fontWeight="bold">
             Sender Product & Gender:{" "}

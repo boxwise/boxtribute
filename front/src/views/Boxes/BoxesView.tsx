@@ -26,16 +26,7 @@ import {
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
-import {
-  Heading,
-  PopoverRoot,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  HStack,
-  PopoverAnchor,
-  Box,
-} from "@chakra-ui/react";
+import { Heading, Popover, HStack, Box } from "@chakra-ui/react";
 import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -373,7 +364,7 @@ function Boxes({
       },
       {
         Header: (
-          <PopoverRoot
+          <Popover.Root
             open={isPopoverOpen}
             onOpenChange={(e) => setIsPopoverOpen(e.open)}
             closeOnInteractOutside={true}
@@ -381,23 +372,25 @@ function Boxes({
             unmountOnExit={false}
           >
             <HStack>
-              <PopoverAnchor>
+              <Popover.Anchor>
                 <div>Age</div>
-              </PopoverAnchor>
-              <PopoverTrigger>
+              </Popover.Anchor>
+              <Popover.Trigger>
                 <Box>
                   <FaInfoCircle height={8} width={8} />
                 </Box>
-              </PopoverTrigger>
+              </Popover.Trigger>
             </HStack>
-            <PopoverContent minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>
-              <PopoverBody>
-                How old the box is from the time
-                <br />
-                it was first created in Boxtribute.
-              </PopoverBody>
-            </PopoverContent>
-          </PopoverRoot>
+            <Popover.Positioner>
+              <Popover.Content minW={{ base: "100%", lg: "max-content", sm: "max-content" }}>
+                <Popover.Body>
+                  How old the box is from the time
+                  <br />
+                  it was first created in Boxtribute.
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Popover.Root>
         ),
         accessor: "age",
         id: "age",

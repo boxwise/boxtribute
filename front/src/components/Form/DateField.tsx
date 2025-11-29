@@ -39,7 +39,9 @@ function DateField({
           <Input
             border="2px"
             borderColor="black"
-            focusBorderColor="blue.400"
+            css={{
+              "--focus-color": "blue.400",
+            }}
             type="date"
             borderRadius={0}
             mb={2}

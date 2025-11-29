@@ -50,14 +50,19 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
         >
           {menuItemsGroups.map((menu, index) => (
             <Accordion.Item key={menu.text} value={String(index)}>
-              <Accordion.ItemTrigger _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
+              <Accordion.ItemTrigger
+                _expanded={{ bg: "#DC4F51", color: "white" }}
+                gap={3}
+                px={4}
+                borderRadius={0}
+              >
                 <MenuIcon icon={menu.text as Icon} /> {menu.text}
                 <Accordion.ItemIndicator />
               </Accordion.ItemTrigger>
               <Accordion.ItemContent>
                 {menu.links.map((subMenu) => (
                   <NavLink key={subMenu.name} to={subMenu.link}>
-                    <Flex bg="gray.100" _hover={{ bg: "gray.200" }} pb={2} pl={8}>
+                    <Flex bg="gray.100" _hover={{ bg: "gray.200" }} pt={2} pb={2} pl={8}>
                       {subMenu.name}&nbsp;
                       {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
                     </Flex>

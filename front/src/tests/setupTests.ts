@@ -28,6 +28,13 @@ export const mockedTriggerError = vi.fn();
 export const mockedCreateToast = vi.fn();
 // This is needed to mock the import of the useErrorHandling and useNotification hooks.
 vi.mock("hooks/useErrorHandling");
+
+// Mock ResizeObserver for @nivo charts and other components that use it
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
 vi.mock("hooks/useNotification");
 // This is needed to mock the useErrorHandling and useNotification hooks.
 // .mocked() is a nice helper function for typescript support

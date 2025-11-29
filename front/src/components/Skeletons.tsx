@@ -39,10 +39,10 @@ export function TabsSkeleton() {
   return (
     <>
       <Skeleton height="50px" my="4" />
-      <SkeletonText mt="2" lineClamp={2} gap="4" />
+      <SkeletonText mt="2" lineClamp={2} gap={4} />
       <Skeleton height="50px" my="4" />
       <SkeletonCircle size="5" mt="4" />
-      <SkeletonText mt="4" lineClamp={4} gap="4" />
+      <SkeletonText mt="4" lineClamp={4} gap={4} />
     </>
   );
 }
@@ -79,7 +79,7 @@ export function ShipmentCardSkeleton() {
         </VStack>
         <Separator borderColor="blackAlpha.800" />
         <Box border={0}>
-          <Flex minWidth="max-content" alignItems="center" gap="2">
+          <Flex minWidth="max-content" alignItems="center" gap={2}>
             <Box p="4">
               <List.Root gap={1}>
                 <ListItem>

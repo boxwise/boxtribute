@@ -261,13 +261,15 @@ export default function StockOverviewPie({
       <Card.Body>
         <Wrap align="end">
           <WrapItem>
-            <Field.Label />
-            <ValueFilter
-              values={groupOptions}
-              defaultFilterValue={groupOptions[0]}
-              onFilterChange={onFilterChange}
-              filterId={filterId}
-            />
+            <Field.Root>
+              <Field.Label />
+              <ValueFilter
+                values={groupOptions}
+                defaultFilterValue={groupOptions[0]}
+                onFilterChange={onFilterChange}
+                filterId={filterId}
+              />
+            </Field.Root>
           </WrapItem>
           <WrapItem>
             <Box>

@@ -271,15 +271,17 @@ function BoxEdit({
             />
           </List.Item>
           <List.Item>
-            <Field.Label htmlFor="comment">Comment</Field.Label>
-            <Box border="2px" borderRadius={0}>
-              <Input border="0" borderRadius={0} type="string" {...register("comment")} />
-            </Box>
+            <Field.Root>
+              <Field.Label htmlFor="comment">Comment</Field.Label>
+              <Box border="2px" borderRadius={0}>
+                <Input border="0" borderRadius={0} type="string" {...register("comment")} />
+              </Box>
+            </Field.Root>
           </List.Item>
         </List.Root>
 
         <Stack gap={4}>
-          <ButtonGroup gap="4">
+          <ButtonGroup gap={4}>
             <Button
               mt={4}
               loading={isSubmitting}

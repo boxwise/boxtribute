@@ -1,11 +1,4 @@
-import {
-  IconButton,
-  PopoverArrow,
-  PopoverBody,
-  PopoverContent,
-  PopoverRoot,
-  PopoverTrigger,
-} from "@chakra-ui/react";
+import { IconButton, Popover } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { useMemo } from "react";
 import { MdFilterList, MdFilterListAlt } from "react-icons/md";
@@ -36,34 +29,39 @@ export function SelectColumnFilterUI({
 }) {
   // Render a multi-select box
   return (
-    <PopoverRoot lazyMount unmountOnExit>
-      <PopoverTrigger asChild>
+    <Popover.Root lazyMount unmountOnExit>
+      <Popover.Trigger asChild>
         <IconButton
           size="xs"
           background="inherit"
           aria-label={`Filter for '${render("Header")}'`}
           data-testid={`filter-${id}`}
+          color="black"
         >
           {filterValue ? <MdFilterListAlt /> : <MdFilterList />}
         </IconButton>
-      </PopoverTrigger>
-      <PopoverContent>
-        <PopoverArrow />
-        <PopoverBody textStyle="h1">
-          <Select
-            size="sm"
-            // filterValue is an array of IDs; display the matching options
-            value={options.filter((o) => filterValue?.includes(o.value))}
-            placeholder="All"
-            onChange={(selectedOptions) => {
-              setFilter(selectedOptions.map((selectedOption) => selectedOption.value) || undefined);
-            }}
-            options={options}
-            isMulti
-          />
-        </PopoverBody>
-      </PopoverContent>
-    </PopoverRoot>
+      </Popover.Trigger>
+      <Popover.Positioner>
+        <Popover.Content>
+          <Popover.Arrow />
+          <Popover.Body textStyle="h1">
+            <Select
+              size="sm"
+              // filterValue is an array of IDs; display the matching options
+              value={options.filter((o) => filterValue?.includes(o.value))}
+              placeholder="All"
+              onChange={(selectedOptions) => {
+                setFilter(
+                  selectedOptions.map((selectedOption) => selectedOption.value) || undefined,
+                );
+              }}
+              options={options}
+              isMulti
+            />
+          </Popover.Body>
+        </Popover.Content>
+      </Popover.Positioner>
+    </Popover.Root>
   );
 }
 

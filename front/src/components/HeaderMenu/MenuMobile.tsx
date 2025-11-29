@@ -4,10 +4,8 @@ import {
   Box,
   Flex,
   IconButton,
-  MenuContent,
-  MenuItem,
-  MenuRoot,
-  MenuTrigger,
+  Portal,
+  Menu,
   Separator,
   Text,
   useDisclosure,
@@ -62,8 +60,8 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
       <BaseSwitcher open={open} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
-        <MenuRoot lazyMount unmountOnExit closeOnSelect={false}>
-          <MenuTrigger asChild>
+        <Menu.Root lazyMount unmountOnExit closeOnSelect={false}>
+          <Menu.Trigger asChild>
             <IconButton
               aria-label="Options"
               data-testid="menu-button"
@@ -72,88 +70,92 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
             >
               <IoMenu />
             </IconButton>
-          </MenuTrigger>
-          <MenuContent zIndex={1300} py={0}>
-            <MenuItem
-              value="qr-code-menu"
-              aria-label="Scan QR code"
-              data-testid="qr-code-button"
-              px={2}
-              pb={0}
-              bg="transparent"
-              _hover={{ bg: "transparent" }}
-              onClick={onClickScanQrCode}
-            >
-              <SubItemBox py={3}>
-                <MenuIcon icon="QRCode" />
-                <Text fontWeight="bold">Scan QR Label</Text>
-              </SubItemBox>
-            </MenuItem>
-            <Separator />
-            <Accordion.Root defaultValue={expandedMenuIndex()?.map(String)}>
-              {menuItemsGroups.map((menu) => (
-                <Accordion.Item key={menu.text} border={"none"} value={menu.text}>
-                  <Accordion.ItemTrigger
-                    px={2}
-                    _hover={{ bg: "transparent" }}
-                    _expanded={{ bg: "#DC4F51", color: "white" }}
-                  >
-                    <SubItemBox>
-                      <MenuIcon icon={menu.text as Icon} /> {menu.text}
-                    </SubItemBox>
-                  </Accordion.ItemTrigger>
-                  <Accordion.ItemContent>
-                    {menu.links.map((subMenu) => (
-                      <NavLink key={subMenu.name} to={subMenu.link}>
-                        <Box display="inline-flex" bg="gray.100" pb={3} w={"100%"}>
-                          {subMenu.name}&nbsp;
-                          {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
-                        </Box>
-                      </NavLink>
-                    ))}
-                  </Accordion.ItemContent>
-                </Accordion.Item>
-              ))}
-            </Accordion.Root>
-            <Separator />
-            <MenuItem
-              value="base-switcher"
-              px={2}
-              bg="transparent"
-              _hover={{ bg: "transparent" }}
-              onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
-              style={{
-                cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
-              }}
-            >
-              <SubItemBox>
-                <MenuIcon icon="Base" /> You are in: {baseName}
-              </SubItemBox>
-            </MenuItem>
-            <MenuItem value="account" asChild>
-              <NavLink to={ACCOUNT_SETTINGS_URL}>
-                <Box px={2} bg="transparent" _hover={{ bg: "transparent" }}>
-                  <SubItemBox>
-                    <MenuIcon icon="Account" />
-                    Account
+          </Menu.Trigger>
+          <Portal>
+            <Menu.Positioner>
+              <Menu.Content zIndex={1300} py={0}>
+                <Menu.Item
+                  value="qr-code-menu"
+                  aria-label="Scan QR code"
+                  data-testid="qr-code-button"
+                  px={2}
+                  pb={0}
+                  bg="transparent"
+                  _hover={{ bg: "transparent" }}
+                  onClick={onClickScanQrCode}
+                >
+                  <SubItemBox py={3}>
+                    <MenuIcon icon="QRCode" />
+                    <Text fontWeight="bold">Scan QR Label</Text>
                   </SubItemBox>
-                </Box>
-              </NavLink>
-            </MenuItem>
-            <MenuItem
-              value="logout"
-              px={2}
-              bg="transparent"
-              _hover={{ bg: "transparent" }}
-              onClick={handleLogout}
-            >
-              <SubItemBox>
-                <MenuIcon icon="Logout" />
-                Logout
-              </SubItemBox>
-            </MenuItem>
-          </MenuContent>
-        </MenuRoot>
+                </Menu.Item>
+                <Separator />
+                <Accordion.Root defaultValue={expandedMenuIndex()?.map(String)}>
+                  {menuItemsGroups.map((menu) => (
+                    <Accordion.Item key={menu.text} border={"none"} value={menu.text}>
+                      <Accordion.ItemTrigger
+                        px={2}
+                        _hover={{ bg: "transparent" }}
+                        _expanded={{ bg: "#DC4F51", color: "white" }}
+                      >
+                        <SubItemBox>
+                          <MenuIcon icon={menu.text as Icon} /> {menu.text}
+                        </SubItemBox>
+                      </Accordion.ItemTrigger>
+                      <Accordion.ItemContent>
+                        {menu.links.map((subMenu) => (
+                          <NavLink key={subMenu.name} to={subMenu.link}>
+                            <Box display="inline-flex" bg="gray.100" pb={3} w={"100%"}>
+                              {subMenu.name}&nbsp;
+                              {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
+                            </Box>
+                          </NavLink>
+                        ))}
+                      </Accordion.ItemContent>
+                    </Accordion.Item>
+                  ))}
+                </Accordion.Root>
+                <Separator />
+                <Menu.Item
+                  value="base-switcher"
+                  px={2}
+                  bg="transparent"
+                  _hover={{ bg: "transparent" }}
+                  onClick={() => (currentOrganisationHasMoreThanOneBaseAvailable ? onOpen() : null)}
+                  style={{
+                    cursor: currentOrganisationHasMoreThanOneBaseAvailable ? "pointer" : "inherit",
+                  }}
+                >
+                  <SubItemBox>
+                    <MenuIcon icon="Base" /> You are in: {baseName}
+                  </SubItemBox>
+                </Menu.Item>
+                <Menu.Item value="account" asChild>
+                  <NavLink to={ACCOUNT_SETTINGS_URL}>
+                    <Box px={2} bg="transparent" _hover={{ bg: "transparent" }}>
+                      <SubItemBox>
+                        <MenuIcon icon="Account" />
+                        Account
+                      </SubItemBox>
+                    </Box>
+                  </NavLink>
+                </Menu.Item>
+                <Menu.Item
+                  value="logout"
+                  px={2}
+                  bg="transparent"
+                  _hover={{ bg: "transparent" }}
+                  onClick={handleLogout}
+                >
+                  <SubItemBox>
+                    <MenuIcon icon="Logout" />
+                    Logout
+                  </SubItemBox>
+                </Menu.Item>
+              </Menu.Content>
+            </Menu.Positioner>
+          </Portal>
+        </Menu.Root>
       </Flex>
     </Flex>
   );

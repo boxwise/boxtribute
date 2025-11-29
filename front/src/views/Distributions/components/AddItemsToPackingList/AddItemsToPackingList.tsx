@@ -148,13 +148,13 @@ const AddItemsToPackingList = ({
         Select Products for Packing List
       </Heading>
       <Box my={7}>
-        <Switch.Root id="show-only-products-in-stock">
-          <Switch.HiddenInput />
-          <Switch.Control />
-        </Switch.Root>{" "}
-        <Field.Label htmlFor="show-only-products-in-stock" display="inline">
-          Only show products in stock
-        </Field.Label>
+        <Field.Root>
+          <Switch.Root id="show-only-products-in-stock">
+            <Switch.HiddenInput />
+            <Switch.Control />
+          </Switch.Root>{" "}
+          <Field.HelperText display="inline">Only show products in stock</Field.HelperText>
+        </Field.Root>
       </Box>
       <Tabs.Root variant="enclosed" colorPalette="green" px="30">
         <Tabs.List flexWrap="wrap">

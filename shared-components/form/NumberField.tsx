@@ -67,10 +67,7 @@ function NumberField({
                 },
               })}
             />
-            <NumberInput.Control>
-              <NumberInput.IncrementTrigger />
-              <NumberInput.DecrementTrigger />
-            </NumberInput.Control>
+            <NumberInput.Control />
           </NumberInput.Root>
         )}
       />

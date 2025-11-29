@@ -8,12 +8,14 @@ import GenderProductFilter, {
 } from "./GenderProductFilter";
 import { ChakraProvider } from "@chakra-ui/react";
 import { customSystem } from "../../../utils/theme";
+import { Toaster } from "../../../chakra-v3/Toaster";
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <ChakraProvider value={customSystem}>
     <MockedProvider>
       <BrowserRouter>{children}</BrowserRouter>
     </MockedProvider>
+    <Toaster />
   </ChakraProvider>
 );
 

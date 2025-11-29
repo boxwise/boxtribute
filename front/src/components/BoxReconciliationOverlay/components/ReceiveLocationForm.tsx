@@ -79,7 +79,7 @@ export function ReceiveLocationForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmitReceiveLocationForm)}>
-      <Flex direction="column" gap="2">
+      <Flex direction="column" gap={2}>
         <Flex alignContent="center" gap={2} alignItems="center">
           <FaWarehouse size={28} />
           <SelectField

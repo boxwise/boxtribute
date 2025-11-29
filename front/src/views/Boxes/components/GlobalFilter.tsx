@@ -1,7 +1,7 @@
 import { useState, ChangeEventHandler } from "react";
 import { useAsyncDebounce } from "react-table";
 import { IoSearch } from "react-icons/io5";
-import { Input, Group, InputElement, useDisclosure, useMediaQuery } from "@chakra-ui/react";
+import { Input, Group, IconButton, useDisclosure, useMediaQuery } from "@chakra-ui/react";
 
 interface IProps {
   globalFilter: string;
@@ -24,13 +24,15 @@ export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
 
   return (
     <Group width="auto" attached>
-      <InputElement
+      <IconButton
         pointerEvents="auto"
         onClick={onToggle}
-        cursor={isLargerThan768 ? "inherit" : "pointer"}
+        bg="gray.100"
+        color="gray.600"
+        _hover={{ bg: "gray.200" }}
       >
         <IoSearch />
-      </InputElement>
+      </IconButton>
       <Input
         variant="subtle"
         _focus={{ bg: "gray.200" }}

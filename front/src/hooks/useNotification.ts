@@ -1,23 +1,30 @@
 import { ReactNode, useCallback } from "react";
 import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
-
+import { ToastOptions } from "@chakra-ui/react";
 interface INotificationProps {
+  id?: string;
   title?: string;
   message?: string | ReactNode;
   type?: "info" | "warning" | "success" | "error" | undefined;
-  duration?: number;
 }
 
 export const useNotification = (toastName?: string) => {
   const createToast = useCallback(
-    ({ message, type, title, duration = 5000 }: INotificationProps) =>
-      toaster.create({
-        id: toastName,
-        title,
+    ({ message, ...props }: INotificationProps) => {
+      let options: ToastOptions = {};
+
+      if (toastName) {
+        options.id = toastName;
+      }
+
+      options = {
+        ...options,
         description: message,
-        type,
-        duration,
-      }),
+        ...props,
+      };
+
+      toaster.create(options);
+    },
     [toastName],
   );
 

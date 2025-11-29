@@ -1,11 +1,4 @@
-import {
-  Button,
-  ButtonGroup,
-  MenuContent,
-  MenuItem,
-  MenuRoot,
-  MenuTrigger,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, Menu, Portal } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
@@ -84,55 +77,60 @@ function BoxesActions({
         disabled={actionsAreLoading || shipmentOptions.length === 0}
         key="assign-to-shipment"
       />
-      <MenuRoot key="box-actions" closeOnSelect={false}>
-        <MenuTrigger asChild>
+      <Menu.Root key="box-actions" closeOnSelect={false}>
+        <Menu.Trigger asChild>
           <Button>
             <BsBox2HeartFill />
           </Button>
-        </MenuTrigger>
-        <MenuContent zIndex={3}>
-          <MenuItem value="create" asChild>
-            <Link to="create">
-              <Button padding={1} variant="ghost">
-                <IoAdd />
-                Create Box
-              </Button>
-            </Link>
-          </MenuItem>
-          <MenuItem value="delete" asChild>
-            <RemoveBoxesButton
-              labelIdentifier="Delete Boxes"
-              onDeleteBoxes={onDeleteBoxes}
-              actionsAreLoading={actionsAreLoading}
-              selectedBoxes={selectedBoxes}
-              key="remove-boxes"
-            />
-          </MenuItem>
-          <MenuItem value="export" asChild>
-            <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
-          </MenuItem>
-          <MenuItem value="assign-tags" asChild>
-            <AssignTagsButton
-              selectedBoxes={selectedBoxes}
-              key="assign-tags"
-              onAssignTags={onAssignTags}
-              allTagOptions={tagOptions}
-            />
-          </MenuItem>
-          <MenuItem value="remove-tags" asChild>
-            <RemoveTagsButton
-              selectedBoxes={selectedBoxes}
-              key="remove-tags"
-              onRemoveTags={onUnassignTags}
-              allTagOptions={getSelectedBoxTags}
-              currentTagOptions={getSelectedBoxTags}
-            />
-          </MenuItem>
-          <MenuItem value="make-labels" asChild>
-            <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
-          </MenuItem>
-        </MenuContent>
-      </MenuRoot>
+        </Menu.Trigger>
+
+        <Portal>
+          <Menu.Positioner>
+            <Menu.Content zIndex={3}>
+              <Menu.Item value="create" asChild>
+                <Link to="create">
+                  <Button padding={1} variant="ghost">
+                    <IoAdd />
+                    Create Box
+                  </Button>
+                </Link>
+              </Menu.Item>
+              <Menu.Item value="delete" asChild>
+                <RemoveBoxesButton
+                  labelIdentifier="Delete Boxes"
+                  onDeleteBoxes={onDeleteBoxes}
+                  actionsAreLoading={actionsAreLoading}
+                  selectedBoxes={selectedBoxes}
+                  key="remove-boxes"
+                />
+              </Menu.Item>
+              <Menu.Item value="export" asChild>
+                <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
+              </Menu.Item>
+              <Menu.Item value="assign-tags" asChild>
+                <AssignTagsButton
+                  selectedBoxes={selectedBoxes}
+                  key="assign-tags"
+                  onAssignTags={onAssignTags}
+                  allTagOptions={tagOptions}
+                />
+              </Menu.Item>
+              <Menu.Item value="remove-tags" asChild>
+                <RemoveTagsButton
+                  selectedBoxes={selectedBoxes}
+                  key="remove-tags"
+                  onRemoveTags={onUnassignTags}
+                  allTagOptions={getSelectedBoxTags}
+                  currentTagOptions={getSelectedBoxTags}
+                />
+              </Menu.Item>
+              <Menu.Item value="make-labels" asChild>
+                <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
+              </Menu.Item>
+            </Menu.Content>
+          </Menu.Positioner>
+        </Portal>
+      </Menu.Root>
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
           <Button onClick={() => onUnassignBoxesToShipment()} disabled={actionsAreLoading}>

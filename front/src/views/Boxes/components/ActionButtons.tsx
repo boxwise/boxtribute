@@ -1,10 +1,8 @@
 import {
   Button,
   chakra,
-  MenuContent,
-  MenuItem,
-  MenuRoot,
-  MenuTrigger,
+  Menu,
+  Portal,
   VStack,
   Wrap,
   WrapItem,
@@ -33,7 +31,7 @@ export function SelectButton({
   const { open, onOpen, onClose } = useDisclosure();
   const [isLargerThan768] = useMediaQuery(["(min-width: 768px)"]);
   return (
-    <MenuRoot
+    <Menu.Root
       open={open}
       onOpenChange={(e) => {
         if (e.open) {
@@ -43,39 +41,43 @@ export function SelectButton({
         }
       }}
     >
-      <MenuTrigger asChild>
+      <Menu.Trigger asChild>
         <Button disabled={disabled}>
           {icon}
           {(isLargerThan768 || open) && label}
           {(isLargerThan768 || open) && <IoChevronDown />}
         </Button>
-      </MenuTrigger>
-      <MenuContent zIndex={3}>
-        {options.map(({ label: olabel, value, subTitle }) => {
-          const [firstPart, secondPart] = olabel.split("-");
-          return (
-            <MenuItem
-              key={`SelectButtonOption${value}`}
-              value={value}
-              onClick={() => onSelect(value)}
-            >
-              {!subTitle ? (
-                olabel
-              ) : (
-                <VStack align="start" gap={0}>
-                  <Wrap gap={1}>
-                    <WrapItem fontWeight="semibold">{firstPart.trim()}, </WrapItem>
-                    <WrapItem>{secondPart.trim()}</WrapItem>
-                  </Wrap>
-                  <chakra.span style={{ fontSize: "0.8em", color: "gray" }}>
-                    ID: {subTitle}
-                  </chakra.span>
-                </VStack>
-              )}
-            </MenuItem>
-          );
-        })}
-      </MenuContent>
-    </MenuRoot>
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content zIndex={3}>
+            {options.map(({ label: olabel, value, subTitle }) => {
+              const [firstPart, secondPart] = olabel.split("-");
+              return (
+                <Menu.Item
+                  key={`SelectButtonOption${value}`}
+                  value={value}
+                  onClick={() => onSelect(value)}
+                >
+                  {!subTitle ? (
+                    olabel
+                  ) : (
+                    <VStack align="start" gap={0}>
+                      <Wrap gap={1}>
+                        <WrapItem fontWeight="semibold">{firstPart.trim()}, </WrapItem>
+                        <WrapItem>{secondPart.trim()}</WrapItem>
+                      </Wrap>
+                      <chakra.span style={{ fontSize: "0.8em", color: "gray" }}>
+                        ID: {subTitle}
+                      </chakra.span>
+                    </VStack>
+                  )}
+                </Menu.Item>
+              );
+            })}
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
   );
 }

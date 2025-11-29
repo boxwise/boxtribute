@@ -93,8 +93,9 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
 
     await user.click(historyButton);
 
-    const banner = await screen.findByRole("banner");
-    expect(banner).toBeInTheDocument();
+    // Wait for the history overlay to open by checking for the header text
+    const historyHeader = await screen.findByText("Box History");
+    expect(historyHeader).toBeInTheDocument();
 
     // Wait for all history content to be rendered before making assertions
     await screen.findByText(/may 15, 2023/i);

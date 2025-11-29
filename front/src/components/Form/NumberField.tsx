@@ -144,10 +144,7 @@ export function NewNumberField({
               borderRadius="0"
               borderColor="black"
             />
-            <NumberInput.Control>
-              <NumberInput.IncrementTrigger />
-              <NumberInput.DecrementTrigger />
-            </NumberInput.Control>
+            <NumberInput.Control />
           </NumberInput.Root>
         )}
       />

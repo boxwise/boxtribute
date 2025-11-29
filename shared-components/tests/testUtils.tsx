@@ -9,6 +9,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ApolloLink, DefaultOptions } from "@apollo/client";
 import { ChakraProvider } from "@chakra-ui/react";
 import { customSystem } from "../utils/theme";
+import { Toaster } from "../chakra-v3/Toaster";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -83,6 +84,7 @@ function render(
           </Routes>
         </MemoryRouter>
       </MockedProvider>
+      <Toaster />
     </ChakraProvider>
   );
   return rtlRender(ui, {

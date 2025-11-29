@@ -13,6 +13,7 @@ import {
   CheckboxGroup,
   HStack,
   Wrap,
+  Fieldset,
   useCheckboxGroup,
 } from "@chakra-ui/react";
 import { IoDownload } from "react-icons/io5";
@@ -67,7 +68,7 @@ export default function VisHeader({
 
   const { timerange } = useTimerange();
 
-  const { value, getItemProps } = useCheckboxGroup({
+  const { value } = useCheckboxGroup({
     defaultValue: ["heading", "timerange"],
   });
 
@@ -125,9 +126,9 @@ export default function VisHeader({
               </Accordion.ItemTrigger>
             </Flex>
             <Accordion.ItemContent>
-              <Field.Root>
-                <Wrap>
-                  <Box width="100px">
+              <Wrap>
+                <Box width="100px">
+                  <Field.Root>
                     <Field.Label>Width</Field.Label>
                     <NumberInput.Root
                       id={randomId()}
@@ -138,14 +139,13 @@ export default function VisHeader({
                       value={inputWidth.toString()}
                       onValueChange={(details) => setInputWidth(details.valueAsNumber)}
                     >
+                      <NumberInput.Control />
                       <NumberInput.Input />
-                      <NumberInput.Control>
-                        <NumberInput.IncrementTrigger />
-                        <NumberInput.DecrementTrigger />
-                      </NumberInput.Control>
                     </NumberInput.Root>
-                  </Box>
-                  <Box width="100px">
+                  </Field.Root>
+                </Box>
+                <Box width="100px">
+                  <Field.Root>
                     <Field.Label>Height</Field.Label>
                     <NumberInput.Root
                       id={randomId()}
@@ -156,59 +156,55 @@ export default function VisHeader({
                       value={inputHeight.toString()}
                       onValueChange={(details) => setInputHeight(details.valueAsNumber)}
                     >
+                      <NumberInput.Control />
                       <NumberInput.Input />
-                      <NumberInput.Control>
-                        <NumberInput.IncrementTrigger />
-                        <NumberInput.DecrementTrigger />
-                      </NumberInput.Control>
                     </NumberInput.Root>
-                  </Box>
-                  <Spacer />
-                  <Center>
+                  </Field.Root>
+                </Box>
+                <Spacer />
+                <Center>
+                  <Fieldset.Root>
                     <CheckboxGroup defaultValue={["heading", "timerange"]}>
-                      <Box>
-                        <Field.Label>Options</Field.Label>
-                        <HStack gap="24px">
-                          <Checkbox.Root id={randomId()} {...getItemProps({ value: "heading" })}>
+                      <Fieldset.Legend>Options</Fieldset.Legend>
+                      <Fieldset.Content>
+                        <HStack gap={24}>
+                          <Checkbox.Root id={randomId()} value="heading">
                             <Checkbox.HiddenInput />
                             <Checkbox.Control />
                             <Checkbox.Label>Heading</Checkbox.Label>
                           </Checkbox.Root>
-                          <Checkbox.Root id={randomId()} {...getItemProps({ value: "timerange" })}>
+                          <Checkbox.Root id={randomId()} value="timerange">
                             <Checkbox.HiddenInput />
                             <Checkbox.Control />
                             <Checkbox.Label>Time Range</Checkbox.Label>
                           </Checkbox.Root>
-                          <Checkbox.Root {...getItemProps({ value: "timestamp" })}>
+                          <Checkbox.Root id={randomId()} value="timestamp">
                             <Checkbox.HiddenInput />
                             <Checkbox.Control />
                             <Checkbox.Label>Timestamp</Checkbox.Label>
                           </Checkbox.Root>
                           {customIncludes!.map((option) => (
-                            <Checkbox.Root
-                              id={randomId()}
-                              {...getItemProps({ value: option.value })}
-                              key={option.value}
-                            >
+                            <Checkbox.Root id={randomId()} value={option.value} key={option.value}>
                               <Checkbox.HiddenInput />
                               <Checkbox.Control />
                               <Checkbox.Label>{option.value}</Checkbox.Label>
                             </Checkbox.Root>
                           ))}
                         </HStack>
-                      </Box>
+                      </Fieldset.Content>
                     </CheckboxGroup>
-                  </Center>
-                  <Spacer />
-                  <Center>
-                    <Box>
+                  </Fieldset.Root>
+                </Center>
+                <Spacer />
+                <Center>
+                  <Box>
+                    <Field.Root>
                       <Field.Label>Downloads</Field.Label>
                       <HStack>
                         <Button
                           borderRadius="0px"
                           border="2px"
                           loading={isExporting}
-                          backgroundColor="white"
                           value="jpg"
                           onClick={download}
                         >
@@ -221,7 +217,6 @@ export default function VisHeader({
                           borderRadius="0px"
                           border="2px"
                           loading={isExporting}
-                          backgroundColor="white"
                           value="svg"
                           onClick={download}
                         >
@@ -231,10 +226,10 @@ export default function VisHeader({
                           </Box>
                         </Button>
                       </HStack>
-                    </Box>
-                  </Center>
-                </Wrap>
-              </Field.Root>
+                    </Field.Root>
+                  </Box>
+                </Center>
+              </Wrap>
             </Accordion.ItemContent>
           </Accordion.Item>
         )}

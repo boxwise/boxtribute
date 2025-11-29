@@ -11,7 +11,7 @@ interface IMovedBoxesChartsProps {
 export default function MovedBoxesCharts({ movedBoxes, boxesOrItems }: IMovedBoxesChartsProps) {
   return (
     <Wrap gap={6}>
-      <WrapItem overflow="auto" padding="5px">
+      <WrapItem overflow="auto" padding={5}>
         <BoxFlowSankey
           boxesOrItems={boxesOrItems}
           data={movedBoxes}

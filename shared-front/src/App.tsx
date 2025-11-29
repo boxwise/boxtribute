@@ -148,14 +148,14 @@ function App() {
         <Heading size="md">BASE: {data.resolveLink.baseName.toUpperCase()}</Heading>
       </Flex>
       <Flex
-        borderWidth="1"
-        padding="15"
-        marginBottom="15"
+        borderWidth={1}
+        padding={15}
+        marginBottom={15}
         shadow="md"
         justifyContent="left"
         background="white"
       >
-        <WrapItem w="150">
+        <WrapItem w={150}>
           <Center>
             <BoxesOrItemsSelect fieldLabel="show as" inlineLabel={true} />
           </Center>
