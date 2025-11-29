@@ -11,9 +11,9 @@ import {
   DialogBackdrop,
   Text,
   useDisclosure,
-  useToast,
   VStack,
 } from "@chakra-ui/react";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import _ from "lodash";
 import { useCallback } from "react";
 import {
@@ -45,8 +45,6 @@ const PackingListEntry = ({
   } = useDisclosure();
   const packingAddBoxOrItemsForPackingListEntryOverlayState = useDisclosure();
 
-  const toast = useToast();
-
   const [assignBoxToDistributionEventMutation] = useMutation(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
 
   const [moveItemsToDistributionEventMutation] = useMutation(MOVE_ITEMS_TO_DISTRIBUTION_EVENT);
@@ -75,34 +73,28 @@ const PackingListEntry = ({
               `GraphQL error while trying to move items from Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
               res.errors,
             );
-            toast({
+            toaster.create({
               title: "Error",
               description: "Items couldn't be moved to the distribution event.",
-              status: "error",
+              type: "error",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           } else {
-            toast({
+            toaster.create({
               title: "Done!",
               description: `${numberOfItemsToMove} items moved to the distribution.`,
-              status: "success",
+              type: "success",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           }
         })
         .catch((err) => {
           console.error(err);
-          toast({
+          toaster.create({
             title: "Error",
             description: "Items couldn't be moved to the distribution event.",
-            status: "error",
+            type: "error",
             duration: 2000,
-            isClosable: true,
-            position: "top-right",
           });
         });
     },
@@ -110,7 +102,6 @@ const PackingListEntry = ({
       distributionEventId,
       moveItemsToDistributionEventMutation,
       packingAddBoxOrItemsForPackingListEntryOverlayState,
-      toast,
     ],
   );
 
@@ -137,34 +128,28 @@ const PackingListEntry = ({
               `GraphQL error while trying to move Box (id: ${boxLabelIdentifier}) into Distribution Event (id: ${distributionEventId})`,
               res.errors,
             );
-            toast({
+            toaster.create({
               title: "Error",
               description: "Box couldn't be moved to the distribution event.",
-              status: "error",
+              type: "error",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           } else {
-            toast({
+            toaster.create({
               title: "Done!",
               description: "Box moved to the distribution event.",
-              status: "success",
+              type: "success",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           }
         })
         .catch((err) => {
           console.error(err);
-          toast({
+          toaster.create({
             title: "Error",
             description: "Box couldn't be moved to the distribution event.",
-            status: "error",
+            type: "error",
             duration: 2000,
-            isClosable: true,
-            position: "top-right",
           });
         });
     },
@@ -172,7 +157,6 @@ const PackingListEntry = ({
       distributionEventId,
       assignBoxToDistributionEventMutation,
       packingAddBoxOrItemsForPackingListEntryOverlayState,
-      toast,
     ],
   );
 
@@ -202,12 +186,13 @@ const PackingListEntry = ({
           }}
           backgroundColor="transparent"
           aria-label="Add items"
-          icon={<IoAdd />}
           onClick={() => {
             packingAddBoxOrItemsForPackingListEntryOverlayState.onOpen();
           }}
           color="teal"
-        />
+        >
+          <IoAdd />
+        </IconButton>
       </Box>
 
       <PackingAddBoxOrItemsForPackingListEntryOverlay

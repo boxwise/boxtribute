@@ -1,4 +1,4 @@
-import { Accordion, Box, VStack, List, ListItem, Text, Button } from "@chakra-ui/react";
+import { Accordion, Box, VStack, List, Text, Button } from "@chakra-ui/react";
 import { distroEventStateHumanReadableLabels } from "views/Distributions/baseData";
 import DistributionEventTimeRangeDisplay from "views/Distributions/components/DistributionEventTimeRangeDisplay";
 import { DistributionSpotEnrichedData, DistroEventForSpot } from "views/Distributions/types";
@@ -21,7 +21,7 @@ const DistroSpots = ({
       <Accordion.Root w={[300, 420, 500]} collapsible mb={4}>
         {distroSpots.map((distroSpot) => {
           return (
-            <Accordion.Item key={distroSpot.id}>
+            <Accordion.Item key={distroSpot.id} value={distroSpot.id}>
               <h2>
                 <Accordion.ItemTrigger>
                   <VStack flex="1" textAlign="left">
@@ -75,7 +75,7 @@ const DistributionEventListItem = ({
   distroEvent: DistroEventForSpot;
   onDistroEventClick: (distroEventId: string) => void;
 }) => (
-  <ListItem
+  <List.Item
     key={distroEvent.id}
     border="1px"
     p={2}
@@ -86,17 +86,19 @@ const DistributionEventListItem = ({
     }}
     onClick={() => onDistroEventClick(distroEvent.id)}
   >
-    <Box as="time" dateTime={distroEvent.plannedStartDateTime.toUTCString()}>
-      <DistributionEventTimeRangeDisplay
-        plannedStartDateTime={new Date(distroEvent.plannedStartDateTime)}
-        plannedEndDateTime={new Date(distroEvent.plannedEndDateTime)}
-      />
+    <Box>
+      <time dateTime={distroEvent.plannedStartDateTime.toUTCString()}>
+        <DistributionEventTimeRangeDisplay
+          plannedStartDateTime={new Date(distroEvent.plannedStartDateTime)}
+          plannedEndDateTime={new Date(distroEvent.plannedEndDateTime)}
+        />
+      </time>
     </Box>
     <Box>
       Status:
       {distroEventStateHumanReadableLabels.get(distroEvent.state)}
     </Box>
-  </ListItem>
+  </List.Item>
 );
 
 const DistroEventsAccordionForDistroSpotContainer = ({
@@ -112,7 +114,7 @@ const DistroEventsAccordionForDistroSpotContainer = ({
   );
 
   return (
-    <List>
+    <List.Root>
       {nonCompletedEvents.map((distroEvent) => {
         return (
           <DistributionEventListItem
@@ -123,9 +125,9 @@ const DistroEventsAccordionForDistroSpotContainer = ({
         );
       })}
       {completedEvents.length > 0 && (
-        <ListItem>
+        <List.Item>
           <Accordion.Root w={[250, 380, 450]} collapsible mb={4}>
-            <Accordion.Item>
+            <Accordion.Item value="completed">
               <h2>
                 <Accordion.ItemTrigger>
                   <VStack flex="1" textAlign="left">
@@ -147,9 +149,9 @@ const DistroEventsAccordionForDistroSpotContainer = ({
               </Accordion.ItemContent>
             </Accordion.Item>
           </Accordion.Root>
-        </ListItem>
+        </List.Item>
       )}
-    </List>
+    </List.Root>
   );
 };
 

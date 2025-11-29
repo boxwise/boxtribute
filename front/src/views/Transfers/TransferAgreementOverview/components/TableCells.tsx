@@ -1,4 +1,5 @@
-import { Button, chakra, Link, Stack, Tooltip, VStack } from "@chakra-ui/react";
+import { Button, chakra, Link, Stack, VStack } from "@chakra-ui/react";
+import { Tooltip } from "@boxtribute/shared-components/chakra-v3/Tooltip";
 import { Link as RouterLink } from "react-router-dom";
 import { CellProps } from "react-table";
 import { BidirectionalIcon } from "components/Icon/Transfer/BidirectionalIcon";
@@ -17,14 +18,14 @@ export type IExtendedTransferAgreementState =
 export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   if (cellProps.value === "UnderReview") {
     return (
-      <Tooltip label="Waiting for response from partner">
+      <Tooltip content="Waiting for response from partner">
         <chakra.span>Pending ...</chakra.span>
       </Tooltip>
     );
   }
   if (cellProps.value === CanAcceptTransferAgreementState.CanAccept) {
     return (
-      <Tooltip label="Click here to accept or reject the request!">
+      <Tooltip content="Click here to accept or reject the request!">
         <Button colorPalette="blue" onClick={() => onClick(cellProps.row)}>
           Request Open
         </Button>
@@ -33,7 +34,7 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   }
   if (cellProps.value === "Accepted") {
     return (
-      <Tooltip label="Click here if you want to terminate the agreement!">
+      <Tooltip content="Click here if you want to terminate the agreement!">
         <Button colorPalette="green" onClick={() => onClick(cellProps.row)}>
           Accepted
         </Button>
@@ -42,14 +43,14 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   }
   if (cellProps.value === "Rejected") {
     return (
-      <Tooltip label="Click here if you want to retry!">
+      <Tooltip content="Click here if you want to retry!">
         <Button onClick={() => onClick(cellProps.row)}>Declined</Button>
       </Tooltip>
     );
   }
   if (cellProps.value === "Canceled" || cellProps.value === "Expired") {
     return (
-      <Tooltip label="Click here if you want to renew the agreement!">
+      <Tooltip content="Click here if you want to renew the agreement!">
         <Button onClick={() => onClick(cellProps.row)}>Ended</Button>
       </Tooltip>
     );
@@ -61,14 +62,13 @@ export function ShipmentCell({ row, value }: CellProps<any>) {
   return (
     <VStack align="start">
       {Object.values(value).map(({ name, count }) => (
-        <Link
-          textDecoration="underline"
-          key={name}
-          as={RouterLink}
-          to="../shipments"
-          state={{ partnerBaseOrg: { base: name, organisation: row.values.partnerOrg } }}
-        >
-          {name} ({count})
+        <Link textDecoration="underline" key={name} asChild>
+          <RouterLink
+            to="../shipments"
+            state={{ partnerBaseOrg: { base: name, organisation: row.values.partnerOrg } }}
+          >
+            {name} ({count})
+          </RouterLink>
         </Link>
       ))}
     </VStack>
@@ -78,7 +78,7 @@ export function ShipmentCell({ row, value }: CellProps<any>) {
 export function DirectionCell({ value }: CellProps<any>) {
   if (value === "SendingTo") {
     return (
-      <Stack isInline align="start">
+      <Stack direction="row" align="start">
         <SendingIcon />
         <chakra.span ml={1}>To</chakra.span>
       </Stack>
@@ -86,14 +86,14 @@ export function DirectionCell({ value }: CellProps<any>) {
   }
   if (value === "ReceivingFrom") {
     return (
-      <Stack isInline align="start">
+      <Stack direction="row" align="start">
         <ReceivingIcon />
         <chakra.span ml={1}>From</chakra.span>
       </Stack>
     );
   }
   return (
-    <Stack isInline align="start">
+    <Stack direction="row" align="start">
       <BidirectionalIcon />
       <chakra.span ml={1}>To / From</chakra.span>
     </Stack>

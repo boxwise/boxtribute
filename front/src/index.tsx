@@ -15,6 +15,7 @@ import { captureConsoleIntegration } from "@sentry/react";
 import React from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { customSystem } from "@boxtribute/shared-components/utils/theme";
+import { Toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 
 const ProtectedApp = withAuthenticationRequired(() => (
   <ApolloAuth0Provider>
@@ -53,6 +54,7 @@ root.render(
         <SentryProfiledProtectedApp />
       </Auth0ProviderWithHistory>
     </BrowserRouter>
+    <Toaster />
   </ChakraProvider>,
 );
 

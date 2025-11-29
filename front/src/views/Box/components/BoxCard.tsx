@@ -14,13 +14,13 @@ import {
   Stack,
   Switch,
   Tag,
-  Tooltip,
   Wrap,
   WrapItem,
   SkeletonCircle,
   SkeletonText,
   Icon,
 } from "@chakra-ui/react";
+import { Tooltip } from "@boxtribute/shared-components/chakra-v3/Tooltip";
 import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import { colorIsBright } from "utils/helpers";
@@ -148,60 +148,48 @@ function BoxCard({
           <Spacer />
           <ButtonGroup gap="1">
             <Box alignContent="flex-end" marginLeft={2}>
-              <Tooltip.Root openDelay={300}>
-                <Tooltip.Trigger asChild>
-                  <IconButton
-                    onClick={onPlusOpen}
-                    disabled={
-                      "Lost" === boxData?.state ||
-                      "Scrap" === boxData?.state ||
-                      "NotDelivered" === boxData?.state ||
-                      boxInTransit ||
-                      isLoading ||
-                      !!boxData?.deletedOn
-                    }
-                    size="sm"
-                    border="2px"
-                    borderRadius="full"
-                    aria-label="Search database"
-                    data-testid="increase-items"
-                  >
-                    <IoAdd />
-                  </IconButton>
-                </Tooltip.Trigger>
-                <Tooltip.Positioner>
-                  <Tooltip.Arrow />
-                  <Tooltip.Content>add items</Tooltip.Content>
-                </Tooltip.Positioner>
-              </Tooltip.Root>
+              <Tooltip content="add items" openDelay={300}>
+                <IconButton
+                  onClick={onPlusOpen}
+                  disabled={
+                    "Lost" === boxData?.state ||
+                    "Scrap" === boxData?.state ||
+                    "NotDelivered" === boxData?.state ||
+                    boxInTransit ||
+                    isLoading ||
+                    !!boxData?.deletedOn
+                  }
+                  size="sm"
+                  border="2px"
+                  borderRadius="full"
+                  aria-label="Search database"
+                  data-testid="increase-items"
+                >
+                  <IoAdd />
+                </IconButton>
+              </Tooltip>
             </Box>
             <Box alignContent="flex-end" marginRight={1}>
-              <Tooltip.Root openDelay={300}>
-                <Tooltip.Trigger asChild>
-                  <IconButton
-                    onClick={onMinusOpen}
-                    border="2px"
-                    size="sm"
-                    disabled={
-                      "Lost" === boxData?.state ||
-                      "Scrap" === boxData?.state ||
-                      "NotDelivered" === boxData?.state ||
-                      boxInTransit ||
-                      isLoading ||
-                      !!boxData?.deletedOn
-                    }
-                    borderRadius="full"
-                    aria-label="Search database"
-                    data-testid="decrease-items"
-                  >
-                    <IoRemove />
-                  </IconButton>
-                </Tooltip.Trigger>
-                <Tooltip.Positioner>
-                  <Tooltip.Arrow />
-                  <Tooltip.Content>remove items</Tooltip.Content>
-                </Tooltip.Positioner>
-              </Tooltip.Root>
+              <Tooltip content="remove items" openDelay={300}>
+                <IconButton
+                  onClick={onMinusOpen}
+                  border="2px"
+                  size="sm"
+                  disabled={
+                    "Lost" === boxData?.state ||
+                    "Scrap" === boxData?.state ||
+                    "NotDelivered" === boxData?.state ||
+                    boxInTransit ||
+                    isLoading ||
+                    !!boxData?.deletedOn
+                  }
+                  borderRadius="full"
+                  aria-label="Search database"
+                  data-testid="decrease-items"
+                >
+                  <IoRemove />
+                </IconButton>
+              </Tooltip>
             </Box>
           </ButtonGroup>
         </Flex>

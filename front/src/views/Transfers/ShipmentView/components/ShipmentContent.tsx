@@ -99,71 +99,77 @@ function ShipmentContent({
   return (
     <Accordion.Root collapsible w="full">
       {items.map((item, index) => (
-        <Accordion.Item key={item?.product?.id || index} alignItems="center">
-          {({ isExpanded }) => (
-            <>
-              <Stack bg={isExpanded ? "#F4E6A0" : ""} p="1" direction="row" alignItems="center">
-                {showRemoveIcon && (
-                  <Box alignContent="center" alignItems="center" padding={1}>
-                    <AiFillMinusCircle
-                      size={20}
-                      style={{
-                        cursor: isExpanded ? "not-allowed" : "pointer",
-                        color: isExpanded ? "gray" : "red",
-                        fill: isExpanded ? "gray" : "red",
-                      }}
-                      onClick={
-                        !isExpanded && !isLoadingMutation
-                          ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier!))
-                          : undefined
-                      }
-                    />
-                  </Box>
-                )}
-                <Box alignItems="center">
-                  <h2>
-                    <Box>
-                      <Text data-testid="shipment-grouped-item-name">
-                        {" "}
-                        {item?.product?.name}{" "}
-                        {item?.product?.gender && item?.product?.gender !== "none"
-                          ? item?.product?.gender
-                          : ""}{" "}
-                        ({item.totalItems}x)
-                      </Text>
-                    </Box>
-                  </h2>
-                </Box>
-                <Spacer />
-                <Flex direction="row" alignItems="center">
-                  <Text>{item.totalBoxes}</Text>
-                  <Spacer />
-                  <Box pl={1}>box{item.totalBoxes > 1 && "es"}</Box>
-                  {item.totalLosts > 0 && shipmentState === "Completed" && (
-                    <Box pl={1} color="red.500">
-                      (-{item.totalLosts})
+        <Accordion.Item
+          key={item?.product?.id || index}
+          value={item?.product?.id?.toString() || index.toString()}
+          alignItems="center"
+        >
+          <Accordion.ItemContext>
+            {({ expanded }) => (
+              <>
+                <Stack bg={expanded ? "#F4E6A0" : ""} p="1" direction="row" alignItems="center">
+                  {showRemoveIcon && (
+                    <Box alignContent="center" alignItems="center" padding={1}>
+                      <AiFillMinusCircle
+                        size={20}
+                        style={{
+                          cursor: expanded ? "not-allowed" : "pointer",
+                          color: expanded ? "gray" : "red",
+                          fill: expanded ? "gray" : "red",
+                        }}
+                        onClick={
+                          !open && !isLoadingMutation
+                            ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier!))
+                            : undefined
+                        }
+                      />
                     </Box>
                   )}
-                </Flex>
-                <Accordion.ItemTrigger
-                  data-testid={`shipment-accordion-button-${item?.product?.id}`}
-                  _expanded={{ bg: "#F4E6A0" }}
-                  maxWidth={5}
-                  _hover={{ bgColor: "white" }}
-                >
-                  <Accordion.ItemIndicator
-                    mr={1}
-                    _focus={{
-                      boxShadow: "none",
-                    }}
-                  />
-                </Accordion.ItemTrigger>
-              </Stack>
-              <Accordion.ItemContent p={0}>
-                <ShipmentTable columns={columns} data={boxesToTableTransformer(item.boxes)} />
-              </Accordion.ItemContent>
-            </>
-          )}
+                  <Box alignItems="center">
+                    <h2>
+                      <Box>
+                        <Text data-testid="shipment-grouped-item-name">
+                          {" "}
+                          {item?.product?.name}{" "}
+                          {item?.product?.gender && item?.product?.gender !== "none"
+                            ? item?.product?.gender
+                            : ""}{" "}
+                          ({item.totalItems}x)
+                        </Text>
+                      </Box>
+                    </h2>
+                  </Box>
+                  <Spacer />
+                  <Flex direction="row" alignItems="center">
+                    <Text>{item.totalBoxes}</Text>
+                    <Spacer />
+                    <Box pl={1}>box{item.totalBoxes > 1 && "es"}</Box>
+                    {item.totalLosts > 0 && shipmentState === "Completed" && (
+                      <Box pl={1} color="red.500">
+                        (-{item.totalLosts})
+                      </Box>
+                    )}
+                  </Flex>
+                  <Accordion.ItemTrigger
+                    data-testid={`shipment-accordion-button-${item?.product?.id}`}
+                    _expanded={{ bg: "#F4E6A0" }}
+                    maxWidth={5}
+                    _hover={{ bgColor: "white" }}
+                  >
+                    <Accordion.ItemIndicator
+                      mr={1}
+                      _focus={{
+                        boxShadow: "none",
+                      }}
+                    />
+                  </Accordion.ItemTrigger>
+                </Stack>
+                <Accordion.ItemContent p={0}>
+                  <ShipmentTable columns={columns} data={boxesToTableTransformer(item.boxes)} />
+                </Accordion.ItemContent>
+              </>
+            )}
+          </Accordion.ItemContext>
         </Accordion.Item>
       ))}
     </Accordion.Root>

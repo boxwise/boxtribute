@@ -1,7 +1,5 @@
 import {
   Alert,
-  AlertDescription,
-  AlertIcon,
   Box,
   Button,
   Center,
@@ -9,11 +7,6 @@ import {
   Heading,
   HStack,
   Stack,
-  Tab,
-  TabIndicator,
-  TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   Text,
   Textarea,
@@ -190,13 +183,13 @@ function CreateShipment({
   }, [intraOrganisationOptions, setValueIntraOrg]);
 
   const NoAcceptedAgreementsAlert = () => (
-    <Alert status="warning">
-      <AlertIcon />
-      <AlertDescription>
+    <Alert.Root status="warning">
+      <Alert.Indicator />
+      <Alert.Description>
         You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
         shipment.
-      </AlertDescription>
-    </Alert>
+      </Alert.Description>
+    </Alert.Root>
   );
 
   return (
@@ -204,7 +197,7 @@ function CreateShipment({
       <Heading fontWeight="bold" mb={8} as="h1">
         New Shipment
       </Heading>
-      <Tabs variant="unstyled">
+      <Tabs.Root variant="plain" defaultValue="0">
         <Box border="2px" mb={8}>
           <HStack mb={4} borderBottom="2px" p={2}>
             <SendingIcon />
@@ -224,140 +217,142 @@ function CreateShipment({
             RECEIVING
           </Text>
         </HStack>
-        <TabList border="2px" borderTop="none" borderBottom="none">
-          <Tab flex={1}>PARTNERS</Tab>
+        <Tabs.List border="2px" borderTop="none" borderBottom="none">
+          <Tabs.Trigger flex={1} value="0">
+            PARTNERS
+          </Tabs.Trigger>
           {haveIntraOrganisationOptions && (
-            <Tab flex={1}>{currentOrganisationName.toUpperCase()}</Tab>
+            <Tabs.Trigger flex={1} value="1">
+              {currentOrganisationName.toUpperCase()}
+            </Tabs.Trigger>
           )}
-        </TabList>
-        <TabIndicator
+        </Tabs.List>
+        <Tabs.Indicator
           mt="-1.5px"
           height="2px"
           bg={haveIntraOrganisationOptions ? "blue.500" : "black"}
           borderRadius="1px"
         />
-        <TabPanels>
-          <TabPanel padding={0}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <input
-                id="shipmentTarget"
-                type="hidden"
-                value="partners"
-                {...register("shipmentTarget")}
-              />
-              <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
-                {noAcceptedAgreements ? (
-                  <NoAcceptedAgreementsAlert />
-                ) : (
-                  <>
-                    <SelectField
-                      fieldId="receivingOrganisation"
-                      fieldLabel="Organisation"
-                      placeholder="Please select an organisation"
-                      options={organisationOptions}
-                      errors={errors}
-                      control={control}
-                      onChangeProp={(e) => {
-                        if (e?.isSpecial) {
-                          navigate(`/bases/${baseId}/transfers/agreements/create`);
-                        } else {
-                          setAgreementNote(e?.comment || "");
-                        }
-                      }}
-                      formatOptionLabel={(data) => (
-                        <span style={{ fontStyle: data.isSpecial ? "italic" : "normal" }}>
-                          {data.label}
-                        </span>
-                      )}
-                    />
-                    <SelectField
-                      fieldId="receivingBase"
-                      fieldLabel="Base"
-                      placeholder="Please select a base"
-                      errors={errors}
-                      control={control}
-                      options={basesOptions}
-                    />
-                    {agreementNote && (
-                      <Field.Root>
-                        <Field.Label>Note</Field.Label>
-                        <Textarea readOnly value={agreementNote} />
-                      </Field.Root>
+        <Tabs.Content value="0" padding={0}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <input
+              id="shipmentTarget"
+              type="hidden"
+              value="partners"
+              {...register("shipmentTarget")}
+            />
+            <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
+              {noAcceptedAgreements ? (
+                <NoAcceptedAgreementsAlert />
+              ) : (
+                <>
+                  <SelectField
+                    fieldId="receivingOrganisation"
+                    fieldLabel="Organisation"
+                    placeholder="Please select an organisation"
+                    options={organisationOptions}
+                    errors={errors}
+                    control={control}
+                    onChangeProp={(e) => {
+                      if (e?.isSpecial) {
+                        navigate(`/bases/${baseId}/transfers/agreements/create`);
+                      } else {
+                        setAgreementNote(e?.comment || "");
+                      }
+                    }}
+                    formatOptionLabel={(data) => (
+                      <span style={{ fontStyle: data.isSpecial ? "italic" : "normal" }}>
+                        {data.label}
+                      </span>
                     )}
-                  </>
-                )}
-              </Box>
-              <Stack gap={4} mt={8}>
-                <Button
-                  loading={isSubmitting || isLoading}
-                  disabled={noAcceptedAgreements}
-                  type="submit"
-                  borderRadius="0"
-                  w="full"
-                  variant="solid"
-                  backgroundColor="blue.500"
-                  color="white"
-                >
-                  Start New Shipment
-                </Button>
-                <Button
-                  size="md"
-                  type="button"
-                  borderRadius="0"
-                  w="full"
-                  variant="outline"
-                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-                >
-                  Nevermind
-                </Button>
-              </Stack>
-            </form>
-          </TabPanel>
-          <TabPanel padding={0}>
-            <form onSubmit={handleSubmitIntraOrg(onSubmit)}>
-              <input
-                {...registerIntraOrg("shipmentTarget")}
-                id="shipmentTarget"
-                type="hidden"
-                value="currentOrg"
+                  />
+                  <SelectField
+                    fieldId="receivingBase"
+                    fieldLabel="Base"
+                    placeholder="Please select a base"
+                    errors={errors}
+                    control={control}
+                    options={basesOptions}
+                  />
+                  {agreementNote && (
+                    <Field.Root>
+                      <Field.Label>Note</Field.Label>
+                      <Textarea readOnly value={agreementNote} />
+                    </Field.Root>
+                  )}
+                </>
+              )}
+            </Box>
+            <Stack gap={4} mt={8}>
+              <Button
+                loading={isSubmitting || isLoading}
+                disabled={noAcceptedAgreements}
+                type="submit"
+                borderRadius="0"
+                w="full"
+                variant="solid"
+                backgroundColor="blue.500"
+                color="white"
+              >
+                Start New Shipment
+              </Button>
+              <Button
+                size="md"
+                type="button"
+                borderRadius="0"
+                w="full"
+                variant="outline"
+                onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+              >
+                Nevermind
+              </Button>
+            </Stack>
+          </form>
+        </Tabs.Content>
+        <Tabs.Content value="1" padding={0}>
+          <form onSubmit={handleSubmitIntraOrg(onSubmit)}>
+            <input
+              {...registerIntraOrg("shipmentTarget")}
+              id="shipmentTarget"
+              type="hidden"
+              value="currentOrg"
+            />
+            <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
+              <SelectField
+                fieldId="receivingBase"
+                fieldLabel="Base"
+                placeholder="Please select a base"
+                errors={errorsIntraOrg}
+                control={controlIntraOrg}
+                options={intraOrganisationOptions}
               />
-              <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
-                <SelectField
-                  fieldId="receivingBase"
-                  fieldLabel="Base"
-                  placeholder="Please select a base"
-                  errors={errorsIntraOrg}
-                  control={controlIntraOrg}
-                  options={intraOrganisationOptions}
-                />
-              </Box>
-              <Stack gap={4} mt={8}>
-                <Button
-                  loading={isSubmittingIntraOrg || isLoading}
-                  type="submit"
-                  borderRadius="0"
-                  w="full"
-                  variant="solid"
-                  backgroundColor="blue.500"
-                  color="white"
-                >
-                  Start New Shipment
-                </Button>
-                <Button
-                  size="md"
-                  type="button"
-                  borderRadius="0"
-                  w="full"
-                  variant="outline"
-                  onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
-                >
-                  Nevermind
-                </Button>
-              </Stack>
-            </form>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            </Box>
+            <Stack gap={4} mt={8}>
+              <Button
+                loading={isSubmittingIntraOrg || isLoading}
+                type="submit"
+                borderRadius="0"
+                w="full"
+                variant="solid"
+                backgroundColor="blue.500"
+                color="white"
+              >
+                Start New Shipment
+              </Button>
+              <Button
+                size="md"
+                type="button"
+                borderRadius="0"
+                w="full"
+                variant="outline"
+                onClick={() => navigate(`/bases/${baseId}/transfers/shipments`)}
+              >
+                Nevermind
+              </Button>
+            </Stack>
+          </form>
+        </Tabs.Content>
+      </Tabs.Root>
     </Box>
   );
 }

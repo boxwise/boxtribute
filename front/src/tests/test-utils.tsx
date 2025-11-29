@@ -26,7 +26,7 @@ import {
 import { basicBase1 } from "mocks/bases";
 import { basicOrg1 } from "mocks/organisations";
 import { ChakraProvider } from "@chakra-ui/react";
-import { system } from "@boxtribute/shared-components/utils/theme";
+import { customSystem } from "@boxtribute/shared-components/utils/theme";
 
 // Options for Apollo MockProvider
 const defaultOptions: DefaultOptions = {
@@ -136,7 +136,7 @@ function render(
   mockMatchMediaQuery(mediaQueryReturnValue);
 
   const Wrapper: React.FC = ({ children }: any) => (
-    <ChakraProvider value={system}>
+    <ChakraProvider value={customSystem}>
       <MockedProvider
         mocks={mocks}
         addTypename={addTypename}

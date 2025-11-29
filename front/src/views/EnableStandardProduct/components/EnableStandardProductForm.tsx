@@ -11,12 +11,12 @@ import {
   Box,
   Text,
   Skeleton,
-  Select,
   Field,
   VStack,
   Input,
   Switch,
 } from "@chakra-ui/react";
+import { Select } from "chakra-react-select";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -104,14 +104,19 @@ function EnableStandardProductForm({
           <VStack>
             <Field.Root px={2} mt={4}>
               <HStack>
-                <Switch
+                <Switch.Root
                   id="type-switch"
                   mr={2}
-                  isChecked={false}
-                  onChange={() =>
+                  checked={false}
+                  onCheckedChange={() =>
                     navigate(`${selectedStandardProduct ? "../../create" : "../create"}`)
                   }
-                />
+                >
+                  <Switch.HiddenInput />
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                </Switch.Root>
                 <Text fontWeight="medium" fontSize="md">
                   Custom Product (Base Specific)
                 </Text>
@@ -146,44 +151,72 @@ function EnableStandardProductForm({
               <Field.Root>
                 <Field.Label>Category</Field.Label>
                 <Select
-                  value={defaultValues?.category?.value}
-                  isReadOnly
+                  value={defaultValues?.category}
+                  readOnly
                   disabled
-                  _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
-                >
-                  <option value={defaultValues?.category?.value}>
-                    {defaultValues?.category?.label}
-                  </option>
-                </Select>
+                  menuPortalTarget={document.body}
+                  styles={{
+                    menuPortal: (provided) => ({ ...provided, zIndex: 1550 }),
+                  }}
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      border: "2px",
+                      borderRadius: "0",
+                      borderColor: "black",
+                    }),
+                  }}
+                />
               </Field.Root>
               <Field.Root>
                 <Field.Label>Gender</Field.Label>
                 <Select
-                  value={defaultValues?.gender}
-                  isReadOnly
+                  value={
+                    defaultValues?.gender
+                      ? {
+                          label: defaultValues.gender === "none" ? "-" : defaultValues.gender,
+                          value: defaultValues.gender,
+                        }
+                      : null
+                  }
+                  readOnly
                   disabled
-                  _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
-                >
-                  <option value={defaultValues?.gender}>
-                    {defaultValues?.gender === "none" ? "-" : defaultValues?.gender}
-                  </option>
-                </Select>
+                  menuPortalTarget={document.body}
+                  styles={{
+                    menuPortal: (provided) => ({ ...provided, zIndex: 1550 }),
+                  }}
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      border: "2px",
+                      borderRadius: "0",
+                      borderColor: "black",
+                    }),
+                  }}
+                />
               </Field.Root>
               <Field.Root>
                 <Field.Label>Size Range</Field.Label>
                 <Select
-                  value={defaultValues?.sizeRange?.value}
-                  isReadOnly
+                  value={defaultValues?.sizeRange}
+                  readOnly
                   disabled
-                  _disabled={{ color: "black" }}
                   placeholder="Please select a standard product."
-                >
-                  <option value={defaultValues?.sizeRange?.value}>
-                    {defaultValues?.sizeRange?.label}
-                  </option>
-                </Select>
+                  menuPortalTarget={document.body}
+                  styles={{
+                    menuPortal: (provided) => ({ ...provided, zIndex: 1550 }),
+                  }}
+                  chakraStyles={{
+                    control: (provided) => ({
+                      ...provided,
+                      border: "2px",
+                      borderRadius: "0",
+                      borderColor: "black",
+                    }),
+                  }}
+                />
               </Field.Root>
             </VStack>
             <Field.Root p={2}>
@@ -217,7 +250,13 @@ function EnableStandardProductForm({
           />
         </Box>
         <Stack gap={2} my={4}>
-          <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
+          <Button
+            loading={isLoading}
+            disabled={isLoading}
+            type="submit"
+            w="full"
+            variant={"submit" as any}
+          >
             Enable Product
           </Button>
           <Button

@@ -165,7 +165,7 @@ function EnableStandardProductFormContainer() {
       standardProductData={standardProductData}
       defaultValues={defaultValues}
       onSubmit={onSubmit}
-      loading={isEnableStandardProductLoading}
+      isLoading={isEnableStandardProductLoading}
       showAlert={false}
       key={requestedStandardProductId}
     />

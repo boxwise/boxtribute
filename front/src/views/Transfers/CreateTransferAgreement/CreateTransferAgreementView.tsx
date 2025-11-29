@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { graphql } from "gql.tada";
-import { Alert, AlertIcon, Box, Center } from "@chakra-ui/react";
+import { Alert, Box, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -206,10 +206,10 @@ function CreateTransferAgreementView() {
 
   if (allOrgsAndTheirBases === undefined) {
     return (
-      <Alert status="error">
-        <AlertIcon />
+      <Alert.Root status="error">
+        <Alert.Indicator />
         Could not fetch Organisation and Base data! Please try reloading the page.
-      </Alert>
+      </Alert.Root>
     );
   }
 
@@ -224,10 +224,10 @@ function CreateTransferAgreementView() {
         ) && (
           <Box mx={1} my={1}>
             {" "}
-            <Alert status="error">
-              <AlertIcon />
+            <Alert.Root status="error">
+              <Alert.Indicator />
               Can&rsquo;t link new partner, an active identical agreement exists.
-            </Alert>
+            </Alert.Root>
           </Box>
         )}
       <Center>

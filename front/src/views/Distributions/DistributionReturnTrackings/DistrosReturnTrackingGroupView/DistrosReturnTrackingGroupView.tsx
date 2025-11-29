@@ -10,12 +10,9 @@ import {
   DialogHeader,
   DialogRoot,
   Editable,
-  EditableInput,
-  EditablePreview,
   Heading,
   HStack,
   List,
-  ListItem,
   Text,
   useDisclosure,
   VStack,
@@ -126,11 +123,13 @@ const DistributionEventList = ({
       {distributionEvents.map((distroEvent) => (
         <Box key={distroEvent.id} maxW="sm" p="5" borderWidth="1px" rounded="md">
           {/* <Box>Id: {distroEvent.id}</Box> */}
-          <Box as="time" dateTime={distroEvent.plannedStartDateTime.toUTCString()}>
-            <DistributionEventTimeRangeDisplay
-              plannedStartDateTime={distroEvent.plannedStartDateTime}
-              plannedEndDateTime={distroEvent.plannedEndDateTime}
-            />
+          <Box>
+            <time dateTime={distroEvent.plannedStartDateTime.toUTCString()}>
+              <DistributionEventTimeRangeDisplay
+                plannedStartDateTime={distroEvent.plannedStartDateTime}
+                plannedEndDateTime={distroEvent.plannedEndDateTime}
+              />
+            </time>
           </Box>
           <Box>
             {distroEvent.distributionSpot.name}
@@ -160,7 +159,7 @@ const TrackingEntry = ({
   );
 
   return (
-    <ListItem mb={3} backgroundColor="gray.50" p={3} key={trackingEntryForSize.sizeId}>
+    <List.Item mb={3} backgroundColor="gray.50" p={3} key={trackingEntryForSize.sizeId}>
       <Box>
         <b>Size:</b> {trackingEntryForSize.sizeLabel}
       </Box>
@@ -170,21 +169,16 @@ const TrackingEntry = ({
       </HStack>
       <HStack>
         <b>Number of items returned: </b>
-        <Editable
-          // backgroundColor={
-          //   entry.numberOfItems > 0
-          //     ? "organe.100"
-          //     : "transparent"
-          // }
+        <Editable.Root
           value={numberOfItemsFormValue.toString()}
-          onChange={(newVal) => {
-            const newValAsNumber = parseInt(newVal);
+          onValueChange={(e) => {
+            const newValAsNumber = parseInt(e.value);
             if (newValAsNumber < 0 || newValAsNumber > trackingEntryForSize.numberOfItemsWentOut) {
               return;
             }
             setNumberOfItemsFormValue(newValAsNumber);
           }}
-          onSubmit={() => {
+          onValueCommit={() => {
             if (trackingEntryForSize.numberOfItemsReturned === numberOfItemsFormValue) {
               return;
             } else {
@@ -196,11 +190,11 @@ const TrackingEntry = ({
             }
           }}
         >
-          <EditablePreview width={20} />
-          <EditableInput width={20} type="number" />
-        </Editable>
+          <Editable.Preview width={20} />
+          <Editable.Input width={20} type="number" />
+        </Editable.Root>
       </HStack>
-    </ListItem>
+    </List.Item>
   );
 };
 
@@ -264,12 +258,12 @@ const SummaryOfItemsInDistributionEvents = ({
       <Heading size="md" mt={10}>
         Items in these Distribution Events
       </Heading>
-      <List>
+      <List.Root>
         {trackingEntriesByProductAndSizeAndFlowDirection.map(
           (squashedItemsCollectionsGroupForProduct) => {
             const productId = squashedItemsCollectionsGroupForProduct.productId;
             return (
-              <ListItem key={productId} mt={10}>
+              <List.Item key={productId} mt={10}>
                 <Heading
                   as="h3"
                   size="md"
@@ -283,7 +277,7 @@ const SummaryOfItemsInDistributionEvents = ({
                   <b>Product:</b> {squashedItemsCollectionsGroupForProduct.productName} (
                   {squashedItemsCollectionsGroupForProduct.genderName})
                 </Heading>
-                <List>
+                <List.Root>
                   {squashedItemsCollectionsGroupForProduct.trackingEntriesBySize.map(
                     (productSizeWithNumberOfItemsTuple) => {
                       const sizeId = productSizeWithNumberOfItemsTuple.sizeId;
@@ -297,12 +291,12 @@ const SummaryOfItemsInDistributionEvents = ({
                       );
                     },
                   )}
-                </List>
-              </ListItem>
+                </List.Root>
+              </List.Item>
             );
           },
         )}
-      </List>
+      </List.Root>
       <Button my={2} colorPalette="blue" onClick={onDoneWithCountingClick}>
         Done with counting the returned items. *
       </Button>
@@ -371,7 +365,7 @@ const DistrosReturnTrackingGroupView = () => {
         trackingGroupId={trackingGroupId!}
         onDoneWithCountingClick={onDoneWithCountingClick}
       />
-      <Text size="small">
+      <Text textStyle="sm">
         * This will track all left over number of items as &quot;Distributed&quot;.
       </Text>
 

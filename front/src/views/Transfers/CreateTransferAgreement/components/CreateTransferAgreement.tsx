@@ -175,7 +175,7 @@ function CreateTransferAgreement({
         New Transfer Agreement
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <List gap={2}>
+        <List.Root gap={2}>
           <ListItem>
             <SelectField
               fieldId="currentOrganisationSelectedBases"
@@ -239,7 +239,7 @@ function CreateTransferAgreement({
               <Input border="0" borderRadius={0} type="string" {...register("comment")} />
             </Box>
           </ListItem>
-        </List>
+        </List.Root>
 
         <Stack gap={4} mt={8}>
           <Button

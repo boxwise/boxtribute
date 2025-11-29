@@ -8,7 +8,7 @@ import {
   useRowSelect,
   usePagination,
 } from "react-table";
-import { Table, Tr, Tbody, Td, Spacer, Flex, Text, IconButton, HStack } from "@chakra-ui/react";
+import { Table, Spacer, Flex, Text, IconButton, HStack } from "@chakra-ui/react";
 import { IoChevronForward, IoChevronBack } from "react-icons/io5";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
@@ -95,13 +95,13 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-      <Table key="products-table">
+      <Table.Root key="products-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
-        <Tbody>
+        <Table.Body>
           {page.map((row) => {
             prepareRow(row);
             return (
-              <Tr
+              <Table.Row
                 {...row.getRowProps()}
                 key={row.original.id}
                 onClick={() =>
@@ -115,23 +115,20 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
                 cursor="pointer"
               >
                 {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
+                  <Table.Cell {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
                     {cell.render("Cell")}
-                  </Td>
+                  </Table.Cell>
                 ))}
-              </Tr>
+              </Table.Row>
             );
           })}
-        </Tbody>
-      </Table>
+        </Table.Body>
+      </Table.Root>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            disabled={!canPreviousPage}
-            icon={<IoChevronBack size={24} />}
-          />
+          <IconButton aria-label="Previous Page" onClick={previousPage} disabled={!canPreviousPage}>
+            <IoChevronBack size={24} />
+          </IconButton>
         </Flex>
         <Flex justifyContent="center" m={4}>
           <Text>
@@ -146,12 +143,9 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
           </Text>
         </Flex>
         <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            disabled={!canNextPage}
-            icon={<IoChevronForward size={24} />}
-          />
+          <IconButton aria-label="Next Page" onClick={nextPage} disabled={!canNextPage}>
+            <IoChevronForward size={24} />
+          </IconButton>
         </Flex>
       </Flex>
     </Flex>

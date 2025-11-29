@@ -1,14 +1,4 @@
-import {
-  Box,
-  Button,
-  Heading,
-  LinkBox,
-  LinkOverlay,
-  List,
-  ListItem,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Heading, LinkBox, LinkOverlay, List, Text, VStack } from "@chakra-ui/react";
 import { isFuture, isPast, isToday } from "date-fns";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
@@ -24,21 +14,25 @@ const ListOfEvents = ({
   const { getDistroEventDetailUrlById } = useGetUrlForResourceHelpers();
 
   return (
-    <List>
+    <List.Root>
       {distributionEventsListData.map((distributionEventData) => (
-        <ListItem key={distributionEventData.id} my={5}>
+        <List.Item key={distributionEventData.id} my={5}>
           <LinkBox maxW="sm" p="5" borderWidth="1px" rounded="md">
-            <Box as="time" dateTime={distributionEventData.plannedStartDateTime.toUTCString()}>
-              <DistributionEventTimeRangeDisplay
-                plannedStartDateTime={distributionEventData.plannedStartDateTime}
-                plannedEndDateTime={distributionEventData.plannedEndDateTime}
-              />
+            <Box>
+              <time dateTime={distributionEventData.plannedStartDateTime.toUTCString()}>
+                <DistributionEventTimeRangeDisplay
+                  plannedStartDateTime={distributionEventData.plannedStartDateTime}
+                  plannedEndDateTime={distributionEventData.plannedEndDateTime}
+                />
+              </time>
             </Box>
 
             <Heading size="md" my="2">
-              <LinkOverlay to={getDistroEventDetailUrlById(distributionEventData.id)} as={NavLink}>
-                {distributionEventData.distributionSpot.name}{" "}
-                {!!distributionEventData.name && <>({distributionEventData.name})</>}
+              <LinkOverlay asChild>
+                <NavLink to={getDistroEventDetailUrlById(distributionEventData.id)}>
+                  {distributionEventData.distributionSpot.name}{" "}
+                  {!!distributionEventData.name && <>({distributionEventData.name})</>}
+                </NavLink>
               </LinkOverlay>
             </Heading>
 
@@ -47,9 +41,9 @@ const ListOfEvents = ({
               {distributionEventData.state}
             </Text>
           </LinkBox>
-        </ListItem>
+        </List.Item>
       ))}
-    </List>
+    </List.Root>
   );
 };
 

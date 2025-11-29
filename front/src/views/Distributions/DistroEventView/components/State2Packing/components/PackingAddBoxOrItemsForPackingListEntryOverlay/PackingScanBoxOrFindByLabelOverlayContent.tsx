@@ -9,8 +9,8 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  useToast,
 } from "@chakra-ui/react";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 
 import { useCallback, useState } from "react";
@@ -98,8 +98,6 @@ const PackingScanBoxOrFindByLabelOverlay = ({
   const [showFindBoxByLabelForm, setShowFindBoxByLabelForm] = useState(false);
   const [manualBoxLabelValue, setManualBoxLabelValue] = useState(0);
 
-  const toast = useToast();
-
   const validateBoxByLabelMatchingPackingListEntry =
     useValidateBoxByLabelMatchingPackingListEntry(packingListEntry);
 
@@ -111,18 +109,16 @@ const PackingScanBoxOrFindByLabelOverlay = ({
             setShowFindBoxByLabelForm(false);
             onFoundMatchingBox(boxData);
           } else {
-            toast({
+            toaster.create({
               title: "Box not found or doesn't match the needed product and size",
-              status: "error",
-              isClosable: true,
+              type: "error",
               duration: 2000,
-              position: "top-right",
             });
           }
         },
       );
     },
-    [onFoundMatchingBox, toast, validateBoxByLabelMatchingPackingListEntry],
+    [onFoundMatchingBox, validateBoxByLabelMatchingPackingListEntry],
   );
 
   // TODO: extract duplicated code from here and QrReaderOverlayContainer into a common component/custom hook

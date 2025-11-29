@@ -35,14 +35,14 @@ const DistroEventDetailsForReturnTrackingInProgressStateContainer = ({
           Return Tracking In Progress
         </Heading>
         Go to the{" "}
-        <Link
-          variant={"inline-link"}
-          as={RouterLink}
-          to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings/${
-            data?.distributionEvent?.distributionEventsTrackingGroup?.id
-          }`}
-        >
-          Return Tracking
+        <Link asChild>
+          <RouterLink
+            to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings/${
+              data?.distributionEvent?.distributionEventsTrackingGroup?.id
+            }`}
+          >
+            Return Tracking
+          </RouterLink>
         </Link>{" "}
         in which this Distro Event is part of.
       </Text>

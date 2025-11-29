@@ -1,32 +1,27 @@
-import { ToastPosition, useToast, UseToastOptions } from "@chakra-ui/react";
 import { ReactNode, useCallback } from "react";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 
-interface INotificationProps extends UseToastOptions {
+interface INotificationProps {
   title?: string;
   message?: string | ReactNode;
   type?: "info" | "warning" | "success" | "error" | undefined;
-  position?: ToastPosition;
+  duration?: number;
 }
 
 export const useNotification = (toastName?: string) => {
-  const toast = useToast();
-
   const createToast = useCallback(
-    ({ message, type, ...props }: INotificationProps) =>
-      toast({
+    ({ message, type, title, duration = 5000 }: INotificationProps) =>
+      toaster.create({
         id: toastName,
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-        variant: "subtle",
-        status: type,
+        title,
         description: message,
-        ...props,
+        type,
+        duration,
       }),
-    [toast, toastName],
+    [toastName],
   );
 
   return !toastName
     ? { createToast }
-    : { createToast, toastIsActive: () => toast.isActive(toastName) };
+    : { createToast, toastIsActive: () => toaster.isVisible(toastName) };
 };

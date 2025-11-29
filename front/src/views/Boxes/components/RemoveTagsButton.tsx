@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Row } from "react-table";
 
 import { BoxRow } from "./types";
-import { useNotification } from "hooks/useNotification";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import { BiSolidTagX } from "react-icons/bi";
 import { Box, Button, VStack } from "@chakra-ui/react";
 
@@ -22,8 +22,6 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
   allTagOptions,
   currentTagOptions,
 }) => {
-  const { createToast } = useNotification();
-
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
 
@@ -37,9 +35,9 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
 
   const handleOpenInput = () => {
     if (selectedBoxes.length === 0) {
-      createToast({
+      toaster.create({
         type: "warning",
-        message: `Please select a box to remove tags`,
+        description: `Please select a box to remove tags`,
       });
     }
     if (selectedBoxes.length !== 0) {
@@ -61,15 +59,14 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
           w="full"
           justifyContent="flex-start"
           padding={4}
-          iconSpacing={2}
           onClick={(e) => {
             e.stopPropagation();
             handleOpenInput();
           }}
-          leftIcon={<BiSolidTagX />}
           variant="ghost"
           data-testid="remove-tags-button"
         >
+          <BiSolidTagX />
           Remove Tags
         </Button>
       </Box>

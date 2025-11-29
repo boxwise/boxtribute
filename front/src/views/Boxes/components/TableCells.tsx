@@ -1,5 +1,5 @@
 import { CellProps } from "react-table";
-import { VStack, Tag, TagLabel, Wrap, WrapItem, chakra } from "@chakra-ui/react";
+import { VStack, Tag, Wrap, WrapItem, chakra } from "@chakra-ui/react";
 import { Style } from "victory";
 import { RiQrCodeLine } from "react-icons/ri";
 
@@ -34,12 +34,12 @@ export function TagsCell({ value }: CellProps<any>) {
     <Wrap gap={1}>
       {value.map((tag) => (
         <WrapItem key={tag.id}>
-          <Tag
+          <Tag.Root
             bg={Style.toTransformString(tag.color)}
             color={colorIsBright(tag.color) ? "black" : "white"}
           >
-            <TagLabel>{tag.name}</TagLabel>
-          </Tag>
+            <Tag.Label>{tag.name}</Tag.Label>
+          </Tag.Root>
         </WrapItem>
       ))}
     </Wrap>

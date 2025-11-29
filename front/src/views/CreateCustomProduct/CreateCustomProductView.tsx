@@ -169,7 +169,7 @@ function CreateCustomProductFormContainer() {
       sizeRangeOptions={sizeRangeOptions}
       genderOptions={genderOptions}
       onSubmit={onSubmit}
-      loading={isCreateCustomProductLoading}
+      isLoading={isCreateCustomProductLoading}
     />
   );
 }

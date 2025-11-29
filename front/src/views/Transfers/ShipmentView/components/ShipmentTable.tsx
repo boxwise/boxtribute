@@ -1,14 +1,4 @@
-import {
-  Box as BoxWrapper,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Box as BoxWrapper, Table, useBreakpointValue } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { Column, useTable } from "react-table";
 
@@ -35,40 +25,40 @@ function ShipmentTable({ columns, data }: IShipmentTablePros) {
 
   return (
     <BoxWrapper overflowX="hidden" overflowY="hidden">
-      <TableContainer maxW={maxTableWidth}>
-        <Table {...getTableProps()} variant="simple" size="sm">
-          <Thead>
+      <Table.ScrollArea maxW={maxTableWidth}>
+        <Table.Root {...getTableProps()} size="sm">
+          <Table.Header>
             {headerGroups.map((headerGroup, idx) => (
-              <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
+              <Table.Row {...headerGroup.getHeaderGroupProps()} key={idx}>
                 {headerGroup.headers.map((column, idx) => (
-                  <Th {...column.getHeaderProps()} key={idx}>
+                  <Table.ColumnHeader {...column.getHeaderProps()} key={idx}>
                     {column.render("Header")}
-                  </Th>
+                  </Table.ColumnHeader>
                 ))}
-              </Tr>
+              </Table.Row>
             ))}
-          </Thead>
-          <Tbody {...getTableBodyProps()}>
+          </Table.Header>
+          <Table.Body {...getTableBodyProps()}>
             {rows.map((row, idx) => {
               prepareRow(row);
               return (
-                <Tr {...row.getRowProps()} key={idx}>
+                <Table.Row {...row.getRowProps()} key={idx}>
                   {row.cells.map((cell, idx) => (
-                    <Td
+                    <Table.Cell
                       data-testid={cell.column.id}
                       {...cell.getCellProps()}
                       key={idx}
                       style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "xs" }}
                     >
                       {cell.render("Cell")}
-                    </Td>
+                    </Table.Cell>
                   ))}
-                </Tr>
+                </Table.Row>
               );
             })}
-          </Tbody>
-        </Table>
-      </TableContainer>
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
     </BoxWrapper>
   );
 }

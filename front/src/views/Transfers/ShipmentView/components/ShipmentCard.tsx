@@ -73,17 +73,17 @@ function ShipmentCard({
           {canCancelShipment && (
             <IconButton
               rounded="full"
-              icon={<BiTrash size={30} />}
               loading={isLoadingMutation}
               onClick={onCancel}
               style={{ background: "white" }}
               aria-label="cancel shipment"
-            />
+            >
+              <BiTrash size={30} />
+            </IconButton>
           )}
           {canLooseShipment && (
             <IconButton
-              isRound
-              icon={<TbMapOff size={30} />}
+              rounded="full"
               variant="outline"
               loading={isLoadingMutation}
               onClick={onLost}
@@ -92,7 +92,9 @@ function ShipmentCard({
                 color: shipment.state === "Lost" ? "red" : "black",
               }}
               aria-label="cannot locate shipment"
-            />
+            >
+              <TbMapOff size={30} />
+            </IconButton>
           )}
         </Flex>
         <Separator borderColor="blackAlpha.800" />
@@ -105,7 +107,7 @@ function ShipmentCard({
             alignContent="space-between"
           >
             <Box>
-              <List gap={2}>
+              <List.Root gap={2}>
                 <ListItem>
                   <Flex justifyContent="flex-end">
                     <Text fontSize="md" fontWeight="semibold" alignContent="right">
@@ -120,7 +122,7 @@ function ShipmentCard({
                     </Text>
                   </Flex>
                 </ListItem>
-              </List>
+              </List.Root>
             </Box>
 
             <Box>
@@ -130,7 +132,7 @@ function ShipmentCard({
             </Box>
 
             <Box>
-              <List gap={2}>
+              <List.Root gap={2}>
                 <ListItem>
                   <Flex justifyContent="flex-start">
                     <Text fontSize="md" fontWeight="semibold">
@@ -143,7 +145,7 @@ function ShipmentCard({
                     <Text fontSize="md">{shipment?.targetBase?.organisation.name}</Text>
                   </Flex>
                 </ListItem>
-              </List>
+              </List.Root>
             </Box>
           </Flex>
           {shipment.transferAgreement?.comment && (
@@ -191,9 +193,8 @@ function ShipmentCard({
               {canUpdateShipment && (
                 <VStack gap={0} align="stretch">
                   <IconButton
-                    isRound
+                    rounded="full"
                     height={8}
-                    icon={<BiPlusCircle size={30} />}
                     loading={isLoadingMutation}
                     onClick={() =>
                       qrReaderOverlayVar({
@@ -204,55 +205,63 @@ function ShipmentCard({
                     }
                     aria-label="add box"
                     style={{ background: "white" }}
-                  />
+                  >
+                    <BiPlusCircle size={30} />
+                  </IconButton>
 
                   <IconButton
-                    isRound
+                    rounded="full"
                     height={8}
-                    icon={<BiMinusCircle size={30} />}
                     disabled={shipment.details?.length === 0}
                     onClick={onRemove}
                     loading={isLoadingMutation}
                     aria-label="remove box"
                     style={{ background: "white" }}
-                  />
+                  >
+                    <BiMinusCircle size={30} />
+                  </IconButton>
                 </VStack>
               )}
               {shipment.state === "Completed" && totalLostBoxes > 0 && (
                 <VStack align="stretch" mr={1}>
-                  <Tooltip label="the number of boxes that didn't arrive">
-                    <Wrap gap={0} align="center" style={{ color: "#909090" }}>
-                      <WrapItem>
-                        <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                          (
-                        </Text>
-                      </WrapItem>
-                      <WrapItem>
-                        <Center>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <Wrap gap={0} align="center" style={{ color: "#909090" }}>
+                        <WrapItem>
                           <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                            -
-                            {
-                              (
-                                shipment.details?.filter(
-                                  (item) => item.lostOn !== null && item.removedOn === null,
-                                ) ?? []
-                              ).length
-                            }
+                            (
                           </Text>
-                        </Center>
-                      </WrapItem>
-                      <WrapItem>
-                        <Center>
-                          <BoxIcon boxSize={6} style={{ color: "red" }} />
-                        </Center>
-                      </WrapItem>
-                      <WrapItem>
-                        <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
-                          )
-                        </Text>
-                      </WrapItem>
-                    </Wrap>
-                  </Tooltip>
+                        </WrapItem>
+                        <WrapItem>
+                          <Center>
+                            <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                              -
+                              {
+                                (
+                                  shipment.details?.filter(
+                                    (item) => item.lostOn !== null && item.removedOn === null,
+                                  ) ?? []
+                                ).length
+                              }
+                            </Text>
+                          </Center>
+                        </WrapItem>
+                        <WrapItem>
+                          <Center>
+                            <BoxIcon boxSize={6} style={{ color: "red" }} />
+                          </Center>
+                        </WrapItem>
+                        <WrapItem>
+                          <Text as="p" fontSize={16} fontWeight="extrabold" color="red">
+                            )
+                          </Text>
+                        </WrapItem>
+                      </Wrap>
+                    </Tooltip.Trigger>
+                    <Tooltip.Positioner>
+                      <Tooltip.Content>the number of boxes that didn&apos;t arrive</Tooltip.Content>
+                    </Tooltip.Positioner>
+                  </Tooltip.Root>
                 </VStack>
               )}
             </Box>

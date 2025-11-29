@@ -6,8 +6,7 @@
 
 - @apollo/client: graphQL
 - @chakra-ui/react: chakra UI
-- react-icons: chakra UI
-- next-themes: ckakra UI
+- @emotion/react: ckakra UI
 - @hookform/resolvers": react-hook-form
 - date-fns: utility functions around dates
 - graphQL
@@ -16,7 +15,7 @@
 - react-dom: react,
 - react-hook-form: handling different states in forms (usually only used in forms with more than one or two fields)
 - react-router-dom: routing,
-- zod": validationn of user input, often used with react-hook-from
+- zod: validationn of user input, often used with react-hook-from
 
 ### devDependencies
 
@@ -64,6 +63,7 @@ tsc-files (only needed for pre-commit), typescript,
 ## Chakra UI
 
 - "@chakra-ui/react"
+- "@emotion/react"
 
 ## React-Router
 

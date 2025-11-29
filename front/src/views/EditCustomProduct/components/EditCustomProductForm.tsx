@@ -141,7 +141,7 @@ function EditCustomProductForm({
         />
       </Box>
       <Stack gap={2} my={4}>
-        <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
+        <Button loading={isLoading} disabled={isLoading} type="submit" w="full" variant="solid">
           Edit Product
         </Button>
         <Button

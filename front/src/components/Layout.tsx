@@ -13,7 +13,7 @@ import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "./HeaderMenu/consts";
  * @returns The rendered layout component.
  */
 function Layout() {
-  const [isLargeScreen] = useMediaQuery(DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY);
+  const [isLargeScreen] = useMediaQuery([DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY]);
 
   if (isLargeScreen)
     return (

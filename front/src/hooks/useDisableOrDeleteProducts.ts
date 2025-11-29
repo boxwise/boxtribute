@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useMutation } from "@apollo/client";
 
 import { graphql } from "../../../graphql/graphql";
-import { useNotification } from "./useNotification";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import { useErrorHandling } from "./useErrorHandling";
 
 export const DISABLE_STANDARD_PRODUCT_MUTATION = graphql(
@@ -58,7 +58,6 @@ export const DELETE_PRODUCT_MUTATION = graphql(
 );
 
 export const useDisableOrDeleteProducts = () => {
-  const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
 
   const [disableStandardProductMutation, { loading: disableStandardProductMutationLoading }] =
@@ -81,11 +80,12 @@ export const useDisableOrDeleteProducts = () => {
       ) => {
         switch (typename) {
           case "Product":
-            createToast({
-              message:
+            toaster.create({
+              description:
                 disableOrDelete === "disable"
                   ? "The ASSORT standard product was successfully disabled."
                   : "The product was successfully deleted.",
+              type: "success",
             });
             break;
           case "InsufficientPermissionError":
@@ -121,9 +121,9 @@ export const useDisableOrDeleteProducts = () => {
         (instockItemsCount !== undefined && instockItemsCount > 0) ||
         (transferItemsCount !== undefined && transferItemsCount > 0)
       ) {
-        createToast({
+        toaster.create({
           title: `${disableOrDelete === "disable" ? "Disabling" : "Deleting"} Product with Active Stock`,
-          message,
+          description: message,
           type: "error",
           duration: 10000,
         });
@@ -183,7 +183,7 @@ export const useDisableOrDeleteProducts = () => {
         });
       }
     },
-    [createToast, deleteProductMutation, disableStandardProductMutation, triggerError],
+    [deleteProductMutation, disableStandardProductMutation, triggerError],
   );
 
   return {

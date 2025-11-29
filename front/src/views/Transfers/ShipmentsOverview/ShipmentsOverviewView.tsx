@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading, Stack, Tab, TabList, Tabs } from "@chakra-ui/react";
+import { Alert, Button, Heading, Stack, Tabs } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
@@ -194,10 +194,10 @@ function ShipmentsOverviewView() {
   let shipmentsTable: JSX.Element;
   if (error) {
     shipmentsTable = (
-      <Alert status="error" data-testid="ErrorAlert">
-        <AlertIcon />
-        Could not fetch shipment data! Please try reloading the page.
-      </Alert>
+      <Alert.Root status="error" data-testid="ErrorAlert">
+        <Alert.Indicator />
+        <Alert.Title>Could not fetch shipment data! Please try reloading the page.</Alert.Title>
+      </Alert.Root>
     );
   } else if (loading || isGlobalStateLoading) {
     shipmentsTable = <TableSkeleton />;
@@ -224,34 +224,38 @@ function ShipmentsOverviewView() {
       </Heading>
       <Stack direction="row" my={4} gap={4}>
         <Link to="create">
-          <Button leftIcon={<IoAdd />} borderRadius="0">
+          <Button borderRadius="0">
+            <IoAdd />
             Create Shipment
           </Button>
         </Link>
       </Stack>
-      <Tabs
-        variant="enclosed-colored"
-        onChange={() => setDirection((prev) => (prev === "Sending" ? "Receiving" : "Sending"))}
+      <Tabs.Root
+        variant="enclosed"
+        value={direction === "Receiving" ? "0" : "1"}
+        onValueChange={(e) => setDirection(e.value === "0" ? "Receiving" : "Sending")}
       >
-        <TabList>
-          <Tab
+        <Tabs.List>
+          <Tabs.Trigger
+            value="0"
             flex={1}
             color={direction === "Receiving" ? "blue.500" : "inherit"}
             fontWeight={direction === "Receiving" ? "bold" : "inherit"}
             textTransform="uppercase"
           >
             <ReceivingIcon mr={2} /> {`Receiving (${receivingCount})`}
-          </Tab>
-          <Tab
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            value="1"
             flex={1}
             color={direction === "Sending" ? "blue.500" : "inherit"}
             fontWeight={direction === "Sending" ? "bold" : "inherit"}
             textTransform="uppercase"
           >
             <SendingIcon mr={2} /> {`Sending (${sendingCount})`}
-          </Tab>
-        </TabList>
-      </Tabs>
+          </Tabs.Trigger>
+        </Tabs.List>
+      </Tabs.Root>
       <br />
       {shipmentsTable}
     </>

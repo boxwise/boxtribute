@@ -9,19 +9,11 @@ import {
   DialogHeader,
   DialogRoot,
   Editable,
-  EditableInput,
-  EditablePreview,
   Flex,
   Heading,
   IconButton,
   Table,
-  TableContainer,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
-  Tr,
   useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
@@ -67,20 +59,20 @@ const PackingListEntryTableRow = ({
   const backgroundColor = entry.numberOfItems > 0 ? "blue.50" : "transparent";
 
   return (
-    <Tr key={entry.id} backgroundColor={backgroundColor}>
-      <Td>{entry.size?.label}</Td>
-      <Td>
-        <Editable
+    <Table.Row key={entry.id} backgroundColor={backgroundColor}>
+      <Table.Cell>{entry.size?.label}</Table.Cell>
+      <Table.Cell>
+        <Editable.Root
           backgroundColor={entry.numberOfItems > 0 ? "organe.100" : "transparent"}
           value={numberOfItemsFormValue.toString()}
-          onChange={(newVal) => setNumberOfItemsFormValue(parseInt(newVal))}
-          onSubmit={onChangeHandlerForEntry}
+          onValueChange={(e) => setNumberOfItemsFormValue(parseInt(e.value))}
+          onValueCommit={(e) => onChangeHandlerForEntry(e.value)}
         >
-          <EditablePreview width={20} />
-          <EditableInput width={20} type="number" />
-        </Editable>
-      </Td>
-    </Tr>
+          <Editable.Preview width={20} />
+          <Editable.Input width={20} type="number" />
+        </Editable.Root>
+      </Table.Cell>
+    </Table.Row>
   );
 };
 
@@ -111,31 +103,30 @@ const PackingListEntriesGroupForProduct = ({
           </Heading>
           <IconButton
             backgroundColor="transparent"
-            icon={<IoClose />}
             aria-label="Remove Product from Packing List"
             onClick={() => removeAllEntriesForProductAlertState.onOpen()}
-          />
+          >
+            <IoClose />
+          </IconButton>
         </Flex>
 
-        <TableContainer>
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Size</Th>
-                <Th>No. of items</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {packingListEntries.map((entry) => (
-                <PackingListEntryTableRow
-                  key={entry.id}
-                  entry={entry}
-                  onUpdatePackingListEntry={onUpdatePackingListEntry}
-                />
-              ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
+        <Table.Root>
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Size</Table.ColumnHeader>
+              <Table.ColumnHeader>No. of items</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {packingListEntries.map((entry) => (
+              <PackingListEntryTableRow
+                key={entry.id}
+                entry={entry}
+                onUpdatePackingListEntry={onUpdatePackingListEntry}
+              />
+            ))}
+          </Table.Body>
+        </Table.Root>
       </Box>
 
       <DialogRoot

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { graphql } from "../../../../../../../graphql/graphql";
-import { useToast } from "@chakra-ui/react";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { createContext, useCallback } from "react";
@@ -40,8 +40,6 @@ interface DistroEventDetailsForPackingStateProps {
 const DistroEventDetailsForPackingStateContainer = ({
   distributionEventDetails,
 }: DistroEventDetailsForPackingStateProps) => {
-  const toast = useToast();
-
   const [removeItemsFromUnboxedItemsCollectionMutation] = useMutation(
     REMOVE_ITEMS_FROM_UNBOXED_ITEMS_COLLECTION_MUTATION,
   );
@@ -58,13 +56,11 @@ const DistroEventDetailsForPackingStateContainer = ({
         `Error while trying to remove items (${numberOfItems}) from unboxed items collection (unbox items collection id: ${unboxedItemsCollectionId}) from distribution event ${distributionEventId}`,
         errors,
       );
-      toast({
+      toaster.create({
         title: "Error",
         description: "Couldn't remove items from distribution event. Please try again.",
-        status: "error",
+        type: "error",
         duration: 2000,
-        isClosable: true,
-        position: "top-right",
       });
     };
 
@@ -92,12 +88,10 @@ const DistroEventDetailsForPackingStateContainer = ({
         if (res.errors && res.errors.length !== 0) {
           handleError(res.errors);
         } else {
-          toast({
+          toaster.create({
             title: "Successfully removed items from distribution event. ",
-            status: "success",
-            isClosable: true,
+            type: "success",
             duration: 2000,
-            position: "top-right",
           });
         }
       })
@@ -113,13 +107,11 @@ const DistroEventDetailsForPackingStateContainer = ({
           `Error while trying to unassign box (label identifier: ${boxLabelIdentifier}) from distribution event ${distributionEventId}`,
           errors,
         );
-        toast({
+        toaster.create({
           title: "Error",
           description: "Box couldn't be unassigned from from the distribution event.",
-          status: "error",
+          type: "error",
           duration: 2000,
-          isClosable: true,
-          position: "top-right",
         });
       };
 
@@ -160,12 +152,10 @@ const DistroEventDetailsForPackingStateContainer = ({
           if (res.errors && res.errors.length !== 0) {
             handleError(res.errors);
           } else {
-            toast({
+            toaster.create({
               title: "Successfully unassigned box from distribution event. ",
-              status: "success",
-              isClosable: true,
+              type: "success",
               duration: 2000,
-              position: "top-right",
             });
           }
         })
@@ -173,7 +163,7 @@ const DistroEventDetailsForPackingStateContainer = ({
           handleError(error);
         });
     },
-    [distributionEventId, toast, unassignBoxFromDistributionEventMutation],
+    [distributionEventId, unassignBoxFromDistributionEventMutation],
   );
 
   const contextValues: IDistroEventDetailsForPackingStateContext = {

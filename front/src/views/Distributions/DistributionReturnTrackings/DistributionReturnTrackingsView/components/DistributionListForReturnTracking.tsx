@@ -1,17 +1,6 @@
 import { useApolloClient } from "@apollo/client";
-import { IoBell } from "react-icons/io5";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Heading,
-  Link,
-  List,
-  ListItem,
-  Stack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { IoNotifications } from "react-icons/io5";
+import { Box, Button, Checkbox, Heading, Link, List, Stack, Text, VStack } from "@chakra-ui/react";
 import { getDay, parseISO, isPast } from "date-fns";
 import _ from "lodash";
 import { useState } from "react";
@@ -33,27 +22,29 @@ function CheckboxGroup({
   onChange,
 }: CheckboxGroupProps) {
   const allChecked = selectedValues.length === allValuesWithLabels.length;
-  const isIndeterminate = selectedValues.some(Boolean) && !allChecked;
   const allValues = allValuesWithLabels.map((el) => el[0]);
 
   return (
     <>
-      <Checkbox
-        isChecked={allChecked}
-        isIndeterminate={isIndeterminate}
-        onChange={(e) => (e.target.checked ? onChange(allValues, []) : onChange([], allValues))}
+      <Checkbox.Root
+        checked={allChecked}
+        onCheckedChange={(e) => (e.checked ? onChange(allValues, []) : onChange([], allValues))}
       >
-        {groupName}
-      </Checkbox>
+        <Checkbox.HiddenInput />
+        <Checkbox.Control />
+        <Checkbox.Label>{groupName}</Checkbox.Label>
+      </Checkbox.Root>
       <Stack pl={6} mt={1} gap={1}>
         {allValuesWithLabels.map(([value, label]) => (
-          <Checkbox
+          <Checkbox.Root
             key={value}
-            isChecked={selectedValues.some((el) => el === value)}
-            onChange={(e) => (e.target.checked ? onChange([value], []) : onChange([], [value]))}
+            checked={selectedValues.some((el) => el === value)}
+            onCheckedChange={(e) => (e.checked ? onChange([value], []) : onChange([], [value]))}
           >
-            {label}
-          </Checkbox>
+            <Checkbox.HiddenInput />
+            <Checkbox.Control />
+            <Checkbox.Label>{label}</Checkbox.Label>
+          </Checkbox.Root>
         ))}
       </Stack>
     </>
@@ -120,18 +111,16 @@ function DistributionListForReturnTracking({
           Ongoing Return Trackings
         </Heading>
         {returnTrackingGroups.length > 0 && (
-          <List>
+          <List.Root>
             {returnTrackingGroups.map((group) => (
-              <ListItem key={group.id}>
+              <List.Item key={group.id}>
                 <Link href={`/bases/${baseId}/distributions/return-trackings/${group.id}`}>
-                  <>
-                    {group.createdOn.toLocaleDateString()} - {group.createdOn.toLocaleTimeString()}{" "}
-                    ({group.distributionEvents.length} Events)
-                  </>
+                  {group.createdOn.toLocaleDateString()} - {group.createdOn.toLocaleTimeString()} (
+                  {group.distributionEvents.length} Events)
                 </Link>
-              </ListItem>
+              </List.Item>
             ))}
-          </List>
+          </List.Root>
         )}
         {returnTrackingGroups.length === 0 && (
           <Text>There are currently no ongoing Return Trackings.</Text>
@@ -144,8 +133,8 @@ function DistributionListForReturnTracking({
         </Heading>
         {showMessageAboutPastEventsNotYetInReturnState && (
           <Text backgroundColor="orange.100" textAlign="center">
-            <IoBell /> You still have past events which are not yet in the &quot;Returned&quot;
-            state.
+            <IoNotifications /> You still have past events which are not yet in the
+            &quot;Returned&quot; state.
             <br />
             In the &quot;Distributions&quot; Tab, you can change their state. <br />
             Only then they will be listed here.

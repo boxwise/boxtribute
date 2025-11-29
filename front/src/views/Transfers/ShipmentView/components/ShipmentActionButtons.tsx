@@ -1,4 +1,4 @@
-import { Box, Button, VStack } from "@chakra-ui/react";
+import { Box, Button, ButtonProps, VStack } from "@chakra-ui/react";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { BiTrash } from "react-icons/bi";
@@ -27,52 +27,48 @@ function ShipmentActionButtons({
   onReceive,
   openShipmentOverlay,
 }: IShipmentActionButtonsProps) {
-  const sendButtonProps = {
-    leftIcon: <SendingIcon />,
+  const sendButtonProps: ButtonProps = {
     colorPalette: "green",
     disabled: shipmentContents.length === 0,
-    isLoading: isLoadingFromMutation,
+    loading: isLoadingFromMutation,
     variant: "solid",
     onClick: onSend,
     marginTop: 2,
   };
 
-  const cancelButtonProps = {
+  const cancelButtonProps: ButtonProps = {
     colorPalette: "red",
     disabled: shipmentContents.length === 0,
-    isLoading: isLoadingFromMutation,
+    loading: isLoadingFromMutation,
     variant: "solid",
     onClick: onCancel,
     marginTop: 2,
   };
 
-  const receiveButtonProps = {
-    leftIcon: <ReceivingIcon />,
+  const receiveButtonProps: ButtonProps = {
     colorPalette: "green",
     disabled: shipmentContents.length === 0,
-    isLoading: isLoadingFromMutation,
+    loading: isLoadingFromMutation,
     variant: "solid",
     onClick: onReceive,
     size: "md",
     marginTop: 2,
   };
 
-  const lostButtonProps = {
-    leftIcon: <TbMapOff />,
+  const lostButtonProps: ButtonProps = {
     colorPalette: "red",
     disabled: shipmentContents.length === 0,
-    isLoading: isLoadingFromMutation,
+    loading: isLoadingFromMutation,
     variant: "outline",
     onClick: openShipmentOverlay,
     size: "md",
     marginTop: 2,
   };
 
-  const remainingBoxesUndeliveredButtonProps = {
-    leftIcon: <BiTrash />,
+  const remainingBoxesUndeliveredButtonProps: ButtonProps = {
     colorPalette: "red",
     disabled: shipmentContents.length === 0,
-    isLoading: isLoadingFromMutation,
+    loading: isLoadingFromMutation,
     variant: "outline",
     onClick: openShipmentOverlay,
     size: "md",
@@ -80,22 +76,43 @@ function ShipmentActionButtons({
   };
 
   if ("Preparing" === shipmentState && isSender) {
-    return <Button {...sendButtonProps}>Finalize & Send</Button>;
+    return (
+      <Button {...sendButtonProps}>
+        <SendingIcon />
+        Finalize & Send
+      </Button>
+    );
   }
   if ("Sent" === shipmentState && isSender) {
-    return <Button {...lostButtonProps}>Cannot Locate Shipment</Button>;
+    return (
+      <Button {...lostButtonProps}>
+        <TbMapOff />
+        Cannot Locate Shipment
+      </Button>
+    );
   }
   if ("Preparing" === shipmentState && !isSender) {
     return <Button {...cancelButtonProps}>Reject</Button>;
   }
   if ("Receiving" === shipmentState && !isSender) {
-    return <Button {...remainingBoxesUndeliveredButtonProps}>Remaining Boxes Not Delivered</Button>;
+    return (
+      <Button {...remainingBoxesUndeliveredButtonProps}>
+        <BiTrash />
+        Remaining Boxes Not Delivered
+      </Button>
+    );
   }
   if ("Sent" === shipmentState && !isSender) {
     return (
       <VStack align="stretch" gap={1}>
-        <Button {...receiveButtonProps}>Receive Shipment</Button>
-        <Button {...lostButtonProps}>Cannot Locate Shipment</Button>
+        <Button {...receiveButtonProps}>
+          <ReceivingIcon />
+          Receive Shipment
+        </Button>
+        <Button {...lostButtonProps}>
+          <TbMapOff />
+          Cannot Locate Shipment
+        </Button>
       </VStack>
     );
   }

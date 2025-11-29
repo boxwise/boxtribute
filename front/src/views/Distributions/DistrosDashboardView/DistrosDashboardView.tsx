@@ -9,10 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogBackdrop,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
   Tabs,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -81,71 +77,67 @@ const DistrosDashboardView = () => {
 
   return (
     <Box>
-      <Tabs
-        index={currentTabIndex}
-        onChange={(param) => setSearchParams({ tab: param.toString() })}
+      <Tabs.Root
+        value={currentTabIndex.toString()}
+        onValueChange={(details) => setSearchParams({ tab: details.value })}
       >
-        <TabList>
-          <Tab>Distributions</Tab>
-          <Tab>Calendar View</Tab>
-          <Tab>Statistics</Tab>
-        </TabList>
+        <Tabs.List>
+          <Tabs.Trigger value="0">Distributions</Tabs.Trigger>
+          <Tabs.Trigger value="1">Calendar View</Tabs.Trigger>
+          <Tabs.Trigger value="2">Statistics</Tabs.Trigger>
+        </Tabs.List>
 
-        <TabPanels>
-          <TabPanel>
-            <DistributionList
-              distributionEventsData={parsedDistributionEventsData}
-              onNewDirectDistroEvent={() => onNewDirectDistroEvent(baseId)}
-            />
-          </TabPanel>
-          <TabPanel>
-            {selectedEvent && (
-              <DialogRoot
-                open={calendarEventDetailsModalState.open}
-                onOpenChange={(e) => !e.open && calendarEventDetailsModalState.onClose()}
-              >
-                <DialogBackdrop />
-                <DialogContent>
-                  <DialogHeader>
-                    <>
-                      {selectedEvent.distributionSpot.name} -{" "}
-                      {new Date(selectedEvent.plannedStartDateTime).toLocaleDateString("en-US")}
-                    </>
-                  </DialogHeader>
-                  <DialogCloseTrigger />
-                  <DialogBody>
-                    <Box>Spot: {selectedEvent.distributionSpot.name}</Box>
-                    <Box>State: {selectedEvent.state}</Box>
-                  </DialogBody>
+        <Tabs.Content value="0">
+          <DistributionList
+            distributionEventsData={parsedDistributionEventsData}
+            onNewDirectDistroEvent={() => onNewDirectDistroEvent(baseId)}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="1">
+          {selectedEvent && (
+            <DialogRoot
+              open={calendarEventDetailsModalState.open}
+              onOpenChange={(e) => !e.open && calendarEventDetailsModalState.onClose()}
+            >
+              <DialogBackdrop />
+              <DialogContent>
+                <DialogHeader>
+                  {selectedEvent.distributionSpot.name} -{" "}
+                  {new Date(selectedEvent.plannedStartDateTime).toLocaleDateString("en-US")}
+                </DialogHeader>
+                <DialogCloseTrigger />
+                <DialogBody>
+                  <Box>Spot: {selectedEvent.distributionSpot.name}</Box>
+                  <Box>State: {selectedEvent.state}</Box>
+                </DialogBody>
 
-                  <DialogFooter>
-                    <Button
-                      variant="ghost"
-                      onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}
-                    >
-                      Go to Event Details
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </DialogRoot>
-            )}
-            <DistroEventsCalendarContainer
-              distributionEvents={parsedDistributionEventsData}
-              onClickOnDistroEvent={function (distroEventId: string): void {
-                setSelectedEvent(
-                  parsedDistributionEventsData.find(
-                    (distroEvent) => distroEvent.id === distroEventId,
-                  ),
-                );
-                calendarEventDetailsModalState.onOpen();
-              }}
-            />
-          </TabPanel>
-          <TabPanel>
-            <DistroEventsStatistics />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+                <DialogFooter>
+                  <Button
+                    variant="ghost"
+                    onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}
+                  >
+                    Go to Event Details
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </DialogRoot>
+          )}
+          <DistroEventsCalendarContainer
+            distributionEvents={parsedDistributionEventsData}
+            onClickOnDistroEvent={function (distroEventId: string): void {
+              setSelectedEvent(
+                parsedDistributionEventsData.find(
+                  (distroEvent) => distroEvent.id === distroEventId,
+                ),
+              );
+              calendarEventDetailsModalState.onOpen();
+            }}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="2">
+          <DistroEventsStatistics />
+        </Tabs.Content>
+      </Tabs.Root>
     </Box>
   );
 };

@@ -8,8 +8,8 @@ import {
   DialogHeader,
   DialogBackdrop,
   useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
+import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { createContext, useCallback } from "react";
 import AddItemsToPackingListContainer from "views/Distributions/components/AddItemsToPackingList/AddItemsToPackingListContainer";
@@ -124,8 +124,6 @@ const DistroEventDetailsForPlanningStateContainer = ({
     variables: { distributionEventId: distributionEventDetails.id },
   });
 
-  const toast = useToast();
-
   const [updatePackingListEntryMutation] = useMutation(UPDATE_PACKING_LIST_ENTRY_MUTATION, {
     refetchQueries: [
       {
@@ -174,21 +172,17 @@ const DistroEventDetailsForPlanningStateContainer = ({
           `GraphQL error while trying to update Packing List Entry (id: ${packingListEntryId})`,
           // TODO: consider to track the respective error details
         );
-        toast({
+        toaster.create({
           title: "Error",
           description: "Some of the packing list entries couldn't be updated.",
-          status: "error",
+          type: "error",
           duration: 2000,
-          isClosable: true,
-          position: "top-right",
         });
       } else {
-        toast({
+        toaster.create({
           title: `Successfully updated packing list entry`,
-          status: "success",
-          isClosable: true,
+          type: "success",
           duration: 2000,
-          position: "top-right",
         });
       }
     });
@@ -207,21 +201,17 @@ const DistroEventDetailsForPlanningStateContainer = ({
               `GraphQL error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
               res.errors,
             );
-            toast({
+            toaster.create({
               title: "Error",
               description: "Packing list entry couldn't be removed from the distribution event.",
-              status: "error",
+              type: "error",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           } else {
-            toast({
+            toaster.create({
               title: "Successfully removed entry",
-              status: "success",
-              isClosable: true,
+              type: "success",
               duration: 2000,
-              position: "top-right",
             });
           }
         })
@@ -230,17 +220,15 @@ const DistroEventDetailsForPlanningStateContainer = ({
             `Error while trying to remove packing list entry from Distribution Event (id: ${distributionEventDetails.id})`,
             error,
           );
-          toast({
+          toaster.create({
             title: "Error",
             description: "Packing list entry couldn't be removed from the distribution event.",
-            status: "error",
+            type: "error",
             duration: 2000,
-            isClosable: true,
-            position: "top-right",
           });
         });
     },
-    [distributionEventDetails.id, removeEntryFromPackingListMutation, toast],
+    [distributionEventDetails.id, removeEntryFromPackingListMutation],
   );
 
   const distributionEventId = distributionEventDetails.id;
@@ -259,21 +247,17 @@ const DistroEventDetailsForPlanningStateContainer = ({
               `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
               res.errors,
             );
-            toast({
+            toaster.create({
               title: "Error",
               description: "Packing list entries couldn't be removed from the distribution event.",
-              status: "error",
+              type: "error",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           } else {
-            toast({
+            toaster.create({
               title: "Successfully removed entries. ",
-              status: "success",
-              isClosable: true,
+              type: "success",
               duration: 2000,
-              position: "top-right",
             });
           }
         })
@@ -282,21 +266,15 @@ const DistroEventDetailsForPlanningStateContainer = ({
             `Error while trying to remove all packing list entries from Distribution Event (id: ${distributionEventId}) for product id ${productId}`,
             error,
           );
-          toast({
+          toaster.create({
             title: "Error",
             description: "Packing list entries couldn't be removed from the distribution event.",
-            status: "error",
+            type: "error",
             duration: 2000,
-            isClosable: true,
-            position: "top-right",
           });
         });
     },
-    [
-      distributionEventId,
-      removeAllPackingListEntriesFromDistributionEventForProductMutation,
-      toast,
-    ],
+    [distributionEventId, removeAllPackingListEntriesFromDistributionEventForProductMutation],
   );
 
   const [updateProductsInPackingListMutation] = useMutation(
@@ -330,21 +308,17 @@ const DistroEventDetailsForPlanningStateContainer = ({
               `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
               res.errors,
             );
-            toast({
+            toaster.create({
               title: "Error",
               description: "Packing list entry couldn't be updated.",
-              status: "error",
+              type: "error",
               duration: 2000,
-              isClosable: true,
-              position: "top-right",
             });
           } else {
-            toast({
+            toaster.create({
               title: "Successfully updated the Products for the Packing List.",
-              status: "success",
-              isClosable: true,
+              type: "success",
               duration: 2000,
-              position: "top-right",
             });
           }
         })
@@ -353,17 +327,15 @@ const DistroEventDetailsForPlanningStateContainer = ({
             `GraphQL error while trying to update selected products for packing list of Distribution Event (id: ${distroEventId})`,
             error,
           );
-          toast({
+          toaster.create({
             title: "Error",
             description: "Packing list entry couldn't be updated.",
-            status: "error",
+            type: "error",
             duration: 2000,
-            isClosable: true,
-            position: "top-right",
           });
         });
     },
-    [distroEventId, toast, updateProductsInPackingListMutation],
+    [distroEventId, updateProductsInPackingListMutation],
   );
 
   if (loading) {

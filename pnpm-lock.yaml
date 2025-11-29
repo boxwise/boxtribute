@@ -14,6 +14,9 @@ importers:
       '@chakra-ui/react':
         specifier: 3.30.0
         version: 3.30.0(@emotion/react@11.14.0(@types/react@18.3.14)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@emotion/react':
+        specifier: 11.14.0
+        version: 11.14.0(@types/react@18.3.14)(react@18.3.1)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.62.0(react@18.3.1))

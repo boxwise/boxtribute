@@ -1,18 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import { graphql } from "gql.tada";
-import {
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  StatArrow,
-  Box,
-  Wrap,
-  WrapItem,
-  Heading,
-  Button,
-  VStack,
-} from "@chakra-ui/react";
+import { Stat, Box, Wrap, WrapItem, Heading, Button, VStack } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { ReactNode } from "react";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
@@ -155,15 +143,15 @@ const DistroEventsStatistics = () => {
         </WrapItem>
         <WrapItem>
           <Card>
-            <Stat>
-              <StatLabel>Total distributed items</StatLabel>
-              <StatNumber>2855</StatNumber>
-              <StatHelpText>Feb 12 - Feb 28 2022</StatHelpText>
-              <StatHelpText>
-                <StatArrow type="decrease" />
+            <Stat.Root>
+              <Stat.Label>Total distributed items</Stat.Label>
+              <Stat.ValueText>2855</Stat.ValueText>
+              <Stat.HelpText>Feb 12 - Feb 28 2022</Stat.HelpText>
+              <Stat.HelpText>
+                <Stat.UpIndicator />
                 9.05% (compared to previous date range)
-              </StatHelpText>
-            </Stat>
+              </Stat.HelpText>
+            </Stat.Root>
           </Card>
         </WrapItem>
         <WrapItem>

@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Alert, AlertIcon, Button, Container } from "@chakra-ui/react";
+import { Alert, Button, Container } from "@chakra-ui/react";
 
 interface ErrorViewProps {
   error: string | undefined;
@@ -10,10 +10,10 @@ function ErrorView({ error }: ErrorViewProps) {
   console.error(error);
   return (
     <Container mt={4} maxW="md">
-      <Alert status="error">
-        <AlertIcon />
+      <Alert.Root status="error">
+        <Alert.Indicator />
         {error}
-      </Alert>
+      </Alert.Root>
       <Button mt={4} onClick={() => logout()}>
         Logout
       </Button>

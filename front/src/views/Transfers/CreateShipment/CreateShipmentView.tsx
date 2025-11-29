@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { graphql } from "gql.tada";
-import { Alert, AlertIcon, Center } from "@chakra-ui/react";
+import { Alert, Center } from "@chakra-ui/react";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import APILoadingIndicator from "components/APILoadingIndicator";
@@ -265,10 +265,10 @@ function CreateShipmentView() {
 
   if (allBasesOfCurrentOrgError || allAcceptedTransferAgreements.error)
     return (
-      <Alert status="error">
-        <AlertIcon />
+      <Alert.Root status="error">
+        <Alert.Indicator />
         Could not fetch Organisation and Base data! Please try reloading the page.
-      </Alert>
+      </Alert.Root>
     );
 
   return (

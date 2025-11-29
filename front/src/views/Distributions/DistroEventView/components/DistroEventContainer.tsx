@@ -107,12 +107,10 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
           </Heading>
           You didn&apos;t start any Return Tracking for this Event yet. <br /> To do so, please go
           to the{" "}
-          <Link
-            variant={"inline-link"}
-            as={RouterLink}
-            to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings`}
-          >
-            Return Tracking page
+          <Link asChild>
+            <RouterLink to={`${getBaseRootUrlForCurrentBase()}/distributions/return-trackings`}>
+              Return Tracking page
+            </RouterLink>
           </Link>{" "}
           and start a Return Tracking which includes this Distribution Event.
         </Text>
@@ -134,24 +132,20 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
           items={[{ label: 'Base "Subotica"', linkPath: "X" }]}
         /> */}
         <Box>
-          <Link
-            as={RouterLink}
-            to={getDistroSpotDetailUrlById(distributionEventDetails.distributionSpot.id)}
-          >
-            <Text fontSize="xl">{distributionEventDetails.distributionSpot.name}</Text>
+          <Link asChild>
+            <RouterLink
+              to={getDistroSpotDetailUrlById(distributionEventDetails.distributionSpot.id)}
+            >
+              <Text fontSize="xl">{distributionEventDetails.distributionSpot.name}</Text>
+            </RouterLink>
           </Link>
-          <Text
-            fontSize="xl"
-            mb={2}
-            borderBottom="1px"
-            borderColor="gray.300"
-            as="time"
-            dateTime={distributionEventDetails.plannedStartDateTime.toUTCString()}
-          >
-            <DistributionEventTimeRangeDisplay
-              plannedStartDateTime={distributionEventDetails.plannedStartDateTime}
-              plannedEndDateTime={distributionEventDetails.plannedEndDateTime}
-            />
+          <Text fontSize="xl" mb={2} borderBottom="1px" borderColor="gray.300">
+            <time dateTime={distributionEventDetails.plannedStartDateTime.toUTCString()}>
+              <DistributionEventTimeRangeDisplay
+                plannedStartDateTime={distributionEventDetails.plannedStartDateTime}
+                plannedEndDateTime={distributionEventDetails.plannedEndDateTime}
+              />
+            </time>
           </Text>
           <DistributionStateProgressBar
             activeState={distributionEventDetails.state as DistributionEventState}

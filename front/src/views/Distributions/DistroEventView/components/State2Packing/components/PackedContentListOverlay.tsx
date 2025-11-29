@@ -18,15 +18,8 @@ import {
   Stat,
   StatGroup,
   StatLabel,
-  StatNumber,
   Table,
-  TableContainer,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
-  Tr,
   useDisclosure,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
@@ -146,37 +139,36 @@ function BoxesList({ boxesData }: { boxesData: BoxData[] }) {
       <Heading as="h3" size="md">
         Boxes
       </Heading>
-      <TableContainer mt={3}>
-        <Table size="sm">
-          <Thead>
-            <Tr>
-              <Th>Box Label</Th>
-              <Th isNumeric># of items</Th>
-              <Th />
-            </Tr>
-          </Thead>
-          <Tbody>
-            {boxesData.map((box) => (
-              <Tr key={box.labelIdentifier}>
-                <Td>
-                  <RouterLink to={getBoxDetailViewUrlByLabelIdentifier(box.labelIdentifier)}>
-                    {box.labelIdentifier}
-                  </RouterLink>
-                </Td>
-                <Td isNumeric>{box.numberOfItems}</Td>
-                <Td>
-                  <IconButton
-                    onClick={() => ctx?.onUnassignBoxFromDistributionEvent(box.labelIdentifier)}
-                    size="sm"
-                    aria-label="Unassign Box from Distribution Event"
-                    icon={<IoClose />}
-                  />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+      <Table.Root size="sm" mt={3}>
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader>Box Label</Table.ColumnHeader>
+            <Table.ColumnHeader textAlign="end"># of items</Table.ColumnHeader>
+            <Table.ColumnHeader />
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {boxesData.map((box) => (
+            <Table.Row key={box.labelIdentifier}>
+              <Table.Cell>
+                <RouterLink to={getBoxDetailViewUrlByLabelIdentifier(box.labelIdentifier)}>
+                  {box.labelIdentifier}
+                </RouterLink>
+              </Table.Cell>
+              <Table.Cell textAlign="end">{box.numberOfItems}</Table.Cell>
+              <Table.Cell>
+                <IconButton
+                  onClick={() => ctx?.onUnassignBoxFromDistributionEvent(box.labelIdentifier)}
+                  size="sm"
+                  aria-label="Unassign Box from Distribution Event"
+                >
+                  <IoClose />
+                </IconButton>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
     </>
   );
 }
@@ -232,14 +224,14 @@ PackedContentListOverlayProps) {
         )}
 
         <StatGroup my={5}>
-          <Stat>
+          <Stat.Root>
             <StatLabel>Packed # of items</StatLabel>
-            <StatNumber>{totalNumberOfPackedItems}</StatNumber>
-          </Stat>
-          <Stat>
+            <Stat.ValueText>{totalNumberOfPackedItems}</Stat.ValueText>
+          </Stat.Root>
+          <Stat.Root>
             <StatLabel>Target # of items</StatLabel>
-            <StatNumber>{packingListEntry.numberOfItems}</StatNumber>
-          </Stat>
+            <Stat.ValueText>{packingListEntry.numberOfItems}</Stat.ValueText>
+          </Stat.Root>
         </StatGroup>
 
         {missingNumberOfItems <= 0 && (

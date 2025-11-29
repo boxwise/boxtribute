@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
+import { Alert, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
 import StockDataFilter from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockDataFilter";
@@ -65,10 +65,10 @@ const RESOLVE_LINK = gql(`
 function ErrorPage({ children }: { children: ReactNode }) {
   return (
     <>
-      <Alert status="error" mb={4}>
-        <AlertIcon />
+      <Alert.Root status="error" mb={4}>
+        <Alert.Indicator />
         {children}
-      </Alert>
+      </Alert.Root>
       <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" ml={4} />
     </>
   );
