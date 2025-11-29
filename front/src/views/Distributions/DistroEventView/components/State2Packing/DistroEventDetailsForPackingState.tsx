@@ -7,8 +7,8 @@ import {
   Flex,
   Heading,
   IconButton,
-  DialogRoot,
-  DialogBackdrop,
+  Dialog,
+  Portal,
   Text,
   useDisclosure,
   VStack,
@@ -203,18 +203,24 @@ const PackingListEntry = ({
         onAddBoxToDistributionEvent={onAddBoxToDistributionEvent}
       />
 
-      <DialogRoot
+      <Dialog.Root
         open={isPackedListOverlayOpen}
         onOpenChange={(e) => !e.open && onPackedListOverlayClose()}
       >
-        <DialogBackdrop />
-        <PackedContentListOverlayContainer
-          packingListEntry={packingListEntry}
-          onDeleteBoxFromDistribution={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-        />
-      </DialogRoot>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <PackedContentListOverlayContainer
+                packingListEntry={packingListEntry}
+                onDeleteBoxFromDistribution={function (): void {
+                  throw new Error("Function not implemented.");
+                }}
+              />
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
       {/* <PackedListOverlay
         modalProps={{ isListOpen, onListClose }}
         boxesData={boxesData}

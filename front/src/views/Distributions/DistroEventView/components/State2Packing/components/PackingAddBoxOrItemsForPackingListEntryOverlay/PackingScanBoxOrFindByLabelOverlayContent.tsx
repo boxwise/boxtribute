@@ -1,15 +1,6 @@
 import { graphql } from "../../../../../../../../../graphql/graphql";
 import { useApolloClient } from "@apollo/client";
-import {
-  Button,
-  Flex,
-  Input,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-} from "@chakra-ui/react";
+import { Button, Flex, Input, Dialog } from "@chakra-ui/react";
 import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import { QrReaderScanner } from "components/QrReader/components/QrReaderScanner";
 
@@ -165,67 +156,69 @@ const PackingScanBoxOrFindByLabelOverlay = ({
   );
 
   return (
-    <DialogContent top="0">
-      <DialogHeader pb={0}>Scan the box</DialogHeader>
-      <DialogCloseTrigger />
-      <DialogBody>
-        <QrReaderScanner
-          multiScan={false}
-          facingMode={"environment"}
-          scanPeriod={1000}
-          onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
-        />
-      </DialogBody>
-      <Button
-        onClick={() => setShowFindBoxByLabelForm(true)}
-        colorPalette="blue"
-        variant="outline"
-        mx={10}
-        mb={4}
-      >
-        Find Box by Label
-      </Button>
-      {showFindBoxByLabelForm ? (
-        <Flex mx={10} justifyContent="space-between">
-          <Input
-            type="number"
-            mr={2}
-            w="50%"
-            placeholder="Box Label"
-            name="inputData"
-            onChange={(e) => {
-              setManualBoxLabelValue(parseInt(e.target.value));
-            }}
+    <Dialog.Positioner>
+      <Dialog.Content top="0">
+        <Dialog.Header pb={0}>Scan the box</Dialog.Header>
+        <Dialog.CloseTrigger />
+        <Dialog.Body>
+          <QrReaderScanner
+            multiScan={false}
+            facingMode={"environment"}
+            scanPeriod={1000}
+            onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
           />
-          <Button
-            onClick={() => {
-              onFindAndValidateBoxLabelIdentifier(manualBoxLabelValue.toString());
-            }}
-            colorPalette="blue"
-          >
-            Search
-          </Button>
-        </Flex>
-      ) : null}
-      <Button
-        colorPalette="blue"
-        variant="outline"
-        my={4}
-        mx={10}
-        onClick={() => alert("Not yet implemented")}
-      >
-        Show fitting boxes
-      </Button>
-      <Button
-        colorPalette="blue"
-        variant="outline"
-        mx={10}
-        onClick={() => alert("Not yet implemented")}
-      >
-        Other source
-      </Button>
-      <DialogFooter />
-    </DialogContent>
+        </Dialog.Body>
+        <Button
+          onClick={() => setShowFindBoxByLabelForm(true)}
+          colorPalette="blue"
+          variant="outline"
+          mx={10}
+          mb={4}
+        >
+          Find Box by Label
+        </Button>
+        {showFindBoxByLabelForm ? (
+          <Flex mx={10} justifyContent="space-between">
+            <Input
+              type="number"
+              mr={2}
+              w="50%"
+              placeholder="Box Label"
+              name="inputData"
+              onChange={(e) => {
+                setManualBoxLabelValue(parseInt(e.target.value));
+              }}
+            />
+            <Button
+              onClick={() => {
+                onFindAndValidateBoxLabelIdentifier(manualBoxLabelValue.toString());
+              }}
+              colorPalette="blue"
+            >
+              Search
+            </Button>
+          </Flex>
+        ) : null}
+        <Button
+          colorPalette="blue"
+          variant="outline"
+          my={4}
+          mx={10}
+          onClick={() => alert("Not yet implemented")}
+        >
+          Show fitting boxes
+        </Button>
+        <Button
+          colorPalette="blue"
+          variant="outline"
+          mx={10}
+          onClick={() => alert("Not yet implemented")}
+        >
+          Other source
+        </Button>
+        <Dialog.Footer />
+      </Dialog.Content>
+    </Dialog.Positioner>
   );
 };
 

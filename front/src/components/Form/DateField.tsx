@@ -37,7 +37,7 @@ function DateField({
         control={control}
         render={({ field }) => (
           <Input
-            border="2px"
+            border="2px solid"
             borderColor="black"
             css={{
               "--focus-color": "blue.400",

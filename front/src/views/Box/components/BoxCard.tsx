@@ -71,7 +71,7 @@ function BoxCard({
   const printLabelUrl = `${import.meta.env.FRONT_OLD_APP_BASE_URL}/pdf/qr.php?label=${boxData?.id}`;
 
   return (
-    <Box border="2px" pb={2} backgroundColor="brandYellow.100" w="100%">
+    <Box border="2px solid" pb={2} backgroundColor="brandYellow.100" w="100%">
       <Wrap pt={2} pb={hasTag ? 2 : 0} px={4} alignItems="center">
         <WrapItem>
           <Heading fontWeight="bold" as="h2" data-testid="box-header">
@@ -85,7 +85,7 @@ function BoxCard({
                 aria-label="Print label"
                 borderRadius="5"
                 size="sm"
-                border="2px"
+                border="2px solid"
                 disabled={isLoading}
               >
                 <RiQrCodeLine size={24} />
@@ -99,7 +99,7 @@ function BoxCard({
             <IconButton
               aria-label="Edit box"
               borderRadius="0"
-              border="2px"
+              border="2px solid"
               disabled={
                 isLoading ||
                 "Lost" === boxData?.state ||
@@ -159,7 +159,7 @@ function BoxCard({
                     !!boxData?.deletedOn
                   }
                   size="sm"
-                  border="2px"
+                  border="2px solid"
                   borderRadius="full"
                   aria-label="Search database"
                   data-testid="increase-items"
@@ -172,7 +172,7 @@ function BoxCard({
               <Tooltip content="remove items" openDelay={300}>
                 <IconButton
                   onClick={onMinusOpen}
-                  border="2px"
+                  border="2px solid"
                   size="sm"
                   disabled={
                     "Lost" === boxData?.state ||
@@ -319,7 +319,7 @@ function BoxCard({
                     <Spacer />
                     <IconButton
                       onClick={onHistoryOpen}
-                      border="2px"
+                      border="2px solid"
                       size="sm"
                       borderRadius="full"
                       aria-label="Show detail history"

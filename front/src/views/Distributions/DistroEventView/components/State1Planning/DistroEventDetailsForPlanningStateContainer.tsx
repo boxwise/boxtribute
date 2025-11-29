@@ -1,14 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { graphql } from "../../../../../../../graphql/graphql";
-import {
-  DialogRoot,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogBackdrop,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Dialog, Portal, useDisclosure } from "@chakra-ui/react";
 import { toaster } from "@boxtribute/shared-components/chakra-v3/Toaster";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { createContext, useCallback } from "react";
@@ -370,22 +362,26 @@ const DistroEventDetailsForPlanningStateContainer = ({
       />
 
       {/* TODO: Consider to extract this into a seperate component */}
-      <DialogRoot
+      <Dialog.Root
         open={addItemsToDistroEventsOverlayState.open}
         onOpenChange={(e) => !e.open && addItemsToDistroEventsOverlayState.onClose()}
       >
-        <DialogBackdrop />
-        <DialogContent>
-          <DialogHeader>{distributionEventDetails.distributionSpot.name}</DialogHeader>
-          <DialogCloseTrigger />
-          <DialogBody>
-            <AddItemsToPackingListContainer
-              onClose={addItemsToDistroEventsOverlayState.onClose}
-              currentPackingListEntries={packingListEntries}
-            />
-          </DialogBody>
-        </DialogContent>
-      </DialogRoot>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <Dialog.Header>{distributionEventDetails.distributionSpot.name}</Dialog.Header>
+              <Dialog.CloseTrigger />
+              <Dialog.Body>
+                <AddItemsToPackingListContainer
+                  onClose={addItemsToDistroEventsOverlayState.onClose}
+                  currentPackingListEntries={packingListEntries}
+                />
+              </Dialog.Body>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </DistroEventDetailsForPlanningStateContext.Provider>
   );
 };

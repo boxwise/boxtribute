@@ -61,7 +61,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
         <Menu.Root lazyMount unmountOnExit closeOnSelect={false}>
-          <Menu.Trigger asChild>
+          <Menu.Trigger asChild color="black">
             <IconButton
               aria-label="Options"
               data-testid="menu-button"
@@ -92,7 +92,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 <Separator />
                 <Accordion.Root defaultValue={expandedMenuIndex()?.map(String)}>
                   {menuItemsGroups.map((menu) => (
-                    <Accordion.Item key={menu.text} border={"none"} value={menu.text}>
+                    <Accordion.Item key={menu.text} border="none" value={menu.text}>
                       <Accordion.ItemTrigger
                         px={2}
                         _hover={{ bg: "transparent" }}

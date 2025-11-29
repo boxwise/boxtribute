@@ -1,17 +1,5 @@
 import { useQuery } from "@apollo/client";
-import {
-  Box,
-  Button,
-  DialogRoot,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogBackdrop,
-  Tabs,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Box, Button, Dialog, Portal, Tabs, useDisclosure } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -80,6 +68,7 @@ const DistrosDashboardView = () => {
       <Tabs.Root
         value={currentTabIndex.toString()}
         onValueChange={(details) => setSearchParams({ tab: details.value })}
+        fitted
       >
         <Tabs.List>
           <Tabs.Trigger value="0">Distributions</Tabs.Trigger>
@@ -95,32 +84,36 @@ const DistrosDashboardView = () => {
         </Tabs.Content>
         <Tabs.Content value="1">
           {selectedEvent && (
-            <DialogRoot
+            <Dialog.Root
               open={calendarEventDetailsModalState.open}
               onOpenChange={(e) => !e.open && calendarEventDetailsModalState.onClose()}
             >
-              <DialogBackdrop />
-              <DialogContent>
-                <DialogHeader>
-                  {selectedEvent.distributionSpot.name} -{" "}
-                  {new Date(selectedEvent.plannedStartDateTime).toLocaleDateString("en-US")}
-                </DialogHeader>
-                <DialogCloseTrigger />
-                <DialogBody>
-                  <Box>Spot: {selectedEvent.distributionSpot.name}</Box>
-                  <Box>State: {selectedEvent.state}</Box>
-                </DialogBody>
+              <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                  <Dialog.Content>
+                    <Dialog.Header>
+                      {selectedEvent.distributionSpot.name} -{" "}
+                      {new Date(selectedEvent.plannedStartDateTime).toLocaleDateString("en-US")}
+                    </Dialog.Header>
+                    <Dialog.CloseTrigger />
+                    <Dialog.Body>
+                      <Box>Spot: {selectedEvent.distributionSpot.name}</Box>
+                      <Box>State: {selectedEvent.state}</Box>
+                    </Dialog.Body>
 
-                <DialogFooter>
-                  <Button
-                    variant="ghost"
-                    onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}
-                  >
-                    Go to Event Details
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </DialogRoot>
+                    <Dialog.Footer>
+                      <Button
+                        variant="ghost"
+                        onClick={() => onGoToDistroEventViewHandler(selectedEvent.id)}
+                      >
+                        Go to Event Details
+                      </Button>
+                    </Dialog.Footer>
+                  </Dialog.Content>
+                </Dialog.Positioner>
+              </Portal>
+            </Dialog.Root>
           )}
           <DistroEventsCalendarContainer
             distributionEvents={parsedDistributionEventsData}

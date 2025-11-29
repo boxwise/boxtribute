@@ -81,7 +81,7 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
               chakraStyles={{
                 control: (provided, state) => ({
                   ...provided,
-                  border: "2px",
+                  border: "2px solid",
                   borderRadius: "0",
                   borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                 }),

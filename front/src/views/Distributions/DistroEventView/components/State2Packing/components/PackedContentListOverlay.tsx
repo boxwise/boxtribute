@@ -8,13 +8,8 @@ import {
   Heading,
   IconButton,
   Input,
-  DialogRoot,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogBackdrop,
+  Dialog,
+  Portal,
   Stat,
   StatGroup,
   StatLabel,
@@ -54,48 +49,50 @@ function UnboxedItemsCollectionListEntry({
 
   return (
     <>
-      <DialogRoot
+      <Dialog.Root
         open={removeUnboxedItemsOverlayState.open}
         onOpenChange={(e) => !e.open && removeUnboxedItemsOverlayState.onClose()}
       >
-        <DialogBackdrop />
-        <DialogContent>
-          <DialogHeader mx={4} pb={0}>
-            <>
-              <Heading as="h3" size="md">
-                Remove items
-              </Heading>
-            </>
-          </DialogHeader>
-          <DialogCloseTrigger />
-          <DialogBody mx={4}>
-            <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
-              <Field.Root display="flex" alignItems="center">
-                <Field.Label fontSize="sm" htmlFor="numberOfItems">
-                  # of items:
-                </Field.Label>
-                <Input
-                  type="number"
-                  width={20}
-                  name="numberOfItems"
-                  onChange={(ev) => setNumberOfItemsToRemove(parseInt(ev.target.value))}
-                  value={numberOfItemsToRemove}
-                />
-              </Field.Root>
-              <Button
-                onClick={() => {
-                  ctx?.onRemoveUnboxedItems(unboxedItemsCollection.id, numberOfItemsToRemove!);
-                  removeUnboxedItemsOverlayState.onClose();
-                }}
-                disabled={numberOfItemsToRemove == null || numberOfItemsToRemove < 1}
-              >
-                Remove
-              </Button>
-            </Flex>
-          </DialogBody>
-          <DialogFooter />
-        </DialogContent>
-      </DialogRoot>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <Dialog.Header mx={4} pb={0}>
+                <Heading as="h3" size="md">
+                  Remove items
+                </Heading>
+              </Dialog.Header>
+              <Dialog.CloseTrigger />
+              <Dialog.Body mx={4}>
+                <Flex direction="column" alignItems="start" my={2} justifyContent="space-between">
+                  <Field.Root display="flex" alignItems="center">
+                    <Field.Label fontSize="sm" htmlFor="numberOfItems">
+                      # of items:
+                    </Field.Label>
+                    <Input
+                      type="number"
+                      width={20}
+                      name="numberOfItems"
+                      onChange={(ev) => setNumberOfItemsToRemove(parseInt(ev.target.value))}
+                      value={numberOfItemsToRemove}
+                    />
+                  </Field.Root>
+                  <Button
+                    onClick={() => {
+                      ctx?.onRemoveUnboxedItems(unboxedItemsCollection.id, numberOfItemsToRemove!);
+                      removeUnboxedItemsOverlayState.onClose();
+                    }}
+                    disabled={numberOfItemsToRemove == null || numberOfItemsToRemove < 1}
+                  >
+                    Remove
+                  </Button>
+                </Flex>
+              </Dialog.Body>
+              <Dialog.Footer />
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
 
       <Flex alignItems="start" my={2} justifyContent="space-between">
         <Text> # of items: {unboxedItemsCollection.numberOfItems}</Text>
@@ -193,18 +190,19 @@ PackedContentListOverlayProps) {
     () => packingListEntry.numberOfItems - totalNumberOfPackedItems,
     [packingListEntry.numberOfItems, totalNumberOfPackedItems],
   );
+
   return (
-    <DialogContent>
-      <DialogHeader mx={4} pb={0}>
+    <>
+      <Dialog.Header mx={4} pb={0}>
         <Heading as="h3" size="md">
           Packed Boxes and Items for: <br />
           <i>
             {packingListEntry.product.name} - {packingListEntry.size?.label}
           </i>
         </Heading>
-      </DialogHeader>
-      <DialogCloseTrigger />
-      <DialogBody mx={4}>
+      </Dialog.Header>
+      <Dialog.CloseTrigger />
+      <Dialog.Body mx={4}>
         {boxesData.length > 0 && (
           <Box my={5}>
             <BoxesList boxesData={boxesData} />
@@ -243,9 +241,9 @@ PackedContentListOverlayProps) {
         {missingNumberOfItems > 0 && (
           <Badge colorPalette="red">{missingNumberOfItems} items missing</Badge>
         )}
-      </DialogBody>
-      <DialogFooter />
-    </DialogContent>
+      </Dialog.Body>
+      <Dialog.Footer />
+    </>
   );
 }
 

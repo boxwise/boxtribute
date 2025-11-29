@@ -49,7 +49,7 @@ function NumberField({
                   e.preventDefault();
                 }
               }}
-              border="2px"
+              border="2px solid"
               borderRadius="0"
               borderColor="black"
               {...register(field.name, {
@@ -140,7 +140,7 @@ export function NewNumberField({
                   e.preventDefault();
                 }
               }}
-              border="2px"
+              border="2px solid"
               borderRadius="0"
               borderColor="black"
             />

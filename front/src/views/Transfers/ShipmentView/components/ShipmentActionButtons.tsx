@@ -78,7 +78,7 @@ function ShipmentActionButtons({
   if ("Preparing" === shipmentState && isSender) {
     return (
       <Button {...sendButtonProps}>
-        <SendingIcon />
+        <SendingIcon size="sm" />
         Finalize & Send
       </Button>
     );
@@ -106,7 +106,7 @@ function ShipmentActionButtons({
     return (
       <VStack align="stretch" gap={1}>
         <Button {...receiveButtonProps}>
-          <ReceivingIcon />
+          <ReceivingIcon size="sm" />
           Receive Shipment
         </Button>
         <Button {...lostButtonProps}>

@@ -24,7 +24,7 @@ export function MobileBreadcrumbButton({ label, linkPath }: IBreadcrumbItemData)
       color="black"
       borderColor="black"
       asChild
-      border="2px"
+      border="2px solid"
       borderRadius={0}
       mb={4}
     >

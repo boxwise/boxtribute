@@ -1,4 +1,4 @@
-import { DialogRoot, DialogBackdrop } from "@chakra-ui/react";
+import { Dialog, Portal } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { BoxData, IPackingListEntry } from "views/Distributions/types";
 import PackingBoxDetailsOverlayContent from "./PackingBoxDetailsOverlayContent";
@@ -35,7 +35,7 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
   }, []);
 
   return (
-    <DialogRoot
+    <Dialog.Root
       open={open}
       onOpenChange={(e) => {
         if (!e.open) {
@@ -44,33 +44,34 @@ const PackingAddBoxOrItemsForPackingListEntryOverlay = ({
         }
       }}
     >
-      <DialogBackdrop />
+      <Portal>
+        <Dialog.Backdrop />
+        {!showPackingBoxDetails && (
+          <PackingScanBoxOrFindByLabelOverlayContent
+            packingListEntry={packingListEntry}
+            onFoundMatchingBox={(box: BoxData) => {
+              resetState();
+              onFoundMatchingBox(box);
+            }}
+          />
+        )}
 
-      {!showPackingBoxDetails && (
-        <PackingScanBoxOrFindByLabelOverlayContent
-          packingListEntry={packingListEntry}
-          onFoundMatchingBox={(box: BoxData) => {
-            resetState();
-            onFoundMatchingBox(box);
-          }}
-        />
-      )}
-
-      {showPackingBoxDetails && boxData != null && (
-        <PackingBoxDetailsOverlayContent
-          targetNumberOfItemsToPack={packingListEntry.numberOfItems}
-          boxData={boxData}
-          onAddBoxToDistributionEvent={(boxId: string) => {
-            resetState();
-            onAddBoxToDistributionEvent(boxId);
-          }}
-          onAddIndividualItemsToDistribution={(boxId: string, numberOfItemsToMove: number) => {
-            resetState();
-            onAddUnboxedItemsToDistributionEvent(boxId, numberOfItemsToMove);
-          }}
-        />
-      )}
-    </DialogRoot>
+        {showPackingBoxDetails && boxData != null && (
+          <PackingBoxDetailsOverlayContent
+            targetNumberOfItemsToPack={packingListEntry.numberOfItems}
+            boxData={boxData}
+            onAddBoxToDistributionEvent={(boxId: string) => {
+              resetState();
+              onAddBoxToDistributionEvent(boxId);
+            }}
+            onAddIndividualItemsToDistribution={(boxId: string, numberOfItemsToMove: number) => {
+              resetState();
+              onAddUnboxedItemsToDistributionEvent(boxId, numberOfItemsToMove);
+            }}
+          />
+        )}
+      </Portal>
+    </Dialog.Root>
   );
 };
 

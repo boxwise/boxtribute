@@ -23,7 +23,7 @@ function Products() {
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Products
       </Heading>
-      <Tabs.Root variant="enclosed" mb={4} defaultValue="0">
+      <Tabs.Root variant="enclosed" mb={4} defaultValue="0" fitted>
         <Tabs.List>
           <Tabs.Trigger value="0" fontWeight="bold" flex={1}>
             {baseName ? baseName?.toUpperCase() : <Skeleton height={6} width={20} mr={2} />}{" "}

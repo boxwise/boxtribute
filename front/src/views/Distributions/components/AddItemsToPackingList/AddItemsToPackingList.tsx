@@ -156,7 +156,7 @@ const AddItemsToPackingList = ({
           <Field.HelperText display="inline">Only show products in stock</Field.HelperText>
         </Field.Root>
       </Box>
-      <Tabs.Root variant="enclosed" colorPalette="green" px="30">
+      <Tabs.Root variant="enclosed" colorPalette="green" px="30" fitted>
         <Tabs.List flexWrap="wrap">
           {productsGroupedByGenderAndCategory.map((productsGroupForGender) => (
             <Tabs.Trigger

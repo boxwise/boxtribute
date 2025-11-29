@@ -3,12 +3,8 @@ import {
   Button,
   Card,
   Field,
-  DialogRoot,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogBackdrop,
+  Dialog,
+  Portal,
   Wrap,
   WrapItem,
   useDisclosure,
@@ -227,27 +223,31 @@ export default function StockOverviewPie({
   };
   return (
     <Card.Root>
-      <DialogRoot open={showGroupOptions} onOpenChange={(e) => !e.open && closeGroupOptions()}>
-        <DialogBackdrop />
-        <DialogContent>
-          <DialogCloseTrigger />
-          <DialogHeader>Select the next grouping</DialogHeader>
-          <DialogBody>
-            {availableGroupOptions.map((groupOption) => (
-              <Button
-                borderRadius="0px"
-                border="2px"
-                style={{ margin: "5px" }}
-                key={groupOption}
-                value={groupOption}
-                onClick={onNextDrilldownChoice}
-              >
-                {groupOptions.find((ago) => ago.value === groupOption)!.label}
-              </Button>
-            ))}
-          </DialogBody>
-        </DialogContent>
-      </DialogRoot>
+      <Dialog.Root open={showGroupOptions} onOpenChange={(e) => !e.open && closeGroupOptions()}>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <Dialog.CloseTrigger />
+              <Dialog.Header>Select the next grouping</Dialog.Header>
+              <Dialog.Body>
+                {availableGroupOptions.map((groupOption) => (
+                  <Button
+                    borderRadius="0px"
+                    border="2px solid"
+                    style={{ margin: "5px" }}
+                    key={groupOption}
+                    value={groupOption}
+                    onClick={onNextDrilldownChoice}
+                  >
+                    {groupOptions.find((ago) => ago.value === groupOption)!.label}
+                  </Button>
+                ))}
+              </Dialog.Body>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
       <VisHeader
         onExport={onExport}
         defaultHeight={800}
@@ -275,7 +275,7 @@ export default function StockOverviewPie({
             <Box>
               <Button
                 borderRadius="0px"
-                border="2px"
+                border="2px solid"
                 onClick={() => setNewDrilldownPath(drilldownPath[0], [])}
               >
                 Reset
@@ -287,7 +287,7 @@ export default function StockOverviewPie({
               <Button
                 disabled={drilldownPath.length < 2}
                 borderRadius="0px"
-                border="2px"
+                border="2px solid"
                 onClick={() => {
                   const newDrilldownPath = drilldownPath.slice(0, drilldownPath.length - 1);
                   const newDrilldownValues = drilldownValues.slice(0, drilldownValues.length - 1);

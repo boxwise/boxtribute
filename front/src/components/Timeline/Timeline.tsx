@@ -23,7 +23,7 @@ function Timeline({ records }: ITimelineProps) {
       {records.map(({ date, entries }, index) => (
         <Box key={date}>
           <Flex
-            border={1}
+            border="1px solid"
             borderColor="red.500"
             background="red.500"
             padding={1}

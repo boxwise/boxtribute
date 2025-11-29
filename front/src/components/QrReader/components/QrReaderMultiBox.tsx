@@ -130,7 +130,7 @@ function QrReaderMultiBox({
         </Stack>
       </Center>
 
-      <Box border="2px" borderRadius={0} p={4}>
+      <Box border="2px solid" borderRadius={0} p={4}>
         <RadioGroup.Root
           onValueChange={(e) => onChangeMultiBoxAction(e.value as IMultiBoxAction)}
           value={multiBoxAction}
@@ -180,7 +180,7 @@ function QrReaderMultiBox({
                       chakraStyles={{
                         control: (provided, state) => ({
                           ...provided,
-                          border: "2px",
+                          border: "2px solid",
                           borderRadius: "0",
                           borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                         }),
@@ -203,7 +203,7 @@ function QrReaderMultiBox({
                   chakraStyles={{
                     control: (provided, state) => ({
                       ...provided,
-                      border: "2px",
+                      border: "2px solid",
                       borderRadius: "0",
                       borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                     }),
@@ -225,14 +225,14 @@ function QrReaderMultiBox({
                   chakraStyles={{
                     control: (provided, state) => ({
                       ...provided,
-                      border: "2px",
+                      border: "2px solid",
                       borderRadius: "0",
                       borderColor: state.isFocused ? "blue.500" : provided.borderColor,
                     }),
                     multiValue: (provided, state) => {
                       return {
                         ...provided,
-                        border: "1px",
+                        border: "1px solid",
                         borderColor: colorIsBright(state.data?.color ?? "#fff")
                           ? "gray.300"
                           : state.data?.color,

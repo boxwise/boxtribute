@@ -1,12 +1,4 @@
-import {
-  DialogRoot,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogBackdrop,
-} from "@chakra-ui/react";
+import { Dialog, Portal } from "@chakra-ui/react";
 import Timeline, { IGroupedRecordEntry } from "../Timeline/Timeline";
 
 interface IHistoryOverlay {
@@ -17,17 +9,21 @@ interface IHistoryOverlay {
 
 function HistoryOverlay({ data, open, onClose }: IHistoryOverlay) {
   return (
-    <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()} size="xl">
-      <DialogBackdrop />
-      <DialogContent borderRadius="0" maxW="3xl" overflowY="auto">
-        <DialogHeader>Box History</DialogHeader>
-        <DialogCloseTrigger />
-        <DialogBody>
-          <Timeline records={data} />
-        </DialogBody>
-        <DialogFooter />
-      </DialogContent>
-    </DialogRoot>
+    <Dialog.Root open={open} onOpenChange={(e) => !e.open && onClose()} size="xl">
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content borderRadius="0" maxW="3xl" overflowY="auto">
+            <Dialog.Header>Box History</Dialog.Header>
+            <Dialog.CloseTrigger />
+            <Dialog.Body>
+              <Timeline records={data} />
+            </Dialog.Body>
+            <Dialog.Footer />
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   );
 }
 

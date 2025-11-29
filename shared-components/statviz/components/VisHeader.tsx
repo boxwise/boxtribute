@@ -203,7 +203,7 @@ export default function VisHeader({
                       <HStack>
                         <Button
                           borderRadius="0px"
-                          border="2px"
+                          border="2px solid"
                           loading={isExporting}
                           value="jpg"
                           onClick={download}
@@ -215,7 +215,7 @@ export default function VisHeader({
                         </Button>
                         <Button
                           borderRadius="0px"
-                          border="2px"
+                          border="2px solid"
                           loading={isExporting}
                           value="svg"
                           onClick={download}

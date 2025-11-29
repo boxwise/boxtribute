@@ -51,7 +51,7 @@ function AssignBoxToShipment({
         chakraStyles={{
           control: (provided, state) => ({
             ...provided,
-            border: "2px",
+            border: "2px solid",
             borderRadius: "0",
             borderColor: state.isFocused ? "blue.500" : provided.borderColor,
             boxShadow: state.isFocused ? "0 0 0 1px blue.500" : provided.boxShadow,

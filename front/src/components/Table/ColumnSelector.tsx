@@ -32,7 +32,7 @@ function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
                   m={1}
                   py={1}
                   px={2}
-                  border="1px"
+                  border="1px solid"
                   colorPalette="gray"
                   borderColor="gray.200"
                   key={`ColumnSelector-${column.id}`}

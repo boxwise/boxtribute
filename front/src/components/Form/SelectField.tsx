@@ -97,13 +97,13 @@ function SelectField({
             chakraStyles: {
               control: (provided) => ({
                 ...provided,
-                border: "2px",
+                border: "2px solid",
                 borderRadius: "0",
                 borderColor: "black",
               }),
               multiValue: (provided, state) => ({
                 ...provided,
-                border: "1px",
+                border: "1px solid",
                 borderColor: colorIsBright(state.data?.color ?? "#fff")
                   ? "gray.300"
                   : state.data?.color,

@@ -79,7 +79,7 @@ export function DirectionCell({ value }: CellProps<any>) {
   if (value === "SendingTo") {
     return (
       <Stack direction="row" align="start">
-        <SendingIcon />
+        <SendingIcon size="sm" />
         <chakra.span ml={1}>To</chakra.span>
       </Stack>
     );
@@ -87,14 +87,14 @@ export function DirectionCell({ value }: CellProps<any>) {
   if (value === "ReceivingFrom") {
     return (
       <Stack direction="row" align="start">
-        <ReceivingIcon />
+        <ReceivingIcon size="sm" />
         <chakra.span ml={1}>From</chakra.span>
       </Stack>
     );
   }
   return (
     <Stack direction="row" align="start">
-      <BidirectionalIcon />
+      <BidirectionalIcon size="sm" />
       <chakra.span ml={1}>To / From</chakra.span>
     </Stack>
   );

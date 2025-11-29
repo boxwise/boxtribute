@@ -197,10 +197,10 @@ function CreateShipment({
       <Heading fontWeight="bold" mb={8} as="h1">
         New Shipment
       </Heading>
-      <Tabs.Root variant="plain" defaultValue="0">
-        <Box border="2px" mb={8}>
-          <HStack mb={4} borderBottom="2px" p={2}>
-            <SendingIcon />
+      <Tabs.Root variant="plain" defaultValue="0" fitted>
+        <Box border="2px solid" mb={8}>
+          <HStack mb={4} borderBottom="2px solid" p={2}>
+            <SendingIcon size="sm" />
             <Text fontWeight="bold" fontSize="md">
               SENDING
             </Text>
@@ -211,13 +211,13 @@ function CreateShipment({
             </Text>
           </Center>
         </Box>
-        <HStack p={2} border="2px">
-          <ReceivingIcon />
+        <HStack p={2} border="2px solid">
+          <ReceivingIcon size="sm" />
           <Text fontWeight="bold" fontSize="md">
             RECEIVING
           </Text>
         </HStack>
-        <Tabs.List border="2px" borderTop="none" borderBottom="none">
+        <Tabs.List border="2px solid" borderTop="none" borderBottom="none">
           <Tabs.Trigger flex={1} value="0">
             PARTNERS
           </Tabs.Trigger>
@@ -241,7 +241,7 @@ function CreateShipment({
               value="partners"
               {...register("shipmentTarget")}
             />
-            <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
+            <Box border="2px solid" mb={8} borderTop="none" p={2} pb={6}>
               {noAcceptedAgreements ? (
                 <NoAcceptedAgreementsAlert />
               ) : (
@@ -317,7 +317,7 @@ function CreateShipment({
               type="hidden"
               value="currentOrg"
             />
-            <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
+            <Box border="2px solid" mb={8} borderTop="none" p={2} pb={6}>
               <SelectField
                 fieldId="receivingBase"
                 fieldLabel="Base"

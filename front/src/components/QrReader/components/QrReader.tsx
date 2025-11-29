@@ -81,6 +81,7 @@ function QrReader({
       <Tabs.Root
         value={isMultiBox && hasManageInventoryPermission ? "multi" : "solo"}
         onValueChange={(e) => onTabSwitch(e.value === "multi" ? 1 : 0)}
+        fitted
       >
         <Tabs.List justifyContent="center">
           <Tabs.Trigger value="solo">SOLO BOX</Tabs.Trigger>

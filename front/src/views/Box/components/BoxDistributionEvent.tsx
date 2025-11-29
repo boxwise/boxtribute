@@ -21,7 +21,7 @@ function BoxDistributionEvent({
       data-testid="distro-event-section"
       alignContent="center"
       w={["100%", "80%", "30%", "30%"]}
-      border="2px"
+      border="2px solid"
       py={4}
       px={4}
     >
@@ -41,7 +41,7 @@ function BoxDistributionEvent({
                 m={4}
                 backgroundColor={isAssignedToDistroEvent ? "gray.100" : "transparent"}
                 p={2}
-                border="2px"
+                border="2px solid"
                 borderColor="gray.300"
               >
                 <Flex>

@@ -197,7 +197,7 @@ export function BoxViewSkeleton() {
     >
       <Box
         w={["100%", "80%", "30%", "30%"]}
-        border="2px"
+        border="2px solid"
         borderColor="gray.300"
         mb={6}
         pb={2}
@@ -206,7 +206,7 @@ export function BoxViewSkeleton() {
         <Flex py={2} px={4} alignItems="center">
           <SkeletonText ml="4" lineClamp={1} width="50%" />
           <Skeleton ml="auto">
-            <IconButton aria-label="Edit box" borderRadius="0" border="2px">
+            <IconButton aria-label="Edit box" borderRadius="0" border="2px solid">
               <IoPencil size={24} />
             </IconButton>
           </Skeleton>

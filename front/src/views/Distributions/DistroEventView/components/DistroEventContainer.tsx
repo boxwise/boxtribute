@@ -2,12 +2,8 @@ import { useMutation } from "@apollo/client";
 import {
   Box,
   Button,
-  DialogBackdrop,
-  DialogBody,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
+  Dialog,
+  Portal,
   Flex,
   Heading,
   Link,
@@ -163,7 +159,7 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
         </VStack>
       </VStack>
 
-      <DialogRoot
+      <Dialog.Root
         open={nextStageTransitionAlertState.open}
         onOpenChange={(e) => {
           if (!e.open) {
@@ -172,31 +168,35 @@ const DistroEventContainer = ({ distributionEventDetails }: DistroEventContainer
         }}
         initialFocusEl={() => cancelNextStageTransitionRef.current}
       >
-        <DialogBackdrop />
-        <DialogContent>
-          <DialogHeader fontSize="lg" fontWeight="bold">
-            Mark as Returned From Distribution
-          </DialogHeader>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <Dialog.Header fontSize="lg" fontWeight="bold">
+                Mark as Returned From Distribution
+              </Dialog.Header>
 
-          <DialogBody>Are you sure? You can&apos;t undo this action afterwards.</DialogBody>
+              <Dialog.Body>Are you sure? You can&apos;t undo this action afterwards.</Dialog.Body>
 
-          <DialogFooter>
-            <Button
-              ref={cancelNextStageTransitionRef}
-              onClick={nextStageTransitionAlertState.onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorPalette="red"
-              onClick={onConfirmToMarkEventAsReturnedFromDistribution}
-              ml={3}
-            >
-              Mark Event as Returned
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </DialogRoot>
+              <Dialog.Footer>
+                <Button
+                  ref={cancelNextStageTransitionRef}
+                  onClick={nextStageTransitionAlertState.onClose}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  colorPalette="red"
+                  onClick={onConfirmToMarkEventAsReturnedFromDistribution}
+                  ml={3}
+                >
+                  Mark Event as Returned
+                </Button>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </>
   );
 };

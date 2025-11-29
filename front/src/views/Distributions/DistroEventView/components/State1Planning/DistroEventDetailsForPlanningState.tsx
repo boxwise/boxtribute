@@ -2,12 +2,8 @@ import { IoClose } from "react-icons/io5";
 import {
   Box,
   Button,
-  DialogBackdrop,
-  DialogBody,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
+  Dialog,
+  Portal,
   Editable,
   Flex,
   Heading,
@@ -129,7 +125,7 @@ const PackingListEntriesGroupForProduct = ({
         </Table.Root>
       </Box>
 
-      <DialogRoot
+      <Dialog.Root
         open={removeAllEntriesForProductAlertState.open}
         onOpenChange={(e) => {
           if (!e.open) {
@@ -138,31 +134,35 @@ const PackingListEntriesGroupForProduct = ({
         }}
         initialFocusEl={() => cancelRemoveAllEntriesForProductRef.current}
       >
-        <DialogBackdrop />
-        <DialogContent>
-          <DialogHeader fontSize="lg" fontWeight="bold">
-            Delete all packing list entries for this product?
-          </DialogHeader>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <Dialog.Header fontSize="lg" fontWeight="bold">
+                Delete all packing list entries for this product?
+              </Dialog.Header>
 
-          <DialogBody>Are you sure?</DialogBody>
+              <Dialog.Body>Are you sure?</Dialog.Body>
 
-          <DialogFooter>
-            <Button
-              ref={cancelRemoveAllEntriesForProductRef}
-              onClick={removeAllEntriesForProductAlertState.onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorPalette="red"
-              onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
-              ml={3}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </DialogRoot>
+              <Dialog.Footer>
+                <Button
+                  ref={cancelRemoveAllEntriesForProductRef}
+                  onClick={removeAllEntriesForProductAlertState.onClose}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  colorPalette="red"
+                  onClick={() => ctx.onRemoveAllPackingListEntriesForProduct(productId)}
+                  ml={3}
+                >
+                  Delete
+                </Button>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </>
   );
 };

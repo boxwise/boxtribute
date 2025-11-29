@@ -3,12 +3,8 @@ import {
   Box,
   Button,
   Center,
-  DialogBackdrop,
-  DialogBody,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
+  Dialog,
+  Portal,
   Editable,
   Heading,
   HStack,
@@ -369,7 +365,7 @@ const DistrosReturnTrackingGroupView = () => {
         * This will track all left over number of items as &quot;Distributed&quot;.
       </Text>
 
-      <DialogRoot
+      <Dialog.Root
         open={confirmFinishingReturnTrackingAlertState.open}
         onOpenChange={(e) => {
           if (!e.open) {
@@ -378,33 +374,37 @@ const DistrosReturnTrackingGroupView = () => {
         }}
         initialFocusEl={() => cancelNextStageTransitionRef.current}
       >
-        <DialogBackdrop />
-        <DialogContent>
-          <DialogHeader fontSize="lg" fontWeight="bold">
-            Mark Return Tracking as Completed
-          </DialogHeader>
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content>
+              <Dialog.Header fontSize="lg" fontWeight="bold">
+                Mark Return Tracking as Completed
+              </Dialog.Header>
 
-          <DialogBody>
-            Are you sure you tracked all returned items properly? It will end up in setting all
-            Boxes assigned to the Distribution Events to zero. The system will then also calculate
-            the number of distributed items for each Product/Size combination involved in the
-            Distributions. This data will be used for Monitoring and Evaluation purposes. You
-            can&apos;t undo this action afterwards.
-          </DialogBody>
+              <Dialog.Body>
+                Are you sure you tracked all returned items properly? It will end up in setting all
+                Boxes assigned to the Distribution Events to zero. The system will then also
+                calculate the number of distributed items for each Product/Size combination involved
+                in the Distributions. This data will be used for Monitoring and Evaluation purposes.
+                You can&apos;t undo this action afterwards.
+              </Dialog.Body>
 
-          <DialogFooter>
-            <Button
-              ref={cancelNextStageTransitionRef}
-              onClick={confirmFinishingReturnTrackingAlertState.onClose}
-            >
-              Cancel
-            </Button>
-            <Button colorPalette="red" onClick={onConfirmToMarkEventAsCompleted} ml={3}>
-              Mark Event as Completed
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </DialogRoot>
+              <Dialog.Footer>
+                <Button
+                  ref={cancelNextStageTransitionRef}
+                  onClick={confirmFinishingReturnTrackingAlertState.onClose}
+                >
+                  Cancel
+                </Button>
+                <Button colorPalette="red" onClick={onConfirmToMarkEventAsCompleted} ml={3}>
+                  Mark Event as Completed
+                </Button>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </VStack>
   );
 };

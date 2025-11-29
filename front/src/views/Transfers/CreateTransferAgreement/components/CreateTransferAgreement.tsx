@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Input, List, ListItem, Stack, Field } from "@chakra-ui/react";
+import { Box, Button, Heading, Input, Stack, Field } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -175,73 +175,61 @@ function CreateTransferAgreement({
         New Transfer Agreement
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <List.Root gap={2}>
-          <ListItem>
-            <SelectField
-              fieldId="currentOrganisationSelectedBases"
-              isMulti
-              fieldLabel={`${currentOrganisation?.name} Bases`}
-              placeholder="Please select base(s)"
-              options={sourceBasesForDropdownGroups}
-              errors={errors}
-              control={control}
-            />
-          </ListItem>
-          <ListItem>
-            <SelectField
-              fieldId="partnerOrganisation"
-              fieldLabel="Partner organisation"
-              placeholder="Please select an organisation"
-              options={partnerOrganisationsForDropdownGroups}
-              errors={errors}
-              control={control}
-            />
-          </ListItem>
-          <ListItem>
-            <SelectField
-              fieldId="partnerOrganisationSelectedBases"
-              fieldLabel="Partner bases"
-              placeholder="All bases (default)"
-              errors={errors}
-              isMulti
-              required={false}
-              control={control}
-              options={basesOptionsForPartnerOrg}
-            />
-          </ListItem>
-          <ListItem>
-            <DateField
-              fieldId="validFrom"
-              fieldLabel="Valid from"
-              errors={errors}
-              control={control}
-              register={register}
-              required={false}
-              maxDate="2080-01-01"
-              minDate={new Date().toJSON().split("T")[0]}
-            />
-          </ListItem>
-          <ListItem>
-            <DateField
-              fieldId="validUntil"
-              fieldLabel="Valid until"
-              errors={errors}
-              control={control}
-              register={register}
-              required={false}
-              maxDate="2080-01-01"
-              minDate={validUntilMinDate}
-            />
-          </ListItem>
-          <ListItem>
-            <Field.Root id="comment">
-              <Field.Label htmlFor="comment">Comment</Field.Label>
-              <Box border="2px" borderRadius={0}>
-                <Input border="0" borderRadius={0} type="string" {...register("comment")} />
-              </Box>
-            </Field.Root>
-          </ListItem>
-        </List.Root>
+        <Box gap={2} display="flex" flexDirection="column">
+          <SelectField
+            fieldId="currentOrganisationSelectedBases"
+            isMulti
+            fieldLabel={`${currentOrganisation?.name} Bases`}
+            placeholder="Please select base(s)"
+            options={sourceBasesForDropdownGroups}
+            errors={errors}
+            control={control}
+          />
+          <SelectField
+            fieldId="partnerOrganisation"
+            fieldLabel="Partner organisation"
+            placeholder="Please select an organisation"
+            options={partnerOrganisationsForDropdownGroups}
+            errors={errors}
+            control={control}
+          />
+          <SelectField
+            fieldId="partnerOrganisationSelectedBases"
+            fieldLabel="Partner bases"
+            placeholder="All bases (default)"
+            errors={errors}
+            isMulti
+            required={false}
+            control={control}
+            options={basesOptionsForPartnerOrg}
+          />
+          <DateField
+            fieldId="validFrom"
+            fieldLabel="Valid from"
+            errors={errors}
+            control={control}
+            register={register}
+            required={false}
+            maxDate="2080-01-01"
+            minDate={new Date().toJSON().split("T")[0]}
+          />
+          <DateField
+            fieldId="validUntil"
+            fieldLabel="Valid until"
+            errors={errors}
+            control={control}
+            register={register}
+            required={false}
+            maxDate="2080-01-01"
+            minDate={validUntilMinDate}
+          />
+          <Field.Root id="comment">
+            <Field.Label htmlFor="comment">Comment</Field.Label>
+            <Box border="2px solid" borderRadius={0} width="full">
+              <Input border="0" borderRadius={0} type="string" {...register("comment")} />
+            </Box>
+          </Field.Root>
+        </Box>
 
         <Stack gap={4} mt={8}>
           <Button

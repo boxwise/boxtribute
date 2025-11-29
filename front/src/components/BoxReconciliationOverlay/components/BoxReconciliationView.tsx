@@ -1,15 +1,4 @@
-import {
-  DialogRoot,
-  DialogBackdrop,
-  DialogContent,
-  DialogHeader,
-  Wrap,
-  WrapItem,
-  IconButton,
-  DialogBody,
-  SkeletonText,
-  DialogFooter,
-} from "@chakra-ui/react";
+import { Dialog, Portal, Wrap, WrapItem, IconButton, SkeletonText } from "@chakra-ui/react";
 import { BiTrash } from "react-icons/bi";
 
 import { BoxReconcilationAccordion } from "./BoxReconciliationAccordion";
@@ -78,46 +67,50 @@ export function BoxReconciliationView({
   closeOnEsc = true,
 }: IBoxReconciliationViewProps) {
   return (
-    <DialogRoot
+    <Dialog.Root
       open={open}
       closeOnInteractOutside={closeOnOverlayClick}
       closeOnEscape={closeOnEsc}
       onOpenChange={(e) => !e.open && onClose()}
     >
-      <DialogBackdrop />
-      <DialogContent>
-        <DialogHeader fontSize={28} fontWeight="extrabold">
-          <Wrap as="span" flex="1" alignItems="center" justifyContent="space-between">
-            <WrapItem>Box {shipmentDetail?.box.labelIdentifier}</WrapItem>
-            <WrapItem>
-              <IconButton
-                rounded="full"
-                variant="ghost"
-                style={{ background: "white" }}
-                aria-label="no delivery"
-                onClick={() => onBoxUndelivered(shipmentDetail?.box.labelIdentifier)}
-                data-testid="NoDeliveryIcon"
-              >
-                <BiTrash size={30} />
-              </IconButton>
-            </WrapItem>
-          </Wrap>
-        </DialogHeader>
-        <DialogBody m={0} p={0}>
-          {!loading && shipmentDetail && (
-            <BoxReconcilationAccordion
-              loading={mutationLoading}
-              productAndSizesData={productAndSizesData}
-              allLocations={allLocations}
-              shipmentDetail={shipmentDetail}
-              onBoxUndelivered={onBoxUndelivered}
-              onBoxDelivered={onBoxDelivered}
-            />
-          )}
-          {loading && <SkeletonText lineClamp={5} />}
-        </DialogBody>
-        <DialogFooter />
-      </DialogContent>
-    </DialogRoot>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header fontSize={28} fontWeight="extrabold">
+              <Wrap as="span" flex="1" alignItems="center" justifyContent="space-between">
+                <WrapItem>Box {shipmentDetail?.box.labelIdentifier}</WrapItem>
+                <WrapItem>
+                  <IconButton
+                    rounded="full"
+                    variant="ghost"
+                    style={{ background: "white" }}
+                    aria-label="no delivery"
+                    onClick={() => onBoxUndelivered(shipmentDetail?.box.labelIdentifier)}
+                    data-testid="NoDeliveryIcon"
+                  >
+                    <BiTrash size={30} />
+                  </IconButton>
+                </WrapItem>
+              </Wrap>
+            </Dialog.Header>
+            <Dialog.Body m={0} p={0}>
+              {!loading && shipmentDetail && (
+                <BoxReconcilationAccordion
+                  loading={mutationLoading}
+                  productAndSizesData={productAndSizesData}
+                  allLocations={allLocations}
+                  shipmentDetail={shipmentDetail}
+                  onBoxUndelivered={onBoxUndelivered}
+                  onBoxDelivered={onBoxDelivered}
+                />
+              )}
+              {loading && <SkeletonText lineClamp={5} />}
+            </Dialog.Body>
+            <Dialog.Footer />
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   );
 }

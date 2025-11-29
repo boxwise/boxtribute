@@ -18,7 +18,7 @@ export default function Sunburst(props: {
 
   return (
     <div style={{ width: props.width, height: props.height }}>
-      <Button onClick={() => setData(props.chartData)} borderRadius="0px" border="2px">
+      <Button onClick={() => setData(props.chartData)} borderRadius="0px" border="2px solid">
         Reset
       </Button>
       <ResponsiveSunburst

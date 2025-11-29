@@ -77,7 +77,7 @@ const DistributionEventListItem = ({
 }) => (
   <List.Item
     key={distroEvent.id}
-    border="1px"
+    border="1px solid"
     p={2}
     my={2}
     cursor="pointer"

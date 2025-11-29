@@ -135,7 +135,7 @@ function HeaderMenuContainer() {
         requiredAbps: ["manage_volunteers"],
         links: [
           {
-            link: `/bases/${baseId}/tags`,
+            link: `${oldAppUrlWithBase}&action=tags`,
             name: "Manage Tags",
             requiredAbps: ["manage_tags"],
           },

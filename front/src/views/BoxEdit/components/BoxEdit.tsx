@@ -273,7 +273,7 @@ function BoxEdit({
           <List.Item>
             <Field.Root>
               <Field.Label htmlFor="comment">Comment</Field.Label>
-              <Box border="2px" borderRadius={0}>
+              <Box border="2px solid" borderRadius={0}>
                 <Input border="0" borderRadius={0} type="string" {...register("comment")} />
               </Box>
             </Field.Root>

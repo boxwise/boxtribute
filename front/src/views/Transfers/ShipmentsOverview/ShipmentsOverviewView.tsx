@@ -234,6 +234,7 @@ function ShipmentsOverviewView() {
         variant="enclosed"
         value={direction === "Receiving" ? "0" : "1"}
         onValueChange={(e) => setDirection(e.value === "0" ? "Receiving" : "Sending")}
+        fitted
       >
         <Tabs.List>
           <Tabs.Trigger
@@ -243,7 +244,7 @@ function ShipmentsOverviewView() {
             fontWeight={direction === "Receiving" ? "bold" : "inherit"}
             textTransform="uppercase"
           >
-            <ReceivingIcon mr={2} /> {`Receiving (${receivingCount})`}
+            <ReceivingIcon size="sm" /> {`Receiving (${receivingCount})`}
           </Tabs.Trigger>
           <Tabs.Trigger
             value="1"
@@ -252,7 +253,7 @@ function ShipmentsOverviewView() {
             fontWeight={direction === "Sending" ? "bold" : "inherit"}
             textTransform="uppercase"
           >
-            <SendingIcon mr={2} /> {`Sending (${sendingCount})`}
+            <SendingIcon size="sm" /> {`Sending (${sendingCount})`}
           </Tabs.Trigger>
         </Tabs.List>
       </Tabs.Root>

@@ -156,7 +156,7 @@ it("4.1.2 - Input Validations", async () => {
   expect(submitButton).toBeInTheDocument();
 
   // Test case 4.1.2.1 - Source Organisation SELECT field cannot be empty
-  const sourceSelectedBaseRemoveButton = screen.getByRole("button", { name: /remove lesvos/i });
+  const sourceSelectedBaseRemoveButton = screen.getByLabelText(/remove lesvos/i);
   await user.click(sourceSelectedBaseRemoveButton);
   expect(screen.getByText(/please select base\(s\)/i)).toBeInTheDocument();
   await user.click(submitButton);

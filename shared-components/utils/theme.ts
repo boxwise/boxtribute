@@ -101,7 +101,7 @@ export const customSystem = createSystem(defaultConfig, {
           },
           cancel: {
             base: {
-              border: "2px",
+              border: "2px solid",
               borderColor: "black",
               borderRadius: "0",
             },

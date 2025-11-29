@@ -60,8 +60,8 @@ function EditCustomProductForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Box border="2px" mb={4} p={2}>
-        <HStack borderBottom="2px" pb={2} px={2}>
+      <Box border="2px solid" mb={4} p={2}>
+        <HStack borderBottom="2px solid" pb={2} px={2}>
           <Text fontWeight="bold" fontSize="md">
             PRODUCT DETAILS
           </Text>
@@ -76,7 +76,7 @@ function EditCustomProductForm({
             </Field.Label>
             <Input
               borderColor="black"
-              border="2px"
+              border="2px solid"
               borderRadius={0}
               _focus={{ borderColor: "blue.500" }}
               _hover={{ borderColor: "gray.300" }}
@@ -114,7 +114,7 @@ function EditCustomProductForm({
             <Field.Label htmlFor="comment">Description</Field.Label>
             <Input
               borderColor="black"
-              border="2px"
+              border="2px solid"
               borderRadius={0}
               _focus={{ borderColor: "blue.500" }}
               _hover={{ borderColor: "gray.300" }}
@@ -125,8 +125,8 @@ function EditCustomProductForm({
           </Field.Root>
         </VStack>
       </Box>
-      <Box border="2px" mb={4} p={2}>
-        <Box borderBottom="2px" pb={2} px={2} mb={2}>
+      <Box border="2px solid" mb={4} p={2}>
+        <Box borderBottom="2px solid" pb={2} px={2} mb={2}>
           <Text fontWeight="bold" fontSize="md">
             FREE SHOP SETTINGS
           </Text>

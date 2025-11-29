@@ -1,16 +1,5 @@
 import React from "react";
-import {
-  DialogRoot,
-  DialogBackdrop,
-  DialogContent,
-  DialogHeader,
-  DialogCloseTrigger,
-  DialogBody,
-  DialogFooter,
-  HStack,
-  Button,
-  ButtonProps,
-} from "@chakra-ui/react";
+import { Dialog, Portal, HStack, Button, ButtonProps } from "@chakra-ui/react";
 
 interface IAreYouSureDialogProps {
   title: string;
@@ -40,33 +29,37 @@ export function AreYouSureDialog({
   onRightButtonClick,
 }: IAreYouSureDialogProps) {
   return (
-    <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()}>
-      <DialogBackdrop />
-      <DialogContent borderRadius="0">
-        <DialogHeader>{title}</DialogHeader>
-        <DialogCloseTrigger />
-        <DialogBody>{body}</DialogBody>
-        <DialogFooter>
-          <HStack gap={4}>
-            <Button
-              loading={loading}
-              onClick={onLeftButtonClick}
-              {...leftButtonProps}
-              data-testid="AYSLeftButton"
-            >
-              {leftButtonText}
-            </Button>
-            <Button
-              loading={loading}
-              onClick={onRightButtonClick}
-              {...rightButtonProps}
-              data-testid="AYSRightButton"
-            >
-              {rightButtonText}
-            </Button>
-          </HStack>
-        </DialogFooter>
-      </DialogContent>
-    </DialogRoot>
+    <Dialog.Root open={open} onOpenChange={(e) => !e.open && onClose()}>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content borderRadius="0">
+            <Dialog.Header>{title}</Dialog.Header>
+            <Dialog.CloseTrigger />
+            <Dialog.Body>{body}</Dialog.Body>
+            <Dialog.Footer>
+              <HStack gap={4}>
+                <Button
+                  loading={loading}
+                  onClick={onLeftButtonClick}
+                  {...leftButtonProps}
+                  data-testid="AYSLeftButton"
+                >
+                  {leftButtonText}
+                </Button>
+                <Button
+                  loading={loading}
+                  onClick={onRightButtonClick}
+                  {...rightButtonProps}
+                  data-testid="AYSRightButton"
+                >
+                  {rightButtonText}
+                </Button>
+              </HStack>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   );
 }

@@ -58,7 +58,7 @@ function BoxMoveLocation({
                         !!boxData?.deletedOn
                       : !!boxData?.deletedOn
                   }
-                  border="2px"
+                  border="2px solid"
                 >
                   {location.name}
                   {location.defaultBoxState !== "InStock" && (
