@@ -183,11 +183,12 @@ function CreateShipmentView() {
       // Merge options. If there are multiple transfer agreements this step is necessary
       const existingOrganisation = accumulator.find((org) => org.id === currentOrg.id);
       if (existingOrganisation) {
-        existingOrganisation.bases.push(
+        existingOrganisation.bases = [
+          ...existingOrganisation.bases,
           ...currentOrg.bases.filter(
             (base) => !existingOrganisation.bases.some((b) => b.id === base.id),
           ),
-        );
+        ];
       } else {
         accumulator.push(currentOrg);
       }
