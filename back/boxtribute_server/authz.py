@@ -7,7 +7,6 @@ from flask import g
 from peewee import Model
 
 from .auth import CurrentUser
-from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
 from .errors import InsufficientPermission, UnauthorizedForBase
 from .exceptions import Forbidden
@@ -437,9 +436,6 @@ def check_user_beta_level(
     current_user = current_user or g.user
     if current_user.is_god:
         return True
-
-    if "query" in payload and any([q in payload for q in statistics_queries()]):
-        return current_user.max_beta_level >= 3
 
     if "mutation" not in payload:
         return True
