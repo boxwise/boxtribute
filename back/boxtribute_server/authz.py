@@ -362,6 +362,7 @@ MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "editCustomProduct",
     "deleteProduct",
     "enableStandardProduct",
+    "enableStandardProducts",
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
