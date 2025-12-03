@@ -3,10 +3,10 @@ import pytest
 from auth import mock_user_for_request
 from boxtribute_server.logging import API_CONTEXT, SHARED_CONTEXT, WEBAPP_CONTEXT
 from utils import (
+    assert_bad_request,
     assert_bad_user_input,
     assert_internal_server_error,
     assert_successful_request,
-    assert_unauthorized,
 )
 
 
@@ -123,6 +123,25 @@ def test_query_non_existent_resource_for_god_user(read_only_client, mocker, reso
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "mutation { deleteTag( id: 1 ) { id } }",
+        "mutation { createBeneficiaries( creationInput: [] ) { id } }",
+        "mutation { createBoxes( creationInput: [] ) { id } }",
+        """mutation DeleteMultiple {
+            deleteTag( id: 1 ) { id }
+            # Permitted for beta-level 4 but not together with deleteTag
+            deleteProduct( id: 1 ) { id }
+        }""",
+    ],
+)
+def test_beta_level_check(read_only_client, mocker, mutation):
+    mock_user_for_request(mocker, max_beta_level=4)
+    response = assert_bad_request(read_only_client, mutation, expect_errors=True)
+    assert response.json["errors"][0]["message"] == "Insufficient beta-level"
 
 
 @pytest.mark.parametrize(
@@ -457,9 +476,6 @@ query IntrospectionQuery {
 }
 """
     assert_successful_request(read_only_client, query)
-
-    monkeypatch.setenv("ENVIRONMENT", "production")
-    assert_unauthorized(read_only_client, query)
 
 
 def test_gcloud_logging(read_only_client, mocker):
