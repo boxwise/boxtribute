@@ -1,12 +1,27 @@
+from dataclasses import dataclass
+
 from ariadne import MutationType
 from flask import g
 
-from ...authz import authorize, handle_unauthorized
+from ...authz import authorize, authorized_bases_filter, handle_unauthorized
 from ...errors import ResourceDoesNotExist
 from ...models.definitions.tag import Tag
-from .crud import assign_tag, create_tag, delete_tag, unassign_tag, update_tag
+from .crud import (
+    assign_tag,
+    create_tag,
+    delete_tag,
+    delete_tags,
+    unassign_tag,
+    update_tag,
+)
 
 mutation = MutationType()
+
+
+@dataclass(kw_only=True)
+class TagsResult:
+    updated_tags: list[Tag]
+    invalid_tag_ids: list[int]
 
 
 @mutation.field("createTag")
@@ -51,3 +66,24 @@ def resolve_delete_tag(*_, id):
         # creating a history entry
         return tag
     return delete_tag(user_id=g.user.id, tag=tag)
+
+
+@mutation.field("deleteTags")
+@handle_unauthorized
+def resolve_delete_tags(*_, ids):
+    ids = set(ids)
+    tags = (
+        Tag.select()
+        .where(
+            Tag.id << ids,
+            authorized_bases_filter(Tag, permission="tag:write"),
+            (~Tag.deleted_on | Tag.deleted_on.is_null()),
+        )
+        .order_by(Tag.id)
+    )
+    valid_tag_ids = {tag.id for tag in tags}
+
+    return TagsResult(
+        updated_tags=delete_tags(user_id=g.user.id, tags=tags),
+        invalid_tag_ids=sorted(ids.difference(valid_tag_ids)),
+    )
