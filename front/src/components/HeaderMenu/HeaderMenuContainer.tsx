@@ -84,7 +84,7 @@ function HeaderMenuContainer() {
       },
       {
         text: "Beneficiaries",
-        requiredAbps: ["create_beneficiaries"],
+        requiredAbps: [["create_beneficiaries", "register_service_usage"]],
         links: [
           {
             link: `${oldAppUrlWithBase}&action=people_add`,
@@ -93,9 +93,23 @@ function HeaderMenuContainer() {
             external: true,
           },
           {
+            link: `${oldAppUrlWithBase}&action=use_service`,
+            name: "Use Service",
+            requiredAbps: ["register_service_usage"],
+            beta: true,
+            external: true,
+          },
+          {
             link: `${oldAppUrlWithBase}&action=people`,
             name: "Manage Beneficiaries",
             requiredAbps: ["manage_beneficiaries"],
+            external: true,
+          },
+          {
+            link: `${oldAppUrlWithBase}&action=services`,
+            name: "Manage Services",
+            requiredAbps: ["manage_services"],
+            beta: true,
             external: true,
           },
         ],
