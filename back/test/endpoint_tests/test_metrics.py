@@ -154,8 +154,8 @@ def test_public_box_number(read_only_client, start, end, duration, result):
         ('"2025-01-01"', "null", "null", 2),
     ],
 )
-def test_active_beneficiaries_numbers(read_only_client, start, end, duration, result):
-    query = f"""query {{ activeBeneficiariesNumbers(
+def test_reached_beneficiaries_numbers(read_only_client, start, end, duration, result):
+    query = f"""query {{ reachedBeneficiariesNumbers(
             start: {start}
             end: {end}
             duration: {duration}

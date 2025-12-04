@@ -6,9 +6,9 @@ from datetime import timedelta
 from flask import current_app
 
 from ..business_logic.metrics.crud import (
-    active_beneficiaries_numbers,
     get_time_span,
     number_of_created_records_between,
+    reached_beneficiaries_numbers,
 )
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
@@ -33,12 +33,12 @@ def get_internal_data():
     titles = [
         "Newly created boxes",
         "Newly registered beneficiaries",
-        "Active beneficiaries",
+        "Reached beneficiaries",
     ]
     funcs = [
         number_of_created_records_between,
         number_of_created_records_between,
-        active_beneficiaries_numbers,
+        reached_beneficiaries_numbers,
     ]
     args_list = [[Box], [Beneficiary], []]
     for title, func, args in zip(titles, funcs, args_list):

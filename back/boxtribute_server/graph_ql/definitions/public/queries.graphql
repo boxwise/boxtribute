@@ -4,5 +4,5 @@ type Query {
   standardProducts: [StandardProductInfo!]!
   newlyRegisteredBeneficiaryNumbers(start: Datetime, end: Datetime, duration: Int): Int
   newlyCreatedBoxNumbers(start: Datetime, end: Datetime, duration: Int): Int
-  activeBeneficiariesNumbers(start: Datetime, end: Datetime, duration: Int): Int
+  reachedBeneficiariesNumbers(start: Datetime, end: Datetime, duration: Int): Int
 }

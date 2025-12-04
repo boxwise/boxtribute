@@ -85,7 +85,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
         == b'{"title": "Newly registered beneficiaries", "data": "Last  30 days:     1 (+0.0%)\\nLast  90 days:     1 (+0.0%)\\nLast 365 days:     1 (+0.0%)"}'  # noqa
     )
     assert (
-        b'{"title": "Active beneficiaries", "data": "Last  30 days:'
+        b'{"title": "Reached beneficiaries", "data": "Last  30 days:'
         in mocked_urlopen.call_args_list[2].args[0].data
     )
 

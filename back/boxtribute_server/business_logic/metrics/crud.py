@@ -128,7 +128,7 @@ def number_of_created_records_between(model, start, end):
     )
 
 
-def active_beneficiaries_numbers(start, end):
+def reached_beneficiaries_numbers(start, end):
     # Return UNION of five sources of beneficiaries reached in given time span
     return (
         (
