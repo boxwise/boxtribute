@@ -148,9 +148,10 @@ def test_public_box_number(read_only_client, start, end, duration, result):
         # Benes 1 and 3 (without family) were involved in transactions in Jan 2020
         ('"2020-01-01"', '"2020-12-31"', "null", 4),
         ('"2020-01-01"', "null", 30, 4),
-        ("null", '"2020-07-01"', 30, 3),
+        ("null", '"2020-07-01"', 30, 1),
         # Bene 1 was registered for a service in Nov 2025
-        ('"2025-01-01"', "null", "null", 4),
+        # Bene 6 was created yesterday
+        ('"2025-01-01"', "null", "null", 2),
     ],
 )
 def test_active_beneficiaries_numbers(read_only_client, start, end, duration, result):
