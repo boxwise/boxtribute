@@ -645,6 +645,60 @@ describe("4.8.1 - Initial load of Page", () => {
     // Test case 4.8.1.3
     expect(await screen.findByText(/8650860/i, {}, { timeout: 10000 })).toBeInTheDocument();
   });
+
+  it('4.8.1.4 - Sorting by Location', async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ state: "InStock", paginationInput: 20 }),
+          boxesQuery({ state: "InStock", paginationInput: 20 }),
+          boxesQuery({ state: "InStock"}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await waitFor(() => {
+      // Wait for the table to load
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    const locationHeader = screen.getAllByText(/Location/i)[1];
+    await userEvent.click(locationHeader); // Ascending sort
+
+    await waitFor(() => {
+      const boxes = screen.getAllByRole('row');
+      // Verify boxes sorted in ascending order
+      expect(boxes[1]).toHaveTextContent('2 boxes');
+      expect(boxes[2]).toHaveTextContent('Stockroom');
+      expect(boxes[3]).toHaveTextContent('WH1');
+    }, { timeout: 10000 });
+
+    await userEvent.click(locationHeader); // Descending sort
+
+    await waitFor(() => {
+      const boxes = screen.getAllByRole('row');
+      // Verify boxes sorted in descending order
+      expect(boxes[2]).toHaveTextContent('WH1');
+      expect(boxes[3]).toHaveTextContent('Stockroom');
+    }, { timeout: 10000 });
+  }, 20000);
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
