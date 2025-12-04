@@ -303,6 +303,11 @@ function Boxes({
         accessor: "productCategory",
         id: "productCategory",
         Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.productCategory?.name.toLowerCase() ?? "";
+          const b = rowB.values.productCategory?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
         filter: "includesSomeObject",
       },
@@ -311,6 +316,11 @@ function Boxes({
         accessor: "gender",
         id: "gender",
         Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.gender?.name.toLowerCase() ?? "";
+          const b = rowB.values.gender?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
         filter: "includesSomeObject",
       },
@@ -319,6 +329,11 @@ function Boxes({
         accessor: "size",
         id: "size",
         Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.size?.name?.toLowerCase() ?? "";
+          const b = rowB.values.size?.name?.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
         filter: "includesSomeObject",
       },
@@ -333,6 +348,11 @@ function Boxes({
         accessor: "state",
         id: "state",
         Cell: StateCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.state?.name.toLowerCase() ?? "";
+          const b = rowB.values.state?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectBoxStateFilter,
         filter: "includesSomeObject",
       },
@@ -341,6 +361,11 @@ function Boxes({
         accessor: "location",
         id: "location",
         Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.location?.name.toLowerCase() ?? "";
+          const b = rowB.values.location?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
         filter: "includesSomeObject",
       },
