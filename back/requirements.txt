@@ -7,7 +7,7 @@ peewee==3.18.3
 peewee-moves==2.1.0
 python-dotenv==1.2.1
 PyJWT[crypto]==2.10.1
-aiodataloader==0.4.2
+aiodataloader==0.4.3
 gunicorn
 auth0-python==4.13.0
 Faker==38.2.0
