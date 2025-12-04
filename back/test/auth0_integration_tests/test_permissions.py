@@ -123,7 +123,9 @@ def test_usergroup_cross_organisation_permissions(
 ):
     # Pretend that the users have a sufficient beta-level to run the beneficiary
     # migrations
-    mocker.patch("boxtribute_server.routes.check_user_beta_level").return_value = True
+    mocker.patch(
+        "boxtribute_server.graph_ql.execution.check_user_beta_level"
+    ).return_value = True
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         username
     )
