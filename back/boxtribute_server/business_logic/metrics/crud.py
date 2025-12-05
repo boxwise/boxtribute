@@ -7,9 +7,11 @@ from peewee import JOIN, fn
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
+from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
+from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import utcnow
+from ...models.utils import HISTORY_DELETION_MESSAGE, utcnow
 
 
 def _build_range_filter(field, *, low, high):
@@ -124,6 +126,61 @@ def number_of_created_records_between(model, start, end):
         .where((model.created_on >= start) & (model.created_on <= end))
         .count()
     )
+
+
+def reached_beneficiaries_numbers(start, end):
+    # Return UNION of five sources of beneficiaries reached in given time span
+    return (
+        (
+            # created/edited (persistently logged in history table)
+            DbChangeHistory.select(DbChangeHistory.record_id.alias("id"))
+            .where(
+                DbChangeHistory.table_name == Beneficiary._meta.table_name,
+                DbChangeHistory.change_date >= start,
+                DbChangeHistory.change_date <= end,
+                DbChangeHistory.changes != HISTORY_DELETION_MESSAGE,
+            )
+            .distinct()
+        )
+        | (
+            # created/edited (misses permanently deleted beneficiaries)
+            Beneficiary.select(Beneficiary.id).where(
+                ((Beneficiary.created_on >= start) & (Beneficiary.created_on <= end))
+                | (
+                    (Beneficiary.last_modified_on >= start)
+                    & (Beneficiary.last_modified_on <= end)
+                )
+            )
+        )
+        | (
+            # involved in transactions (family heads)
+            Transaction.select(Transaction.beneficiary.alias("id"))
+            .where(
+                Transaction.created_on >= start,
+                Transaction.created_on <= end,
+            )
+            .distinct()
+        )
+        | (
+            # indirectly involved in transactions (family members)
+            Beneficiary.select(Beneficiary.id)
+            .join(Transaction, on=(Transaction.beneficiary == Beneficiary.family_head))
+            .where(
+                Transaction.created_on >= start,
+                Transaction.created_on <= end,
+            )
+            .distinct()
+        )
+        | (
+            # involved in services
+            ServicesRelation.select(ServicesRelation.beneficiary.alias("id"))
+            .where(
+                ServicesRelation.created_on >= start,
+                ServicesRelation.created_on <= end,
+            )
+            .distinct()
+        )
+    ).count()
 
 
 def get_time_span(
