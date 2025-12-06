@@ -18,6 +18,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
+import * as Sentry from "@sentry/react";
 
 export interface IQrReaderProps {
   isMultiBox: boolean;
