@@ -260,6 +260,11 @@ type BoxesResult {
   invalidBoxLabelIdentifiers: [String!]!
 }
 
+type TagsResult {
+  updatedTags: [Tag!]!
+  invalidTagIds: [ID!]!
+}
+
 type BeneficiariesResult {
   results: [CreateBeneficiaryResult!]!
 }
@@ -713,6 +718,7 @@ union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
 union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteTagsResult = TagsResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError

@@ -627,6 +627,13 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "tag:write"},
         ],
+        # Test case 4.2.49
+        [
+            "deleteTags",
+            "ids: [1, 2]",
+            "...on InsufficientPermissionError { name }",
+            {"name": "tag:write"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
