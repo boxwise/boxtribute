@@ -9,9 +9,12 @@ from ...errors import DeletedTag, EmptyName, InvalidColor
 from ...exceptions import IncompatibleTagTypeAndResourceType
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
+from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.utils import (
+    BATCH_SIZE,
+    HISTORY_DELETION_MESSAGE,
     handle_non_existing_resource,
     safely_handle_deletion,
     save_creation_to_history,
@@ -128,6 +131,38 @@ def delete_tag(*, user_id, tag, now):
         TagsRelation.deleted_on.is_null(),
     ).execute()
     return tag
+
+
+def delete_tags(*, user_id, tags):
+    """Soft-delete a collection of tags. Unassign the tags from any resources by
+    soft-deleting respective rows of the TagsRelation model.
+    Return list of updated tags.
+    """
+    now = utcnow()
+    history_entries = [
+        DbChangeHistory(
+            changes=HISTORY_DELETION_MESSAGE,
+            table_name=Tag._meta.table_name,
+            record_id=tag.id,
+            user=user_id,
+            change_date=now,
+        )
+        for tag in tags
+    ]
+
+    tag_ids = [tag.id for tag in tags]
+
+    with db.database.atomic():
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+            TagsRelation.tag << tag_ids,
+            TagsRelation.deleted_on.is_null(),
+        ).execute()
+
+        Tag.update(deleted_on=now).where(Tag.id << tag_ids).execute()
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+
+    # Re-fetch tags to return updated objects
+    return list(Tag.select().where(Tag.id << tag_ids))
 
 
 def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):

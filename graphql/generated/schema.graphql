@@ -609,6 +609,8 @@ type Mutation {
   assignTag(assignmentInput: TagOperationInput): TaggableResource
   " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
   unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+  " Any tags that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `TagsResult.invalidTagIds` list. "
+  deleteTags(ids: [Int!]!): DeleteTagsResult
 
   " Create new transfer agreement with with a partner organisation (the client's organisation is the initiating organisation). By default, the agreement is established with non-deleted bases of the partner organisation, and is infinitely valid. As a result, any base added to that organisation afterwards will NOT be part of the agreement; instead a new agreement needs to be established. If an accepted agreement with the same set of organisations and bases already exists, an error is returned. The client must be member of all bases of the initiating organisation.  "
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
@@ -1048,6 +1050,11 @@ Utility response type for box bulk-update mutations, containing both updated box
 type BoxesResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
+}
+
+type TagsResult {
+  updatedTags: [Tag!]!
+  invalidTagIds: [ID!]!
 }
 
 type BeneficiariesResult {
@@ -1503,6 +1510,7 @@ union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
 union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteTagsResult = TagsResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
@@ -1574,28 +1582,4 @@ type StandardProductInfo {
   sizeRangeName: String!
   gender: ProductGender!
   version: Int!
-}
-
-"""
-Information about beneficiary registrations...
-"""
-type BeneficiaryNumbers {
-  " during the month before the current one "
-  lastMonth: Int!
-  " during the quarter before the current one "
-  lastQuarter: Int!
-  " during the year before the current one "
-  lastYear: Int!
-}
-
-"""
-Information on newly created boxes
-"""
-type BoxNumbers {
-  " during the month before the current one "
-  lastMonth: Int!
-  " during the quarter before the current one "
-  lastQuarter: Int!
-  " during the year before the current one "
-  lastYear: Int!
 }

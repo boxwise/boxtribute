@@ -214,6 +214,16 @@ function BoxCreateView() {
         newTagNames,
         qrCode,
       },
+      refetchQueries:
+        // update tag options if new tag(s) created
+        newTagNames.length > 0
+          ? [
+              {
+                query: ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
+                variables: { baseId },
+              },
+            ]
+          : undefined,
     })
       .then((mutationResult) => {
         if (mutationResult.errors) {

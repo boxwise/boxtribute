@@ -201,6 +201,7 @@ union_types = (
     UnionType("CreateTagResult", resolve_type_by_class_name),
     UnionType("UpdateTagResult", resolve_type_by_class_name),
     UnionType("DeleteTagResult", resolve_type_by_class_name),
+    UnionType("DeleteTagsResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiariesResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiaryResult", resolve_type_by_class_name),
 )

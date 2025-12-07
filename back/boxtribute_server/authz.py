@@ -373,6 +373,7 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createTag",
     "updateTag",
     "deleteTag",
+    "deleteTags",
 )
 
 # ### BETA-LEVEL 6 ###
