@@ -18,6 +18,7 @@ import { base2 } from "mocks/bases";
 import { organisation2 } from "mocks/organisations";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
+import { instockBox1, instockBox2, scrapBox } from "mocks/boxes";
 
 vi.mock("@auth0/auth0-react");
 // .mocked() is a nice helper function from jest for typescript support
@@ -55,266 +56,18 @@ const boxesQuery = ({
   },
   result: {
     data: {
-      // TODO: the data should be placed in the mocks
       boxes: {
         __typename: "BoxPage",
         elements:
-          state === "InStock"
-            ? [
-                {
-                  __typename: "Box",
-                  id: "2",
-                  comment: null,
-                  history: [],
-                  labelIdentifier: "1481666",
-                  location: {
-                    __typename: "ClassicLocation",
-                    base: {
-                      __typename: "Base",
-                      id: "2",
-                      name: "Thessaloniki",
-                    },
-                    defaultBoxState: "InStock",
-                    id: "16",
-                    name: "Stockroom",
-                  },
-                  numberOfItems: 23,
-                  product: {
-                    __typename: "Product",
-                    type: "Custom",
-                    deletedOn: null,
-                    category: {
-                      id: "1",
-                      name: "Bottoms",
-                      __typename: "ProductCategory",
-                    },
-                    gender: "Men",
-                    id: "267",
-                    name: "Sweatpants",
-                  },
-                  shipmentDetail: null,
-                  size: {
-                    __typename: "Size",
-                    id: "52",
-                    label: "Mixed",
-                  },
-                  state: "InStock",
-                  tags: [
-                    {
-                      __typename: "Tag",
-                      color: "#d89016",
-                      description: "",
-                      id: "11",
-                      name: "new",
-                      type: "All",
-                    },
-                  ],
-                  createdOn: "2021-10-29T15:02:40+00:00",
-                  createdBy: {
-                    __typename: "User",
-                    id: "123",
-                    name: "Some User",
-                  },
-                  lastModifiedBy: {
-                    __typename: "User",
-                    id: "1234",
-                    name: "Another User",
-                  },
-                  lastModifiedOn: new Date().toISOString(),
-                  deletedOn: null,
-                  qrCode: {
-                    __typename: "QrCode",
-                    code: "12345",
-                  },
-                },
-                {
-                  __typename: "Box",
-                  id: "3",
-                  comment: null,
-                  history: [
-                    {
-                      __typename: "HistoryEntry",
-                      changeDate: "2023-10-29T15:02:58+00:00",
-                      changes: "changed box state from Scrap to InStock",
-                      id: "30946",
-                      user: {
-                        __typename: "User",
-                        id: "17",
-                        name: "Dev Coordinator",
-                      },
-                    },
-                    {
-                      __typename: "HistoryEntry",
-                      changeDate: "2023-10-29T15:02:51+00:00",
-                      changes: "changed box state from InStock to Scrap",
-                      id: "30945",
-                      user: {
-                        __typename: "User",
-                        id: "17",
-                        name: "Dev Coordinator",
-                      },
-                    },
-                    {
-                      __typename: "HistoryEntry",
-                      changeDate: "2023-10-29T15:02:40+00:00",
-                      changes: "changed box state from Scrap to InStock",
-                      id: "30944",
-                      user: {
-                        __typename: "User",
-                        id: "17",
-                        name: "Dev Coordinator",
-                      },
-                    },
-                    {
-                      __typename: "HistoryEntry",
-                      changeDate: "2023-10-29T15:02:40+00:00",
-                      changes: "changed box location from SCRAP to WH2",
-                      id: "30943",
-                      user: {
-                        __typename: "User",
-                        id: "17",
-                        name: "Dev Coordinator",
-                      },
-                    },
-                  ],
-                  labelIdentifier: "8650860",
-                  location: {
-                    __typename: "ClassicLocation",
-                    base: {
-                      __typename: "Base",
-                      id: "2",
-                      name: "Thessaloniki",
-                    },
-                    defaultBoxState: "InStock",
-                    id: "18",
-                    name: "WH1",
-                  },
-                  numberOfItems: 33,
-                  product: {
-                    __typename: "Product",
-                    deletedOn: null,
-                    type: "Custom",
-                    category: {
-                      id: "1",
-                      name: "Bottoms",
-                      __typename: "ProductCategory",
-                    },
-                    gender: "UnisexKid",
-                    id: "350",
-                    name: "Robes",
-                  },
-                  shipmentDetail: null,
-                  size: {
-                    __typename: "Size",
-                    id: "52",
-                    label: "Mixed",
-                  },
-                  state: "InStock",
-                  tags: [
-                    {
-                      __typename: "Tag",
-                      color: "#f37167",
-                      description: "Donation from company x",
-                      id: "10",
-                      name: "company X",
-                      type: "Box",
-                    },
-                    {
-                      __typename: "Tag",
-                      color: "#d89016",
-                      description: "",
-                      id: "11",
-                      name: "new",
-                      type: "All",
-                    },
-                    {
-                      __typename: "Tag",
-                      color: "#0097ff",
-                      description: "Hold back for emergencies",
-                      id: "12",
-                      name: "emergency",
-                      type: "Box",
-                    },
-                  ],
-                  createdOn: "2021-10-29T15:02:40+00:00",
-                  createdBy: {
-                    __typename: "User",
-                    id: "123",
-                    name: "Some User",
-                  },
-                  lastModifiedBy: {
-                    __typename: "User",
-                    id: "1234",
-                    name: "Another User",
-                  },
-                  lastModifiedOn: new Date().toISOString(),
-                  deletedOn: null,
-                  qrCode: null,
-                },
-              ]
-            : state === "Scrap"
-              ? [
-                  {
-                    id: "1",
-                    __typename: "Box",
-                    comment: null,
-                    history: [],
-                    labelIdentifier: "4495955",
-                    location: {
-                      __typename: "ClassicLocation",
-                      base: {
-                        __typename: "Base",
-                        id: "2",
-                        name: "Thessaloniki",
-                      },
-                      defaultBoxState: "Scrap",
-                      id: "15",
-                      name: "SCRAP",
-                    },
-                    numberOfItems: 99,
-                    product: {
-                      __typename: "Product",
-                      type: "Custom",
-                      deletedOn: null,
-                      category: {
-                        id: "1",
-                        name: "Bottoms",
-                        __typename: "ProductCategory",
-                      },
-                      gender: "none",
-                      id: "233",
-                      name: "Toothbrush",
-                    },
-                    shipmentDetail: null,
-                    size: {
-                      __typename: "Size",
-                      id: "68",
-                      label: "One size",
-                    },
-                    state: "Scrap",
-                    tags: [],
-                    createdOn: "2021-10-29T15:02:40+00:00",
-                    createdBy: {
-                      __typename: "User",
-                      id: "123",
-                      name: "Some User",
-                    },
-                    lastModifiedBy: {
-                      __typename: "User",
-                      id: "1234",
-                      name: "Another User",
-                    },
-                    lastModifiedOn: new Date().toISOString(),
-                    deletedOn: null,
-                    qrCode: {
-                      __typename: "QrCode",
-                      code: "67890",
-                    },
-                  },
-                ]
-              : state === "Donated"
-                ? []
-                : [],
+          state === "InStock" && state2 === "Scrap"
+            ? [instockBox1, instockBox2, scrapBox]
+            : state === "InStock"
+              ? [instockBox1, instockBox2]
+              : state === "Scrap"
+                ? [scrapBox]
+                : state === "Donated"
+                  ? []
+                  : [],
         pageInfo: {
           __typename: "PageInfo",
           hasNextPage: false,
@@ -645,6 +398,89 @@ describe("4.8.1 - Initial load of Page", () => {
     // Test case 4.8.1.3
     expect(await screen.findByText(/8650860/i, {}, { timeout: 10000 })).toBeInTheDocument();
   });
+
+  it("4.8.1.4 - Sorting by Location", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1,6",
+        mocks: [
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ state: "InStock", state2: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "InStock", state2: "Scrap" }),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await waitFor(
+      () => {
+        // Wait for the table to load
+        expect(screen.getByRole("table")).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    const locationHeader = screen.getAllByText(/Location/i)[1];
+    await userEvent.click(locationHeader); // Ascending sort
+    await waitFor(
+      () => {
+        const boxes = screen.getAllByRole("row");
+        expect(boxes[1]).toHaveTextContent("3 boxes");
+        expect(boxes[2]).toHaveTextContent("Scrap");
+        expect(boxes[3]).toHaveTextContent("Stockroom");
+        expect(boxes[4]).toHaveTextContent("WH1");
+      },
+      { timeout: 10000 },
+    );
+
+    await userEvent.click(locationHeader); // Descending sort
+    await waitFor(
+      () => {
+        const boxes = screen.getAllByRole("row");
+        expect(boxes[2]).toHaveTextContent("WH1");
+        expect(boxes[3]).toHaveTextContent("Stockroom");
+        expect(boxes[4]).toHaveTextContent("Scrap");
+      },
+      { timeout: 10000 },
+    );
+
+    const stateHeader = screen.getAllByText(/Status/i)[1];
+    await userEvent.click(stateHeader); // Ascending sort
+    await waitFor(
+      () => {
+        const boxes = screen.getAllByRole("row");
+        expect(boxes[1]).toHaveTextContent("3 boxes");
+        expect(boxes[2]).toHaveTextContent("InStock");
+        expect(boxes[3]).toHaveTextContent("InStock");
+        expect(boxes[4]).toHaveTextContent("Scrap");
+      },
+      { timeout: 10000 },
+    );
+
+    await userEvent.click(stateHeader); // Descending sort
+    await waitFor(
+      () => {
+        const boxes = screen.getAllByRole("row");
+        expect(boxes[2]).toHaveTextContent("Scrap");
+        expect(boxes[3]).toHaveTextContent("InStock");
+        expect(boxes[4]).toHaveTextContent("InStock");
+      },
+      { timeout: 10000 },
+    );
+  }, 20000);
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
