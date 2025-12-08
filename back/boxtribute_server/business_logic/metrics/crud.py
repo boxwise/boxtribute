@@ -158,6 +158,7 @@ def reached_beneficiaries_numbers(start, end):
             .where(
                 Transaction.created_on >= start,
                 Transaction.created_on <= end,
+                Transaction.count > 0,
             )
             .distinct()
         )
@@ -168,6 +169,7 @@ def reached_beneficiaries_numbers(start, end):
             .where(
                 Transaction.created_on >= start,
                 Transaction.created_on <= end,
+                Transaction.count > 0,
             )
             .distinct()
         )
