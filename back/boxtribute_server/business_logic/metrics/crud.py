@@ -63,12 +63,17 @@ def compute_number_of_families_served(*, organisation_id, after, before):
     """
     date_filter = _build_range_filter(Transaction.created_on, low=after, high=before)
     return (
-        Beneficiary.select()
+        # Transactions are always assigned to the family head
+        Transaction.select(Transaction.beneficiary.distinct())
+        .join(Beneficiary)
         .join(Base)
         .where(
-            (Base.organisation == organisation_id)
-            & (Beneficiary.id << (_served_beneficiaries(date_filter)))
+            Base.organisation == organisation_id,
+            date_filter,
+            Transaction.count > 0,
         )
+        # Multiple transactions for one checkout should be counted once
+        .group_by(Transaction.beneficiary, Transaction.created_on)
         .count()
     )
 
