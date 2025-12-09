@@ -15,6 +15,7 @@ import SelectField from "components/Form/SelectField";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { ColourField } from "@boxtribute/shared-components/form/ColourField";
 
 const nameErrorText = "Please select a name.";
 const colorErrorText = "Please select a color.";
@@ -42,21 +43,13 @@ const CreateTagFormSchema = z.object({
   // see https://github.com/colinhacks/zod?tab=readme-ov-file#validating-during-transform
   application: z
     .object(
-      { value: z.string() },
+      { value: z.enum(["All", "People", "Stock"]), label: z.string() },
       {
         error: (issue) => (issue.input === undefined ? applicationErrorText : undefined),
       },
     )
-    .transform((selectedOption, ctx) => {
-      const valueInInt = parseInt(selectedOption.value, 10);
-      if (isNaN(valueInInt)) {
-        ctx.addIssue({
-          code: "custom",
-          message: applicationErrorText,
-        });
-        return z.NEVER;
-      }
-      return valueInInt;
+    .transform((selectedOption) => {
+      return selectedOption.value;
     }),
   description: z
     .string()
@@ -69,11 +62,10 @@ export type ICreateTagFormOutput = z.output<typeof CreateTagFormSchema>;
 
 export type ICreateTagFormProps = {
   isLoading: boolean;
-  applicationOptions: z.infer<typeof SingleSelectOptionSchema>[];
   onSubmit: (createTagFormOutput: ICreateTagFormOutput) => void;
 };
 
-export function CreateTagForm({ isLoading, applicationOptions, onSubmit }: ICreateTagFormProps) {
+export function CreateTagForm({ isLoading, onSubmit }: ICreateTagFormProps) {
   const navigate = useNavigate();
   const {
     handleSubmit,
@@ -84,6 +76,21 @@ export function CreateTagForm({ isLoading, applicationOptions, onSubmit }: ICrea
     resolver: zodResolver(CreateTagFormSchema),
   });
 
+  const applicationOptions: z.infer<typeof SingleSelectOptionSchema>[] = [
+    {
+      value: "All",
+      label: "Boxes + Beneficiaries",
+    },
+    {
+      value: "People",
+      label: "Beneficiaries",
+    },
+    {
+      value: "Stock",
+      label: "Boxes",
+    },
+  ];
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box border="2px" mb={4} p={2}>
@@ -93,7 +100,7 @@ export function CreateTagForm({ isLoading, applicationOptions, onSubmit }: ICrea
           </Text>
         </HStack>
         <VStack spacing={4} p={2} mt={2}>
-          <FormControl invalid={!!errors.name}>
+          <FormControl isInvalid={!!errors.name}>
             <FormLabel htmlFor="name">
               Name{" "}
               <Text as="span" color="red.500">
@@ -120,6 +127,13 @@ export function CreateTagForm({ isLoading, applicationOptions, onSubmit }: ICrea
             errors={errors}
             control={control}
           />
+          <ColourField
+            fieldId="color"
+            fieldLabel="Color"
+            errors={errors}
+            control={control}
+            register={register}
+          />
           {/* TODO add colour pickers */}
           <FormControl>
             <FormLabel htmlFor="description">Description</FormLabel>
@@ -138,7 +152,7 @@ export function CreateTagForm({ isLoading, applicationOptions, onSubmit }: ICrea
       </Box>
       <Stack spacing={2} my={4}>
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
-          Add Product
+          Add Tag
         </Button>
         <Button size="md" type="button" w="full" variant="outline" onClick={() => navigate("..")}>
           Nevermind
