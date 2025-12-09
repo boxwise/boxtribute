@@ -6,7 +6,9 @@ from peewee import fn
 
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
+from ...models.definitions.location import Location
 from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.transaction import Transaction
@@ -75,6 +77,24 @@ def number_of_created_records_between(model, start, end):
         model.select()
         .where((model.created_on >= start) & (model.created_on <= end))
         .count()
+    )
+
+
+def number_of_boxes_created_between(start, end):
+    return (
+        Box.select(
+            Organisation.name.alias("organisation_name"),
+            Base.name.alias("base_name"),
+            fn.COUNT(Box.id).alias("number"),
+        )
+        .join(Location)
+        .join(Base)
+        .join(Organisation)
+        .where(
+            Box.created_on >= start,
+            Box.created_on <= end,
+        )
+        .group_by(Organisation.id, Base.id)
     )
 
 
