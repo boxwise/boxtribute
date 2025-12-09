@@ -14,6 +14,8 @@ from utils import (
     assert_successful_request,
 )
 
+today = date.today().isoformat()
+
 
 def test_tag_query(read_only_client, tags):
     # Test case 4.1.2
@@ -118,7 +120,6 @@ def test_tags_query(
 
 
 def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lost_box):
-    today = date.today().isoformat()
     # Test case 4.2.9
     deleted_tag_id = tags[0]["id"]
     mutation = f"""mutation {{ deleteTag(id: {deleted_tag_id}) {{
@@ -493,3 +494,83 @@ def test_update_deleted_tag(read_only_client, tags):
     result = assert_successful_request(read_only_client, mutation)
     assert result["__typename"] == "DeletedTagError"
     assert result["name"] == tags[4]["name"]
+
+
+def test_delete_tags(client, tags):
+    beneficiary_tag_id = str(tags[0]["id"])
+    box_tag_id = str(tags[1]["id"])
+    tag_from_another_base_id = str(tags[3]["id"])
+    deleted_tag_id = str(tags[4]["id"])
+    non_existing_tag_id = "999"
+
+    # Test case 4.2.45
+    mutation = f"""mutation {{ deleteTags
+        (ids: [{beneficiary_tag_id}, {box_tag_id}]) {{
+                ...on TagsResult {{
+                    invalidTagIds
+                    updatedTags {{
+                        id
+                        deletedOn
+                        taggedResources {{ __typename }}
+                    }} }} }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result["updatedTags"][0].pop("deletedOn").startswith(today)
+    assert result["updatedTags"][1].pop("deletedOn").startswith(today)
+    assert result == {
+        "invalidTagIds": [],
+        "updatedTags": [
+            {
+                "id": beneficiary_tag_id,
+                "taggedResources": [],
+            },
+            {
+                "id": box_tag_id,
+                "taggedResources": [],
+            },
+        ],
+    }
+
+    # Test case 4.2.46, 4.2.47, 4.2.48
+    mutation = f"""mutation {{ deleteTags
+        (ids: [{tag_from_another_base_id}, {non_existing_tag_id}, {deleted_tag_id}]) {{
+                ...on TagsResult {{
+                    invalidTagIds
+                    updatedTags {{ id }}
+                    }} }} }}"""
+    result = assert_successful_request(client, mutation)
+    assert result == {
+        "invalidTagIds": [
+            tag_from_another_base_id,
+            deleted_tag_id,
+            non_existing_tag_id,
+        ],
+        "updatedTags": [],
+    }
+
+    history_entries = list(
+        DbChangeHistory.select(
+            DbChangeHistory.changes,
+            DbChangeHistory.change_date,
+            DbChangeHistory.record_id,
+            DbChangeHistory.from_int,
+            DbChangeHistory.to_int,
+        )
+        .where(DbChangeHistory.table_name == "tags")
+        .dicts()
+    )
+    for i in range(len(history_entries)):
+        assert history_entries[i].pop("change_date").isoformat().startswith(today)
+    assert history_entries == [
+        {
+            "changes": HISTORY_DELETION_MESSAGE,
+            "record_id": int(beneficiary_tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+        {
+            "changes": HISTORY_DELETION_MESSAGE,
+            "record_id": int(box_tag_id),
+            "from_int": None,
+            "to_int": None,
+        },
+    ]
