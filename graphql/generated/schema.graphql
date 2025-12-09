@@ -773,7 +773,7 @@ type Query {
   shipment(id: ID!): Shipment
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. Optionally filter for shipments of certain state(s)."
   shipments(states: [ShipmentState!]): [Shipment!]!
-  " Return various metrics about stock and beneficiaries for client's organisation. "
+  " Return various metrics about beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 
   beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
@@ -1534,17 +1534,11 @@ type Metrics {
   If none is specified, the result is an all-time number.
   """
   numberOfFamiliesServed(after: Date, before: Date): Int
-  " Like `numberOfFamiliesServed` but add up all members of served families "
-  numberOfBeneficiariesServed(after: Date, before: Date): Int
   """
   Return number of sales performed by client's organisation in optional date range.
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
   """
   numberOfSales(after: Date, before: Date): Int
-  """
-  Return number of boxes, and number of contained items, managed by client's organisation.
-  """
-  stockOverview: StockOverview
 }
 
 type StockOverview {
