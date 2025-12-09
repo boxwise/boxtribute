@@ -56,7 +56,7 @@ type Query {
   shipment(id: ID!): Shipment
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. Optionally filter for shipments of certain state(s)."
   shipments(states: [ShipmentState!]): [Shipment!]!
-  " Return various metrics about stock and beneficiaries for client's organisation. "
+  " Return various metrics about beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 
   beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
