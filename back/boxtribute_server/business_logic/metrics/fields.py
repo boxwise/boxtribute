@@ -4,7 +4,6 @@ from .crud import (
     compute_number_of_beneficiaries_served,
     compute_number_of_families_served,
     compute_number_of_sales,
-    compute_stock_overview,
 )
 
 metrics = ObjectType("Metrics")
@@ -31,8 +30,3 @@ def resolve_metrics_number_of_sales(metrics_obj, _, after=None, before=None):
     return compute_number_of_sales(
         organisation_id=metrics_obj["organisation_id"], after=after, before=before
     )
-
-
-@metrics.field("stockOverview")
-def resolve_metrics_stock_overview(metrics_obj, _):
-    return compute_stock_overview(organisation_id=metrics_obj["organisation_id"])

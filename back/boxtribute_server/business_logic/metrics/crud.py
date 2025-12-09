@@ -6,8 +6,6 @@ from peewee import JOIN, fn
 
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
-from ...models.definitions.box import Box
-from ...models.definitions.location import Location
 from ...models.definitions.transaction import Transaction
 from ...models.utils import utcnow
 
@@ -93,29 +91,6 @@ def compute_number_of_sales(*, organisation_id, after, before):
         .scalar()  # returns None if no Transactions selected
         or 0
     )
-
-
-def compute_stock_overview(*, organisation_id):
-    """Compute number of boxes, and number of contained items, managed by
-    `organisation_id`.
-    """
-    overview = (
-        Box.select(
-            fn.sum(Box.number_of_items).alias("number_of_items"),
-            fn.Count(Box.id).alias("number_of_boxes"),
-        )
-        .join(Location)
-        .join(Base)
-        .where(
-            (Base.organisation == organisation_id)
-            & (Location.visible == 1)
-            & (Location.is_lost != 1)
-            & (Location.is_scrap != 1)
-            & (Location.is_donated != 1)
-        )
-        .get()
-    )
-    return {n: getattr(overview, n) for n in ["number_of_boxes", "number_of_items"]}
 
 
 def number_of_created_records_between(model, start, end):

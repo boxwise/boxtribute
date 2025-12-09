@@ -749,10 +749,6 @@ type Metrics {
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
   """
   numberOfSales(after: Date, before: Date): Int
-  """
-  Return number of boxes, and number of contained items, managed by client's organisation.
-  """
-  stockOverview: StockOverview
 }
 
 type StockOverview {
