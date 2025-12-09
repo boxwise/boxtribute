@@ -7,9 +7,10 @@ from peewee import fn
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
+from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import HISTORY_DELETION_MESSAGE, utcnow
+from ...models.utils import HISTORY_CREATION_MESSAGE, HISTORY_DELETION_MESSAGE, utcnow
 
 
 def _build_range_filter(field, *, low, high):
@@ -74,6 +75,33 @@ def number_of_created_records_between(model, start, end):
         model.select()
         .where((model.created_on >= start) & (model.created_on <= end))
         .count()
+    )
+
+
+def number_of_beneficiaries_registered_between(start, end):
+    # Beneficiaries might be hard-deleted from the people table, hence we have to use
+    # the history table for reliable information about their creation
+    return (
+        DbChangeHistory.select(
+            Organisation.name.alias("organisation_name"),
+            Base.name.alias("base_name"),
+            fn.COUNT(Beneficiary.id).alias("number"),
+        )
+        .join(
+            Beneficiary,
+            on=(
+                (DbChangeHistory.table_name == Beneficiary._meta.table_name)
+                & (Beneficiary.id == DbChangeHistory.record_id)
+                & (DbChangeHistory.changes == HISTORY_CREATION_MESSAGE)
+            ),
+        )
+        .join(Base)
+        .join(Organisation)
+        .where(
+            DbChangeHistory.change_date >= start,
+            DbChangeHistory.change_date <= end,
+        )
+        .group_by(Organisation.id, Base.id)
     )
 
 

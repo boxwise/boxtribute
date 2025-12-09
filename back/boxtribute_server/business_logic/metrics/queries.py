@@ -2,10 +2,10 @@ from ariadne import QueryType
 from flask import g
 
 from ...authz import authorize
-from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from .crud import (
     get_time_span,
+    number_of_beneficiaries_registered_between,
     number_of_created_records_between,
     reached_beneficiaries_numbers,
 )
@@ -31,7 +31,9 @@ def resolve_newly_registered_beneficiary_numbers(
     *_, start=None, end=None, duration=None
 ):
     time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
-    return number_of_created_records_between(Beneficiary, *time_span)
+    result = number_of_beneficiaries_registered_between(*time_span)
+    # Sum up the numbers grouped by organisation and base into a single number
+    return sum([element.number for element in result])
 
 
 @public_query.field("newlyCreatedBoxNumbers")
