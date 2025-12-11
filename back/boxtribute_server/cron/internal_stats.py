@@ -7,12 +7,21 @@ from flask import current_app
 
 from ..business_logic.metrics.crud import (
     get_time_span,
-    number_of_created_records_between,
+    number_of_beneficiaries_registered_between,
+    number_of_boxes_created_between,
     reached_beneficiaries_numbers,
 )
-from ..models.definitions.beneficiary import Beneficiary
-from ..models.definitions.box import Box
 from ..models.utils import utcnow
+from .formatting import format_as_table, transform_data
+
+
+def _compute_total(data):
+    return sum(
+        bases[base_id]["number"]
+        for org in data.values()
+        for bases in org["bases"]
+        for base_id in bases
+    )
 
 
 def get_internal_data():
@@ -21,13 +30,21 @@ def get_internal_data():
 
     def compute_with_trend(func, duration, *args):
         time_span = get_time_span(duration_days=duration)
-        result = func(*args, *time_span)
+        raw_result = func(*args, *time_span)
+        result = transform_data(raw_result.dicts())
+        current_total = _compute_total(result)
 
         # Compute trend compared to previous window
         compared_end = now - timedelta(days=duration)
         time_span = get_time_span(duration_days=duration, end_date=compared_end)
-        comparison = func(*args, *time_span)
-        trend = (result - comparison) / comparison * 100 if comparison else 0
+        raw_comparison = func(*args, *time_span)
+        comparison = transform_data(raw_comparison.dicts())
+        comparison_total = _compute_total(comparison)
+        trend = (
+            (current_total - comparison_total) / comparison_total * 100
+            if comparison_total
+            else 0
+        )
         return result, trend
 
     titles = [
@@ -36,17 +53,19 @@ def get_internal_data():
         "Reached beneficiaries",
     ]
     funcs = [
-        number_of_created_records_between,
-        number_of_created_records_between,
+        number_of_boxes_created_between,
+        number_of_beneficiaries_registered_between,
         reached_beneficiaries_numbers,
     ]
-    args_list = [[Box], [Beneficiary], []]
-    for title, func, args in zip(titles, funcs, args_list):
-        data = []
+    for title, func in zip(titles, funcs):
+        results = []
+        trends = []
         for duration in [30, 90, 365]:
-            result, trend = compute_with_trend(func, duration, *args)
-            data.append(f"Last {duration:>3} days: {result:>5} ({trend:+.1f}%)")
-        all_data.append({"title": title, "data": "\n".join(data)})
+            result, trend = compute_with_trend(func, duration)
+            results.append(result)
+            trends.append(trend)
+        data = format_as_table(*results, trends=trends)
+        all_data.append({"title": title, "data": data})
     return all_data
 
 

@@ -1,3 +1,4 @@
+import json
 import urllib.error
 from unittest.mock import mock_open, patch
 
@@ -76,18 +77,16 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
     assert response.json == {"message": "posted 3 stats, 0 failure(s)"}
-    assert (
-        mocked_urlopen.call_args_list[0].args[0].data
-        == b'{"title": "Newly created boxes", "data": "Last  30 days:     0 (+0.0%)\\nLast  90 days:     0 (+0.0%)\\nLast 365 days:     0 (+0.0%)"}'  # noqa
-    )
-    assert (
-        mocked_urlopen.call_args_list[1].args[0].data
-        == b'{"title": "Newly registered beneficiaries", "data": "Last  30 days:     1 (+0.0%)\\nLast  90 days:     1 (+0.0%)\\nLast 365 days:     1 (+0.0%)"}'  # noqa
-    )
-    assert (
-        b'{"title": "Reached beneficiaries", "data": "Last  30 days:'
-        in mocked_urlopen.call_args_list[2].args[0].data
-    )
+    header = "organisation "
+    first_part = json.loads(mocked_urlopen.call_args_list[0].args[0].data.decode())
+    assert first_part["title"] == "Newly created boxes"
+    assert first_part["data"].startswith(header)
+    second_part = json.loads(mocked_urlopen.call_args_list[1].args[0].data.decode())
+    assert second_part["title"] == "Newly registered beneficiaries"
+    assert second_part["data"].startswith(header)
+    third_part = json.loads(mocked_urlopen.call_args_list[2].args[0].data.decode())
+    assert third_part["title"] == "Reached beneficiaries"
+    assert third_part["data"].startswith(header)
 
     # Verify error scenario when posting to Slack
     http_err = urllib.error.HTTPError(url, 503, "Service Unavailable", None, None)
