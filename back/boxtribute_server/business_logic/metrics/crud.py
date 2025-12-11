@@ -87,18 +87,17 @@ def reached_beneficiaries_numbers(start, end):
                 DbChangeHistory.table_name == Beneficiary._meta.table_name,
                 DbChangeHistory.change_date >= start,
                 DbChangeHistory.change_date <= end,
-                DbChangeHistory.changes != HISTORY_DELETION_MESSAGE,
+                # Exclude "Record deleted [by dailyroutine|without undelete]"
+                ~DbChangeHistory.changes.startswith(HISTORY_DELETION_MESSAGE),
             )
             .distinct()
         )
         | (
-            # created/edited (misses permanently deleted beneficiaries)
+            # created acc. to people table (contains info for some beneficiaries
+            # directly imported to the DB but misses permanently deleted beneficiaries)
             Beneficiary.select(Beneficiary.id).where(
-                ((Beneficiary.created_on >= start) & (Beneficiary.created_on <= end))
-                | (
-                    (Beneficiary.last_modified_on >= start)
-                    & (Beneficiary.last_modified_on <= end)
-                )
+                Beneficiary.created_on >= start,
+                Beneficiary.created_on <= end,
             )
         )
         | (
@@ -108,22 +107,30 @@ def reached_beneficiaries_numbers(start, end):
                 Transaction.created_on >= start,
                 Transaction.created_on <= end,
                 Transaction.count > 0,
+                # Exclude transactions of permanently deleted beneficiaries
+                Transaction.beneficiary.is_null(False),
             )
             .distinct()
         )
         | (
             # indirectly involved in transactions (family members)
-            Beneficiary.select(Beneficiary.id)
-            .join(Transaction, on=(Transaction.beneficiary == Beneficiary.family_head))
-            .where(
-                Transaction.created_on >= start,
-                Transaction.created_on <= end,
-                Transaction.count > 0,
+            Beneficiary.select(Beneficiary.id).where(
+                fn.EXISTS(
+                    Transaction.select().where(
+                        Transaction.beneficiary == Beneficiary.family_head,
+                        Transaction.created_on >= start,
+                        Transaction.created_on <= end,
+                        Transaction.count > 0,
+                    )
+                ),
+                # Filter out beneficiaries registered as their own family heads
+                Beneficiary.id != Beneficiary.family_head,
             )
-            .distinct()
         )
         | (
             # involved in services
+            # If a beneficiary is registered twice for the same service than you have
+            # the same pair of beneficiary/service but a different created_on
             ServicesRelation.select(ServicesRelation.beneficiary.alias("id"))
             .where(
                 ServicesRelation.created_on >= start,
