@@ -82,6 +82,13 @@ def assert_unauthorized(client, query, **kwargs):
     return _assert_web_request(client, query, http_code=401, **kwargs)
 
 
+def assert_bad_request(client, query, **kwargs):
+    """Send GraphQL request with query using given client.
+    Assert that a 400 response is returned.
+    """
+    return _assert_web_request(client, query, http_code=400, **kwargs)
+
+
 def assert_successful_request(client, query, field=None, **kwargs):
     """Send GraphQL request with query using given client.
     Assert response HTTP code 200, and return main response JSON data field.
@@ -92,10 +99,13 @@ def assert_successful_request(client, query, field=None, **kwargs):
 
 
 def _assert_web_request(
-    client, query, *, http_code=200, field=None, endpoint="graphql"
+    client, query, *, http_code=200, field=None, endpoint="graphql", expect_errors=False
 ):
     data = {"query": query}
     response = client.post(f"/{endpoint}", json=data)
     assert response.status_code == http_code
-    assert "errors" not in response.json
+    if expect_errors:
+        assert "errors" in response.json
+    else:
+        assert "errors" not in response.json
     return response
