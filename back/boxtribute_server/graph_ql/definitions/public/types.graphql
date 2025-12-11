@@ -21,11 +21,22 @@ union ResolvedLinkResult = ResolvedLink | ExpiredLinkError | UnknownLinkError
 """
 Condensed information about a standard product.
 """
-type StandardProductInfo {
+type StandardProductInfo{ 
   id: ID!
   name: String!
   categoryName: String!
   sizeRangeName: String!
   gender: ProductGender!
   version: Int!
+}
+  
+  
+"""
+Metrics about boxes moved across all bases in the database
+for different time periods (last month, quarter, and year).
+"""
+type MovedBoxesStatistics {
+  movedBoxesLastMonth: Int!
+  movedBoxesLastQuarter: Int!
+  movedBoxesLastYear: Int!
 }
