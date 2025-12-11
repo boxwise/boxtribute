@@ -83,7 +83,9 @@ def number_of_created_records_between(model, start, end):
 def number_of_boxes_created_between(start, end):
     return (
         Box.select(
+            Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
             Base.name.alias("base_name"),
             fn.COUNT(Box.id).alias("number"),
         )
@@ -103,7 +105,9 @@ def number_of_beneficiaries_registered_between(start, end):
     # the history table for reliable information about their creation
     return (
         DbChangeHistory.select(
+            Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
             Base.name.alias("base_name"),
             fn.COUNT(Beneficiary.id).alias("number"),
         )
@@ -122,6 +126,7 @@ def number_of_beneficiaries_registered_between(start, end):
             DbChangeHistory.change_date <= end,
         )
         .group_by(Organisation.id, Base.id)
+        .order_by(Organisation.id, Base.id)
     )
 
 
@@ -139,7 +144,7 @@ def reached_beneficiaries_numbers(start, end):
     # Though the DbChangeHistory, Transaction, ServicesRelation models have one-to-many
     # relationships with Beneficiary we don't have to use DISTINCT because UNION takes
     # care of removing the duplicates
-    return (
+    ReachedBeneficiaries = (
         (
             # created/edited (persistently logged in history table)
             DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
@@ -192,7 +197,21 @@ def reached_beneficiaries_numbers(start, end):
                 ServicesRelation.created_on <= end,
             )
         )
-    ).count()
+    )
+    return (
+        Beneficiary.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(ReachedBeneficiaries.c.id).alias("number"),
+        )
+        .from_(ReachedBeneficiaries)
+        .join(Beneficiary, on=(Beneficiary.id == ReachedBeneficiaries.c.id))
+        .join(Base)
+        .join(Organisation)
+        .group_by(Organisation.id, Base.id)
+    )
 
 
 def get_time_span(
