@@ -1,15 +1,19 @@
 import random
+import re
+from collections import defaultdict
 from decimal import Decimal
 
 import peewee
 
 from ....db import db
-from ....enums import BoxState, TaggableObjectType
+from ....enums import BoxState, TaggableObjectType, TagType
 from ....exceptions import (
     BoxCreationFailed,
+    BoxDeleted,
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
+    InvalidBoxState,
     LocationBaseMismatch,
     LocationTagBaseMismatch,
     MissingInputField,
@@ -24,11 +28,13 @@ from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
+from ....models.definitions.size import Size
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
     BATCH_SIZE,
+    HISTORY_CREATION_MESSAGE,
     HISTORY_DELETION_MESSAGE,
     RANDOM_SEQUENCE_GENERATION_ATTEMPTS,
     convert_ids,
@@ -36,6 +42,14 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
+from ...tag.crud import create_tag
+
+WAREHOUSE_BOX_STATES = {
+    BoxState.InStock,
+    BoxState.Donated,
+    BoxState.Scrap,
+    BoxState.Lost,
+}
 
 
 def is_measure_product(product):
@@ -73,6 +87,7 @@ def create_box(
     number_of_items=None,
     qr_code=None,
     tag_ids=None,
+    new_tag_names=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
@@ -97,6 +112,8 @@ def create_box(
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatch()
 
+    if tag_ids is None:
+        tag_ids = []
     if tag_ids:
         _validate_base_of_tags(tag_ids=tag_ids, location=location)
 
@@ -119,6 +136,16 @@ def create_box(
     box_state = (
         BoxState.InStock if location.box_state_id is None else location.box_state_id
     )
+    if new_tag_names:
+        for name in set(new_tag_names):
+            tag = create_tag(
+                name=name,
+                type=TagType.Box,
+                user_id=user_id,
+                base_id=location.base_id,
+                now=now,
+            )
+            tag_ids.append(tag.id)
 
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
@@ -204,12 +231,21 @@ def update_box(
     measure_value=None,
     state=None,
     tag_ids=None,
-    tag_ids_to_be_added=None,
+    new_tag_names=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
     Insert timestamp for modification and return the box.
     """
     box = Box.get(Box.label_identifier == label_identifier)
+
+    if box.deleted_on is not None:
+        raise BoxDeleted(label_identifier=label_identifier)
+
+    if box.state_id not in WAREHOUSE_BOX_STATES:
+        raise InvalidBoxState(
+            state=BoxState(box.state_id).name, label_identifier=label_identifier
+        )
+
     box_contains_measure_product = box.size_id is None
     new_product = Product.get_by_id(product_id or box.product_id)
     new_product_is_measure_product = is_measure_product(new_product)
@@ -316,20 +352,25 @@ def update_box(
         ]
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
-    if tag_ids_to_be_added is not None:
-        _validate_base_of_tags(tag_ids=tag_ids_to_be_added, location=new_location)
-
-        # Find all tag IDs that are currently assigned to the box
-        assigned_tag_ids = set(
-            r.tag_id
-            for r in TagsRelation.select(TagsRelation.tag_id).where(
-                TagsRelation.object_type == TaggableObjectType.Box,
-                TagsRelation.object_id == box.id,
-                TagsRelation.deleted_on.is_null(),
+        # If a tags update is the only effective change for updateBox, the
+        # save_update_to_history function would not set the last_modified_* fields for
+        # the box, hence we explicitly do it here. But only if the tags actually changed
+        if assigned_tag_ids != updated_tag_ids:
+            box.last_modified_on = now
+            box.last_modified_by = user_id
+    if new_tag_names:
+        # Add new tags only after processing tag_ids. Otherwise the new tags will be
+        # added to and removed from the box immediately
+        new_tag_ids = []
+        for name in set(new_tag_names):
+            tag = create_tag(
+                name=name,
+                type=TagType.Box,
+                user_id=user_id,
+                base_id=new_location.base_id,
+                now=now,
             )
-        )
-        # Assign all tags that are part of the set of tags requested to be added but
-        # were previously not assigned to the box
+            new_tag_ids.append(tag.id)
         tags_relations = [
             TagsRelation(
                 object_id=box.id,
@@ -338,7 +379,7 @@ def update_box(
                 created_on=now,
                 created_by=user_id,
             )
-            for tag_id in set(tag_ids_to_be_added).difference(assigned_tag_ids)
+            for tag_id in new_tag_ids
         ]
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
 
@@ -498,3 +539,158 @@ def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
         ).execute()
 
     return list(Box.select().where(Box.id << box_ids))
+
+
+def sanitize_input(data, new_tag_ids):
+    sanitized_data = []
+    all_tag_ids = []
+    for entry in data:
+        entry["size_name"] = entry["size_name"].lower()
+
+        # Remove tag IDs from input because they're inserted into a different table
+        tag_ids = set(entry.pop("tag_ids", []))  # remove duplicated IDs
+        all_tag_ids.append(tag_ids)
+
+        new_tag_names = set(entry.pop("new_tag_names", []))
+        all_tag_ids[-1].update({new_tag_ids[name] for name in new_tag_names})
+
+        sanitized_data.append(entry)
+    return sanitized_data, all_tag_ids
+
+
+# The regular expression pattern
+# 1. Start anchor (^) ensures we match from the beginning of the string.
+# 2. Group 1 (Number):
+#    - (\d+\.?\d*): Matches standard numbers like 1, 1.5, 1.
+#    - |: OR
+#    - \.\d+: Matches numbers without a leading zero, like .5
+# 3. \s*: Matches zero or more whitespace characters between the number and unit.
+# 4. Group 2 (Unit):
+#    - (kg|g|ml|l|mg|t|lb|oz): Matches one of the defined units exactly.
+# 5. End anchor ($) ensures we match to the end of the string.
+QUANTITY_REGEX = re.compile(
+    r"^(\d+\.?\d*|\.\d+)\s*(kg|g|ml|l|mg|t|lb|oz)$",
+)
+
+
+def create_boxes(*, user_id, data):
+    now = utcnow()
+
+    # Find base corresponding to given locations
+    location_ids = {row["location_id"] for row in data}
+    base_ids = {
+        loc.base_id
+        for loc in Location.select(Location.base).where(Location.id << location_ids)
+    }
+    if len(base_ids) != 1:
+        raise ValueError(f"Invalid base IDs: {','.join([str(i) for i in base_ids])}")
+
+    # Authz should happen now
+
+    # More validation: product and location base ID matching? Deleted location/product?
+
+    # Create new tags
+    new_tag_names = {n for row in data for n in row["new_tag_names"]}
+    new_tag_ids = {}
+    for tag_name in new_tag_names:
+        tag = create_tag(
+            name=tag_name,
+            type=TagType.Box,
+            user_id=user_id,
+            base_id=list(base_ids)[0],
+            now=now,
+        )
+        new_tag_ids[tag_name] = tag.id
+
+    # Data preparation
+    sanitized_data, all_tag_ids = sanitize_input(data, new_tag_ids)
+
+    # Build look-ups for products with discrete size
+    product_ids = {row["product_id"] for row in data}
+    all_sizes = (
+        Product.select(Product.id, Size.id, Size.label)
+        .join(Size, on=(Product.size_range == Size.size_range))
+        .where(Product.id << product_ids)
+    )
+    sizes_for_product = defaultdict(dict)
+    for row in all_sizes:
+        sizes_for_product[row.id][row.size.label.lower()] = row.size.id
+
+    # Prepare units look-up
+    units = {u.symbol: u for u in Unit.select()}
+
+    # Bulk create
+    complete_data = []
+    for row in sanitized_data:
+        comment = row["comment"]
+        sizes = sizes_for_product[row["product_id"]]
+        size_id = None
+        display_unit_id = None
+        measure_value = None
+        quantity = QUANTITY_REGEX.match(row["size_name"].strip())
+        if quantity:
+            display_unit = units[quantity.group(2)]
+            measure_value = Decimal(quantity.group(1)) / display_unit.conversion_factor
+            display_unit_id = display_unit.id
+        else:
+            size_id = sizes.get(row["size_name"])
+            if size_id is None:
+                # Either it's a product with discrete size, and the specified size is
+                # not available in the product's sizerange, then fallback to "Mixed".
+                # Or it's a measure product, and the specified size does not match the
+                # value-unit regex, then set size to None
+                size_id = sizes.get("mixed")
+                size_comment = f"""original size: '{row["size_name"]}'"""
+                comment = f"{comment}; {size_comment}" if comment else size_comment
+        complete_data.append(
+            {
+                # Is this safe enough for a large number of boxes?
+                "label_identifier": "".join(random.choices("0123456789", k=8)),
+                "product_id": row["product_id"],
+                "location_id": row["location_id"],
+                "number_of_items": row["number_of_items"],
+                "comment": comment,
+                "size_id": size_id,
+                "display_unit": display_unit_id,
+                "measure_value": measure_value,
+                "created_by": user_id,
+                "created_on": now,
+            }
+        )
+
+    with db.database.atomic():
+        first_inserted_id = Box.insert_many(complete_data).execute()
+        boxes = list(
+            Box.select().where(
+                Box.id >= first_inserted_id,
+                Box.id < first_inserted_id + len(complete_data),
+            )
+        )
+
+        history_entries = [
+            DbChangeHistory(
+                changes=HISTORY_CREATION_MESSAGE,
+                table_name=Box._meta.table_name,
+                record_id=box.id,
+                user=user_id,
+                change_date=now,
+            )
+            for box in boxes
+        ]
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+
+        tags_relations = [
+            {
+                "object_id": box.id,
+                "object_type": TaggableObjectType.Box,
+                "tag": tag_id,
+                "created_on": now,
+                "created_by": user_id,
+            }
+            for box, tag_ids in zip(boxes, all_tag_ids)
+            for tag_id in tag_ids
+        ]
+        if tags_relations:
+            TagsRelation.insert_many(tags_relations).execute()
+
+        return boxes

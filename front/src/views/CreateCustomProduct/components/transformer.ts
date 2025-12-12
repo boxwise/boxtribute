@@ -51,6 +51,14 @@ const genders: IGendersOptions[] = [
     label: "Teen Boy",
     value: "TeenBoy",
   },
+  {
+    label: "Baby Girl",
+    value: "BabyGirl",
+  },
+  {
+    label: "Baby Boy",
+    value: "BabyBoy",
+  },
 ];
 
 export const customProductRawToFormOptionsTransformer = (
@@ -61,10 +69,12 @@ export const customProductRawToFormOptionsTransformer = (
       label: category.name,
       value: category.id,
     })),
-    sizeRangeOptions: customProductRawOptions.sizeRanges.map((sizeRange) => ({
-      label: sizeRange.label,
-      value: sizeRange.id,
-    })),
+    sizeRangeOptions: customProductRawOptions.sizeRanges
+      .filter((sizeRange) => sizeRange.id !== "28" && sizeRange.id !== "29")
+      .map((sizeRange) => ({
+        label: sizeRange.label,
+        value: sizeRange.id,
+      })),
     genderOptions: genders,
   };
 };

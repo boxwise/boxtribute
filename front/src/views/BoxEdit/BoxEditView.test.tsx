@@ -68,6 +68,7 @@ const successfulMutation = {
       numberOfItems: 62,
       locationId: 1,
       tagIds: [1],
+      newTagNames: [],
       comment: "Test",
     },
   },
@@ -338,3 +339,56 @@ it("3.2.7 - Mutation failure due to GraphQL Error", async () => {
   );
   expect(await screen.findByRole("heading", { name: "Box 123" })).toBeInTheDocument();
 });
+
+const successfulMutationWithTags = {
+  request: {
+    query: UPDATE_CONTENT_OF_BOX_MUTATION,
+    variables: {
+      boxLabelIdentifier: "123",
+      productId: 1,
+      sizeId: 1,
+      numberOfItems: 62,
+      locationId: 1,
+      tagIds: [1],
+      newTagNames: ["epic"],
+      comment: "Test",
+    },
+  },
+  result: {
+    data: {
+      updateBox: {
+        labelIdentifier: 123,
+      },
+    },
+  },
+};
+
+it("3.2.8 - Change Product with tag creation", async () => {
+  const user = userEvent.setup();
+  render(<BoxEditView />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier/edit",
+    initialUrl: "/bases/1/boxes/123/edit",
+    mocks: [initialQuery, successfulMutationWithTags, refetchQuery],
+    addTypename: true,
+    additionalRoute: "/bases/1/boxes/123",
+  });
+
+  const submitButton = await screen.findByRole("button", { name: /update box/i });
+
+  // 3.2.8.1 add new tag
+  await user.type(screen.getByLabelText(/Tags/), "epic");
+  //select create new option
+  const createOption = await screen.findByText('Create "epic"');
+  await user.click(createOption);
+
+  expect(await screen.findByText("epic")).toBeInTheDocument();
+  await user.click(submitButton);
+  await waitFor(() =>
+    expect(mockedCreateToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/successfully modified/i),
+      }),
+    ),
+  );
+  expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123" })).toBeInTheDocument();
+}, 20000);

@@ -135,12 +135,11 @@ def test_query_non_existent_resource_for_god_user(read_only_client, mocker, reso
         "markShipmentAsLost",
         "sendShipment",
         "startReceivingShipment",
-        "deleteTag",
         "deactivateBeneficiary",
     ],
 )
 def test_mutation_non_existent_resource(read_only_client, operation):
-    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b, 4.2.10, 9.2.23
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b, 9.2.23
     mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(read_only_client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
@@ -156,8 +155,6 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         # Test case 3.2.21
         ["updateShipmentWhenPreparing", "updateInput: { id: 0 }", "id"],
         ["updateShipmentWhenReceiving", "updateInput: { id: 0 }", "id"],
-        # Test case 4.2.5
-        ["updateTag", "updateInput: { id: 0 }", "id"],
         # Test case 4.2.15
         [
             "assignTag",
@@ -353,6 +350,20 @@ def test_update_non_existent_resource(
             "creationInput: { baseId: 0, beneficiaryData: [] }",
             "...on UnauthorizedForBaseError { id name organisationName }",
             {"id": "0", "name": "", "organisationName": ""},
+        ],
+        # Test case 4.2.5
+        [
+            "updateTag",
+            "updateInput: { id: 0 }",
+            "...on ResourceDoesNotExistError { name id }",
+            {"name": "Tag", "id": "0"},
+        ],
+        # Test case 4.2.10
+        [
+            "deleteTag",
+            "id: 0",
+            "...on ResourceDoesNotExistError { name id }",
+            {"name": "Tag", "id": "0"},
         ],
     ],
 )

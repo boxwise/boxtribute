@@ -1,4 +1,4 @@
-import { graphql } from "../../../../graphql/graphql"
+import { graphql } from "../../../../graphql/graphql";
 
 export const ALL_PRODUCTS_FOR_PACKING_LIST = graphql(`
   query AllProductsForPackingList($baseId: ID!) {
@@ -61,10 +61,7 @@ export const DISTRIBUTION_EVENTS_FOR_BASE_ID = graphql(`
 `);
 
 export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = graphql(`
-  mutation AssignBoxToDistributionEvent(
-    $boxLabelIdentifier: ID!
-    $distributionEventId: ID!
-  ) {
+  mutation AssignBoxToDistributionEvent($boxLabelIdentifier: ID!, $distributionEventId: ID!) {
     assignBoxToDistributionEvent(
       boxLabelIdentifier: $boxLabelIdentifier
       distributionEventId: $distributionEventId
@@ -82,10 +79,7 @@ export const ASSIGN_BOX_TO_DISTRIBUTION_MUTATION = graphql(`
 `);
 
 export const UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION = graphql(`
-  mutation UnassignBoxFromDistributionEvent(
-    $boxLabelIdentifier: ID!
-    $distributionEventId: ID!
-  ) {
+  mutation UnassignBoxFromDistributionEvent($boxLabelIdentifier: ID!, $distributionEventId: ID!) {
     unassignBoxFromDistributionEvent(
       boxLabelIdentifier: $boxLabelIdentifier
       distributionEventId: $distributionEventId
@@ -127,13 +121,14 @@ export const MOVE_ITEMS_TO_DISTRIBUTION_EVENT = graphql(`
 `);
 
 export const RETURN_TRACKING_GROUP_ID_FOR_DISTRIBUTION_EVENT_QUERY = graphql(`
-query ReturnTrackingGroupIdForDistributionEvent($distributionEventId: ID!) {
-  distributionEvent(id: $distributionEventId) {
-    distributionEventsTrackingGroup {
-      id
+  query ReturnTrackingGroupIdForDistributionEvent($distributionEventId: ID!) {
+    distributionEvent(id: $distributionEventId) {
+      distributionEventsTrackingGroup {
+        id
+      }
     }
   }
-}`);
+`);
 
 export const PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY = graphql(`
   query PackingListEntriesForDistributionEvent($distributionEventId: ID!) {
@@ -171,10 +166,7 @@ export const CHANGE_DISTRIBUTION_EVENT_STATE_MUTATION = graphql(`
     $distributionEventId: ID!
     $newState: DistributionEventState!
   ) {
-    changeDistributionEventState(
-      distributionEventId: $distributionEventId
-      newState: $newState
-    ) {
+    changeDistributionEventState(distributionEventId: $distributionEventId, newState: $newState) {
       id
       name
       state
@@ -395,31 +387,29 @@ export const DATA_FOR_RETURN_TRACKING_OVERVIEW_FOR_BASE_QUERY = graphql(`
   }
 `);
 
-export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = graphql(`
-  mutation SetReturnedNumberOfItemsForDistributionEventsTrackingGroup(
-    $distributionEventsTrackingGroupId: ID!
-    $productId: ID!
-    $sizeId: ID!
-    $numberOfReturnedItems: Int!
-  ) {
-    setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
-      distributionEventsTrackingGroupId: $distributionEventsTrackingGroupId
-      productId: $productId
-      sizeId: $sizeId
-      numberOfItems: $numberOfReturnedItems
+export const SET_RETURNED_NUMBER_OF_ITEMS_FOR_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = graphql(
+  `
+    mutation SetReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+      $distributionEventsTrackingGroupId: ID!
+      $productId: ID!
+      $sizeId: ID!
+      $numberOfReturnedItems: Int!
     ) {
-      id
+      setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
+        distributionEventsTrackingGroupId: $distributionEventsTrackingGroupId
+        productId: $productId
+        sizeId: $sizeId
+        numberOfItems: $numberOfReturnedItems
+      ) {
+        id
+      }
     }
-  }
-`);
+  `,
+);
 
 export const COMPLETE_DISTRIBUTION_EVENTS_TRACKING_GROUP_MUTATION = graphql(`
-  mutation CompleteDistributionEventsTrackingGroup(
-    $distributionEventsTrackingGroupId: ID!
-  ) {
-    completeDistributionEventsTrackingGroup(
-      id: $distributionEventsTrackingGroupId
-    ) {
+  mutation CompleteDistributionEventsTrackingGroup($distributionEventsTrackingGroupId: ID!) {
+    completeDistributionEventsTrackingGroup(id: $distributionEventsTrackingGroupId) {
       id
     }
   }

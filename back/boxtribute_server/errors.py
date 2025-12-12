@@ -21,6 +21,11 @@ class InvalidDate(UserError):
         self.date = date
 
 
+class InvalidColor(UserError):
+    def __init__(self, *, color):
+        self.color = color
+
+
 class EmptyName(UserError):
     _ = None
 

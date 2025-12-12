@@ -9,6 +9,8 @@ input BoxCreationInput {
   comment: String
   qrCode: String
   tagIds: [Int!]
+  " Names of new tags to be created on-the-fly "
+  newTagNames: [String!]
 }
 
 input BoxUpdateInput {
@@ -23,8 +25,8 @@ input BoxUpdateInput {
   state: BoxState
   " List of all tags that shall be assigned to the box. Any requested tags already assigned to the box will not be assigned again "
   tagIds: [Int!]
-  " List of tags that shall be assigned in addition to already assigned tags. Any requested tags already assigned to the box will not be assigned again "
-  tagIdsToBeAdded: [Int!]
+  " Names of new tags to be created on-the-fly "
+  newTagNames: [String!]
 }
 
 input BoxMoveInput {
@@ -35,6 +37,17 @@ input BoxMoveInput {
 input BoxesTagsOperationInput {
   labelIdentifiers: [String!]!
   tagIds: [Int!]!
+}
+
+input BoxBulkCreationInput {
+  productId: Int!
+  " Name of discrete size (XL, Size 4, 39, ...); or measure (1.5kg, 300ml, ...) "
+  sizeName: String!
+  numberOfItems: Int
+  locationId: Int!
+  comment: String
+  tagIds: [Int!]
+  newTagNames: [String!]
 }
 
 input CustomProductCreationInput {

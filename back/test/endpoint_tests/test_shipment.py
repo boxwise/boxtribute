@@ -308,7 +308,7 @@ def test_shipment_mutations_on_source_side(
                     "shipmentDetail": {"id": prepared_shipment_detail_id},
                     "history": [
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                     "lastModifiedOn": another_marked_for_shipment_box[
                         "last_modified_on"
@@ -343,7 +343,7 @@ def test_shipment_mutations_on_source_side(
                         {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "removed tag 'pallet1' from box"},
                         {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                     "lastModifiedBy": {"id": source_base_user_id},
                 },
@@ -546,7 +546,7 @@ def test_shipment_mutations_on_source_side(
             {"changes": "assigned tag 'pallet1' to box"},
             {"changes": "removed tag 'pallet1' from box"},
             {"changes": "assigned tag 'pallet1' to box"},
-            {"changes": "created record"},
+            {"changes": "created box"},
         ],
     }
     assert shipment == {
@@ -563,7 +563,7 @@ def test_shipment_mutations_on_source_side(
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -628,7 +628,7 @@ def test_shipment_mutations_cancel(
                     "history": [
                         {"changes": f"{change_prefix} MarkedForShipment to InStock"},
                         {"changes": f"{change_prefix} InStock to MarkedForShipment"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             }
@@ -775,7 +775,7 @@ def test_shipment_mutations_on_target_side(
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": f"assigned tag '{tag_name}' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -786,7 +786,7 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -801,7 +801,7 @@ def test_shipment_mutations_on_target_side(
                         {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "removed tag 'pallet1' from box"},
                         {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -856,7 +856,7 @@ def test_shipment_mutations_on_target_side(
                         {"changes": f"removed tag '{tag_name}' from box"},
                         {"changes": f"{change_prefix} InTransit to Receiving"},
                         {"changes": f"assigned tag '{tag_name}' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
                 "sourceProduct": {"id": str(default_shipment_detail["source_product"])},
@@ -875,7 +875,7 @@ def test_shipment_mutations_on_target_side(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to Receiving"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
                 "sourceProduct": {"id": str(another_shipment_detail["source_product"])},
@@ -898,7 +898,7 @@ def test_shipment_mutations_on_target_side(
                         {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "removed tag 'pallet1' from box"},
                         {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
                 "sourceProduct": {"id": str(removed_shipment_detail["source_product"])},
@@ -1017,7 +1017,7 @@ def test_shipment_mutations_on_target_side(
                     "history": [
                         {"changes": f"{change_prefix} Receiving to NotDelivered"},
                         {"changes": f"{change_prefix} InTransit to Receiving"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -1035,7 +1035,7 @@ def test_shipment_mutations_on_target_side(
                         {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "removed tag 'pallet1' from box"},
                         {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -1117,7 +1117,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     "history": [
                         {"changes": f"{change_prefix} InTransit to NotDelivered"},
                         {"changes": "assigned tag 'tag-name' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -1130,7 +1130,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                     "lastModifiedBy": {"id": target_base_user_id},
                     "history": [
                         {"changes": f"{change_prefix} InTransit to NotDelivered"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -1147,7 +1147,7 @@ def test_shipment_mutations_on_target_side_mark_shipment_as_lost(
                         {"changes": "assigned tag 'pallet1' to box"},
                         {"changes": "removed tag 'pallet1' from box"},
                         {"changes": "assigned tag 'pallet1' to box"},
-                        {"changes": "created record"},
+                        {"changes": "created box"},
                     ],
                 },
             },
@@ -1623,7 +1623,7 @@ def test_move_not_delivered_box_instock_in_source_base(
     assert box == {
         "history": [
             {"changes": f"{change_prefix} NotDelivered to InStock"},
-            {"changes": "created record"},
+            {"changes": "created box"},
         ]
     }
 

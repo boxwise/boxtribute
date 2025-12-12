@@ -13,7 +13,7 @@ WORKDIR /app
 # image build process
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY shared-components shared-components
-# we use the same docker file for both front and statviz
+# we use the same docker file for both front and shared-front
 # services, so we need to pass in the service directory
 ARG SERVICE_DIR
 COPY ./${SERVICE_DIR}/package.json ${SERVICE_DIR}/

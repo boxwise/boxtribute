@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useTransition } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -21,7 +21,6 @@ import {
   useSortBy,
   useRowSelect,
   usePagination,
-  Row,
   CellProps,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
@@ -32,7 +31,7 @@ import {
   includesSomeObjectFilterFn,
   includesSomeTagObjectFilterFn,
 } from "components/Table/Filter";
-import { IUseTableConfigReturnType } from "hooks/hooks";
+import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
 import { GlobalFilter } from "./GlobalFilter";
 import { BoxRow } from "./types";
@@ -57,8 +56,6 @@ interface IBoxesTableProps {
   locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
-  actionButtons?: React.ReactNode[];
-  selectedBoxes?: Row<BoxRow>[];
 }
 
 function BoxesTable({
@@ -209,12 +206,14 @@ function BoxesTable({
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} />
         <Tbody>
-          <Tr key={"boxes-count-row"}>
+          <Tr key={"boxes-count-row"} bg={"gray.100"}>
             <Td fontWeight="bold" key={"product-total"}>
               Total
             </Td>
             <Td fontWeight="bold" key={"boxes-count"}>
-              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+              {isBackgroundFetchOfBoxesLoading ||
+              refetchBoxesIsPending ||
+              tableConfig.isNotMounted ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{boxCount} boxes</Text>
@@ -223,7 +222,9 @@ function BoxesTable({
               )}
             </Td>
             <Td fontWeight="bold" key={"item-count"}>
-              {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+              {isBackgroundFetchOfBoxesLoading ||
+              refetchBoxesIsPending ||
+              tableConfig.isNotMounted ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : hasExecutedInitialFetchOfBoxes.current ? (
                 <Text as="span">{itemsCount} items</Text>
@@ -231,15 +232,16 @@ function BoxesTable({
                 <Text as="span">Data unavailable</Text>
               )}
             </Td>
+            <Td colSpan={20}></Td>
           </Tr>
-          {refetchBoxesIsPending && (
+          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
             <Tr key="refetchIsPending1">
               <Td colSpan={columns.length + 1}>
                 <Skeleton height={5} />
               </Td>
             </Tr>
           )}
-          {refetchBoxesIsPending && (
+          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
             <Tr key="refetchIsPending2">
               <Td colSpan={columns.length + 1}>
                 <Skeleton height={5} />
@@ -293,14 +295,14 @@ function BoxesTable({
               {pageIndex + 1}
             </Text>{" "}
             of{" "}
+            {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+              <Skeleton height={5} width={10} mr={2} />
+            ) : (
+              <Text fontWeight="bold" as="span">
+                {pageOptions.length}
+              </Text>
+            )}
           </Text>
-          {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
-            <Skeleton height={5} width={10} mr={2} />
-          ) : (
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          )}
         </Flex>
 
         <Flex>

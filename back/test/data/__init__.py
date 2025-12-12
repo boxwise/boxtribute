@@ -22,6 +22,7 @@ from .box import (
     default_box,
     default_boxes,
     default_location_boxes,
+    donated_box,
     in_transit_box,
     lost_box,
     marked_for_shipment_box,
@@ -63,6 +64,7 @@ from .product import (
     base3_products,
     default_product,
     disabled_standard_product,
+    mass_product,
     products,
 )
 from .product_category import default_product_category, product_categories
@@ -74,7 +76,14 @@ from .qr_code import (
     qr_code_for_not_delivered_box,
     qr_code_without_box,
 )
-from .shareable_link import expired_link, shareable_link, stock_overview_link
+from .service import english_lesson_service
+from .services_relation import default_service_relation
+from .shareable_link import (
+    expired_link,
+    shareable_link,
+    stock_overview_link,
+    tagged_stock_overview_link,
+)
 from .shipment import (
     another_shipment,
     canceled_shipment,
@@ -91,7 +100,7 @@ from .shipment_detail import (
     prepared_shipment_detail,
     removed_shipment_detail,
 )
-from .size import another_size, default_size
+from .size import another_size, default_size, mixed_size
 from .size_range import another_size_range, default_size_range, size_ranges
 from .standard_product import (
     another_standard_product,
@@ -177,6 +186,8 @@ __all__ = [
     "distro_spot5_distribution_events",
     "distro_spot5_distribution_events_before_return_state",
     "distro_spot5_distribution_events_in_return_state",
+    "donated_box",
+    "english_lesson_service",
     "expired_link",
     "expired_transfer_agreement",
     "god_user",
@@ -187,9 +198,11 @@ __all__ = [
     "liter_unit",
     "lost_box",
     "marked_for_shipment_box",
+    "mass_product",
     "mass_units",
     "measure_product_box",
     "measure_standard_product",
+    "mixed_size",
     "newest_standard_product",
     "non_default_box_state_location",
     "not_delivered_box",
@@ -210,12 +223,14 @@ __all__ = [
     "removed_shipment_detail",
     "reviewed_transfer_agreement",
     "sent_shipment",
+    "default_service_relation",
     "shareable_link",
     "shipments",
     "size_ranges",
     "standard_products",
     "stock_overview_link",
     "superceding_measure_standard_product",
+    "tagged_stock_overview_link",
     "tags",
     "transfer_agreements",
     "unidirectional_transfer_agreement",
@@ -248,6 +263,9 @@ _NAMES = [
     "shipment",
     "tag",
     "shareable_link",
+    "distribution_event_tracking_group",
+    "distribution_event",
+    "service",
 ]
 
 
@@ -269,8 +287,9 @@ def setup_models():
         module = importlib.import_module(f"data.{module_name}")
         module.create()
 
-    # Set up remaining models; order is now irrelevant
-    for module_name in module_names:
+    # Set up remaining models; order is now irrelevant. Still sort modules to be
+    # independent from different result order of os.listdir in different envs
+    for module_name in sorted(module_names):
         module = importlib.import_module(f"data.{module_name}")
         module.create()
 

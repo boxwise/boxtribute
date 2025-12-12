@@ -2,7 +2,7 @@ export const history1 = {
   __typename: "HistoryEntry",
   changeDate: "2023-01-12T08:39:44+00:00",
 
-  changes: "created record",
+  changes: "created box",
   id: "1",
   user: {
     __typename: "User",
@@ -28,6 +28,18 @@ export const history3 = {
   changeDate: "2024-03-20T10:30:00+00:00",
   changes: "changed box status from InStock to MarkedForShipment",
   id: "3",
+  user: {
+    __typename: "User",
+    id: "8",
+    name: "Dev Coordinator",
+  },
+};
+
+export const history4 = {
+  __typename: "HistoryEntry",
+  changeDate: "2024-03-20T10:30:00+00:00",
+  changes: "created QR code label for box",
+  id: "4",
   user: {
     __typename: "User",
     id: "8",

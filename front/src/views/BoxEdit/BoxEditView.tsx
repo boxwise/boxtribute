@@ -69,6 +69,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
     $sizeId: Int!
     $comment: String
     $tagIds: [Int!]
+    $newTagNames: [String!]
   ) {
     updateBox(
       updateInput: {
@@ -79,6 +80,7 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
         locationId: $locationId
         comment: $comment
         tagIds: $tagIds
+        newTagNames: $newTagNames
       }
     ) {
       labelIdentifier
@@ -122,8 +124,12 @@ function BoxEditView() {
   // Handle Submission
   const onSubmitBoxEditForm = (boxEditFormData: IBoxEditFormDataOutput) => {
     const tagIds = boxEditFormData?.tags
-      ? boxEditFormData?.tags?.map((tag) => parseInt(tag.value, 10))
+      ? boxEditFormData?.tags?.filter((tag) => !tag.__isNew__).map((tag) => parseInt(tag.value, 10))
       : [];
+
+    const newTagNames = boxEditFormData?.tags
+      ?.filter((tag) => tag.__isNew__)
+      .map((tag) => tag.label);
 
     updateContentOfBoxMutation({
       variables: {
@@ -133,6 +139,7 @@ function BoxEditView() {
         numberOfItems: boxEditFormData.numberOfItems,
         locationId: parseInt(boxEditFormData.locationId.value, 10),
         tagIds,
+        newTagNames,
         comment: boxEditFormData?.comment,
       },
     })

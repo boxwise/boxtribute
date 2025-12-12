@@ -85,7 +85,9 @@ class ProductGender(enum.IntEnum):
     Girl = enum.auto()
     Boy = enum.auto()
     UnisexKid = enum.auto()
-    UnisexBaby = 9
+    BabyGirl = enum.auto()
+    BabyBoy = enum.auto()
+    UnisexBaby = enum.auto()
     none = enum.auto()
     TeenGirl = 12
     TeenBoy = enum.auto()

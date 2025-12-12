@@ -1,6 +1,6 @@
 import { InMemoryCache, makeVar, Reference } from "@apollo/client";
 import { IScannedBoxesData } from "types/graphql-local-only";
-import { ITableConfig } from "hooks/hooks";
+import { ITableConfig } from "hooks/useTableConfig";
 import { GET_SCANNED_BOXES } from "./local-only";
 
 export const cache = new InMemoryCache({

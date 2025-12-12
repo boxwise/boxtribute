@@ -94,7 +94,11 @@ const mockedUseAuth0 = vi.mocked(useAuth0);
 const mockedQrReader = vi.mocked(QrReaderScanner);
 
 beforeEach(() => {
-  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
+  mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org", [
+    "be_user",
+    "view_shipments",
+    "manage_inventory",
+  ]);
 });
 
 const failingShipmentsQueryTests = [
@@ -132,7 +136,7 @@ failingShipmentsQueryTests.forEach(({ name, hash, mocks, alert }) => {
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    user.click(multiBoxTab);
+    await user.click(multiBoxTab);
 
     // alert shown
     if (alert) {
@@ -158,7 +162,7 @@ it("3.4.5.1 - There are boxes in the list, but the state of some is not InStock"
   // go to the MultiBox Tab
   const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
   expect(multiBoxTab).toBeInTheDocument();
-  user.click(multiBoxTab);
+  await user.click(multiBoxTab);
 
   // 3.4.3.1 - no QR-codes were successfully scanned yet.
   const boxesSelectedStatus = await screen.findByText(/boxes selected: 0/i);
@@ -262,7 +266,7 @@ assignToShipmentMutationTests.forEach(({ name, mocks, toast }) => {
     // go to the MultiBox Tab
     const multiBoxTab = await screen.findByRole("tab", { name: /multi box/i });
     expect(multiBoxTab).toBeInTheDocument();
-    user.click(multiBoxTab);
+    await user.click(multiBoxTab);
 
     // 3.4.5.5 - Query for shipments returns one or more shipments in preparing state
     const assignToShipmentOption = await screen.findByTestId("AssignShipment");
@@ -315,7 +319,7 @@ it("3.4.5.11 - One Box of two or more Boxes fail for the Assign boxes to shipmen
   });
 
   // go to the MultiBox Tab
-  user.click(await screen.findByRole("tab", { name: /multi box/i }));
+  await user.click(await screen.findByRole("tab", { name: /multi box/i }));
   expect(await screen.findByText(/boxes selected: 0/i)).toBeInTheDocument();
 
   // scan box 123

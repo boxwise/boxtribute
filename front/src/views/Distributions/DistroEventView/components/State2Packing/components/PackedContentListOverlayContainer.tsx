@@ -1,4 +1,8 @@
-import { BoxData, IPackingListEntryForPackingState, UnboxedItemsCollectionData } from "views/Distributions/types";
+import {
+  BoxData,
+  IPackingListEntryForPackingState,
+  UnboxedItemsCollectionData,
+} from "views/Distributions/types";
 import PackedContentListOverlay from "./PackedContentListOverlay";
 
 export interface PackedContentListOverlayContainerProps {
@@ -10,23 +14,23 @@ export interface PackedContentListOverlayContainerProps {
 const PackedContentListOverlayContainer = ({
   packingListEntry,
 }: PackedContentListOverlayContainerProps) => {
-//   const { data, loading, error } = useQuery<
-//   MatchingPackedItemsCollectionsForPackingListEntryQuery,
-//   MatchingPackedItemsCollectionsForPackingListEntryQueryVariables
-// >  (MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, {
-//     variables: {
-//       packingListEntryId: packingListEntry.id,
-//     },
-//   });
+  //   const { data, loading, error } = useQuery<
+  //   MatchingPackedItemsCollectionsForPackingListEntryQuery,
+  //   MatchingPackedItemsCollectionsForPackingListEntryQueryVariables
+  // >  (MATCHING_PACKED_ITEMS_COLLECTIONS_FOR_PACKING_LIST_ENTRY, {
+  //     variables: {
+  //       packingListEntryId: packingListEntry.id,
+  //     },
+  //   });
 
-//   if (loading) {
-//     return <APILoadingIndicator />;
-//   }
+  //   if (loading) {
+  //     return <APILoadingIndicator />;
+  //   }
 
-//   if (error) {
-//     console.error(error);
-//     return <div>Error!</div>;
-//   }
+  //   if (error) {
+  //     console.error(error);
+  //     return <div>Error!</div>;
+  //   }
 
   // const transformedMatchingPackedItemsCollectionsData = data?.packingListEntry?.matchingPackedItemsCollections
   // .map(el => ({
@@ -34,13 +38,15 @@ const PackedContentListOverlayContainer = ({
   //   numberOfItems: el.numberOfItems ?? 0
   // }));
 
-  const boxesData = (packingListEntry?.matchingPackedItemsCollections.filter(
-      (el) => el.__typename === "Box"
+  const boxesData =
+    (packingListEntry?.matchingPackedItemsCollections.filter(
+      (el) => el.__typename === "Box",
     ) as BoxData[]) ?? [];
 
-  const unboxedItemsCollectionData = (packingListEntry?.matchingPackedItemsCollections?.filter(
-    (el) => el.__typename === "UnboxedItemsCollection"
-  ) as UnboxedItemsCollectionData[]) ?? [];
+  const unboxedItemsCollectionData =
+    (packingListEntry?.matchingPackedItemsCollections?.filter(
+      (el) => el.__typename === "UnboxedItemsCollection",
+    ) as UnboxedItemsCollectionData[]) ?? [];
 
   return (
     <PackedContentListOverlay

@@ -2,8 +2,12 @@ from ariadne import QueryType
 from flask import g
 
 from ...authz import authorize
+from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.box import Box
+from .crud import get_time_span, number_of_created_records_between
 
 query = QueryType()
+public_query = QueryType()
 
 
 @query.field("metrics")
@@ -16,3 +20,17 @@ def resolve_metrics(*_, organisation_id=None):
 
     # Pass organisation ID to child resolvers
     return {"organisation_id": organisation_id}
+
+
+@public_query.field("newlyRegisteredBeneficiaryNumbers")
+def resolve_newly_registered_beneficiary_numbers(
+    *_, start=None, end=None, duration=None
+):
+    time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
+    return number_of_created_records_between(Beneficiary, *time_span)
+
+
+@public_query.field("newlyCreatedBoxNumbers")
+def resolve_newly_created_box_numbers(*_, start=None, end=None, duration=None):
+    time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
+    return number_of_created_records_between(Box, *time_span)

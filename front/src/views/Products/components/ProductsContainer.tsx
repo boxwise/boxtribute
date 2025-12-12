@@ -10,7 +10,7 @@ import {
   SIZE_RANGE_FIELDS_FRAGMENT,
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
-import { useTableConfig } from "hooks/hooks";
+import { useTableConfig } from "hooks/useTableConfig";
 import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
 import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -214,12 +214,6 @@ function ProductsContainer() {
         id: "createdBy",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
-      },
-      {
-        Header: "ID",
-        accessor: "id",
-        id: "id",
-        disableFilters: true,
       },
     ],
     [disableStandardProductMutationLoading, handleDisableOrDeleteProduct],

@@ -9,7 +9,9 @@ from boxtribute_server.models.utils import compute_age
 from utils import assert_forbidden_request, assert_successful_request
 
 
-def test_query_beneficiary_demographics(read_only_client, tags, default_beneficiary):
+def test_query_beneficiary_demographics(
+    read_only_client, tags, default_beneficiary, another_male_beneficiary
+):
     query = """query { beneficiaryDemographics(baseId: 1) {
         facts { gender age createdOn deletedOn count tagIds }
         dimensions { tag { id name color } } } }"""
@@ -51,7 +53,7 @@ def test_query_beneficiary_demographics(read_only_client, tags, default_benefici
         {
             "age": age,
             "count": 1,
-            "createdOn": "2019-06-30",
+            "createdOn": another_male_beneficiary["created_on"].date().isoformat(),
             "deletedOn": None,
             "gender": "Male",
             "tagIds": [1],

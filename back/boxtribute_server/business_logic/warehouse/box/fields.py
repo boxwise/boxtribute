@@ -9,9 +9,8 @@ history_entry = ObjectType("HistoryEntry")
 
 
 @box.field("qrCode")
-def resolve_box_qr_code(box_obj, _):
-    authorize(permission="qr:read")
-    return box_obj.qr_code
+def resolve_box_qr_code(box_obj, info):
+    return info.context["qr_code_loader"].load(box_obj.qr_code_id)
 
 
 @box.field("tags")
@@ -79,7 +78,6 @@ def resolve_box_state(box_obj, _):
 
 @box.field("shipmentDetail")
 def resolve_box_shipment_detail(box_obj, info):
-    authorize(permission="shipment_detail:read")
     return info.context["shipment_detail_for_box_loader"].load(box_obj.id)
 
 

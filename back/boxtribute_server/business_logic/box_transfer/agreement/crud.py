@@ -74,7 +74,7 @@ def _validate_unique_transfer_agreement(
             TransferAgreement.target_organisation << organisation_ids,
             TransferAgreement.state
             << [TransferAgreementState.UnderReview, TransferAgreementState.Accepted],
-            TransferAgreement.valid_from < valid_from,
+            TransferAgreement.valid_from <= valid_from,
         )
         .group_by(TransferAgreement.id)
         .namedtuples()
@@ -85,7 +85,7 @@ def _validate_unique_transfer_agreement(
             organisation_ids.issubset({am.source_organisation, am.target_organisation})
             and base_ids.issubset(am.source_base_ids.union(am.target_base_ids))
             and (
-                valid_from > am.valid_from
+                valid_from >= am.valid_from
                 # Logic table for the following conditional
                 # valid_until | am.valid_until | duplicate (if valid_from is newer, too)
                 # ------------|----------------|----------

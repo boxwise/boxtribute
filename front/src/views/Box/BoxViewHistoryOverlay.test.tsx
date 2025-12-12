@@ -1,13 +1,25 @@
-import { beforeEach, it, expect, describe } from "vitest";
+import { beforeEach, it, expect, describe, vi } from "vitest";
 import { screen, render } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
+import { useAuth0 } from "@auth0/auth0-react";
 import { cache } from "queries/cache";
 
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { history1, history2, history3 } from "mocks/histories";
 import { generateMockBox } from "mocks/boxes";
 import { mockMatchMediaQuery } from "mocks/functions";
+import { mockAuthenticatedUser } from "mocks/hooks";
 import BTBox from "./BoxView";
+
+vi.mock("@auth0/auth0-react");
+const mockedUseAuth0 = vi.mocked(useAuth0);
+
+beforeEach(() => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org", [
+    "be_user",
+    "view_shipments",
+  ]);
+});
 
 const initialQueryForBoxWithHistory = {
   request: {
@@ -88,7 +100,7 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
     await screen.findByText(/may 15, 2023/i);
     await screen.findByText(/dev coordinator changed box location from wh men to wh women/i);
     await screen.findByText(/jan 12, 2023/i);
-    await screen.findByText(/dev coordinator created record/i);
+    await screen.findByText(/dev coordinator created box/i);
 
     // Get all date elements in the overlay - they should be ordered chronologically (newest first)
     // Note: formatDateKey formats dates with newlines, so we need to check for the right pattern

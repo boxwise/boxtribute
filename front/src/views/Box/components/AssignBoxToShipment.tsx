@@ -32,7 +32,8 @@ function AssignBoxToShipment({
     if (
       selectedShipmentOption &&
       selectedShipmentOption.value !== "" &&
-      boxData?.state === "InStock"
+      boxData?.state === "InStock" &&
+      !boxData?.deletedOn
     ) {
       return false;
     }
@@ -44,6 +45,7 @@ function AssignBoxToShipment({
       <Select
         placeholder="Please select a shipment ..."
         isSearchable
+        isDisabled={!!boxData?.deletedOn}
         tagVariant="outline"
         tagColorScheme="black"
         focusBorderColor="blue.500"
@@ -108,7 +110,11 @@ function AssignBoxToShipment({
               colorScheme="blue"
               size="md"
               mt={45}
-              isDisabled={boxData.state === "InTransit" || boxData.state === "Receiving"}
+              isDisabled={
+                boxData.state === "InTransit" ||
+                boxData.state === "Receiving" ||
+                !!boxData?.deletedOn
+              }
               aria-label="remove to shipment"
               onClick={() => {
                 onUnassignBoxesToShipment(currentShipmentId);

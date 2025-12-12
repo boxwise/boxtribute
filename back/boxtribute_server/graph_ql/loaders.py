@@ -9,7 +9,9 @@ from ..authz import authorize, authorized_bases_filter
 from ..db import db
 from ..enums import BoxState as BoxStateEnum
 from ..enums import TaggableObjectType
+from ..exceptions import Forbidden
 from ..models.definitions.base import Base
+from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
 from ..models.definitions.box_state import BoxState
 from ..models.definitions.history import DbChangeHistory
@@ -17,6 +19,7 @@ from ..models.definitions.location import Location
 from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.qr_code import QrCode
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
@@ -25,6 +28,7 @@ from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
 from ..models.definitions.transfer_agreement import TransferAgreement
+from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
 from ..models.utils import convert_ids
@@ -46,16 +50,18 @@ class SimpleDataLoader(DataLoader):
     Authorization may be skipped for base-specific resources.
     """
 
-    def __init__(self, model, skip_authorize=False):
+    def __init__(self, model, skip_authorize=False, permission=None):
         super().__init__()
         self.model = model
         self.skip_authorize = skip_authorize
+        self.permission = permission
+        if not self.permission:
+            resource = convert_pascal_to_snake_case(self.model.__name__)
+            self.permission = f"{resource}:read"
 
     async def batch_load_fn(self, ids):
         if not self.skip_authorize:
-            resource = convert_pascal_to_snake_case(self.model.__name__)
-            permission = f"{resource}:read"
-            authorize(permission=permission)
+            authorize(permission=self.permission)
 
         rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
         return [rows.get(i) for i in ids]
@@ -84,6 +90,11 @@ class BoxLoader(SimpleDataLoader):
 class TransferAgreementLoader(SimpleDataLoader):
     def __init__(self):
         super().__init__(TransferAgreement, skip_authorize=True)
+
+
+class QrCodeLoader(SimpleDataLoader):
+    def __init__(self):
+        super().__init__(QrCode, permission="qr:read")
 
 
 class SizeLoader(SimpleDataLoader):
@@ -131,6 +142,53 @@ class ShipmentLoader(DataLoader):
             )
         }
         return [shipments.get(i) for i in keys]
+
+
+async def load_agreement_bases(*, type, agreement_ids):
+    source_bases = defaultdict(list)
+    base_ids = []
+    for base in (
+        Base.select(Base, TransferAgreementDetail.transfer_agreement)
+        .join(
+            TransferAgreementDetail,
+            on=((TransferAgreementDetail.source_base == Base.id)),
+        )
+        .where(
+            TransferAgreementDetail.transfer_agreement << agreement_ids,
+        )
+        .distinct()
+    ):
+        source_bases[base.source_base.transfer_agreement_id].append(base)
+        base_ids.append(base.id)
+
+    target_bases = defaultdict(list)
+    for base in (
+        Base.select(Base, TransferAgreementDetail.transfer_agreement)
+        .join(
+            TransferAgreementDetail,
+            on=((TransferAgreementDetail.target_base == Base.id)),
+        )
+        .where(
+            TransferAgreementDetail.transfer_agreement << agreement_ids,
+        )
+        .distinct()
+    ):
+        target_bases[base.target_base.transfer_agreement_id].append(base)
+        base_ids.append(base.id)
+    authorize(permission="base:read", base_ids=base_ids)
+    if type == "source":
+        return [source_bases.get(i, []) for i in agreement_ids]
+    return [target_bases.get(i, []) for i in agreement_ids]
+
+
+class SourceBasesForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        return await load_agreement_bases(type="source", agreement_ids=agreement_ids)
+
+
+class TargetBasesForAgreementLoader(DataLoader):
+    async def batch_load_fn(self, agreement_ids):
+        return await load_agreement_bases(type="target", agreement_ids=agreement_ids)
 
 
 class ShipmentsForAgreementLoader(DataLoader):
@@ -315,12 +373,19 @@ class HistoryForBoxLoader(DataLoader):
                                             ),
                                             (
                                                 # Convert "Record created/deleted"
-                                                # into "created/deleted record"
+                                                # into "created/deleted box"
                                                 (History.changes.startswith("Record")),
                                                 fn.CONCAT(
                                                     fn.SUBSTRING(History.changes, 8),
-                                                    " record",
+                                                    " box",
                                                 ),
+                                            ),
+                                            (
+                                                (
+                                                    History.changes
+                                                    == "New Qr-code assigned by pdf generation."  # noqa
+                                                ),
+                                                "created QR code label for box",
                                             ),
                                         ),
                                         History.changes,
@@ -481,6 +546,14 @@ class ShipmentDetailsForShipmentLoader(DataLoader):
 
 class ShipmentDetailForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
+        # Return null for box's shipment detail instead of throwing an error to enable
+        # the queries GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE and
+        # BOX_BY_LABEL_IDENTIFIER_QUERY to run smoothly for low-privilege users (e.g.
+        # freeshop volunteers without view_shipments ABP)
+        try:
+            authorize(permission="shipment_detail:read")
+        except Forbidden:
+            return [None for _ in keys]
         details = {
             detail.box_id: detail
             for detail in ShipmentDetail.select().where(
@@ -594,3 +667,47 @@ class ShipmentDetailAutoMatchingLoader(DataLoader):
         # Return products ready to be matched in the target base, corresponding to given
         # shipment detail IDs
         return [matching_target_products.get(i) for i in detail_ids]
+
+
+class ResourcesForTagLoader(DataLoader):
+    async def batch_load_fn(self, tag_ids):
+        authorize(permission="tag_relation:read")
+
+        # Get all tag relations and resources for the requested tags
+        relations = (
+            TagsRelation.select(TagsRelation.tag, Beneficiary, Box)
+            .left_outer_join(
+                Box,
+                on=(
+                    (Box.id == TagsRelation.object_id)
+                    & (TagsRelation.object_type == TaggableObjectType.Box)
+                ),
+                src=TagsRelation,
+            )
+            .left_outer_join(
+                Beneficiary,
+                on=(
+                    (Beneficiary.id == TagsRelation.object_id)
+                    & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                    & authorized_bases_filter(Beneficiary)
+                ),
+                src=TagsRelation,
+            )
+            .where(
+                TagsRelation.tag << tag_ids,
+                TagsRelation.deleted_on.is_null(),
+            )
+        )
+
+        resources = defaultdict(list)
+        for rel in relations:
+            if hasattr(rel, "beneficiary"):
+                resources[rel.tag_id].append(rel.beneficiary)
+            else:
+                resources[rel.tag_id].append(rel.box)
+
+        # Build result list in same order as input tag_ids (inner lists sorted for
+        # reproducibility)
+        return [
+            sorted(resources.get(tag_id, []), key=lambda r: r.id) for tag_id in tag_ids
+        ]

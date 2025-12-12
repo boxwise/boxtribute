@@ -164,6 +164,20 @@ def cron(job_name):
         nr_addresses = clean_up_user_email_addresses()
         return jsonify({"message": f"cleaned up {nr_addresses} email addresses"}), 200
 
+    if job_name == "internal-stats":
+        from .cron.internal_stats import post_internal_stats_to_slack
+
+        result = post_internal_stats_to_slack()
+        code = 500 if not result["successes"] else 200
+        return (
+            jsonify(
+                {
+                    "message": f"posted {len(result['successes'])} stats, "
+                    f"{len(result['failures'])} failure(s)"
+                }
+            ),
+            code,
+        )
     return jsonify({"message": f"unknown job '{job_name}'"}), 400
 
 

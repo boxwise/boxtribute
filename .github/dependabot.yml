@@ -31,16 +31,18 @@ updates:
       - "/"
       - "/front"
       - "/shared-components"
-      - "/statviz"
+      - "/shared-front"
     schedule:
       interval: "weekly"
     # Always increase the minimum version requirement to match the new version.
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
-    # ignore:
-    #   - dependency-name: "*"
-    #     update-types:
-    #       - "version-update:semver-patch"
+    ignore:
+      # https://github.com/boxwise/boxtribute/pull/2408
+      - dependency-name: "react-hook-form"
+      # v4 requires Node 20.19+ or 22+
+      - dependency-name: "@vitejs/plugin-react-swc"
+        versions: ["4.x"]
     groups:
       front-dev-minor-update:
         dependency-type: development

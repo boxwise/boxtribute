@@ -21,8 +21,11 @@ services:
       AUTH0_LOG_STREAM_TOKEN: ${AUTH0_LOG_STREAM_TOKEN:-}
       TEST_AUTH0_CLIENT_ID: ${TEST_AUTH0_CLIENT_ID}
       TEST_AUTH0_CLIENT_SECRET: ${TEST_AUTH0_CLIENT_SECRET}
+      TEST_AUTH0_MANAGEMENT_API_CLIENT_ID: ${TEST_AUTH0_MANAGEMENT_API_CLIENT_ID}
+      TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET: ${TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET}
       AUTH0_PUBLIC_KEY: ${AUTH0_PUBLIC_KEY:-}
       SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM: ${SLACK_WEBHOOK_URL_FOR_AUTH0_STREAM:-}
+      SLACK_WEBHOOK_URL_FOR_INTERNAL_STATS: ${SLACK_WEBHOOK_URL_FOR_INTERNAL_STATS:-}
       MYSQL_HOST: ${MYSQL_HOST:-db}
       MYSQL_USER: ${MYSQL_USER:-root}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dropapp_root}
@@ -60,22 +63,22 @@ services:
       # in case you want to use node/npm both outside container for test/lint etc.
       - /app/node_modules
       - /app/front/node_modules
-  statviz:
+  shared-front:
     build:
       context: .
       dockerfile: ./Dockerfile
       args:
-        SERVICE_DIR: statviz
+        SERVICE_DIR: shared-front
     environment:
       NODE_ENV: development
-      STATVIZ_GRAPHQL_SERVER: http://localhost:5005/public
+      SHARED_FRONT_GRAPHQL_SERVER: http://localhost:5005/public
     ports:
       - "5173:5173"
     stdin_open: true
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/statviz/node_modules
+      - /app/shared-front/node_modules
   db:
     image: mysql/mysql-server:8.0 # We run MySQL 8.0 on the production environment atm
     command: --default-authentication-plugin=mysql_native_password --lower_case_table_names=1 --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci

@@ -115,10 +115,17 @@ def _save_to_history(f, changes):
     @wraps(f)
     def inner(*args, **kwargs):
         with db.database.atomic():
-            # Create single timestamp to use for DbChangeHistory entry AND to pass to f
-            # for fields like created_on
-            now = utcnow()
-            result = f(*args, **kwargs, now=now)
+            # Use single timestamp for DbChangeHistory entry AND to pass to f for fields
+            # like created_on
+            if "now" in kwargs:
+                # Use existing timestamp when f is called from another CRUD function,
+                # e.g. create_tag from inside create_box
+                now = kwargs["now"]
+            else:
+                now = utcnow()
+                kwargs["now"] = now
+            result = f(*args, **kwargs)
+
             # Skip creating history entry if e.g. UserError returned
             if not isinstance(result, db.Model):
                 return result
@@ -186,7 +193,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 if entries:
                     result.last_modified_on = now
                     result.last_modified_by = kwargs["user_id"]
-                    result.save()
+                result.save()
 
             return result
 

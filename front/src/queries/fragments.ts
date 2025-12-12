@@ -132,7 +132,9 @@ export const BOX_FIELDS_FRAGMENT = graphql(
           }
         }
       }
-
+      qrCode {
+        code
+      }
       location {
         id
         name
@@ -153,6 +155,7 @@ export const BOX_FIELDS_FRAGMENT = graphql(
       }
       createdOn
       lastModifiedOn
+      deletedOn
     }
   `,
   [

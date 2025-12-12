@@ -21,10 +21,12 @@ export enum IQrResolverResultKind {
 export type IQrResolvedValue = {
   kind: IQrResolverResultKind;
   qrHash?: string;
-  box?: Partial<Box & {
-    baseName: string;
-    organisationName: string;
-  }>;
+  box?: Partial<
+    Box & {
+      baseName: string;
+      organisationName: string;
+    }
+  >;
   error?: unknown;
 };
 

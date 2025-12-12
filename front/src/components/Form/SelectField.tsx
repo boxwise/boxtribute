@@ -1,5 +1,5 @@
 import { FormControl, FormErrorMessage, FormLabel, chakra } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
+import { CreatableSelect, OptionBase, Select } from "chakra-react-select";
 import { Controller } from "react-hook-form";
 import { colorIsBright } from "utils/helpers";
 
@@ -24,8 +24,10 @@ export interface ISelectFieldProps {
   isRequired?: boolean;
   showLabel?: boolean;
   showError?: boolean;
+  helperText?: string;
   isDisabled?: boolean;
   isReadOnly?: boolean;
+  creatable?: boolean;
   onChangeProp?: ((event) => void) | undefined;
   formatOptionLabel?: (
     data: IDropdownOption,
@@ -51,6 +53,8 @@ function SelectField({
   isRequired = true,
   onChangeProp = undefined,
   formatOptionLabel,
+  creatable,
+  helperText,
 }: ISelectFieldProps) {
   return (
     <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
@@ -63,36 +67,34 @@ function SelectField({
       <Controller
         control={control}
         name={fieldId}
-        render={({ field: { onChange, onBlur, value, name, ref } }) => (
-          <Select
-            name={name}
-            ref={ref}
-            isReadOnly={isReadOnly}
-            isDisabled={isDisabled}
-            onChange={
-              onChangeProp
-                ? (event) => {
-                    onChange(event);
-                    onChangeProp(event);
-                  }
-                : onChange
-            }
-            onBlur={onBlur}
-            value={value}
-            options={options}
-            placeholder={placeholder}
-            formatOptionLabel={formatOptionLabel}
-            isSearchable
-            tagVariant="outline"
-            tagColorScheme="black"
-            isMulti={isMulti}
-            focusBorderColor="blue.500"
-            menuPortalTarget={document.body}
-            styles={{
+        render={({ field: { onChange, onBlur, value, name, ref } }) => {
+          const props = {
+            name,
+            ref,
+            isReadOnly,
+            isDisabled,
+            onChange: onChangeProp
+              ? (event) => {
+                  onChange(event);
+                  onChangeProp(event);
+                }
+              : onChange,
+            onBlur,
+            value,
+            options,
+            placeholder,
+            formatOptionLabel,
+            isMulti,
+            isSearchable: true,
+            tagVariant: "outline" as const,
+            tagColorScheme: "black" as const,
+            focusBorderColor: "blue.500",
+            menuPortalTarget: document.body,
+            styles: {
               // zIndex needs to be higher than 1500 to appear in modals and popovers, but not higher so that menues and toasts are above them.
               menuPortal: (provided) => ({ ...provided, zIndex: 1550 }),
-            }}
-            chakraStyles={{
+            },
+            chakraStyles: {
               control: (provided) => ({
                 ...provided,
                 border: "2px",
@@ -109,12 +111,19 @@ function SelectField({
                 background: state.data?.color || "gray.100",
                 borderRadius: "20",
               }),
-            }}
-          />
-        )}
+            },
+          };
+
+          return creatable ? <CreatableSelect {...props} /> : <Select {...props} />;
+        }}
       />
       {showError && (
         <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      )}
+      {helperText && (
+        <chakra.p fontSize="sm" color="gray.600" mt={1}>
+          {helperText}
+        </chakra.p>
       )}
     </FormControl>
   );

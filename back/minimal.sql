@@ -311,9 +311,9 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (44,155,'Settings','cms_settings',25,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
   (45,155,'Texts','cms_translate',26,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
   (50,155,'Manage Menu Functions','cms_functions',24,NULL,NULL,NULL,NULL,0,1,1,0,1,'be_god'),
-  (67,42,'Manage Products','products',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_products'),
+  (67,42,'Manage Products v2','products',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_products'),
   (87,35,'Checkout','check_out',7,NULL,NULL,NULL,NULL,0,0,1,0,0,'checkout_beneficiaries'),
-  (90,99,'Classic Manage Boxes','stock',3,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
+  (90,99,'Classic Manage Boxes','stock',3,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL),
   (92,35,'Give Tokens <span>To</span> All','give2all',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tokens'),
   (96,128,'Sales Reports','sales_list',16,NULL,NULL,NULL,NULL,0,0,1,0,0,'list_sales'),
   (99,NULL,'Inventory','',1,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
@@ -324,7 +324,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (113,NULL,'Actions','',7,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (115,42,'Edit Warehouses','locations',19,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_warehouses'),
   (116,110,'Containers List','printed_list_containers',2,NULL,NULL,NULL,NULL,0,0,1,1,0,'view_stockroom'),
-  (118,161,'Manage Beneficiaries','people',5,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_beneficiaries'),
+  (118,161,'Manage Beneficiaries','people',3,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_beneficiaries'),
   (121,NULL,'Hidden Menu Items','',10,NULL,NULL,NULL,NULL,0,0,0,1,0,NULL),
   (123,121,'Start Page','start',27,NULL,NULL,NULL,NULL,0,0,0,1,0,'view_start_page'),
   (124,92,'Give Tokens <span>to</span> selected families','give',3,NULL,NULL,NULL,NULL,0,0,1,1,0,'be_god'),
@@ -349,17 +349,17 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (155,NULL,'Boxtribute Gods','',9,NULL,NULL,NULL,NULL,0,1,1,0,0,NULL),
   (156,42,'User Groups','cms_usergroups',21,NULL,NULL,NULL,NULL,0,0,1,0,1,'be_god'),
   (157,155,'Bases','camps',22,NULL,NULL,NULL,NULL,0,1,1,0,1,'manage_base,be_god'),
-  (158,161,'Add Beneficiary','people_add',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_beneficiaries'),
+  (158,161,'Add Beneficiary','people_add',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_beneficiaries'),
   (160,99,'Stock Planning','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
   (161,NULL,'Beneficiaries','',2,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (162,42,'Manage Tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
   (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (164,163,'Manage Shipments','shipments',0,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_shipments'),
   (165,163,'Manage Network','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
-  (166,99,'Manage Boxes v2 (<span>beta</span>)','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
+  (166,99,'Manage Boxes v2','new_manage_boxes',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_inventory'),
   (167,128,'Dashboard v2 (<span>beta</span>)','statviz_dashboard',18,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_beneficiary_graph'),
-  (168,131,'Use Service (<span>beta</span>)','use_service',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'register_service_usage'),
-  (169,131,'Manage Services (<span>beta</span>)','services',11,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_services'),
+  (168,161,'Use Service (<span>beta</span>)','use_service',2,NULL,NULL,NULL,NULL,0,0,1,0,0,'register_service_usage'),
+  (169,161,'Manage Services (<span>beta</span>)','services',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_services'),
   (170,42,'Base Settings (<span>beta</span>)','base_settings',28,NULL,NULL,NULL,NULL,0,0,1,0,1,'manage_base_settings');
 /*!40000 ALTER TABLE `cms_functions` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1639,7 +1639,9 @@ INSERT INTO `genders` VALUES
   (4,'Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,0,1,0,'0'),
   (5,'Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,0,1,0,'0'),
   (6,'Unisex Kid','Kid',7,NULL,NULL,NULL,NULL,1,1,0,1,0,'0'),
-  (9,'Unisex Baby','Baby',8,NULL,NULL,NULL,NULL,1,1,0,0,0,'1'),
+  (7,'Baby Girl','Girl',8,NULL,NULL,NULL,NULL,0,1,0,0,1,'1'),
+  (8,'Baby Boy','Boy',8,NULL,NULL,NULL,NULL,1,0,0,0,1,'1'),
+  (9,'Unisex Baby','Baby',8,NULL,NULL,NULL,NULL,1,1,0,0,1,'1'),
   (10,'-',NULL,0,NULL,NULL,NULL,NULL,1,1,1,1,1,'1'),
   (12,'Teen Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,1,0,0,'0'),
   (13,'Teen Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,1,0,0,'0');
@@ -2314,7 +2316,14 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20250403143459,'AddServicesTable','2025-04-16 13:13:49','2025-04-16 13:13:50',0),
   (20250407152827,'AddServicesRelations','2025-04-16 13:13:50','2025-04-16 13:13:51',0),
   (20250414124236,'AddServiceMenues','2025-04-16 13:13:51','2025-04-16 13:13:51',0),
-  (20250415134236,'AddBaseSettingMenu','2025-04-17 12:43:19','2025-04-17 12:43:20',0);
+  (20250415134236,'AddBaseSettingMenu','2025-04-17 12:43:19','2025-04-17 12:43:20',0),
+  (20250806155709,'UpdateAgreementMenuTitle','2025-08-19 12:41:45','2025-08-19 12:41:45',0),
+  (20250814100608,'AddBabyGenders','2025-08-19 12:49:34','2025-08-19 12:49:35',0),
+  (20250828102054,'RemoveClassicManageBoxesMenu','2025-09-02 14:13:19','2025-09-02 14:13:19',0),
+  (20251013103426,'RemoveQrFromHistory','2025-12-02 12:43:13','2025-12-02 12:43:13',0),
+  (20251112080847,'EnableBaseSettingsAndServicesMenuForAllCamps','2025-12-02 12:43:14','2025-12-02 12:43:14',0),
+  (20251124122232,'MakeServiceIdUnsigned','2025-12-02 12:43:14','2025-12-02 12:43:15',0),
+  (20251201153803,'ReorderServicesMenu','2025-12-02 13:28:49','2025-12-02 13:28:49',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2465,7 +2474,7 @@ DROP TABLE IF EXISTS `services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `camp_id` int(11) unsigned NOT NULL,
@@ -2494,6 +2503,11 @@ CREATE TABLE `services` (
 
 LOCK TABLES `services` WRITE;
 /*!40000 ALTER TABLE `services` DISABLE KEYS */;
+INSERT INTO `services` VALUES
+  (1,'English course','',1,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0),
+  (2,'English course','',2,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0),
+  (3,'English course','',3,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0),
+  (4,'English course','',4,NULL,NULL,'2025-07-10 08:29:36',1,NULL,NULL,0);
 /*!40000 ALTER TABLE `services` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2505,9 +2519,9 @@ DROP TABLE IF EXISTS `services_relations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services_relations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `people_id` int(11) unsigned NOT NULL,
-  `service_id` int(11) NOT NULL,
+  `service_id` int(11) unsigned NOT NULL,
   `created` datetime NOT NULL,
   `created_by` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),

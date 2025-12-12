@@ -7,7 +7,7 @@ import {
   tagToDropdownOptionsTransformer,
 } from "utils/transformers";
 import { Column } from "react-table";
-import { useTableConfig } from "hooks/hooks";
+import { URL_FILTER_CONFIG, useTableConfig } from "hooks/useTableConfig";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
@@ -15,7 +15,14 @@ import {
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { DaysCell, ShipmentCell, StateCell, TagsCell } from "./components/TableCells";
+import {
+  DaysCell,
+  ObjectCell,
+  ShipmentCell,
+  StateCell,
+  TagsCell,
+  QrCodeCell,
+} from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
@@ -36,6 +43,8 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 import BoxesTable from "./components/BoxesTable";
+import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
+import { useSearchParams } from "react-router-dom";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
@@ -65,6 +74,9 @@ export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
           id
           labelIdentifier
         }
+      }
+      qrCode {
+        code
       }
       comment
       createdOn
@@ -142,28 +154,46 @@ function Boxes({
 }: {
   hasExecutedInitialFetchOfBoxes: { current: boolean };
 }) {
+  const [searchParams] = useSearchParams();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
+
+  const defaultHiddenColumns = useMemo(() => {
+    const start = [
+      "qrLabel",
+      "gender",
+      "size",
+      "shipment",
+      "comment",
+      "age",
+      "lastModified",
+      "lastModifiedBy",
+      "createdBy",
+      "productCategory",
+    ];
+
+    const filterIds: string[] = [];
+    URL_FILTER_CONFIG.forEach(({ filterId, urlParam }) => {
+      const param = searchParams.get(urlParam);
+
+      if (param) {
+        filterIds.push(filterId);
+      }
+    });
+
+    return start.filter((colId) => !filterIds.includes(colId));
+  }, [searchParams]);
+
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["InStock"] }],
+      columnFilters: [],
       sortBy: [{ id: "lastModified", desc: true }],
-      hiddenColumns: [
-        "gender",
-        "size",
-        "shipment",
-        "comment",
-        "age",
-        "lastModified",
-        "lastModifiedBy",
-        "createdBy",
-        "productCategory",
-        "id",
-      ],
+      hiddenColumns: defaultHiddenColumns,
     },
+    syncFiltersAndUrlParams: true,
   });
 
   // fetch options for actions on boxes causing the suspense.
@@ -186,10 +216,24 @@ function Boxes({
       return;
     }
 
-    // Only on very initial mount, query 20 boxes of the most used other than InStock state to
-    // preload the data into Apollo cache.
-    const states = ["Donated", "Scrap"] satisfies Partial<BoxState>[];
+    // Only on very initial mount, query 20 boxes of the most used states to preload the data into
+    // Apollo cache.
+    // But skip preloading a state if the current table config already requests it via filters.
+    // e.g. if tableConfig.getColumnFilters() already contains the id for "Donated" (boxStateIds.Donated),
+    // do not query Donated here.
+    const states = ["InStock", "Donated", "Scrap"] satisfies Partial<BoxState>[];
+
+    // Read the current state filter values (these are state IDs like "5", "6" etc.)
+    const stateFilterValues: string[] =
+      (tableConfig.getColumnFilters().find((f) => f.id === "state")?.value as string[]) ?? [];
+
     for (const state of states) {
+      const stateId = boxStateIds[state];
+      // If the table is already filtered to this state ID, skip preloading it.
+      if (stateId && stateFilterValues.includes(stateId)) {
+        continue;
+      }
+
       apolloClient.query({
         query: BOXES_FOR_BOXESVIEW_QUERY,
         variables: {
@@ -224,6 +268,18 @@ function Boxes({
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
       {
+        Header: "QR label",
+        accessor: "hasQrCode",
+        id: "qrLabel",
+        Cell: QrCodeCell,
+        disableFilters: true,
+        sortType: (rowA, rowB) => {
+          if (rowA.values.qrLabel === rowB.values.qrLabel) return 0;
+          if (rowA.values.qrLabel > rowB.values.qrLabel) return 1;
+          return -1;
+        },
+      },
+      {
         Header: "Box #",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
@@ -235,33 +291,51 @@ function Boxes({
         id: "product",
         Cell: ProductWithSPCheckmarkCell,
         sortType: (rowA, rowB) => {
-          const a = rowA.values.product?.toLowerCase() ?? "";
-          const b = rowB.values.product?.toLowerCase() ?? "";
+          const a = rowA.values.product?.name.toLowerCase() ?? "";
+          const b = rowB.values.product?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Product Category",
         accessor: "productCategory",
         id: "productCategory",
+        Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.productCategory?.name.toLowerCase() ?? "";
+          const b = rowB.values.productCategory?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Gender",
         accessor: "gender",
         id: "gender",
+        Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.gender?.name.toLowerCase() ?? "";
+          const b = rowB.values.gender?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Size",
         accessor: "size",
         id: "size",
+        Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.size?.name?.toLowerCase() ?? "";
+          const b = rowB.values.size?.name?.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Items",
@@ -274,15 +348,26 @@ function Boxes({
         accessor: "state",
         id: "state",
         Cell: StateCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.state?.name.toLowerCase() ?? "";
+          const b = rowB.values.state?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectBoxStateFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Location",
         accessor: "location",
         id: "location",
+        Cell: ObjectCell,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.location?.name.toLowerCase() ?? "";
+          const b = rowB.values.location?.name.toLowerCase() ?? "";
+          return a.localeCompare(b);
+        },
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: "includesSomeObject",
       },
       {
         Header: "Tags",
@@ -367,13 +452,6 @@ function Boxes({
         id: "createdBy",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
-      },
-      {
-        Header: "ID",
-        accessor: "id",
-        id: "id",
-        Filter: SelectColumnFilter,
-        disableFilters: true,
       },
     ],
     [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],

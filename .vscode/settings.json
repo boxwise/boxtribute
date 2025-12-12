@@ -13,7 +13,7 @@
   "editor.formatOnSave": true,
 
   // eslint
-  "eslint.workingDirectories": ["./", "./front", "./shared-components", "./statviz"],
+  "eslint.workingDirectories": ["./", "./front", "./shared-components", "./shared-front"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
@@ -29,5 +29,6 @@
   },
 
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "eslint.useFlatConfig": false
 }

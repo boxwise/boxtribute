@@ -1,24 +1,17 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  FormLabel,
-  Heading,
-  Input,
-  List,
-  ListItem,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import _ from "lodash";
+import { groupBy } from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import NumberField from "components/Form/NumberField";
 import { ProductGender } from "../../../../../graphql/types";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 export interface ICategoryData {
   name: string;
@@ -51,6 +44,7 @@ interface ILocationData {
 const singleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
+  __isNew__: z.boolean().optional(),
 });
 
 export const CreateBoxFormDataSchema = z.object({
@@ -60,23 +54,17 @@ export const CreateBoxFormDataSchema = z.object({
     // If the Select is empty it returns null. If we put required() here. The error is "expected object, received null". I did not find a way to edit this message. Hence, this solution.
     .nullable()
     // We make the field nullable and can then check in the next step if it is empty or not with the refine function.
-    .refine(Boolean, { message: "Please select a product" })
+    .refine(Boolean, { error: "Please select a product" })
     // since the expected return type should not have a null we add this transform at the en.
     .transform((selectedOption) => selectedOption || z.NEVER),
   sizeId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a size" })
+    .refine(Boolean, { error: "Please select a size" })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z
-    .number({
-      required_error: "Please enter a number of items",
-      invalid_type_error: "Please enter an integer number",
-    })
-    .int()
-    .nonnegative(),
+  numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
-    .refine(Boolean, { message: "Please select a location" })
+    .refine(Boolean, { error: "Please select a location" })
     .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
@@ -90,16 +78,18 @@ export interface IBoxCreateProps {
   allTags: IDropdownOption[] | null | undefined;
   disableSubmission?: boolean;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
+  onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
 
-function BoxCreate({
+export function BoxCreate({
   productAndSizesData,
   allLocations,
   allTags,
   onSubmitBoxCreateForm,
+  onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
-  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = _.groupBy(
+  const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
     productAndSizesData,
     (product) => product.category.name,
   );
@@ -131,6 +121,17 @@ function BoxCreate({
   }));
 
   const onSubmit: SubmitHandler<ICreateBoxFormData> = (data) => onSubmitBoxCreateForm(data);
+
+  const onSubmitAndCreateAnother = (data: ICreateBoxFormData) => {
+    if (onSubmitBoxCreateFormAndCreateAnother) {
+      onSubmitBoxCreateFormAndCreateAnother(data);
+    }
+  };
+
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+  const qrCode = useParams<{ qrCode: string }>().qrCode!;
+  const urlSuffix = qrCode ? "qrreader" : "boxes";
 
   const {
     handleSubmit,
@@ -230,6 +231,8 @@ function BoxCreate({
               isMulti
               isRequired={false}
               control={control}
+              creatable
+              helperText="New Tags can be created by typing the name and pressing Enter"
             />
           </ListItem>
           <ListItem>
@@ -240,23 +243,45 @@ function BoxCreate({
           </ListItem>
         </List>
 
-        <Stack spacing={4}>
-          <ButtonGroup gap="4">
+        <Stack spacing={4} mt={8}>
+          <Button
+            isLoading={isSubmitting}
+            type="submit"
+            borderRadius="0"
+            w="full"
+            isDisabled={disableSubmission}
+            colorScheme="blue"
+            bg="blue.500"
+          >
+            Save
+          </Button>
+          {onSubmitBoxCreateFormAndCreateAnother && !qrCode && (
             <Button
-              mt={4}
               isLoading={isSubmitting}
-              type="submit"
+              type="button"
               borderRadius="0"
               w="full"
               isDisabled={disableSubmission}
+              colorScheme="blue"
+              bg="blue.200"
+              color="black"
+              onClick={handleSubmit(onSubmitAndCreateAnother)}
             >
-              Create Box
+              Save &amp; Create Another Box
             </Button>
-          </ButtonGroup>
+          )}
+          <Button
+            size="md"
+            type="button"
+            borderRadius="0"
+            w="full"
+            variant="outline"
+            onClick={() => navigate(`/bases/${baseId}/${urlSuffix}`)}
+          >
+            Nevermind
+          </Button>
         </Stack>
       </form>
     </Box>
   );
 }
-
-export default BoxCreate;

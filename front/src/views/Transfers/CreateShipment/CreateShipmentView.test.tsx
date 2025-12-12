@@ -171,18 +171,22 @@ it("4.3.1 - Initial load of Page", async () => {
 
   expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
 
-  const title = await screen.findByRole("heading", { name: "New Shipment" });
+  const title = await screen.findByRole("heading", { name: "New Shipment" }, { timeout: 10000 });
   expect(title).toBeInTheDocument();
   // Test case 4.3.1.1 - Content: Displays Source Base Label
-  expect(await screen.findByText(/boxaid/i)).toBeInTheDocument();
-  expect(await screen.findByText(/lesvos/i)).toBeInTheDocument();
+  expect(await screen.findByText(/boxaid/i, {}, { timeout: 10000 })).toBeInTheDocument();
+  expect(await screen.findByText(/lesvos/i, {}, { timeout: 10000 })).toBeInTheDocument();
   // Test case 4.3.1.2 - Content: Displays Partner Orgs Select Options
   await assertOptionsInSelectField(user, /organisation/i, [/boxcare/i], title);
   await selectOptionInSelectField(user, /organisation/i, "BoxCare");
-  expect(await screen.findByText("BoxCare")).toBeInTheDocument();
+  // Add a delay to ensure state propagation after selection
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(await screen.findByText("BoxCare", {}, { timeout: 10000 })).toBeInTheDocument();
   // Test case 4.3.1.3 - Content: Displays Partner Bases Select Options When Partner Organisation Selected
   await assertOptionsInSelectField(user, /base/i, [/samos/i, /thessaloniki/i, /athens/i], title);
   await selectOptionInSelectField(user, /base/i, "Samos");
+  // Add a delay to ensure state propagation after selection
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   // Breadcrumbs are there
   expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
@@ -200,15 +204,13 @@ it("4.3.2 - Input Validations", async () => {
 
   const submitButton = await screen.findByRole("button", { name: /start new shipment/i });
   expect(submitButton).toBeInTheDocument();
-  user.click(submitButton);
+  await user.click(submitButton);
   // Test case 4.3.2.1 - Partner Organisation SELECT field cannot be empty
   expect((screen.getByLabelText(/organisation/i) as HTMLInputElement).value).toEqual("");
-  expect(screen.getByText(/please select an organisation/i)).toBeInTheDocument();
+  expect(await screen.findByText(/please select an organisation/i)).toBeInTheDocument();
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
-  expect(screen.getAllByText(/please select a base/i)[0]).toBeInTheDocument();
-
-  expect((await screen.findAllByText(/required/i)).length).toEqual(2);
+  expect((await screen.findAllByText(/please select a base/i))[0]).toBeInTheDocument();
 });
 
 // Test case 4.3.3

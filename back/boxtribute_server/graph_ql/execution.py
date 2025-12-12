@@ -13,6 +13,8 @@ from .loaders import (
     OrganisationLoader,
     ProductCategoryLoader,
     ProductLoader,
+    QrCodeLoader,
+    ResourcesForTagLoader,
     ShipmentDetailAutoMatchingLoader,
     ShipmentDetailForBoxLoader,
     ShipmentDetailsForShipmentLoader,
@@ -21,8 +23,10 @@ from .loaders import (
     SizeLoader,
     SizeRangeLoader,
     SizesForSizeRangeLoader,
+    SourceBasesForAgreementLoader,
     StandardProductLoader,
     TagsForBoxLoader,
+    TargetBasesForAgreementLoader,
     TransferAgreementLoader,
     TransferItemsCountForProductLoader,
     UnitLoader,
@@ -31,7 +35,7 @@ from .loaders import (
 )
 
 
-def execute_async(*, schema, introspection=None):
+def execute_async(*, schema, introspection=None, data=None):
     """Create coroutine and execute it with high-level `asyncio.run` which takes care of
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
@@ -50,6 +54,8 @@ def execute_async(*, schema, introspection=None):
             "organisation_loader": OrganisationLoader(),
             "product_category_loader": ProductCategoryLoader(),
             "product_loader": ProductLoader(),
+            "qr_code_loader": QrCodeLoader(),
+            "resources_for_tag_loader": ResourcesForTagLoader(),
             "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingLoader(),
             "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
             "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
@@ -58,8 +64,10 @@ def execute_async(*, schema, introspection=None):
             "size_loader": SizeLoader(),
             "size_range_loader": SizeRangeLoader(),
             "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
+            "source_bases_for_agreement_loader": SourceBasesForAgreementLoader(),
             "standard_product_loader": StandardProductLoader(),
             "tags_for_box_loader": TagsForBoxLoader(),
+            "target_bases_for_agreement_loader": TargetBasesForAgreementLoader(),
             "transfer_agreement_loader": TransferAgreementLoader(),
             "units_for_dimension_loader": UnitsForDimensionLoader(),
             "unit_loader": UnitLoader(),
@@ -69,7 +77,7 @@ def execute_async(*, schema, introspection=None):
         # Execute the GraphQL request against schema, passing in context
         results = await graphql(
             schema,
-            data=request.get_json(),
+            data=data or request.get_json(),
             context_value=context,
             debug=current_app.debug,
             introspection=current_app.debug if introspection is None else introspection,

@@ -111,7 +111,11 @@ def test_beneficiary_query(
                 age
                 dateOfBirth }} }}"""
     beneficiary = assert_successful_request(read_only_client, query)
-    assert beneficiary == {"gender": None, "age": None, "dateOfBirth": None}
+    assert beneficiary == {
+        "gender": HumanGender.Diverse.name,
+        "age": None,
+        "dateOfBirth": None,
+    }
 
 
 def test_beneficiary_mutations(
@@ -343,7 +347,7 @@ def test_beneficiary_mutations(
                 "lastName": "",
                 "groupIdentifier": group_id,
                 "dateOfBirth": None,
-                "gender": None,
+                "gender": HumanGender.Diverse.name,
                 "comment": "",
                 "isVolunteer": False,
                 "registered": True,
@@ -405,6 +409,7 @@ def test_beneficiary_mutations(
             first_name=first_name,
             last_name="",
             comment="",
+            gender=HumanGender.Diverse,
             # These values are simulated to be off for some reason
             group_identifier="X",
             base=0,
@@ -597,10 +602,10 @@ def _format(parameter):
 @pytest.mark.parametrize(
     "filters,number",
     [
-        [[{"createdFrom": '"2020-01-01"'}], 4],
-        [[{"createdFrom": '"2021-01-01"'}], 3],
-        [[{"createdUntil": '"2019-12-31"'}], 1],
-        [[{"createdUntil": '"2021-01-01"'}], 2],
+        [[{"createdFrom": '"2020-01-01"'}], 5],
+        [[{"createdFrom": '"2021-01-01"'}], 4],
+        [[{"createdUntil": '"2019-12-31"'}], 0],
+        [[{"createdUntil": '"2021-01-01"'}], 1],
         [[{"active": "true"}], 4],
         [[{"active": "false"}], 1],
         [[{"isVolunteer": "true"}], 2],
@@ -612,7 +617,7 @@ def _format(parameter):
         [[{"pattern": '"Z"'}], 0],
         [[{"pattern": '"1234"'}], 3],
         [[{"pattern": '"123"'}], 1],
-        [[{"createdFrom": '"2022-01-01"'}, {"active": "true"}], 1],
+        [[{"createdFrom": '"2022-01-01"'}, {"active": "true"}], 2],
         [[{"active": "true"}, {"registered": "false"}], 1],
         [[{"active": "false"}, {"pattern": '"no"'}], 1],
         [[{"isVolunteer": "true"}, {"registered": "true"}], 0],

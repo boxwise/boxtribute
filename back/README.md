@@ -50,10 +50,11 @@ Virtual environments (venvs for short) must be activated and deactivated. If you
 
 ### Set-up pre-commit
 
-[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, as well as consistent code formatting, before you commit your code. We chose pre-commit since it enables us to run these checks for both front-end and back-end in just one place.
+[Pre-commit](https://pre-commit.com/) enables us to run code quality checks, such as missing semicolons, trailing whitespace, and debug statements, as well as consistent code formatting, before you commit your code.
 
 1.  Install pre-commit and the linters/formatters (all declared in `/back/requirements-dev.txt`). Run the command from the root folder of the repo
 
+        source .venv/bin/activate
         pip install -U -e back -r back/requirements-dev.txt
 
 2.  Install the git hooks
@@ -76,15 +77,14 @@ The following are a couple of recommendations for IDE integration, database inte
 
 **Crucial for running tests!**
 
-Install the dependencies of the app in the activated virtual environment
+In the repository root, install the dependencies of the app in the activated virtual environment
 
+    source .venv/bin/activate
     pip install -U -e back -r back/requirements-dev.txt
 
 Create `.env` file with environment variables
 
     cp example.env .env
-
-For the integration tests authentication information is fetched from the [Auth0](https://auth0.com) website. Log in and select `Applications` -> `Applications` from the side bar menu. Select `boxtribute-dev-api`. Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variable.
 
 ### Linting and Formatting in VSCode
 
@@ -142,14 +142,6 @@ Mind the following perks of peewee:
 from .utils import activate_logging
 activate_logging()
 ```
-
-#### Auto-generating peewee model definitions
-
-The `pwiz` utility helps to generate peewee model definitions by inspecting a running database. It is already installed with the `peewee` package.
-
-1. Start the database by `docker compose up db`
-1. Obtain the gateway IP of the Docker network `boxtribute_backend` as described above.
-1. Run `python -m pwiz -H XXX.XX.X.X -p 32000 -u root -e mysql -t camps -P dropapp_dev > base.py` to generate the model definitions of the `camps` table, and write them into the file `base.py`.
 
 ### Debugging
 
@@ -218,7 +210,20 @@ Our tests verify the production code on different levels:
 1. **Unit tests**: testing isolated functionality, see `unit_tests/`
 1. **Data model tests**: testing data models, requiring a test database being set up. See `model_tests/`
 1. **App tests**: testing behavior of Flask app, mostly the handling of GraphQL requests. Requires a test database being set up, or a MySQL database server running in the background. Any data for user authentication and authorization is mocked. See `endpoint_tests/`
-1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection. Parameters for the test user are read from the `.env` file. See `auth0_integration_tests/`
+1. **Integration tests**: testing integration of Auth0 web service for user auth(z). Requires a working internet connection, and secrets in the `.env` file (check next section). See `auth0_integration_tests/`
+
+### Obtaining secrets for Auth0 integration tests
+
+If you don't have to run the integration tests, skip them using the `--ignore back/test/auth0_integration_tests` option.
+
+If you need to run the integration tests, proceed as follows:
+1.  Log in to Auth0 and navigate to `Applications` -> `Applications` from the side bar menu
+1.  Select `query-api`
+1.  Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_CLIENT_SECRET` variable
+1.  Back in the Applications list, select `API Explorer Application`
+1.  Copy the `Client Secret` into the `.env` file as the `TEST_AUTH0_MANAGEMENT_API_CLIENT_SECRET` variable
+
+**If you don't have Auth0 access, please ask a team member for the secrets.**
 
 ### Executing tests
 

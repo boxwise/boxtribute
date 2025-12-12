@@ -181,6 +181,10 @@ type Tag {
   " List of boxes and/or beneficiaries that have this tag assigned "
   taggedResources: [TaggableResource!]
   base: Base!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
   deletedOn: Datetime
 }
 
@@ -254,6 +258,11 @@ Utility response type for box bulk-update mutations, containing both updated box
 type BoxesResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
+}
+
+type TagsResult {
+  updatedTags: [Tag!]!
+  invalidTagIds: [ID!]!
 }
 
 type BeneficiariesResult {
@@ -700,9 +709,16 @@ type DeletedBaseError {
 type InvalidDateError {
   date: Datetime!
 }
+type InvalidColorError {
+  color: String!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
+union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
+union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteTagsResult = TagsResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
@@ -726,17 +742,11 @@ type Metrics {
   If none is specified, the result is an all-time number.
   """
   numberOfFamiliesServed(after: Date, before: Date): Int
-  " Like `numberOfFamiliesServed` but add up all members of served families "
-  numberOfBeneficiariesServed(after: Date, before: Date): Int
   """
   Return number of sales performed by client's organisation in optional date range.
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
   """
   numberOfSales(after: Date, before: Date): Int
-  """
-  Return number of boxes, and number of contained items, managed by client's organisation.
-  """
-  stockOverview: StockOverview
 }
 
 type StockOverview {

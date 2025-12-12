@@ -88,7 +88,7 @@ def test_box_query_by_label_identifier(
             {"id": "ta4", "changes": "assigned tag 'pallet1' to box"},
             {"id": "tr3", "changes": "removed tag 'pallet1' from box"},
             {"id": "ta3", "changes": "assigned tag 'pallet1' to box"},
-            {"id": "2", "changes": "created record"},
+            {"id": "2", "changes": "created box"},
         ],
     }
 
@@ -157,6 +157,8 @@ def test_box_mutations(
     box_without_qr_code,
     in_transit_box,
     not_delivered_box,
+    lost_box,
+    donated_box,
     default_size,
     another_size,
     products,
@@ -214,6 +216,7 @@ def test_box_mutations(
     number_of_items = 3
     comment = "good box"
     tag_id = str(tags[1]["id"])
+    new_tag_name = "new"
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
@@ -222,6 +225,7 @@ def test_box_mutations(
                     comment: "{comment}"
                     qrCode: "{qr_code_without_box["code"]}"
                     tagIds: [{tag_id}]
+                    newTagNames: ["{new_tag_name}", "{new_tag_name}"]
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{
@@ -232,12 +236,14 @@ def test_box_mutations(
                 size {{ id }}
                 qrCode {{ id }}
                 state
-                tags {{ id }}
+                tags {{ id name }}
                 history {{ changes }}
             }}
         }}"""
     another_created_box = assert_successful_request(client, mutation)
     another_created_box_label_identifier = another_created_box.pop("labelIdentifier")
+    assert another_created_box["tags"][0].pop("id") == tag_id
+    new_tag_id = another_created_box["tags"][1].pop("id")
     assert another_created_box == {
         "numberOfItems": number_of_items,
         "location": {"id": location_id},
@@ -245,8 +251,8 @@ def test_box_mutations(
         "size": {"id": size_id},
         "qrCode": {"id": str(qr_code_without_box["id"])},
         "state": BoxState.InStock.name,
-        "tags": [{"id": tag_id}],
-        "history": [{"changes": "created record"}],
+        "tags": [{"name": tags[1]["name"]}, {"name": new_tag_name}],
+        "history": [{"changes": "created box"}],
     }
 
     # Test case 8.2.2d
@@ -292,6 +298,7 @@ def test_box_mutations(
     state = BoxState.Lost.name
     comment = "updatedComment"
     nr_items = 7777
+    cool_tag_name = "cool"
     mutation = f"""mutation {{
             updateBox(
                 updateInput : {{
@@ -302,6 +309,8 @@ def test_box_mutations(
                     sizeId: {new_size_id},
                     productId: {new_product_id},
                     state: {state}
+                    newTagNames: ["{cool_tag_name}", "{cool_tag_name}"]
+                    tagIds: []
                 }} ) {{
                 id
                 numberOfItems
@@ -313,6 +322,7 @@ def test_box_mutations(
                 size {{ id }}
                 product {{ id }}
                 state
+                tags {{ id name }}
             }}
         }}"""
     updated_box = assert_successful_request(client, mutation)
@@ -323,6 +333,8 @@ def test_box_mutations(
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
     assert updated_box["state"] == state
+    another_new_tag_id = updated_box["tags"][0].pop("id")
+    assert updated_box["tags"][0]["name"] == cool_tag_name
 
     # Test case 8.2.11d
     # Switch size-product -> measure-product
@@ -355,53 +367,58 @@ def test_box_mutations(
         # The entries for the update have the same change_date, hence the IDs do not
         # appear reversed
         {
-            "id": "124",
+            "id": "126",
             "changes": 'changed units of measure from "" to 250.00g',
             "user": {"name": "coord"},
         },
         {
-            "id": "123",
+            "id": "125",
             "changes": f"changed product type from {products[2]['name']} to "
             + f"{products[7]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "122",
+            "id": "124",
             "changes": f"changed box state from InStock to {state}",
             "user": {"name": "coord"},
         },
         {
-            "id": "121",
+            "id": "123",
             "changes": 'changed comments from "" to "updatedComment";',
             "user": {"name": "coord"},
         },
         {
-            "id": "120",
+            "id": "122",
             "changes": f"changed box location from {default_location['name']} to "
             + f"{null_box_state_location['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "119",
+            "id": "121",
             "changes": f"changed the number of items from {original_number_of_items} "
             + f"to {nr_items}",
             "user": {"name": "coord"},
         },
         {
-            "id": "118",
+            "id": "120",
             "changes": f"changed size from {default_size['label']} to "
             + f"{another_size['label']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "117",
+            "id": "119",
             "changes": f"changed product type from {products[0]['name']} to "
             + f"{products[2]['name']}",
             "user": {"name": "coord"},
         },
         {
-            "id": "116",
-            "changes": "created record",
+            "id": "118",
+            "changes": "created box",
+            "user": {"name": "coord"},
+        },
+        {
+            "id": "ta12",
+            "changes": "assigned tag 'cool' to box",
             "user": {"name": "coord"},
         },
     ]
@@ -486,44 +503,44 @@ def test_box_mutations(
         "size": {"id": size_id},
         "history": [
             {
-                "id": "132",
+                "id": "134",
                 "changes": f"changed units of measure from {newest_measure_value}0g to "
                 + '""',
                 "user": {"name": "coord"},
             },
             {
-                "id": "131",
+                "id": "133",
                 "changes": f"changed product type from {products[7]['name']} to "
                 + f"{products[0]['name']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "130",
+                "id": "132",
                 "changes": f"changed units of measure from {new_measure_value}0lb to "
                 + f"{newest_measure_value}0g",
                 "user": {"name": "coord"},
             },
             {
-                "id": "129",
+                "id": "131",
                 "changes": f"changed unit from {pound_unit['symbol']} to "
                 + f"{gram_unit['symbol']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "128",
+                "id": "130",
                 "changes": f"changed units of measure from {rounded_measure_value}lb to"
                 + f" {new_measure_value}0lb",
                 "user": {"name": "coord"},
             },
             {
-                "id": "127",
+                "id": "129",
                 "changes": f"changed unit from {gram_unit['symbol']} to "
                 + f"{pound_unit['symbol']}",
                 "user": {"name": "coord"},
             },
             {
-                "id": "126",
-                "changes": "created record",
+                "id": "128",
+                "changes": "created box",
                 "user": {"name": "coord"},
             },
         ],
@@ -581,7 +598,14 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {
         "updatedBoxes": [
-            {"tags": [{"id": tag_id}, {"id": generic_tag_id}]} for _ in range(2)
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": generic_tag_id},
+                    {"id": another_new_tag_id},
+                ]
+            },
+            {"tags": [{"id": tag_id}, {"id": generic_tag_id}, {"id": new_tag_id}]},
         ],
         "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
@@ -616,9 +640,17 @@ def test_box_mutations(
                     {"id": tag_id},
                     {"id": generic_tag_id},
                     {"id": another_generic_tag_id},
+                    {"id": another_new_tag_id},
                 ]
-            }
-            for _ in range(2)
+            },
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": generic_tag_id},
+                    {"id": another_generic_tag_id},
+                    {"id": new_tag_id},
+                ]
+            },
         ],
         "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
@@ -635,7 +667,9 @@ def test_box_mutations(
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": another_generic_tag_id}]}],
+        "updatedBoxes": [
+            {"tags": [{"id": another_generic_tag_id}, {"id": another_new_tag_id}]}
+        ],
         "invalidBoxLabelIdentifiers": [],
         "tagErrorInfo": [],
     }
@@ -651,7 +685,12 @@ def test_box_mutations(
                     {{ tags {{ id }} }} }}"""
     response = assert_successful_request(client, query)
     assert response == {
-        "tags": [{"id": tag_id}, {"id": generic_tag_id}, {"id": another_generic_tag_id}]
+        "tags": [
+            {"id": tag_id},
+            {"id": generic_tag_id},
+            {"id": another_generic_tag_id},
+            {"id": new_tag_id},
+        ]
     }
 
     # Test case 8.2.24c
@@ -663,7 +702,15 @@ def test_box_mutations(
                 }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {
-        "updatedBoxes": [{"tags": [{"id": tag_id}, {"id": another_generic_tag_id}]}],
+        "updatedBoxes": [
+            {
+                "tags": [
+                    {"id": tag_id},
+                    {"id": another_generic_tag_id},
+                    {"id": new_tag_id},
+                ]
+            }
+        ],
         "invalidBoxLabelIdentifiers": [created_box["labelIdentifier"]],
         "tagErrorInfo": [],
     }
@@ -742,7 +789,7 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     for box in response["updatedBoxes"]:
         assert box["deletedOn"].startswith(today)
-        assert box["history"][0]["changes"] == "deleted record"
+        assert box["history"][0]["changes"] == "deleted box"
     assert response["invalidBoxLabelIdentifiers"] == []
 
     # Test case 8.2.22b, 8.2.22d, 8.2.22h
@@ -830,6 +877,33 @@ def test_box_mutations(
         "updatedBoxes": [],
         "invalidBoxLabelIdentifiers": raw_label_identifiers,
     }
+
+    # Test cases 8.2.11g, 8.2.11h
+    non_updatable_boxes = [
+        created_box,  # already deleted
+        box_without_qr_code,  # MarkedForShipment
+        in_transit_box,
+        not_delivered_box,
+    ]
+    created_box["label_identifier"] = created_box["labelIdentifier"]
+    for box in non_updatable_boxes:
+        mutation = f"""mutation {{ updateBox(updateInput : {{
+                        labelIdentifier: "{box['label_identifier']}"
+                        }} ) {{ id }} }}"""
+        assert_bad_user_input(client, mutation)
+
+    updatable_boxes = [
+        lost_box,
+        donated_box,
+        lost_box,  # now Scrap
+    ]
+    for box in updatable_boxes:
+        mutation = f"""mutation {{ updateBox(updateInput : {{
+                        labelIdentifier: "{box['label_identifier']}"
+                        state: {BoxState.Scrap.name}
+                        }} ) {{ state }} }}"""
+        scrapped_box = assert_successful_request(client, mutation)
+        assert scrapped_box == {"state": BoxState.Scrap.name}
 
     # Test case 8.2.22j
     mock_user_for_request(mocker, base_ids=[1, 3])
@@ -925,6 +999,17 @@ def test_box_mutations(
             "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
+            "record_id": int(new_tag_id),
+            "table_name": "tags",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "from_int": None,
+            "to_int": None,
             "record_id": box_id + 1,
             "table_name": "stock",
             "user": 8,
@@ -938,6 +1023,17 @@ def test_box_mutations(
             "to_int": None,
             "record_id": box_id + 2,
             "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "from_int": None,
+            "to_int": None,
+            "record_id": int(another_new_tag_id),
+            "table_name": "tags",
             "user": 8,
             "ip": None,
             "from_float": None,
@@ -1191,6 +1287,28 @@ def test_box_mutations(
             "to_float": None,
         },
         {
+            "changes": "box_state_id",
+            "from_int": BoxState.Lost.value,
+            "to_int": BoxState.Scrap.value,
+            "record_id": lost_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.Donated.value,
+            "to_int": BoxState.Scrap.value,
+            "record_id": donated_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
             "changes": "location_id",
             "from_int": 2,
             "to_int": int(another_location_id),
@@ -1205,24 +1323,64 @@ def test_box_mutations(
 
 
 def test_update_box_tag_ids(client, default_box, tags):
-    # Test case 8.2.11c
     label_identifier = default_box["label_identifier"]
     tag_id = str(tags[1]["id"])
     tag_name = tags[1]["name"]
     another_tag_id = str(tags[2]["id"])
     another_tag_name = tags[2]["name"]
 
-    # Default box has tags 2 and 3 assigned already. Remove 2 and keep 3
+    # Test case 8.2.11f
+    # Run updateBox without any actual changes
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}" }}
+                    ) {{
+                        tags {{ id }}
+                        lastModifiedOn
+                        numberOfItems
+                    }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(
+        default_box["last_modified_on"].isoformat()
+    )
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["numberOfItems"] == default_box["number_of_items"]
+
+    # Default box has tags 2 and 3 assigned already
+    # Run updateBox without any actual tag changes
+    mutation = f"""mutation {{ updateBox(updateInput : {{
+                    labelIdentifier: "{label_identifier}"
+                    tagIds: [{tag_id}, {another_tag_id}] }}
+                    ) {{
+                        tags {{ id }}
+                        lastModifiedOn
+                        numberOfItems
+                    }} }}"""
+    updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(
+        default_box["last_modified_on"].isoformat()
+    )
+    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
+    assert updated_box["numberOfItems"] == default_box["number_of_items"]
+
+    # Test case 8.2.11c
+    # Remove tag ID 2 and while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
                     labelIdentifier: "{label_identifier}"
                     tagIds: [{another_tag_id}] }} ) {{
                         history {{ changes }}
+                        lastModifiedOn
                         tags {{ id }} }} }}"""
     updated_box = assert_successful_request(client, mutation)
+    assert updated_box["lastModifiedOn"].startswith(today)
     assert updated_box["tags"] == [{"id": another_tag_id}]
     assert updated_box["history"][0] == {
         "changes": f"removed tag '{tag_name}' from box"
     }
+    # Verify that the box changes are actually saved
+    query = f"""query {{ box( labelIdentifier: "{label_identifier}" ) {{
+                    lastModifiedOn }} }}"""
+    box = assert_successful_request(client, query)
+    assert box["lastModifiedOn"].startswith(today)
 
     # Now add tag ID 2 back while keeping tag ID 3
     mutation = f"""mutation {{ updateBox(updateInput : {{
@@ -1248,41 +1406,6 @@ def test_update_box_tag_ids(client, default_box, tags):
     }
     assert updated_box["history"][1] == {
         "changes": f"removed tag '{tag_name}' from box"
-    }
-
-    # Add tag ID 2
-    mutation = f"""mutation {{ updateBox(updateInput : {{
-                    labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tag_id}] }} ) {{
-                        history {{ changes }}
-                        tags {{ id }} }} }}"""
-    updated_box = assert_successful_request(client, mutation)
-    assert updated_box["tags"] == [{"id": tag_id}]
-    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
-    assert updated_box["history"][1] == {
-        "changes": f"removed tag '{another_tag_name}' from box"
-    }
-
-    time.sleep(1)
-    # Add the same tag again without an error being thrown
-    updated_box = assert_successful_request(client, mutation)
-    assert updated_box["tags"] == [{"id": tag_id}]
-    assert updated_box["history"][0] == {"changes": f"assigned tag '{tag_name}' to box"}
-    assert updated_box["history"][1] == {
-        "changes": f"removed tag '{another_tag_name}' from box"
-    }
-
-    time.sleep(1)
-    # Add tag ID 3. Both tags are assigned to the box
-    mutation = f"""mutation {{ updateBox(updateInput : {{
-                    labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{another_tag_id}] }} ) {{
-                        history {{ changes }}
-                        tags {{ id }} }} }}"""
-    updated_box = assert_successful_request(client, mutation)
-    assert updated_box["tags"] == [{"id": tag_id}, {"id": another_tag_id}]
-    assert updated_box["history"][0] == {
-        "changes": f"assigned tag '{another_tag_name}' to box"
     }
 
 
@@ -1938,16 +2061,124 @@ def test_mutate_box_with_invalid_location_or_product(
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
     assert_bad_user_input(read_only_client, mutation)
 
-    update_input = f"""{{ labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tags[6]["id"]}]
-                }}"""
-    mutation = f"""mutation {{
-            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
 
-    update_input = f"""{{ labelIdentifier: "{label_identifier}"
-                    tagIdsToBeAdded: [{tags[5]["id"]}, {tags[6]["id"]}]
-                }}"""
-    mutation = f"""mutation {{
-            updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+def test_create_boxes(
+    client,
+    default_product,
+    default_location,
+    default_size,
+    mass_product,
+    mixed_size,
+    tags,
+    monkeypatch,
+):
+    product_id = str(default_product["id"])
+    mass_product_id = str(mass_product["id"])
+    location_id = str(default_location["id"])
+    tag_id = str(tags[1]["id"])
+    comment = "3 packages, 12 piece each"
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+            comment: "{comment}"
+            tagIds: []
+            newTagNames: []
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "unknown"
+            numberOfItems: 5
+            locationId: {location_id}
+            comment: ""
+            tagIds: [{tag_id}]
+            newTagNames: ["new"]
+        }},
+        {{
+            productId: {mass_product_id}
+            sizeName: "500 G "
+            numberOfItems: 2
+            locationId: {location_id}
+            comment: ""
+            tagIds: []
+            newTagNames: []
+        }},
+        {{
+            productId: {mass_product_id}
+            sizeName: "50"  # invalid value for mass product
+            numberOfItems: 3
+            locationId: {location_id}
+            comment: "this is cool"
+            tagIds: []
+            newTagNames: []
+        }},
+    ]) {{
+        labelIdentifier
+        product {{ id }}
+        size {{ id }}
+        measureValue
+        displayUnit {{ symbol }}
+        numberOfItems
+        state
+        comment
+        tags {{ id }}
+        history {{ changes }}
+    }} }}
+    """
+    boxes = assert_successful_request(client, mutation)
+    assert len(boxes[0].pop("labelIdentifier")) == 8
+    assert len(boxes[1].pop("labelIdentifier")) == 8
+    assert len(boxes[2].pop("labelIdentifier")) == 8
+    assert len(boxes[3].pop("labelIdentifier")) == 8
+    assert boxes == [
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(default_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 1,
+            "state": BoxState.InStock.name,
+            "comment": comment,
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(mixed_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 5,
+            "state": BoxState.InStock.name,
+            "comment": "original size: 'unknown'",
+            "tags": [{"id": tag_id}, {"id": "8"}],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": mass_product_id},
+            "size": None,
+            "measureValue": 500.0,
+            "displayUnit": {"symbol": "g"},
+            "numberOfItems": 2,
+            "state": BoxState.InStock.name,
+            "comment": "",
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": mass_product_id},
+            "size": None,
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 3,
+            "state": BoxState.InStock.name,
+            "comment": "this is cool; original size: '50'",
+            "tags": [],
+            "history": [{"changes": "created box"}],
+        },
+    ]
+
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    boxes = assert_successful_request(client, mutation)
+    assert boxes == []

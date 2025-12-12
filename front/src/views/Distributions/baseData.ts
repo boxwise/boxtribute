@@ -1,5 +1,3 @@
-
-
 export const distroEventStateHumanReadableLabels = new Map<string, string>([
   ["Planning", "Planning"],
   // [DistributionEventState.PlanningDone, "Planning Done"],

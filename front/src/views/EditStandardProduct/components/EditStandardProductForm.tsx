@@ -214,7 +214,7 @@ function EditStandardProductForm({
             size="md"
             type="button"
             w="full"
-            variant="cancel"
+            variant="outline"
             onClick={() => navigate("../../../")}
           >
             Nevermind

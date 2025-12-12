@@ -200,6 +200,8 @@ def test_transfer_agreement_mutations(
         "targetBases": [{"id": "3"}, {"id": "4"}],
         "shipments": [],
     }
+    # it should not be possible to create another agreement with the same parameters
+    assert_bad_user_input(client, _create_mutation(creation_input))
 
     # Test case 2.2.22
     creation_input = f"""partnerOrganisationId: {another_organisation['id']},

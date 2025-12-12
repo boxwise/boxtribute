@@ -15,6 +15,7 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
+import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
 
@@ -33,12 +34,25 @@ function QrReader({
   onScan,
   onFindBoxByLabel,
 }: IQrReaderProps) {
-  // Zoom
-  const [zoomLevel] = useState(1);
+  const hasManageInventoryPermission = useHasPermission("manage_inventory");
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
-    (multiScan: boolean, qrReaderResult: Result | undefined | null) => {
+    (
+      multiScan: boolean,
+      qrReaderResult: Result | undefined | null,
+      error?: Error | undefined | null,
+    ) => {
+      if (error) {
+        // Log the error if its unexpected but don't interrupt the scanning process
+        // if (error.name !== "NotFoundException2") {
+        //   //register error with Sentry
+        //   Sentry.captureException(error);
+        //   console.error("QR Reader error:", error.name);
+        // }
+
+        return;
+      }
       if (qrReaderResult) {
         onScan(qrReaderResult.getText(), multiScan);
       }
@@ -71,16 +85,15 @@ function QrReader({
     <>
       <QrReaderScanner
         key="qrReaderScanner"
-        multiScan={isMultiBox}
+        multiScan={isMultiBox && hasManageInventoryPermission}
         facingMode="environment"
-        zoom={zoomLevel}
         scanPeriod={1000}
         onResult={onResult}
       />
-      <Tabs index={isMultiBox ? 1 : 0} onChange={onTabSwitch}>
+      <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
-          <Tab>MULTI BOX</Tab>
+          <Tab isDisabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -92,6 +105,7 @@ function QrReader({
                   onChange={(e) => onBoxLabelInputChange(e.currentTarget.value)}
                   isDisabled={findBoxByLabelIsLoading}
                   value={boxLabelInputValue}
+                  placeholder="12345678"
                   borderRadius={0}
                 />
                 <InputRightElement>
@@ -115,7 +129,7 @@ function QrReader({
             </FormControl>
           </TabPanel>
           <TabPanel px={0}>
-            <QrReaderMultiBoxContainer />
+            {hasManageInventoryPermission && <QrReaderMultiBoxContainer />}
           </TabPanel>
         </TabPanels>
       </Tabs>

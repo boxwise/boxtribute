@@ -11,13 +11,13 @@ import { trackFilter } from "../../utils/analytics/heap";
 export const FilterCreatedOnFormScheme = z.object({
   from: z
     .date({
-      invalid_type_error: "Please enter a valid date",
+      error: (issue) => (issue.input === undefined ? undefined : "Please enter a valid date"),
     })
     .transform((value) => value?.toISOString().substring(0, 10))
     .optional(),
   to: z
     .date({
-      invalid_type_error: "Please enter a valid date",
+      error: (issue) => (issue.input === undefined ? undefined : "Please enter a valid date"),
     })
     .transform((value) => value?.toISOString().substring(0, 10))
     .optional(),

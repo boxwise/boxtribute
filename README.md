@@ -9,7 +9,7 @@ Build: [![CircleCI](https://circleci.com/gh/boxwise/boxtribute.svg?style=svg)](h
 
 # boxtribute
 
-This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). We support the distribution of over 1 million items each year and are deployed in over 15 locations across Europe and the Middle East (check our website for the most current list of partners).
+This is the repository for version 2 of the humanitarian relief web app [Boxtribute](https://www.boxtribute.org). We support the distribution of over 1 million items each year and are deployed in over 15 locations across Europe and the Middle East (check our [website](https://boxtribute.org) for the most current list of partners).
 
 Built by aid workers for aid workers, it is designed with three top priorities in mind:
 
@@ -37,8 +37,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 ## Preparation for Installation
 
 - Clone the repository.
-- Install [Docker](https://www.docker.com/products/docker-desktop) and `docker-compose`
-- Get in touch with the [Boxtribute team](mailto:hello@boxtribute.org) to get access to the [Auth0](https://auth0.com/) development tenant.
+- Install [Docker](https://www.docker.com/products/docker-desktop) and `docker-compose` (version 2)
 
 ## How do I get set up?
 
@@ -46,13 +45,15 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 
 At the end of this section, there are links to further instructions to set up additional tools for your front-end and back-end environment.
 
-1.  Environment variables are managed in a single file. Therefore copy `example.env` into `.env`
+1.  Environment variables are managed in a single file. Run `cp example.env .env`
 
 1.  To build and start the involved Docker services, execute
 
         docker compose up
 
 1.  Open your web browser on `http://localhost:3000`
+
+1.  Log in with one of the test users [listed below](#development-database-seed)
 
 **NB: In case you get out-of-memory related errors, make sure your max memory is at least 4GB in your Docker settings (via _Docker Settings UI -> Resources -> Memory_) and try again.**
 In (Linux) Docker there is no UI to set the memory limits globally. In that case, please specify the following in `docker-compose.yml`:
@@ -72,12 +73,12 @@ services:
 
 ## About Docker
 
-We are using Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In `docker-compose.yml` three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `front`.
+We use Docker containers to make it easy for everyone to spin up an development environment which is the same everywhere. In the [docker-compose configuration file](./docker-compose.yml) three Docker containers are specified - one for the MySQL database called `db`, one for the Flask back-end called `webapp` and one for the react front-end called `front`.
 
 ## Development Database Seed
 
 Boxtribute is an application for organisations who run distribution/warehouses in multiple bases.
-Therefore the development database seed holds at least two organisations and three bases:
+Therefore the development database seed holds at least two organisations and four bases:
 
 - Organisation `BoxAid` working on `Lesvos` and
 - Organisation `BoxCare` working on `Samos` and in `Thessaloniki` and `Athens`.
@@ -124,27 +125,27 @@ A collection of various QR labels (associated/not associated with existing boxes
 
 Box in base 1
 
-![box in base 1](./docs/qr/code-with-box-base-1-f515148a5a1b0dbb5a150563f593ce0b.png)
+![box in base 1](./docs/qr/code-with-box-base-1-a3f22cbf5e52ea40557d8c8117ece5d3.png)
 
 Box in base 2
 
-![box in base 2](./docs/qr/code-with-box-base-2-59727c6c6275dad1efdc2288947ee859.png)
+![box in base 2](./docs/qr/code-with-box-base-2-c7c9691e8490695871eff25a7184a68d.png)
 
 Box in base 3
 
-![box in base 3](./docs/qr/code-with-box-base-3-0139dce214b51c5283fe2463275321ab.png)
+![box in base 3](./docs/qr/code-with-box-base-3-04508398e21891508288f9d64c250f1e.png)
 
 Box in base 4
 
-![box in base 4](./docs/qr/code-with-box-base-4-582705537df045804474a3ba05cc8792.png)
+![box in base 4](./docs/qr/code-with-box-base-4-d871e6c7f0a6e74fea024427a6ee3381.png)
 
 ### QR labels not associated with any boxes
 
 ![x0](./docs/qr/without-box/0159bdee5ace105482989775c591f1af.png)
 
-![x1](./docs/qr/without-box/02292cfdb2f54e0e496c56b764507fb3.png)
+![x1](./docs/qr/without-box/02aab8f4b84d9c917c9ed5ff148c7776.png)
 
-![x2](./docs/qr/without-box/089ce84d7180e68b6153d949af90bfed.png)
+![x2](./docs/qr/without-box/083c297c3de6396dad509f8018ac403d.png)
 
 More boxes can be found [here](./docs/qr/without-box).
 

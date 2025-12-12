@@ -28,20 +28,18 @@ export const ORGANISATION_AND_BASES_QUERY = graphql(`
   }
 `);
 
-export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = graphql(
-  `
-    query BoxDetails($labelIdentifier: String!) {
-      box(labelIdentifier: $labelIdentifier) {
-        labelIdentifier
-        location {
-          base {
-            id
-          }
+export const BOX_DETAILS_BY_LABEL_IDENTIFIER_QUERY = graphql(`
+  query BoxDetails($labelIdentifier: String!) {
+    box(labelIdentifier: $labelIdentifier) {
+      labelIdentifier
+      location {
+        base {
+          id
         }
       }
     }
-  `,
-);
+  }
+`);
 
 export const GET_BOX_LABEL_IDENTIFIER_BY_QR_CODE = graphql(
   `
@@ -173,10 +171,49 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
       }
     }
   `,
-  [
-    BOX_FIELDS_FRAGMENT,
-    DISTRO_EVENT_FIELDS_FRAGMENT,
-  ],
+  [BOX_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT],
+);
+
+export const BOX_BY_LABEL_IDENTIFIER_QUERY = graphql(
+  `
+    query BoxByLabelIdentifierWithoutShipments($labelIdentifier: String!) {
+      box(labelIdentifier: $labelIdentifier) {
+        ...BoxFields
+        distributionEvent {
+          ...DistroEventFields
+        }
+        location {
+          __typename
+          id
+          name
+          ... on ClassicLocation {
+            defaultBoxState
+          }
+          base {
+            locations {
+              id
+              seq
+              name
+              ... on ClassicLocation {
+                defaultBoxState
+              }
+            }
+            distributionEventsBeforeReturnedFromDistributionState {
+              id
+              state
+              distributionSpot {
+                name
+              }
+              name
+              plannedStartDateTime
+              plannedEndDateTime
+            }
+          }
+        }
+      }
+    }
+  `,
+  [BOX_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT],
 );
 
 export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = graphql(
@@ -246,6 +283,23 @@ export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_TAGS_AND_SHIPMENTS_QUERY = g
     }
   `,
   [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT, BASE_ORG_FIELDS_FRAGMENT],
+);
+
+export const MULTI_BOX_ACTION_OPTIONS_FOR_LOCATIONS_AND_TAGS_QUERY = graphql(
+  `
+    query MultiBoxActionOptionsForLocationsAndTags($baseId: ID!) {
+      base(id: $baseId) {
+        id
+        tags(resourceType: Box) {
+          ...TagBasicFields
+        }
+        locations {
+          ...LocationBasicFields
+        }
+      }
+    }
+  `,
+  [LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
 export const STANDARD_PRODUCT_QUERY = graphql(

@@ -41,6 +41,12 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
           data={selectedBoxes.map((box) => {
             return {
               ...box.values,
+              product: box.values.product.name,
+              state: box.values.state.name,
+              productCategory: box.values.productCategory.name,
+              size: box.values.size.name,
+              gender: box.values.gender.name,
+              location: box.values.location.name,
               tags: box.values.tags.map((tag: { name: string }) => tag.name),
               shipment: box.values.shipment?.labelIdentifier,
               lastModified: new Date(box.values.lastModified.toString())

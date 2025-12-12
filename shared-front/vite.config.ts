@@ -27,5 +27,5 @@ export default defineConfig({
     host: true,
     port: 5173,
   },
-  envPrefix: "STATVIZ_",
+  envPrefix: "SHARED_FRONT_",
 });

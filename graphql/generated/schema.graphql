@@ -12,6 +12,8 @@ enum ProductGender {
   Girl
   Boy
   none
+  BabyGirl
+  BabyBoy
 }
 
 """
@@ -335,6 +337,8 @@ input BoxCreationInput {
   comment: String
   qrCode: String
   tagIds: [Int!]
+  " Names of new tags to be created on-the-fly "
+  newTagNames: [String!]
 }
 
 input BoxUpdateInput {
@@ -349,8 +353,8 @@ input BoxUpdateInput {
   state: BoxState
   " List of all tags that shall be assigned to the box. Any requested tags already assigned to the box will not be assigned again "
   tagIds: [Int!]
-  " List of tags that shall be assigned in addition to already assigned tags. Any requested tags already assigned to the box will not be assigned again "
-  tagIdsToBeAdded: [Int!]
+  " Names of new tags to be created on-the-fly "
+  newTagNames: [String!]
 }
 
 input BoxMoveInput {
@@ -361,6 +365,17 @@ input BoxMoveInput {
 input BoxesTagsOperationInput {
   labelIdentifiers: [String!]!
   tagIds: [Int!]!
+}
+
+input BoxBulkCreationInput {
+  productId: Int!
+  " Name of discrete size (XL, Size 4, 39, ...); or measure (1.5kg, 300ml, ...) "
+  sizeName: String!
+  numberOfItems: Int
+  locationId: Int!
+  comment: String
+  tagIds: [Int!]
+  newTagNames: [String!]
 }
 
 input CustomProductCreationInput {
@@ -572,6 +587,8 @@ type Mutation {
   assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
   " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Create boxes by importing raw data. Prototypical! "
+  createBoxes(creationInput: [BoxBulkCreationInput!]): [Box!]
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -583,15 +600,17 @@ type Mutation {
   createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
-  createTag(creationInput: TagCreationInput): Tag
+  createTag(creationInput: TagCreationInput): CreateTagResult
   " Update one or more properties of a tag with specified ID. "
-  updateTag(updateInput: TagUpdateInput): Tag
+  updateTag(updateInput: TagUpdateInput): UpdateTagResult
   " Soft-delete tag with specified ID. "
-  deleteTag(id: ID!): Tag
+  deleteTag(id: ID!): DeleteTagResult
   " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
   assignTag(assignmentInput: TagOperationInput): TaggableResource
   " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
   unassignTag(unassignmentInput: TagOperationInput): TaggableResource
+  " Any tags that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `TagsResult.invalidTagIds` list. "
+  deleteTags(ids: [Int!]!): DeleteTagsResult
 
   " Create new transfer agreement with with a partner organisation (the client's organisation is the initiating organisation). By default, the agreement is established with non-deleted bases of the partner organisation, and is infinitely valid. As a result, any base added to that organisation afterwards will NOT be part of the agreement; instead a new agreement needs to be established. If an accepted agreement with the same set of organisations and bases already exists, an error is returned. The client must be member of all bases of the initiating organisation.  "
   createTransferAgreement(creationInput: TransferAgreementCreationInput): TransferAgreement
@@ -754,7 +773,7 @@ type Query {
   shipment(id: ID!): Shipment
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. Optionally filter for shipments of certain state(s)."
   shipments(states: [ShipmentState!]): [Shipment!]!
-  " Return various metrics about stock and beneficiaries for client's organisation. "
+  " Return various metrics about beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 
   beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
@@ -954,6 +973,10 @@ type Tag {
   " List of boxes and/or beneficiaries that have this tag assigned "
   taggedResources: [TaggableResource!]
   base: Base!
+  createdBy: User
+  createdOn: Datetime
+  lastModifiedBy: User
+  lastModifiedOn: Datetime
   deletedOn: Datetime
 }
 
@@ -1027,6 +1050,11 @@ Utility response type for box bulk-update mutations, containing both updated box
 type BoxesResult {
   updatedBoxes: [Box!]!
   invalidBoxLabelIdentifiers: [String!]!
+}
+
+type TagsResult {
+  updatedTags: [Tag!]!
+  invalidTagIds: [ID!]!
 }
 
 type BeneficiariesResult {
@@ -1473,9 +1501,16 @@ type DeletedBaseError {
 type InvalidDateError {
   date: Datetime!
 }
+type InvalidColorError {
+  color: String!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
+union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
+union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
+union DeleteTagsResult = TagsResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
 union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
@@ -1499,17 +1534,11 @@ type Metrics {
   If none is specified, the result is an all-time number.
   """
   numberOfFamiliesServed(after: Date, before: Date): Int
-  " Like `numberOfFamiliesServed` but add up all members of served families "
-  numberOfBeneficiariesServed(after: Date, before: Date): Int
   """
   Return number of sales performed by client's organisation in optional date range.
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
   """
   numberOfSales(after: Date, before: Date): Int
-  """
-  Return number of boxes, and number of contained items, managed by client's organisation.
-  """
-  stockOverview: StockOverview
 }
 
 type StockOverview {

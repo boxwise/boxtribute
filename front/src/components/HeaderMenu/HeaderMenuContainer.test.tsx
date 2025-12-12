@@ -44,7 +44,6 @@ it("1.3.2 - Menus are available to the user depending on ABPs - Aid Inventory", 
   expect(screen.getByRole("button", { name: /Aid Inventory/i })).toBeInTheDocument();
   expect(screen.getByText(/Print Box Labels/i)).toBeInTheDocument();
   expect(screen.queryByText(/Manage Boxes/i)).not.toBeInTheDocument();
-  expect(screen.queryByText(/Classic Manage Boxes/i)).not.toBeInTheDocument();
 
   expect(screen.queryByRole("button", { name: /Coordinator Admin/i })).not.toBeInTheDocument();
 }, 10000);
@@ -67,7 +66,6 @@ it("1.3.3 - Menus are available to the user depending on ABPs - Aid Inventory w/
 
   expect(screen.getByRole("button", { name: /Aid Inventory/i })).toBeInTheDocument();
   expect(screen.getByText(/Print Box Labels/i)).toBeInTheDocument();
-  expect(screen.getByText(/Classic Manage Boxes/i)).toBeInTheDocument();
 
   expect(screen.queryByRole("button", { name: /Coordinator Admin/i })).not.toBeInTheDocument();
 }, 10000);
