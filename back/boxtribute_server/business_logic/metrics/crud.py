@@ -1,13 +1,17 @@
 """Computation of various metrics"""
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from peewee import fn
 
+from ...db import db
+from ...enums import TargetType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.transaction import Transaction
-from ...models.utils import utcnow
+from ...models.utils import execute_sql, utcnow
+from ...utils import in_ci_environment, in_production_environment
+from ..statistics.sql import MOVED_BOXES_ALL_BASES_QUERY
 
 
 def _build_range_filter(field, *, low, high):
@@ -79,7 +83,7 @@ def get_time_span(
     *,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
-    duration_days: int | None = None
+    duration_days: int | None = None,
 ) -> tuple[datetime, datetime]:
     """
     Calculates a time span (start_date, end_date) given one or two of three possible
@@ -130,3 +134,54 @@ def get_time_span(
     # 5. Insufficient parameters
     else:
         raise ValueError("Insufficient arguments")
+
+
+def compute_moved_boxes_statistics():
+    # copied from statistics module)
+    min_history_id = 1
+    if in_production_environment() and not in_ci_environment():
+        # Earliest row ID in tables in 2023
+        min_history_id = 1_324_559
+
+    facts = execute_sql(
+        min_history_id,
+        TargetType.BoxState.name,
+        TargetType.BoxState.name,
+        TargetType.OutgoingLocation.name,
+        TargetType.OutgoingLocation.name,
+        TargetType.Shipment.name,
+        TargetType.BoxState.name,
+        database=db.replica or db.database,
+        query=MOVED_BOXES_ALL_BASES_QUERY,
+    )
+
+    today = utcnow().date()
+
+    moved_boxes_last_month = 0
+    moved_boxes_last_quarter = 0
+    moved_boxes_last_year = 0
+
+    for fact in facts:
+        moved_on = fact.get("moved_on")
+        if moved_on is None:
+            continue
+
+        if not isinstance(moved_on, date):
+            continue
+
+        days_ago = (today - moved_on).days
+
+        boxes_count = fact.get("boxes_count", 0)
+
+        if days_ago <= 30:
+            moved_boxes_last_month += boxes_count
+        if days_ago <= 90:
+            moved_boxes_last_quarter += boxes_count
+        if days_ago <= 365:
+            moved_boxes_last_year += boxes_count
+
+    return {
+        "moved_boxes_last_month": moved_boxes_last_month,
+        "moved_boxes_last_quarter": moved_boxes_last_quarter,
+        "moved_boxes_last_year": moved_boxes_last_year,
+    }
