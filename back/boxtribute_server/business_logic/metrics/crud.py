@@ -79,18 +79,19 @@ def number_of_created_records_between(model, start, end):
 
 def reached_beneficiaries_numbers(start, end):
     # Return UNION of five sources of beneficiaries reached in given time span
+    # Though the DbChangeHistory, Transaction, ServicesRelation models have one-to-many
+    # relationships with Beneficiary we don't have to use DISTINCT because UNION takes
+    # care of removing the duplicates
     return (
         (
             # created/edited (persistently logged in history table)
-            DbChangeHistory.select(DbChangeHistory.record_id.alias("id"))
-            .where(
+            DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
                 DbChangeHistory.table_name == Beneficiary._meta.table_name,
                 DbChangeHistory.change_date >= start,
                 DbChangeHistory.change_date <= end,
                 # Exclude "Record deleted [by dailyroutine|without undelete]"
                 ~DbChangeHistory.changes.startswith(HISTORY_DELETION_MESSAGE),
             )
-            .distinct()
         )
         | (
             # created acc. to people table (contains info for some beneficiaries
@@ -102,15 +103,13 @@ def reached_beneficiaries_numbers(start, end):
         )
         | (
             # involved in transactions (family heads)
-            Transaction.select(Transaction.beneficiary.alias("id"))
-            .where(
+            Transaction.select(Transaction.beneficiary.alias("id")).where(
                 Transaction.created_on >= start,
                 Transaction.created_on <= end,
                 Transaction.count > 0,
                 # Exclude transactions of permanently deleted beneficiaries
                 Transaction.beneficiary.is_null(False),
             )
-            .distinct()
         )
         | (
             # indirectly involved in transactions (family members)
@@ -131,12 +130,10 @@ def reached_beneficiaries_numbers(start, end):
             # involved in services
             # If a beneficiary is registered twice for the same service than you have
             # the same pair of beneficiary/service but a different created_on
-            ServicesRelation.select(ServicesRelation.beneficiary.alias("id"))
-            .where(
+            ServicesRelation.select(ServicesRelation.beneficiary.alias("id")).where(
                 ServicesRelation.created_on >= start,
                 ServicesRelation.created_on <= end,
             )
-            .distinct()
         )
     ).count()
 
