@@ -28,7 +28,7 @@ export function QrReaderScanner({
   multiScan,
   facingMode = "environment",
   onResult,
-  scanPeriod: delayBetweenScanAttempts = 500,
+  scanPeriod = 500,
 }: QrReaderScannerProps) {
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
     // Only call onResult when QR codes are detected
@@ -52,7 +52,7 @@ export function QrReaderScanner({
             facingMode,
             height: { ideal: 720 },
           }}
-          scanDelay={delayBetweenScanAttempts}
+          scanDelay={scanPeriod}
           styles={{
             container: {
               ...styles.video,
