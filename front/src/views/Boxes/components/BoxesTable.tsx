@@ -85,6 +85,22 @@ function BoxesTable({
     [],
   );
 
+  function customGlobalFilter(rows, ids, filterValue) {
+    // Custom filter for global table search that can handle both simple cell content (e.g. comment
+    // or label identifier strings) and complex cell content (e.g. product objects; these would
+    // otherwise be interpreted as [Object object] and hence not match)
+    return rows.filter(row =>
+      ids.some(id => {
+        let rowValue = row.values[id];
+        if (typeof rowValue === "object" && rowValue !== null) {
+          // e.g. for product, category, gender, size, state, location
+          return String(rowValue.name || "").toLowerCase().includes(filterValue.toLowerCase());
+        }
+        return String(rowValue || "").toLowerCase().includes(filterValue.toLowerCase());
+      })
+    );
+  }
+
   const {
     headerGroups,
     prepareRow,
@@ -105,6 +121,7 @@ function BoxesTable({
       columns,
       data: tableData,
       filterTypes,
+      globalFilter: customGlobalFilter,
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
