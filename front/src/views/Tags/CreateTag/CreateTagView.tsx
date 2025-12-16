@@ -17,7 +17,6 @@ import { graphql } from "../../../../../graphql/graphql";
 
 const createTagQueryErrorText = "Something went wrong! Please try reloading the page.";
 
-//TODO update this
 const CREATE_TAG_MUTATION = graphql(
   `
     mutation CreateTag(
@@ -126,22 +125,11 @@ function CreateTagFormContainer() {
                 message: "You don't have permission to create a tag!",
               });
               break;
-            case "InvalidPriceError":
+            case "InvalidColorError":
               triggerError({
-                message: "Price must be a positive integer number.",
+                message: "Colour must be a valid color string.",
               });
               break;
-            case "EmptyNameError":
-              triggerError({
-                message: "The name of the product cannot be empty.",
-              });
-              break;
-            case "ResourceDoesNotExistError":
-              triggerError({
-                message: "The selected options do not exist.",
-              });
-              break;
-
             default:
               triggerError({
                 message: createTagErrorToastText,

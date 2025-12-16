@@ -21,7 +21,9 @@ const nameErrorText = "Please select a name.";
 const colorErrorText = "Please select a color.";
 const applicationErrorText = "Please select what this tag applies to.";
 
-//TODO this should be imported from a central place
+export const TAG_APPLICATION_OPTIONS = ["All", "Beneficiary", "Box"] as const;
+export type TagApplicationOption = (typeof TAG_APPLICATION_OPTIONS)[number];
+
 const SingleSelectOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
@@ -43,7 +45,7 @@ const CreateTagFormSchema = z.object({
   // see https://github.com/colinhacks/zod?tab=readme-ov-file#validating-during-transform
   application: z
     .object(
-      { value: z.enum(["All", "People", "Stock"]), label: z.string() },
+      { value: z.enum(TAG_APPLICATION_OPTIONS), label: z.string() },
       {
         error: (issue) => (issue.input === undefined ? applicationErrorText : undefined),
       },

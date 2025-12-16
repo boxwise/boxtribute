@@ -29,6 +29,8 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
 import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
 import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
+import { TagsView } from "views/Tags/TagsOverview/TagsView";
+import { CreateTagView } from "views/Tags/CreateTag/CreateTagView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -340,7 +342,7 @@ function App() {
               index
               element={
                 <Protected
-                  component={<TransferAgreementOverviewView />}
+                  component={<TagsView />}
                   redirectPath={prevLocation}
                   requiredAbps={["manage_tags"]}
                 />
@@ -360,7 +362,7 @@ function App() {
               path="create"
               element={
                 <Protected
-                  component={<TransferAgreementOverviewView />}
+                  component={<CreateTagView />}
                   redirectPath={prevLocation}
                   requiredAbps={["manage_tags"]}
                 />
