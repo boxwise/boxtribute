@@ -481,6 +481,115 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
   }, 20000);
+
+  it("4.8.1.5 - Global filter", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?state_ids=1",
+        mocks: [
+          boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
+          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({}),
+          actionsQuery,
+        ],
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByRole("table")).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Search for "pants" - should show only box 1481666 (Sweatpants)
+    const searchInput = screen.getByPlaceholderText(/search/i);
+    await user.clear(searchInput);
+    await user.type(searchInput, "pants");
+    await waitFor(
+      () => {
+        expect(screen.getByText("1 boxes")).toBeInTheDocument();
+        expect(screen.getByText("1481666")).toBeInTheDocument();
+        expect(screen.queryByText("8650860")).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Search for "bottoms" - should show two boxes (1481666 and 8650860, both have category "Bottoms")
+    await user.clear(searchInput);
+    await user.type(searchInput, "bottoms");
+    await waitFor(
+      () => {
+        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        expect(screen.getByText("1481666")).toBeInTheDocument();
+        expect(screen.getByText("8650860")).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Search for "new" - should show two boxes (1481666 and 8650860, both have tag "new")
+    await user.clear(searchInput);
+    await user.type(searchInput, "new");
+    await waitFor(
+      () => {
+        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        expect(screen.getByText("1481666")).toBeInTheDocument();
+        expect(screen.getByText("8650860")).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Search for "wh" - should show only box 8650860 (in location WH1)
+    await user.clear(searchInput);
+    await user.type(searchInput, "wh");
+    await waitFor(
+      () => {
+        expect(screen.getByText("1 boxes")).toBeInTheDocument();
+        expect(screen.queryByText("1481666")).not.toBeInTheDocument();
+        expect(screen.getByText("8650860")).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Search for "mix" - should show two boxes (1481666 and 8650860, both have size "Mixed")
+    await user.clear(searchInput);
+    await user.type(searchInput, "mix");
+    await waitFor(
+      () => {
+        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        expect(screen.getByText("1481666")).toBeInTheDocument();
+        expect(screen.getByText("8650860")).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Search for "randomxyz" - should show no boxes
+    await user.clear(searchInput);
+    await user.type(searchInput, "randomxyz");
+    await waitFor(
+      () => {
+        expect(screen.getByText("0 boxes")).toBeInTheDocument();
+        expect(screen.queryByText("1481666")).not.toBeInTheDocument();
+        expect(screen.queryByText("8650860")).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  }, 20000);
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
