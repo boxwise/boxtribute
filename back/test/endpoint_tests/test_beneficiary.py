@@ -443,7 +443,7 @@ def test_beneficiary_mutations(
             DbChangeHistory.from_int,
             DbChangeHistory.to_int,
         )
-        .where(DbChangeHistory.table_name == "people")
+        .where(DbChangeHistory.table_name == "people", DbChangeHistory.id > 111)
         .order_by(DbChangeHistory.id)
         .dicts()
     )

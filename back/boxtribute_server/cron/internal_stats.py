@@ -8,6 +8,7 @@ from flask import current_app
 from ..business_logic.metrics.crud import (
     get_time_span,
     number_of_created_records_between,
+    reached_beneficiaries_numbers,
 )
 from ..models.definitions.beneficiary import Beneficiary
 from ..models.definitions.box import Box
@@ -15,24 +16,37 @@ from ..models.utils import utcnow
 
 
 def get_internal_data():
-    titles = ["created boxes", "registered beneficiaries"]
-    models = [Box, Beneficiary]
     now = utcnow()
     all_data = []
-    for title, model in zip(titles, models):
+
+    def compute_with_trend(func, duration, *args):
+        time_span = get_time_span(duration_days=duration)
+        result = func(*args, *time_span)
+
+        # Compute trend compared to previous window
+        compared_end = now - timedelta(days=duration)
+        time_span = get_time_span(duration_days=duration, end_date=compared_end)
+        comparison = func(*args, *time_span)
+        trend = (result - comparison) / comparison * 100 if comparison else 0
+        return result, trend
+
+    titles = [
+        "Newly created boxes",
+        "Newly registered beneficiaries",
+        "Reached beneficiaries",
+    ]
+    funcs = [
+        number_of_created_records_between,
+        number_of_created_records_between,
+        reached_beneficiaries_numbers,
+    ]
+    args_list = [[Box], [Beneficiary], []]
+    for title, func, args in zip(titles, funcs, args_list):
         data = []
         for duration in [30, 90, 365]:
-            time_span = get_time_span(duration_days=duration)
-            result = number_of_created_records_between(model, *time_span)
-
-            # Compute trend compared to previous window
-            compared_end = now - timedelta(days=duration)
-            time_span = get_time_span(duration_days=duration, end_date=compared_end)
-            comparison = number_of_created_records_between(model, *time_span)
-            trend = (result - comparison) / comparison * 100 if comparison else 0
-
+            result, trend = compute_with_trend(func, duration, *args)
             data.append(f"Last {duration:>3} days: {result:>5} ({trend:+.1f}%)")
-        all_data.append({"title": f"Newly {title}", "data": "\n".join(data)})
+        all_data.append({"title": title, "data": "\n".join(data)})
     return all_data
 
 
