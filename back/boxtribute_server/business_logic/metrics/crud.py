@@ -79,6 +79,15 @@ def number_of_created_records_between(model, start, end):
 
 def reached_beneficiaries_numbers(start, end):
     # Return UNION of five sources of beneficiaries reached in given time span
+    # Known issues with this statistic as of 2025.12.15:
+    # - Deleted bene's create issues in the transactions table (NULL people_id for free
+    #   shop checkouts)
+    # - Deleted bene's are not associated with a base (creates attribution errors)
+    # - Does not account for the case where there are special free shop distributions
+    #   for children (around 3% of total transactions)
+    # - There are 19 beneficiaries who have themselves as both a child and head of the
+    #   family, and we did not identify the error in the data capture yet (last case was
+    #   in 2023).
     # Though the DbChangeHistory, Transaction, ServicesRelation models have one-to-many
     # relationships with Beneficiary we don't have to use DISTINCT because UNION takes
     # care of removing the duplicates
