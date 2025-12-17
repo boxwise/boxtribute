@@ -46,12 +46,12 @@ export function QrReaderScanner({
     if (detectedCodes && detectedCodes.length > 0) {
       onResult(multiScan, detectedCodes, null);
     }
-    if (multiScan) unpauseAfterDelay();
+    unpauseAfterDelay();
   };
 
   const handleError = (error: Error) => {
     onResult(multiScan, null, error);
-    if (multiScan) unpauseAfterDelay();
+    unpauseAfterDelay();
   };
 
   const [paused, setPaused] = useState(false);
