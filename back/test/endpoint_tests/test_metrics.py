@@ -108,3 +108,21 @@ def test_public_box_number(read_only_client, start, end, duration, result):
 
 def build_newly_created_query(query_string):
     return f"query {{ {query_string} {{ lastMonth lastQuarter lastYear }} }}"
+
+
+def test_public_moved_boxes_statistics(read_only_client):
+    query = """query {
+        movedBoxesStatistics {
+            movedBoxesLastMonth
+            movedBoxesLastQuarter
+            movedBoxesLastYear
+        }
+    }"""
+
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+
+    assert response == {
+        "movedBoxesLastMonth": 5,
+        "movedBoxesLastQuarter": 5,
+        "movedBoxesLastYear": 5,
+    }

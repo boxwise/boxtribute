@@ -2,9 +2,14 @@ from ariadne import QueryType
 from flask import g
 
 from ...authz import authorize
+from ...db import use_db_replica
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
-from .crud import get_time_span, number_of_created_records_between
+from .crud import (
+    compute_moved_boxes_statistics,
+    get_time_span,
+    number_of_created_records_between,
+)
 
 query = QueryType()
 public_query = QueryType()
@@ -34,3 +39,16 @@ def resolve_newly_registered_beneficiary_numbers(
 def resolve_newly_created_box_numbers(*_, start=None, end=None, duration=None):
     time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
     return number_of_created_records_between(Box, *time_span)
+
+
+@public_query.field("movedBoxesStatistics")
+@use_db_replica
+def resolve_moved_boxes_statistics(*_):
+    """
+    Returns metrics on the number of boxes moved across ALL bases in the database
+    for the last month, quarter, and year.
+
+    This is a public API endpoint (no authorization required) that provides
+    high-level aggregate metrics without sensitive details.
+    """
+    return compute_moved_boxes_statistics()
