@@ -523,7 +523,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "pants");
     await waitFor(
       () => {
-        expect(screen.getByText("1 boxes")).toBeInTheDocument();
+        expect(screen.getByText("1 box")).toBeInTheDocument();
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
@@ -559,7 +559,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "wh");
     await waitFor(
       () => {
-        expect(screen.getByText("1 boxes")).toBeInTheDocument();
+        expect(screen.getByText("1 box")).toBeInTheDocument();
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },

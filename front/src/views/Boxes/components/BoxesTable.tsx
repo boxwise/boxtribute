@@ -249,7 +249,9 @@ function BoxesTable({
               tableConfig.isNotMounted ? (
                 <Skeleton height={5} width={10} mr={2} />
               ) : hasExecutedInitialFetchOfBoxes.current ? (
-                <Text as="span">{boxCount} boxes</Text>
+                <Text as="span">
+                  {boxCount} box{boxCount === 1 ? "" : "es"}
+                </Text>
               ) : (
                 <Text as="span">Data unavailable</Text>
               )}
