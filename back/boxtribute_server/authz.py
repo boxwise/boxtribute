@@ -3,11 +3,11 @@
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Type
 
+import graphql
 from flask import g
 from peewee import Model
 
 from .auth import CurrentUser
-from .business_logic.statistics import statistics_queries
 from .enums import BoxState, TransferAgreementState
 from .errors import InsufficientPermission, UnauthorizedForBase
 from .exceptions import Forbidden
@@ -17,7 +17,7 @@ from .models.definitions.shipment import Shipment
 from .models.definitions.shipment_detail import ShipmentDetail
 from .models.definitions.transfer_agreement import TransferAgreement
 from .models.definitions.transfer_agreement_detail import TransferAgreementDetail
-from .utils import convert_pascal_to_snake_case, in_development_environment
+from .utils import convert_pascal_to_snake_case
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
@@ -362,6 +362,7 @@ MUTATIONS_FOR_BETA_LEVEL[4] = MUTATIONS_FOR_BETA_LEVEL[3] + (
     "editCustomProduct",
     "deleteProduct",
     "enableStandardProduct",
+    "enableStandardProducts",
     "editStandardProductInstantiation",
     "disableStandardProduct",
 )
@@ -426,30 +427,37 @@ MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
 
 
 def check_user_beta_level(
-    payload: Dict[str, Any], *, current_user: Optional[CurrentUser] = None
+    document: graphql.DocumentNode | str, *, current_user: CurrentUser
 ) -> bool:
     """Check whether the current user has sufficient beta-level to run the operations in
-    the payload.
+    the GraphQL document (i.e. all requested mutations are part of the list of mutations
+    allowed for this beta-level).
     Fall back to default maximum beta-level if the one assigned to the user is not
     registered.
     For god users, this check is irrelevant.
     """
-    current_user = current_user or g.user
     if current_user.is_god:
-        return True
-
-    if "query" in payload and any([q in payload for q in statistics_queries()]):
-        return current_user.max_beta_level >= 3
-
-    if "mutation" not in payload:
-        return True
-
-    if "__schema" in payload and in_development_environment():
-        # Enable fetching full schema in GraphQL explorer during development
         return True
 
     try:
         allowed_mutations = MUTATIONS_FOR_BETA_LEVEL[current_user.max_beta_level]
     except KeyError:
         allowed_mutations = MUTATIONS_FOR_BETA_LEVEL[DEFAULT_MAX_BETA_LEVEL]
-    return any([m in payload for m in allowed_mutations])
+
+    if isinstance(document, str):
+        # Helpful conversion for unittests
+        document = graphql.parse(document)
+
+    for definition in document.definitions:
+        # Definition can be an Operation or a Fragment
+        if isinstance(definition, graphql.OperationDefinitionNode):
+            if definition.operation == graphql.OperationType.MUTATION:
+                mutation_names = []
+                # Selection can be a Field, a FragmentSpread, or an InlineFragment
+                for selection in definition.selection_set.selections:
+                    if isinstance(selection, graphql.FieldNode):
+                        # This is the actual mutation name from the schema
+                        mutation_names.append(selection.name.value)
+
+                return all([m in allowed_mutations for m in mutation_names])
+    return True
