@@ -7,9 +7,9 @@ from auth import (
 )
 from boxtribute_server.auth import CurrentUser, decode_jwt, get_public_key
 from utils import (
+    assert_bad_request,
     assert_forbidden_request,
     assert_successful_request,
-    assert_unauthorized,
 )
 
 # Test user data in dropapp_dev database:
@@ -123,7 +123,9 @@ def test_usergroup_cross_organisation_permissions(
 ):
     # Pretend that the users have a sufficient beta-level to run the beneficiary
     # migrations
-    mocker.patch("boxtribute_server.routes.check_user_beta_level").return_value = True
+    mocker.patch(
+        "boxtribute_server.graph_ql.execution.check_user_beta_level"
+    ).return_value = True
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         username
     )
@@ -228,7 +230,7 @@ def test_god_user(dropapp_dev_client):
     assert user.is_god
 
 
-def test_check_beta_feature_access(dropapp_dev_client, mocker):
+def test_check_beta_feature_access(dropapp_dev_client):
     dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "dev_coordinator@boxaid.org"
     )
@@ -237,5 +239,5 @@ def test_check_beta_feature_access(dropapp_dev_client, mocker):
     assert_successful_request(dropapp_dev_client, mutation)
 
     mutation = "mutation { deleteTag(id: 1) { id } }"
-    response = assert_unauthorized(dropapp_dev_client, mutation)
-    assert response.json["error"] == "No permission to access beta feature"
+    response = assert_bad_request(dropapp_dev_client, mutation, expect_errors=True)
+    assert response.json["errors"] == [{"message": "Insufficient beta-level"}]
