@@ -75,7 +75,7 @@
     "eslint-plugin-react-refresh": "^0.4.25",
     "eslint-plugin-testing-library": "^7.13.6",
     "husky": "^9.1.7",
-    "jsdom": "26.1.0",
+    "jsdom": "27.3.0",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "tsc-files": "^1.1.4",
