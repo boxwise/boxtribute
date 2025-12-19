@@ -7,7 +7,6 @@ from flask import jsonify, request
 from flask_cors import cross_origin
 
 from .auth import request_jwt, requires_auth
-from .authz import check_user_beta_level
 from .blueprints import (
     API_GRAPHQL_PATH,
     APP_GRAPHQL_PATH,
@@ -113,12 +112,11 @@ def api_token():
 )
 @requires_auth
 def graphql_server():
-    if not check_user_beta_level(request.get_json()["query"]):
-        return {"error": "No permission to access beta feature"}, 401
-
     with log_profiled_request_to_gcloud(context=WEBAPP_CONTEXT):
-        # Schema introspection is enabled for local development via current_app.debug
-        return execute_async(schema=full_api_schema)
+        # Schema introspection is enabled for local development via current_app.debug.
+        # If the beta-level check fails, a bad-request (400) response with an "errors"
+        # field is returned
+        return execute_async(schema=full_api_schema, check_beta_level=True)
 
 
 @app_bp.get(APP_GRAPHQL_PATH)
