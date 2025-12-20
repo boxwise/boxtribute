@@ -33,7 +33,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
-  const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
+  const [isMultiBox, setIsMultiBox] = useState(qrReaderOverlayState.isMultiBox || false);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
   const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
@@ -75,6 +75,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
       setBoxNotOwned("");
+      console.log("final multi scan", multiScan);
       const qrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",

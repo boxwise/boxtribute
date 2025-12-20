@@ -79,11 +79,13 @@ export function QrReader({
     [setBoxLabelInputValue, setBoxLabelInputError],
   );
 
+  const multiScan = isMultiBox && hasManageInventoryPermission;
+
   return (
     <>
       <QrReaderScanner
-        key="qrReaderScanner"
-        multiScan={isMultiBox && hasManageInventoryPermission}
+        key={`scanner-${multiScan}`}
+        multiScan={multiScan}
         facingMode="environment"
         scanPeriod={1000}
         onResult={onResult}

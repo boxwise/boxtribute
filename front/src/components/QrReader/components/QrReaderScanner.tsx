@@ -1,7 +1,7 @@
 import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { styles } from "./QrReaderScannerStyles";
-import { ViewFinder } from "./ViewFinder";
 import { useState } from "react";
+import { ViewFinder } from "./ViewFinder";
 
 export type OnResultFunction = (
   /**
@@ -45,8 +45,8 @@ export function QrReaderScanner({
     // Only call onResult when QR codes are detected
     if (detectedCodes && detectedCodes.length > 0) {
       onResult(multiScan, detectedCodes, null);
+      unpauseAfterDelay();
     }
-    unpauseAfterDelay();
   };
 
   const handleError = (error: Error) => {
@@ -69,7 +69,8 @@ export function QrReaderScanner({
           }}
           paused={paused}
           styles={{
-            container: {
+            container: styles.container,
+            video: {
               ...styles.video,
               transform: facingMode === "user" ? "scaleX(-1)" : undefined,
             },
