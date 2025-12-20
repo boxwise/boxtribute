@@ -75,7 +75,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
     if (!isProcessingQrCode) {
       setIsProcessingQrCode(true);
       setBoxNotOwned("");
-      console.log("final multi scan", multiScan);
       const qrResolvedValue = await resolveQrCode(
         qrReaderResultText,
         multiScan ? "cache-first" : "network-only",
