@@ -264,7 +264,7 @@ def test_non_duplicated_base_ids_when_read_and_write_permissions_given():
     assert not user.is_god
 
 
-def test_check_beta_feature_access(mocker):
+def test_check_user_beta_level():
     # User with level 0 can only access BoxView/BoxEdit pages, and queries
     max_beta_level = 0
     current_user = CurrentUser(id=1, max_beta_level=max_beta_level, organisation_id=0)
@@ -282,9 +282,6 @@ def test_check_beta_feature_access(mocker):
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
         assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
-        assert not check_user_beta_level(payload, current_user=current_user)
     assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
@@ -303,9 +300,6 @@ def test_check_beta_feature_access(mocker):
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
         assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
-        assert not check_user_beta_level(payload, current_user=current_user)
     assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
@@ -318,24 +312,17 @@ def test_check_beta_feature_access(mocker):
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
         assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
-        assert not check_user_beta_level(payload, current_user=current_user)
     assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
     )
 
-    # User with level 3 can additionally access statviz data, create shareable link,
-    # and execute Box bulk actions
+    # User with level 3 can create shareable link, and execute Box bulk actions
     current_user._max_beta_level = 3
     for mutation in ["deleteProduct", "createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
         assert check_user_beta_level(payload, current_user=current_user)
     assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
@@ -348,9 +335,6 @@ def test_check_beta_feature_access(mocker):
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
         assert check_user_beta_level(payload, current_user=current_user)
     assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
@@ -379,11 +363,33 @@ def test_check_beta_feature_access(mocker):
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
         payload = f"mutation {{ {mutation} }}"
         assert check_user_beta_level(payload, current_user=current_user)
-    for query in statistics_queries():
-        payload = f"query {{ {query} }}"
-        assert check_user_beta_level(payload, current_user=current_user)
     assert check_user_beta_level(
         "query { base(id: 1) { name } }", current_user=current_user
+    )
+
+    # More complex (non-existing) mutation with Fragments and FragmentSpreads
+    mutation = """
+    fragment BoxFields on Box {
+      id
+      tags { ...TagBasicFields }
+    }
+    fragment TagBasicFields on Tag { id }
+    mutation CreateSomething($labelIdentifier: String!) {
+      ...BoxFields
+      createSomething(labelIdentifier: $labelIdentifier) {
+        location {
+          __typename
+          id
+          ... on ClassicLocation { defaultBoxState }
+        }
+      }
+    }
+    """
+    assert not check_user_beta_level(mutation, current_user=current_user)
+    assert check_user_beta_level(
+        # Convert to known mutation
+        mutation.replace("Something", "Tag"),
+        current_user=current_user,
     )
 
     current_user = CurrentUser(id=0, organisation_id=0, is_god=True)

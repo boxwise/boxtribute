@@ -126,7 +126,7 @@ def client(mysql_testing_database):
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with _create_app(mysql_testing_database, api_bp, app_bp) as app:
+    with _create_app(mysql_testing_database, api_bp, app_bp, shared_bp) as app:
         yield app.test_client()
 
 

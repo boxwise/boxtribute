@@ -110,15 +110,20 @@ def another_male_beneficiary_data():
     }
 
 
-@pytest.fixture
-def default_beneficiaries():
+def data():
     return [
         default_beneficiary_data(),
         relative_beneficiary_data(),
         another_beneficiary_data(),
         another_relative_beneficiary_data(),
         another_male_beneficiary_data(),
+        org2_base3_beneficiary_data(),
     ]
+
+
+@pytest.fixture
+def default_beneficiaries():
+    return data()[:-1]
 
 
 @pytest.fixture

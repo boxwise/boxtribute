@@ -1,8 +1,11 @@
 import asyncio
+from typing import Any
 
-from ariadne import graphql
-from flask import current_app, jsonify, request
+import ariadne
+import graphql
+from flask import current_app, g, jsonify, request
 
+from ..authz import check_user_beta_level
 from ..exceptions import format_database_errors
 from .loaders import (
     BaseLoader,
@@ -35,7 +38,20 @@ from .loaders import (
 )
 
 
-def execute_async(*, schema, introspection=None, data=None):
+def parse_with_beta_level_check(_, data: dict[str, Any]) -> graphql.DocumentNode:
+    """Custom GraphQL parser running a beta-level check on the payload of the incoming
+    request.
+    """
+    graphql_document = graphql.parse(data["query"])
+    authzed = check_user_beta_level(graphql_document, current_user=g.user)
+    if not authzed:
+        # This will be caught in ariadne.graphql() and added to the "errors" field of
+        # the response
+        raise graphql.GraphQLError("Insufficient beta-level")
+    return graphql_document
+
+
+def execute_async(*, schema, introspection=None, data=None, check_beta_level=False):
     """Create coroutine and execute it with high-level `asyncio.run` which takes care of
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
@@ -75,9 +91,10 @@ def execute_async(*, schema, introspection=None, data=None):
         }
 
         # Execute the GraphQL request against schema, passing in context
-        results = await graphql(
+        results = await ariadne.graphql(
             schema,
             data=data or request.get_json(),
+            query_parser=parse_with_beta_level_check if check_beta_level else None,
             context_value=context,
             debug=current_app.debug,
             introspection=current_app.debug if introspection is None else introspection,
