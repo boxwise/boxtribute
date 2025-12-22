@@ -130,7 +130,7 @@ def number_of_beneficiaries_registered_between(start, end):
     )
 
 
-def reached_beneficiaries_numbers(start, end):
+def number_of_beneficiaries_reached_between(start, end):
     # Return UNION of five sources of beneficiaries reached in given time span
     # Known issues with this statistic as of 2025.12.15:
     # - Deleted bene's create issues in the transactions table (NULL people_id for free

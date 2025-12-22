@@ -7,9 +7,9 @@ from flask import current_app
 
 from ..business_logic.metrics.crud import (
     get_time_span,
+    number_of_beneficiaries_reached_between,
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
-    reached_beneficiaries_numbers,
 )
 from ..models.utils import utcnow
 from .formatting import format_as_table, transform_data
@@ -55,7 +55,7 @@ def get_internal_data():
     funcs = [
         number_of_boxes_created_between,
         number_of_beneficiaries_registered_between,
-        reached_beneficiaries_numbers,
+        number_of_beneficiaries_reached_between,
     ]
     for title, func in zip(titles, funcs):
         results = []
