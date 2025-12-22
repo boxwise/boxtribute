@@ -19,15 +19,28 @@ import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 import { TagRow } from "./transformers";
 import IndeterminateCheckbox from "views/Boxes/components/Checkbox";
+import { TagsActions } from "views/Tags/TagsOverview/components/TagsActions";
+import { useTagsActions } from "views/Tags/hooks/useTagsActions";
+import { TagsForTagsContainerVariables } from "./TagsContainer";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 type TagsTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData: TagRow[];
+  refetchData: (variables?: TagsForTagsContainerVariables) => void;
   columns: Column<TagRow>[];
   onRowClick: (tagId: string) => void;
 };
 
-export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsTableProps) {
+export function TagsTable({
+  tableConfig,
+  tableData,
+  refetchData,
+  columns,
+  onRowClick,
+}: TagsTableProps) {
+  const baseId = useAtomValue(selectedBaseIdAtom);
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -44,8 +57,7 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
     state: { globalFilter, filters, sortBy, hiddenColumns },
     rows,
     setGlobalFilter,
-    //TODO to be used in custom actions added at the top of the table
-    // selectedFlatRows,
+    selectedFlatRows,
     // toggleRowSelected,
   } = useTable(
     {
@@ -81,7 +93,18 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
     },
   );
 
+  const { onDeleteTags, actionsAreLoading } = useTagsActions(selectedFlatRows);
+
   useEffect(() => {
+    // refetch
+    const newStateFilter = filters.find((filter) => filter.id === "state");
+    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    if (newStateFilter !== oldStateFilter) {
+      refetchData({
+        baseId,
+      });
+    }
+
     // update tableConfig
     if (globalFilter !== tableConfig.getGlobalFilter()) tableConfig.setGlobalFilter(globalFilter);
 
@@ -91,12 +114,16 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
 
     if (hiddenColumns !== tableConfig.getHiddenColumns())
       tableConfig.setHiddenColumns(hiddenColumns);
-  }, [filters, globalFilter, hiddenColumns, sortBy, tableConfig]);
+  }, [baseId, filters, globalFilter, hiddenColumns, refetchData, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" overflowX="auto">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        {/* TODO add actions here for selected rows */}
+        <TagsActions
+          selectedTags={selectedFlatRows}
+          onDeleteTags={onDeleteTags}
+          actionsAreLoading={actionsAreLoading}
+        />
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector

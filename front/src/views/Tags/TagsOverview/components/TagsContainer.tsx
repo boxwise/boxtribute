@@ -6,7 +6,7 @@ import { Column } from "react-table";
 import { useAtomValue } from "jotai";
 import { useTableConfig } from "hooks/useTableConfig";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { graphql, ResultOf } from "../../../../../../graphql/graphql";
+import { graphql, ResultOf, VariablesOf } from "../../../../../../graphql/graphql";
 import { BOX_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { TagRow, tagsRawToTableDataTransformer } from "./transformers";
 import { Tag, TagLabel } from "@chakra-ui/react";
@@ -30,6 +30,8 @@ export const TAGS_QUERY = graphql(
   [TAG_BASIC_FIELDS_FRAGMENT, BOX_FIELDS_FRAGMENT],
 );
 
+export type TagsForTagsContainerVariables = VariablesOf<typeof TAGS_QUERY>;
+
 export type TagsQuery = ResultOf<typeof TAGS_QUERY>;
 
 export function TagsContainer() {
@@ -51,7 +53,11 @@ export function TagsContainer() {
   };
 
   // fetch Tags data
-  const { data: tagsRawData, error } = useSuspenseQuery(TAGS_QUERY, {
+  const {
+    data: tagsRawData,
+    error,
+    refetch,
+  } = useSuspenseQuery(TAGS_QUERY, {
     variables: { baseId },
   });
 
@@ -108,6 +114,7 @@ export function TagsContainer() {
     <TagsTable
       tableConfig={tableConfig}
       tableData={tagsRawToTableDataTransformer(tagsRawData)}
+      refetchData={refetch}
       columns={availableColumns}
       onRowClick={onRowClick}
     />

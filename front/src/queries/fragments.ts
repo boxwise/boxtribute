@@ -33,6 +33,7 @@ export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
     color
     description
     type
+    deletedOn
   }
 `);
 

@@ -12,14 +12,18 @@ export type TagRow = {
 };
 
 export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
-  return tagsRawData.base?.tags?.map(({ id, name, type, color, description, taggedResources }) => {
-    return {
-      id,
-      name,
-      application: type,
-      description,
-      colour: color || "",
-      totalTaggedItemsCount: taggedResources?.length || 0,
-    } satisfies TagRow;
-  });
+  return (
+    tagsRawData.base?.tags
+      ?.map(({ id, name, type, color, description, taggedResources }) => {
+        return {
+          id,
+          name,
+          application: type,
+          description,
+          colour: color || "",
+          totalTaggedItemsCount: taggedResources?.length || 0,
+        } satisfies TagRow;
+      })
+      .filter((tag) => tag !== undefined) || []
+  );
 };
