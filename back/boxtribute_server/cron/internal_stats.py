@@ -17,10 +17,9 @@ from .formatting import format_as_table, transform_data
 
 def _compute_total(data):
     return sum(
-        bases[base_id]["number"]
+        base_data["number"]
         for org in data.values()
-        for bases in org["bases"]
-        for base_id in bases
+        for base_data in org["bases"].values()
     )
 
 
