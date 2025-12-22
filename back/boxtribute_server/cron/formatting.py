@@ -31,7 +31,7 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     rows = []
     totals = [0, 0, 0]  # For 30, 90, 365 days
 
-    for org_id, org_info in all_orgs.items():
+    for org_id, org_info in sorted(all_orgs.items(), key=lambda e: e[1]["name"]):
         org_name = org_info["name"]
         bases = org_info["bases"]
 
