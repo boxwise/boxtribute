@@ -1,4 +1,3 @@
-import pytest
 from boxtribute_server.cron.formatting import (
     format_as_table,
     get_base_number,
@@ -261,7 +260,8 @@ class TestFormatAsTable:
         # Check that first base of each org has org name, subsequent bases don't
         assert "Org A" in lines[2]
         assert "Base X" in lines[2]
-        # Second base of Org A should have empty org column (starts with whitespace, not org name)
+        # Second base of Org A should have empty org column (starts with whitespace, not
+        # org name)
         base_y_line = lines[3]
         assert "Base Y" in base_y_line
         assert not base_y_line.lstrip().startswith("Org A")
@@ -303,22 +303,24 @@ class TestFormatAsTable:
 
         lines = table.split("\n")
         # Should have 2 data rows (one for each unique base)
-        assert len(lines) == 7  # header + separator + 2 data rows + separator + TOTAL + TREND
+        assert (
+            len(lines) == 7
+        )  # header + separator + 2 data rows + separator + TOTAL + TREND
 
         # Base X should have 42, 50, 0
         base_x_line = [line for line in lines if "Base X" in line][0]
         base_x_parts = [p.strip() for p in base_x_line.split("|")]
         # Format: org | base | 30 days | 90 days | 365 days
-        assert base_x_parts[2] == "42"   # 30 days
-        assert base_x_parts[3] == "50"   # 90 days
-        assert base_x_parts[4] == "0"    # 365 days
+        assert base_x_parts[2] == "42"  # 30 days
+        assert base_x_parts[3] == "50"  # 90 days
+        assert base_x_parts[4] == "0"  # 365 days
 
         # Base Y should have 0, 25, 100
         base_y_line = [line for line in lines if "Base Y" in line][0]
         base_y_parts = [p.strip() for p in base_y_line.split("|")]
         # Format: org | base | 30 days | 90 days | 365 days
-        assert base_y_parts[2] == "0"    # 30 days
-        assert base_y_parts[3] == "25"   # 90 days
+        assert base_y_parts[2] == "0"  # 30 days
+        assert base_y_parts[3] == "25"  # 90 days
         assert base_y_parts[4] == "100"  # 365 days
 
     def test_trend_formatting(self):
