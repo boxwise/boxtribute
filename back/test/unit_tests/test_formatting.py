@@ -261,9 +261,11 @@ class TestFormatAsTable:
         # Check that first base of each org has org name, subsequent bases don't
         assert "Org A" in lines[2]
         assert "Base X" in lines[2]
-        # Second base of Org A should have empty org column
-        assert lines[3].strip().startswith("|") or not lines[3].strip().startswith("Org A")
-        assert "Base Y" in lines[3]
+        # Second base of Org A should have empty org column (starts with whitespace, not org name)
+        base_y_line = lines[3]
+        assert "Base Y" in base_y_line
+        assert not base_y_line.lstrip().startswith("Org A")
+        # First base of Org B should have org name
         assert "Org B" in lines[4]
         assert "Base Z" in lines[4]
 
@@ -313,11 +315,11 @@ class TestFormatAsTable:
         # Base Y should have 0, 25, 100
         base_y_line = [line for line in lines if "Base Y" in line][0]
         parts = [p.strip() for p in base_y_line.split("|")]
-        # Find the numeric columns (skip org and base name columns)
-        numeric_parts = [p for p in parts if p.isdigit()]
-        assert "0" in numeric_parts or parts[2] == "0"  # 30 days
-        assert "25" in numeric_parts
-        assert "100" in numeric_parts
+        # Extract the three numeric columns (columns 2, 3, 4)
+        # Format: org | base | 30 days | 90 days | 365 days
+        assert parts[2] == "0"    # 30 days
+        assert parts[3] == "25"   # 90 days
+        assert parts[4] == "100"  # 365 days
 
     def test_trend_formatting(self):
         """Test that trends are formatted correctly with sign and percentage."""
