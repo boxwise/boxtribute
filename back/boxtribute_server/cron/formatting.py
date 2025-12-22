@@ -78,31 +78,48 @@ def format_as_table(result_30, result_90, result_365, *, trends):
     # Format output
     lines = []
 
+    def format_line(*parts, sep=" | "):
+        cells = [
+            f"{parts[0]:<{col1_width}}",
+            f"{parts[1]:<{col2_width}}",
+            f"{parts[2]:>{col3_width}}",
+            f"{parts[3]:>{col4_width}}",
+            f"{parts[4]:>{col5_width}}",
+        ]
+        return sep.join(cells)
+
     # Header
-    header_line = f"{headers[0]:<{col1_width}} | {headers[1]:<{col2_width}} | {headers[2]:>{col3_width}} | {headers[3]:>{col4_width}} | {headers[4]:>{col5_width}}"  # noqa
+    header_line = format_line(*headers)
     lines.append(header_line)
 
     # Separator
-    separator = f"{'-' * col1_width}-+-{'-' * col2_width}-+-{'-' * col3_width}-+-{'-' * col4_width}-+-{'-' * col5_width}"  # noqa
+    separator = format_line(
+        "-" * col1_width,
+        "-" * col2_width,
+        "-" * col3_width,
+        "-" * col4_width,
+        "-" * col5_width,
+        sep="-+-",
+    )
     lines.append(separator)
 
     # Data rows
     for org_name, base_name, num_30, num_90, num_365 in rows:
-        line = f"{org_name:<{col1_width}} | {base_name:<{col2_width}} | {num_30:>{col3_width}} | {num_90:>{col4_width}} | {num_365:>{col5_width}}"  # noqa
+        line = format_line(org_name, base_name, num_30, num_90, num_365)
         lines.append(line)
 
     # Separator before totals
     lines.append(separator)
 
     # TOTAL row
-    total_line = f"{'TOTAL':<{col1_width}} | {'':<{col2_width}} | {totals[0]:>{col3_width}} | {totals[1]:>{col4_width}} | {totals[2]:>{col5_width}}"  # noqa
+    total_line = format_line("TOTAL", "", *totals)
     lines.append(total_line)
 
     # TREND row
     trend_30 = f"{trends[0]:+.1f}%"
     trend_90 = f"{trends[1]:+.1f}%"
     trend_365 = f"{trends[2]:+.1f}%"
-    trend_line = f"{'TREND':<{col1_width}} | {'':<{col2_width}} | {trend_30:>{col3_width}} | {trend_90:>{col4_width}} | {trend_365:>{col5_width}}"  # noqa
+    trend_line = format_line("TREND", "", trend_30, trend_90, trend_365)
     lines.append(trend_line)
 
     return "\n".join(lines)
