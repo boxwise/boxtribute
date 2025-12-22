@@ -39,10 +39,9 @@ def _compute_base_trends(current_data, comparison_data):
             ):
                 comparison_number = comparison_data[org_id]["bases"][base_id]["number"]
 
+            trend = None
             if comparison_number > 0:
                 trend = (current_number - comparison_number) / comparison_number * 100
-            else:
-                trend = 0
 
             trends[org_id]["bases"][base_id] = {
                 "name": base_data["name"],
@@ -71,7 +70,7 @@ def get_internal_data():
         total_trend = (
             (current_total - comparison_total) / comparison_total * 100
             if comparison_total
-            else 0
+            else None  # None indicates n/a
         )
 
         # Compute per-base trends

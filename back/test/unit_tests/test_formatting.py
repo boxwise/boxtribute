@@ -158,7 +158,7 @@ class TestGetBaseTrend:
                 "bases": {10: {"name": "Base X", "trend": 5.5}},
             }
         }
-        assert get_base_trend(trends, 999, 10) == 0.0
+        assert get_base_trend(trends, 999, 10) is None
 
     def test_missing_base(self):
         """Test get_base_trend when base doesn't exist in organization."""
@@ -168,7 +168,7 @@ class TestGetBaseTrend:
                 "bases": {10: {"name": "Base X", "trend": 5.5}},
             }
         }
-        assert get_base_trend(trends, 1, 999) == 0.0
+        assert get_base_trend(trends, 1, 999) is None
 
     def test_existing_data(self):
         """Test get_base_trend when both org and base exist."""
@@ -180,15 +180,15 @@ class TestGetBaseTrend:
         }
         assert get_base_trend(trends, 1, 10) == 12.345
 
-    def test_zero_value(self):
-        """Test get_base_trend with a base that has zero as the trend."""
+    def test_none_value(self):
+        """Test get_base_trend with a base that has None as the trend (n/a)."""
         trends = {
             1: {
                 "name": "Org A",
-                "bases": {10: {"name": "Base X", "trend": 0.0}},
+                "bases": {10: {"name": "Base X", "trend": None}},
             }
         }
-        assert get_base_trend(trends, 1, 10) == 0.0
+        assert get_base_trend(trends, 1, 10) is None
 
     def test_negative_trend(self):
         """Test get_base_trend with negative trend value."""
@@ -415,15 +415,15 @@ class TestFormatAsTable:
         # Should have 2 data rows (one for each unique base)
         assert len(lines) == 6  # header + separator + 2 data rows + separator + TOTAL
 
-        # Base X should have 42 (+10.0%), 50 (+5.0%), 0 (+0.0%)
+        # Base X should have 42 (+10.0%), 50 (+5.0%), 0 ( n/a ) (no data in 365 window)
         base_x_line = [line for line in lines if "Base X" in line][0]
         assert "42 (+10.0%)" in base_x_line
         assert "50 (+5.0%)" in base_x_line
-        assert "0 (+0.0%)" in base_x_line
+        assert "0 ( n/a )" in base_x_line
 
-        # Base Y should have 0 (+0.0%), 25 (+15.0%), 100 (+20.0%)
+        # Base Y should have 0 ( n/a ) (no data in 30 window), 25 (+15.0%), 100 (+20.0%)
         base_y_line = [line for line in lines if "Base Y" in line][0]
-        assert "0 (+0.0%)" in base_y_line
+        assert "0 ( n/a )" in base_y_line
         assert "25 (+15.0%)" in base_y_line
         assert "100 (+20.0%)" in base_y_line
 
@@ -473,19 +473,19 @@ class TestFormatAsTable:
             {
                 1: {
                     "name": "Organization with Long Name",
-                    "bases": {10: {"name": "Base", "trend": 0.0}},
+                    "bases": {10: {"name": "Base", "trend": None}},
                 }
             },
             {
                 1: {
                     "name": "Organization with Long Name",
-                    "bases": {10: {"name": "Base", "trend": 0.0}},
+                    "bases": {10: {"name": "Base", "trend": None}},
                 }
             },
             {
                 1: {
                     "name": "Organization with Long Name",
-                    "bases": {10: {"name": "Base", "trend": 0.0}},
+                    "bases": {10: {"name": "Base", "trend": None}},
                 }
             },
         ]
