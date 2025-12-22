@@ -22,10 +22,9 @@ def format_as_table(result_30, result_90, result_365, *, trends):
             if org_id not in all_orgs:
                 all_orgs[org_id] = {"name": org_data["name"], "bases": {}}
 
-            for base_dict in org_data["bases"]:
-                for base_id, base_data in base_dict.items():
-                    if base_id not in all_orgs[org_id]["bases"]:
-                        all_orgs[org_id]["bases"][base_id] = base_data["name"]
+            for base_id, base_data in org_data["bases"].items():
+                if base_id not in all_orgs[org_id]["bases"]:
+                    all_orgs[org_id]["bases"][base_id] = base_data["name"]
 
     # Build rows with data from all three datasets
     rows = []
@@ -114,9 +113,9 @@ def get_base_number(result, org_id, base_id):
     if org_id not in result:
         return 0
 
-    for base_dict in result[org_id]["bases"]:
-        if base_id in base_dict:
-            return base_dict[base_id]["number"]
+    bases = result[org_id]["bases"]
+    if base_id in bases:
+        return bases[base_id]["number"]
 
     return 0
 
@@ -130,7 +129,7 @@ def transform_data(rows):
               base_id, base_name, number
 
     Returns:
-        Dict with structure: {org_id: {"name": org_name, "bases": [{base_id: {...}}]}}
+        Dict with structure: {org_id: {"name": org_name, "bases": {base_id: {...}}}}
     """
     result = {}
 
@@ -139,11 +138,12 @@ def transform_data(rows):
 
         # Initialize organization if not exists
         if org_id not in result:
-            result[org_id] = {"name": row["organisation_name"], "bases": []}
+            result[org_id] = {"name": row["organisation_name"], "bases": {}}
 
         # Add base to organization
-        result[org_id]["bases"].append(
-            {row["base_id"]: {"name": row["base_name"], "number": row["number"]}}
-        )
+        result[org_id]["bases"][row["base_id"]] = {
+            "name": row["base_name"],
+            "number": row["number"],
+        }
 
     return result
