@@ -219,8 +219,8 @@ class TestFormatAsTable:
         # Should have headers, separator, separator before totals, and TOTAL row
         lines = table.split("\n")
         assert len(lines) == 4  # header + separator + separator + TOTAL
-        assert "organisation" in lines[0]
-        assert "base" in lines[0]
+        assert "Organisation" in lines[0]
+        assert "Base" in lines[0]
         assert "30 days" in lines[0]
         assert "90 days" in lines[0]
         assert "365 days" in lines[0]

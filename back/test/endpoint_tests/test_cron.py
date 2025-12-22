@@ -77,7 +77,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
     assert response.json == {"message": "posted 3 stats, 0 failure(s)"}
-    header = "organisation "
+    header = "Organisation "
     first_part = json.loads(mocked_urlopen.call_args_list[0].args[0].data.decode())
     assert first_part["title"] == "Newly created boxes"
     assert first_part["data"].startswith(header)
