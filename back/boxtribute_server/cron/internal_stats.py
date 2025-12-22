@@ -27,16 +27,16 @@ def get_internal_data():
     now = utcnow()
     all_data = []
 
-    def compute_with_trend(func, duration, *args):
+    def compute_with_trend(func, duration):
         time_span = get_time_span(duration_days=duration)
-        raw_result = func(*args, *time_span)
+        raw_result = func(*time_span)
         result = transform_data(raw_result.dicts())
         current_total = _compute_total(result)
 
         # Compute trend compared to previous window
         compared_end = now - timedelta(days=duration)
         time_span = get_time_span(duration_days=duration, end_date=compared_end)
-        raw_comparison = func(*args, *time_span)
+        raw_comparison = func(*time_span)
         comparison = transform_data(raw_comparison.dicts())
         comparison_total = _compute_total(comparison)
         trend = (
