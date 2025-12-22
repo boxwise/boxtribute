@@ -13,7 +13,7 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     Returns:
         String with formatted table using | separators
     """
-    headers = ("organisation", "base", "30 days", "90 days", "365 days")
+    headers = ("Organisation", "Base", "30 days", "90 days", "365 days")
 
     # Collect all unique org_id, base_id combinations
     all_orgs = {}  # {org_id: {org_name, base_ids: {base_id: base_name}}}
