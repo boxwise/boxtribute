@@ -16,20 +16,16 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { ColourField } from "@boxtribute/shared-components/form/ColourField";
+import { ICreateTagFormOutput } from "./CreateTagView";
 
-const nameErrorText = "Please select a name.";
-const colorErrorText = "Please select a color.";
-const applicationErrorText = "Please select what this tag applies to.";
+export const nameErrorText = "Please select a name.";
+export const colorErrorText = "Please select a color.";
+export const applicationErrorText = "Please select what this tag applies to.";
 
 export const TAG_APPLICATION_OPTIONS = ["All", "Beneficiary", "Box"] as const;
 export type TagApplicationOption = (typeof TAG_APPLICATION_OPTIONS)[number];
 
-const SingleSelectOptionSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-});
-
-const CreateTagFormSchema = z.object({
+export const TagSchema = z.object({
   name: z
     .string()
     .trim()
@@ -59,15 +55,38 @@ const CreateTagFormSchema = z.object({
     .transform((value) => (value === "" ? undefined : value)),
 });
 
-export type ICreateTagFormInput = z.input<typeof CreateTagFormSchema>;
-export type ICreateTagFormOutput = z.output<typeof CreateTagFormSchema>;
+export const SingleSelectOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
 
-export type ICreateTagFormProps = {
+export type ITagFormProps = {
   isLoading: boolean;
-  onSubmit: (createTagFormOutput: ICreateTagFormOutput) => void;
+  onSubmit: (args: ICreateTagFormOutput) => void;
+  defaultValues?: ICreateTagFormOutput;
 };
 
-export function CreateTagForm({ isLoading, onSubmit }: ICreateTagFormProps) {
+const applicationOptions: z.infer<typeof SingleSelectOptionSchema>[] = [
+  {
+    value: "All",
+    label: "Boxes + Beneficiaries",
+  },
+  {
+    value: "People",
+    label: "Beneficiaries",
+  },
+  {
+    value: "Stock",
+    label: "Boxes",
+  },
+];
+
+export const getLabelForApplicationValue = (value: TagApplicationOption) => {
+  const option = applicationOptions.find((option) => option.value === value);
+  return option ? option.label : value;
+};
+
+export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
   const navigate = useNavigate();
   const {
     handleSubmit,
@@ -75,23 +94,19 @@ export function CreateTagForm({ isLoading, onSubmit }: ICreateTagFormProps) {
     register,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(CreateTagFormSchema),
+    resolver: zodResolver(TagSchema),
+    defaultValues: defaultValues
+      ? {
+          application: {
+            label: getLabelForApplicationValue(defaultValues.application),
+            value: defaultValues.application,
+          },
+          color: defaultValues.color,
+          description: defaultValues.description,
+          name: defaultValues.name,
+        }
+      : undefined,
   });
-
-  const applicationOptions: z.infer<typeof SingleSelectOptionSchema>[] = [
-    {
-      value: "All",
-      label: "Boxes + Beneficiaries",
-    },
-    {
-      value: "People",
-      label: "Beneficiaries",
-    },
-    {
-      value: "Stock",
-      label: "Boxes",
-    },
-  ];
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -136,7 +151,6 @@ export function CreateTagForm({ isLoading, onSubmit }: ICreateTagFormProps) {
             control={control}
             register={register}
           />
-          {/* TODO add colour pickers */}
           <FormControl>
             <FormLabel htmlFor="description">Description</FormLabel>
             <Input
@@ -154,7 +168,7 @@ export function CreateTagForm({ isLoading, onSubmit }: ICreateTagFormProps) {
       </Box>
       <Stack spacing={2} my={4}>
         <Button isLoading={isLoading} disabled={isLoading} type="submit" w="full" variant="submit">
-          Add Tag
+          Save Tag
         </Button>
         <Button size="md" type="button" w="full" variant="outline" onClick={() => navigate("..")}>
           Nevermind

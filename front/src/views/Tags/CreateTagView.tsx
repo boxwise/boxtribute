@@ -12,8 +12,11 @@ import { useNotification } from "hooks/useNotification";
 import { useMutation } from "@apollo/client";
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY } from "views/BoxCreate/BoxCreateView";
-import { CreateTagForm, ICreateTagFormOutput } from "./components/CreateTagForm";
-import { graphql } from "../../../../../graphql/graphql";
+import { graphql } from "../../../../graphql/graphql";
+import { z } from "zod";
+import { TagForm, TagSchema } from "./TagForm";
+
+export type ICreateTagFormOutput = z.output<typeof TagSchema>;
 
 const createTagQueryErrorText = "Something went wrong! Please try reloading the page.";
 
@@ -58,9 +61,6 @@ const CREATE_TAG_MUTATION = graphql(
         ... on UnauthorizedForBaseError {
           name
         }
-        ... on InvalidColorError {
-          name
-        }
       }
     }
   `,
@@ -78,14 +78,14 @@ function CreateTagFormContainer() {
   const [createTag, { loading: isCreateTagLoading }] = useMutation(CREATE_TAG_MUTATION);
 
   const onSubmit = useCallback(
-    (createTagFormOutput: ICreateTagFormOutput) => {
+    (createTagOutput: ICreateTagFormOutput) => {
       createTag({
         variables: {
           baseId: parseInt(baseId, 10),
-          name: createTagFormOutput.name,
-          type: createTagFormOutput.application,
-          color: createTagFormOutput.color,
-          description: createTagFormOutput.description,
+          name: createTagOutput.name,
+          type: createTagOutput.application,
+          color: createTagOutput.color,
+          description: createTagOutput.description,
         },
         refetchQueries: [
           {
@@ -147,7 +147,7 @@ function CreateTagFormContainer() {
     [createTag, baseId, triggerError, createToast, navigate],
   );
 
-  return <CreateTagForm onSubmit={onSubmit} isLoading={isCreateTagLoading} />;
+  return <TagForm onSubmit={onSubmit} isLoading={isCreateTagLoading} />;
 }
 
 export function CreateTagView() {

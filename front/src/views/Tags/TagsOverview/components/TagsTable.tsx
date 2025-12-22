@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from "react";
 import {
   Column,
   useTable,
@@ -11,10 +10,6 @@ import {
 import { Table, Tr, Tbody, Td, Spacer, Flex, HStack } from "@chakra-ui/react";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import {
-  includesOneOfMultipleStringsFilterFn,
-  includesSomeObjectFilterFn,
-} from "components/Table/Filter";
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 import { TagRow } from "./transformers";
@@ -22,8 +17,6 @@ import IndeterminateCheckbox from "views/Boxes/components/Checkbox";
 import { TagsActions } from "views/Tags/TagsOverview/components/TagsActions";
 import { useTagsActions } from "views/Tags/hooks/useTagsActions";
 import { TagsForTagsContainerVariables } from "./TagsContainer";
-import { useAtomValue } from "jotai";
-import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
 type TagsTableProps = {
   tableConfig: IUseTableConfigReturnType;
@@ -36,25 +29,24 @@ type TagsTableProps = {
 export function TagsTable({
   tableConfig,
   tableData,
-  refetchData,
+  // refetchData,
   columns,
   onRowClick,
 }: TagsTableProps) {
-  const baseId = useAtomValue(selectedBaseIdAtom);
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
-  const filterTypes = useMemo(
-    () => ({
-      includesSomeObject: includesSomeObjectFilterFn,
-      includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
-    }),
-    [],
-  );
+  // const filterTypes = useMemo(
+  //   () => ({
+  //     includesSomeObject: includesSomeObjectFilterFn,
+  //     includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
+  //   }),
+  //   [],
+  // );
 
   const {
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, filters, sortBy, hiddenColumns },
+    state: { globalFilter },
     rows,
     setGlobalFilter,
     selectedFlatRows,
@@ -63,7 +55,7 @@ export function TagsTable({
     {
       columns,
       data: tableData,
-      filterTypes,
+      // filterTypes,
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
@@ -95,26 +87,26 @@ export function TagsTable({
 
   const { onDeleteTags, actionsAreLoading } = useTagsActions(selectedFlatRows);
 
-  useEffect(() => {
-    // refetch
-    const newStateFilter = filters.find((filter) => filter.id === "state");
-    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-    if (newStateFilter !== oldStateFilter) {
-      refetchData({
-        baseId,
-      });
-    }
+  // useEffect(() => {
+  //   // refetch
+  //   const newStateFilter = filters.find((filter) => filter.id === "state");
+  //   const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+  //   if (newStateFilter !== oldStateFilter) {
+  //     refetchData({
+  //       baseId,
+  //     });
+  //   }
 
-    // update tableConfig
-    if (globalFilter !== tableConfig.getGlobalFilter()) tableConfig.setGlobalFilter(globalFilter);
+  //   // update tableConfig
+  //   if (globalFilter !== tableConfig.getGlobalFilter()) tableConfig.setGlobalFilter(globalFilter);
 
-    if (filters !== tableConfig.getColumnFilters()) tableConfig.setColumnFilters(filters);
+  //   if (filters !== tableConfig.getColumnFilters()) tableConfig.setColumnFilters(filters);
 
-    if (sortBy !== tableConfig.getSortBy()) tableConfig.setSortBy(sortBy);
+  //   if (sortBy !== tableConfig.getSortBy()) tableConfig.setSortBy(sortBy);
 
-    if (hiddenColumns !== tableConfig.getHiddenColumns())
-      tableConfig.setHiddenColumns(hiddenColumns);
-  }, [baseId, filters, globalFilter, hiddenColumns, refetchData, sortBy, tableConfig]);
+  //   if (hiddenColumns !== tableConfig.getHiddenColumns())
+  //     tableConfig.setHiddenColumns(hiddenColumns);
+  // }, [baseId, filters, globalFilter, hiddenColumns, refetchData, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" overflowX="auto">

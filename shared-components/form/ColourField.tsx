@@ -39,15 +39,7 @@ export const ColourField = ({
           borderRadius={0}
           mb={2}
           aria-invalid={Boolean(errors[fieldId])}
-          {...register(field.name, {
-            setValueAs: (val) => {
-              if (val) {
-                return new Date(val);
-              }
-              // This is if "" is entered.
-              return undefined;
-            },
-          })}
+          {...register(field.name)}
         />
       )}
     />

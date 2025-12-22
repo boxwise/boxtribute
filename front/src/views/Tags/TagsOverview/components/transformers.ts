@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { TagApplicationOption } from "views/Tags/CreateTag/components/CreateTagForm";
+import { TagApplicationOption } from "views/Tags/TagForm";
 import { TagsQuery } from "./TagsContainer";
 
 export type TagRow = {

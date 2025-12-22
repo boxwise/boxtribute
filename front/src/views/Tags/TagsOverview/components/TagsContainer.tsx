@@ -30,6 +30,17 @@ export const TAGS_QUERY = graphql(
   [TAG_BASIC_FIELDS_FRAGMENT, BOX_FIELDS_FRAGMENT],
 );
 
+export const TAG_QUERY = graphql(
+  `
+    query TagForUpdateTagView($tagId: ID!) {
+      tag(id: $tagId) {
+        ...TagBasicFields
+      }
+    }
+  `,
+  [TAG_BASIC_FIELDS_FRAGMENT],
+);
+
 export type TagsForTagsContainerVariables = VariablesOf<typeof TAGS_QUERY>;
 
 export type TagsQuery = ResultOf<typeof TAGS_QUERY>;
