@@ -23,6 +23,35 @@ def _compute_total(data):
     )
 
 
+def _compute_base_trends(current_data, comparison_data):
+    """Compute trend percentage for each base."""
+    trends = {}
+    for org_id, org_data in current_data.items():
+        if org_id not in trends:
+            trends[org_id] = {"name": org_data["name"], "bases": {}}
+
+        for base_id, base_data in org_data["bases"].items():
+            current_number = base_data["number"]
+            comparison_number = 0
+            if (
+                org_id in comparison_data
+                and base_id in comparison_data[org_id]["bases"]
+            ):
+                comparison_number = comparison_data[org_id]["bases"][base_id]["number"]
+
+            if comparison_number > 0:
+                trend = (current_number - comparison_number) / comparison_number * 100
+            else:
+                trend = 0
+
+            trends[org_id]["bases"][base_id] = {
+                "name": base_data["name"],
+                "trend": trend,
+            }
+
+    return trends
+
+
 def get_internal_data():
     now = utcnow()
     all_data = []
@@ -39,12 +68,16 @@ def get_internal_data():
         raw_comparison = func(*time_span)
         comparison = transform_data(raw_comparison.dicts())
         comparison_total = _compute_total(comparison)
-        trend = (
+        total_trend = (
             (current_total - comparison_total) / comparison_total * 100
             if comparison_total
             else 0
         )
-        return result, trend
+
+        # Compute per-base trends
+        base_trends = _compute_base_trends(result, comparison)
+
+        return result, total_trend, base_trends
 
     titles = [
         "Newly created boxes",
@@ -58,12 +91,16 @@ def get_internal_data():
     ]
     for title, func in zip(titles, funcs):
         results = []
-        trends = []
+        total_trends = []
+        base_trends_list = []
         for duration in [30, 90, 365]:
-            result, trend = compute_with_trend(func, duration)
+            result, total_trend, base_trends = compute_with_trend(func, duration)
             results.append(result)
-            trends.append(trend)
-        data = format_as_table(*results, trends=trends)
+            total_trends.append(total_trend)
+            base_trends_list.append(base_trends)
+        data = format_as_table(
+            *results, trends=total_trends, base_trends=base_trends_list
+        )
         all_data.append({"title": title, "data": data})
     return all_data
 

@@ -1,4 +1,4 @@
-def format_as_table(result_30, result_90, result_365, *, trends):
+def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     """
     Format nested organization/base structure into aligned tabular text with multiple
     time windows.
@@ -8,6 +8,7 @@ def format_as_table(result_30, result_90, result_365, *, trends):
         result_90: Dict from transform_data for 90 days
         result_365: Dict from transform_data for 365 days
         trends: List of three trend percentages [trend_30, trend_90, trend_365]
+        base_trends: List of three dicts with per-base trend data
 
     Returns:
         String with formatted table using | separators
@@ -40,39 +41,54 @@ def format_as_table(result_30, result_90, result_365, *, trends):
             num_90 = get_base_number(result_90, org_id, base_id)
             num_365 = get_base_number(result_365, org_id, base_id)
 
+            # Get trends for each base
+            trend_30 = get_base_trend(base_trends[0], org_id, base_id)
+            trend_90 = get_base_trend(base_trends[1], org_id, base_id)
+            trend_365 = get_base_trend(base_trends[2], org_id, base_id)
+
             totals[0] += num_30
             totals[1] += num_90
             totals[2] += num_365
 
             # First base shows org name, subsequent bases have empty org column
             row_org = org_name if idx == 0 else ""
-            rows.append((row_org, base_name, num_30, num_90, num_365))
+            rows.append(
+                (
+                    row_org,
+                    base_name,
+                    num_30,
+                    trend_30,
+                    num_90,
+                    trend_90,
+                    num_365,
+                    trend_365,
+                )
+            )
 
-    # Calculate column widths
+    # Calculate column widths - need to account for "value (+trend%)" format in cells
+    def format_cell(value, trend):
+        return f"{value} ({trend:+.1f}%)"
+
     col1_width = max(
         len(headers[0]),
         len("TOTAL"),
-        len("TREND"),
         max((len(row[0]) for row in rows), default=0),
     )
     col2_width = max(len(headers[1]), max((len(row[1]) for row in rows), default=0))
     col3_width = max(
         len(headers[2]),
-        len(str(totals[0])),
-        len(f"{trends[0]:+.1f}%"),
-        max((len(str(row[2])) for row in rows), default=0),
+        len(f"{totals[0]} ({trends[0]:+.1f}%)"),
+        max((len(format_cell(row[2], row[3])) for row in rows), default=0),
     )
     col4_width = max(
         len(headers[3]),
-        len(str(totals[1])),
-        len(f"{trends[1]:+.1f}%"),
-        max((len(str(row[3])) for row in rows), default=0),
+        len(f"{totals[1]} ({trends[1]:+.1f}%)"),
+        max((len(format_cell(row[4], row[5])) for row in rows), default=0),
     )
     col5_width = max(
         len(headers[4]),
-        len(str(totals[2])),
-        len(f"{trends[2]:+.1f}%"),
-        max((len(str(row[4])) for row in rows), default=0),
+        len(f"{totals[2]} ({trends[2]:+.1f}%)"),
+        max((len(format_cell(row[6], row[7])) for row in rows), default=0),
     )
 
     # Format output
@@ -104,23 +120,31 @@ def format_as_table(result_30, result_90, result_365, *, trends):
     lines.append(separator)
 
     # Data rows
-    for org_name, base_name, num_30, num_90, num_365 in rows:
-        line = format_line(org_name, base_name, num_30, num_90, num_365)
+    for (
+        org_name,
+        base_name,
+        num_30,
+        trend_30,
+        num_90,
+        trend_90,
+        num_365,
+        trend_365,
+    ) in rows:
+        cell_30 = f"{num_30} ({trend_30:+.1f}%)"
+        cell_90 = f"{num_90} ({trend_90:+.1f}%)"
+        cell_365 = f"{num_365} ({trend_365:+.1f}%)"
+        line = format_line(org_name, base_name, cell_30, cell_90, cell_365)
         lines.append(line)
 
     # Separator before totals
     lines.append(separator)
 
-    # TOTAL row
-    total_line = format_line("TOTAL", "", *totals)
+    # TOTAL row (with trends included in cells)
+    total_30 = f"{totals[0]} ({trends[0]:+.1f}%)"
+    total_90 = f"{totals[1]} ({trends[1]:+.1f}%)"
+    total_365 = f"{totals[2]} ({trends[2]:+.1f}%)"
+    total_line = format_line("TOTAL", "", total_30, total_90, total_365)
     lines.append(total_line)
-
-    # TREND row
-    trend_30 = f"{trends[0]:+.1f}%"
-    trend_90 = f"{trends[1]:+.1f}%"
-    trend_365 = f"{trends[2]:+.1f}%"
-    trend_line = format_line("TREND", "", trend_30, trend_90, trend_365)
-    lines.append(trend_line)
 
     return "\n".join(lines)
 
@@ -135,6 +159,18 @@ def get_base_number(result, org_id, base_id):
         return bases[base_id]["number"]
 
     return 0
+
+
+def get_base_trend(trends, org_id, base_id):
+    """Helper to get base trend from trends dict, returns 0 if not found."""
+    if org_id not in trends:
+        return 0.0
+
+    bases = trends[org_id]["bases"]
+    if base_id in bases:
+        return bases[base_id]["trend"]
+
+    return 0.0
 
 
 def transform_data(rows):
