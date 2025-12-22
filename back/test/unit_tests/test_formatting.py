@@ -307,19 +307,19 @@ class TestFormatAsTable:
 
         # Base X should have 42, 50, 0
         base_x_line = [line for line in lines if "Base X" in line][0]
-        assert "42" in base_x_line
-        assert "50" in base_x_line
-        # Should have 0 for 365 days (right-aligned, so check for it)
-        assert base_x_line.split("|")[-1].strip() == "0"
+        base_x_parts = [p.strip() for p in base_x_line.split("|")]
+        # Format: org | base | 30 days | 90 days | 365 days
+        assert base_x_parts[2] == "42"   # 30 days
+        assert base_x_parts[3] == "50"   # 90 days
+        assert base_x_parts[4] == "0"    # 365 days
 
         # Base Y should have 0, 25, 100
         base_y_line = [line for line in lines if "Base Y" in line][0]
-        parts = [p.strip() for p in base_y_line.split("|")]
-        # Extract the three numeric columns (columns 2, 3, 4)
+        base_y_parts = [p.strip() for p in base_y_line.split("|")]
         # Format: org | base | 30 days | 90 days | 365 days
-        assert parts[2] == "0"    # 30 days
-        assert parts[3] == "25"   # 90 days
-        assert parts[4] == "100"  # 365 days
+        assert base_y_parts[2] == "0"    # 30 days
+        assert base_y_parts[3] == "25"   # 90 days
+        assert base_y_parts[4] == "100"  # 365 days
 
     def test_trend_formatting(self):
         """Test that trends are formatted correctly with sign and percentage."""
