@@ -18,7 +18,8 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     # Collect all unique org_id, base_id combinations
     all_orgs = {}  # {org_id: {org_name, base_ids: {base_id: base_name}}}
 
-    for result in [result_30, result_90, result_365]:
+    results = [result_30, result_90, result_365]
+    for result in results:
         for org_id, org_data in result.items():
             if org_id not in all_orgs:
                 all_orgs[org_id] = {"name": org_data["name"], "bases": {}}
@@ -37,33 +38,18 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
 
         for idx, (base_id, base_name) in enumerate(bases.items()):
             # Get numbers from each dataset, default to 0 if missing
-            num_30 = get_base_number(result_30, org_id, base_id)
-            num_90 = get_base_number(result_90, org_id, base_id)
-            num_365 = get_base_number(result_365, org_id, base_id)
+            nums = [get_base_number(result, org_id, base_id) for result in results]
 
             # Get trends for each base
-            trend_30 = get_base_trend(base_trends[0], org_id, base_id)
-            trend_90 = get_base_trend(base_trends[1], org_id, base_id)
-            trend_365 = get_base_trend(base_trends[2], org_id, base_id)
+            trends_base = [get_base_trend(bt, org_id, base_id) for bt in base_trends]
 
-            totals[0] += num_30
-            totals[1] += num_90
-            totals[2] += num_365
+            for i, num in enumerate(nums):
+                totals[i] += num
 
             # First base shows org name, subsequent bases have empty org column
             row_org = org_name if idx == 0 else ""
-            rows.append(
-                (
-                    row_org,
-                    base_name,
-                    num_30,
-                    trend_30,
-                    num_90,
-                    trend_90,
-                    num_365,
-                    trend_365,
-                )
-            )
+            row_data = [item for pair in zip(nums, trends_base) for item in pair]
+            rows.append((row_org, base_name, *row_data))
 
     # Calculate column widths - need to account for "value (+trend%)" format in cells
     def format_cell(value, trend):
@@ -132,20 +118,23 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
         num_365,
         trend_365,
     ) in rows:
-        cell_30 = format_cell(num_30, trend_30)
-        cell_90 = format_cell(num_90, trend_90)
-        cell_365 = format_cell(num_365, trend_365)
-        line = format_line(org_name, base_name, cell_30, cell_90, cell_365)
+        cells = [
+            format_cell(num, trend)
+            for num, trend in [
+                (num_30, trend_30),
+                (num_90, trend_90),
+                (num_365, trend_365),
+            ]
+        ]
+        line = format_line(org_name, base_name, *cells)
         lines.append(line)
 
     # Separator before totals
     lines.append(separator)
 
     # TOTAL row (with trends included in cells)
-    total_30 = format_cell(totals[0], trends[0])
-    total_90 = format_cell(totals[1], trends[1])
-    total_365 = format_cell(totals[2], trends[2])
-    total_line = format_line("TOTAL", "", total_30, total_90, total_365)
+    total_cells = [format_cell(to, tr) for to, tr in zip(totals, trends)]
+    total_line = format_line("TOTAL", "", *total_cells)
     lines.append(total_line)
 
     return "\n".join(lines)
