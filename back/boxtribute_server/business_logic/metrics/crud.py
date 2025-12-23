@@ -72,14 +72,6 @@ def compute_number_of_sales(*, organisation_id, after, before):
     )
 
 
-def number_of_created_records_between(model, start, end):
-    return (
-        model.select()
-        .where((model.created_on >= start) & (model.created_on <= end))
-        .count()
-    )
-
-
 def number_of_boxes_created_between(start, end):
     return (
         Box.select(
