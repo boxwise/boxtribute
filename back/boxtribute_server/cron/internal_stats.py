@@ -45,30 +45,32 @@ def _compute_base_trends(current_data, comparison_data):
     return trends
 
 
+def compute_with_trend(func, end_date, duration):
+    """Run the statistics function on the timespan derived from the given parameters,
+    and on the same timespan before, then compute trends.
+    """
+    time_span = get_time_span(duration_days=duration, end_date=end_date)
+    result = func(*time_span)
+    current_total = compute_total(result)
+
+    # Compute trend compared to previous window
+    compared_end = end_date - timedelta(days=duration)
+    time_span = get_time_span(duration_days=duration, end_date=compared_end)
+    comparison = func(*time_span)
+    comparison_total = compute_total(comparison)
+    total_trend = (
+        (current_total - comparison_total) / comparison_total * 100
+        if comparison_total
+        else None  # None indicates n/a
+    )
+    base_trends = _compute_base_trends(result, comparison)
+
+    return result, total_trend, base_trends
+
+
 def get_internal_data():
     now = utcnow()
     all_data = []
-
-    def compute_with_trend(func, duration):
-        time_span = get_time_span(duration_days=duration)
-        result = func(*time_span)
-        current_total = compute_total(result)
-
-        # Compute trend compared to previous window
-        compared_end = now - timedelta(days=duration)
-        time_span = get_time_span(duration_days=duration, end_date=compared_end)
-        comparison = func(*time_span)
-        comparison_total = compute_total(comparison)
-        total_trend = (
-            (current_total - comparison_total) / comparison_total * 100
-            if comparison_total
-            else None  # None indicates n/a
-        )
-
-        # Compute per-base trends
-        base_trends = _compute_base_trends(result, comparison)
-
-        return result, total_trend, base_trends
 
     titles = [
         "Newly created boxes",
@@ -85,7 +87,7 @@ def get_internal_data():
         total_trends = []
         base_trends_list = []
         for duration in [30, 90, 365]:
-            result, total_trend, base_trends = compute_with_trend(func, duration)
+            result, total_trend, base_trends = compute_with_trend(func, now, duration)
             results.append(result)
             total_trends.append(total_trend)
             base_trends_list.append(base_trends)
