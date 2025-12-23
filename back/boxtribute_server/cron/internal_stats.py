@@ -12,41 +12,38 @@ from ..business_logic.metrics.crud import (
     number_of_boxes_created_between,
 )
 from ..models.utils import utcnow
-from .formatting import format_as_table, transform_data
+from .formatting import format_as_table
 
 
 def _compute_total(data):
-    return sum(
-        base_data["number"]
-        for org in data.values()
-        for base_data in org["bases"].values()
-    )
+    return sum(row["number"] for row in data)
 
 
 def _compute_base_trends(current_data, comparison_data):
     """Compute trend percentage for each base."""
     trends = {}
-    for org_id, org_data in current_data.items():
+
+    # Build lookup dict for comparison data
+    comparison_lookup = {}
+    for row in comparison_data:
+        key = (row["organisation_id"], row["base_id"])
+        comparison_lookup[key] = row["number"]
+
+    for row in current_data:
+        org_id = row["organisation_id"]
+        base_id = row["base_id"]
+        current_number = row["number"]
+
         if org_id not in trends:
-            trends[org_id] = {"name": org_data["name"], "bases": {}}
+            trends[org_id] = {"name": row["organisation_name"], "bases": {}}
 
-        for base_id, base_data in org_data["bases"].items():
-            current_number = base_data["number"]
-            comparison_number = 0
-            if (
-                org_id in comparison_data
-                and base_id in comparison_data[org_id]["bases"]
-            ):
-                comparison_number = comparison_data[org_id]["bases"][base_id]["number"]
+        comparison_number = comparison_lookup.get((org_id, base_id), 0)
 
-            trend = None
-            if comparison_number > 0:
-                trend = (current_number - comparison_number) / comparison_number * 100
+        trend = None
+        if comparison_number > 0:
+            trend = (current_number - comparison_number) / comparison_number * 100
 
-            trends[org_id]["bases"][base_id] = {
-                "name": base_data["name"],
-                "trend": trend,
-            }
+        trends[org_id]["bases"][base_id] = {"name": row["base_name"], "trend": trend}
 
     return trends
 
@@ -58,14 +55,14 @@ def get_internal_data():
     def compute_with_trend(func, duration):
         time_span = get_time_span(duration_days=duration)
         raw_result = func(*time_span)
-        result = transform_data(raw_result.dicts())
+        result = list(raw_result.dicts())
         current_total = _compute_total(result)
 
         # Compute trend compared to previous window
         compared_end = now - timedelta(days=duration)
         time_span = get_time_span(duration_days=duration, end_date=compared_end)
         raw_comparison = func(*time_span)
-        comparison = transform_data(raw_comparison.dicts())
+        comparison = list(raw_comparison.dicts())
         comparison_total = _compute_total(comparison)
         total_trend = (
             (current_total - comparison_total) / comparison_total * 100
