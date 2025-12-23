@@ -94,29 +94,36 @@ def number_of_boxes_created_between(start, end):
 
 def number_of_beneficiaries_registered_between(start, end):
     # Beneficiaries might be hard-deleted from the people table, hence we have to use
-    # the history table for reliable information about their creation
+    # the history table for reliable information about their creation. However some
+    # beneficiaries might have been directly imported into the DB without creating
+    # history entries, we then fallback to using Beneficiary.created_on.
+    RegisteredBeneficiaries = (
+        DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
+            DbChangeHistory.table_name == Beneficiary._meta.table_name,
+            DbChangeHistory.change_date >= start,
+            DbChangeHistory.change_date <= end,
+            DbChangeHistory.changes == HISTORY_CREATION_MESSAGE,
+        )
+    ) | (
+        # created acc. to people table (contains info for some beneficiaries
+        # directly imported to the DB but misses permanently deleted beneficiaries)
+        Beneficiary.select(Beneficiary.id).where(
+            Beneficiary.created_on >= start,
+            Beneficiary.created_on <= end,
+        )
+    )
     return (
-        DbChangeHistory.select(
+        Beneficiary.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
             Base.id.alias("base_id"),
             Base.name.alias("base_name"),
             fn.COUNT(Beneficiary.id).alias("number"),
         )
-        .join(
-            Beneficiary,
-            on=(
-                (DbChangeHistory.table_name == Beneficiary._meta.table_name)
-                & (Beneficiary.id == DbChangeHistory.record_id)
-                & (DbChangeHistory.changes == HISTORY_CREATION_MESSAGE)
-            ),
-        )
+        .from_(RegisteredBeneficiaries)
+        .join(Beneficiary, on=(Beneficiary.id == RegisteredBeneficiaries.c.id))
         .join(Base)
         .join(Organisation)
-        .where(
-            DbChangeHistory.change_date >= start,
-            DbChangeHistory.change_date <= end,
-        )
         .group_by(Organisation.id, Base.id)
         .order_by(Organisation.id, Base.id)
     ).dicts()
