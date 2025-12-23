@@ -51,7 +51,7 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
 
             # First base shows org name, subsequent bases have empty org column
             row_org = org_name if idx == 0 else ""
-            row_data = [item for pair in zip(nums, trends_base) for item in pair]
+            row_data = list(zip(nums, trends_base))
             rows.append((row_org, base_name, *row_data))
 
     # Calculate column widths - need to account for "value (+trend%)" format in cells
@@ -69,17 +69,17 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     col3_width = max(
         len(headers[2]),
         len(format_cell(totals[0], trends[0])),
-        max((len(format_cell(row[2], row[3])) for row in rows), default=0),
+        max((len(format_cell(*row[2])) for row in rows), default=0),
     )
     col4_width = max(
         len(headers[3]),
         len(format_cell(totals[1], trends[1])),
-        max((len(format_cell(row[4], row[5])) for row in rows), default=0),
+        max((len(format_cell(*row[3])) for row in rows), default=0),
     )
     col5_width = max(
         len(headers[4]),
         len(format_cell(totals[2], trends[2])),
-        max((len(format_cell(row[6], row[7])) for row in rows), default=0),
+        max((len(format_cell(*row[4])) for row in rows), default=0),
     )
 
     # Format output
@@ -111,24 +111,8 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     lines.append(separator)
 
     # Data rows
-    for (
-        org_name,
-        base_name,
-        num_30,
-        trend_30,
-        num_90,
-        trend_90,
-        num_365,
-        trend_365,
-    ) in rows:
-        cells = [
-            format_cell(num, trend)
-            for num, trend in [
-                (num_30, trend_30),
-                (num_90, trend_90),
-                (num_365, trend_365),
-            ]
-        ]
+    for (org_name, base_name, *row_data) in rows:
+        cells = [format_cell(num, trend) for num, trend in row_data]
         line = format_line(org_name, base_name, *cells)
         lines.append(line)
 
