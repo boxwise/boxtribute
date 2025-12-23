@@ -127,3 +127,21 @@ def test_reached_beneficiaries_numbers(read_only_client, start, end, duration, r
             ) }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert response == result
+
+
+@pytest.mark.parametrize(
+    "stat,count",
+    [
+        ["newlyCreatedBoxNumbers", 2],
+        ["newlyRegisteredBeneficiaryNumbers", 1],
+        ["reachedBeneficiariesNumbers", 1],
+    ],
+)
+def test_exclude_test_organisation_in_production(
+    read_only_client, monkeypatch, stat, count
+):
+    # Data from organisation 1 is excluded
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    query = f"""query {{ {stat}(start: "2020-01-01") }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == count

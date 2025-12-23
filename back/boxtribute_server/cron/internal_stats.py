@@ -6,29 +6,71 @@ from datetime import timedelta
 from flask import current_app
 
 from ..business_logic.metrics.crud import (
+    compute_total,
     get_time_span,
-    number_of_created_records_between,
-    reached_beneficiaries_numbers,
+    number_of_beneficiaries_reached_between,
+    number_of_beneficiaries_registered_between,
+    number_of_boxes_created_between,
 )
-from ..models.definitions.beneficiary import Beneficiary
-from ..models.definitions.box import Box
 from ..models.utils import utcnow
+from .formatting import format_as_table
+
+
+def _compute_base_trends(current_data, comparison_data):
+    """Compute trend percentage for each base."""
+    trends = {}
+
+    # Build lookup dict for comparison data
+    comparison_lookup = {}
+    for row in comparison_data:
+        key = (row["organisation_id"], row["base_id"])
+        comparison_lookup[key] = row["number"]
+
+    for row in current_data:
+        org_id = row["organisation_id"]
+        base_id = row["base_id"]
+        current_number = row["number"]
+
+        if org_id not in trends:
+            trends[org_id] = {"name": row["organisation_name"], "bases": {}}
+
+        comparison_number = comparison_lookup.get((org_id, base_id), 0)
+
+        trend = None
+        if comparison_number > 0:
+            trend = (current_number - comparison_number) / comparison_number * 100
+
+        trends[org_id]["bases"][base_id] = {"name": row["base_name"], "trend": trend}
+
+    return trends
+
+
+def compute_with_trend(func, end_date, duration):
+    """Run the statistics function on the timespan derived from the given parameters,
+    and on the same timespan before, then compute trends.
+    """
+    time_span = get_time_span(duration_days=duration, end_date=end_date)
+    result = func(*time_span)
+    current_total = compute_total(result)
+
+    # Compute trend compared to previous window
+    compared_end = end_date - timedelta(days=duration)
+    time_span = get_time_span(duration_days=duration, end_date=compared_end)
+    comparison = func(*time_span)
+    comparison_total = compute_total(comparison)
+    total_trend = (
+        (current_total - comparison_total) / comparison_total * 100
+        if comparison_total
+        else None  # None indicates n/a
+    )
+    base_trends = _compute_base_trends(result, comparison)
+
+    return result, total_trend, base_trends
 
 
 def get_internal_data():
     now = utcnow()
     all_data = []
-
-    def compute_with_trend(func, duration, *args):
-        time_span = get_time_span(duration_days=duration)
-        result = func(*args, *time_span)
-
-        # Compute trend compared to previous window
-        compared_end = now - timedelta(days=duration)
-        time_span = get_time_span(duration_days=duration, end_date=compared_end)
-        comparison = func(*args, *time_span)
-        trend = (result - comparison) / comparison * 100 if comparison else 0
-        return result, trend
 
     titles = [
         "Newly created boxes",
@@ -36,17 +78,23 @@ def get_internal_data():
         "Reached beneficiaries",
     ]
     funcs = [
-        number_of_created_records_between,
-        number_of_created_records_between,
-        reached_beneficiaries_numbers,
+        number_of_boxes_created_between,
+        number_of_beneficiaries_registered_between,
+        number_of_beneficiaries_reached_between,
     ]
-    args_list = [[Box], [Beneficiary], []]
-    for title, func, args in zip(titles, funcs, args_list):
-        data = []
+    for title, func in zip(titles, funcs):
+        results = []
+        total_trends = []
+        base_trends_list = []
         for duration in [30, 90, 365]:
-            result, trend = compute_with_trend(func, duration, *args)
-            data.append(f"Last {duration:>3} days: {result:>5} ({trend:+.1f}%)")
-        all_data.append({"title": title, "data": "\n".join(data)})
+            result, total_trend, base_trends = compute_with_trend(func, now, duration)
+            results.append(result)
+            total_trends.append(total_trend)
+            base_trends_list.append(base_trends)
+        data = format_as_table(
+            *results, trends=total_trends, base_trends=base_trends_list
+        )
+        all_data.append({"title": title, "data": data})
     return all_data
 
 
