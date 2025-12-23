@@ -8,6 +8,7 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
         result_90: List of dicts (for 90 days)
         result_365: List of dicts (for 365 days)
         trends: List of three trend percentages [trend_30, trend_90, trend_365]
+                (can be None which will be formatted as 'n/a')
         base_trends: List of three dicts with per-base trend data
 
     Returns:
