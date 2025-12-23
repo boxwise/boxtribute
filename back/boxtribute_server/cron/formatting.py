@@ -1,12 +1,12 @@
 def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     """
-    Format nested organization/base structure into aligned tabular text with multiple
-    time windows.
+    Format raw row data into aligned tabular text with multiple time windows.
 
     Args:
-        result_30: Dict from transform_data for 30 days
-        result_90: Dict from transform_data for 90 days
-        result_365: Dict from transform_data for 365 days
+        result_30: List of dicts with keys: organisation_id, organisation_name,
+                   base_id, base_name, number (for 30 days)
+        result_90: List of dicts (for 90 days)
+        result_365: List of dicts (for 365 days)
         trends: List of three trend percentages [trend_30, trend_90, trend_365]
         base_trends: List of three dicts with per-base trend data
 
@@ -20,13 +20,15 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
 
     results = [result_30, result_90, result_365]
     for result in results:
-        for org_id, org_data in result.items():
-            if org_id not in all_orgs:
-                all_orgs[org_id] = {"name": org_data["name"], "bases": {}}
+        for row in result:
+            org_id = row["organisation_id"]
+            base_id = row["base_id"]
 
-            for base_id, base_data in org_data["bases"].items():
-                if base_id not in all_orgs[org_id]["bases"]:
-                    all_orgs[org_id]["bases"][base_id] = base_data["name"]
+            if org_id not in all_orgs:
+                all_orgs[org_id] = {"name": row["organisation_name"], "bases": {}}
+
+            if base_id not in all_orgs[org_id]["bases"]:
+                all_orgs[org_id]["bases"][base_id] = row["base_name"]
 
     # Build rows with data from all three datasets
     rows = []
@@ -142,13 +144,9 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
 
 def get_base_number(result, org_id, base_id):
     """Helper to get base number from result, returns 0 if not found."""
-    if org_id not in result:
-        return 0
-
-    bases = result[org_id]["bases"]
-    if base_id in bases:
-        return bases[base_id]["number"]
-
+    for row in result:
+        if row["organisation_id"] == org_id and row["base_id"] == base_id:
+            return row["number"]
     return 0
 
 
@@ -162,32 +160,3 @@ def get_base_trend(trends, org_id, base_id):
         return bases[base_id]["trend"]
 
     return None
-
-
-def transform_data(rows):
-    """
-    Transform tabular data into nested organization/base structure.
-
-    Args:
-        rows: List of dicts with keys: organisation_id, organisation_name,
-              base_id, base_name, number
-
-    Returns:
-        Dict with structure: {org_id: {"name": org_name, "bases": {base_id: {...}}}}
-    """
-    result = {}
-
-    for row in rows:
-        org_id = row["organisation_id"]
-
-        # Initialize organization if not exists
-        if org_id not in result:
-            result[org_id] = {"name": row["organisation_name"], "bases": {}}
-
-        # Add base to organization
-        result[org_id]["bases"][row["base_id"]] = {
-            "name": row["base_name"],
-            "number": row["number"],
-        }
-
-    return result

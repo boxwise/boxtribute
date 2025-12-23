@@ -2,105 +2,7 @@ from boxtribute_server.cron.formatting import (
     format_as_table,
     get_base_number,
     get_base_trend,
-    transform_data,
 )
-
-
-class TestTransformData:
-    """Tests for the transform_data function."""
-
-    def test_empty_input(self):
-        """Test transform_data with an empty list."""
-        result = transform_data([])
-        assert result == {}
-
-    def test_single_org_single_base(self):
-        """Test transform_data with a single organization and base."""
-        rows = [
-            {
-                "organisation_id": 1,
-                "organisation_name": "Org A",
-                "base_id": 10,
-                "base_name": "Base X",
-                "number": 42,
-            }
-        ]
-        result = transform_data(rows)
-        assert result == {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 42}},
-            }
-        }
-
-    def test_single_org_multiple_bases(self):
-        """Test transform_data with one organization having multiple bases."""
-        rows = [
-            {
-                "organisation_id": 1,
-                "organisation_name": "Org A",
-                "base_id": 10,
-                "base_name": "Base X",
-                "number": 42,
-            },
-            {
-                "organisation_id": 1,
-                "organisation_name": "Org A",
-                "base_id": 11,
-                "base_name": "Base Y",
-                "number": 33,
-            },
-        ]
-        result = transform_data(rows)
-        assert result == {
-            1: {
-                "name": "Org A",
-                "bases": {
-                    10: {"name": "Base X", "number": 42},
-                    11: {"name": "Base Y", "number": 33},
-                },
-            }
-        }
-
-    def test_multiple_orgs_multiple_bases(self):
-        """Test transform_data with multiple organizations and bases."""
-        rows = [
-            {
-                "organisation_id": 1,
-                "organisation_name": "Org A",
-                "base_id": 10,
-                "base_name": "Base X",
-                "number": 42,
-            },
-            {
-                "organisation_id": 1,
-                "organisation_name": "Org A",
-                "base_id": 11,
-                "base_name": "Base Y",
-                "number": 33,
-            },
-            {
-                "organisation_id": 2,
-                "organisation_name": "Org B",
-                "base_id": 20,
-                "base_name": "Base Z",
-                "number": 100,
-            },
-        ]
-        result = transform_data(rows)
-        assert result == {
-            1: {
-                "name": "Org A",
-                "bases": {
-                    10: {"name": "Base X", "number": 42},
-                    11: {"name": "Base Y", "number": 33},
-                },
-            },
-            2: {
-                "name": "Org B",
-                "bases": {20: {"name": "Base Z", "number": 100}},
-            },
-        }
 
 
 class TestGetBaseNumber:
@@ -108,42 +10,54 @@ class TestGetBaseNumber:
 
     def test_missing_org(self):
         """Test get_base_number when organization doesn't exist."""
-        result = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 42}},
+        result = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 42,
             }
-        }
+        ]
         assert get_base_number(result, 999, 10) == 0
 
     def test_missing_base(self):
         """Test get_base_number when base doesn't exist in organization."""
-        result = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 42}},
+        result = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 42,
             }
-        }
+        ]
         assert get_base_number(result, 1, 999) == 0
 
     def test_existing_data(self):
         """Test get_base_number when both org and base exist."""
-        result = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 42}},
+        result = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 42,
             }
-        }
+        ]
         assert get_base_number(result, 1, 10) == 42
 
     def test_zero_value(self):
         """Test get_base_number with a base that has zero as the number."""
-        result = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 0}},
+        result = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 0,
             }
-        }
+        ]
         assert get_base_number(result, 1, 10) == 0
 
 
@@ -206,9 +120,9 @@ class TestFormatAsTable:
 
     def test_empty_data(self):
         """Test format_as_table with empty datasets."""
-        result_30 = {}
-        result_90 = {}
-        result_365 = {}
+        result_30 = []
+        result_90 = []
+        result_365 = []
         trends = [0.0, 0.0, 0.0]
         base_trends = [{}, {}, {}]
 
@@ -228,24 +142,33 @@ class TestFormatAsTable:
 
     def test_single_org_single_base(self):
         """Test format_as_table with single organization and base."""
-        result_30 = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 42}},
+        result_30 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 42,
             }
-        }
-        result_90 = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 50}},
+        ]
+        result_90 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 50,
             }
-        }
-        result_365 = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 100}},
+        ]
+        result_365 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 100,
             }
-        }
+        ]
         trends = [5.5, 10.2, -3.7]
         base_trends = [
             {1: {"name": "Org A", "bases": {10: {"name": "Base X", "trend": 8.0}}}},
@@ -271,45 +194,75 @@ class TestFormatAsTable:
 
     def test_multiple_orgs_multiple_bases(self):
         """Test format_as_table with multiple organizations and bases."""
-        result_30 = {
-            1: {
-                "name": "Org A",
-                "bases": {
-                    10: {"name": "Base X", "number": 42},
-                    11: {"name": "Base Y", "number": 33},
-                },
+        result_30 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 42,
             },
-            2: {
-                "name": "Org B",
-                "bases": {20: {"name": "Base Z", "number": 100}},
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 11,
+                "base_name": "Base Y",
+                "number": 33,
             },
-        }
-        result_90 = {
-            1: {
-                "name": "Org A",
-                "bases": {
-                    10: {"name": "Base X", "number": 50},
-                    11: {"name": "Base Y", "number": 40},
-                },
+            {
+                "organisation_id": 2,
+                "organisation_name": "Org B",
+                "base_id": 20,
+                "base_name": "Base Z",
+                "number": 100,
             },
-            2: {
-                "name": "Org B",
-                "bases": {20: {"name": "Base Z", "number": 120}},
+        ]
+        result_90 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 50,
             },
-        }
-        result_365 = {
-            1: {
-                "name": "Org A",
-                "bases": {
-                    10: {"name": "Base X", "number": 200},
-                    11: {"name": "Base Y", "number": 150},
-                },
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 11,
+                "base_name": "Base Y",
+                "number": 40,
             },
-            2: {
-                "name": "Org B",
-                "bases": {20: {"name": "Base Z", "number": 300}},
+            {
+                "organisation_id": 2,
+                "organisation_name": "Org B",
+                "base_id": 20,
+                "base_name": "Base Z",
+                "number": 120,
             },
-        }
+        ]
+        result_365 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 200,
+            },
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 11,
+                "base_name": "Base Y",
+                "number": 150,
+            },
+            {
+                "organisation_id": 2,
+                "organisation_name": "Org B",
+                "base_id": 20,
+                "base_name": "Base Z",
+                "number": 300,
+            },
+        ]
         trends = [0.0, 5.0, -2.5]
         base_trends = [
             {
@@ -371,27 +324,40 @@ class TestFormatAsTable:
 
     def test_missing_data_in_some_windows(self):
         """Test format_as_table when some bases are missing in certain time windows."""
-        result_30 = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 42}},
+        result_30 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 42,
             }
-        }
-        result_90 = {
-            1: {
-                "name": "Org A",
-                "bases": {
-                    10: {"name": "Base X", "number": 50},
-                    11: {"name": "Base Y", "number": 25},
-                },
+        ]
+        result_90 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 50,
+            },
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 11,
+                "base_name": "Base Y",
+                "number": 25,
+            },
+        ]
+        result_365 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 11,
+                "base_name": "Base Y",
+                "number": 100,
             }
-        }
-        result_365 = {
-            1: {
-                "name": "Org A",
-                "bases": {11: {"name": "Base Y", "number": 100}},
-            }
-        }
+        ]
         trends = [0.0, 0.0, 0.0]
         base_trends = [
             {1: {"name": "Org A", "bases": {10: {"name": "Base X", "trend": 10.0}}}},
@@ -429,12 +395,15 @@ class TestFormatAsTable:
 
     def test_trend_formatting(self):
         """Test that trends are formatted correctly with sign and percentage."""
-        result = {
-            1: {
-                "name": "Org A",
-                "bases": {10: {"name": "Base X", "number": 10}},
+        result = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Org A",
+                "base_id": 10,
+                "base_name": "Base X",
+                "number": 10,
             }
-        }
+        ]
         trends = [12.345, -5.678, 0.0]
         base_trends = [
             {1: {"name": "Org A", "bases": {10: {"name": "Base X", "trend": 8.5}}}},
@@ -460,12 +429,15 @@ class TestFormatAsTable:
 
     def test_column_alignment(self):
         """Test that columns are properly aligned using | separators."""
-        result_30 = {
-            1: {
-                "name": "Organization with Long Name",
-                "bases": {10: {"name": "Base", "number": 1}},
+        result_30 = [
+            {
+                "organisation_id": 1,
+                "organisation_name": "Organization with Long Name",
+                "base_id": 10,
+                "base_name": "Base",
+                "number": 1,
             }
-        }
+        ]
         result_90 = result_30
         result_365 = result_30
         trends = [0.0, 0.0, 0.0]
