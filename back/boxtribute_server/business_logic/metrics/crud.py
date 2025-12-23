@@ -13,6 +13,7 @@ from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import HISTORY_CREATION_MESSAGE, HISTORY_DELETION_MESSAGE, utcnow
+from ...utils import in_production_environment
 
 
 def _build_range_filter(field, *, low, high):
@@ -72,6 +73,12 @@ def compute_number_of_sales(*, organisation_id, after, before):
     )
 
 
+def exclude_test_organisation():
+    if in_production_environment():
+        return Organisation.id != 1
+    return True
+
+
 def number_of_boxes_created_between(start, end):
     return (
         Box.select(
@@ -87,6 +94,7 @@ def number_of_boxes_created_between(start, end):
         .where(
             Box.created_on >= start,
             Box.created_on <= end,
+            exclude_test_organisation(),
         )
         .group_by(Organisation.id, Base.id)
     ).dicts()
@@ -124,6 +132,7 @@ def number_of_beneficiaries_registered_between(start, end):
         .join(Beneficiary, on=(Beneficiary.id == RegisteredBeneficiaries.c.id))
         .join(Base)
         .join(Organisation)
+        .where(exclude_test_organisation())
         .group_by(Organisation.id, Base.id)
         .order_by(Organisation.id, Base.id)
     ).dicts()
@@ -209,6 +218,7 @@ def number_of_beneficiaries_reached_between(start, end):
         .join(Beneficiary, on=(Beneficiary.id == ReachedBeneficiaries.c.id))
         .join(Base)
         .join(Organisation)
+        .where(exclude_test_organisation())
         .group_by(Organisation.id, Base.id)
     ).dicts()
 
