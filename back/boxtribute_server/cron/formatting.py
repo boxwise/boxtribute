@@ -84,14 +84,13 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
 
     # Format output
     lines = []
+    aligns = ["<", "<", ">", ">", ">"]
+    widths = [col1_width, col2_width, col3_width, col4_width, col5_width]
 
     def format_line(*parts, sep=" | "):
         cells = [
-            f"{parts[0]:<{col1_width}}",
-            f"{parts[1]:<{col2_width}}",
-            f"{parts[2]:>{col3_width}}",
-            f"{parts[3]:>{col4_width}}",
-            f"{parts[4]:>{col5_width}}",
+            f"{part:{align}{width}}"
+            for part, align, width in zip(parts, aligns, widths)
         ]
         return sep.join(cells)
 
