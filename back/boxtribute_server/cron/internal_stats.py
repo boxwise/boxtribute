@@ -6,6 +6,7 @@ from datetime import timedelta
 from flask import current_app
 
 from ..business_logic.metrics.crud import (
+    compute_total,
     get_time_span,
     number_of_beneficiaries_reached_between,
     number_of_beneficiaries_registered_between,
@@ -13,10 +14,6 @@ from ..business_logic.metrics.crud import (
 )
 from ..models.utils import utcnow
 from .formatting import format_as_table
-
-
-def _compute_total(data):
-    return sum(row["number"] for row in data)
 
 
 def _compute_base_trends(current_data, comparison_data):
@@ -54,16 +51,14 @@ def get_internal_data():
 
     def compute_with_trend(func, duration):
         time_span = get_time_span(duration_days=duration)
-        raw_result = func(*time_span)
-        result = list(raw_result.dicts())
-        current_total = _compute_total(result)
+        result = func(*time_span)
+        current_total = compute_total(result)
 
         # Compute trend compared to previous window
         compared_end = now - timedelta(days=duration)
         time_span = get_time_span(duration_days=duration, end_date=compared_end)
-        raw_comparison = func(*time_span)
-        comparison = list(raw_comparison.dicts())
-        comparison_total = _compute_total(comparison)
+        comparison = func(*time_span)
+        comparison_total = compute_total(comparison)
         total_trend = (
             (current_total - comparison_total) / comparison_total * 100
             if comparison_total
