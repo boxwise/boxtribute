@@ -89,7 +89,7 @@ def number_of_boxes_created_between(start, end):
             Box.created_on <= end,
         )
         .group_by(Organisation.id, Base.id)
-    )
+    ).dicts()
 
 
 def number_of_beneficiaries_registered_between(start, end):
@@ -119,7 +119,7 @@ def number_of_beneficiaries_registered_between(start, end):
         )
         .group_by(Organisation.id, Base.id)
         .order_by(Organisation.id, Base.id)
-    )
+    ).dicts()
 
 
 def number_of_beneficiaries_reached_between(start, end):
@@ -203,7 +203,11 @@ def number_of_beneficiaries_reached_between(start, end):
         .join(Base)
         .join(Organisation)
         .group_by(Organisation.id, Base.id)
-    )
+    ).dicts()
+
+
+def compute_total(data):
+    return sum(row["number"] for row in data)
 
 
 def get_time_span(
