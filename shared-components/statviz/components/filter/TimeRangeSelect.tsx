@@ -1,6 +1,6 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
