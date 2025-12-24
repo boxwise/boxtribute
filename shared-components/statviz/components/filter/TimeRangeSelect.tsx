@@ -1,7 +1,7 @@
 import { Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod.js";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateField } from "../../..";
@@ -28,7 +28,6 @@ export type ITimeRangeSelection = z.infer<typeof FilterCreatedOnFormScheme>;
 export default function TimeRangeSelect() {
   const {
     register,
-    watch,
     control,
     setValue,
     formState: { errors },
@@ -37,8 +36,8 @@ export default function TimeRangeSelect() {
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const toFormValue = watch("to");
-  const fromFormValue = watch("from");
+  const toFormValue = useWatch({ control, name: "to" });
+  const fromFormValue = useWatch({ control, name: "from" });
 
   useEffect(() => {
     const currentQuery = searchParams.toString();

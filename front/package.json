@@ -33,14 +33,14 @@
     "upload:test-report": "./node_modules/.bin/codecov",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
-    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
+    "lint": "eslint --report-unused-disable-directives --max-warnings 0",
     "lint:all": "pnpm lint .",
     "lint:fix": "pnpm lint --fix",
     "lint:fix:all": "pnpm lint:fix .",
     "format:check:all": "pnpm format:check \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
-    "format:check": "prettier --check --ignore-path ../.eslintignore",
+    "format:check": "prettier --check",
     "format:write:all": "pnpm format:write \"src/**/*.{js,jsx,json,scss,md,ts,tsx}\"",
-    "format:write": "prettier --write --ignore-path ../.eslintignore"
+    "format:write": "prettier --write"
   },
   "msw": {
     "workerDirectory": "public"

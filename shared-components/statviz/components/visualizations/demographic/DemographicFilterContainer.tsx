@@ -30,7 +30,7 @@ export default function DemographicFilterContainer({
       tagToFilterValue(e!),
     );
 
-    if (beneficiaryTagFilterValues?.length! > 0) {
+    if ((beneficiaryTagFilterValues?.length || 0) > 0) {
       const distinctTagFilterValues = tidy(
         [...tagFilterValues, ...beneficiaryTagFilterValues!],
         distinct(["id"]),
@@ -51,6 +51,7 @@ export default function DemographicFilterContainer({
         interval,
       ) as BeneficiaryDemographicsResult[];
     } catch (error) {
+      console.error(error);
       // TODO useError
     }
     return [];
@@ -67,7 +68,7 @@ export default function DemographicFilterContainer({
     }
 
     if (filters.length > 0) {
-      // @ts-expect-error
+      // @ts-expect-error Filter Types cannot match
       return tidy(demographicFacts, ...filters);
     }
     return demographicFacts;

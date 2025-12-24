@@ -8,14 +8,14 @@ import {
   StackDirection,
   Text,
 } from "@chakra-ui/react";
-import { Controller } from "react-hook-form";
+import { Control, Controller, FieldErrors, FieldValues } from "react-hook-form";
 
 export interface IRadioGroupFieldProps {
   fieldId: string;
   fieldLabel: string;
   options: string[];
-  errors: object;
-  control: any;
+  errors: FieldErrors<FieldValues>;
+  control: Control<FieldValues>;
   direction: StackDirection;
   isRequired?: boolean;
 }
@@ -54,7 +54,7 @@ function RadioGroupField({
           </RadioGroup>
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      <FormErrorMessage>{errors[fieldId]?.message?.toString() ?? undefined}</FormErrorMessage>
     </FormControl>
   );
 }

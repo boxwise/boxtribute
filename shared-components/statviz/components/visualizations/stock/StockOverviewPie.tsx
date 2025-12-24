@@ -162,7 +162,7 @@ export default function StockOverviewPie({
       innerJoin<StockOverviewResult & ICategoryDim, ISizeDim>(sizeDim!, {
         by: "sizeId",
       }),
-      // @ts-ignore
+      // @ts-expect-error Filter Types cannot match
       ...drilldownFilters,
     ) as PreparedStock[];
 

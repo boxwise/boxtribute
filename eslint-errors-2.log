@@ -1,0 +1,597 @@
+
+> @ lint:all /home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute
+> pnpm -C shared-components lint && pnpm -C front lint && pnpm -C shared-front lint
+
+
+> @boxtribute/shared-components@1.0.0 lint /home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components
+> eslint --report-unused-disable-directives --max-warnings 0
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+> @boxtribute/front@2.0.0 lint /home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front
+> eslint --report-unused-disable-directives --max-warnings 0
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/App.tsx
+  108:40  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/App.tsx:108:40
+  106 |     const regex = /^\/bases\/\d+\//;
+  107 |     // only store previous location if a base is selected
+> 108 |     if (regex.test(location.pathname)) setPrevLocation(location.pathname);
+      |                                        ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  109 |   }, [location]);
+  110 |
+  111 |   if (error) {  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/BoxReconciliationOverlay.test.tsx
+  18:1  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/components/BoxReconciliationAccordion.tsx
+  190:19  error  Error: This value cannot be modified
+
+Modifying a value returned from a hook is not allowed. Consider moving the modification into the hook where the value is constructed.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/components/BoxReconciliationAccordion.tsx:190:19
+  188 |
+  189 |                 if (shipmentDetail.sourceProduct?.id) {
+> 190 |                   reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
+      |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `reconciliationMatchProductCache` cannot be modified
+  191 |                     matchedProductsFormData;
+  192 |                   setReconciliationMatchProductCache(reconciliationMatchProductCache);
+  193 |                 }  react-hooks/immutability
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/components/MatchProductsForm.tsx
+  10:25  error    Unable to resolve path to module 'components/Form/NumberField'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               import/no-unresolved
+  82:21  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/components/MatchProductsForm.tsx:82:21
+  80 |
+  81 |   // needed for updating size select field for new product
+> 82 |   const productId = watch("productId");
+     |                     ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  83 |   const sizeId = watch("sizeId");
+  84 |   const productRef = useRef<string | undefined>();
+  85 |  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/components/ReceiveLocationForm.tsx
+  68:22  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/BoxReconciliationOverlay/components/ReceiveLocationForm.tsx:68:22
+  66 |   });
+  67 |
+> 68 |   const locationId = watch("locationId");
+     |                      ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  69 |
+  70 |   useEffect(() => {
+  71 |     if (  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/Form/SelectField.tsx
+  21:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/Form/SwitchField.tsx
+  7:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/HeaderMenu/BaseSwitcher.tsx
+  31:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/HeaderMenu/BaseSwitcher.tsx:31:5
+  29 |   // Need to set this as soon as we have this value available to set the default radio selection.
+  30 |   useEffect(() => {
+> 31 |     setValue(firstAvailableBaseId);
+     |     ^^^^^^^^ Avoid calling setState() directly within an effect
+  32 |   }, [firstAvailableBaseId, baseId]);
+  33 |
+  34 |   const switchBase = () => {  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/QrReader/QrReaderContainer.tsx
+  101:17  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  101:61  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/QrReader/components/QrReaderMultiBox.tsx
+  236:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/QrReader/components/QrReaderMultiBoxContainer.tsx
+  158:50  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  161:20  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  163:23  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+  173:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/QrReader/components/QrReaderMultiBoxContainer.tsx:173:7
+  171 |   useEffect(() => {
+  172 |     if (shipmentOptions.length > 0) {
+> 173 |       setMultiBoxAction(IMultiBoxAction.assignShipment);
+      |       ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  174 |     }
+  175 |   }, [shipmentOptions]);
+  176 |  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/QrReader/components/QrReaderScannerStyles.ts
+  1:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/Table/Cells.tsx
+  14:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/Table/Filter.tsx
+  23:33  error  Prefer using the primitive `object` as a type name, rather than the upper-cased `Object`  @typescript-eslint/no-wrapper-object-types
+  37:14  error  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  80:18  error  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  81:16  error  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+  82:22  error  Unexpected any. Specify a different type                                                  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/Table/Table.tsx
+  12:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  51:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/components/Table/TableHeader.tsx
+  6:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useAssignBoxesToShipment.ts
+  26:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useAssignTags.ts
+  34:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  84:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useDeleteBoxes.ts
+  26:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useLabelIdentifierResolver.ts
+  20:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useLoadAndSetGlobalPreferences.ts
+   78:11  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useLoadAndSetGlobalPreferences.ts:78:11
+  76 |           }
+  77 |         } else {
+> 78 |           setError("The requested base is not available to you.");
+     |           ^^^^^^^^ Avoid calling setState() directly within an effect
+  79 |         }
+  80 |       }
+  81 |     }                                                                                                           react-hooks/set-state-in-effect
+  115:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useLoadAndSetGlobalPreferences.ts:115:13
+  113 |           } else {
+  114 |             // this error is set if the requested base is not part of the available bases
+> 115 |             setError("The requested base is not available to you.");
+      |             ^^^^^^^^ Avoid calling setState() directly within an effect
+  116 |           }
+  117 |         }
+  118 |       } else {  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useMoveBoxes.ts
+  24:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useTableConfig.ts
+   10:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   23:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   24:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   27:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   28:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   62:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   99:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  101:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  154:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  245:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  260:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/hooks/useUnassignBoxesFromShipments.ts
+  25:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/mocks/boxes.ts
+  32:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/mocks/components.tsx
+  19:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/mocks/functions.ts
+  4:49  error  Prefer using the primitive `boolean` as a type name, rather than the upper-cased `Boolean`  @typescript-eslint/no-wrapper-object-types
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/mocks/hooks.ts
+  16:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/providers/ApolloAuth0Provider.tsx
+  17:48  error  Prefer using the primitive `string` as a type name, rather than the upper-cased `String`  @typescript-eslint/no-wrapper-object-types
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/queries/cache.ts
+  29:76  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/queries/dynamic-mutations.ts
+   6:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/tests/test-utils.tsx
+    1:1   error  Unused eslint-disable directive (no problems were reported from 'import/export')
+   51:27  error  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+   52:13  error  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+  102:27  error  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+  108:44  error  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+  138:44  error  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/BoxView.test.tsx
+   929:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   965:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   966:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1021:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/BoxView.tsx
+  230:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/BoxView.tsx:230:5
+  228 |
+  229 |   useEffect(() => {
+> 230 |     setCurrentState(boxData?.state);
+      |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  231 |     const shipmentId = boxData?.shipmentDetail?.shipment.id;
+  232 |     // open reconciliation overlay if the box state is receiving and if we're on the receiving side
+  233 |     if (  react-hooks/set-state-in-effect
+  576:75  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/components/AddItemsToBoxOverlay.tsx
+  13:25  error  Unable to resolve path to module 'components/Form/NumberField'  import/no-unresolved
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/components/BoxCard.tsx
+  265:25  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  294:25  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/components/BoxDistributionEvent.tsx
+  7:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Box/components/TakeItemsFromBoxOverlay.tsx
+  13:25  error  Unable to resolve path to module 'components/Form/NumberField'  import/no-unresolved
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/BoxCreate/BoxCreateView.tsx
+  165:64  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/BoxCreate/BoxCreateView.tsx:165:64
+  163 |   useEffect(() => {
+  164 |     // Disable form submission if no warehouse location or products associated with base, but only if the query response is available
+> 165 |     if (allLocations !== undefined && allLocations.length < 1) setNoLocation(true);
+      |                                                                ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  166 |     else if (noLocation) setNoLocation(false);
+  167 |     if (allProducts !== undefined && allProducts.length < 1) setNoProducts(true);
+  168 |     else if (noProducts) setNoProducts(false);  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/BoxCreate/components/BoxCreate.tsx
+   12:25  error    Unable to resolve path to module 'components/Form/NumberField'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     import/no-unresolved
+  152:21  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/BoxCreate/components/BoxCreate.tsx:152:21
+  150 |   >([]);
+  151 |
+> 152 |   const productId = watch("productId");
+      |                     ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  153 |
+  154 |   useEffect(() => {
+  155 |     if (productId != null) {  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/BoxEdit/components/BoxEdit.tsx
+   12:25  error    Unable to resolve path to module 'components/Form/NumberField'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             import/no-unresolved
+  184:21  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/BoxEdit/components/BoxEdit.tsx:184:21
+  182 |
+  183 |   // needed for updating size select field for new product
+> 184 |   const productId = watch("productId");
+      |                     ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  185 |   const productRef = useRef<string | undefined>(boxData?.product?.id);
+  186 |
+  187 |   useEffect(() => {  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/BoxesViewActions.test.tsx
+  30:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  85:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  88:8   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/AssignTagsButton.tsx
+  88:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/BoxesTable.tsx
+  162:69  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  162:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/Checkbox.tsx
+  9:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/RemoveTagsButton.tsx
+  32:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/RemoveTagsButton.tsx:32:7
+  30 |   useEffect(() => {
+  31 |     if (currentTagOptions.length >= 1) {
+> 32 |       setSelectedTagOptions(currentTagOptions);
+     |       ^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |     } else {
+  34 |       setSelectedTagOptions([]);
+  35 |     }  react-hooks/set-state-in-effect
+  99:29  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/TableCells.tsx
+   8:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  66:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  73:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  80:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Boxes/components/transformers.ts
+  53:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/CreateCustomProduct/components/CreateCustomProductForm.tsx
+  15:32  error  Unable to resolve path to module 'components/Form/NumberField'          import/no-unresolved
+  26:7   error  'SingleSelectOptionSchema' is assigned a value but only used as a type  @typescript-eslint/no-unused-vars
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/DistroEventView/components/State2Packing/DistroEventDetailsForPackingStateContainer.tsx
+   56:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/DistroEventView/components/State2Packing/components/PackedContentListOverlay.tsx
+   60:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/DistroEventView/components/State2Packing/components/PackedContentListOverlay.tsx:60:5
+  58 |
+  59 |   useEffect(() => {
+> 60 |     setNumberOfItemsToRemove(undefined);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  61 |   }, [removeUnboxedItemsOverlayState.isOpen]);
+  62 |
+  63 |   return (  react-hooks/set-state-in-effect
+  230:23  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/DistroEventView/components/State2Packing/components/PackingAddBoxOrItemsForPackingListEntryOverlay/PackingScanBoxOrFindByLabelOverlayContent.tsx
+  149:15  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/DistrosDashboardView/DistrosDashboardView.tsx
+  49:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/DistrosDashboardView/DistrosDashboardView.tsx:49:7
+  47 |   useEffect(() => {
+  48 |     if (tabIndexSearchParamAsNumber !== currentTabIndex) {
+> 49 |       setCurrentTabIndex(tabIndexSearchParamAsNumber!);
+     |       ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  50 |     }
+  51 |   }, [currentTabIndex, tabIndexSearchParamAsNumber]);
+  52 |  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Distributions/dataTransformers.ts
+  22:13  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  23:15  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  24:17  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/EditCustomProduct/EditCustomProductView.tsx
+  108:32  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  109:33  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/EditCustomProduct/components/EditCustomProductForm.tsx
+  14:32  error  Unable to resolve path to module 'components/Form/NumberField'  import/no-unresolved
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/EditStandardProduct/components/EditStandardProductForm.tsx
+  22:32  error    Unable to resolve path to module 'components/Form/NumberField'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         import/no-unresolved
+  61:35  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/EditStandardProduct/components/EditStandardProductForm.tsx:61:35
+  59 |   });
+  60 |
+> 61 |   const selectedStandardProduct = watch("standardProduct");
+     |                                   ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  62 |
+  63 |   useEffect(() => {
+  64 |     if (defaultValues && selectedStandardProduct.value !== defaultValues.standardProduct.value) {  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/EnableStandardProduct/components/EnableStandardProductForm.tsx
+  23:32  error    Unable to resolve path to module 'components/Form/NumberField'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             import/no-unresolved
+  62:35  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/EnableStandardProduct/components/EnableStandardProductForm.tsx:62:35
+  60 |   });
+  61 |
+> 62 |   const selectedStandardProduct = watch("standardProduct");
+     |                                   ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  63 |
+  64 |   useEffect(() => {
+  65 |     if (defaultValues && selectedStandardProduct.value !== defaultValues.standardProduct.value) {  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Products/components/ProductsContainer.tsx
+  105:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Products/components/StandardProductsContainer.tsx
+  112:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  122:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/CreateShipment/components/CreateShipment.tsx
+  153:33  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/CreateShipment/components/CreateShipment.tsx:153:33
+  151 |
+  152 |   // selected Option for organisation field
+> 153 |   const receivingOrganisation = watch("receivingOrganisation");
+      |                                 ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  154 |
+  155 |   // Display agreement comment, if any.
+  156 |   const [agreementNote, setAgreementNote] = useState("");  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/CreateTransferAgreement/CreateTransferAgreementView.tsx
+  122:37  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  221:19  error  Unexpected any. Specify a different type                                                                    @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/CreateTransferAgreement/components/CreateTransferAgreement.tsx
+  116:31  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/CreateTransferAgreement/components/CreateTransferAgreement.tsx:116:31
+  114 |   const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
+  115 |   const [validUntilMinDate, setValidUntilMinDate] = useState("");
+> 116 |   const partnerOrganisation = watch("partnerOrganisation");
+      |                               ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  117 |   const validFrom = watch("validFrom");
+  118 |
+  119 |   useEffect(() => {  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/ShipmentView.tsx
+  158:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/ShipmentView.tsx:158:5
+  156 |
+  157 |   useEffect(() => {
+> 158 |     setShipmentState(data?.shipment?.state || undefined);
+      |     ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  159 |     return () => {
+  160 |       setShipmentState(undefined);
+  161 |     };  react-hooks/set-state-in-effect
+  354:24  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  359:34  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  403:18  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  407:18  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  411:18  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  415:18  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  419:18  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  423:31  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  434:20  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  440:20  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  446:20  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  551:19  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+  563:44  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/components/ShipmentCard.tsx
+  28:22  error  Prefer using the primitive `boolean` as a type name, rather than the upper-cased `Boolean`  @typescript-eslint/no-wrapper-object-types
+  29:22  error  Prefer using the primitive `boolean` as a type name, rather than the upper-cased `Boolean`  @typescript-eslint/no-wrapper-object-types
+  30:21  error  Prefer using the primitive `boolean` as a type name, rather than the upper-cased `Boolean`  @typescript-eslint/no-wrapper-object-types
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/components/ShipmentContent.tsx
+   33:19  error  Prefer using the primitive `boolean` as a type name, rather than the upper-cased `Boolean`                  @typescript-eslint/no-wrapper-object-types
+   98:35  error  Unexpected any. Specify a different type                                                                    @typescript-eslint/no-explicit-any
+  128:73  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/components/ShipmentReceivingTable.tsx
+  26:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/components/ShipmentTable.tsx
+  16:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/components/ShipmentTableCells.tsx
+  6:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentView/components/ShipmentTabs.tsx
+  37:19  error  Prefer using the primitive `boolean` as a type name, rather than the upper-cased `Boolean`  @typescript-eslint/no-wrapper-object-types
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/ShipmentsOverview/components/TableCells.tsx
+   4:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/TransferAgreementOverview/TransferAgreementOverviewView.tsx
+  102:34  error  Unexpected any. Specify a different type                                                                    @typescript-eslint/no-explicit-any
+  184:37  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  185:23  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/TransferAgreementOverview/components/TableCells.tsx
+  17:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  60:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  78:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/front/src/views/Transfers/TransferAgreementOverview/components/TransferAgreementOverlay.tsx
+  10:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 165 problems (157 errors, 8 warnings)
+  9 errors and 0 warnings potentially fixable with the `--fix` option.
+
+ ELIFECYCLE  Command failed with exit code 1.
+ ELIFECYCLE  Command failed with exit code 1.

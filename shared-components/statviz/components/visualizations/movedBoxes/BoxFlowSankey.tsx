@@ -38,7 +38,7 @@ interface IBoxFlowSankeyProps {
 export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
-  outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
+  const outgoingNodeName = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
   const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
   const movedBoxesFacts = data?.facts as MovedBoxesResult[];
 
@@ -127,7 +127,10 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   ];
 
   const nodes = [
-    outgoingNode,
+    {
+      ...outgoingNode,
+      name: outgoingNodeName,
+    },
     ...movedBoxes.map((movedBox) => {
       const getName = () => {
         if (movedBox.organisationName) {

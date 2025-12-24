@@ -1,5 +1,5 @@
 import { Card, CardBody } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { arrange, desc, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
@@ -16,10 +16,9 @@ export default function TopCreatedProducts(props: {
   const onExport = getOnExport(BarChart);
   const { boxesOrItems, data } = { ...props };
 
-  const getChartData = () =>
-    tidy(
+  const getChartData = useCallback(() => {
+    return tidy(
       data?.facts as CreatedBoxesResult[],
-      map((row) => ({ ...row, productId: row.productId })),
       groupBy(
         ["productId", "gender"],
         [
@@ -29,7 +28,8 @@ export default function TopCreatedProducts(props: {
           }),
         ],
       ),
-      innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } as any }),
+      map((row) => ({ ...row, id: row.productId })),
+      innerJoin(data?.dimensions?.product as Product[], { by: "id" }),
       map((row) => ({
         id: `${row.name} (${row.gender})`,
         value: row[boxesOrItems],
@@ -37,8 +37,9 @@ export default function TopCreatedProducts(props: {
       })),
       arrange([desc("value")]),
     ).splice(0, 5);
+  }, [data?.facts, data?.dimensions?.product, boxesOrItems]);
 
-  const chartData = useMemo(getChartData, [data, boxesOrItems]);
+  const chartData = useMemo(() => getChartData(), [getChartData]);
 
   const chartProps = {
     data: chartData,

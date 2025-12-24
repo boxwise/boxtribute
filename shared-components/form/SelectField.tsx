@@ -1,6 +1,6 @@
 import { FormControl, FormErrorMessage, FormLabel, chakra, Flex } from "@chakra-ui/react";
 import { Select, OptionBase } from "chakra-react-select";
-import { Controller } from "react-hook-form";
+import { Controller, Control, FieldValues } from "react-hook-form";
 import { colorIsBright } from "../utils/helpers";
 
 export interface IDropdownOption extends OptionBase {
@@ -16,14 +16,14 @@ export interface ISelectFieldProps {
   fieldLabel: string;
   options: IDropdownOption[] | { label: string; options: IDropdownOption[] }[] | undefined;
   errors: object;
-  control: any;
+  control: Control<FieldValues>;
   placeholder: string;
   isMulti?: boolean;
   isRequired?: boolean;
   showLabel?: boolean;
   showError?: boolean;
   defaultValue?: string;
-  onChangeProp?: (event) => void;
+  onChangeProp?: (event: IDropdownOption | IDropdownOption[] | null) => void;
   inlineLabel?: boolean;
 }
 

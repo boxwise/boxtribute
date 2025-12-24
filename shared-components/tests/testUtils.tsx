@@ -1,4 +1,3 @@
-/* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
 import React from "react";
@@ -66,7 +65,7 @@ function render(
   });
   const link = ApolloLink.from([errorLoggingLink, mockLink]);
 
-  const Wrapper: React.FC = ({ children }: any) => (
+  const Wrapper: React.FC = ({ children }: { children: React.ReactNode }) => (
     <ChakraProvider theme={theme}>
       <MockedProvider
         mocks={mocks}

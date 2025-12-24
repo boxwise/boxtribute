@@ -30,6 +30,8 @@ export const ValueFilterSchema = z.object({
   values: multiSelectOptionSchema.array(),
 });
 
+type MultiSelectFormData = Record<string, IFilterValue[] | undefined>;
+
 export default function MultiSelectFilter({
   values,
   filterId,
@@ -38,14 +40,18 @@ export default function MultiSelectFilter({
   fieldLabel = "display by",
   onFilterChange,
 }: IValueFilterProps) {
+  // Create a dynamic schema that matches the actual form structure
+  const dynamicSchema = z.object({
+    [filterId]: multiSelectOptionSchema.array().optional(),
+  });
+
   const {
     setValue,
     control,
     formState: { errors },
-    // TODO: fix types
-  } = useForm<any>({
-    resolver: zodResolver(ValueFilterSchema),
-    defaultValues: values,
+  } = useForm<MultiSelectFormData>({
+    resolver: zodResolver(dynamicSchema),
+    defaultValues: {},
   });
 
   useEffect(() => {

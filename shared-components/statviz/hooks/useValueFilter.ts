@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IFilterValue } from "../components/filter/ValueFilter";
 import { trackFilter } from "../utils/analytics/heap";
@@ -9,12 +8,10 @@ export default function useValueFilter<T>(
   filterId: string,
 ) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterValue, setFilterValue] = useState<IFilterValue & T>(defaultFilterValue);
 
-  useEffect(() => {
-    const param = searchParams.get(filterId);
-    setFilterValue(values.find((fV) => fV.urlId === param) ?? defaultFilterValue);
-  }, [searchParams, filterId, values, defaultFilterValue]);
+  // Derive the current filter value from URL params instead of using state
+  const param = searchParams.get(filterId);
+  const filterValue = values.find((fV) => fV.urlId === param) ?? defaultFilterValue;
 
   const onFilterChange = (event) => {
     const selected = event as IFilterValue;

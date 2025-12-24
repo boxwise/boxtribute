@@ -26,7 +26,7 @@ export default function Sunburst(props: {
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
         id="id"
         value="value"
-        // @ts-ignore Nivo return type definition incomplete
+        // @ts-expect-error Nivo return type definition incomplete
         tooltip={(e) => {
           if (e.data.value) {
             return `${e.data.name} ${e.data.value}`;

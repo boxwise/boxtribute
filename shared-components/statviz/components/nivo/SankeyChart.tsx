@@ -20,8 +20,8 @@ export interface ISankeyData {
 }
 
 export interface ISankeyChart {
-  width: string;
-  height: string;
+  width: string | number;
+  height: string | number;
   data: ISankeyData;
   heading?: string | false;
   timestamp?: string | false;
@@ -45,8 +45,8 @@ export default function SankeyChart(chart: ISankeyChart) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const width = parseInt(chart.width, 10);
-  const height = parseInt(chart.height, 10);
+  const width = typeof chart.width === "number" ? chart.width : parseInt(chart.width, 10);
+  const height = typeof chart.height === "number" ? chart.height : parseInt(chart.height, 10);
 
   const includeHeading = typeof chart.heading === "string";
   const includeTimerange = typeof chart.timerange === "string";
@@ -72,22 +72,28 @@ export default function SankeyChart(chart: ISankeyChart) {
   const layers: SankeyLayerId[] = ["labels", "legends", "nodes", "links"];
 
   if (includeHeading) {
-    // @ts-ignore incomplete typedef by Nivo
+    // @ts-expect-error incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.heading}>{chart.heading}</text>);
   }
   if (typeof chart.timerange === "string") {
-    // @ts-ignore incomplete typedef by Nivo
+    // @ts-expect-error incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.timerange}>{chart.timerange}</text>);
   }
   if (typeof chart.timestamp === "string") {
-    // @ts-ignore incomplete typedef by Nivo
+    // @ts-expect-error incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
 
   const colors = chart.data.nodes.map((e) => e.nodeColor ?? "green");
 
   return (
-    <div ref={ref} style={{ width: chart.width, height: chart.height }}>
+    <div
+      ref={ref}
+      style={{
+        width: typeof chart.width === "number" ? `${chart.width}px` : chart.width,
+        height: typeof chart.height === "number" ? `${chart.height}px` : chart.height,
+      }}
+    >
       <ResponsiveSankey
         colors={colors}
         layers={layers}

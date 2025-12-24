@@ -27,9 +27,7 @@ const singleSelectOptionSchema = z.object({
   urlId: z.string(),
 });
 
-export const ValueFilterSchema = z.object({
-  values: singleSelectOptionSchema.array(),
-});
+type ValueFilterFormData = Record<string, IFilterValue | undefined>;
 
 export default function ValueFilter({
   values,
@@ -42,14 +40,18 @@ export default function ValueFilter({
 }: IValueFilterProps) {
   const [searchParams] = useSearchParams();
 
+  // Create a dynamic schema that matches the actual form structure
+  const dynamicSchema = z.object({
+    [filterId]: singleSelectOptionSchema.optional(),
+  });
+
   const {
     control,
     setValue,
     formState: { errors },
-    // TODO: fix types
-  } = useForm<any>({
-    resolver: zodResolver(ValueFilterSchema),
-    defaultValues: values,
+  } = useForm<ValueFilterFormData>({
+    resolver: zodResolver(dynamicSchema),
+    defaultValues: {},
   });
 
   useEffect(() => {

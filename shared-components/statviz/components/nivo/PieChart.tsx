@@ -1,4 +1,4 @@
-import { ResponsivePie, PieLayer } from "@nivo/pie";
+import { ResponsivePie, PieLayer, MayHaveLabel } from "@nivo/pie";
 import { useEffect, useRef } from "react";
 import {
   breakText,
@@ -10,9 +10,9 @@ import {
 import { percent } from "../../utils/chart";
 
 export interface IPieChart {
-  width: string;
-  height: string;
-  data: Array<object>;
+  width: string | number;
+  height: string | number;
+  data: Array<MayHaveLabel>;
   heading?: string | false;
   timestamp?: string | false;
   timerange?: string | false;
@@ -35,8 +35,8 @@ export default function PieChart(chart: IPieChart) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const height = parseInt(chart.height, 10);
-  const width = parseInt(chart.width, 10);
+  const height = typeof chart.height === "number" ? chart.height : parseInt(chart.height, 10);
+  const width = typeof chart.width === "number" ? chart.width : parseInt(chart.width, 10);
   const baseFontSize = getBaseFontSize(width, height);
 
   const theme = scaledNivoTheme(width, height, 10);
@@ -95,7 +95,14 @@ export default function PieChart(chart: IPieChart) {
   }
 
   return (
-    <div ref={ref} style={{ width: chart.width, height: chart.height, fontSize: baseFontSize }}>
+    <div
+      ref={ref}
+      style={{
+        width: typeof chart.width === "number" ? `${chart.width}px` : chart.width,
+        height: typeof chart.height === "number" ? `${chart.height}px` : chart.height,
+        fontSize: baseFontSize,
+      }}
+    >
       <ResponsivePie
         data={chart.data}
         margin={margin}

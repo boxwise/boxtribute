@@ -1,15 +1,28 @@
 import { FormControl, FormErrorMessage, FormLabel, Input, Text } from "@chakra-ui/react";
-import { Controller } from "react-hook-form";
+import { Control, Controller, FieldErrors, UseFormRegister } from "react-hook-form";
 
 export interface IDateFieldProps {
   fieldId: string;
   fieldLabel: string;
-  errors: object;
-  control: any;
-  register: any;
+  errors: FieldErrors;
+  control: Control<
+    {
+      from?: Date | undefined;
+      to?: Date | undefined;
+    },
+    unknown,
+    {
+      from?: string | undefined;
+      to?: string | undefined;
+    }
+  >;
+  register: UseFormRegister<{
+    from?: Date | undefined;
+    to?: Date | undefined;
+  }>;
   isRequired?: boolean;
-  minDate?: any;
-  maxDate?: any;
+  minDate?: string | number | undefined;
+  maxDate?: string | number | undefined;
 }
 
 function DateField({
@@ -33,7 +46,7 @@ function DateField({
         )}
       </FormLabel>
       <Controller
-        name={fieldId}
+        name={fieldId as "from" | "to"}
         control={control}
         render={({ field }) => (
           <Input
@@ -46,7 +59,7 @@ function DateField({
             min={minDate}
             max={maxDate}
             aria-invalid={Boolean(errors[fieldId])}
-            {...register(field.name, {
+            {...register(field.name as "from" | "to", {
               setValueAs: (val) => {
                 if (val) {
                   return new Date(val);
@@ -58,7 +71,7 @@ function DateField({
           />
         )}
       />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+      <FormErrorMessage>{errors[fieldId]?.message?.toString() ?? undefined}</FormErrorMessage>
     </FormControl>
   );
 }

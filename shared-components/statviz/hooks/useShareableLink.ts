@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 // TODO: Move common utils to shared-components, use alias for imports.
@@ -48,7 +48,6 @@ export default function useShareableLink({
   const { createToast } = useNotification();
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
-  const [alertType, setAlertType] = useState<"info" | "warning" | undefined>();
   const [submittedGlobalParams, setSubmittedGlobalParams] = useState<string | undefined>();
   const { filterValue: boi } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
@@ -65,17 +64,14 @@ export default function useShareableLink({
   const isLinkSharingEnabled =
     JSON.parse(localStorage.getItem("canShareLink") || "false") && view === "StockOverview";
 
-  const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
+  // Derive alertType from searchParams and submittedGlobalParams
+  const alertType = submittedGlobalParams
+    ? searchParams.toString() !== submittedGlobalParams
+      ? "warning"
+      : "info"
+    : undefined;
 
-  useEffect(() => {
-    if (submittedGlobalParams) {
-      if (searchParams.toString() !== submittedGlobalParams) {
-        setAlertType("warning");
-      } else {
-        setAlertType("info");
-      }
-    }
-  }, [searchParams, submittedGlobalParams]);
+  const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
   const copyLinkToClipboard = useCallback(
     async (code?: string) => {
@@ -87,6 +83,7 @@ export default function useShareableLink({
       try {
         await navigator.clipboard.writeText(linkTobeCopied);
       } catch (error) {
+        console.error(error);
         createToast({
           type: "error",
           message: "Failed to copy to clipboard.",
@@ -111,7 +108,6 @@ export default function useShareableLink({
       }).then(({ data }) => {
         if (data?.createShareableLink?.__typename === "ShareableLink") {
           setShareableLink(data.createShareableLink.code);
-          setAlertType("info");
           setExpirationDate(new Date(data.createShareableLink.validUntil || "").toUTCString());
           setSubmittedGlobalParams(searchParams.toString());
           copyLinkToClipboard(data.createShareableLink.code);

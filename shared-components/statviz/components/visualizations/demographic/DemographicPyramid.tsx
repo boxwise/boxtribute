@@ -1,7 +1,7 @@
 import { Card, CardBody, Text, chakra, Box } from "@chakra-ui/react";
 import { range } from "lodash";
 import { filter, sum, summarize, tidy, groupBy, map } from "@tidyjs/tidy";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import BarChartCenterAxis from "../../custom-graphs/BarChartCenterAxis";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
@@ -45,7 +45,7 @@ export default function DemographicPyramid({
 }: IDemographicChartProps) {
   const onExport = getOnExport(BarChartCenterAxis);
 
-  const prepareFactsForGraph = () => {
+  const prepareFactsForGraph = useCallback(() => {
     const dataXr = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
       filter((value) => value.gender === "Male" && value.age !== null),
@@ -61,9 +61,9 @@ export default function DemographicPyramid({
     );
 
     return [dataXr, dataXl];
-  };
+  }, [demographics?.facts]);
 
-  const prepareFactsForText = () => {
+  const prepareFactsForText = useCallback(() => {
     const totalCount = tidy(
       demographics?.facts as BeneficiaryDemographicsResult[],
       summarize({ total: sum("count") }),
@@ -100,12 +100,12 @@ export default function DemographicPyramid({
     )[0].total;
 
     return [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount];
-  };
+  }, [demographics?.facts]);
 
-  const [dataXr, dataXl] = useMemo(prepareFactsForGraph, [demographics?.facts]);
+  const [dataXr, dataXl] = useMemo(() => prepareFactsForGraph(), [prepareFactsForGraph]);
 
   const [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount] =
-    useMemo(prepareFactsForText, [demographics?.facts]);
+    useMemo(() => prepareFactsForText(), [prepareFactsForText]);
 
   const beneficiariesRegistrationsText = (
     <Text as="div">

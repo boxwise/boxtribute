@@ -96,6 +96,7 @@ export default function CreatedBoxesFilterContainer({
         interval,
       );
     } catch (error) {
+      console.error(error);
       // TODO useError
     }
     return [];
@@ -136,7 +137,7 @@ export default function CreatedBoxesFilterContainer({
     }
 
     if (filters.length > 0) {
-      // @ts-expect-error
+      // @ts-expect-error Filter Type cannot match
       return tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
     return createdBoxesFacts satisfies CreatedBoxesResult[];

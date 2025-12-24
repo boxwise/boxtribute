@@ -9,8 +9,8 @@ import {
 import { percent } from "../../utils/chart";
 
 export interface IBarChart {
-  width: string;
-  height: string;
+  width: string | number;
+  height: string | number;
   data: BarDatum[];
   heading?: string | false;
   timestamp?: string | false;
@@ -36,8 +36,9 @@ export default function BarChart(barChart: IBarChart) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const height = parseInt(barChart.height, 10);
-  const width = parseInt(barChart.width, 10);
+  const height =
+    typeof barChart.height === "number" ? barChart.height : parseInt(barChart.height, 10);
+  const width = typeof barChart.width === "number" ? barChart.width : parseInt(barChart.width, 10);
 
   const theme = scaledNivoTheme(width, height, barChart.data.length);
   const marginBottom = percent(height, 25);
@@ -96,7 +97,13 @@ export default function BarChart(barChart: IBarChart) {
       : [];
 
   return (
-    <div ref={ref} style={{ width: barChart.width, height: barChart.height }}>
+    <div
+      ref={ref}
+      style={{
+        width: typeof barChart.width === "number" ? `${barChart.width}px` : barChart.width,
+        height: typeof barChart.height === "number" ? `${barChart.height}px` : barChart.height,
+      }}
+    >
       <ResponsiveBar
         data={barChart.data}
         keys={barChart.keys}

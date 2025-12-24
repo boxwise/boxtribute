@@ -15,13 +15,18 @@ const createOffScreenContainer = () => {
 export type ImageFormat = "svg" | "png" | "jpg";
 
 export interface IExportableChartProps {
-  width: number;
-  height: number;
+  width: string | number;
+  height: string | number;
+  rendered?: (ref: HTMLDivElement) => void;
+  animate?: boolean;
+  timestamp?: string;
+  timerange?: string;
+  heading?: string;
 }
 
-const exportChartWithSettings = (
-  ChartComponent: (props: any) => JSX.Element,
-  chartProps: IExportableChartProps,
+const exportChartWithSettings = <T,>(
+  ChartComponent: (props: T) => JSX.Element,
+  chartProps: T,
   exportFormat: ImageFormat,
 ) => {
   const exportContainer = createOffScreenContainer();
@@ -46,8 +51,14 @@ const exportChartWithSettings = (
 
     const defaultImageOptions = {
       copyDefaultStyles: false,
-      width: chartProps.width,
-      height: chartProps.height,
+      width:
+        typeof (chartProps as IExportableChartProps).width === "string"
+          ? (chartProps as IExportableChartProps).width
+          : `${(chartProps as IExportableChartProps).width}px`,
+      height:
+        typeof (chartProps as IExportableChartProps).height === "string"
+          ? (chartProps as IExportableChartProps).height
+          : `${(chartProps as IExportableChartProps).height}px`,
       quality: 0.9,
     };
 
@@ -75,25 +86,25 @@ const exportChartWithSettings = (
   document.body.appendChild(link);
 };
 
-export default function getOnExport(ChartComponent: (props: any) => JSX.Element) {
+export default function getOnExport<T>(ChartComponent: (props: T) => JSX.Element) {
   const onExport = (
-    width: number,
-    height: number,
+    width: string | number,
+    height: string | number,
     heading: string | undefined,
     timerange: string | undefined,
     timestamp: string | undefined,
-    chartProps: object,
+    chartProps: Partial<T>,
     imageFormat: ImageFormat,
   ) => {
     const props = {
       ...chartProps,
-      width,
-      height,
+      width: typeof width === "number" ? `${width}px` : width,
+      height: typeof height === "number" ? `${height}px` : height,
       timestamp,
       timerange,
       heading,
       animate: false,
-    };
+    } as T;
 
     exportChartWithSettings(ChartComponent, props, imageFormat);
   };

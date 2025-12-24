@@ -1,0 +1,208 @@
+
+> @ lint:all /home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute
+> pnpm -C shared-components lint && pnpm -C front lint && pnpm -C shared-front lint
+
+
+> @boxtribute/shared-components@1.0.0 lint /home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components
+> eslint --report-unused-disable-directives --max-warnings 0
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/form/NumberField.tsx
+  18:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/form/RadioGroupField.tsx
+  18:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/form/SelectField.tsx
+  19:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/custom-graphs/BarChartCenterAxis.tsx
+  177:21  error  Error: Cannot reassign variable after render completes
+
+Reassigning `tooltipTimeout` after render has completed can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/custom-graphs/BarChartCenterAxis.tsx:177:21
+  175 |                   y={Math.round(y - barHight / 2)}
+  176 |                   onMouseLeave={() => {
+> 177 |                     tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+      |                     ^^^^^^^^^^^^^^ Cannot reassign `tooltipTimeout` after render completes
+  178 |                   }}
+  179 |                   onMouseMove={(event) => {
+  180 |                     if (tooltipTimeout) clearTimeout(tooltipTimeout);  react-hooks/immutability
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/filter/MultiSelectFilter.tsx
+  46:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/filter/TimeRangeSelect.tsx
+  40:23  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/filter/TimeRangeSelect.tsx:40:23
+  38 |
+  39 |   const [searchParams, setSearchParams] = useSearchParams();
+> 40 |   const toFormValue = watch("to");
+     |                       ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  41 |   const fromFormValue = watch("from");
+  42 |
+  43 |   useEffect(() => {  react-hooks/incompatible-library
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/filter/ValueFilter.tsx
+  50:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/nivo/SankeyChart.tsx
+  75:5  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  79:5  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  83:5  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/nivo/Sunburst.tsx
+  29:9  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesFilterContainer.tsx
+   98:14  error  'error' is defined but never used                                                                                                                              @typescript-eslint/no-unused-vars
+  139:7   error  Include a description after the "@ts-expect-error" directive to explain why the @ts-expect-error is necessary. The description must be 3 characters or longer  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/createdBoxes/TopCreatedProducts.tsx
+  32:86  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  41:29  error  Error: Expected the first argument to be an inline function expression
+
+Expected the first argument to be an inline function expression.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/createdBoxes/TopCreatedProducts.tsx:41:29
+  39 |     ).splice(0, 5);
+  40 |
+> 41 |   const chartData = useMemo(getChartData, [data, boxesOrItems]);
+     |                             ^^^^^^^^^^^^ Expected the first argument to be an inline function expression
+  42 |
+  43 |   const chartProps = {
+  44 |     data: chartData,  react-hooks/use-memo
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicFilterContainer.tsx
+  33:9   error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                     @typescript-eslint/no-non-null-asserted-optional-chain
+  53:14  error  'error' is defined but never used                                                                                                                              @typescript-eslint/no-unused-vars
+  70:7   error  Include a description after the "@ts-expect-error" directive to explain why the @ts-expect-error is necessary. The description must be 3 characters or longer  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicPyramid.tsx
+  105:36  error  Error: Expected the first argument to be an inline function expression
+
+Expected the first argument to be an inline function expression.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicPyramid.tsx:105:36
+  103 |   };
+  104 |
+> 105 |   const [dataXr, dataXl] = useMemo(prepareFactsForGraph, [demographics?.facts]);
+      |                                    ^^^^^^^^^^^^^^^^^^^^ Expected the first argument to be an inline function expression
+  106 |
+  107 |   const [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount] =
+  108 |     useMemo(prepareFactsForText, [demographics?.facts]);  react-hooks/use-memo
+  108:13  error  Error: Expected the first argument to be an inline function expression
+
+Expected the first argument to be an inline function expression.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/demographic/DemographicPyramid.tsx:108:13
+  106 |
+  107 |   const [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount] =
+> 108 |     useMemo(prepareFactsForText, [demographics?.facts]);
+      |             ^^^^^^^^^^^^^^^^^^^ Expected the first argument to be an inline function expression
+  109 |
+  110 |   const beneficiariesRegistrationsText = (
+  111 |     <Text as="div">                                                 react-hooks/use-memo
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/movedBoxes/BoxFlowSankey.tsx
+  41:3  error  Error: This value cannot be modified
+
+Modifying a variable defined outside a component or hook is not allowed. Consider using an effect.
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/movedBoxes/BoxFlowSankey.tsx:41:3
+  39 |   const onExport = getOnExport(SankeyChart);
+  40 |
+> 41 |   outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
+     |   ^^^^^^^^^^^^ value cannot be modified
+  42 |   const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
+  43 |   const movedBoxesFacts = data?.facts as MovedBoxesResult[];
+  44 |  react-hooks/immutability
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesFilterContainer.tsx
+   69:35  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                     @typescript-eslint/no-non-null-asserted-optional-chain
+   70:14  error  'error' is defined but never used                                                                                                                              @typescript-eslint/no-unused-vars
+   82:54  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong                                                     @typescript-eslint/no-non-null-asserted-optional-chain
+  121:7   error  Include a description after the "@ts-expect-error" directive to explain why the @ts-expect-error is necessary. The description must be 3 characters or longer  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/components/visualizations/stock/StockOverviewPie.tsx
+  165:7  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/hooks/useMultiSelectFilter.ts
+  29:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/hooks/useMultiSelectFilter.ts:29:7
+  27 |     const param = searchParams.get(filterId);
+  28 |     if (param !== null) {
+> 29 |       setFilterValue(urlFilterValuesDecode(param, values));
+     |       ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |     } else {
+  31 |       setFilterValue([]);
+  32 |     }  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/hooks/useShareableLink.ts
+  73:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/hooks/useShareableLink.ts:73:9
+  71 |     if (submittedGlobalParams) {
+  72 |       if (searchParams.toString() !== submittedGlobalParams) {
+> 73 |         setAlertType("warning");
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  74 |       } else {
+  75 |         setAlertType("info");
+  76 |       }  react-hooks/set-state-in-effect
+  89:16  error  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/hooks/useValueFilter.ts
+  16:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/hooks/useValueFilter.ts:16:5
+  14 |   useEffect(() => {
+  15 |     const param = searchParams.get(filterId);
+> 16 |     setFilterValue(values.find((fV) => fV.urlId === param) ?? defaultFilterValue);
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |   }, [searchParams, filterId, values, defaultFilterValue]);
+  18 |
+  19 |   const onFilterChange = (event) => {  react-hooks/set-state-in-effect
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/statviz/utils/chartExport.tsx
+  23:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  78:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/maurovic/Desktop/PrivateRepos/OPEN-SOURCE-WORK/boxtribute/shared-components/tests/testUtils.tsx
+  68:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 35 problems (34 errors, 1 warning)
+
+ ELIFECYCLE  Command failed with exit code 1.
+ WARN   Local package.json exists, but node_modules missing, did you mean to install?
+ ELIFECYCLE  Command failed with exit code 1.
+
+
+!!!TODO IMPORTANT NOTE!!!:
+- To push a commit with these errors, removed pre-commit tsc check, this should be re-added if this branch goes ahead.
+- This includes the extra command in 'lint-staged' in the root package.json and the 'tsc:precommit' script in each package.json

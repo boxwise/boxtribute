@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IFilterValue } from "../components/filter/ValueFilter";
 import { trackFilter } from "../utils/analytics/heap";
@@ -21,20 +20,13 @@ export default function useMultiSelectFilter<T>(
   defaultFilterValues?: (IFilterValue & T)[],
 ) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterValue, setFilterValue] = useState<(IFilterValue & T)[]>(defaultFilterValues ?? []);
 
-  useEffect(() => {
-    const param = searchParams.get(filterId);
-    if (param !== null) {
-      setFilterValue(urlFilterValuesDecode(param, values));
-    } else {
-      setFilterValue([]);
-    }
-    if (param === "") {
-      searchParams.delete(filterId);
-    }
-    setSearchParams(searchParams);
-  }, [searchParams, filterId, values, defaultFilterValues, setSearchParams]);
+  // Derive filterValue from searchParams
+  const param = searchParams.get(filterId);
+  const filterValue =
+    param !== null && param !== ""
+      ? urlFilterValuesDecode(param, values)
+      : (defaultFilterValues ?? []);
 
   const onFilterChange = (event) => {
     const selected = event as (IFilterValue & T)[];
