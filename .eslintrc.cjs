@@ -12,7 +12,6 @@ module.exports = {
     // TODO: try out plugin:@typescript-eslint/recommended-type-checked
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended-legacy",
     "plugin:jsx-a11y/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
@@ -25,7 +24,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ["./*/tsconfig.json", "./tsconfig.json"],
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ["@typescript-eslint", "react-hooks"],
   settings: {
     react: { version: "detect" },
     // --------- Import Plugin Settings ---------
@@ -50,6 +49,10 @@ module.exports = {
     },
   },
   rules: {
+    // --------- React Hooks Plugin Rules ---------
+    // Only enable core hooks rules for backward compatibility with v6
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
     // --------- typescipt-eslint Plugin Rules ---------
     // enforce to have interfaces/type should start with "I".
     "@typescript-eslint/naming-convention": [
