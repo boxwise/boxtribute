@@ -1,7 +1,7 @@
 export const styles: any = {
   container: {
     width: "100%",
-    paddingTop: "100%",
+    // paddingTop: "100%",
     overflow: "hidden",
     position: "relative",
   },
