@@ -7,7 +7,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.10.0",
     "@boxtribute/shared-components": "workspace:*",
-    "@yudiel/react-qr-scanner": "2.5.0",
+    "@yudiel/react-qr-scanner": "git+https://github.com/MomoRazor/react-qr-scanner.git",
     "jotai": "^2.15.2",
     "react-big-calendar": "^1.19.4",
     "react-csv": "^2.2.2",

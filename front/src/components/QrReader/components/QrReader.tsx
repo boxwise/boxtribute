@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import {
   FormControl,
@@ -24,8 +24,8 @@ export interface IQrReaderProps {
   isMultiBox: boolean;
   findBoxByLabelIsLoading: boolean;
   onTabSwitch: (index: number) => void;
-  onScan: (result: string, multiScan: boolean) => void;
-  onFindBoxByLabel: (label: string) => void;
+  onScan: (result: string, multiScan: boolean) => Promise<void>;
+  onFindBoxByLabel: (label: string) => Promise<void>;
 }
 
 export function QrReader({
@@ -39,7 +39,7 @@ export function QrReader({
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
-    (
+    async (
       multiScan: boolean,
       qrReaderResult: IDetectedBarcode[] | undefined | null,
       error?: Error | undefined | null,
@@ -52,7 +52,7 @@ export function QrReader({
         return;
       }
       if (qrReaderResult && qrReaderResult.length > 0) {
-        onScan(qrReaderResult[0].rawValue, multiScan);
+        await onScan(qrReaderResult[0].rawValue, multiScan);
       }
     },
     [onScan],
@@ -79,7 +79,10 @@ export function QrReader({
     [setBoxLabelInputValue, setBoxLabelInputError],
   );
 
-  const multiScan = isMultiBox && hasManageInventoryPermission;
+  const multiScan = useMemo(
+    () => isMultiBox && hasManageInventoryPermission,
+    [isMultiBox, hasManageInventoryPermission],
+  );
 
   return (
     <>
@@ -90,7 +93,7 @@ export function QrReader({
         scanPeriod={1000}
         onResult={onResult}
       />
-      <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
+      <Tabs index={multiScan ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
           <Tab isDisabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
@@ -114,9 +117,9 @@ export function QrReader({
                     icon={<SearchIcon />}
                     isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
                     isLoading={findBoxByLabelIsLoading}
-                    onClick={() => {
+                    onClick={async () => {
                       if (boxLabelInputValue) {
-                        onFindBoxByLabel(boxLabelInputValue);
+                        await onFindBoxByLabel(boxLabelInputValue);
                         setBoxLabelInputValue("");
                       } else {
                         setBoxLabelInputError("Please enter a label id.");

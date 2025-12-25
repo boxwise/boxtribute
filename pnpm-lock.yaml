@@ -208,8 +208,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-components
       '@yudiel/react-qr-scanner':
-        specifier: 2.5.0
-        version: 2.5.0(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: git+https://github.com/MomoRazor/react-qr-scanner.git
+        version: https://codeload.github.com/MomoRazor/react-qr-scanner/tar.gz/06ea53ed095a131c18f0b627f271b40d2e7bffae(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       jotai:
         specifier: ^2.15.2
         version: 2.16.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1)
@@ -2143,8 +2143,9 @@ packages:
     resolution: {integrity: sha512-FNoYzHawTMk/6KMQoEG5O4PuioX19UbwdQKF44yw0nLfOypfQdjtfZzo/UIJWAJ23sNIFbD1Ug9lbaDGMwbqQA==}
     engines: {node: '>=8'}
 
-  '@yudiel/react-qr-scanner@2.5.0':
-    resolution: {integrity: sha512-wVWvm0z5kGGc3tiMcxyr2aji3C6aU5K3Q7R08MOdyFDFkvMbFMF1Hz5P5WFYW+zuuqxDPBcRZPCvmVs6jBheTQ==}
+  '@yudiel/react-qr-scanner@https://codeload.github.com/MomoRazor/react-qr-scanner/tar.gz/06ea53ed095a131c18f0b627f271b40d2e7bffae':
+    resolution: {tarball: https://codeload.github.com/MomoRazor/react-qr-scanner/tar.gz/06ea53ed095a131c18f0b627f271b40d2e7bffae}
+    version: 2.5.0
     peerDependencies:
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
@@ -7165,7 +7166,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@yudiel/react-qr-scanner@2.5.0(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@yudiel/react-qr-scanner@https://codeload.github.com/MomoRazor/react-qr-scanner/tar.gz/06ea53ed095a131c18f0b627f271b40d2e7bffae(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       barcode-detector: 3.0.8(@types/emscripten@1.41.5)
       react: 18.3.1

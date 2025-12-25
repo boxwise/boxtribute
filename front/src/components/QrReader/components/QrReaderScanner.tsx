@@ -1,6 +1,5 @@
 import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { styles } from "./QrReaderScannerStyles";
-import { useState } from "react";
 import { ViewFinder } from "./ViewFinder";
 
 export type OnResultFunction = (
@@ -16,7 +15,7 @@ export type OnResultFunction = (
    * The name of the exceptions thrown while reading the QR
    */
   error?: Error | undefined | null,
-) => void;
+) => Promise<void>;
 
 export type QrReaderScannerProps = {
   multiScan: boolean;
@@ -31,35 +30,34 @@ export function QrReaderScanner({
   onResult,
   scanPeriod = 500,
 }: QrReaderScannerProps) {
-  let timeoutId: NodeJS.Timeout;
+  // let timeoutId: NodeJS.Timeout;
 
-  const unpauseAfterDelay = () => {
-    setPaused(true);
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      setPaused(false);
-    }, scanPeriod);
-  };
+  // const unpauseAfterDelay = () => {
+  //   setPaused(true);
+  //   clearTimeout(timeoutId);
+  //   timeoutId = setTimeout(() => {
+  //     setPaused(false);
+  //   }, scanPeriod);
+  // };
 
-  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+  const handleScan = async (detectedCodes: IDetectedBarcode[]) => {
     // Only call onResult when QR codes are detected
     if (detectedCodes && detectedCodes.length > 0) {
-      onResult(multiScan, detectedCodes, null);
-      unpauseAfterDelay();
+      await onResult(multiScan, detectedCodes, null);
+      // unpauseAfterDelay();
     }
   };
 
-  const handleError = (error: Error) => {
-    onResult(multiScan, null, error);
-    unpauseAfterDelay();
+  const handleError = async (error: Error) => {
+    await onResult(multiScan, null, error);
+    // unpauseAfterDelay();
   };
 
-  const [paused, setPaused] = useState(false);
+  // const [paused, setPaused] = useState(false);
 
   return (
     <section>
       <div style={styles.container}>
-        <ViewFinder />
         <Scanner
           onScan={handleScan}
           onError={handleError}
@@ -67,13 +65,10 @@ export function QrReaderScanner({
             facingMode,
             height: { ideal: 720 },
           }}
-          paused={paused}
+          scanDelay={scanPeriod}
+          // paused={paused}
           styles={{
-            container: styles.container,
-            video: {
-              ...styles.video,
-              transform: facingMode === "user" ? "scaleX(-1)" : undefined,
-            },
+            video: styles.video,
           }}
           components={{
             // Disable the default viewfinder since we're using our custom ViewFinder
@@ -83,7 +78,9 @@ export function QrReaderScanner({
           formats={["qr_code"]}
           // Allow continuous scanning based on multiScan prop
           allowMultiple={multiScan}
-        />
+        >
+          <ViewFinder />
+        </Scanner>
       </div>
     </section>
   );

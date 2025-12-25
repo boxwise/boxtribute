@@ -38,14 +38,15 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
   const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
   const [boxNotOwned, setBoxNotOwned] = useState("");
-  const setIsProcessingQrCodeDelayed = useCallback(
-    (state: boolean) => {
-      setTimeout(() => {
-        setIsProcessingQrCode(state);
-      }, 1000);
-    },
-    [setIsProcessingQrCode],
-  );
+
+  // const setIsProcessingQrCodeDelayed = useCallback(
+  //   (state: boolean) => {
+  //     setTimeout(() => {
+  //       setIsProcessingQrCode(state);
+  //     }, 1000);
+  //   },
+  //   [setIsProcessingQrCode],
+  // );
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
@@ -99,8 +100,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             // add box reference to query for list of all scanned boxes
 
             if (qrResolvedValue?.box!) addBoxToScannedBoxes(qrResolvedValue?.box!);
-            setIsProcessingQrCode(false);
           }
+          setIsProcessingQrCode(false);
           break;
         }
         case IQrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
@@ -111,14 +112,15 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             triggerError({
               message: "No box associated to this QR code!",
             });
-            setIsProcessingQrCodeDelayed(false);
           }
+          setIsProcessingQrCode(false);
           break;
         }
         default: {
-          // the following cases should arrive here:
+          // the following cases should *still* arrive here:
           // FAIL,NOT_AUTHORIZED_FOR_BOX, NOT_AUTHORIZED_FOR_QR,NO_BOXTRIBUTE_QR
-          setIsProcessingQrCodeDelayed(false);
+
+          setIsProcessingQrCode(false);
         }
       }
     }
