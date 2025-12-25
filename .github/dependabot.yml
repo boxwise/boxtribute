@@ -43,6 +43,10 @@ updates:
       # v4 requires Node 20.19+ or 22+
       - dependency-name: "@vitejs/plugin-react-swc"
         versions: ["4.x"]
+      # v27 requires Node 20.19+ or 22+
+      - dependency-name: "jsdom"
+        update-types:
+          - "version-update:semver-major"
     groups:
       front-dev-minor-update:
         dependency-type: development
