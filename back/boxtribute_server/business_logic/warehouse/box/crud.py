@@ -605,7 +605,7 @@ def create_boxes(*, user_id, data):
     # Data preparation
     sanitized_data, all_tag_ids = sanitize_input(data, new_tag_ids)
 
-    # Build look-ups for products with discrete size
+    # Build look-ups for products and their sizes
     product_ids = {row["product_id"] for row in data}
     all_sizes = (
         Product.select(Product.id, Product.size_range, Size.id, Size.label)
@@ -616,8 +616,9 @@ def create_boxes(*, user_id, data):
     products = {}
     for row in all_sizes:
         products[row.id] = row
-        if hasattr(row, "size"):
-            sizes_for_product[row.id][row.size.label.lower()] = row.size.id
+        size = getattr(row, "size", None)
+        if size is not None:
+            sizes_for_product[row.id][size.label.lower()] = size.id
 
     # Prepare units look-up
     units = {u.symbol: u for u in Unit.select()}
