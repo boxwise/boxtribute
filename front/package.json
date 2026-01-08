@@ -8,7 +8,7 @@
     "@auth0/auth0-react": "^2.10.0",
     "@boxtribute/shared-components": "workspace:*",
     "@yudiel/react-qr-scanner": "git+https://github.com/MomoRazor/react-qr-scanner.git",
-    "jotai": "^2.15.2",
+    "jotai": "^2.16.1",
     "react-big-calendar": "^1.19.4",
     "react-csv": "^2.2.2",
     "react-icons": "^5.5.0",
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@types/react-big-calendar": "^1.16.3",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.12.4",
+    "msw": "^2.12.7",
     "mutationobserver-shim": "^0.3.7",
     "vite-plugin-static-copy": "^3.1.4"
   },
