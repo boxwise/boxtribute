@@ -2079,6 +2079,7 @@ def test_create_boxes(
     comment = "3 packages, 12 piece each"
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
+            # Product with discrete size range and valid size
             productId: {product_id}
             sizeName: "Small"
             numberOfItems: 1
@@ -2088,6 +2089,7 @@ def test_create_boxes(
             newTagNames: []
         }},
         {{
+            # Product with discrete size range and invalid size
             productId: {product_id}
             sizeName: "unknown"
             numberOfItems: 5
@@ -2097,6 +2099,17 @@ def test_create_boxes(
             newTagNames: ["new"]
         }},
         {{
+            # Product with discrete size range and invalid size (that could be measure)
+            productId: {product_id}
+            sizeName: "10 ml"
+            numberOfItems: 5
+            locationId: {location_id}
+            comment: ""
+            tagIds: []
+            newTagNames: []
+        }},
+        {{
+            # Product with continuous size range and valid measure
             productId: {mass_product_id}
             sizeName: "500 G "
             numberOfItems: 2
@@ -2106,8 +2119,9 @@ def test_create_boxes(
             newTagNames: []
         }},
         {{
+            # Product with continuous size range and invalid measure
             productId: {mass_product_id}
-            sizeName: "50"  # invalid value for mass product
+            sizeName: "50"
             numberOfItems: 3
             locationId: {location_id}
             comment: "this is cool"
@@ -2132,6 +2146,7 @@ def test_create_boxes(
     assert len(boxes[1].pop("labelIdentifier")) == 8
     assert len(boxes[2].pop("labelIdentifier")) == 8
     assert len(boxes[3].pop("labelIdentifier")) == 8
+    assert len(boxes[4].pop("labelIdentifier")) == 8
     assert boxes == [
         {
             "product": {"id": product_id},
@@ -2153,6 +2168,17 @@ def test_create_boxes(
             "state": BoxState.InStock.name,
             "comment": "original size: 'unknown'",
             "tags": [{"id": tag_id}, {"id": "8"}],
+            "history": [{"changes": "created box"}],
+        },
+        {
+            "product": {"id": product_id},
+            "size": {"id": str(mixed_size["id"])},
+            "measureValue": None,
+            "displayUnit": None,
+            "numberOfItems": 5,
+            "state": BoxState.InStock.name,
+            "comment": "original size: '10 ml'",
+            "tags": [],
             "history": [{"changes": "created box"}],
         },
         {

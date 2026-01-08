@@ -608,13 +608,16 @@ def create_boxes(*, user_id, data):
     # Build look-ups for products with discrete size
     product_ids = {row["product_id"] for row in data}
     all_sizes = (
-        Product.select(Product.id, Size.id, Size.label)
-        .join(Size, on=(Product.size_range == Size.size_range))
+        Product.select(Product.id, Product.size_range, Size.id, Size.label)
+        .left_outer_join(Size, on=(Product.size_range == Size.size_range))
         .where(Product.id << product_ids)
     )
     sizes_for_product = defaultdict(dict)
+    products = {}
     for row in all_sizes:
-        sizes_for_product[row.id][row.size.label.lower()] = row.size.id
+        products[row.id] = row
+        if hasattr(row, "size"):
+            sizes_for_product[row.id][row.size.label.lower()] = row.size.id
 
     # Prepare units look-up
     units = {u.symbol: u for u in Unit.select()}
@@ -628,17 +631,23 @@ def create_boxes(*, user_id, data):
         display_unit_id = None
         measure_value = None
         quantity = QUANTITY_REGEX.match(row["size_name"].strip())
-        if quantity:
-            display_unit = units[quantity.group(2)]
-            measure_value = Decimal(quantity.group(1)) / display_unit.conversion_factor
-            display_unit_id = display_unit.id
+        if is_measure_product(products[row["product_id"]]):
+            if quantity:
+                display_unit = units[quantity.group(2)]
+                measure_value = (
+                    Decimal(quantity.group(1)) / display_unit.conversion_factor
+                )
+                display_unit_id = display_unit.id
+            else:
+                # If it's a measure product but the specified size does not match the
+                # value-unit regex, then keep size/display_unit/measure_value as None
+                size_comment = f"""original size: '{row["size_name"]}'"""
+                comment = f"{comment}; {size_comment}" if comment else size_comment
         else:
             size_id = sizes.get(row["size_name"])
             if size_id is None:
-                # Either it's a product with discrete size, and the specified size is
+                # If it's a product with discrete size, and the specified size is
                 # not available in the product's sizerange, then fallback to "Mixed".
-                # Or it's a measure product, and the specified size does not match the
-                # value-unit regex, then set size to None
                 size_id = sizes.get("mixed")
                 size_comment = f"""original size: '{row["size_name"]}'"""
                 comment = f"{comment}; {size_comment}" if comment else size_comment
