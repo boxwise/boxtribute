@@ -173,12 +173,15 @@ const PackingScanBoxOrFindByLabelOverlay = ({
       <ModalHeader pb={0}>Scan the box</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
-        {/* Note: This QrReaderScanner might not be in use, and so was not updated in any way, other than the import fix. */}
+        {/* Note: This QrReaderScanner might not be in use. Updated only to remove type error */}
         <QrReaderScanner
           multiScan={false}
           facingMode={"environment"}
           scanPeriod={1000}
-          onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
+          onResult={async (result) =>
+            result?.["text"] != null ? onQrResult(result["text"]) : undefined
+          }
+          // onResult={(result) => result?.["text"] != null && onQrResult(result["text"])}
         />
       </ModalBody>
       <Button
