@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "weekly"
       day: monday
-      time: 06:00
+      time: "06:00"
     groups:
       back-dev:
         dependency-type: development
@@ -26,7 +26,7 @@ updates:
     schedule:
       interval: "weekly"
       day: monday
-      time: 07:00
+      time: "07:00"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
@@ -39,7 +39,7 @@ updates:
     schedule:
       interval: "weekly"
       day: monday
-      time: 07:00
+      time: "07:00"
     # Always increase the minimum version requirement to match the new version.
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
