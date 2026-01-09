@@ -93,7 +93,7 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
     (updateTagOutput: ICreateTagFormOutput) => {
       updateTag({
         variables: {
-          id: parseInt(props.tagId),
+          id: props.tagId,
           name: updateTagOutput.name,
           type: updateTagOutput.application,
           color: updateTagOutput.color,
