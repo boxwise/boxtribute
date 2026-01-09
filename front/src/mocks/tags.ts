@@ -6,6 +6,7 @@ export const tag1 = {
   name: "tag1",
   type: "All",
   description: "tag1",
+  deletedOn: null,
   __typename: "Tag",
 };
 
@@ -17,6 +18,7 @@ export const tag2 = {
   value: "1",
   type: "All",
   description: "tag17",
+  deletedOn: null,
   __typename: "Tag",
 };
 
@@ -30,6 +32,7 @@ export const tags = [
     color: "#20969f",
     label: "tag2",
     value: "2",
+    deletedOn: null,
     __typename: "Tag",
   },
 ];
@@ -41,6 +44,7 @@ export const tagsArray = [
     id: "1",
     type: "All",
     description: "tag1",
+    deletedOn: null,
     __typename: "Tag",
   },
   {
@@ -49,6 +53,7 @@ export const tagsArray = [
     id: "2",
     type: "Box",
     description: "tag2",
+    deletedOn: null,
     __typename: "Tag",
   },
 ];

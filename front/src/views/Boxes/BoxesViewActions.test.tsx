@@ -124,7 +124,11 @@ const assignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
-                  tags: tagIds.map((id) => ({ id: id.toString(), __typename: "Tag" })),
+                  tags: tagIds.map((id) => ({
+                    id: id.toString(),
+                    __typename: "Tag",
+                    deletedOn: null,
+                  })),
                 })),
                 invalidBoxLabelIdentifiers: [],
               },
