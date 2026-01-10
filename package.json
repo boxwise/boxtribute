@@ -51,7 +51,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.62.0",
     "react-router-dom": "^6.30.3",
-    "zod": "^4.3.5"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@sentry/types": "^10.32.1",
