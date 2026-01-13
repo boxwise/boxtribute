@@ -69,6 +69,7 @@ def resolve_create_box(*_, creation_input):
 
 
 @mutation.field("createBoxFromBox")
+@handle_unauthorized
 def resolve_create_box_from_box(*_, creation_input):
     requested_location = Location.get_by_id(creation_input["location_id"])
     authorize(permission="stock:write", base_id=requested_location.base_id)

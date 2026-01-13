@@ -634,6 +634,16 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "tag:write"},
         ],
+        [
+            "createBoxFromBox",
+            """creationInput: {
+                sourceBoxLabelIdentifier: "24682468",
+                locationId: 1,
+                numberOfItems: 1
+            }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "stock:write"},
+        ],
     ],
 )
 def test_mutate_insufficient_permission(
@@ -752,6 +762,16 @@ def test_mutate_insufficient_permission(
             "id: 4",
             "...on UnauthorizedForBaseError { id }",
             {"id": "2"},
+        ],
+        [
+            "createBoxFromBox",
+            """creationInput: {
+                sourceBoxLabelIdentifier: "24682468",
+                locationId: 2,
+                numberOfItems: 1
+            }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
         ],
     ],
 )
