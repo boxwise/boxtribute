@@ -383,6 +383,7 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createBeneficiaries",
     "createBoxes",
+    "createBoxFromBox",
 )
 
 # ### BETA-LEVEL 98 ###
@@ -399,6 +400,7 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "assignTag",
     "unassignTag",
     "createBoxes",
+    "createBoxFromBox",
 )
 
 # ### BETA-LEVEL 99 ###

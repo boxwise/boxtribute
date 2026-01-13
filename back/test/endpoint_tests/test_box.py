@@ -966,6 +966,26 @@ def test_box_mutations(
         "tagErrorInfo": [],
     }
 
+    label_identifier = default_box["label_identifier"]
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{label_identifier}"
+            locationId: {location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on Box {{
+                    numberOfItems
+                    location {{ id }}
+                    product {{ id }}
+                    size {{ id }}
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "numberOfItems": 1,
+        "location": {"id": location_id},
+        "product": {"id": str(default_box["product"])},
+        "size": {"id": str(default_box["size"])},
+    }
+
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(
@@ -1313,6 +1333,17 @@ def test_box_mutations(
             "from_int": 2,
             "to_int": int(another_location_id),
             "record_id": another_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 3,
             "table_name": "stock",
             "user": 8,
             "ip": None,

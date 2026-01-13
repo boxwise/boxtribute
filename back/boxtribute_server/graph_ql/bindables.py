@@ -194,6 +194,7 @@ union_types = (
     UnionType("StandardProductsResult", resolve_type_by_class_name),
     UnionType("DeleteBoxesResult", resolve_type_by_class_name),
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
+    UnionType("CreateBoxFromBoxResult", resolve_type_by_class_name),
     UnionType("QrCodeResult", resolve_type_by_class_name),
     UnionType("BoxResult", resolve_type_by_class_name),
     UnionType("ShareableLinkCreationResult", resolve_type_by_class_name),

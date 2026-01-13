@@ -204,6 +204,21 @@ def create_box(
     raise BoxCreationFailed()
 
 
+def create_box_from_box(*, user_id, source_box, location, number_of_items):
+    now = utcnow()
+    box = create_box(
+        number_of_items=number_of_items,
+        product_id=source_box.product_id,
+        location_id=location.id,
+        size_id=source_box.size_id,
+        measure_value=source_box.measure_value,
+        display_unit_id=source_box.display_unit_id,
+        user_id=user_id,
+        now=now,
+    )
+    return box
+
+
 @save_update_to_history(
     id_field_name="label_identifier",
     fields=[
