@@ -79,6 +79,11 @@ class TagBaseMismatch(UserError):
     _ = None
 
 
+class DeletedBox(UserError):
+    def __init__(self, *, label_identifier):
+        self.label_identifier = label_identifier
+
+
 class DeletedTag(UserError):
     def __init__(self, *, name):
         self.name = name

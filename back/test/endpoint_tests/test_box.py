@@ -1006,6 +1006,16 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"name": deleted_location["name"]}
 
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{created_box['label_identifier']}"
+            locationId: {location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on DeletedBoxError {{ labelIdentifier }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"labelIdentifier": created_box["label_identifier"]}
+
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(
