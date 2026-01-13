@@ -78,7 +78,12 @@ def resolve_create_box_from_box(*_, creation_input):
     authorize(permission="stock:write", base_id=requested_location.base_id)
 
     source_box_label_identifier = creation_input["source_box_label_identifier"]
-    source_box = Box.get_or_none(Box.label_identifier == source_box_label_identifier)
+    source_box = (
+        Box.select(Box, Location)
+        .join(Location)  # for box.location attribute in authorize_for_accessing_box()
+        .where(Box.label_identifier == source_box_label_identifier)
+        .get_or_none()
+    )
     if source_box is None:
         return ResourceDoesNotExist(name="Box", id=source_box_label_identifier)
     authorize_for_accessing_box(source_box, action="write")
