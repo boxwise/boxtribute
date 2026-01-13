@@ -87,7 +87,7 @@ def test_query_created_boxes(
         "facts": [
             {
                 "boxesCount": 1,
-                "itemsCount": 0,
+                "itemsCount": 5,
                 "createdOn": "2020-11-27T00:00:00",
                 "categoryId": 1,
                 "gender": "Women",
@@ -411,7 +411,7 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
             "boxesCount": 1,
             "categoryId": 1,
             "gender": "Women",
-            "itemsCount": 0,
+            "itemsCount": 5,
             "locationId": 1,
             "productName": product_name,
             "sizeId": 1,
