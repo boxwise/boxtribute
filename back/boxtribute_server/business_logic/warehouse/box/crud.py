@@ -96,6 +96,7 @@ def create_box(
     qr_code=None,
     tag_ids=None,
     new_tag_names=None,
+    source_box_id=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
@@ -171,6 +172,7 @@ def create_box(
             new_box.state = box_state
             new_box.qr_code = qr_id
             new_box.display_unit = display_unit_id
+            new_box.source_box = source_box_id
 
             if measure_value is not None:
                 # Convert from display unit to dimensional base unit
@@ -239,6 +241,7 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         size_id=source_box.size_id,
         measure_value=source_box.measure_value,
         display_unit_id=source_box.display_unit_id,
+        source_box_id=source_box.id,
         user_id=user_id,
         now=now,
     )
