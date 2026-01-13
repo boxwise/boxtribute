@@ -16,6 +16,11 @@ class InvalidPrice(UserError):
         self.value = value
 
 
+class InvalidBoxState(UserError):
+    def __init__(self, *, state):
+        self.state = state
+
+
 class InvalidNumberOfItems(UserError):
     def __init__(self, *, number_of_items):
         self.number_of_items = number_of_items

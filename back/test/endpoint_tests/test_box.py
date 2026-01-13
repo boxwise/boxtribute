@@ -1016,6 +1016,16 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"labelIdentifier": created_box["label_identifier"]}
 
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{in_transit_box['label_identifier']}"
+            locationId: {location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on InvalidBoxStateError {{ state }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"state": BoxState.InTransit.name}
+
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(

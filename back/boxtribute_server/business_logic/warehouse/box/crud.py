@@ -7,14 +7,21 @@ import peewee
 
 from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
-from ....errors import DeletedBox, DeletedLocation, InvalidNumberOfItems
+from ....errors import (
+    DeletedBox,
+    DeletedLocation,
+    InvalidBoxState,
+    InvalidNumberOfItems,
+)
 from ....exceptions import (
     BoxCreationFailed,
     BoxDeleted,
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
-    InvalidBoxState,
+)
+from ....exceptions import InvalidBoxState as InvalidBoxStateExc
+from ....exceptions import (
     LocationBaseMismatch,
     LocationTagBaseMismatch,
     MissingInputField,
@@ -215,6 +222,9 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
     if location.deleted_on is not None:
         return DeletedLocation(name=location.name)
 
+    if source_box.state_id not in WAREHOUSE_BOX_STATES:
+        return InvalidBoxState(state=source_box.state_id)
+
     now = utcnow()
     new_box = create_box(
         number_of_items=0,
@@ -279,7 +289,7 @@ def update_box(
         raise BoxDeleted(label_identifier=label_identifier)
 
     if box.state_id not in WAREHOUSE_BOX_STATES:
-        raise InvalidBoxState(
+        raise InvalidBoxStateExc(
             state=BoxState(box.state_id).name, label_identifier=label_identifier
         )
 
