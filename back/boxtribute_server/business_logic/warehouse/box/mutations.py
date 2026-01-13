@@ -71,12 +71,16 @@ def resolve_create_box(*_, creation_input):
 @mutation.field("createBoxFromBox")
 @handle_unauthorized
 def resolve_create_box_from_box(*_, creation_input):
-    requested_location = Location.get_by_id(creation_input["location_id"])
+    location_id = creation_input["location_id"]
+    requested_location = Location.get_or_none(Location.id == location_id)
+    if requested_location is None:
+        return ResourceDoesNotExist(name="Location", id=location_id)
     authorize(permission="stock:write", base_id=requested_location.base_id)
 
-    source_box = Box.get_or_none(
-        Box.label_identifier == creation_input["source_box_label_identifier"]
-    )
+    source_box_label_identifier = creation_input["source_box_label_identifier"]
+    source_box = Box.get_or_none(Box.label_identifier == source_box_label_identifier)
+    if source_box is None:
+        return ResourceDoesNotExist(name="Box", id=source_box_label_identifier)
     # should check for stock:write
     authorize_for_reading_box(source_box)
 
