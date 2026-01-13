@@ -104,7 +104,9 @@ def number_of_beneficiaries_registered_between(start, end):
     # Beneficiaries might be hard-deleted from the people table, hence we have to use
     # the history table for reliable information about their creation. However some
     # beneficiaries might have been directly imported into the DB without creating
-    # history entries, we then fallback to using Beneficiary.created_on.
+    # history entries, we then fallback to using Beneficiary.created_on. Unfortunately,
+    # if these beneficiaries are fully-deleted, we lose their information and the
+    # statistic becomes imprecise. A fix will come with https://trello.com/c/SYHi6Rj8
     RegisteredBeneficiaries = (
         DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
             DbChangeHistory.table_name == Beneficiary._meta.table_name,
