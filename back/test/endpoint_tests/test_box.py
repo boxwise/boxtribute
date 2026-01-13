@@ -986,6 +986,16 @@ def test_box_mutations(
         "size": {"id": str(default_box["size"])},
     }
 
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{label_identifier}"
+            locationId: {location_id}
+            numberOfItems: 10
+            }} ) {{
+                ...on InvalidNumberOfItemsError {{ numberOfItems }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"numberOfItems": 10}
+
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(

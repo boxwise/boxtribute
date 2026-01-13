@@ -7,6 +7,7 @@ import peewee
 
 from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
+from ....errors import InvalidNumberOfItems
 from ....exceptions import (
     BoxCreationFailed,
     BoxDeleted,
@@ -205,6 +206,9 @@ def create_box(
 
 
 def create_box_from_box(*, user_id, source_box, location, number_of_items):
+    if number_of_items < 0 or number_of_items > source_box.number_of_items:
+        return InvalidNumberOfItems(number_of_items=number_of_items)
+
     now = utcnow()
     new_box = create_box(
         number_of_items=0,
