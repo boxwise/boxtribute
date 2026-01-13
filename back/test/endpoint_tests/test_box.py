@@ -1350,6 +1350,28 @@ def test_box_mutations(
             "from_float": None,
             "to_float": None,
         },
+        {
+            "changes": "items",
+            "from_int": 0,
+            "to_int": 1,
+            "record_id": box_id + 3,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "items",
+            "from_int": default_box["number_of_items"],
+            "to_int": default_box["number_of_items"] - 1,
+            "record_id": default_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
     ]
 
 

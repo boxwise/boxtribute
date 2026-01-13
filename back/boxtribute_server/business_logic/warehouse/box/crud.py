@@ -206,8 +206,8 @@ def create_box(
 
 def create_box_from_box(*, user_id, source_box, location, number_of_items):
     now = utcnow()
-    box = create_box(
-        number_of_items=number_of_items,
+    new_box = create_box(
+        number_of_items=0,
         product_id=source_box.product_id,
         location_id=location.id,
         size_id=source_box.size_id,
@@ -216,7 +216,19 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         user_id=user_id,
         now=now,
     )
-    return box
+    new_box = update_box(
+        label_identifier=new_box.label_identifier,
+        number_of_items=number_of_items,
+        user_id=user_id,
+        now=now,
+    )
+    update_box(
+        label_identifier=source_box.label_identifier,
+        number_of_items=source_box.number_of_items - number_of_items,
+        user_id=user_id,
+        now=now,
+    )
+    return new_box
 
 
 @save_update_to_history(
