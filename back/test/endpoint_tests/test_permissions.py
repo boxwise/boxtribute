@@ -773,6 +773,16 @@ def test_mutate_insufficient_permission(
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],
+        [
+            "createBoxFromBox",
+            """creationInput: {
+                sourceBoxLabelIdentifier: "34567890",
+                locationId: 1,
+                numberOfItems: 1
+            }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
     ],
 )
 def test_mutate_unauthorized_for_base(

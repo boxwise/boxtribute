@@ -7,7 +7,7 @@ from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import (
     authorize,
-    authorize_for_reading_box,
+    authorize_for_accessing_box,
     authorized_bases_filter,
     handle_unauthorized,
 )
@@ -81,8 +81,7 @@ def resolve_create_box_from_box(*_, creation_input):
     source_box = Box.get_or_none(Box.label_identifier == source_box_label_identifier)
     if source_box is None:
         return ResourceDoesNotExist(name="Box", id=source_box_label_identifier)
-    # should check for stock:write
-    authorize_for_reading_box(source_box)
+    authorize_for_accessing_box(source_box, action="write")
 
     return create_box_from_box(
         user_id=g.user.id,
