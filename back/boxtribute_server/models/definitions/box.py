@@ -112,6 +112,14 @@ class Box(db.Model):  # type: ignore
         decimal_places=18,
         null=True,
     )
+    source_box = UIntForeignKeyField(
+        column_name="source_box_id",
+        field="id",
+        model="self",
+        null=True,
+        on_update="CASCADE",
+        on_delete="SET NULL",
+    )
 
     class Meta:
         table_name = "stock"
