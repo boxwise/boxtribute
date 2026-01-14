@@ -748,9 +748,3 @@ type Metrics {
   """
   numberOfSales(after: Date, before: Date): Int
 }
-
-type StockOverview {
-  productCategoryName: String
-  numberOfBoxes: Int
-  numberOfItems: Int
-}
