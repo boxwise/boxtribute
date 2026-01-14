@@ -26,10 +26,13 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
             base_id = row["base_id"]
 
             if org_id not in all_orgs:
-                all_orgs[org_id] = {"name": row["organisation_name"], "bases": {}}
+                all_orgs[org_id] = {
+                    "name": row["organisation_name"] or "n/a",
+                    "bases": {},
+                }
 
             if base_id not in all_orgs[org_id]["bases"]:
-                all_orgs[org_id]["bases"][base_id] = row["base_name"]
+                all_orgs[org_id]["bases"][base_id] = row["base_name"] or "n/a"
 
     # Build rows with data from all three datasets
     rows = []

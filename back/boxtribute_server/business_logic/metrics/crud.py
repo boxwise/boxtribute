@@ -75,7 +75,7 @@ def compute_number_of_sales(*, organisation_id, after, before):
 
 def exclude_test_organisation():
     if in_production_environment():
-        return Organisation.id != 1
+        return (Organisation.id != 1) | Organisation.id.is_null()
     return True
 
 
@@ -128,12 +128,14 @@ def number_of_beneficiaries_registered_between(start, end):
             Organisation.name.alias("organisation_name"),
             Base.id.alias("base_id"),
             Base.name.alias("base_name"),
-            fn.COUNT(Beneficiary.id).alias("number"),
+            fn.COUNT(RegisteredBeneficiaries.c.id).alias("number"),
         )
         .from_(RegisteredBeneficiaries)
-        .join(Beneficiary, on=(Beneficiary.id == RegisteredBeneficiaries.c.id))
-        .join(Base)
-        .join(Organisation)
+        .left_outer_join(
+            Beneficiary, on=(Beneficiary.id == RegisteredBeneficiaries.c.id)
+        )
+        .left_outer_join(Base)
+        .left_outer_join(Organisation)
         .where(exclude_test_organisation())
         .group_by(Organisation.id, Base.id)
         .order_by(Organisation.id, Base.id)
@@ -217,9 +219,9 @@ def number_of_beneficiaries_reached_between(start, end):
             fn.COUNT(ReachedBeneficiaries.c.id).alias("number"),
         )
         .from_(ReachedBeneficiaries)
-        .join(Beneficiary, on=(Beneficiary.id == ReachedBeneficiaries.c.id))
-        .join(Base)
-        .join(Organisation)
+        .left_outer_join(Beneficiary, on=(Beneficiary.id == ReachedBeneficiaries.c.id))
+        .left_outer_join(Base)
+        .left_outer_join(Organisation)
         .where(exclude_test_organisation())
         .group_by(Organisation.id, Base.id)
     ).dicts()
