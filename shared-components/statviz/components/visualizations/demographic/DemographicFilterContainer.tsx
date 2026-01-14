@@ -38,9 +38,7 @@ export default function DemographicFilterContainer({
 
       tagFilterValuesVar(distinctTagFilterValues);
     }
-    // including tagFilterOptions in the dependencies can lead to infinite update loops
-    // between CreatedBoxes updating the TagFilter and DemographicFilter updating the TagFilter
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Note: tagFilterOptions not included in deps to avoid infinite update loops
   }, [demographics?.dimensions]);
 
   const demographicFacts = useMemo(() => {
@@ -50,7 +48,7 @@ export default function DemographicFilterContainer({
         "createdOn",
         interval,
       ) as BeneficiaryDemographicsResult[];
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];

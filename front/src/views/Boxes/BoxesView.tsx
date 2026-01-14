@@ -262,7 +262,6 @@ function Boxes({
         setIsBackgroundFetchOfBoxesLoading(false);
       });
     // only on initial mount, so no dependencies needed.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const availableColumns: Column<BoxRow>[] = useMemo(
