@@ -29,7 +29,6 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.size import Size
-from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
@@ -59,12 +58,12 @@ def is_measure_product(product):
     return product.size_range_id in [28, 29]
 
 
-def _validate_base_of_tags(*, tag_ids, location):
-    if len(tag_ids) == 0:
+def _validate_base_of_tags(*, tags, location):
+    if len(tags) == 0:
         # Handle empty list when removing all assigned tags via updateBox
         return
 
-    tag_base_ids = {t.base_id for t in Tag.select(Tag.base).where(Tag.id << tag_ids)}
+    tag_base_ids = {t.base_id for t in tags}
     if len(tag_base_ids) > 1:
         # All requested tags must be registered in the same base
         raise TagBaseMismatch()
@@ -76,8 +75,8 @@ def _validate_base_of_tags(*, tag_ids, location):
 
 @save_creation_to_history
 def create_box(
-    product_id,
-    location_id,
+    product,
+    location,
     user_id,
     now,
     size_id=None,
@@ -86,7 +85,7 @@ def create_box(
     comment="",
     number_of_items=None,
     qr_code=None,
-    tag_ids=None,
+    tags=None,
     new_tag_names=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
@@ -99,23 +98,13 @@ def create_box(
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
 
-    product = (
-        Product.select(Product.size_range, Product.base)
-        .where(Product.id == product_id)
-        .get()
-    )
-    location = (
-        Location.select(Location.box_state, Location.base)
-        .where(Location.id == location_id)
-        .get()
-    )
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatch()
 
-    if tag_ids is None:
-        tag_ids = []
-    if tag_ids:
-        _validate_base_of_tags(tag_ids=tag_ids, location=location)
+    if tags is None:
+        tags = []
+    if tags:
+        _validate_base_of_tags(tags=tags, location=location)
 
     # The inputs size_id and the pair (display_unit_id, measure_value) are mutually
     # exclusive.
@@ -145,7 +134,7 @@ def create_box(
                 base_id=location.base_id,
                 now=now,
             )
-            tag_ids.append(tag.id)
+            tags.append(tag)
 
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
@@ -157,8 +146,8 @@ def create_box(
             new_box.label_identifier = "".join(random.choices("0123456789", k=8))
             new_box.last_modified_on = now
             new_box.last_modified_by = user_id
-            new_box.location = location_id
-            new_box.product = product_id
+            new_box.location = location.id
+            new_box.product = product.id
             new_box.size = size_id
             new_box.state = box_state
             new_box.qr_code = qr_id
@@ -173,7 +162,7 @@ def create_box(
             with db.database.atomic():
                 new_box.save()
 
-                if tag_ids:
+                if tags:
                     # Don't use assign_tag() because it requires an existing Box object,
                     # however the Box creation has not yet been committed to the DB
                     tags_relations = [
@@ -184,7 +173,7 @@ def create_box(
                             "created_on": now,
                             "created_by": user_id,
                         }
-                        for tag_id in set(tag_ids)
+                        for tag_id in set(tag.id for tag in tags)
                     ]
                     TagsRelation.insert_many(tags_relations).execute()
                 return new_box
@@ -230,7 +219,7 @@ def update_box(
     display_unit_id=None,
     measure_value=None,
     state=None,
-    tag_ids=None,
+    tags=None,
     new_tag_names=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
@@ -315,8 +304,8 @@ def update_box(
         box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
-    if tag_ids is not None:
-        _validate_base_of_tags(tag_ids=tag_ids, location=new_location)
+    if tags is not None:
+        _validate_base_of_tags(tags=tags, location=new_location)
 
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
@@ -327,7 +316,7 @@ def update_box(
                 TagsRelation.deleted_on.is_null(),
             )
         )
-        updated_tag_ids = set(tag_ids)
+        updated_tag_ids = set(tag.id for tag in tags)
 
         # Unassign all tags that were previously assigned to the box but are not part
         # of the updated set of tags
@@ -359,7 +348,7 @@ def update_box(
             box.last_modified_on = now
             box.last_modified_by = user_id
     if new_tag_names:
-        # Add new tags only after processing tag_ids. Otherwise the new tags will be
+        # Add new tags only after processing 'tags'. Otherwise the new tags will be
         # added to and removed from the box immediately
         new_tag_ids = []
         for name in set(new_tag_names):
