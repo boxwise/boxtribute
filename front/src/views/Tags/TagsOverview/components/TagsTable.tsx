@@ -26,22 +26,7 @@ type TagsTableProps = {
   onRowClick: (tagId: string) => void;
 };
 
-export function TagsTable({
-  tableConfig,
-  tableData,
-  // refetchData,
-  columns,
-  onRowClick,
-}: TagsTableProps) {
-  // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
-  // const filterTypes = useMemo(
-  //   () => ({
-  //     includesSomeObject: includesSomeObjectFilterFn,
-  //     includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
-  //   }),
-  //   [],
-  // );
-
+export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsTableProps) {
   const {
     headerGroups,
     prepareRow,
@@ -50,12 +35,10 @@ export function TagsTable({
     rows,
     setGlobalFilter,
     selectedFlatRows,
-    // toggleRowSelected,
   } = useTable(
     {
       columns,
       data: tableData,
-      // filterTypes,
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
@@ -86,27 +69,6 @@ export function TagsTable({
   );
 
   const { onDeleteTags, actionsAreLoading } = useTagsActions(selectedFlatRows);
-
-  // useEffect(() => {
-  //   // refetch
-  //   const newStateFilter = filters.find((filter) => filter.id === "state");
-  //   const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-  //   if (newStateFilter !== oldStateFilter) {
-  //     refetchData({
-  //       baseId,
-  //     });
-  //   }
-
-  //   // update tableConfig
-  //   if (globalFilter !== tableConfig.getGlobalFilter()) tableConfig.setGlobalFilter(globalFilter);
-
-  //   if (filters !== tableConfig.getColumnFilters()) tableConfig.setColumnFilters(filters);
-
-  //   if (sortBy !== tableConfig.getSortBy()) tableConfig.setSortBy(sortBy);
-
-  //   if (hiddenColumns !== tableConfig.getHiddenColumns())
-  //     tableConfig.setHiddenColumns(hiddenColumns);
-  // }, [baseId, filters, globalFilter, hiddenColumns, refetchData, sortBy, tableConfig]);
 
   return (
     <Flex direction="column" overflowX="auto">

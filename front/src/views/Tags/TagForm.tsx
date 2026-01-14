@@ -86,6 +86,15 @@ export const getLabelForApplicationValue = (value: TagApplicationOption) => {
   return option ? option.label : value;
 };
 
+const generateRandomColor = () => {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
 export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
   const navigate = useNavigate();
   const {
@@ -101,11 +110,13 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
             label: getLabelForApplicationValue(defaultValues.application),
             value: defaultValues.application,
           },
-          color: defaultValues.color,
+          color: defaultValues.color || generateRandomColor(),
           description: defaultValues.description,
           name: defaultValues.name,
         }
-      : undefined,
+      : {
+          color: generateRandomColor(),
+        },
   });
 
   return (
@@ -138,11 +149,16 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
           </FormControl>
           <SelectField
             fieldId="application"
-            fieldLabel="Application"
+            fieldLabel="Apply To"
             placeholder="Please select an application."
             options={applicationOptions}
             errors={errors}
             control={control}
+            helperText={
+              defaultValues
+                ? "Switching this will unassign tags from items it does not apply to."
+                : undefined
+            }
           />
           <ColourField
             fieldId="color"

@@ -127,7 +127,7 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
             case "InsufficientPermissionError":
             case "UnauthorizedForBaseError":
               triggerError({
-                message: "You don't have permission to create a tag!",
+                message: "You don't have permission to update a tag!",
               });
               break;
             case "InvalidColorError":
@@ -179,7 +179,7 @@ export function UpdateTagView() {
       <Center>
         <Box w={["100%", "100%", "60%", "40%"]}>
           <Heading fontWeight="bold" mb={8} as="h1">
-            Update Tag {`#${tagId}`}
+            Update Tag
           </Heading>
           <ErrorBoundary
             fallback={({ error }) => (

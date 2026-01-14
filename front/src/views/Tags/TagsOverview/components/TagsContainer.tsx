@@ -98,7 +98,7 @@ export function TagsContainer() {
         },
       },
       {
-        Header: "Application",
+        Header: "Apply to",
         accessor: "application",
         id: "application",
         Filter: SelectColumnFilter,

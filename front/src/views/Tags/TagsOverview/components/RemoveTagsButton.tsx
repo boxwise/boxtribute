@@ -42,8 +42,6 @@ export const RemoveTagsButton = ({
   return (
     <>
       <Button
-        padding={1}
-        variant="ghost"
         onClick={handleOpenDialog}
         leftIcon={<BiTrash />}
         iconSpacing={2}
