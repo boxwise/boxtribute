@@ -10,7 +10,6 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
-import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY } from "views/BoxCreate/BoxCreateView";
 import { graphql } from "../../../../graphql/graphql";
 import { z } from "zod";
@@ -100,12 +99,6 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
           description: updateTagOutput.description,
         },
         refetchQueries: [
-          {
-            query: PRODUCTS_QUERY,
-            variables: {
-              baseId,
-            },
-          },
           {
             query: ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
             variables: {

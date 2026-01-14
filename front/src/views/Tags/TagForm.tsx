@@ -68,15 +68,15 @@ export type ITagFormProps = {
 
 const applicationOptions: z.infer<typeof SingleSelectOptionSchema>[] = [
   {
-    value: "All",
+    value: TAG_APPLICATION_OPTIONS[0],
     label: "Boxes + Beneficiaries",
   },
   {
-    value: "People",
+    value: TAG_APPLICATION_OPTIONS[1],
     label: "Beneficiaries",
   },
   {
-    value: "Stock",
+    value: TAG_APPLICATION_OPTIONS[2],
     label: "Boxes",
   },
 ];

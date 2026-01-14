@@ -8,7 +8,7 @@ export type TagRow = {
   application: TagApplicationOption;
   description?: string | null;
   totalTaggedItemsCount: number;
-  colour: string;
+  color: string;
 };
 
 export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
@@ -20,7 +20,7 @@ export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
           name,
           application: type,
           description,
-          colour: color || "",
+          color: color || "",
           totalTaggedItemsCount: taggedResources?.length || 0,
         } satisfies TagRow;
       })

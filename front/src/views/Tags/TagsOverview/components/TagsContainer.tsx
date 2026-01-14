@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { SelectColumnFilter } from "components/Table/Filter";
+import { includesOneOfMultipleStringsFilterFn, SelectColumnFilter } from "components/Table/Filter";
 import { useMemo } from "react";
 import { Column } from "react-table";
 import { useAtomValue } from "jotai";
@@ -18,7 +18,7 @@ export const TAGS_QUERY = graphql(
   `
     query TagsForTagsView($baseId: ID!) {
       base(id: $baseId) {
-        tags(resourceType: Box) {
+        tags {
           taggedResources {
             ...BoxFields
           }
@@ -83,14 +83,14 @@ export function TagsContainer() {
           const { row } = args;
           return (
             <Tag
-              bg={Style.toTransformString(row.original.colour)}
-              color={colorIsBright(row.original.colour) ? "black" : "white"}
+              bg={Style.toTransformString(row.original.color)}
+              color={colorIsBright(row.original.color) ? "black" : "white"}
             >
               <TagLabel>{row.original.name}</TagLabel>
             </Tag>
           );
         },
-        filter: "includesOneOfMultipleStrings",
+        filter: includesOneOfMultipleStringsFilterFn,
         sortType: (rowA, rowB) => {
           const a = rowA.values.name.toLowerCase();
           const b = rowB.values.name.toLowerCase();
@@ -102,7 +102,7 @@ export function TagsContainer() {
         accessor: "application",
         id: "application",
         Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        filter: includesOneOfMultipleStringsFilterFn,
       },
       {
         Header: "Description",
