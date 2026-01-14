@@ -59,8 +59,8 @@ def resolve_create_box(*_, creation_input):
     authorize(permission="tag_relation:assign")
     tag_ids = creation_input.pop("tag_ids", [])
     tags = list(Tag.select().where(Tag.id << tag_ids))
-    for t in tags:
-        authorize(permission="tag:read", base_id=t.base_id)
+    for tag in tags:
+        authorize(permission="tag:read", base_id=tag.base_id)
 
     return create_box(
         user_id=g.user.id,
@@ -104,8 +104,8 @@ def resolve_update_box(*_, update_input):
     tags = None
     if tag_ids is not None:
         tags = list(Tag.select().where(Tag.id << tag_ids))
-        for t in tags:
-            authorize(permission="tag:read", base_id=t.base_id)
+        for tag in tags:
+            authorize(permission="tag:read", base_id=tag.base_id)
 
     return update_box(user_id=g.user.id, tags=tags, **update_input)
 
@@ -232,7 +232,7 @@ def _validate_tags(tag_ids, for_unassigning=False):
 
         valid_tags.append(tag)
 
-    tag_base_ids = {t.base_id for t in valid_tags}
+    tag_base_ids = {tag.base_id for tag in valid_tags}
     # All requested tags must be registered in the same base
     if len(tag_base_ids) > 1:
         # None of the tags is valid; return errors for all of them

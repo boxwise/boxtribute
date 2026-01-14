@@ -63,7 +63,7 @@ def _validate_base_of_tags(*, tags, location):
         # Handle empty list when removing all assigned tags via updateBox
         return
 
-    tag_base_ids = {t.base_id for t in tags}
+    tag_base_ids = {tag.base_id for tag in tags}
     if len(tag_base_ids) > 1:
         # All requested tags must be registered in the same base
         raise TagBaseMismatch()
