@@ -634,6 +634,7 @@ def test_invalid_permission_for_user_read(
             "...on InsufficientPermissionError { name }",
             {"name": "tag:write"},
         ],
+        # Test case 8.2.96
         [
             "createBoxFromBox",
             """creationInput: {
@@ -763,6 +764,7 @@ def test_mutate_insufficient_permission(
             "...on UnauthorizedForBaseError { id }",
             {"id": "2"},
         ],
+        # Test case 8.2.94
         [
             "createBoxFromBox",
             """creationInput: {
@@ -773,6 +775,7 @@ def test_mutate_insufficient_permission(
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],
+        # Test case 8.2.95
         [
             "createBoxFromBox",
             """creationInput: {

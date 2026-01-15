@@ -384,6 +384,7 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { name id }",
             {"name": "Tag", "id": "0"},
         ],
+        # Test case 8.2.93
         [
             "createBoxFromBox",
             """creationInput: {
@@ -394,6 +395,7 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { name id }",
             {"name": "Box", "id": "0"},
         ],
+        # Test case 8.2.92
         [
             "createBoxFromBox",
             """creationInput: {

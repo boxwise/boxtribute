@@ -966,6 +966,7 @@ def test_box_mutations(
         "tagErrorInfo": [],
     }
 
+    # Test case 8.2.91
     label_identifier = default_box["label_identifier"]
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
             sourceBoxLabelIdentifier: "{label_identifier}"
@@ -986,6 +987,7 @@ def test_box_mutations(
         "size": {"id": str(default_box["size"])},
     }
 
+    # Test case 8.2.97
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
             sourceBoxLabelIdentifier: "{label_identifier}"
             locationId: {location_id}
@@ -996,6 +998,7 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"numberOfItems": 10}
 
+    # Test case 8.2.98
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
             sourceBoxLabelIdentifier: "{label_identifier}"
             locationId: {deleted_location_id}
@@ -1006,6 +1009,7 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"name": deleted_location["name"]}
 
+    # Test case 8.2.99
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
             sourceBoxLabelIdentifier: "{created_box['label_identifier']}"
             locationId: {location_id}
@@ -1016,6 +1020,7 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"labelIdentifier": created_box["label_identifier"]}
 
+    # Test case 8.2.100
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
             sourceBoxLabelIdentifier: "{in_transit_box['label_identifier']}"
             locationId: {location_id}
