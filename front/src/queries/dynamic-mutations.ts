@@ -95,6 +95,7 @@ export const generateUnassignBoxesFromShipmentsRequest = (
               id
             }
             lastModifiedOn
+            lastModifiedBy { id name }
           }
         }
       }
