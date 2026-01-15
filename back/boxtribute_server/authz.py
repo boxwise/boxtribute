@@ -186,7 +186,7 @@ def authorize_for_organisation_bases() -> None:
     _authorize(permission="base:read", ignore_missing_base_info=True)
 
 
-def authorize_for_reading_box(box) -> None:
+def authorize_for_accessing_box(box, *, action="read") -> None:
     """Authorize current user for accessing the given box.
     For a box in InTransit, Receiving, or NotDelivered state, users of both source and
     target base of the underlying shipment are allowed to view it.
@@ -207,7 +207,7 @@ def authorize_for_reading_box(box) -> None:
         }
     else:
         authz_kwargs = {"base_id": box.location.base_id}
-    authorize(permission="stock:read", **authz_kwargs)
+    authorize(permission=f"stock:{action}", **authz_kwargs)
 
 
 def authorize_cross_organisation_access(
@@ -383,6 +383,7 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createBeneficiaries",
     "createBoxes",
+    "createBoxFromBox",
 )
 
 # ### BETA-LEVEL 98 ###
@@ -399,6 +400,7 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "assignTag",
     "unassignTag",
     "createBoxes",
+    "createBoxFromBox",
 )
 
 # ### BETA-LEVEL 99 ###

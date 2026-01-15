@@ -966,6 +966,71 @@ def test_box_mutations(
         "tagErrorInfo": [],
     }
 
+    # Test case 8.2.91
+    label_identifier = default_box["label_identifier"]
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{label_identifier}"
+            locationId: {location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on Box {{
+                    numberOfItems
+                    location {{ id }}
+                    product {{ id }}
+                    size {{ id }}
+                }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "numberOfItems": 1,
+        "location": {"id": location_id},
+        "product": {"id": str(default_box["product"])},
+        "size": {"id": str(default_box["size"])},
+    }
+
+    # Test case 8.2.97
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{label_identifier}"
+            locationId: {location_id}
+            numberOfItems: 10
+            }} ) {{
+                ...on InvalidNumberOfItemsError {{ numberOfItems }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"numberOfItems": 10}
+
+    # Test case 8.2.98
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{label_identifier}"
+            locationId: {deleted_location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on DeletedLocationError {{ name }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": deleted_location["name"]}
+
+    # Test case 8.2.99
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{created_box['label_identifier']}"
+            locationId: {location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on DeletedBoxError {{ labelIdentifier }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"labelIdentifier": created_box["label_identifier"]}
+
+    # Test case 8.2.100
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+            sourceBoxLabelIdentifier: "{in_transit_box['label_identifier']}"
+            locationId: {location_id}
+            numberOfItems: 1
+            }} ) {{
+                ...on InvalidBoxStateError {{ state }}
+                }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"state": BoxState.InTransit.name}
+
     # Test cases 8.2.1, 8.2.2., 8.2.11, 8.2.25
     history = list(
         DbChangeHistory.select(
@@ -1313,6 +1378,28 @@ def test_box_mutations(
             "from_int": 2,
             "to_int": int(another_location_id),
             "record_id": another_box["id"],
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": HISTORY_CREATION_MESSAGE,
+            "from_int": None,
+            "to_int": None,
+            "record_id": box_id + 3,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "items",
+            "from_int": default_box["number_of_items"],
+            "to_int": default_box["number_of_items"] - 1,
+            "record_id": default_box["id"],
             "table_name": "stock",
             "user": 8,
             "ip": None,
