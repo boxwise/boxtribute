@@ -206,7 +206,7 @@ def create_box(
 def create_box_from_box(*, user_id, source_box, location, number_of_items):
     """Create a new box, derived from the specified source box, in the given location.
     The box attributes (product, size, measure_value, display_unit) are copied, and the
-    given number of items are subtracted from the source box.from the source box.
+    given number of items are subtracted from the source box.
     """
     if number_of_items < 0 or number_of_items > source_box.number_of_items:
         return InvalidNumberOfItems(number_of_items=number_of_items)
@@ -221,22 +221,14 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         return InvalidBoxState(state=source_box.state_id)
 
     now = utcnow()
-    # Create a new box without items first, such that the CreatedBoxes statistic is not
-    # impacted
     new_box = create_box(
-        number_of_items=0,
+        number_of_items=number_of_items,
         product=source_box.product,
         location=location,
         size_id=source_box.size_id,
         measure_value=source_box.measure_value,
         display_unit_id=source_box.display_unit_id,
         source_box_id=source_box.id,
-        user_id=user_id,
-        now=now,
-    )
-    new_box = update_box(
-        label_identifier=new_box.label_identifier,
-        number_of_items=number_of_items,
         user_id=user_id,
         now=now,
     )

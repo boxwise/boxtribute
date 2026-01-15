@@ -204,7 +204,12 @@ def compute_created_boxes(base_id):
         Box.select(
             Box.id,
             created_on.alias("created_on"),
-            fn.IFNULL(ItemsHistory.from_int, Box.number_of_items).alias("items"),
+            fn.IF(
+                Box.source_box.is_null(),
+                fn.IFNULL(ItemsHistory.from_int, Box.number_of_items),
+                0,  # Boxes created from other boxes (items are counted in the original
+                # box to avoid double-counting)
+            ).alias("items"),
             fn.IFNULL(ProductHistory.from_int, Box.product).alias("product_id"),
         )
         .join(
