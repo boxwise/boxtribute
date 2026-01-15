@@ -629,7 +629,11 @@ def test_authorization(read_only_client, mocker):
 
 
 def test_statistics_after_create_box_from_box(
-    client, default_location, default_product, default_size, non_default_box_state_location
+    client,
+    default_location,
+    default_product,
+    default_size,
+    non_default_box_state_location,
 ):
     # Create a large box with default product, location, size and 100 items
     location_id = str(default_location["id"])
@@ -659,16 +663,16 @@ def test_statistics_after_create_box_from_box(
     # Obtain createdBoxes statistic. It should contain the newly created large box
     query = """query { createdBoxes(baseId: 1) {
         facts {
-            createdOn categoryId productId gender boxesCount itemsCount tagIds
+            createdOn productId boxesCount itemsCount
         }
     } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
     # Find the newly created box in statistics
     today = date.today().isoformat()
     created_box_facts = [
-        f for f in data["facts"]
-        if f["createdOn"] == f"{today}T00:00:00"
-        and f["productId"] == int(product_id)
+        f
+        for f in data["facts"]
+        if f["createdOn"] == f"{today}T00:00:00" and f["productId"] == int(product_id)
     ]
     assert len(created_box_facts) == 1
     assert created_box_facts[0]["boxesCount"] == 1
@@ -698,9 +702,9 @@ def test_statistics_after_create_box_from_box(
     # large box and the newly created small box but 100 for itemsCount
     data = assert_successful_request(client, query, endpoint="graphql")
     created_box_facts = [
-        f for f in data["facts"]
-        if f["createdOn"] == f"{today}T00:00:00"
-        and f["productId"] == int(product_id)
+        f
+        for f in data["facts"]
+        if f["createdOn"] == f"{today}T00:00:00" and f["productId"] == int(product_id)
     ]
     assert len(created_box_facts) == 1
     # Total items should still be 100 (90 in original + 10 in new box)
@@ -711,14 +715,14 @@ def test_statistics_after_create_box_from_box(
     # box with the location name as targetId
     query = """query { movedBoxes(baseId: 1) {
         facts {
-            movedOn targetId categoryId productName gender sizeId tagIds
-            absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
+            movedOn gender targetId productName boxesCount itemsCount
         }
     } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
     # Find the newly created box in movedBoxes statistics
     moved_box_facts = [
-        f for f in data["facts"]
+        f
+        for f in data["facts"]
         if f["movedOn"] == today
         and f["targetId"] == donated_location_name
         and f["productName"] == product_name
