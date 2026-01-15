@@ -628,16 +628,101 @@ def test_authorization(read_only_client, mocker):
     assert_forbidden_request(read_only_client, query)
 
 
-def test_statistics_after_create_box_from_box(client):
+def test_statistics_after_create_box_from_box(
+    client, default_location, default_product, default_size, non_default_box_state_location
+):
     # Create a large box with default product, location, size and 100 items
+    location_id = str(default_location["id"])
+    product_id = str(default_product["id"])
+    size_id = str(default_size["id"])
+    original_number_of_items = 100
+
+    creation_input = f"""{{
+        productId: {product_id},
+        locationId: {location_id},
+        sizeId: {size_id},
+        numberOfItems: {original_number_of_items},
+    }}"""
+    mutation = f"""mutation {{
+        createBox( creationInput : {creation_input} ) {{
+            labelIdentifier
+            numberOfItems
+            product {{ id name gender }}
+            size {{ id }}
+        }}
+    }}"""
+    created_box = assert_successful_request(client, mutation)
+    label_identifier = created_box["labelIdentifier"]
+    product_name = created_box["product"]["name"].strip().lower()
+    product_gender = created_box["product"]["gender"]
 
     # Obtain createdBoxes statistic. It should contain the newly created large box
+    query = """query { createdBoxes(baseId: 1) {
+        facts {
+            createdOn categoryId productId gender boxesCount itemsCount tagIds
+        }
+    } }"""
+    data = assert_successful_request(client, query, endpoint="graphql")
+    # Find the newly created box in statistics
+    today = date.today().isoformat()
+    created_box_facts = [
+        f for f in data["facts"]
+        if f["createdOn"] == f"{today}T00:00:00"
+        and f["productId"] == int(product_id)
+    ]
+    assert len(created_box_facts) == 1
+    assert created_box_facts[0]["boxesCount"] == 1
+    assert created_box_facts[0]["itemsCount"] == original_number_of_items
 
     # use createBoxFromBox with a Donated location to create a new box with 10 items
+    donated_location_id = str(non_default_box_state_location["id"])
+    donated_location_name = non_default_box_state_location["name"]
+    new_box_items = 10
+
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+        sourceBoxLabelIdentifier: "{label_identifier}"
+        locationId: {donated_location_id}
+        numberOfItems: {new_box_items}
+    }} ) {{
+        ...on Box {{
+            labelIdentifier
+            numberOfItems
+            location {{ id name }}
+        }}
+    }} }}"""
+    new_box = assert_successful_request(client, mutation)
+    assert new_box["numberOfItems"] == new_box_items
+    assert new_box["location"]["id"] == donated_location_id
 
     # Obtain createdBoxes statistic for base 1. It should contain the newly created
     # large box and the newly created small box but 100 for itemsCount
+    data = assert_successful_request(client, query, endpoint="graphql")
+    created_box_facts = [
+        f for f in data["facts"]
+        if f["createdOn"] == f"{today}T00:00:00"
+        and f["productId"] == int(product_id)
+    ]
+    assert len(created_box_facts) == 1
+    # Total items should still be 100 (90 in original + 10 in new box)
+    assert created_box_facts[0]["boxesCount"] == 2
+    assert created_box_facts[0]["itemsCount"] == original_number_of_items
 
     # Obtain movedBoxes statistic for base 1. It should contain the newly created small
     # box with the location name as targetId
-    pass
+    query = """query { movedBoxes(baseId: 1) {
+        facts {
+            movedOn targetId categoryId productName gender sizeId tagIds
+            absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
+        }
+    } }"""
+    data = assert_successful_request(client, query, endpoint="graphql")
+    moved_box_facts = [
+        f for f in data["facts"]
+        if f["movedOn"] == today
+        and f["targetId"] == donated_location_name
+        and f["productName"] == product_name
+    ]
+    assert len(moved_box_facts) == 1
+    assert moved_box_facts[0]["boxesCount"] == 1
+    assert moved_box_facts[0]["itemsCount"] == new_box_items
+    assert moved_box_facts[0]["gender"] == product_gender
