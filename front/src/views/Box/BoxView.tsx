@@ -64,6 +64,10 @@ export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = graphql(
       ) {
         labelIdentifier
         lastModifiedOn
+        lastModifiedBy {
+          id
+          name
+        }
         history {
           ...HistoryFields
         }
@@ -80,6 +84,10 @@ export const UPDATE_STATE_IN_BOX_MUTATION = graphql(
       updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, state: $newState }) {
         labelIdentifier
         lastModifiedOn
+        lastModifiedBy {
+          id
+          name
+        }
         history {
           ...HistoryFields
         }
@@ -96,6 +104,10 @@ export const UPDATE_BOX_MUTATION = graphql(
       updateBox(updateInput: { labelIdentifier: $boxLabelIdentifier, locationId: $newLocationId }) {
         labelIdentifier
         lastModifiedOn
+        lastModifiedBy {
+          id
+          name
+        }
         history {
           ...HistoryFields
         }

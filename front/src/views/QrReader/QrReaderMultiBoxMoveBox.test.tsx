@@ -101,6 +101,7 @@ const mockMoveBoxesMutation = ({
                         id: locationId.toString(),
                       },
                       lastModifiedOn: new Date().toISOString(),
+                      lastModifiedBy: { id: "2", name: "coordinator" },
                     })),
                   invalidBoxLabelIdentifiers: failLabelIdentifier ? [failLabelIdentifier] : [],
                 },
