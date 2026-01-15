@@ -313,6 +313,7 @@ const deleteBoxesMutation = ({
                   updatedBoxes: labelIdentifiers.map((id) => ({
                     labelIdentifier: id,
                     deletedOn: new Date().toISOString(),
+                    product: { id: 10, transferItemsCount: 1, instockItemsCount: 3 },
                   })),
                   invalidBoxLabelIdentifiers: invalidBoxLabelIdentifiers,
                 },

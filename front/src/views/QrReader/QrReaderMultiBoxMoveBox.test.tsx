@@ -57,7 +57,7 @@ const mockLocationsQuery = ({
           ? null
           : {
               shipments: [generateMockShipmentMinimal({ state: "Preparing", iAmSource: true })],
-              base: { locations, tags },
+              base: { id: "1", locations, tags },
             },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
