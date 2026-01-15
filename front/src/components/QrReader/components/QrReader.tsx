@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { Result } from "@zxing/library";
+import { useCallback, useMemo, useState } from "react";
+import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import {
   FormControl,
   FormErrorMessage,
@@ -18,16 +18,17 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { useHasPermission } from "hooks/hooks";
 import { QrReaderScanner } from "./QrReaderScanner";
 import QrReaderMultiBoxContainer from "./QrReaderMultiBoxContainer";
+import * as Sentry from "@sentry/react";
 
 export interface IQrReaderProps {
   isMultiBox: boolean;
   findBoxByLabelIsLoading: boolean;
   onTabSwitch: (index: number) => void;
-  onScan: (result: string, multiScan: boolean) => void;
-  onFindBoxByLabel: (label: string) => void;
+  onScan: (result: string, multiScan: boolean) => Promise<void>;
+  onFindBoxByLabel: (label: string) => Promise<void>;
 }
 
-function QrReader({
+export function QrReader({
   isMultiBox,
   findBoxByLabelIsLoading,
   onTabSwitch,
@@ -38,23 +39,20 @@ function QrReader({
 
   // Did the QrReaderScanner catch a QrCode? --> call onScan with text value
   const onResult = useCallback(
-    (
+    async (
       multiScan: boolean,
-      qrReaderResult: Result | undefined | null,
+      qrReaderResult: IDetectedBarcode[] | undefined | null,
       error?: Error | undefined | null,
     ) => {
       if (error) {
-        // Log the error if its unexpected but don't interrupt the scanning process
-        // if (error.name !== "NotFoundException2") {
-        //   //register error with Sentry
-        //   Sentry.captureException(error);
-        //   console.error("QR Reader error:", error.name);
-        // }
+        //register error with Sentry
+        Sentry.captureException(error);
+        console.error("QR Reader error:", error.name);
 
         return;
       }
-      if (qrReaderResult) {
-        onScan(qrReaderResult.getText(), multiScan);
+      if (qrReaderResult && qrReaderResult.length > 0) {
+        await onScan(qrReaderResult[0].rawValue, multiScan);
       }
     },
     [onScan],
@@ -81,16 +79,21 @@ function QrReader({
     [setBoxLabelInputValue, setBoxLabelInputError],
   );
 
+  const multiScan = useMemo(
+    () => isMultiBox && hasManageInventoryPermission,
+    [isMultiBox, hasManageInventoryPermission],
+  );
+
   return (
     <>
       <QrReaderScanner
-        key="qrReaderScanner"
-        multiScan={isMultiBox && hasManageInventoryPermission}
+        key={`scanner-${multiScan}`}
+        multiScan={multiScan}
         facingMode="environment"
         scanPeriod={1000}
         onResult={onResult}
       />
-      <Tabs index={isMultiBox && hasManageInventoryPermission ? 1 : 0} onChange={onTabSwitch}>
+      <Tabs index={multiScan ? 1 : 0} onChange={onTabSwitch}>
         <TabList justifyContent="center">
           <Tab>SOLO BOX</Tab>
           <Tab isDisabled={!hasManageInventoryPermission}>MULTI BOX</Tab>
@@ -114,9 +117,9 @@ function QrReader({
                     icon={<SearchIcon />}
                     isDisabled={!!boxLabelInputError || findBoxByLabelIsLoading}
                     isLoading={findBoxByLabelIsLoading}
-                    onClick={() => {
+                    onClick={async () => {
                       if (boxLabelInputValue) {
-                        onFindBoxByLabel(boxLabelInputValue);
+                        await onFindBoxByLabel(boxLabelInputValue);
                         setBoxLabelInputValue("");
                       } else {
                         setBoxLabelInputError("Please enter a label id.");
@@ -136,5 +139,3 @@ function QrReader({
     </>
   );
 }
-
-export default QrReader;
