@@ -221,6 +221,7 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         return InvalidBoxState(state=source_box.state_id)
 
     now = utcnow()
+    # This is very unlikely to raise BoxCreationFailed, hence ignore handling it
     new_box = create_box(
         number_of_items=number_of_items,
         product=source_box.product,
