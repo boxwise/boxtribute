@@ -716,6 +716,7 @@ def test_statistics_after_create_box_from_box(
         }
     } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
+    # Find the newly created box in movedBoxes statistics
     moved_box_facts = [
         f for f in data["facts"]
         if f["movedOn"] == today
