@@ -66,7 +66,7 @@ def test_metrics_query_for_god_user(
 @pytest.mark.parametrize(
     "start,end,duration,result",
     [
-        ('"2020-01-01"', "null", "null", 6),
+        ('"2020-01-01"', "null", "null", 7),
         ('"2020-01-01"', '"2020-07-01"', "null", 1),
         ('"2020-01-01"', '"2020-07-01"', 30, 1),
         ('"2021-07-01"', "null", "null", 3),
@@ -114,6 +114,8 @@ def test_public_box_number(read_only_client, start, end, duration, result):
         ('"2020-01-01"', '"2020-12-31"', "null", 4),
         ('"2020-01-01"', "null", 30, 4),
         ("null", '"2020-07-01"', 30, 1),
+        # Corresponding beneficiary created in May 2021, then fully deleted
+        ("null", '"2021-05-30"', 30, 1),
         # Bene 1 was registered for a service in Nov 2025
         # Bene 6 was created yesterday
         ('"2025-01-01"', "null", "null", 2),
@@ -127,3 +129,22 @@ def test_reached_beneficiaries_numbers(read_only_client, start, end, duration, r
             ) }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert response == result
+
+
+@pytest.mark.parametrize(
+    "stat,count",
+    [
+        ["newlyCreatedBoxNumbers", 2],
+        # One from organisation 2 and one (fully-deleted) with organisation NULL
+        ["newlyRegisteredBeneficiaryNumbers", 2],
+        ["reachedBeneficiariesNumbers", 2],
+    ],
+)
+def test_exclude_test_organisation_in_production(
+    read_only_client, monkeypatch, stat, count
+):
+    # Data from organisation 1 is excluded
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    query = f"""query {{ {stat}(start: "2020-01-01") }}"""
+    response = assert_successful_request(read_only_client, query, endpoint="public")
+    assert response == count
