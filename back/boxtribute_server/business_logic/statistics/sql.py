@@ -59,12 +59,35 @@ HistoryReconstruction AS (
                 -- The current change is NOT about number of items, hence the correct number of items
                 -- of the box at this time must be inferred
                 COALESCE(
-                    -- Look for the next change in number of items related to the box and use 'from_int' value
-                    (SELECT his.from_int
-                    FROM history his
-                    WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id > h.id
-                    ORDER BY his.id ASC
-                    LIMIT 1),
+                    -- Special handling for "Record created" in Donated state:
+                    -- Use the final item count (to_int) from the next items change if one exists
+                    -- within the same operation (same changedate), otherwise use from_int
+                    IF(h.changes = "Record created" AND h.stock_box_state_id = 5,
+                        (SELECT COALESCE(
+                            -- If there's an items update on the same date, use its to_int value
+                            (SELECT his.to_int
+                            FROM history his
+                            WHERE his.record_id = h.record_id 
+                                AND his.changes = 'items' 
+                                AND his.id > h.id
+                                AND DATE(his.changedate) = DATE(h.changedate)
+                            ORDER BY his.id ASC
+                            LIMIT 1),
+                            -- Otherwise use standard logic
+                            (SELECT his.from_int
+                            FROM history his
+                            WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id > h.id
+                            ORDER BY his.id ASC
+                            LIMIT 1)
+                        )),
+                        -- Standard logic for all other cases
+                        -- Look for the next change in number of items related to the box and use 'from_int' value
+                        (SELECT his.from_int
+                        FROM history his
+                        WHERE his.record_id = h.record_id AND his.changes = 'items' AND his.id > h.id
+                        ORDER BY his.id ASC
+                        LIMIT 1)
+                    ),
                     -- Look for the previous change in number of items related to the box and use 'to_int' value
                     COALESCE(
                         (SELECT his.to_int
