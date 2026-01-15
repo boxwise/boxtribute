@@ -88,8 +88,9 @@ def resolve_create_box_from_box(*_, creation_input):
 
     source_box_label_identifier = creation_input["source_box_label_identifier"]
     source_box = (
-        Box.select(Box, Location)
+        Box.select(Box, Location, Product)
         .join(Location)  # for box.location attribute in authorize_for_accessing_box()
+        .join(Product, src=Box)  # for box.product in CRUD function
         .where(Box.label_identifier == source_box_label_identifier)
         .get_or_none()
     )

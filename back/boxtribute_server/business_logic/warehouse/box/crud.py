@@ -225,8 +225,8 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
     # impacted
     new_box = create_box(
         number_of_items=0,
-        product_id=source_box.product_id,
-        location_id=location.id,
+        product=source_box.product,
+        location=location,
         size_id=source_box.size_id,
         measure_value=source_box.measure_value,
         display_unit_id=source_box.display_unit_id,
