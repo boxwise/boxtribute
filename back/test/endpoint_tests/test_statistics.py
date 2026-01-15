@@ -626,3 +626,18 @@ def test_authorization(read_only_client, mocker):
     mock_user_for_request(mocker, permissions=["tag_relation:read"])
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
     assert_forbidden_request(read_only_client, query)
+
+
+def test_statistics_after_create_box_from_box(client):
+    # Create a large box with default product, location, size and 100 items
+
+    # Obtain createdBoxes statistic. It should contain the newly created large box
+
+    # use createBoxFromBox with a Donated location to create a new box with 10 items
+
+    # Obtain createdBoxes statistic for base 1. It should contain the newly created
+    # large box and the newly created small box but 100 for itemsCount
+
+    # Obtain movedBoxes statistic for base 1. It should contain the newly created small
+    # box with the location name as targetId
+    pass
