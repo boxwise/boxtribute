@@ -28,6 +28,7 @@ export interface ISelectFieldProps {
   isDisabled?: boolean;
   isReadOnly?: boolean;
   creatable?: boolean;
+  isClearable?: boolean;
   onChangeProp?: ((event) => void) | undefined;
   formatOptionLabel?: (
     data: IDropdownOption,
@@ -51,6 +52,7 @@ function SelectField({
   isDisabled = false,
   isReadOnly = false,
   isRequired = true,
+  isClearable = false,
   onChangeProp = undefined,
   formatOptionLabel,
   creatable,
@@ -73,6 +75,7 @@ function SelectField({
             ref,
             isReadOnly,
             isDisabled,
+            isClearable,
             onChange: onChangeProp
               ? (event) => {
                   onChange(event);
