@@ -124,6 +124,7 @@ const assignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
+                  lastModifiedBy: { id: "2", name: "coordinator" },
                   tags: tagIds.map((id) => ({ id: id.toString(), __typename: "Tag" })),
                 })),
                 invalidBoxLabelIdentifiers: [],
@@ -156,6 +157,7 @@ const unassignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
+                  lastModifiedBy: { id: "2", name: "coordinator" },
                   tags: [],
                 })),
                 invalidBoxLabelIdentifiers: [],
@@ -201,6 +203,10 @@ const unassignFromShipmentGQLRequest = graphql(`
             __typename
           }
           lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
           __typename
         }
         __typename
@@ -268,6 +274,7 @@ const moveBoxesMutation = ({
                             id: locationId.toString(),
                           },
                           lastModifiedOn: new Date().toISOString(),
+                          lastModifiedBy: { id: "2", name: "coordinator" },
                         })),
                         invalidBoxLabelIdentifiers,
                       },
@@ -306,6 +313,7 @@ const deleteBoxesMutation = ({
                   updatedBoxes: labelIdentifiers.map((id) => ({
                     labelIdentifier: id,
                     deletedOn: new Date().toISOString(),
+                    product: { id: 10, transferItemsCount: 1, instockItemsCount: 3 },
                   })),
                   invalidBoxLabelIdentifiers: invalidBoxLabelIdentifiers,
                 },

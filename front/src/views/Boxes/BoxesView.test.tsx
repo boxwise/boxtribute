@@ -232,6 +232,7 @@ const moveBoxesMutation = {
               id: "17",
             },
             lastModifiedOn: new Date().toISOString(),
+            lastModifiedBy: { id: "2", name: "coordinator" },
           },
           {
             labelIdentifier: "1481666",
@@ -240,6 +241,7 @@ const moveBoxesMutation = {
               id: "17",
             },
             lastModifiedOn: new Date().toISOString(),
+            lastModifiedBy: { id: "2", name: "coordinator" },
           },
         ],
         invalidBoxLabelIdentifiers: [],

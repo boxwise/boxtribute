@@ -37,6 +37,7 @@ const queryShipmentDetailForBoxReconciliation = {
   result: {
     data: {
       base: {
+        id: "1",
         locations: [generateMockLocationWithBase({})],
         products,
         tags: [tag1, tag2],

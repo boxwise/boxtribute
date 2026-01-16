@@ -103,6 +103,7 @@ export const BOX_BASIC_FIELDS_FRAGMENT = graphql(`
       }
     }
     lastModifiedOn
+    lastModifiedBy { id name }
   }
 `);
 
