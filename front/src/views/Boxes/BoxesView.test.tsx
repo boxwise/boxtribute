@@ -135,6 +135,7 @@ const actionsQuery = {
             id: "10",
             name: "company X",
             type: "Box",
+            deletedOn: null,
           },
           {
             __typename: "Tag",
@@ -143,6 +144,7 @@ const actionsQuery = {
             id: "11",
             name: "new",
             type: "All",
+            deletedOn: null,
           },
           {
             __typename: "Tag",
@@ -151,6 +153,7 @@ const actionsQuery = {
             id: "12",
             name: "emergency",
             type: "Box",
+            deletedOn: null,
           },
         ],
       },
