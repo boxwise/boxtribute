@@ -83,9 +83,7 @@ export default function CreatedBoxesFilterContainer({
 
       tagFilterValuesVar(distinctTagFilterValues);
     }
-    // we only need to update products if the product gender selection is updated
-    // including filterProducts would cause unnecessary rerenders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Note: filterProducts not included in deps to avoid unnecessary rerenders
   }, [createdBoxes?.dimensions, filterProductGenders]);
 
   const createdBoxesFacts = useMemo(() => {
@@ -95,7 +93,7 @@ export default function CreatedBoxesFilterContainer({
         "createdOn",
         interval,
       );
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];

@@ -86,7 +86,7 @@ export default function useShareableLink({
 
       try {
         await navigator.clipboard.writeText(linkTobeCopied);
-      } catch (error) {
+      } catch {
         createToast({
           type: "error",
           message: "Failed to copy to clipboard.",

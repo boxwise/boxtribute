@@ -128,7 +128,6 @@ export default function CreatedBoxes({ width, height, data, boxesOrItems }: ICre
   };
 
   // should only execute if data changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const createdBoxesPerDay = useMemo(getChartData, [data, createdBoxesGrouping]);
 
   const heading = boxesOrItems === "itemsCount" ? "New Items" : "Created Boxes";

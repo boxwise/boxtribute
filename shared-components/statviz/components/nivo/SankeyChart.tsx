@@ -38,11 +38,7 @@ export default function SankeyChart(chart: ISankeyChart) {
 
     chart.rendered(ref.current);
 
-    /**
-     * TODO: Exhaustive Deps disabled as we use useEffect as a watcher for "ref" only
-     * which is an anti pattern and we need to investigate better solutions
-     */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Note: useEffect watches "ref" only - consider investigating better solutions
   }, [ref]);
 
   const width = parseInt(chart.width, 10);

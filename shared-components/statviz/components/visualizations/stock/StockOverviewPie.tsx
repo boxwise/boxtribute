@@ -173,7 +173,6 @@ export default function StockOverviewPie({
     );
 
     setChartData(grouped);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drilldownPath, drilldownValues, data?.facts, boxesOrItems]);
 
   const getGroupOption = (levelsBack: number = 0) =>

@@ -67,7 +67,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   const movedBoxesFacts = useMemo(() => {
     try {
       return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
-    } catch (error) {
+    } catch {
       // TODO show toast with error message?
     }
     return [];
