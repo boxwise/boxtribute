@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from peewee import fn
 
+from ...enums import TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -11,6 +12,7 @@ from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
 from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
+from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.utils import HISTORY_CREATION_MESSAGE, HISTORY_DELETION_MESSAGE, utcnow
 from ...utils import in_production_environment
@@ -207,6 +209,13 @@ def number_of_beneficiaries_reached_between(start, end):
             ServicesRelation.select(ServicesRelation.beneficiary.alias("id")).where(
                 ServicesRelation.created_on >= start,
                 ServicesRelation.created_on <= end,
+            )
+        )
+        | (
+            TagsRelation.select(TagsRelation.object_id.alias("id")).where(
+                TagsRelation.object_type == TaggableObjectType.Beneficiary,
+                TagsRelation.created_on >= start,
+                TagsRelation.created_on <= end,
             )
         )
     )
