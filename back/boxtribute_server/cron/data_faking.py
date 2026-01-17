@@ -771,13 +771,11 @@ class Generator:
 
         Faker.seed(111)  # set seed for reproducibility
         for b in self.base_ids:
-            box_tag_ids = [
-                tag.id for tag in self.tags[b] if tag.type in [TagType.Box, TagType.All]
+            box_tags = [
+                tag for tag in self.tags[b] if tag.type in [TagType.Box, TagType.All]
             ]
-            in_stock_location_ids = [
-                loc.id
-                for loc in self.locations[b]
-                if loc.box_state_id == BoxState.InStock
+            in_stock_locations = [
+                loc for loc in self.locations[b] if loc.box_state_id == BoxState.InStock
             ]
             non_in_stock_location_ids = [
                 loc.id
@@ -802,8 +800,8 @@ class Generator:
                     measure_value = None
 
                 box = create_box(
-                    product_id=product.id,
-                    location_id=self.fake.random_element(in_stock_location_ids),
+                    product=product,
+                    location=self.fake.random_element(in_stock_locations),
                     size_id=size_id,
                     display_unit_id=display_unit_id,
                     measure_value=measure_value,
@@ -814,9 +812,9 @@ class Generator:
                     # Assign unique QR code to box
                     qr_code=self.fake.unique.random_element(self.qr_codes).code,
                     # Assign at most 3 tags to half of the boxes
-                    tag_ids=(
+                    tags=(
                         self.fake.random_elements(
-                            box_tag_ids,
+                            box_tags,
                             unique=True,
                             length=self.fake.random_int(min=1, max=3),
                         )
@@ -870,7 +868,7 @@ class Generator:
             for box in self.fake.random_elements(boxes, length=25):
                 update_box(
                     label_identifier=box.label_identifier,
-                    tag_ids=self.fake.random_sample(box_tag_ids, length=2),
+                    tags=self.fake.random_sample(box_tags, length=2),
                     user_id=self._user_id(b),
                 )
 

@@ -119,6 +119,8 @@ def test_public_box_number(read_only_client, start, end, duration, result):
         # Bene 1 was registered for a service in Nov 2025
         # Bene 6 was created yesterday
         ('"2025-01-01"', "null", "null", 2),
+        # Bene 6 was tagged in Jan 2023
+        ('"2023-01-01"', "null", 14, 1),
     ],
 )
 def test_reached_beneficiaries_numbers(read_only_client, start, end, duration, result):
