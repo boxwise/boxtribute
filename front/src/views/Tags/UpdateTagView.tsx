@@ -96,7 +96,7 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
           name: updateTagOutput.name,
           type: updateTagOutput.application,
           color: updateTagOutput.color,
-          description: updateTagOutput.description,
+          description: updateTagOutput.description ?? "",
         },
         refetchQueries: [
           {

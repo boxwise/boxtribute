@@ -49,10 +49,7 @@ export const useDeleteTags = () => {
   const { createToast } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  //TODO discuss if we can avoid this refetch if tag pull is improved
-  const [deleteTagsMutation] = useMutation(DELETE_TAGS, {
-    refetchQueries: ["TagsForTagsView"],
-  });
+  const [deleteTagsMutation] = useMutation(DELETE_TAGS);
 
   const deleteTags = useCallback(
     (tagIds: number[], showToasts: boolean = true, showErrors: boolean = true) => {

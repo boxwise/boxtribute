@@ -9,21 +9,39 @@ export type TagRow = {
   description?: string | null;
   totalTaggedItemsCount: number;
   color: string;
+  createdOn?: Date;
+  lastModifiedOn?: Date;
+  deletedOn?: Date;
 };
 
 export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
   return (
     tagsRawData.base?.tags
-      ?.map(({ id, name, type, color, description, taggedResources }) => {
-        return {
+      ?.map(
+        ({
           id,
           name,
-          application: type,
+          type,
+          color,
           description,
-          color: color || "",
-          totalTaggedItemsCount: taggedResources?.length || 0,
-        } satisfies TagRow;
-      })
-      .filter((tag) => tag !== undefined) || []
+          taggedResources,
+          createdOn,
+          lastModifiedOn,
+          deletedOn,
+        }) => {
+          return {
+            id,
+            name,
+            application: type,
+            description,
+            color: color || "",
+            totalTaggedItemsCount: taggedResources?.length || 0,
+            createdOn: createdOn ? new Date(createdOn) : undefined,
+            lastModifiedOn: lastModifiedOn ? new Date(lastModifiedOn) : undefined,
+            deletedOn: deletedOn ? new Date(deletedOn) : undefined,
+          } satisfies TagRow;
+        },
+      )
+      .filter((tag) => tag !== undefined && !tag.deletedOn) || []
   );
 };

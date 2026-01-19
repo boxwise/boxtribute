@@ -34,6 +34,8 @@ export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
     description
     type
     deletedOn
+    createdOn
+    lastModifiedOn
   }
 `);
 

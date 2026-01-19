@@ -13,6 +13,7 @@ import { Tag, TagLabel } from "@chakra-ui/react";
 import { colorIsBright } from "utils/helpers";
 import { Style } from "victory";
 import { TagsTable } from "./TagsTable";
+import { DateCell } from "components/Table/Cells";
 
 export const TAGS_QUERY = graphql(
   `
@@ -55,7 +56,7 @@ export function TagsContainer() {
     defaultTableConfig: {
       columnFilters: [],
       sortBy: [{ id: "name", desc: false }],
-      hiddenColumns: [],
+      hiddenColumns: ["createdOn", "lastModifiedOn"],
     },
   });
 
@@ -114,6 +115,20 @@ export function TagsContainer() {
         accessor: "totalTaggedItemsCount",
         id: "totalTaggedItemsCount",
         disableFilters: true,
+      },
+      {
+        Header: "Created Date",
+        accessor: "createdOn",
+        id: "createdOn",
+        Cell: DateCell,
+        sortType: "datetime",
+      },
+      {
+        Header: "Last Modified Date",
+        accessor: "lastModifiedOn",
+        id: "lastModifiedOn",
+        Cell: DateCell,
+        sortType: "datetime",
       },
     ],
     [],

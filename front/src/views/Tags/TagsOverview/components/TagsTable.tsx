@@ -81,7 +81,7 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+            availableColumns={allColumns.filter((column) => column.id !== "selection")}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
