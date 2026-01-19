@@ -12,6 +12,9 @@ from ..business_logic.metrics.crud import (
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
 )
+from ..business_logic.statistics.crud import compute_moved_boxes
+from ..models.definitions.base import Base
+from ..models.definitions.organisation import Organisation
 from ..models.utils import utcnow
 from .formatting import format_as_table
 
@@ -68,6 +71,43 @@ def compute_with_trend(func, end_date, duration):
     return result, total_trend, base_trends
 
 
+def number_of_boxes_moved_between(start, end):
+    """Compute number of moved boxes for all active bases in the given time span.
+    Active bases are non-deleted or deleted within the last 2 years.
+    """
+    # Get all active bases (non-deleted or deleted within last 2 years)
+    two_years_ago = utcnow() - timedelta(days=365 * 2)
+    active_bases = Base.select(Base.id, Base.name, Organisation.id, Organisation.name).join(
+        Organisation
+    ).where(
+        (Base.deleted_on.is_null()) | (Base.deleted_on >= two_years_ago)
+    )
+
+    results = []
+    for base in active_bases:
+        # Get moved boxes data for this base
+        moved_boxes_data = compute_moved_boxes(base.id)
+        
+        # Count boxes moved in the specified time span
+        total_boxes = 0
+        for fact in moved_boxes_data.facts:
+            moved_on = fact.get("moved_on")
+            if moved_on and start <= moved_on <= end:
+                # boxes_count can be negative (e.g., when boxes move back from Donated to InStock)
+                total_boxes += fact.get("boxes_count", 0)
+        
+        if total_boxes != 0:  # Only include bases with moved boxes
+            results.append({
+                "organisation_id": base.organisation.id,
+                "organisation_name": base.organisation.name,
+                "base_id": base.id,
+                "base_name": base.name,
+                "number": total_boxes,
+            })
+    
+    return results
+
+
 def get_internal_data():
     now = utcnow()
     all_data = []
@@ -76,11 +116,13 @@ def get_internal_data():
         "Newly created boxes",
         "Newly registered beneficiaries",
         "Reached beneficiaries",
+        "Moved boxes",
     ]
     funcs = [
         number_of_boxes_created_between,
         number_of_beneficiaries_registered_between,
         number_of_beneficiaries_reached_between,
+        number_of_boxes_moved_between,
     ]
     for title, func in zip(titles, funcs):
         results = []
