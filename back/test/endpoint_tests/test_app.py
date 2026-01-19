@@ -46,12 +46,10 @@ def test_base_specific_permissions(client, mocker):
     create_beneficiary_for_base3_mutation = (
         create_beneficiary_for_base2_mutation.replace("baseId: 2", "baseId: 3")
     )
-    data = {
-        "query": f"""mutation {{
+    data = {"query": f"""mutation {{
             bene2: {create_beneficiary_for_base2_mutation}
             bene3: {create_beneficiary_for_base3_mutation}
-        }}"""
-    }
+        }}"""}
 
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
@@ -61,12 +59,10 @@ def test_base_specific_permissions(client, mocker):
     assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
     assert response.json["errors"][0]["path"] == ["bene2"]
 
-    data = {
-        "query": """mutation {
+    data = {"query": """mutation {
             qr2: createQrCode { code }
             qr3: createQrCode { code }
-        }"""
-    }
+        }"""}
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
     assert response.json["data"]["qr2"] is not None
