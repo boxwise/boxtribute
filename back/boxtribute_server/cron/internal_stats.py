@@ -2,6 +2,7 @@ import json
 import os
 import urllib.request
 from datetime import timedelta
+from typing import Any
 
 from flask import current_app
 
@@ -71,45 +72,48 @@ def compute_with_trend(func, end_date, duration):
     return result, total_trend, base_trends
 
 
+MOVED_BOXES_CACHE: dict[int, Any] = {}
+
+
 def number_of_boxes_moved_between(start, end):
     """Compute number of moved boxes for all active bases in the given time span.
-    Active bases are non-deleted or deleted within the last 2 years.
+    Active bases are non-deleted or deleted within the last year.
     """
-    # Get all active bases (non-deleted or deleted within last 2 years)
-    two_years_ago = utcnow() - timedelta(days=365 * 2)
+    one_year_ago = utcnow() - timedelta(days=365)
     active_bases = (
         Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
         .join(Organisation)
-        .where((Base.deleted_on.is_null()) | (Base.deleted_on >= two_years_ago))
+        .where((Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago))
     )
 
     results = []
     for base in active_bases:
         # Get moved boxes data for this base
-        moved_boxes_data = compute_moved_boxes(base.id)
+        if base.id in MOVED_BOXES_CACHE:
+            moved_boxes_data = MOVED_BOXES_CACHE[base.id]
+        else:
+            moved_boxes_data = compute_moved_boxes(base.id)
+            MOVED_BOXES_CACHE[base.id] = moved_boxes_data
 
         # Count boxes moved in the specified time span
         # Convert datetime to date for comparison since moved_on is a date
         start_date = start.date()
         end_date = end.date()
-        total_boxes = 0
-        for fact in moved_boxes_data.facts:
-            moved_on = fact.get("moved_on")
-            if moved_on and start_date <= moved_on <= end_date:
-                # boxes_count can be negative (e.g., when boxes move back
-                # from Donated to InStock)
-                total_boxes += fact.get("boxes_count", 0)
+        total_boxes = sum(
+            fact["boxes_count"]
+            for fact in moved_boxes_data.facts
+            if start_date <= fact["moved_on"] <= end_date
+        )
 
-        if total_boxes != 0:  # Only include bases with moved boxes
-            results.append(
-                {
-                    "organisation_id": base.organisation.id,
-                    "organisation_name": base.organisation.name,
-                    "base_id": base.id,
-                    "base_name": base.name,
-                    "number": total_boxes,
-                }
-            )
+        results.append(
+            {
+                "organisation_id": base.organisation.id,
+                "organisation_name": base.organisation.name,
+                "base_id": base.id,
+                "base_name": base.name,
+                "number": total_boxes,
+            }
+        )
 
     return results
 
