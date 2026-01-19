@@ -77,17 +77,17 @@ def number_of_boxes_moved_between(start, end):
     """
     # Get all active bases (non-deleted or deleted within last 2 years)
     two_years_ago = utcnow() - timedelta(days=365 * 2)
-    active_bases = Base.select(Base.id, Base.name, Organisation.id, Organisation.name).join(
-        Organisation
-    ).where(
-        (Base.deleted_on.is_null()) | (Base.deleted_on >= two_years_ago)
+    active_bases = (
+        Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
+        .join(Organisation)
+        .where((Base.deleted_on.is_null()) | (Base.deleted_on >= two_years_ago))
     )
 
     results = []
     for base in active_bases:
         # Get moved boxes data for this base
         moved_boxes_data = compute_moved_boxes(base.id)
-        
+
         # Count boxes moved in the specified time span
         # Convert datetime to date for comparison since moved_on is a date
         start_date = start.date()
@@ -96,18 +96,21 @@ def number_of_boxes_moved_between(start, end):
         for fact in moved_boxes_data.facts:
             moved_on = fact.get("moved_on")
             if moved_on and start_date <= moved_on <= end_date:
-                # boxes_count can be negative (e.g., when boxes move back from Donated to InStock)
+                # boxes_count can be negative (e.g., when boxes move back
+                # from Donated to InStock)
                 total_boxes += fact.get("boxes_count", 0)
-        
+
         if total_boxes != 0:  # Only include bases with moved boxes
-            results.append({
-                "organisation_id": base.organisation.id,
-                "organisation_name": base.organisation.name,
-                "base_id": base.id,
-                "base_name": base.name,
-                "number": total_boxes,
-            })
-    
+            results.append(
+                {
+                    "organisation_id": base.organisation.id,
+                    "organisation_name": base.organisation.name,
+                    "base_id": base.id,
+                    "base_name": base.name,
+                    "number": total_boxes,
+                }
+            )
+
     return results
 
 
