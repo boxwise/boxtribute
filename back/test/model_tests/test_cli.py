@@ -205,13 +205,10 @@ def test_clone_products(default_product):
 @pytest.fixture
 def usergroup_tables():
     # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups`;
-"""
-    )
-    db.database.execute_sql(
-        """\
+""")
+    db.database.execute_sql("""\
 CREATE TABLE `cms_usergroups` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
@@ -232,16 +229,12 @@ CREATE TABLE `cms_usergroups` (
   CONSTRAINT `cms_usergroups_ibfk_4` FOREIGN KEY (`modified_by`)
   REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-"""
-    )
+""")
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_camps`;
-"""
-    )
-    db.database.execute_sql(
-        """\
+""")
+    db.database.execute_sql("""\
 CREATE TABLE `cms_usergroups_camps` (
   `camp_id` int(11) unsigned NOT NULL,
   `cms_usergroups_id` int(11) unsigned NOT NULL,
@@ -253,16 +246,12 @@ CREATE TABLE `cms_usergroups_camps` (
   CONSTRAINT `cms_usergroups_camps_ibfk_2` FOREIGN KEY (`camp_id`)
   REFERENCES `camps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-"""
-    )
+""")
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_functions_camps`;
-"""
-    )
-    db.database.execute_sql(
-        """\
+""")
+    db.database.execute_sql("""\
 CREATE TABLE `cms_functions_camps` (
   `cms_functions_id` int(11) unsigned NOT NULL,
   `camps_id` int(11) unsigned NOT NULL,
@@ -271,16 +260,12 @@ CREATE TABLE `cms_functions_camps` (
   CONSTRAINT `cms_functions_camps_ibfk_1` FOREIGN KEY (`camps_id`)
   REFERENCES `camps` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-"""
-    )
+""")
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_roles`;
-"""
-    )
-    db.database.execute_sql(
-        """\
+""")
+    db.database.execute_sql("""\
 CREATE TABLE `cms_usergroups_roles` (
   `cms_usergroups_id` int(11) unsigned NOT NULL,
   `auth0_role_id` varchar(255) NOT NULL,
@@ -290,16 +275,12 @@ CREATE TABLE `cms_usergroups_roles` (
   CONSTRAINT `cms_usergroups_roles_ibfk_1` FOREIGN KEY (`cms_usergroups_id`)
   REFERENCES `cms_usergroups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-"""
-    )
+""")
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_functions`;
-"""
-    )
-    db.database.execute_sql(
-        """\
+""")
+    db.database.execute_sql("""\
 CREATE TABLE `cms_usergroups_functions` (
   `cms_functions_id` int(11) unsigned NOT NULL,
   `cms_usergroups_id` int(11) unsigned NOT NULL,
@@ -308,8 +289,7 @@ CREATE TABLE `cms_usergroups_functions` (
   CONSTRAINT `cms_usergroups_functions_ibfk_1` FOREIGN KEY (`cms_usergroups_id`)
   REFERENCES `cms_usergroups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-"""
-    )
+""")
 
     yield
 
@@ -327,8 +307,7 @@ CREATE TABLE `cms_usergroups_functions` (
 
 @pytest.fixture
 def usergroup_data(usergroup_tables):
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 INSERT INTO `cms_usergroups` VALUES
     (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
     (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
@@ -337,11 +316,9 @@ INSERT INTO `cms_usergroups` VALUES
     (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL),
     (6,'Coordinator',NULL,NULL,NULL,NULL,1,NULL),
     (7,'Volunteer',NULL,NULL,NULL,NULL,1,NULL);
-"""
-    )
+""")
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 INSERT INTO `cms_usergroups_camps` VALUES
     (1,1),
     (1,2),
@@ -353,16 +330,13 @@ INSERT INTO `cms_usergroups_camps` VALUES
     (2,1),
     (2,6),
     (2,7);
-"""
-    )
+""")
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 INSERT INTO `cms_functions_camps` VALUES
     (1,1),
     (1,2);
-"""
-    )
+""")
 
     db.database.execute_sql(
         """\
