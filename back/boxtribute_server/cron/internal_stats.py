@@ -2,7 +2,6 @@ import json
 import os
 import urllib.request
 from datetime import timedelta
-from typing import Any
 
 from flask import current_app
 
@@ -13,9 +12,7 @@ from ..business_logic.metrics.crud import (
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
 )
-from ..business_logic.statistics.crud import compute_moved_boxes
-from ..models.definitions.base import Base
-from ..models.definitions.organisation import Organisation
+from ..business_logic.statistics.crud import number_of_boxes_moved_between
 from ..models.utils import utcnow
 from .formatting import format_as_table
 
@@ -70,52 +67,6 @@ def compute_with_trend(func, end_date, duration):
     base_trends = _compute_base_trends(result, comparison)
 
     return result, total_trend, base_trends
-
-
-MOVED_BOXES_CACHE: dict[int, Any] = {}
-
-
-def number_of_boxes_moved_between(start, end):
-    """Compute number of moved boxes for all active bases in the given time span.
-    Active bases are non-deleted or deleted within the last year.
-    """
-    one_year_ago = utcnow() - timedelta(days=365)
-    active_bases = (
-        Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
-        .join(Organisation)
-        .where((Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago))
-    )
-
-    results = []
-    for base in active_bases:
-        # Get moved boxes data for this base
-        if base.id in MOVED_BOXES_CACHE:
-            moved_boxes_data = MOVED_BOXES_CACHE[base.id]
-        else:
-            moved_boxes_data = compute_moved_boxes(base.id)
-            MOVED_BOXES_CACHE[base.id] = moved_boxes_data
-
-        # Count boxes moved in the specified time span
-        # Convert datetime to date for comparison since moved_on is a date
-        start_date = start.date()
-        end_date = end.date()
-        total_boxes = sum(
-            fact["boxes_count"]
-            for fact in moved_boxes_data.facts
-            if start_date <= fact["moved_on"] <= end_date
-        )
-
-        results.append(
-            {
-                "organisation_id": base.organisation.id,
-                "organisation_name": base.organisation.name,
-                "base_id": base.id,
-                "base_name": base.name,
-                "number": total_boxes,
-            }
-        )
-
-    return results
 
 
 def get_internal_data():

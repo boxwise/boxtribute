@@ -15,6 +15,7 @@ from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.location import Location
+from ...models.definitions.organisation import Organisation
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
 from ...models.definitions.shareable_link import ShareableLink
@@ -550,3 +551,48 @@ def create_shareable_link(
         created_on=now,
         created_by=user_id,
     )
+
+
+# Basic look-up to reduce number of expensive compute_moved_boxes() calls
+MOVED_BOXES_CACHE: dict[int, Any] = {}
+
+
+def number_of_boxes_moved_between(start, end):
+    """Compute number of moved boxes for all active bases in the given time span.
+    Active bases are non-deleted or deleted within the last year.
+    """
+    one_year_ago = utcnow() - timedelta(days=365)
+    active_bases = (
+        Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
+        .join(Organisation)
+        .where((Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago))
+    )
+
+    results = []
+    for base in active_bases:
+        moved_boxes_data = MOVED_BOXES_CACHE.get(base.id)
+        if moved_boxes_data is None:
+            moved_boxes_data = compute_moved_boxes(base.id)
+            MOVED_BOXES_CACHE[base.id] = moved_boxes_data
+
+        # Count boxes moved in the specified time span
+        # Convert datetime to date for comparison since moved_on is a date
+        start_date = start.date()
+        end_date = end.date()
+        total_boxes = sum(
+            fact["boxes_count"]
+            for fact in moved_boxes_data.facts
+            if start_date <= fact["moved_on"] <= end_date
+        )
+
+        results.append(
+            {
+                "organisation_id": base.organisation.id,
+                "organisation_name": base.organisation.name,
+                "base_id": base.id,
+                "base_name": base.name,
+                "number": total_boxes,
+            }
+        )
+
+    return results
