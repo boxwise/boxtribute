@@ -89,10 +89,13 @@ def number_of_boxes_moved_between(start, end):
         moved_boxes_data = compute_moved_boxes(base.id)
         
         # Count boxes moved in the specified time span
+        # Convert datetime to date for comparison since moved_on is a date
+        start_date = start.date()
+        end_date = end.date()
         total_boxes = 0
         for fact in moved_boxes_data.facts:
             moved_on = fact.get("moved_on")
-            if moved_on and start <= moved_on <= end:
+            if moved_on and start_date <= moved_on <= end_date:
                 # boxes_count can be negative (e.g., when boxes move back from Donated to InStock)
                 total_boxes += fact.get("boxes_count", 0)
         
