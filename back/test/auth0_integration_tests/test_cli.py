@@ -177,8 +177,7 @@ VALUES
         labels,
     )
 
-    db.database.execute_sql(
-        """\
+    db.database.execute_sql("""\
 INSERT INTO cms_usergroups_camps
     (camp_id, cms_usergroups_id)
 VALUES
@@ -187,8 +186,7 @@ VALUES
     (8, 99999992),
     (9, 99999993),
     (9, 99999990)
-;"""
-    )
+;""")
 
     data = [
         auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
@@ -241,20 +239,14 @@ VALUES
     # Tear-down: delete everything created above
     user_ids = [int(u["user_id"]) for u in auth0_users]
     db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
-    db.database.execute_sql(
-        f"""\
+    db.database.execute_sql(f"""\
 DELETE FROM cms_usergroups_roles
-WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";"""
-    )
-    db.database.execute_sql(
-        """\
+WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";""")
+    db.database.execute_sql("""\
 DELETE FROM cms_usergroups_camps
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
-    )
-    db.database.execute_sql(
-        """\
-DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
-    )
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
+    db.database.execute_sql("""\
+DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     base8.delete_instance()
     base9.delete_instance()
 
@@ -431,10 +423,8 @@ def test_remove_base_access(
     ]
 
     today = date.today().isoformat()
-    cursor = db.database.execute_sql(
-        """\
-SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
-    )
+    cursor = db.database.execute_sql("""\
+SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data[0] == (99999990, None)
     assert data[1][0] == 99999991
@@ -444,19 +434,15 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""
     assert data[3] == (99999993, None)
     assert data[4] == (99999994, None)
 
-    cursor = db.database.execute_sql(
-        """\
+    cursor = db.database.execute_sql("""\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
-    )
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == ((9, 99999990), (9, 99999993))
 
-    cursor = db.database.execute_sql(
-        """\
+    cursor = db.database.execute_sql("""\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
-    )
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == (
         ("administrator" + test_role_name_suffix, 99999990),
@@ -518,10 +504,8 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
     base = Base.get_by_id(int(base_id))
     assert base.deleted_on.date() == date.today()
 
-    cursor = db.database.execute_sql(
-        """\
-SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;"""
-    )
+    cursor = db.database.execute_sql("""\
+SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data[0][0] == 99999990
     assert data[0][1].isoformat().startswith(today)
@@ -529,18 +513,14 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""
     assert data[3][1].isoformat().startswith(today)
     assert data[4] == (99999994, None)
 
-    cursor = db.database.execute_sql(
-        """\
+    cursor = db.database.execute_sql("""\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
-    )
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == ()
 
-    cursor = db.database.execute_sql(
-        """\
+    cursor = db.database.execute_sql("""\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
-WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;"""
-    )
+WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == (("base_80_volunteer" + test_role_name_suffix, 99999994),)
