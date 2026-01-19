@@ -383,8 +383,12 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createBeneficiaries",
     "createBoxes",
-    "createBoxFromBox",
 )
+
+# ### BETA-LEVEL 7 ###
+# In addition to level 4,
+# - create-box-from-box prototype
+MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[4] + ("createBoxFromBox",)
 
 # ### BETA-LEVEL 98 ###
 # In addition to level 5,
