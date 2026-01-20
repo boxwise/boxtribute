@@ -796,8 +796,14 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         await user.click(checkbox1);
         await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
 
-        // Add a delay to ensure state propagation in CI environments
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Ensure state propagation in CI environments
+        await waitFor(
+          () =>
+            expect(screen.getByTestId("floating-selected-counter")).toHaveTextContent(
+              /one box selected/i,
+            ),
+          { timeout: 2000 },
+        );
 
         // Clicks logic
         if (name.toLowerCase().includes("deleteboxes")) {
@@ -872,11 +878,12 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           await user.click(actionButton);
 
           if (clicks[1]) {
-            // Add a delay to ensure menu is fully rendered before clicking sub-action
-            await new Promise((resolve) => setTimeout(resolve, 300));
-
-            // For other actions, click the sub-action button if specified
-            const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
+            // Wait until the sub-action is present, ensuring all Menu updates are flushed
+            const subButton = await waitFor(
+              () => screen.getByText(clicks[1]),
+              {},
+              { timeout: 10000 },
+            );
             expect(subButton).toBeInTheDocument();
             await user.click(subButton);
           }
