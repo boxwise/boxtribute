@@ -1,6 +1,9 @@
-from datetime import date
+from datetime import date, datetime
 
 from auth import mock_user_for_request
+from boxtribute_server.business_logic.statistics.crud import (
+    number_of_boxes_moved_between,
+)
 from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.definitions.box import Box
@@ -257,7 +260,12 @@ def test_query_top_products(
 
 
 def test_query_moved_boxes(
-    read_only_client, default_location, another_base, another_organisation
+    read_only_client,
+    default_location,
+    default_base,
+    another_base,
+    default_organisation,
+    another_organisation,
 ):
     query = """query { movedBoxes(baseId: 1) {
         facts {
@@ -391,6 +399,18 @@ def test_query_moved_boxes(
             ],
         },
     }
+
+    total_boxes_count = sum(fact["boxesCount"] for fact in data["facts"])
+    result = number_of_boxes_moved_between(datetime(2022, 12, 1), datetime.today())
+    assert len(result) == 4
+    assert result[0] == {
+        "base_id": default_base["id"],
+        "base_name": default_base["name"],
+        "organisation_id": default_organisation["id"],
+        "organisation_name": default_organisation["name"],
+        "number": total_boxes_count,
+    }
+    db.close_db(None)
 
 
 def test_query_stock_overview(read_only_client, default_product, default_location):
