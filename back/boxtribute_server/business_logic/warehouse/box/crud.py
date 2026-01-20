@@ -207,6 +207,13 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
     """Create a new box, derived from the specified source box, in the given location.
     The box attributes (product, size, measure_value, display_unit) are copied, and the
     given number of items are subtracted from the source box.
+
+    In order to obtain correct statistics, the new box is created in the source box'
+    location with 0 items at first.
+    - the new box is then moved to the new (possibly Donated) location which will be
+      tracked in the MovedBoxes statistic
+    - also, its number of items is then updated which avoid double-counting of items in
+      the CreatedBoxes statistic
     """
     if number_of_items < 0 or number_of_items > source_box.number_of_items:
         return InvalidNumberOfItems(number_of_items=number_of_items)
@@ -223,13 +230,20 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
     now = utcnow()
     # This is very unlikely to raise BoxCreationFailed, hence ignore handling it
     new_box = create_box(
-        number_of_items=number_of_items,
+        number_of_items=0,
         product=source_box.product,
-        location=location,
+        location=source_box.location,
         size_id=source_box.size_id,
         measure_value=source_box.measure_value,
         display_unit_id=source_box.display_unit_id,
         source_box_id=source_box.id,
+        user_id=user_id,
+        now=now,
+    )
+    new_box = update_box(
+        label_identifier=new_box.label_identifier,
+        number_of_items=number_of_items,
+        location_id=location.id,
         user_id=user_id,
         now=now,
     )

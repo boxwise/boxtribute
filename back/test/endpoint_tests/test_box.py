@@ -166,6 +166,7 @@ def test_box_mutations(
     yet_another_location,
     null_box_state_location,
     deleted_location,
+    non_default_box_state_location,
     tags,
     gram_unit,
     pound_unit,
@@ -968,13 +969,15 @@ def test_box_mutations(
 
     # Test case 8.2.91
     label_identifier = default_box["label_identifier"]
+    donated_location_id = str(non_default_box_state_location["id"])
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
             sourceBoxLabelIdentifier: "{label_identifier}"
-            locationId: {location_id}
+            locationId: {donated_location_id}
             numberOfItems: 1
             }} ) {{
                 ...on Box {{
                     numberOfItems
+                    state
                     location {{ id }}
                     product {{ id }}
                     size {{ id }}
@@ -982,7 +985,8 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {
         "numberOfItems": 1,
-        "location": {"id": location_id},
+        "state": BoxState.Donated.name,
+        "location": {"id": donated_location_id},
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
     }
@@ -1388,6 +1392,39 @@ def test_box_mutations(
             "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
+            "record_id": box_id + 3,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "items",
+            "from_int": 0,
+            "to_int": 1,
+            "record_id": box_id + 3,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "location_id",
+            "from_int": int(location_id),
+            "to_int": int(donated_location_id),
+            "record_id": box_id + 3,
+            "table_name": "stock",
+            "user": 8,
+            "ip": None,
+            "from_float": None,
+            "to_float": None,
+        },
+        {
+            "changes": "box_state_id",
+            "from_int": BoxState.InStock.value,
+            "to_int": BoxState.Donated.value,
             "record_id": box_id + 3,
             "table_name": "stock",
             "user": 8,
