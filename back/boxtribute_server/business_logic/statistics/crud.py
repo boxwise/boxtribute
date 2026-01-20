@@ -27,6 +27,7 @@ from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
 from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
 from ...utils import in_ci_environment, in_production_environment
+from ..metrics.crud import exclude_test_organisation
 from .sql import MOVED_BOXES_QUERY
 
 
@@ -565,7 +566,10 @@ def number_of_boxes_moved_between(start, end):
     active_bases = (
         Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
         .join(Organisation)
-        .where((Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago))
+        .where(
+            (Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago),
+            exclude_test_organisation(),
+        )
     )
 
     results = []
