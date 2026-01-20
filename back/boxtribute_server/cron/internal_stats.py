@@ -12,6 +12,7 @@ from ..business_logic.metrics.crud import (
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
 )
+from ..business_logic.statistics.crud import number_of_boxes_moved_between
 from ..models.utils import utcnow
 from .formatting import format_as_table
 
@@ -70,17 +71,18 @@ def compute_with_trend(func, end_date, duration):
 
 def get_internal_data():
     now = utcnow()
-    all_data = []
 
     titles = [
         "Newly created boxes",
         "Newly registered beneficiaries",
         "Reached beneficiaries",
+        "Moved boxes",
     ]
     funcs = [
         number_of_boxes_created_between,
         number_of_beneficiaries_registered_between,
         number_of_beneficiaries_reached_between,
+        number_of_boxes_moved_between,
     ]
     for title, func in zip(titles, funcs):
         results = []
@@ -94,8 +96,7 @@ def get_internal_data():
         data = format_as_table(
             *results, trends=total_trends, base_trends=base_trends_list
         )
-        all_data.append({"title": title, "data": data})
-    return all_data
+        yield {"title": title, "data": data}
 
 
 def post_internal_stats_to_slack():
