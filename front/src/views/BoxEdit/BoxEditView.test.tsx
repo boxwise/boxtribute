@@ -2,7 +2,7 @@ import { it, expect } from "vitest";
 import { userEvent } from "@testing-library/user-event";
 import { screen, render, waitFor } from "tests/test-utils";
 import { assertOptionsInSelectField, selectOptionInSelectField } from "tests/helpers";
-import { box123 } from "mocks/boxes";
+import { box123, generateMockBox } from "mocks/boxes";
 import { products } from "mocks/products";
 import { locations } from "mocks/locations";
 import { tags } from "mocks/tags";
@@ -26,6 +26,7 @@ const initialQuery = {
     data: {
       box: box123,
       base: {
+        id: "1",
         products,
         locations,
         tags,
@@ -90,7 +91,8 @@ const refetchQuery = {
   },
   result: {
     data: {
-      box: box123,
+      box: generateMockBox({}),
+      shipments: [],
     },
   },
 };
