@@ -71,7 +71,6 @@ def compute_with_trend(func, end_date, duration):
 
 def get_internal_data():
     now = utcnow()
-    all_data = []
 
     titles = [
         "Newly created boxes",
@@ -97,8 +96,7 @@ def get_internal_data():
         data = format_as_table(
             *results, trends=total_trends, base_trends=base_trends_list
         )
-        all_data.append({"title": title, "data": data})
-    return all_data
+        yield {"title": title, "data": data}
 
 
 def post_internal_stats_to_slack():
