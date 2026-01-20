@@ -136,6 +136,7 @@ Mind the following perks of peewee:
 
 1. When creating a model instance referencing another model via a foreign key, use the ID of the FK model instance instead of a model instance, e.g. `Location(base=1)`.
 1. If you want to retrieve only the ID of a foreign key field, access it with the "magic" suffix `_id`, e.g. `location.base_id`. This avoids overhead of an additional select query issued by peewee when using `location.base.id`.
+1. peewee will cache the results of a select operation, leading to large memory consumption for large result sets. This can be avoided by attaching `.iterator()` to the select call. See [docs for more info](http://docs.peewee-orm.com/en/latest/peewee/querying.html#iterating-over-large-result-sets) and also this [insightful question](https://stackoverflow.com/questions/77564291/debug-peewee-cache-hits/77571546#77571546)
 1. You can activate peewee's logging to gain insight into the generated SQL queries:
 
 ```python

@@ -63,7 +63,9 @@ class SimpleDataLoader(DataLoader):
         if not self.skip_authorize:
             authorize(permission=self.permission)
 
-        rows = {r.id: r for r in self.model.select().where(self.model.id << ids)}
+        rows = {
+            r.id: r for r in self.model.select().where(self.model.id << ids).iterator()
+        }
         return [rows.get(i) for i in ids]
 
 
@@ -136,10 +138,12 @@ class ShipmentLoader(DataLoader):
     async def batch_load_fn(self, keys):
         shipments = {
             s.id: s
-            for s in Shipment.select().orwhere(
+            for s in Shipment.select()
+            .orwhere(
                 authorized_bases_filter(Shipment, base_fk_field_name="source_base_id"),
                 authorized_bases_filter(Shipment, base_fk_field_name="target_base_id"),
             )
+            .iterator()
         }
         return [shipments.get(i) for i in keys]
 
@@ -196,11 +200,12 @@ class ShipmentsForAgreementLoader(DataLoader):
         # Select all shipments with given agreement IDs that the user is authorized for,
         # and group them by agreement ID
         shipments = defaultdict(list)
-        for shipment in Shipment.select().where(
+        result = Shipment.select().where(
             Shipment.transfer_agreement << agreement_ids,
             authorized_bases_filter(Shipment, base_fk_field_name="source_base")
             | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
-        ):
+        )
+        for shipment in result.iterator():
             shipments[shipment.transfer_agreement_id].append(shipment)
         # Return empty list if agreement has no shipments attached
         return [shipments.get(i, []) for i in agreement_ids]
@@ -210,7 +215,7 @@ class TagsForBoxLoader(DataLoader):
     async def batch_load_fn(self, keys):
         tags = defaultdict(list)
         # maybe need different join type
-        for relation in TagsRelation.select(
+        result = TagsRelation.select(
             TagsRelation.object_type, TagsRelation.object_id, Tag
         ).join(
             Tag,
@@ -221,7 +226,8 @@ class TagsForBoxLoader(DataLoader):
                 & (TagsRelation.deleted_on.is_null())
                 & (authorized_bases_filter(Tag))
             ),
-        ):
+        )
+        for relation in result.iterator():
             tags[relation.object_id].append(relation.tag)
 
         # Keys are in fact box IDs. Return empty list if box has no tags assigned
@@ -505,7 +511,7 @@ class HistoryForBoxLoader(DataLoader):
 
         # Construct mapping of box IDs and their history information
         box_histories = defaultdict(list)
-        for row in result.dicts():
+        for row in result.dicts().iterator():
             box_histories[row["record_id"]].extend(
                 [
                     DbChangeHistory(id=i, user=u, changes=c, change_date=d)
@@ -538,6 +544,7 @@ class ShipmentDetailsForShipmentLoader(DataLoader):
             ShipmentDetail.select(ShipmentDetail, Shipment)
             .join(Shipment)
             .where(ShipmentDetail.shipment << shipment_ids)
+            .iterator()
         ):
             details[detail.shipment_id].append(detail)
         # Return empty list if shipment has no details attached
@@ -556,12 +563,14 @@ class ShipmentDetailForBoxLoader(DataLoader):
             return [None for _ in keys]
         details = {
             detail.box_id: detail
-            for detail in ShipmentDetail.select().where(
+            for detail in ShipmentDetail.select()
+            .where(
                 ShipmentDetail.box << keys,
                 ShipmentDetail.removed_on.is_null(),
                 ShipmentDetail.lost_on.is_null(),
                 ShipmentDetail.received_on.is_null(),
             )
+            .iterator()
         }
         # Keys are in fact box IDs. Return None if box has no shipment detail associated
         return [details.get(i) for i in keys]
@@ -583,6 +592,7 @@ class ItemsCountForProductLoader(DataLoader):
                 (Box.deleted_on.is_null() | ~Box.deleted_on),
             )
             .group_by(Box.product)
+            .iterator()
         }
         return [counts.get(i, 0) for i in product_ids]
 
@@ -604,7 +614,7 @@ class SizesForSizeRangeLoader(DataLoader):
         authorize(permission="size:read")
         # Mapping of size range ID to list of sizes
         sizes = defaultdict(list)
-        for size in Size.select():
+        for size in Size.select().iterator():
             sizes[size.size_range_id].append(size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
