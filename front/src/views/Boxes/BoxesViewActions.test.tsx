@@ -124,6 +124,7 @@ const assignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
+                  lastModifiedBy: { id: "2", name: "coordinator" },
                   tags: tagIds.map((id) => ({ id: id.toString(), __typename: "Tag" })),
                 })),
                 invalidBoxLabelIdentifiers: [],
@@ -156,6 +157,7 @@ const unassignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
+                  lastModifiedBy: { id: "2", name: "coordinator" },
                   tags: [],
                 })),
                 invalidBoxLabelIdentifiers: [],
@@ -201,6 +203,10 @@ const unassignFromShipmentGQLRequest = graphql(`
             __typename
           }
           lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
           __typename
         }
         __typename
@@ -268,6 +274,7 @@ const moveBoxesMutation = ({
                             id: locationId.toString(),
                           },
                           lastModifiedOn: new Date().toISOString(),
+                          lastModifiedBy: { id: "2", name: "coordinator" },
                         })),
                         invalidBoxLabelIdentifiers,
                       },
@@ -306,6 +313,7 @@ const deleteBoxesMutation = ({
                   updatedBoxes: labelIdentifiers.map((id) => ({
                     labelIdentifier: id,
                     deletedOn: new Date().toISOString(),
+                    product: { id: 10, transferItemsCount: 1, instockItemsCount: 3 },
                   })),
                   invalidBoxLabelIdentifiers: invalidBoxLabelIdentifiers,
                 },
@@ -788,8 +796,14 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         await user.click(checkbox1);
         await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
 
-        // Add a delay to ensure state propagation in CI environments
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Ensure state propagation in CI environments
+        await waitFor(
+          () =>
+            expect(screen.getByTestId("floating-selected-counter")).toHaveTextContent(
+              /one box selected/i,
+            ),
+          { timeout: 2000 },
+        );
 
         // Clicks logic
         if (name.toLowerCase().includes("deleteboxes")) {
@@ -864,11 +878,12 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           await user.click(actionButton);
 
           if (clicks[1]) {
-            // Add a delay to ensure menu is fully rendered before clicking sub-action
-            await new Promise((resolve) => setTimeout(resolve, 300));
-
-            // For other actions, click the sub-action button if specified
-            const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
+            // Wait until the sub-action is present, ensuring all Menu updates are flushed
+            const subButton = await waitFor(
+              () => screen.getByText(clicks[1]),
+              {},
+              { timeout: 10000 },
+            );
             expect(subButton).toBeInTheDocument();
             await user.click(subButton);
           }

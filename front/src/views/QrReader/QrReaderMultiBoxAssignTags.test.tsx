@@ -92,6 +92,8 @@ export const generateAssignTagsResponse = ({
             id: String(newTagId),
           },
         ],
+        lastModifiedOn: "2023-11-19T10:24:29+00:00",
+        lastModifiedBy: { id: "2", name: "coordinator" },
       } as AssignTagsBox);
     } else {
       invalidBoxLabelIdentifiers.push(labelIdentifier);
