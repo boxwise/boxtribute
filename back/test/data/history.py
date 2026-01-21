@@ -60,6 +60,17 @@ def data():
         ]
         + [
             {
+                # corresponding beneficiary was fully deleted
+                "id": 109,
+                "changes": HISTORY_CREATION_MESSAGE,
+                "from_int": None,
+                "to_int": None,
+                "record_id": 1000,
+                "change_date": datetime(2021, 5, 21),
+                "table_name": "people",
+                "user": USER_ID,
+            },
+            {
                 # corresponding box was added to a shipment
                 "id": 110,
                 "changes": "box_state_id",

@@ -4,12 +4,18 @@ from datetime import datetime, timedelta, timezone
 
 from peewee import fn
 
+from ...enums import TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
+from ...models.definitions.location import Location
+from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
+from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import HISTORY_DELETION_MESSAGE, utcnow
+from ...models.utils import HISTORY_CREATION_MESSAGE, HISTORY_DELETION_MESSAGE, utcnow
+from ...utils import in_production_environment
 
 
 def _build_range_filter(field, *, low, high):
@@ -69,15 +75,76 @@ def compute_number_of_sales(*, organisation_id, after, before):
     )
 
 
-def number_of_created_records_between(model, start, end):
+def exclude_test_organisation():
+    if in_production_environment():
+        return (Organisation.id != 1) | Organisation.id.is_null()
+    return True
+
+
+def number_of_boxes_created_between(start, end):
     return (
-        model.select()
-        .where((model.created_on >= start) & (model.created_on <= end))
-        .count()
+        Box.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(Box.id).alias("number"),
+        )
+        .join(Location)
+        .join(Base)
+        .join(Organisation)
+        .where(
+            Box.created_on >= start,
+            Box.created_on <= end,
+            exclude_test_organisation(),
+        )
+        .group_by(Organisation.id, Base.id)
+    ).dicts()
+
+
+def number_of_beneficiaries_registered_between(start, end):
+    # Beneficiaries might be hard-deleted from the people table, hence we have to use
+    # the history table for reliable information about their creation. However some
+    # beneficiaries might have been directly imported into the DB without creating
+    # history entries, we then fallback to using Beneficiary.created_on. Unfortunately,
+    # if these beneficiaries are fully-deleted, we lose their information and the
+    # statistic becomes imprecise. A fix will come with https://trello.com/c/SYHi6Rj8
+    RegisteredBeneficiaries = (
+        DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
+            DbChangeHistory.table_name == Beneficiary._meta.table_name,
+            DbChangeHistory.change_date >= start,
+            DbChangeHistory.change_date <= end,
+            DbChangeHistory.changes == HISTORY_CREATION_MESSAGE,
+        )
+    ) | (
+        # created acc. to people table (contains info for some beneficiaries
+        # directly imported to the DB but misses permanently deleted beneficiaries)
+        Beneficiary.select(Beneficiary.id).where(
+            Beneficiary.created_on >= start,
+            Beneficiary.created_on <= end,
+        )
     )
+    return (
+        Beneficiary.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(RegisteredBeneficiaries.c.id).alias("number"),
+        )
+        .from_(RegisteredBeneficiaries)
+        .left_outer_join(
+            Beneficiary, on=(Beneficiary.id == RegisteredBeneficiaries.c.id)
+        )
+        .left_outer_join(Base)
+        .left_outer_join(Organisation)
+        .where(exclude_test_organisation())
+        .group_by(Organisation.id, Base.id)
+        .order_by(Organisation.id, Base.id)
+    ).dicts()
 
 
-def reached_beneficiaries_numbers(start, end):
+def number_of_beneficiaries_reached_between(start, end):
     # Return UNION of five sources of beneficiaries reached in given time span
     # Known issues with this statistic as of 2025.12.15:
     # - Deleted bene's create issues in the transactions table (NULL people_id for free
@@ -91,7 +158,7 @@ def reached_beneficiaries_numbers(start, end):
     # Though the DbChangeHistory, Transaction, ServicesRelation models have one-to-many
     # relationships with Beneficiary we don't have to use DISTINCT because UNION takes
     # care of removing the duplicates
-    return (
+    ReachedBeneficiaries = (
         (
             # created/edited (persistently logged in history table)
             DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
@@ -144,7 +211,33 @@ def reached_beneficiaries_numbers(start, end):
                 ServicesRelation.created_on <= end,
             )
         )
-    ).count()
+        | (
+            TagsRelation.select(TagsRelation.object_id.alias("id")).where(
+                TagsRelation.object_type == TaggableObjectType.Beneficiary,
+                TagsRelation.created_on >= start,
+                TagsRelation.created_on <= end,
+            )
+        )
+    )
+    return (
+        Beneficiary.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(ReachedBeneficiaries.c.id).alias("number"),
+        )
+        .from_(ReachedBeneficiaries)
+        .left_outer_join(Beneficiary, on=(Beneficiary.id == ReachedBeneficiaries.c.id))
+        .left_outer_join(Base)
+        .left_outer_join(Organisation)
+        .where(exclude_test_organisation())
+        .group_by(Organisation.id, Base.id)
+    ).dicts()
+
+
+def compute_total(data):
+    return sum(row["number"] for row in data)
 
 
 def get_time_span(

@@ -983,7 +983,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[28:] == [
+    assert history[29:] == [
         {
             "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,

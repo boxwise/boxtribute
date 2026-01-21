@@ -37,7 +37,7 @@ const initialQueryAllBasesOfCurrentOrg = {
     },
   },
   result: {
-    data: organisation1.bases,
+    data: { organisation: organisation1 },
   },
 };
 
