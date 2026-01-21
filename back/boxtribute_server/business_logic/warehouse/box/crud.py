@@ -240,16 +240,16 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         user_id=user_id,
         now=now,
     )
+    update_box(
+        label_identifier=source_box.label_identifier,
+        number_of_items=source_box.number_of_items - number_of_items,
+        user_id=user_id,
+        now=now,
+    )
     new_box = update_box(
         label_identifier=new_box.label_identifier,
         number_of_items=number_of_items,
         location_id=location.id,
-        user_id=user_id,
-        now=now,
-    )
-    update_box(
-        label_identifier=source_box.label_identifier,
-        number_of_items=source_box.number_of_items - number_of_items,
         user_id=user_id,
         now=now,
     )
