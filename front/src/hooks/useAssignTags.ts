@@ -12,6 +12,10 @@ export const ASSIGN_TAGS_TO_BOXES = gql`
           id
         }
         lastModifiedOn
+        lastModifiedBy {
+          id
+          name
+        }
       }
       invalidBoxLabelIdentifiers
     }

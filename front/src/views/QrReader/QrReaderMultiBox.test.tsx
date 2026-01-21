@@ -46,7 +46,7 @@ const mockEmptyLocationsTagsShipmentsQuery = {
   result: {
     data: {
       shipments: [],
-      base: { locations, tags: null },
+      base: { id: "1", locations, tags: null },
     },
   },
 };
@@ -81,6 +81,7 @@ const qrScanningInMultiBoxTabTests = [
     mocks: [
       mockSuccessfulQrQuery({ hash: "QrWithBoxFromSameBase" }),
       mockSuccessfulQrQuery({ hash: "QrWithBoxFromSameBase" }),
+      mockEmptyLocationsTagsShipmentsQuery,
     ],
     boxCount: 1,
     toasts: [
@@ -91,7 +92,10 @@ const qrScanningInMultiBoxTabTests = [
   {
     name: "3.4.3.4 - user scans QR code of same org without previously associated box",
     hash: "QrWithoutBox",
-    mocks: [mockSuccessfulQrQuery({ hash: "QrWithoutBox", isBoxAssociated: false })],
+    mocks: [
+      mockSuccessfulQrQuery({ hash: "QrWithoutBox", isBoxAssociated: false }),
+      mockEmptyLocationsTagsShipmentsQuery,
+    ],
     boxCount: 0,
     toasts: [{ message: /no box associated to this Q/i, isError: true }],
   },
@@ -238,7 +242,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
     name: "3.4.3.7 - user scans non Boxtribute QR code ",
     hash: "nonBoxtributeQr",
     isBoxtributeQr: false,
-    mocks: [],
+    mocks: [mockEmptyLocationsTagsShipmentsQuery],
     toasts: [{ message: /This is not a Boxtribute QR code/i, isError: true }],
   },
   {
@@ -250,6 +254,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
         hash: "QrHashNotInDb",
         returnedQrTypeName: "ResourceDoesNotExistError",
       }),
+      mockEmptyLocationsTagsShipmentsQuery,
     ],
     toasts: [{ message: /This is not a Boxtribute QR code/i, isError: true }],
   },
@@ -262,6 +267,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
         hash: "InternalServerError",
         graphQlError: true,
       }),
+      mockEmptyLocationsTagsShipmentsQuery,
     ],
     toasts: [{ message: /QR code lookup failed/i, isError: true }],
   },
@@ -274,6 +280,7 @@ const qrScanningInMultiBoxTabTestsFailing = [
         hash: "NetworkError",
         networkError: true,
       }),
+      mockEmptyLocationsTagsShipmentsQuery,
     ],
     toasts: [{ message: /QR code lookup failed/i, isError: true }],
   },
