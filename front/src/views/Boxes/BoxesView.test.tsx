@@ -136,6 +136,8 @@ const actionsQuery = {
             name: "company X",
             type: "Box",
             deletedOn: null,
+            createdOn: "2023-11-01T10:00:00Z",
+            lastModifiedOn: "2023-11-01T10:00:00Z",
           },
           {
             __typename: "Tag",
@@ -145,6 +147,8 @@ const actionsQuery = {
             name: "new",
             type: "All",
             deletedOn: null,
+            createdOn: "2023-11-05T12:00:00Z",
+            lastModifiedOn: "2023-11-05T12:00:00Z",
           },
           {
             __typename: "Tag",
@@ -154,6 +158,8 @@ const actionsQuery = {
             name: "emergency",
             type: "Box",
             deletedOn: null,
+            createdOn: "2023-11-10T09:30:00Z",
+            lastModifiedOn: "2023-11-10T09:30:00Z",
           },
         ],
       },
@@ -235,6 +241,7 @@ const moveBoxesMutation = {
               id: "17",
             },
             lastModifiedOn: new Date().toISOString(),
+            lastModifiedBy: { id: "2", name: "coordinator" },
           },
           {
             labelIdentifier: "1481666",
@@ -243,6 +250,7 @@ const moveBoxesMutation = {
               id: "17",
             },
             lastModifiedOn: new Date().toISOString(),
+            lastModifiedBy: { id: "2", name: "coordinator" },
           },
         ],
         invalidBoxLabelIdentifiers: [],
