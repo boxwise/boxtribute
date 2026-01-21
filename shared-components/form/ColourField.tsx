@@ -284,15 +284,32 @@ export const ColourField = ({
               <PopoverTrigger>
                 <Box>
                   <HStack
-                    spacing={2}
+                    spacing={0}
                     border="2px"
                     cursor="pointer"
                     _hover={{ borderColor: "gray.400" }}
                   >
                     <Box w="40px" h="40px" bg={currentColor} />
-                    <Text fontSize="md" fontWeight="medium">
-                      {currentColor.toUpperCase()}
-                    </Text>
+                    <Input
+                      className="border-0 text-left outline-0 w-full"
+                      value={currentColor.toUpperCase()}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setColorQuery(value);
+                        if (
+                          /^#[0-9A-Fa-f]{0,6}$/.test(value) ||
+                          /^#[0-9A-Fa-f]{0,3}$/.test(value) ||
+                          /^#[0-9A-Fa-f]{0,4}$/.test(value)
+                        ) {
+                          setTempColor(value);
+                          field.onChange(value);
+                        } else {
+                          setTempColor(undefined);
+                        }
+                      }}
+                      placeholder="Any hex color code (e.g., #FF5733)"
+                      fontWeight="medium"
+                    />
                   </HStack>
                 </Box>
               </PopoverTrigger>
