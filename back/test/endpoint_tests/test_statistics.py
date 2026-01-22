@@ -718,8 +718,31 @@ def test_statistics_after_create_box_from_box(
     assert new_box["numberOfItems"] == new_box_items
     assert new_box["location"]["id"] == donated_location_id
 
+    # use createBoxFromBox with an InStock location to create 2nd new box with 10 items
+    mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
+        sourceBoxLabelIdentifier: "{label_identifier}"
+        locationId: {location_id}
+        numberOfItems: {new_box_items}
+    }} ) {{
+        ...on Box {{
+            labelIdentifier
+            numberOfItems
+            location {{ id name }}
+        }}
+    }} }}"""
+    another_new_box = assert_successful_request(client, mutation)
+    assert another_new_box["numberOfItems"] == new_box_items
+    assert another_new_box["location"]["id"] == location_id
+    # Move the second box to a Donated location
+    mutation = f"""mutation {{ updateBox( updateInput: {{
+        labelIdentifier: "{another_new_box['labelIdentifier']}"
+        locationId: {donated_location_id}
+    }} ) {{ location {{ id }} }} }}"""
+    another_new_box = assert_successful_request(client, mutation)
+    assert another_new_box["location"]["id"] == donated_location_id
+
     # Obtain createdBoxes statistic for base 1. It should contain the newly created
-    # large box and the newly created small box but 100 for itemsCount
+    # large box and the newly created small boxes but 100 for itemsCount
     data = assert_successful_request(client, query, endpoint="graphql")
     created_box_facts = [
         f
@@ -727,12 +750,12 @@ def test_statistics_after_create_box_from_box(
         if f["createdOn"] == f"{today}T00:00:00" and f["productId"] == int(product_id)
     ]
     assert len(created_box_facts) == 1
-    # Total items should still be 100 (90 in original + 10 in new box)
-    assert created_box_facts[0]["boxesCount"] == 2
+    # Total items should still be 100 (80 in original + 2x10 in new boxes)
+    assert created_box_facts[0]["boxesCount"] == 3
     assert created_box_facts[0]["itemsCount"] == original_number_of_items
 
     # Obtain movedBoxes statistic for base 1. It should contain the newly created small
-    # box with the location name as targetId
+    # boxes with the location name as targetId
     query = """query { movedBoxes(baseId: 1) {
         facts {
             movedOn gender targetId productName boxesCount itemsCount
@@ -748,6 +771,6 @@ def test_statistics_after_create_box_from_box(
         and f["productName"] == product_name
     ]
     assert len(moved_box_facts) == 1
-    assert moved_box_facts[0]["boxesCount"] == 1
-    assert moved_box_facts[0]["itemsCount"] == new_box_items
+    assert moved_box_facts[0]["boxesCount"] == 2
+    assert moved_box_facts[0]["itemsCount"] == 2 * new_box_items
     assert moved_box_facts[0]["gender"] == product_gender
