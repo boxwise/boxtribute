@@ -846,6 +846,7 @@ type Box implements ItemsCollection {
   lastModifiedOn: Datetime
   deletedOn: Datetime
   comment: String
+  " List of all non-deleted [`Tags`]({{Types.Tag}}) assigned to the box "
   tags: [Tag!]
   " Sorted by date, newest first "
   history: [HistoryEntry!]
