@@ -7,13 +7,21 @@ import peewee
 
 from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
+from ....errors import (
+    DeletedBox,
+    DeletedLocation,
+    InvalidBoxState,
+    InvalidNumberOfItems,
+)
 from ....exceptions import (
     BoxCreationFailed,
     BoxDeleted,
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
-    InvalidBoxState,
+)
+from ....exceptions import InvalidBoxState as InvalidBoxStateExc
+from ....exceptions import (
     LocationBaseMismatch,
     LocationTagBaseMismatch,
     MissingInputField,
@@ -87,6 +95,7 @@ def create_box(
     qr_code=None,
     tags=None,
     new_tag_names=None,
+    source_box_id=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
@@ -152,6 +161,7 @@ def create_box(
             new_box.state = box_state
             new_box.qr_code = qr_id
             new_box.display_unit = display_unit_id
+            new_box.source_box = source_box_id
 
             if measure_value is not None:
                 # Convert from display unit to dimensional base unit
@@ -193,6 +203,59 @@ def create_box(
     raise BoxCreationFailed()
 
 
+def create_box_from_box(*, user_id, source_box, location, number_of_items):
+    """Create a new box, derived from the specified source box, in the given location.
+    The box attributes (product, size, measure_value, display_unit) are copied, and the
+    given number of items are subtracted from the source box.
+
+    In order to obtain correct statistics, the new box is created in the source box'
+    location with 0 items at first.
+    - the new box is then moved to the new (possibly Donated) location which will be
+      tracked in the MovedBoxes statistic
+    - also, its number of items is then updated which avoid double-counting of items in
+      the CreatedBoxes statistic
+    """
+    if number_of_items < 0 or number_of_items > source_box.number_of_items:
+        return InvalidNumberOfItems(number_of_items=number_of_items)
+
+    if source_box.deleted_on is not None:
+        return DeletedBox(label_identifier=source_box.label_identifier)
+
+    if location.deleted_on is not None:
+        return DeletedLocation(name=location.name)
+
+    if source_box.state_id not in WAREHOUSE_BOX_STATES:
+        return InvalidBoxState(state=source_box.state_id)
+
+    now = utcnow()
+    # This is very unlikely to raise BoxCreationFailed, hence ignore handling it
+    new_box = create_box(
+        number_of_items=0,
+        product=source_box.product,
+        location=source_box.location,
+        size_id=source_box.size_id,
+        measure_value=source_box.measure_value,
+        display_unit_id=source_box.display_unit_id,
+        source_box_id=source_box.id,
+        user_id=user_id,
+        now=now,
+    )
+    update_box(
+        label_identifier=source_box.label_identifier,
+        number_of_items=source_box.number_of_items - number_of_items,
+        user_id=user_id,
+        now=now,
+    )
+    new_box = update_box(
+        label_identifier=new_box.label_identifier,
+        number_of_items=number_of_items,
+        location_id=location.id,
+        user_id=user_id,
+        now=now,
+    )
+    return new_box
+
+
 @save_update_to_history(
     id_field_name="label_identifier",
     fields=[
@@ -231,7 +294,7 @@ def update_box(
         raise BoxDeleted(label_identifier=label_identifier)
 
     if box.state_id not in WAREHOUSE_BOX_STATES:
-        raise InvalidBoxState(
+        raise InvalidBoxStateExc(
             state=BoxState(box.state_id).name, label_identifier=label_identifier
         )
 
