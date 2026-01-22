@@ -307,6 +307,25 @@ export const ColourField = ({
                           setTempColor(undefined);
                         }
                       }}
+                      onPaste={(e) => {
+                        const pastedText = e.clipboardData.getData("text");
+                        if (pastedText.startsWith("#")) {
+                          e.preventDefault();
+                          const valueWithoutHash = pastedText.slice(1);
+                          const newValue = "#" + valueWithoutHash;
+                          setColorQuery(newValue);
+                          if (
+                            /^#[0-9A-Fa-f]{0,6}$/.test(newValue) ||
+                            /^#[0-9A-Fa-f]{0,3}$/.test(newValue) ||
+                            /^#[0-9A-Fa-f]{0,4}$/.test(newValue)
+                          ) {
+                            setTempColor(newValue);
+                            field.onChange(newValue);
+                          } else {
+                            setTempColor(undefined);
+                          }
+                        }
+                      }}
                       placeholder="Any hex color code (e.g., #FF5733)"
                       fontWeight="medium"
                     />
@@ -443,6 +462,25 @@ export const ColourField = ({
                               updateColorFromTemp(value);
                             } else {
                               setTempColor(undefined);
+                            }
+                          }}
+                          onPaste={(e) => {
+                            const pastedText = e.clipboardData.getData("text");
+                            if (pastedText.startsWith("#")) {
+                              e.preventDefault();
+                              const valueWithoutHash = pastedText.slice(1);
+                              const newValue = "#" + valueWithoutHash;
+                              setColorQuery(newValue);
+                              if (
+                                /^#[0-9A-Fa-f]{0,6}$/.test(newValue) ||
+                                /^#[0-9A-Fa-f]{0,3}$/.test(newValue) ||
+                                /^#[0-9A-Fa-f]{0,4}$/.test(newValue)
+                              ) {
+                                setTempColor(newValue);
+                                updateColorFromTemp(newValue);
+                              } else {
+                                setTempColor(undefined);
+                              }
                             }
                           }}
                           placeholder="Any hex color code (e.g., #FF5733)"
