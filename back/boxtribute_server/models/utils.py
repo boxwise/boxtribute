@@ -174,10 +174,16 @@ def save_update_to_history(*, id_field_name="id", fields):
             # e.g. Box.get(Box.label_identifier == "123456")
             old_resource = model.get(id_field == kwargs[id_field_name])
 
-            # Create single timestamp to use for DbChangeHistory entry AND to pass to f
-            # for fields like created_on (e.g. in TagsRelation model)
-            now = utcnow()
-            result = f(*args, **kwargs, now=now)
+            # Use single timestamp for DbChangeHistory entry AND to pass to f for fields
+            # like last_modified_on
+            if "now" in kwargs:
+                # Use existing timestamp when f is called from another CRUD function,
+                # e.g. update_box from inside create_box_from_box
+                now = kwargs["now"]
+            else:
+                now = utcnow()
+                kwargs["now"] = now
+            result = f(*args, **kwargs)
             # Skip creating history entry if e.g. UserError returned
             if not isinstance(result, db.Model):
                 return result

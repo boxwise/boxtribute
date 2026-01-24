@@ -5,7 +5,12 @@ from ariadne import MutationType
 from flask import g
 from sentry_sdk import capture_message as emit_sentry_message
 
-from ....authz import authorize, authorized_bases_filter, handle_unauthorized
+from ....authz import (
+    authorize,
+    authorize_for_accessing_box,
+    authorized_bases_filter,
+    handle_unauthorized,
+)
 from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
@@ -25,6 +30,7 @@ from .crud import (
     WAREHOUSE_BOX_STATES,
     assign_missing_tags_to_boxes,
     create_box,
+    create_box_from_box,
     create_boxes,
     delete_boxes,
     move_boxes_to_location,
@@ -68,6 +74,35 @@ def resolve_create_box(*_, creation_input):
         location=requested_location,
         tags=tags,
         **creation_input,
+    )
+
+
+@mutation.field("createBoxFromBox")
+@handle_unauthorized
+def resolve_create_box_from_box(*_, creation_input):
+    location_id = creation_input["location_id"]
+    requested_location = Location.get_or_none(Location.id == location_id)
+    if requested_location is None:
+        return ResourceDoesNotExist(name="Location", id=location_id)
+    authorize(permission="stock:write", base_id=requested_location.base_id)
+
+    source_box_label_identifier = creation_input["source_box_label_identifier"]
+    source_box = (
+        Box.select(Box, Location, Product)
+        .join(Location)  # for box.location attribute in authorize_for_accessing_box()
+        .join(Product, src=Box)  # for box.product in CRUD function
+        .where(Box.label_identifier == source_box_label_identifier)
+        .get_or_none()
+    )
+    if source_box is None:
+        return ResourceDoesNotExist(name="Box", id=source_box_label_identifier)
+    authorize_for_accessing_box(source_box, action="write")
+
+    return create_box_from_box(
+        user_id=g.user.id,
+        source_box=source_box,
+        location=requested_location,
+        number_of_items=creation_input["number_of_items"],
     )
 
 

@@ -17,6 +17,8 @@ type Mutation {
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
   " Create boxes by importing raw data. Prototypical! "
   createBoxes(creationInput: [BoxBulkCreationInput!]): [Box!]
+  " Create box in a location by taking out items from an existing box "
+  createBoxFromBox(creationInput: BoxFromBoxCreationInput!): CreateBoxFromBoxResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary

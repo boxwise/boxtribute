@@ -380,6 +380,28 @@ def test_update_non_existent_resource(
             "...on ResourceDoesNotExistError { name id }",
             {"name": "Tag", "id": "0"},
         ],
+        # Test case 8.2.93
+        [
+            "createBoxFromBox",
+            """creationInput: {
+                sourceBoxLabelIdentifier: "0",
+                locationId: 1,
+                numberOfItems: 1
+            }""",
+            "...on ResourceDoesNotExistError { name id }",
+            {"name": "Box", "id": "0"},
+        ],
+        # Test case 8.2.92
+        [
+            "createBoxFromBox",
+            """creationInput: {
+                sourceBoxLabelIdentifier: "24682468",
+                locationId: 99,
+                numberOfItems: 1
+            }""",
+            "...on ResourceDoesNotExistError { name id }",
+            {"name": "Location", "id": "99"},
+        ],
     ],
 )
 def test_mutate_resource_does_not_exist(

@@ -13,7 +13,7 @@ def data():
         {
             "id": 1,
             "base": base_data()[0]["id"],
-            "color": "red",
+            "color": "#bee33f",
             "description": "important",
             "name": "group1",
             "type": TagType.Beneficiary,
@@ -24,7 +24,7 @@ def data():
         {
             "id": 2,
             "base": base_data()[0]["id"],
-            "color": "blue",
+            "color": "#c0ffee",
             "description": "the description",
             "name": "pallet1",
             "type": TagType.Box,
@@ -33,7 +33,7 @@ def data():
         {
             "id": 3,
             "base": base_data()[0]["id"],
-            "color": "green",
+            "color": "#dead00",
             "description": "for everything",
             "name": "tag-name",
             "type": TagType.All,
