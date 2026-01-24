@@ -39,15 +39,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
   const [boxNotOwned, setBoxNotOwned] = useState("");
 
-  // const setIsProcessingQrCodeDelayed = useCallback(
-  //   (state: boolean) => {
-  //     setTimeout(() => {
-  //       setIsProcessingQrCode(state);
-  //     }, 1000);
-  //   },
-  //   [setIsProcessingQrCode],
-  // );
-
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   const checkCameraPermission = useCallback(() => {
@@ -119,7 +110,6 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
         default: {
           // the following cases should *still* arrive here:
           // FAIL,NOT_AUTHORIZED_FOR_BOX, NOT_AUTHORIZED_FOR_QR,NO_BOXTRIBUTE_QR
-
           setIsProcessingQrCode(false);
         }
       }

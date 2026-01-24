@@ -30,30 +30,16 @@ export function QrReaderScanner({
   onResult,
   scanPeriod = 500,
 }: QrReaderScannerProps) {
-  // let timeoutId: NodeJS.Timeout;
-
-  // const unpauseAfterDelay = () => {
-  //   setPaused(true);
-  //   clearTimeout(timeoutId);
-  //   timeoutId = setTimeout(() => {
-  //     setPaused(false);
-  //   }, scanPeriod);
-  // };
-
   const handleScan = async (detectedCodes: IDetectedBarcode[]) => {
     // Only call onResult when QR codes are detected
     if (detectedCodes && detectedCodes.length > 0) {
       await onResult(multiScan, detectedCodes, null);
-      // unpauseAfterDelay();
     }
   };
 
   const handleError = async (error: Error) => {
     await onResult(multiScan, null, error);
-    // unpauseAfterDelay();
   };
-
-  // const [paused, setPaused] = useState(false);
 
   return (
     <section>
@@ -66,7 +52,6 @@ export function QrReaderScanner({
             height: { ideal: 720 },
           }}
           scanDelay={scanPeriod}
-          // paused={paused}
           styles={{
             video: styles.video,
           }}
