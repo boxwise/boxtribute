@@ -82,6 +82,8 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
     variables: {
       tagId: props.tagId,
     },
+    fetchPolicy: "cache-first",
+    returnPartialData: true,
   });
 
   if (tagError) throw tagError;
