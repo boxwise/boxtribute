@@ -6,6 +6,7 @@ import {
   FormLabel,
   HStack,
   Input,
+  Textarea,
   Stack,
   Text,
   VStack,
@@ -169,14 +170,13 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
           />
           <FormControl>
             <FormLabel htmlFor="description">Description</FormLabel>
-            <Input
+            <Textarea
               borderColor="black"
               border="2px"
               borderRadius={0}
               _focus={{ borderColor: "blue.500" }}
               _hover={{ borderColor: "gray.300" }}
               size="lg"
-              type="string"
               {...register("description")}
             />
           </FormControl>

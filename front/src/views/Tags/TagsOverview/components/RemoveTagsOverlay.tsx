@@ -27,7 +27,15 @@ export function RemoveTagsOverlay({
         {selectedTags.length > 1 ? "s" : ""}?
       </chakra.span>
       <chakra.span>
-        <b>Note:</b> This action cannot be undone.
+        <b>Note:</b> This action cannot be undone. This will also:
+        <ul style={{ marginTop: "8px", marginLeft: "20px", listStyleType: "disc" }}>
+          {selectedTags.map((tagRow) => (
+            <li key={tagRow.original.id}>
+              Remove the tag &quot;{tagRow.original.name}&quot; from{" "}
+              {tagRow.original.totalTaggedItemsCount} items.
+            </li>
+          ))}
+        </ul>
       </chakra.span>
     </VStack>
   );

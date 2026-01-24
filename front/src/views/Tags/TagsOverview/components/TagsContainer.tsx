@@ -121,14 +121,18 @@ export function TagsContainer() {
         accessor: "createdOn",
         id: "createdOn",
         Cell: DateCell,
-        sortType: "datetime",
+        sort: "datetime",
       },
       {
         Header: "Last Modified Date",
         accessor: "lastModifiedOn",
         id: "lastModifiedOn",
         Cell: DateCell,
-        sortType: "datetime",
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.lastModifiedOn ? rowA.values.lastModifiedOn.getTime() : 0;
+          const b = rowB.values.lastModifiedOn ? rowB.values.lastModifiedOn.getTime() : 0;
+          return a - b;
+        },
       },
     ],
     [],
