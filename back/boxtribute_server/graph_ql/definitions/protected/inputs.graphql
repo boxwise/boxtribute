@@ -29,6 +29,12 @@ input BoxUpdateInput {
   newTagNames: [String!]
 }
 
+input BoxFromBoxCreationInput {
+  sourceBoxLabelIdentifier: String!
+  numberOfItems: Int!
+  locationId: Int!
+}
+
 input BoxMoveInput {
   labelIdentifiers: [String!]!
   locationId: Int!

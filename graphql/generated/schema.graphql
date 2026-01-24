@@ -357,6 +357,12 @@ input BoxUpdateInput {
   newTagNames: [String!]
 }
 
+input BoxFromBoxCreationInput {
+  sourceBoxLabelIdentifier: String!
+  numberOfItems: Int!
+  locationId: Int!
+}
+
 input BoxMoveInput {
   labelIdentifiers: [String!]!
   locationId: Int!
@@ -589,6 +595,8 @@ type Mutation {
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
   " Create boxes by importing raw data. Prototypical! "
   createBoxes(creationInput: [BoxBulkCreationInput!]): [Box!]
+  " Create box in a location by taking out items from an existing box "
+  createBoxFromBox(creationInput: BoxFromBoxCreationInput!): CreateBoxFromBoxResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -838,6 +846,7 @@ type Box implements ItemsCollection {
   lastModifiedOn: Datetime
   deletedOn: Datetime
   comment: String
+  " List of all non-deleted [`Tags`]({{Types.Tag}}) assigned to the box "
   tags: [Tag!]
   " Sorted by date, newest first "
   history: [HistoryEntry!]
@@ -1498,15 +1507,25 @@ type DeletedTagError {
 type DeletedBaseError {
   name: String!
 }
+type DeletedBoxError {
+  labelIdentifier: String!
+}
+type InvalidBoxStateError {
+  state: BoxState!
+}
 type InvalidDateError {
   date: Datetime!
 }
 type InvalidColorError {
   color: String!
 }
+type InvalidNumberOfItemsError {
+  numberOfItems: Int!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union CreateBoxFromBoxResult = Box | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | DeletedBoxError | InvalidBoxStateError | InvalidNumberOfItemsError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
 union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError

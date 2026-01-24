@@ -1,6 +1,6 @@
 from ariadne import QueryType
 
-from ....authz import authorize, authorize_for_reading_box
+from ....authz import authorize, authorize_for_accessing_box
 from ....graph_ql.filtering import derive_box_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
@@ -13,11 +13,11 @@ query = QueryType()
 def resolve_box(*_, label_identifier):
     box = (
         Box.select(Box, Location)
-        .join(Location)  # for box.location attribute in authorize_for_reading_box()
+        .join(Location)  # for box.location attribute in authorize_for_accessing_box()
         .where(Box.label_identifier == label_identifier)
         .get()
     )
-    authorize_for_reading_box(box)
+    authorize_for_accessing_box(box)
     return box
 
 

@@ -28,7 +28,7 @@ def default_box_data():
         "last_modified_by": default_user_data()["id"],
         "created_on": datetime(2020, 11, 27),
         "created_by": default_user_data()["id"],
-        "number_of_items": 0,
+        "number_of_items": 5,
         "size": default_size_data()["id"],
         "location": default_location_data()["id"],
         "qr_code": default_qr_code_data()["id"],
