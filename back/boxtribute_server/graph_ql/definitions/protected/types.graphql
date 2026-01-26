@@ -52,6 +52,8 @@ type Box implements ItemsCollection {
   history: [HistoryEntry!]
   " Returns null if box is not part of an active shipment "
   shipmentDetail: ShipmentDetail
+  " The box that the current box was created from "
+  sourceBox: Box
 }
 
 type HistoryEntry {

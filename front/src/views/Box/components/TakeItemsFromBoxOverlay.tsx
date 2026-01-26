@@ -147,7 +147,13 @@ function TakeItemsFromBoxOverlay({
                 </Alert>
               )}
               <Flex w="100%" justifyContent="flex-end">
-                <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting || isLoading} isDisabled={!numberOfItems || numberOfItems <= 0}>
+                <Button
+                  px={6}
+                  borderRadius="0"
+                  type="submit"
+                  isLoading={isSubmitting || isLoading}
+                  isDisabled={!numberOfItems || numberOfItems <= 0}
+                >
                   {submitButtonText}
                 </Button>
               </Flex>
