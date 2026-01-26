@@ -20,6 +20,7 @@ import {
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useHasPermission } from "hooks/hooks";
@@ -151,52 +152,50 @@ export const CREATE_QR_CODE_MUTATION = graphql(
   [HISTORY_FIELDS_FRAGMENT],
 );
 
-export const CREATE_BOX_FROM_BOX_MUTATION = graphql(`
-  mutation CreateBoxFromBox(
-    $sourceBoxLabelIdentifier: String!
-    $numberOfItems: Int!
-    $locationId: Int!
-  ) {
-    createBoxFromBox(
-      creationInput: {
-        sourceBoxLabelIdentifier: $sourceBoxLabelIdentifier
-        numberOfItems: $numberOfItems
-        locationId: $locationId
-      }
+export const CREATE_BOX_FROM_BOX_MUTATION = graphql(
+  `
+    mutation CreateBoxFromBox(
+      $sourceBoxLabelIdentifier: String!
+      $numberOfItems: Int!
+      $locationId: Int!
     ) {
-      __typename
-      ... on Box {
-        labelIdentifier
-        numberOfItems
-        location {
-          id
+      createBoxFromBox(
+        creationInput: {
+          sourceBoxLabelIdentifier: $sourceBoxLabelIdentifier
+          numberOfItems: $numberOfItems
+          locationId: $locationId
+        }
+      ) {
+        __typename
+        ... on Box {
+          ...BoxesQueryElementField
+        }
+        ... on InsufficientPermissionError {
           name
         }
-      }
-      ... on InsufficientPermissionError {
-        name
-      }
-      ... on ResourceDoesNotExistError {
-        name
-      }
-      ... on UnauthorizedForBaseError {
-        name
-      }
-      ... on DeletedLocationError {
-        name
-      }
-      ... on DeletedBoxError {
-        labelIdentifier
-      }
-      ... on InvalidBoxStateError {
-        state
-      }
-      ... on InvalidNumberOfItemsError {
-        invalidNumberOfItems: numberOfItems
+        ... on ResourceDoesNotExistError {
+          name
+        }
+        ... on UnauthorizedForBaseError {
+          name
+        }
+        ... on DeletedLocationError {
+          name
+        }
+        ... on DeletedBoxError {
+          labelIdentifier
+        }
+        ... on InvalidBoxStateError {
+          state
+        }
+        ... on InvalidNumberOfItemsError {
+          invalidNumberOfItems: numberOfItems
+        }
       }
     }
-  }
-`);
+  `,
+  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT],
+);
 
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;
@@ -284,6 +283,27 @@ function BTBox() {
 
   const [createBoxFromBoxMutation, createBoxFromBoxMutationStatus] = useMutation(
     CREATE_BOX_FROM_BOX_MUTATION,
+    {
+      update(cache, { data }) {
+        if (!data?.createBoxFromBox) return;
+        if (data.createBoxFromBox.__typename !== "Box") return;
+        const { createBoxFromBox } = data;
+
+        cache.modify({
+          fields: {
+            boxes(existingBoxesRef = { totalCount: 0, elements: [] }) {
+              const newBoxRef = cache.identify(createBoxFromBox);
+
+              return {
+                ...existingBoxesRef,
+                totalCount: existingBoxesRef.totalCount + 1,
+                elements: [{ __ref: newBoxRef }, ...existingBoxesRef.elements],
+              };
+            },
+          },
+        });
+      },
+    },
   );
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
