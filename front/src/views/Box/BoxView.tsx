@@ -16,7 +16,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
-  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
@@ -50,14 +49,6 @@ import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxState } from "queries/types";
-
-// Queries and Mutations
-const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
-  query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-  variables: {
-    labelIdentifier,
-  },
-});
 
 export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = graphql(
   `
@@ -169,6 +160,18 @@ export const CREATE_BOX_FROM_BOX_MUTATION = graphql(
         __typename
         ... on Box {
           ...BoxesQueryElementField
+          sourceBox {
+            labelIdentifier
+            lastModifiedOn
+            lastModifiedBy {
+              id
+              name
+            }
+            history {
+              ...HistoryFields
+            }
+            numberOfItems
+          }
         }
         ... on InsufficientPermissionError {
           name
@@ -194,7 +197,7 @@ export const CREATE_BOX_FROM_BOX_MUTATION = graphql(
       }
     }
   `,
-  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT],
+  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT, HISTORY_FIELDS_FRAGMENT],
 );
 
 export interface IChangeNumberOfItemsBoxData {
@@ -488,7 +491,6 @@ function BTBox() {
               numberOfItems: boxFormValues.numberOfItems,
               locationId: parseInt(boxFormValues.locationId, 10),
             },
-            refetchQueries: [refetchBoxByLabelIdentifierQueryConfig(labelIdentifier)],
           })
             .then((mutationResult) => {
               if (mutationResult?.errors) {
@@ -641,13 +643,14 @@ function BTBox() {
         boxLabelIdentifier: labelIdentifier,
         distributionEventId,
       },
-      refetchQueries: [
-        refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
-        {
-          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-          variables: { distributionEventId },
-        },
-      ],
+      // Unused functionality. Instead of refetching, data should be returned by mutation
+      // refetchQueries: [
+      //   refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
+      //   {
+      //     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+      //     variables: { distributionEventId },
+      //   },
+      // ],
     });
   };
 
@@ -657,13 +660,14 @@ function BTBox() {
         boxLabelIdentifier: labelIdentifier,
         distributionEventId,
       },
-      refetchQueries: [
-        refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
-        {
-          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-          variables: { distributionEventId },
-        },
-      ],
+      // Unused functionality. Instead of refetching, data should be returned by mutation
+      // refetchQueries: [
+      //   refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
+      //   {
+      //     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+      //     variables: { distributionEventId },
+      //   },
+      // ],
     });
   };
 
