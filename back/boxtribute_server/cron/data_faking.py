@@ -81,8 +81,8 @@ LOCATION_BOX_STATES = [
 ]
 LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "Donated location", "Unused WH")
 NR_OF_CREATED_LOCATIONS_PER_BASE = len(LOCATION_NAMES)
-NR_OF_ADULTS_PER_LARGE_BASE = 100
-NR_OF_CHILDREN_PER_LARGE_BASE = 200
+NR_OF_ADULTS_PER_LARGE_BASE = 300
+NR_OF_CHILDREN_PER_LARGE_BASE = 300
 NR_OF_BENEFICIARIES_PER_LARGE_BASE = (
     NR_OF_ADULTS_PER_LARGE_BASE + NR_OF_CHILDREN_PER_LARGE_BASE
 )
@@ -374,7 +374,9 @@ class Generator:
                     last_name=self.fake.last_name(),
                     base_id=b,
                     group_identifier=group_id,
-                    date_of_birth=self.fake.date_of_birth(minimum_age=30),
+                    date_of_birth=self.fake.date_of_birth(
+                        minimum_age=30, maximum_age=80
+                    ),
                     gender=gender,
                     family_head_id=family_head_id,
                     is_volunteer=self.fake.boolean(),
