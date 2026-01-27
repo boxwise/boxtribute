@@ -789,7 +789,8 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       if (clicks.length > 0) {
-        await screen.findByText(/1 box/i, {}, { timeout: 15000 });
+        const boxesCountTd = await screen.findByTestId("boxes-count", {}, { timeout: 15000 });
+        await waitFor(() => expect(boxesCountTd).toHaveTextContent(/1 box/i), { timeout: 15000 });
 
         // Select the first box - wait for table to be fully loaded
         const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 10000 });

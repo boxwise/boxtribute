@@ -243,7 +243,7 @@ function BoxesTable({
             <Td fontWeight="bold" key={"product-total"}>
               Total
             </Td>
-            <Td fontWeight="bold" key={"boxes-count"}>
+            <Td fontWeight="bold" key={"boxes-count"} data-testid="boxes-count">
               {isBackgroundFetchOfBoxesLoading ||
               refetchBoxesIsPending ||
               tableConfig.isNotMounted ? (
