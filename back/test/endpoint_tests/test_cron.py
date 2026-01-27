@@ -1,10 +1,11 @@
 import json
 import urllib.error
-from unittest.mock import mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 from auth import mock_user_for_request
 from boxtribute_server.blueprints import CRON_PATH
+from boxtribute_server.cli.service import ServiceBase
 from boxtribute_server.cron.data_faking import (
     NR_BASES,
     NR_OF_BENEFICIARIES_PER_LARGE_BASE,
@@ -74,6 +75,20 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     cm.__exit__.return_value = None
     mocked_urlopen = mocker.patch("urllib.request.urlopen", return_value=cm)
 
+    # Mock the ServiceBase.connect method
+    mock_service = MagicMock()
+    mock_users = [
+        {
+            "app_metadata": {"organisation_id": 1},
+            "last_login": "2025-01-15T10:00:00Z",
+        },
+        {
+            "app_metadata": {"organisation_id": 2},
+            "last_login": "2025-01-10T08:00:00Z",
+        },
+    ]
+    mock_service.get_users.return_value = mock_users
+    monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
     # Verify successful execution
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
