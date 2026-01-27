@@ -15,6 +15,7 @@ from boxtribute_server.cron.data_faking import (
     NR_OF_CREATED_TAGS_PER_BASE,
     NR_OF_DELETED_TAGS_PER_BASE,
 )
+from boxtribute_server.cron.internal_stats import TITLES
 from utils import assert_successful_request
 
 reseed_db_path = f"{CRON_PATH}/reseed-db"
@@ -76,20 +77,13 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     # Verify successful execution
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
-    assert response.json == {"message": "posted 4 stats, 0 failure(s)"}
+    assert response.json == {"message": "posted 5 stats, 0 failure(s)"}
     header = "Organisation "
-    first_part = json.loads(mocked_urlopen.call_args_list[0].args[0].data.decode())
-    assert first_part["title"] == "Newly created boxes"
-    assert first_part["data"].startswith(header)
-    second_part = json.loads(mocked_urlopen.call_args_list[1].args[0].data.decode())
-    assert second_part["title"] == "Newly registered beneficiaries"
-    assert second_part["data"].startswith(header)
-    third_part = json.loads(mocked_urlopen.call_args_list[2].args[0].data.decode())
-    assert third_part["title"] == "Reached beneficiaries"
-    assert third_part["data"].startswith(header)
-    fourth_part = json.loads(mocked_urlopen.call_args_list[3].args[0].data.decode())
-    assert fourth_part["title"] == "Moved boxes"
-    assert fourth_part["data"].startswith(header)
+    for call_args_list, title in zip(mocked_urlopen.call_args_list, TITLES):
+        part = json.loads(call_args_list.args[0].data.decode())
+        assert part["title"] == title
+        assert part["data"].startswith(header)
+    assert mocked_urlopen.call_count == len(TITLES)
 
     # Verify error scenario when posting to Slack
     http_err = urllib.error.HTTPError(url, 503, "Service Unavailable", None, None)
@@ -97,7 +91,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
 
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 500
-    assert response.json == {"message": "posted 0 stats, 4 failure(s)"}
+    assert response.json == {"message": "posted 0 stats, 5 failure(s)"}
 
     # Reseed-DB tests
     monkeypatch.setenv("MYSQL_DB", "dropapp_dev")

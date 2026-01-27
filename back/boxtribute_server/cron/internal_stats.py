@@ -8,6 +8,7 @@ from flask import current_app
 from ..business_logic.metrics.crud import (
     compute_total,
     get_time_span,
+    number_of_active_users_between,
     number_of_beneficiaries_reached_between,
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
@@ -69,22 +70,26 @@ def compute_with_trend(func, end_date, duration):
     return result, total_trend, base_trends
 
 
+TITLES = [
+    "Newly created boxes",
+    "Newly registered beneficiaries",
+    "Reached beneficiaries",
+    "Moved boxes",
+    "Unique active users",
+]
+
+
 def get_internal_data():
     now = utcnow()
 
-    titles = [
-        "Newly created boxes",
-        "Newly registered beneficiaries",
-        "Reached beneficiaries",
-        "Moved boxes",
-    ]
     funcs = [
         number_of_boxes_created_between,
         number_of_beneficiaries_registered_between,
         number_of_beneficiaries_reached_between,
         number_of_boxes_moved_between,
+        number_of_active_users_between,
     ]
-    for title, func in zip(titles, funcs):
+    for title, func in zip(TITLES, funcs):
         results = []
         total_trends = []
         base_trends_list = []

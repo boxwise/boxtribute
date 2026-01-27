@@ -1,9 +1,12 @@
 """Computation of various metrics"""
 
-from datetime import datetime, timedelta, timezone
+import os
+from collections import defaultdict
+from datetime import date, datetime, timedelta, timezone
 
 from peewee import fn
 
+from ...cli.service import ServiceBase
 from ...enums import TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -244,7 +247,7 @@ def get_time_span(
     *,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
-    duration_days: int | None = None
+    duration_days: int | None = None,
 ) -> tuple[datetime, datetime]:
     """
     Calculates a time span (start_date, end_date) given one or two of three possible
@@ -295,3 +298,90 @@ def get_time_span(
     # 5. Insufficient parameters
     else:
         raise ValueError("Insufficient arguments")
+
+
+# Global cache for user data
+_cached_users = None
+
+
+def number_of_active_users_between(start, end):
+    """Compute number of active users per organisation between start and end dates.
+
+    Returns a list of dicts with organisation ID, organisation name, base IDs,
+    base names, and number of users logged in.
+    """
+    global _cached_users
+
+    # Fetch users from Auth0 if not cached
+    if _cached_users is None:
+        domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
+        client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
+        secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
+
+        service = ServiceBase.connect(domain=domain, client_id=client_id, secret=secret)
+
+        # Query users who logged in within the last two years
+        two_years_ago = date.today() - timedelta(days=2 * 365)
+        query = f"last_login:[{two_years_ago.isoformat()} TO *]"
+        fields = ["app_metadata", "last_login"]
+        _cached_users = service.get_users(query=query, fields=fields)
+
+    # Filter users by last_login date range
+    filtered_users = []
+    for user in _cached_users:
+        last_login = user.get("last_login")
+        if last_login:
+            # Parse ISO 8601 datetime string
+            login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
+            if start <= login_date <= end:
+                filtered_users.append(user)
+
+    # Group users by organisation ID
+    org_users = defaultdict(list)
+    for user in filtered_users:
+        app_metadata = user.get("app_metadata", {})
+        org_id = app_metadata.get("organisation_id")
+        if org_id:
+            org_users[org_id].append(user)
+
+    # Get unique organisation IDs
+    org_ids = list(org_users.keys())
+
+    # Load organisation and base data from database
+    # For multi-base organisations, it's not possible to determine the base which the
+    # user logged in onto (also, they might switch base while using the app). In this
+    # case we use all bases of the organisation that were active in the last year
+    one_year_ago = date.today() - timedelta(days=365)
+    query_result = (
+        Base.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            fn.GROUP_CONCAT(Base.id.distinct()).alias("base_ids"),
+            fn.GROUP_CONCAT(Base.name.distinct()).alias("base_names"),
+        )
+        .join(Organisation)
+        .where(
+            Organisation.id << org_ids,
+            Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
+            exclude_test_organisation(),
+        )
+        .group_by(Organisation.id)
+    ).dicts()
+
+    # Build result with user counts
+    result = []
+    for row in query_result:
+        org_id = row["organisation_id"]
+        result.append(
+            {
+                "organisation_id": org_id,
+                "organisation_name": row["organisation_name"],
+                # The processing code in internal_stats expects singular base ID and
+                # name for each row
+                "base_id": row["base_ids"],
+                "base_name": row["base_names"],
+                "number": len(org_users[org_id]),
+            }
+        )
+
+    return result
