@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.error
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -45,6 +46,10 @@ def test_cron_job_endpoint_errors(dropapp_dev_client, monkeypatch, url):
     assert response.json == {"message": "unknown job 'unknown-job'"}
 
 
+@pytest.mark.skipif(
+    not os.getenv("AUTH0_MANAGEMENT_API_CLIENT_SECRET"),
+    reason="AUTH0_MANAGEMENT_API_CLIENT_SECRET not set",
+)
 def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     mock_user_for_request(mocker, user_id=1, is_god=True)
     # Housekeeping tests
