@@ -159,7 +159,9 @@ def test_exclude_test_organisation_in_production(
     assert response == count
 
 
-def test_number_of_active_users_between(monkeypatch, read_only_client):
+def test_number_of_active_users_between(
+    monkeypatch, read_only_client, default_organisation, default_bases
+):
     # Mock environment variables
     monkeypatch.setenv("AUTH0_MANAGEMENT_API_DOMAIN", "test.auth0.com")
     monkeypatch.setenv("AUTH0_MANAGEMENT_API_CLIENT_ID", "test_client_id")
@@ -185,9 +187,6 @@ def test_number_of_active_users_between(monkeypatch, read_only_client):
             "last_login": "2024-12-01T12:00:00Z",  # Outside range
         },
         {
-            # no data
-        },
-        {
             # no app_metadata
             "last_login": "2025-01-10T08:00:00Z",
         },
@@ -198,7 +197,7 @@ def test_number_of_active_users_between(monkeypatch, read_only_client):
         },
     ]
     mock_service.get_users.return_value = mock_users
-    monkeypatch.setattr(ServiceBase, "connect", lambda **kwargs: mock_service)
+    monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
 
     # Clear cache before test
     import boxtribute_server.business_logic.metrics.crud as crud_module
@@ -220,14 +219,15 @@ def test_number_of_active_users_between(monkeypatch, read_only_client):
     # Verify results
     assert len(result) == 2  # Two organisations
     org1_result = next(r for r in result if r["organisation_id"] == 1)
-    assert org1_result["number"] == 2  # Two users from org 1 in range
+    assert org1_result == {
+        "organisation_id": default_organisation["id"],
+        "organisation_name": default_organisation["name"],
+        "base_id": ",".join([str(b["id"]) for b in default_bases[:2]]),
+        "base_name": ",".join([b["name"] for b in default_bases[1::-1]]),
+        "number": 2,  # Two users from org 1 in range
+    }
     org2_result = next(r for r in result if r["organisation_id"] == 2)
     assert org2_result["number"] == 1  # One user from org 2 in range
-
-    # Verify organisation data is loaded
-    assert org1_result["organisation_name"] is not None
-    assert org1_result["base_id"] is not None
-    assert org1_result["base_name"] is not None
 
     # Test the function a 2nd time to verify cache hit
     start = datetime(2023, 1, 1, tzinfo=timezone.utc)

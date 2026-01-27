@@ -318,23 +318,26 @@ def number_of_active_users_between(start, end):
         client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
         secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
 
-        service = ServiceBase.connect(domain=domain, client_id=client_id, secret=secret)
+        auth0_service = ServiceBase.connect(
+            domain=domain, client_id=client_id, secret=secret
+        )
 
         # Query users who logged in within the last two years
         two_years_ago = date.today() - timedelta(days=2 * 365)
         query = f"last_login:[{two_years_ago.isoformat()} TO *]"
         fields = ["app_metadata", "last_login"]
-        _cached_users = service.get_users(query=query, fields=fields)
+        _cached_users = auth0_service.get_users(query=query, fields=fields)
 
-    # Filter users by last_login date range
-    filtered_users = []
-    for user in _cached_users:
-        last_login = user.get("last_login")
-        if last_login:
+        for user in _cached_users:
+            last_login = user.get("last_login")
             # Parse ISO 8601 datetime string
             login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
-            if start <= login_date <= end:
-                filtered_users.append(user)
+            user["last_login"] = login_date
+
+    # Filter users by last_login date range
+    filtered_users = [
+        user for user in _cached_users if start <= user["last_login"] <= end
+    ]
 
     # Group users by organisation ID
     org_users = defaultdict(list)
@@ -352,7 +355,7 @@ def number_of_active_users_between(start, end):
     # user logged in onto (also, they might switch base while using the app). In this
     # case we use all bases of the organisation that were active in the last year
     one_year_ago = date.today() - timedelta(days=365)
-    query_result = (
+    org_base_info = (
         Base.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
@@ -370,7 +373,7 @@ def number_of_active_users_between(start, end):
 
     # Build result with user counts
     result = []
-    for row in query_result:
+    for row in org_base_info:
         org_id = row["organisation_id"]
         result.append(
             {
