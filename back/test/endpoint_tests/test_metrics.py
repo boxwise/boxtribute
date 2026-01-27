@@ -1,11 +1,9 @@
 from datetime import date, datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
+import boxtribute_server.business_logic.metrics.crud as metrics_crud
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.business_logic.metrics.crud import (
-    number_of_active_users_between,
-)
 from boxtribute_server.cli.service import ServiceBase
 from utils import assert_successful_request
 
@@ -200,14 +198,12 @@ def test_number_of_active_users_between(
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
 
     # Clear cache before test
-    import boxtribute_server.business_logic.metrics.crud as crud_module
-
-    crud_module._cached_users = None
+    metrics_crud._cached_users = None
 
     # Test the function
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     end = datetime(2025, 1, 31, tzinfo=timezone.utc)
-    result = number_of_active_users_between(start, end)
+    result = metrics_crud.number_of_active_users_between(start, end)
 
     # Verify service was called with correct parameters
     two_years_ago = date.today() - timedelta(days=2 * 365)
@@ -222,8 +218,8 @@ def test_number_of_active_users_between(
     assert org1_result == {
         "organisation_id": default_organisation["id"],
         "organisation_name": default_organisation["name"],
-        "base_id": ",".join([str(b["id"]) for b in default_bases[:2]]),
-        "base_name": ",".join([b["name"] for b in default_bases[1::-1]]),
+        "base_id": default_bases[0]["id"],
+        "base_name": ",".join([b["name"] for b in default_bases[:2]]),
         "number": 2,  # Two users from org 1 in range
     }
     org2_result = next(r for r in result if r["organisation_id"] == 2)
@@ -232,8 +228,8 @@ def test_number_of_active_users_between(
     # Test the function a 2nd time to verify cache hit
     start = datetime(2023, 1, 1, tzinfo=timezone.utc)
     end = datetime(2023, 1, 31, tzinfo=timezone.utc)
-    result = number_of_active_users_between(start, end)
+    result = metrics_crud.number_of_active_users_between(start, end)
     assert result == []
 
     # Clear cache after test
-    crud_module._cached_users = None
+    metrics_crud._cached_users = None

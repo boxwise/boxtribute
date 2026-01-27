@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 
-from peewee import fn
+from peewee import SQL, NodeList, fn
 
 from ...cli.service import ServiceBase
 from ...enums import TaggableObjectType
@@ -300,7 +300,15 @@ def get_time_span(
         raise ValueError("Insufficient arguments")
 
 
-# Global cache for user data
+# Global cache for user data.
+# NOTE:
+# - This cache is only used by the scheduled metrics/cron job that computes
+#   internal statistics, which runs in a single-threaded, short-lived process.
+# - It is not used to serve concurrent web requests in the Flask API.
+# - Within that constrained environment, using a module-level cache is safe and
+#   helps avoid repeated Auth0 Management API calls during a single run.
+# If this function is ever exposed to concurrent request handling, the cache
+# must be replaced with a proper, process-safe caching mechanism with TTL.
 _cached_users = None
 
 
@@ -326,7 +334,12 @@ def number_of_active_users_between(start, end):
         two_years_ago = date.today() - timedelta(days=2 * 365)
         query = f"last_login:[{two_years_ago.isoformat()} TO *]"
         fields = ["app_metadata", "last_login"]
-        _cached_users = auth0_service.get_users(query=query, fields=fields)
+        try:
+            _cached_users = auth0_service.get_users(query=query, fields=fields)
+        except Exception:
+            # If querying from Auth0 fails for some reason, try again in the next
+            # iteration without crashing the entire cron job
+            return []
 
         for user in _cached_users:
             last_login = user.get("last_login")
@@ -353,14 +366,18 @@ def number_of_active_users_between(start, end):
     # Load organisation and base data from database
     # For multi-base organisations, it's not possible to determine the base which the
     # user logged in onto (also, they might switch base while using the app). In this
-    # case we use all bases of the organisation that were active in the last year
+    # case we use all bases of the organisation that were active in the last year (the
+    # base with smallest ID serves as base_id, and the concatenated base names are
+    # base_name)
     one_year_ago = date.today() - timedelta(days=365)
     org_base_info = (
         Base.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
-            fn.GROUP_CONCAT(Base.id.distinct()).alias("base_ids"),
-            fn.GROUP_CONCAT(Base.name.distinct()).alias("base_names"),
+            fn.MIN(Base.id).alias("base_id"),
+            fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
+                "base_name"
+            ),
         )
         .join(Organisation)
         .where(
@@ -379,10 +396,8 @@ def number_of_active_users_between(start, end):
             {
                 "organisation_id": org_id,
                 "organisation_name": row["organisation_name"],
-                # The processing code in internal_stats expects singular base ID and
-                # name for each row
-                "base_id": row["base_ids"],
-                "base_name": row["base_names"],
+                "base_id": row["base_id"],
+                "base_name": row["base_name"],
                 "number": len(org_users[org_id]),
             }
         )
