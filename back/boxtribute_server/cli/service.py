@@ -8,15 +8,11 @@ from .utils import setup_logger
 LOGGER = setup_logger(__name__)
 
 
-class Auth0Service:
+class ServiceBase:
     def __init__(self, interface):
         self._interface = interface
 
-    def get_users_of_base(self, base_id):
-        """Fetch all users of the given base. Return lists of users sorted by
-        single-base/multi-base type.
-        """
-        base_id = str(base_id)
+    def get_users(self, *, query, fields):
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         users = []
         try:
@@ -26,8 +22,8 @@ class Auth0Service:
             rest = None
             while True:
                 response = self._interface.users.list(
-                    q=f'app_metadata.base_ids:"{base_id}"',
-                    fields=["app_metadata", "user_id", "name", "blocked"],
+                    q=query,
+                    fields=fields,
                     page=page,
                     per_page=per_page,
                 )
@@ -46,6 +42,30 @@ class Auth0Service:
                     break
         except Auth0Error as e:
             raise ServiceError(code=e.status_code, message=e.message)
+        return users
+
+    @classmethod
+    def connect(cls, *, domain, client_id, secret):
+        """Connect to Management API, following
+        https://github.com/auth0/auth0-python?tab=readme-ov-file#management-sdk
+        """
+        LOGGER.info("Fetching Auth0 Management API token...")
+        getter = GetToken(domain, client_id, client_secret=secret)
+        token = getter.client_credentials(f"https://{domain}/api/v2/")["access_token"]
+        interface = Auth0(domain, token)
+        return cls(interface)
+
+
+class Auth0Service(ServiceBase):
+    def get_users_of_base(self, base_id):
+        """Fetch all users of the given base. Return lists of users sorted by
+        single-base/multi-base type.
+        """
+        base_id = str(base_id)
+        users = self.get_users(
+            query=f'app_metadata.base_ids:"{base_id}"',
+            fields=["app_metadata", "user_id", "name", "blocked"],
+        )
 
         # Sort response into single- and multi-base users
         result = {"single_base": [], "multi_base": []}
@@ -126,17 +146,6 @@ class Auth0Service:
             LOGGER.error(errors)
             raise RuntimeError("Error while removing roles")
         LOGGER.info(f"Removed {len(role_ids)} roles in Auth0.")
-
-    @classmethod
-    def connect(cls, *, domain, client_id, secret):
-        """Connect to Management API, following
-        https://github.com/auth0/auth0-python?tab=readme-ov-file#management-sdk
-        """
-        LOGGER.info("Fetching Auth0 Management API token...")
-        getter = GetToken(domain, client_id, client_secret=secret)
-        token = getter.client_credentials(f"https://{domain}/api/v2/")["access_token"]
-        interface = Auth0(domain, token)
-        return cls(interface)
 
 
 def _user_data_without_base_id(users, base_id):
