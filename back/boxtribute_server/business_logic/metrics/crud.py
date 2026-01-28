@@ -342,7 +342,7 @@ def get_data_for_number_of_active_users():
     # base_name)
     one_year_ago = date.today() - timedelta(days=365)
     org_base_info = (
-        Base.select(
+        Organisation.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
             fn.MIN(Base.id).alias("base_id"),
@@ -350,7 +350,7 @@ def get_data_for_number_of_active_users():
                 "base_name"
             ),
         )
-        .join(Organisation)
+        .left_outer_join(Base)
         .where(
             Organisation.id << org_ids,
             Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
