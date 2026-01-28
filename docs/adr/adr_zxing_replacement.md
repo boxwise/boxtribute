@@ -10,7 +10,7 @@ Participants: [Philipp Metzner](https://github.com/pylipp), [Hans Peter Gürtner
 
 ## Status
 
-Proposed
+Implemented
 
 ## Context or Problem Statement
 
@@ -95,3 +95,9 @@ Cons:
 
 - A small window of testing will be required to ensure the new implementation working properly. Considering that QR Code scanning is consolidated in one place within the project, this should not be over 1 hour.
 - (Potential) As newer packages are installed, peer dependency issues may always arrise with older parts of the codebase. This can only be confirmed onces the process is begun however. An example of this would be the fact that `react-qr-scanner` uses React 19 under the hood, while this project uses React 18. However, the package seems to support React 17 and up, so this should not be an issue.
+
+Post-Implementation Notes:
+
+The current implementation of this replacement was done with `@yudiel/react-qr-scanner`. This package provided a ready-made component that significantly decreased the complexity of project-side code. However, due to this extra abstraction, the component does not provide full customizability visually, which resulted in minor visual changes.
+
+Apart from this, a small fix was required for the provided component to work perfectly in our context. This was fixed with a small PR which we submitted. The PR was was merged and deployed in short order. A good sign of the package's maintenance state at time of writing.

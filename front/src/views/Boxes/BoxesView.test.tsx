@@ -647,9 +647,6 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       await user.click(checkbox2);
       await waitFor(() => expect(checkbox2).toBeChecked(), { timeout: 10000 });
 
-      // Add a delay to ensure state propagation in CI environments
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       // Wait for the action buttons to be available (not in error state)
       await waitFor(
         () => {
