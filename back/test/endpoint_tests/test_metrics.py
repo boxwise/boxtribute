@@ -251,3 +251,9 @@ def test_number_of_active_users_between(
             "number": 0,
         },
     ]
+
+    # Verify error handling of Auth0 interface
+    mock_service.reset_mock()
+    mock_service.get_users.side_effect = ValueError()
+    monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
+    assert get_data_for_number_of_active_users() == ([], [])

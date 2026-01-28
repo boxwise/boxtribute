@@ -1,10 +1,11 @@
 """Computation of various metrics"""
 
 import os
-from collections import defaultdict
+from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 
 from peewee import SQL, NodeList, fn
+from sentry_sdk import capture_message as emit_sentry_message
 
 from ...cli.service import ServiceBase
 from ...enums import TaggableObjectType
@@ -304,6 +305,14 @@ def get_data_for_number_of_active_users():
     """Find users who logged in within the last two years by querying the Auth0
     management API.
     Prepare users data and corresponding organisation data.
+    Returns:
+        tuple[list, list]: A tuple (users, org_base_info) where:
+            - `users` is a list of user dictionaries returned by Auth0, each
+              containing "last_login" (as a datetime) and "organisation_id"
+            - `org_base_info` is a list of dictionaries with organisation and base
+              information for the organisations referenced by the users.
+        On error while querying Auth0, returns empty lists to allow callers to
+        safely skip processing in that iteration without failing the cron job.
     """
     domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
     client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
@@ -318,21 +327,22 @@ def get_data_for_number_of_active_users():
     fields = ["app_metadata", "last_login"]
     try:
         users = auth0_service.get_users(query=query, fields=fields)
-    except Exception:
-        # If querying from Auth0 fails for some reason, try again in the next
-        # iteration without crashing the entire cron job
-        return []
+    except Exception as e:
+        emit_sentry_message(f"Error querying Auth0 user data: {e}", level="warning")
+        return [], []
 
     org_ids = set()
+    valid_users = []
     for user in users:
         last_login = user.get("last_login")
         # Parse ISO 8601 datetime string
         login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
-        user["last_login"] = login_date
+
         app_metadata = user.get("app_metadata", {})
         org_id = app_metadata.get("organisation_id")
         if org_id:
             org_ids.add(org_id)
+            valid_users.append({"last_login": login_date, "organisation_id": org_id})
 
     # Load organisation and base data from database
     # For multi-base organisations, it's not possible to determine the base which the
@@ -359,30 +369,25 @@ def get_data_for_number_of_active_users():
         .group_by(Organisation.id)
     ).dicts()
 
-    return users, list(org_base_info)
+    return valid_users, list(org_base_info)
 
 
 def number_of_active_users_between(start, end, users, org_base_info):
     """Compute number of active users per organisation between start and end dates.
 
-    Returns a list of dicts with organisation ID, organisation name, base IDs,
-    base names, and number of users logged in.
+    Returns a list of dicts with organisation ID, organisation name, base ID,
+    base name, and number of users logged in.
     """
     # Filter users by last_login date range
     filtered_users = [user for user in users if start <= user["last_login"] <= end]
 
-    # Group users by organisation ID
-    org_users = defaultdict(list)
-    for user in filtered_users:
-        app_metadata = user.get("app_metadata", {})
-        org_id = app_metadata.get("organisation_id")
-        if org_id:
-            org_users[org_id].append(user)
+    # Count users by organisation ID
+    user_counts = Counter(user["organisation_id"] for user in filtered_users)
 
-    # Build result with user counts
+    # Build result with user counts (default to 0 for organisations not present among
+    # filtered users)
     result = []
     for row in org_base_info:
         org_id = row["organisation_id"]
-        result.append(row | {"number": len(org_users[org_id])})
-
+        result.append(row | {"number": user_counts[org_id]})
     return result
