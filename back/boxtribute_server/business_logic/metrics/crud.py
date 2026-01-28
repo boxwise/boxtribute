@@ -300,68 +300,39 @@ def get_time_span(
         raise ValueError("Insufficient arguments")
 
 
-# Global cache for user data.
-# NOTE:
-# - This cache is only used by the scheduled metrics/cron job that computes
-#   internal statistics, which runs in a single-threaded, short-lived process.
-# - It is not used to serve concurrent web requests in the Flask API.
-# - Within that constrained environment, using a module-level cache is safe and
-#   helps avoid repeated Auth0 Management API calls during a single run.
-# If this function is ever exposed to concurrent request handling, the cache
-# must be replaced with a proper, process-safe caching mechanism with TTL.
-_cached_users = None
-
-
-def number_of_active_users_between(start, end):
-    """Compute number of active users per organisation between start and end dates.
-
-    Returns a list of dicts with organisation ID, organisation name, base IDs,
-    base names, and number of users logged in.
+def get_data_for_number_of_active_users():
+    """Find users who logged in within the last two years by querying the Auth0
+    management API.
+    Prepare users data and corresponding organisation data.
     """
-    global _cached_users
+    domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
+    client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
+    secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
 
-    # Fetch users from Auth0 if not cached
-    if _cached_users is None:
-        domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
-        client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
-        secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
+    auth0_service = ServiceBase.connect(
+        domain=domain, client_id=client_id, secret=secret
+    )
 
-        auth0_service = ServiceBase.connect(
-            domain=domain, client_id=client_id, secret=secret
-        )
+    two_years_ago = date.today() - timedelta(days=2 * 365)
+    query = f"last_login:[{two_years_ago.isoformat()} TO *]"
+    fields = ["app_metadata", "last_login"]
+    try:
+        users = auth0_service.get_users(query=query, fields=fields)
+    except Exception:
+        # If querying from Auth0 fails for some reason, try again in the next
+        # iteration without crashing the entire cron job
+        return []
 
-        # Query users who logged in within the last two years
-        two_years_ago = date.today() - timedelta(days=2 * 365)
-        query = f"last_login:[{two_years_ago.isoformat()} TO *]"
-        fields = ["app_metadata", "last_login"]
-        try:
-            _cached_users = auth0_service.get_users(query=query, fields=fields)
-        except Exception:
-            # If querying from Auth0 fails for some reason, try again in the next
-            # iteration without crashing the entire cron job
-            return []
-
-        for user in _cached_users:
-            last_login = user.get("last_login")
-            # Parse ISO 8601 datetime string
-            login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
-            user["last_login"] = login_date
-
-    # Filter users by last_login date range
-    filtered_users = [
-        user for user in _cached_users if start <= user["last_login"] <= end
-    ]
-
-    # Group users by organisation ID
-    org_users = defaultdict(list)
-    for user in filtered_users:
+    org_ids = set()
+    for user in users:
+        last_login = user.get("last_login")
+        # Parse ISO 8601 datetime string
+        login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
+        user["last_login"] = login_date
         app_metadata = user.get("app_metadata", {})
         org_id = app_metadata.get("organisation_id")
         if org_id:
-            org_users[org_id].append(user)
-
-    # Get unique organisation IDs
-    org_ids = list(org_users.keys())
+            org_ids.add(org_id)
 
     # Load organisation and base data from database
     # For multi-base organisations, it's not possible to determine the base which the
@@ -388,18 +359,30 @@ def number_of_active_users_between(start, end):
         .group_by(Organisation.id)
     ).dicts()
 
+    return users, list(org_base_info)
+
+
+def number_of_active_users_between(start, end, users, org_base_info):
+    """Compute number of active users per organisation between start and end dates.
+
+    Returns a list of dicts with organisation ID, organisation name, base IDs,
+    base names, and number of users logged in.
+    """
+    # Filter users by last_login date range
+    filtered_users = [user for user in users if start <= user["last_login"] <= end]
+
+    # Group users by organisation ID
+    org_users = defaultdict(list)
+    for user in filtered_users:
+        app_metadata = user.get("app_metadata", {})
+        org_id = app_metadata.get("organisation_id")
+        if org_id:
+            org_users[org_id].append(user)
+
     # Build result with user counts
     result = []
     for row in org_base_info:
         org_id = row["organisation_id"]
-        result.append(
-            {
-                "organisation_id": org_id,
-                "organisation_name": row["organisation_name"],
-                "base_id": row["base_id"],
-                "base_name": row["base_name"],
-                "number": len(org_users[org_id]),
-            }
-        )
+        result.append(row | {"number": len(org_users[org_id])})
 
     return result

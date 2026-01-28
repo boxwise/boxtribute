@@ -1,9 +1,12 @@
 from datetime import date, datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-import boxtribute_server.business_logic.metrics.crud as metrics_crud
 import pytest
 from auth import mock_user_for_request
+from boxtribute_server.business_logic.metrics.crud import (
+    get_data_for_number_of_active_users,
+    number_of_active_users_between,
+)
 from boxtribute_server.cli.service import ServiceBase
 from utils import assert_successful_request
 
@@ -158,7 +161,11 @@ def test_exclude_test_organisation_in_production(
 
 
 def test_number_of_active_users_between(
-    monkeypatch, read_only_client, default_organisation, default_bases
+    monkeypatch,
+    read_only_client,
+    default_organisation,
+    another_organisation,
+    default_bases,
 ):
     # Mock environment variables
     monkeypatch.setenv("AUTH0_MANAGEMENT_API_DOMAIN", "test.auth0.com")
@@ -197,13 +204,12 @@ def test_number_of_active_users_between(
     mock_service.get_users.return_value = mock_users
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
 
-    # Clear cache before test
-    metrics_crud._cached_users = None
+    users, org_base_info = get_data_for_number_of_active_users()
 
     # Test the function
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     end = datetime(2025, 1, 31, tzinfo=timezone.utc)
-    result = metrics_crud.number_of_active_users_between(start, end)
+    result = number_of_active_users_between(start, end, users, org_base_info)
 
     # Verify service was called with correct parameters
     two_years_ago = date.today() - timedelta(days=2 * 365)
@@ -228,8 +234,20 @@ def test_number_of_active_users_between(
     # Test the function a 2nd time to verify cache hit
     start = datetime(2023, 1, 1, tzinfo=timezone.utc)
     end = datetime(2023, 1, 31, tzinfo=timezone.utc)
-    result = metrics_crud.number_of_active_users_between(start, end)
-    assert result == []
-
-    # Clear cache after test
-    metrics_crud._cached_users = None
+    result = number_of_active_users_between(start, end, users, org_base_info)
+    assert result == [
+        {
+            "organisation_id": default_organisation["id"],
+            "organisation_name": default_organisation["name"],
+            "base_id": default_bases[0]["id"],
+            "base_name": ",".join([b["name"] for b in default_bases[:2]]),
+            "number": 0,
+        },
+        {
+            "organisation_id": another_organisation["id"],
+            "organisation_name": another_organisation["name"],
+            "base_id": default_bases[2]["id"],
+            "base_name": ",".join([b["name"] for b in default_bases[2:4]]),
+            "number": 0,
+        },
+    ]

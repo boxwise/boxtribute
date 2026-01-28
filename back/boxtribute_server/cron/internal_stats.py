@@ -7,6 +7,7 @@ from flask import current_app
 
 from ..business_logic.metrics.crud import (
     compute_total,
+    get_data_for_number_of_active_users,
     get_time_span,
     number_of_active_users_between,
     number_of_beneficiaries_reached_between,
@@ -47,18 +48,18 @@ def _compute_base_trends(current_data, comparison_data):
     return trends
 
 
-def compute_with_trend(func, end_date, duration):
+def compute_with_trend(func, end_date, duration, *args):
     """Run the statistics function on the timespan derived from the given parameters,
     and on the same timespan before, then compute trends.
     """
     time_span = get_time_span(duration_days=duration, end_date=end_date)
-    result = func(*time_span)
+    result = func(*time_span, *args)
     current_total = compute_total(result)
 
     # Compute trend compared to previous window
     compared_end = end_date - timedelta(days=duration)
     time_span = get_time_span(duration_days=duration, end_date=compared_end)
-    comparison = func(*time_span)
+    comparison = func(*time_span, *args)
     comparison_total = compute_total(comparison)
     total_trend = (
         (current_total - comparison_total) / comparison_total * 100
@@ -89,12 +90,19 @@ def get_internal_data():
         number_of_boxes_moved_between,
         number_of_active_users_between,
     ]
+    # Some computations need data which is expensive to collect. Fetch this data only
+    # once and provide it via a look-up
+    data_collections = {
+        TITLES[4]: get_data_for_number_of_active_users(),
+    }
     for title, func in zip(TITLES, funcs):
         results = []
         total_trends = []
         base_trends_list = []
         for duration in [30, 90, 365]:
-            result, total_trend, base_trends = compute_with_trend(func, now, duration)
+            result, total_trend, base_trends = compute_with_trend(
+                func, now, duration, *data_collections.get(title, [])
+            )
             results.append(result)
             total_trends.append(total_trend)
             base_trends_list.append(base_trends)
