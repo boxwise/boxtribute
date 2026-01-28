@@ -91,8 +91,8 @@ describe("TagForm", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#123456");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#123456");
 
     const descriptionInput = screen.getByRole("textbox", { name: /description/i });
     await user.type(descriptionInput, "A description");
@@ -109,6 +109,7 @@ describe("TagForm", () => {
           color: "#123456",
           description: "A description",
         }),
+        expect.anything(), // form event
       );
     });
   });
@@ -128,8 +129,8 @@ describe("TagForm", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes + Beneficiaries", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#ABCDEF");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#ABCDEF");
 
     // Submit without description
     const submitButton = screen.getByRole("button", { name: /save tag/i });
@@ -143,6 +144,7 @@ describe("TagForm", () => {
           color: "#ABCDEF",
           description: undefined,
         }),
+        expect.anything(), // form event
       );
     });
   });
@@ -220,8 +222,8 @@ describe("TagForm", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#123456");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#123456");
 
     // Submit
     const submitButton = screen.getByRole("button", { name: /save tag/i });
@@ -232,6 +234,7 @@ describe("TagForm", () => {
         expect.objectContaining({
           name: "Valid Name", // Should be trimmed
         }),
+        expect.anything(), // form event
       );
     });
   });
@@ -270,8 +273,8 @@ describe("TagForm", () => {
     await selectOptionInSelectField(user, /apply to/i, "Beneficiaries", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#123456");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#FF5733");
 
     const submitButton = screen.getByRole("button", { name: /save tag/i });
     await user.click(submitButton);
@@ -281,6 +284,7 @@ describe("TagForm", () => {
         expect.objectContaining({
           application: "Beneficiary",
         }),
+        expect.anything(), // form event
       );
     });
   });
@@ -350,8 +354,8 @@ describe("TagForm", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#123456");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#123456");
 
     // Leave description empty but click on it to trigger any validation
     const descriptionInput = screen.getByRole("textbox", { name: /description/i });
@@ -366,6 +370,7 @@ describe("TagForm", () => {
         expect.objectContaining({
           description: undefined, // Empty string should be transformed to undefined
         }),
+        expect.anything(), // form event
       );
     });
   });
@@ -417,8 +422,8 @@ describe("TagForm", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#AABBCC");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#AABBCC");
 
     const submitButton = screen.getByRole("button", { name: /save tag/i });
     await user.click(submitButton);
@@ -428,6 +433,7 @@ describe("TagForm", () => {
         expect.objectContaining({
           color: "#AABBCC",
         }),
+        expect.anything(), // form event
       );
     });
   });

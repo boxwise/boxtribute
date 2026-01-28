@@ -159,8 +159,8 @@ describe("CreateTagView", () => {
 
     // Update the color field
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#FF5733");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#FF5733");
 
     const descriptionInput = screen.getByRole("textbox", { name: /description/i });
     await user.type(descriptionInput, "A test tag description");
@@ -202,8 +202,8 @@ describe("CreateTagView", () => {
 
     // Update the color field
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#123456");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#123456");
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -282,8 +282,8 @@ describe("CreateTagView", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#FF5733");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#FF5733");
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -338,8 +338,8 @@ describe("CreateTagView", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#FF5733");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#FF5733");
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -390,8 +390,8 @@ describe("CreateTagView", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#FF5733");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#FF5733");
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -445,8 +445,8 @@ describe("CreateTagView", () => {
     await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.clear(colorInput);
-    await user.type(colorInput, "#FF5733");
+    await user.tripleClick(colorInput);
+    await user.keyboard("#FF5733");
 
     const descriptionInput = screen.getByRole("textbox", { name: /description/i });
     await user.type(descriptionInput, "A test tag description");

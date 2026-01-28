@@ -25,7 +25,7 @@ export type IUpdateTagFormOutput = z.output<typeof UpdateTagFormSchema>;
 
 const updateTagQueryErrorText = "Something went wrong! Please try reloading the page.";
 
-const UPDATE_TAG_MUTATION = graphql(
+export const UPDATE_TAG_MUTATION = graphql(
   `
     mutation UpdateTag(
       $id: ID!
@@ -161,8 +161,8 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
       defaultValues={
         tagData.tag
           ? {
-              name: tagData.tag.name,
-              application: tagData.tag.type,
+              name: tagData.tag.name || "",
+              application: tagData.tag.type || "All",
               color: tagData.tag.color || "",
               description: tagData.tag.description || "",
             }

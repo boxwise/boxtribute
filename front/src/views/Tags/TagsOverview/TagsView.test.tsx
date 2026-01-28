@@ -308,7 +308,7 @@ describe("TagsView", () => {
 
     // Should show delete confirmation dialog
     expect(await screen.findByText(/are you sure you want to/i)).toBeInTheDocument();
-    expect(screen.getByText(/delete/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /yes, delete/i })).toBeInTheDocument();
   });
 
   it("filters tags by name using global filter", async () => {

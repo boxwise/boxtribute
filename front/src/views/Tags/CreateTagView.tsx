@@ -19,7 +19,7 @@ export type ICreateTagFormOutput = z.output<typeof TagSchema>;
 
 const createTagQueryErrorText = "Something went wrong! Please try reloading the page.";
 
-const CREATE_TAG_MUTATION = graphql(
+export const CREATE_TAG_MUTATION = graphql(
   `
     mutation CreateTag(
       $baseId: Int!

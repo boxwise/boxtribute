@@ -171,6 +171,7 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
           <FormControl>
             <FormLabel htmlFor="description">Description</FormLabel>
             <Textarea
+              id="description"
               borderColor="black"
               border="2px"
               borderRadius={0}
