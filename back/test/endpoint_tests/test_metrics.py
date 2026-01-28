@@ -1,5 +1,13 @@
+from datetime import date, datetime, timedelta, timezone
+from unittest.mock import MagicMock
+
 import pytest
 from auth import mock_user_for_request
+from boxtribute_server.business_logic.metrics.crud import (
+    get_data_for_number_of_active_users,
+    number_of_active_users_between,
+)
+from boxtribute_server.cli.service import ServiceBase
 from utils import assert_successful_request
 
 
@@ -150,3 +158,102 @@ def test_exclude_test_organisation_in_production(
     query = f"""query {{ {stat}(start: "2020-01-01") }}"""
     response = assert_successful_request(read_only_client, query, endpoint="public")
     assert response == count
+
+
+def test_number_of_active_users_between(
+    monkeypatch,
+    read_only_client,
+    default_organisation,
+    another_organisation,
+    default_bases,
+):
+    # Mock environment variables
+    monkeypatch.setenv("AUTH0_MANAGEMENT_API_DOMAIN", "test.auth0.com")
+    monkeypatch.setenv("AUTH0_MANAGEMENT_API_CLIENT_ID", "test_client_id")
+    monkeypatch.setenv("AUTH0_MANAGEMENT_API_CLIENT_SECRET", "test_secret")
+
+    # Mock the ServiceBase.connect method
+    mock_service = MagicMock()
+    mock_users = [
+        {
+            "app_metadata": {"organisation_id": 1},
+            "last_login": "2025-01-15T10:00:00Z",
+        },
+        {
+            "app_metadata": {"organisation_id": 1},
+            "last_login": "2025-01-20T15:30:00Z",
+        },
+        {
+            "app_metadata": {"organisation_id": 2},
+            "last_login": "2025-01-10T08:00:00Z",
+        },
+        {
+            "app_metadata": {"organisation_id": 1},
+            "last_login": "2024-12-01T12:00:00Z",  # Outside range
+        },
+        {
+            # no app_metadata
+            "last_login": "2025-01-10T08:00:00Z",
+        },
+        {
+            # no organisation ID
+            "app_metadata": {},
+            "last_login": "2025-01-10T08:00:00Z",
+        },
+    ]
+    mock_service.get_users.return_value = mock_users
+    monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
+
+    users, org_base_info = get_data_for_number_of_active_users()
+
+    # Test the function
+    start = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    end = datetime(2025, 1, 31, tzinfo=timezone.utc)
+    result = number_of_active_users_between(start, end, users, org_base_info)
+
+    # Verify service was called with correct parameters
+    two_years_ago = date.today() - timedelta(days=2 * 365)
+    mock_service.get_users.assert_called_once_with(
+        query=f"last_login:[{two_years_ago.isoformat()} TO *]",
+        fields=["app_metadata", "last_login"],
+    )
+
+    # Verify results
+    assert len(result) == 2  # Two organisations
+    org1_result = next(r for r in result if r["organisation_id"] == 1)
+    assert org1_result == {
+        "organisation_id": default_organisation["id"],
+        "organisation_name": default_organisation["name"],
+        "base_id": default_bases[0]["id"],
+        "base_name": ",".join([b["name"] for b in default_bases[:2]]),
+        "number": 2,  # Two users from org 1 in range
+    }
+    org2_result = next(r for r in result if r["organisation_id"] == 2)
+    assert org2_result["number"] == 1  # One user from org 2 in range
+
+    # Test the function a 2nd time to verify cache hit
+    start = datetime(2023, 1, 1, tzinfo=timezone.utc)
+    end = datetime(2023, 1, 31, tzinfo=timezone.utc)
+    result = number_of_active_users_between(start, end, users, org_base_info)
+    assert result == [
+        {
+            "organisation_id": default_organisation["id"],
+            "organisation_name": default_organisation["name"],
+            "base_id": default_bases[0]["id"],
+            "base_name": ",".join([b["name"] for b in default_bases[:2]]),
+            "number": 0,
+        },
+        {
+            "organisation_id": another_organisation["id"],
+            "organisation_name": another_organisation["name"],
+            "base_id": default_bases[2]["id"],
+            "base_name": ",".join([b["name"] for b in default_bases[2:4]]),
+            "number": 0,
+        },
+    ]
+
+    # Verify error handling of Auth0 interface
+    mock_service.reset_mock()
+    mock_service.get_users.side_effect = ValueError()
+    monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
+    assert get_data_for_number_of_active_users() == ([], [])
