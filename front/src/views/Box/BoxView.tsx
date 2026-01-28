@@ -9,16 +9,17 @@ import {
   Box,
   Button,
   Flex,
+  Link,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
-  PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
   UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
 } from "views/Distributions/queries";
 import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useHasPermission } from "hooks/hooks";
@@ -41,20 +42,13 @@ import HistoryOverlay from "components/HistoryOverlay/HistoryOverlay";
 import { ITimelineEntry } from "components/Timeline/Timeline";
 import _ from "lodash";
 import { formatDateKey, prepareBoxHistoryEntryText } from "utils/helpers";
+import { locationToDropdownOptionTransformer } from "utils/transformers";
 import BoxDetails from "./components/BoxDetails";
 import TakeItemsFromBoxOverlay from "./components/TakeItemsFromBoxOverlay";
 import AddItemsToBoxOverlay from "./components/AddItemsToBoxOverlay";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxState } from "queries/types";
-
-// Queries and Mutations
-const refetchBoxByLabelIdentifierQueryConfig = (labelIdentifier: string) => ({
-  query: BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY,
-  variables: {
-    labelIdentifier,
-  },
-});
 
 export const UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION = graphql(
   `
@@ -149,6 +143,63 @@ export const CREATE_QR_CODE_MUTATION = graphql(
   [HISTORY_FIELDS_FRAGMENT],
 );
 
+export const CREATE_BOX_FROM_BOX_MUTATION = graphql(
+  `
+    mutation CreateBoxFromBox(
+      $sourceBoxLabelIdentifier: String!
+      $numberOfItems: Int!
+      $locationId: Int!
+    ) {
+      createBoxFromBox(
+        creationInput: {
+          sourceBoxLabelIdentifier: $sourceBoxLabelIdentifier
+          numberOfItems: $numberOfItems
+          locationId: $locationId
+        }
+      ) {
+        __typename
+        ... on Box {
+          ...BoxesQueryElementField
+          sourceBox {
+            labelIdentifier
+            lastModifiedOn
+            lastModifiedBy {
+              id
+              name
+            }
+            history {
+              ...HistoryFields
+            }
+            numberOfItems
+          }
+        }
+        ... on InsufficientPermissionError {
+          name
+        }
+        ... on ResourceDoesNotExistError {
+          name
+        }
+        ... on UnauthorizedForBaseError {
+          name
+        }
+        ... on DeletedLocationError {
+          name
+        }
+        ... on DeletedBoxError {
+          labelIdentifier
+        }
+        ... on InvalidBoxStateError {
+          state
+        }
+        ... on InvalidNumberOfItemsError {
+          invalidNumberOfItems: numberOfItems
+        }
+      }
+    }
+  `,
+  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT, HISTORY_FIELDS_FRAGMENT],
+);
+
 export interface IChangeNumberOfItemsBoxData {
   numberOfItems: number;
 }
@@ -233,6 +284,31 @@ function BTBox() {
 
   const [createQrCodeMutation, createQrCodeMutationStatus] = useMutation(CREATE_QR_CODE_MUTATION);
 
+  const [createBoxFromBoxMutation, createBoxFromBoxMutationStatus] = useMutation(
+    CREATE_BOX_FROM_BOX_MUTATION,
+    {
+      update(cache, { data }) {
+        if (!data?.createBoxFromBox) return;
+        if (data.createBoxFromBox.__typename !== "Box") return;
+        const { createBoxFromBox } = data;
+
+        cache.modify({
+          fields: {
+            boxes(existingBoxesRef = { totalCount: 0, elements: [] }) {
+              const newBoxRef = cache.identify(createBoxFromBox);
+
+              return {
+                ...existingBoxesRef,
+                totalCount: existingBoxesRef.totalCount + 1,
+                elements: [{ __ref: newBoxRef }, ...existingBoxesRef.elements],
+              };
+            },
+          },
+        });
+      },
+    },
+  );
+
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
   const { isOpen: isMinusOpen, onOpen: onMinusOpen, onClose: onMinusClose } = useDisclosure();
 
@@ -264,7 +340,8 @@ function BTBox() {
     updateBoxLocationMutationStatus.loading ||
     assignBoxToDistributionEventMutationStatus.loading ||
     unassignBoxFromDistributionEventMutationStatus.loading ||
-    updateNumberOfItemsMutationStatus.loading;
+    updateNumberOfItemsMutationStatus.loading ||
+    createBoxFromBoxMutationStatus.loading;
 
   const error =
     allData.error ||
@@ -395,6 +472,93 @@ function BTBox() {
     [labelIdentifier, boxData, triggerError, createToast, onPlusClose, updateNumberOfItemsMutation],
   );
 
+  const onSubmitCreateBoxFromBox = useCallback(
+    async (boxFormValues: { numberOfItems: number; locationId: string }) => {
+      if (
+        boxFormValues.numberOfItems &&
+        boxFormValues.numberOfItems > 0 &&
+        boxFormValues.locationId &&
+        boxData?.numberOfItems
+      ) {
+        if (boxFormValues.numberOfItems > boxData?.numberOfItems) {
+          triggerError({
+            message: `Could not remove more than ${boxData?.numberOfItems} items`,
+          });
+        } else {
+          createBoxFromBoxMutation({
+            variables: {
+              sourceBoxLabelIdentifier: labelIdentifier,
+              numberOfItems: boxFormValues.numberOfItems,
+              locationId: parseInt(boxFormValues.locationId, 10),
+            },
+          })
+            .then((mutationResult) => {
+              if (mutationResult?.errors) {
+                triggerError({
+                  message: "Could not create box from box",
+                });
+              } else {
+                const result = mutationResult?.data?.createBoxFromBox;
+                if (result?.__typename === "Box") {
+                  createToast({
+                    title: `Box ${result.labelIdentifier}`,
+                    type: "success",
+                    message: (
+                      <>
+                        Successfully created in {result.location?.name}.{" "}
+                        <Link href={`./${result.labelIdentifier}`} textDecoration="underline">
+                          View box
+                        </Link>
+                      </>
+                    ),
+                  });
+                  onMinusClose();
+                } else {
+                  let errorMessage = "Could not create box from box";
+                  if (result) {
+                    if (result.__typename === "DeletedLocationError" && "name" in result) {
+                      errorMessage = `Location ${result.name} has been deleted`;
+                    } else if (
+                      result.__typename === "UnauthorizedForBaseError" ||
+                      result.__typename === "InsufficientPermissionError"
+                    ) {
+                      errorMessage = "You don't have the permission to create this box";
+                    } else if (
+                      result.__typename === "ResourceDoesNotExistError" &&
+                      "name" in result
+                    ) {
+                      errorMessage = `${result.name} does not exist`;
+                    } else if (
+                      result.__typename === "DeletedBoxError" &&
+                      "labelIdentifier" in result
+                    ) {
+                      errorMessage = `Box ${result.labelIdentifier} has been deleted`;
+                    } else if (result.__typename === "InvalidBoxStateError" && "state" in result) {
+                      errorMessage = `Box is in an invalid state (${result.state}) for this operation`;
+                    } else if (
+                      result.__typename === "InvalidNumberOfItemsError" &&
+                      "invalidNumberOfItems" in result
+                    ) {
+                      errorMessage = `Invalid number of items (${result.invalidNumberOfItems}) for this operation`;
+                    }
+                  }
+                  triggerError({
+                    message: errorMessage,
+                  });
+                }
+              }
+            })
+            .catch(() => {
+              triggerError({
+                message: "Could not create box from box.",
+              });
+            });
+        }
+      }
+    },
+    [labelIdentifier, boxData, triggerError, createToast, onMinusClose, createBoxFromBoxMutation],
+  );
+
   const onMoveBoxToLocationClick = useCallback(
     async (locationId: string) => {
       updateBoxLocation({
@@ -479,13 +643,14 @@ function BTBox() {
         boxLabelIdentifier: labelIdentifier,
         distributionEventId,
       },
-      refetchQueries: [
-        refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
-        {
-          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-          variables: { distributionEventId },
-        },
-      ],
+      // Unused functionality. Instead of refetching, data should be returned by mutation
+      // refetchQueries: [
+      //   refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
+      //   {
+      //     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+      //     variables: { distributionEventId },
+      //   },
+      // ],
     });
   };
 
@@ -495,13 +660,14 @@ function BTBox() {
         boxLabelIdentifier: labelIdentifier,
         distributionEventId,
       },
-      refetchQueries: [
-        refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
-        {
-          query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-          variables: { distributionEventId },
-        },
-      ],
+      // Unused functionality. Instead of refetching, data should be returned by mutation
+      // refetchQueries: [
+      //   refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
+      //   {
+      //     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
+      //     variables: { distributionEventId },
+      //   },
+      // ],
     });
   };
 
@@ -596,6 +762,11 @@ function BTBox() {
         })) ?? []
     );
   }, [baseId, allData.data, hasShipmentPermission]);
+
+  const locationOptions: IDropdownOption[] = useMemo(() => {
+    const locations = boxData?.location?.base?.locations ?? [];
+    return locationToDropdownOptionTransformer(locations);
+  }, [boxData?.location?.base?.locations]);
 
   if (error) {
     return (
@@ -735,6 +906,8 @@ function BTBox() {
         isOpen={isMinusOpen}
         onClose={onMinusClose}
         onSubmitTakeItemsFromBox={onSubmitTakeItemsFromBox}
+        onSubmitCreateBoxFromBox={onSubmitCreateBoxFromBox}
+        locationOptions={locationOptions}
       />
       <BoxReconciliationOverlay
         closeOnEsc={false}
