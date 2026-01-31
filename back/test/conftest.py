@@ -164,11 +164,7 @@ def mysql_dev_database(monkeypatch):
     app = main(api_bp, app_bp, shared_bp)
     app.testing = True
 
-    with db.database.bind_ctx(MODELS):
-        db.database.create_tables(MODELS)
-        db.database.close()
-        db.replica.close()
-        yield app
+    yield app
     db.database.close()
     db.replica.close()
 
