@@ -105,17 +105,24 @@ def _create_app(database_interface, *blueprints):
 
 
 @pytest.fixture(scope="session")
-def read_only_client(mysql_testing_database_read_only):
-    """Session fixture for any tests that include read-only operations on the database.
-    Use for testing GraphQL queries, and data model selections.
-    The fixture creates a web app on top of the given database fixture, and returns an
-    app client that simulates sending requests to the app.
-    The client's authentication and authorization may be separately defined or patched.
-    """
+def read_only_app(mysql_testing_database_read_only):
+    """The fixture creates a web app on top of the given database fixture."""
     with _create_app(
         mysql_testing_database_read_only, api_bp, app_bp, shared_bp
     ) as app:
-        yield app.test_client()
+        yield app
+
+
+@pytest.fixture
+def read_only_client(read_only_app):
+    """Function fixture for any tests that include read-only operations on the database.
+    Use for testing GraphQL queries, and data model selections.
+    The fixture returns an app client that simulates sending requests to the app.
+    The client's authentication and authorization may be separately defined or patched.
+    """
+    database_interface = read_only_app.config["DATABASE"]
+    with database_interface.bind_ctx(MODELS, False, False):
+        yield read_only_app.test_client()
 
 
 @pytest.fixture
