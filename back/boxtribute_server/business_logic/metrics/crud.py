@@ -1,9 +1,13 @@
 """Computation of various metrics"""
 
-from datetime import datetime, timedelta, timezone
+import os
+from collections import Counter
+from datetime import date, datetime, timedelta, timezone
 
-from peewee import fn
+from peewee import SQL, NodeList, fn
+from sentry_sdk import capture_message as emit_sentry_message
 
+from ...cli.service import ServiceBase
 from ...enums import TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -244,7 +248,7 @@ def get_time_span(
     *,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
-    duration_days: int | None = None
+    duration_days: int | None = None,
 ) -> tuple[datetime, datetime]:
     """
     Calculates a time span (start_date, end_date) given one or two of three possible
@@ -295,3 +299,95 @@ def get_time_span(
     # 5. Insufficient parameters
     else:
         raise ValueError("Insufficient arguments")
+
+
+def get_data_for_number_of_active_users():
+    """Find users who logged in within the last two years by querying the Auth0
+    management API.
+    Prepare users data and corresponding organisation data.
+    Returns:
+        tuple[list, list]: A tuple (users, org_base_info) where:
+            - `users` is a list of user dictionaries returned by Auth0, each
+              containing "last_login" (as a datetime) and "organisation_id"
+            - `org_base_info` is a list of dictionaries with organisation and base
+              information for the organisations referenced by the users.
+        On error while querying Auth0, returns empty lists to allow callers to
+        safely skip processing in that iteration without failing the cron job.
+    """
+    domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
+    client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
+    secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
+
+    auth0_service = ServiceBase.connect(
+        domain=domain, client_id=client_id, secret=secret
+    )
+
+    two_years_ago = date.today() - timedelta(days=2 * 365)
+    query = f"last_login:[{two_years_ago.isoformat()} TO *]"
+    fields = ["app_metadata", "last_login"]
+    try:
+        users = auth0_service.get_users(query=query, fields=fields)
+    except Exception as e:
+        emit_sentry_message(f"Error querying Auth0 user data: {e}", level="warning")
+        return [], []
+
+    org_ids = set()
+    valid_users = []
+    for user in users:
+        last_login = user.get("last_login")
+        # Parse ISO 8601 datetime string
+        login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
+
+        app_metadata = user.get("app_metadata", {})
+        org_id = app_metadata.get("organisation_id")
+        if org_id:
+            org_ids.add(org_id)
+            valid_users.append({"last_login": login_date, "organisation_id": org_id})
+
+    # Load organisation and base data from database
+    # For multi-base organisations, it's not possible to determine the base which the
+    # user logged in onto (also, they might switch base while using the app). In this
+    # case we use all bases of the organisation that were active in the last year (the
+    # base with smallest ID serves as base_id, and the concatenated base names are
+    # base_name)
+    one_year_ago = date.today() - timedelta(days=365)
+    org_base_info = (
+        Organisation.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            fn.MIN(Base.id).alias("base_id"),
+            fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
+                "base_name"
+            ),
+        )
+        .left_outer_join(Base)
+        .where(
+            Organisation.id << org_ids,
+            Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
+            exclude_test_organisation(),
+        )
+        .group_by(Organisation.id)
+    ).dicts()
+
+    return valid_users, list(org_base_info)
+
+
+def number_of_active_users_between(start, end, users, org_base_info):
+    """Compute number of active users per organisation between start and end dates.
+
+    Returns a list of dicts with organisation ID, organisation name, base ID,
+    base name, and number of users logged in.
+    """
+    # Filter users by last_login date range
+    filtered_users = [user for user in users if start <= user["last_login"] <= end]
+
+    # Count users by organisation ID
+    user_counts = Counter(user["organisation_id"] for user in filtered_users)
+
+    # Build result with user counts (default to 0 for organisations not present among
+    # filtered users)
+    result = []
+    for row in org_base_info:
+        org_id = row["organisation_id"]
+        result.append(row | {"number": user_counts[org_id]})
+    return result
