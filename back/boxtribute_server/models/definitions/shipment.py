@@ -1,15 +1,15 @@
 from peewee import DateTimeField
 
-from ...db import db
 from ...enums import ShipmentState
 from ..fields import EnumCharField, UIntForeignKeyField
 from ..utils import utcnow
+from . import Model
 from .base import Base
 from .transfer_agreement import TransferAgreement
 from .user import User
 
 
-class Shipment(db.Model):  # type: ignore
+class Shipment(Model):
     source_base = UIntForeignKeyField(model=Base, on_update="CASCADE")
     target_base = UIntForeignKeyField(model=Base, on_update="CASCADE")
     transfer_agreement = UIntForeignKeyField(

@@ -20,7 +20,7 @@ from boxtribute_server.db import create_db_interface, db
 # It's crucial to import the blueprints from the routes module (NOT the blueprints
 # module) because only then
 # a) they actually have routes registered
-# b) all data models are registered as db.Model subclasses (because the GraphQL schema
+# b) all data models are registered as Model subclasses (because the GraphQL schema
 #    is imported into the routes module which in turn imports all data models down the
 #    line); this is relevant for setup_models() to work
 from boxtribute_server.routes import api_bp, app_bp, shared_bp

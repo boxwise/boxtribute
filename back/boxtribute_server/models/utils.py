@@ -9,6 +9,7 @@ from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
 from ..db import db
 from ..errors import ResourceDoesNotExist
+from .definitions import Model
 from .definitions.history import DbChangeHistory
 from .definitions.product_category import ProductCategory
 from .definitions.size_range import SizeRange
@@ -127,7 +128,7 @@ def _save_to_history(f, changes):
             result = f(*args, **kwargs)
 
             # Skip creating history entry if e.g. UserError returned
-            if not isinstance(result, db.Model):
+            if not isinstance(result, Model):
                 return result
 
             if changes == HISTORY_DELETION_MESSAGE:
@@ -185,7 +186,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 kwargs["now"] = now
             result = f(*args, **kwargs)
             # Skip creating history entry if e.g. UserError returned
-            if not isinstance(result, db.Model):
+            if not isinstance(result, Model):
                 return result
 
             entries = create_history_entries(

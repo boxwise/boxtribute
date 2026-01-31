@@ -2,7 +2,7 @@ import importlib
 import os
 import pathlib
 
-from boxtribute_server.db import db
+from boxtribute_server.models.definitions import Model
 
 from .base import another_base, default_base, default_bases, deleted_base
 from .beneficiary import (
@@ -295,4 +295,4 @@ def setup_models():
 
 
 # List of all Models in the database, cf. https://stackoverflow.com/a/43820902/3865876
-MODELS = db.Model.__subclasses__()
+MODELS = Model.__subclasses__()

@@ -1,7 +1,7 @@
 from peewee import DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .distribution_event import DistributionEvent
 from .location import Location
 from .product import Product
@@ -9,7 +9,7 @@ from .size import Size
 from .user import User
 
 
-class UnboxedItemsCollection(db.Model):  # type: ignore
+class UnboxedItemsCollection(Model):
     created_on = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,

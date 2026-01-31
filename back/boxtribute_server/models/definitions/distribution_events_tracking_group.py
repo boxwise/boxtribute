@@ -1,13 +1,13 @@
 from peewee import DateTimeField
 
-from ...db import db
 from ...enums import DistributionEventsTrackingGroupState
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .base import Base
 from .user import User
 
 
-class DistributionEventsTrackingGroup(db.Model):  # type: ignore
+class DistributionEventsTrackingGroup(Model):
     # name = CharField(null=True)
     base = UIntForeignKeyField(
         # TODO: in the database, in other tables

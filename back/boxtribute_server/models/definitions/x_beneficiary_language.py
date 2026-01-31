@@ -1,10 +1,10 @@
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .beneficiary import Beneficiary
 from .language import Language
 
 
-class XBeneficiaryLanguage(db.Model):  # type: ignore
+class XBeneficiaryLanguage(Model):
     language = UIntForeignKeyField(
         column_name="language_id",
         field="id",
