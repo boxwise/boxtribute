@@ -46,6 +46,9 @@ updates:
     ignore:
       # https://github.com/boxwise/boxtribute/pull/2408
       - dependency-name: "react-hook-form"
+      # https://github.com/boxwise/boxtribute/pull/2561
+      # v0.5 requires eslint flat config
+      - dependency-name: "eslint-plugin-react-refresh"
       # v4 requires Node 20.19+ or 22+
       - dependency-name: "@vitejs/plugin-react-swc"
         versions: ["4.x"]
@@ -64,3 +67,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
+        exclude-patterns:
+          # v4.3 brings new features and should be separately tested
+          - "zod"
