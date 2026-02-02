@@ -3,7 +3,6 @@ from boxtribute_server.business_logic.warehouse.location.crud import (
     create_location,
     update_location,
 )
-from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState
 from utils import assert_successful_request
 
@@ -92,7 +91,6 @@ def test_crud(client, default_base):
     is_shop = True
     location = update_location(id=location.id, is_shop=is_shop, user_id=8)
     assert location.is_shop
-    db.database.close()
 
     query = f"""query {{ location(id: {location.id}) {{
                     name
