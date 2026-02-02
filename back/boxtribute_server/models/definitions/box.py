@@ -1,8 +1,8 @@
 from peewee import SQL, CharField, DateTimeField, DecimalField, IntegerField, TextField
 
-from ...db import db
 from ...enums import BoxState as BoxStateEnum
 from ..fields import UIntForeignKeyField, ZeroDateTimeField
+from . import Model
 from .box_state import BoxState
 from .distribution_event import DistributionEvent
 from .location import Location
@@ -13,7 +13,7 @@ from .unit import Unit
 from .user import User
 
 
-class Box(db.Model):  # type: ignore
+class Box(Model):
     label_identifier = CharField(
         column_name="box_id",
         constraints=[SQL("DEFAULT ''")],

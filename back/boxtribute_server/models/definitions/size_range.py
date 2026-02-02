@@ -1,9 +1,9 @@
 from peewee import CharField, IntegerField
 
-from ...db import db
+from . import Model
 
 
-class SizeRange(db.Model):  # type: ignore
+class SizeRange(Model):
     label = CharField()
     seq = IntegerField(null=True)
 

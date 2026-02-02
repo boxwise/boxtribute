@@ -14,6 +14,7 @@ from .blueprints import (
     shared_bp,
 )
 from .business_logic.statistics import statistics_queries
+from .models.definitions import Model
 
 
 class DatabaseManager(FlaskDB):
@@ -78,7 +79,10 @@ def use_db_replica(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if db.replica is not None:
-            with db.replica.bind_ctx(db.Model.__subclasses__()):
+            # With a complete list of models no need to recursively bind dependencies
+            with db.replica.bind_ctx(
+                Model.__subclasses__(), bind_refs=False, bind_backrefs=False
+            ):
                 return f(*args, **kwargs)
 
         return f(*args, **kwargs)

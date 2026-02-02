@@ -1,13 +1,13 @@
 from peewee import DateTimeField, TextField
 
-from ...db import db
 from ...enums import TransferAgreementState, TransferAgreementType
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .organisation import Organisation
 from .user import User
 
 
-class TransferAgreement(db.Model):  # type: ignore
+class TransferAgreement(Model):
     source_organisation = UIntForeignKeyField(model=Organisation, on_update="CASCADE")
     target_organisation = UIntForeignKeyField(model=Organisation, on_update="CASCADE")
     state = EnumCharField(

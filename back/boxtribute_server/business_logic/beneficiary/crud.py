@@ -108,7 +108,7 @@ def create_beneficiary(
         Beneficiary.date_of_birth,
         Beneficiary.gender,
         Beneficiary.signed,
-        Beneficiary.family_head_id,
+        Beneficiary.family_head_id,  # type: ignore[attr-defined]
         Beneficiary.phone_number,
     ],
 )

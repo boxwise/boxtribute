@@ -1,11 +1,11 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .user import User
 
 
-class ProductGender(db.Model):  # type: ignore
+class ProductGender(Model):
     adult = IntegerField(constraints=[SQL("DEFAULT 0")])
     baby = IntegerField(constraints=[SQL("DEFAULT 0")])
     child = IntegerField(constraints=[SQL("DEFAULT 0")])

@@ -20,7 +20,7 @@ from boxtribute_server.db import create_db_interface, db
 # It's crucial to import the blueprints from the routes module (NOT the blueprints
 # module) because only then
 # a) they actually have routes registered
-# b) all data models are registered as db.Model subclasses (because the GraphQL schema
+# b) all data models are registered as Model subclasses (because the GraphQL schema
 #    is imported into the routes module which in turn imports all data models down the
 #    line); this is relevant for setup_models() to work
 from boxtribute_server.routes import api_bp, app_bp, shared_bp
@@ -105,17 +105,24 @@ def _create_app(database_interface, *blueprints):
 
 
 @pytest.fixture(scope="session")
-def read_only_client(mysql_testing_database_read_only):
-    """Session fixture for any tests that include read-only operations on the database.
-    Use for testing GraphQL queries, and data model selections.
-    The fixture creates a web app on top of the given database fixture, and returns an
-    app client that simulates sending requests to the app.
-    The client's authentication and authorization may be separately defined or patched.
-    """
+def read_only_app(mysql_testing_database_read_only):
+    """The fixture creates a web app on top of the given database fixture."""
     with _create_app(
         mysql_testing_database_read_only, api_bp, app_bp, shared_bp
     ) as app:
-        yield app.test_client()
+        yield app
+
+
+@pytest.fixture
+def read_only_client(read_only_app):
+    """Function fixture for any tests that include read-only operations on the database.
+    Use for testing GraphQL queries, and data model selections.
+    The fixture returns an app client that simulates sending requests to the app.
+    The client's authentication and authorization may be separately defined or patched.
+    """
+    database_interface = read_only_app.config["DATABASE"]
+    with database_interface.bind_ctx(MODELS, False, False):
+        yield read_only_app.test_client()
 
 
 @pytest.fixture
@@ -157,11 +164,7 @@ def mysql_dev_database(monkeypatch):
     app = main(api_bp, app_bp, shared_bp)
     app.testing = True
 
-    with db.database.bind_ctx(MODELS):
-        db.database.create_tables(MODELS)
-        db.database.close()
-        db.replica.close()
-        yield app
+    yield app
     db.database.close()
     db.replica.close()
 
