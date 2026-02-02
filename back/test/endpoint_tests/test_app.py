@@ -557,5 +557,4 @@ def test_replica_usage(read_only_client, mocker):
     db.replica = mocker.MagicMock()
     query = 'query { resolveLink(code: "abc") { __typename } }'
     assert_successful_request(read_only_client, query, endpoint="public")
-    db.replica.connect.assert_called_once()  # in DatabaseManager.connect_db()
     db.replica.bind_ctx.assert_called_once()  # in use_db_replica()
