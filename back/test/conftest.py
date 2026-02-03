@@ -139,6 +139,7 @@ def client(app):
 
 @pytest.fixture
 def cron_client(mysql_cron_database):
+    populate_database(mysql_cron_database)
     with _create_app(mysql_cron_database, app_bp) as app:
         app.debug = False  # for having the app handle errors as if in production
         yield app.test_client()
