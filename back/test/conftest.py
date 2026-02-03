@@ -115,7 +115,7 @@ def setup_testing_database(mysql_testing_database):
     yield mysql_testing_database
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def app(setup_testing_database):
     """The fixture creates a web app on top of the given database fixture."""
     with _create_app(setup_testing_database, api_bp, app_bp, shared_bp) as app:
@@ -168,6 +168,7 @@ def mysql_dev_database(monkeypatch):
     yield app
     db.database.close()
     db.replica.close()
+    db.replica = None
 
 
 @pytest.fixture
