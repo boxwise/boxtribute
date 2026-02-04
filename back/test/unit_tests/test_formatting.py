@@ -119,15 +119,12 @@ class TestFormatAsTable:
     """Tests for the format_as_table function."""
 
     def test_empty_data(self):
-        """Test format_as_table with empty datasets."""
+        """Test format_as_table with empty datasets and optional trends/base_trends."""
         result_30 = []
-        result_90 = []
-        result_365 = []
-        trends = [0.0, 0.0, 0.0]
-        base_trends = [{}, {}, {}]
 
         table = format_as_table(
-            result_30, result_90, result_365, trends=trends, base_trends=base_trends
+            result_30,
+            column_names=["30 days"],
         )
 
         # Should have headers, separator, separator before totals, and TOTAL row
@@ -136,9 +133,9 @@ class TestFormatAsTable:
         assert "Organisation" in lines[0]
         assert "Base" in lines[0]
         assert "30 days" in lines[0]
-        assert "90 days" in lines[0]
-        assert "365 days" in lines[0]
         assert "TOTAL" in lines[3]
+        # Without trends, should show n/a
+        assert "n/a" in lines[3]
 
     def test_single_org_single_base(self):
         """Test format_as_table with single organization and base."""
@@ -177,7 +174,12 @@ class TestFormatAsTable:
         ]
 
         table = format_as_table(
-            result_30, result_90, result_365, trends=trends, base_trends=base_trends
+            result_30,
+            result_90,
+            result_365,
+            column_names=["30 days", "90 days", "365 days"],
+            trends=trends,
+            base_trends=base_trends,
         )
 
         lines = table.split("\n")
@@ -298,7 +300,12 @@ class TestFormatAsTable:
         ]
 
         table = format_as_table(
-            result_30, result_90, result_365, trends=trends, base_trends=base_trends
+            result_30,
+            result_90,
+            result_365,
+            column_names=["30 days", "90 days", "365 days"],
+            trends=trends,
+            base_trends=base_trends,
         )
 
         lines = table.split("\n")
@@ -374,7 +381,12 @@ class TestFormatAsTable:
         ]
 
         table = format_as_table(
-            result_30, result_90, result_365, trends=trends, base_trends=base_trends
+            result_30,
+            result_90,
+            result_365,
+            column_names=["30 days", "90 days", "365 days"],
+            trends=trends,
+            base_trends=base_trends,
         )
 
         lines = table.split("\n")
@@ -412,7 +424,12 @@ class TestFormatAsTable:
         ]
 
         table = format_as_table(
-            result, result, result, trends=trends, base_trends=base_trends
+            result,
+            result,
+            result,
+            column_names=["30 days", "90 days", "365 days"],
+            trends=trends,
+            base_trends=base_trends,
         )
 
         lines = table.split("\n")
@@ -463,7 +480,12 @@ class TestFormatAsTable:
         ]
 
         table = format_as_table(
-            result_30, result_90, result_365, trends=trends, base_trends=base_trends
+            result_30,
+            result_90,
+            result_365,
+            column_names=["30 days", "90 days", "365 days"],
+            trends=trends,
+            base_trends=base_trends,
         )
 
         lines = table.split("\n")
