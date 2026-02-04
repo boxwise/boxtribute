@@ -1,25 +1,28 @@
-def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
+def format_as_table(*results, column_names, trends=None, base_trends=None):
     """
-    Format raw row data into aligned tabular text with multiple time windows.
+    Format raw row data into aligned tabular text with one or more time windows.
 
     Args:
-        result_30: List of dicts with keys: organisation_id, organisation_name,
-                   base_id, base_name, number (for 30 days)
-        result_90: List of dicts (for 90 days)
-        result_365: List of dicts (for 365 days)
-        trends: List of three trend percentages [trend_30, trend_90, trend_365]
+        *results: Variable number of result lists. Each result is a list of dicts
+              with keys: organisation_id, organisation_name, base_id, base_name, number
+        column_names: List of column names for the result columns
+        trends: Optional list of trend percentages corresponding to each result
                 (can be None which will be formatted as 'n/a')
-        base_trends: List of three dicts with per-base trend data
+        base_trends: Opt. list of dicts with per-base trend data, one for each result
 
     Returns:
         String with formatted table using | separators
     """
-    headers = ("Organisation", "Base", "30 days", "90 days", "365 days")
+    if trends is None:
+        trends = [None] * len(results)
+    if base_trends is None:
+        base_trends = [{}] * len(results)
+
+    headers = ("Organisation", "Base", *column_names)
 
     # Collect all unique org_id, base_id combinations
     all_orgs = {}  # {org_id: {org_name, base_ids: {base_id: base_name}}}
 
-    results = [result_30, result_90, result_365]
     for result in results:
         for row in result:
             org_id = row["organisation_id"]
@@ -34,9 +37,9 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
             if base_id not in all_orgs[org_id]["bases"]:
                 all_orgs[org_id]["bases"][base_id] = row["base_name"] or "n/a"
 
-    # Build rows with data from all three datasets
+    # Build rows with data from all datasets
     rows = []
-    totals = [0, 0, 0]  # For 30, 90, 365 days
+    totals = [0] * len(results)
 
     for org_id, org_info in sorted(all_orgs.items(), key=lambda e: e[1]["name"]):
         org_name = org_info["name"]
@@ -69,26 +72,20 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
         max((len(row[0]) for row in rows), default=0),
     )
     col2_width = max(len(headers[1]), max((len(row[1]) for row in rows), default=0))
-    col3_width = max(
-        len(headers[2]),
-        len(format_cell(totals[0], trends[0])),
-        max((len(format_cell(*row[2])) for row in rows), default=0),
-    )
-    col4_width = max(
-        len(headers[3]),
-        len(format_cell(totals[1], trends[1])),
-        max((len(format_cell(*row[3])) for row in rows), default=0),
-    )
-    col5_width = max(
-        len(headers[4]),
-        len(format_cell(totals[2], trends[2])),
-        max((len(format_cell(*row[4])) for row in rows), default=0),
-    )
+    widths = [col1_width, col2_width]
+
+    # Calculate widths for result columns dynamically
+    for i in range(len(results)):
+        col_width = max(
+            len(headers[2 + i]),
+            len(format_cell(totals[i], trends[i])),
+            max((len(format_cell(*row[2 + i])) for row in rows), default=0),
+        )
+        widths.append(col_width)
 
     # Format output
     lines = []
-    aligns = ["<", "<", ">", ">", ">"]
-    widths = [col1_width, col2_width, col3_width, col4_width, col5_width]
+    aligns = ["<", "<"] + [">"] * len(results)
 
     def format_line(*parts, sep=" | "):
         cells = [
@@ -102,14 +99,7 @@ def format_as_table(result_30, result_90, result_365, *, trends, base_trends):
     lines.append(header_line)
 
     # Separator
-    separator = format_line(
-        "-" * col1_width,
-        "-" * col2_width,
-        "-" * col3_width,
-        "-" * col4_width,
-        "-" * col5_width,
-        sep="-+-",
-    )
+    separator = format_line(*["-" * w for w in widths], sep="-+-")
     lines.append(separator)
 
     # Data rows

@@ -107,7 +107,10 @@ def get_internal_data():
             total_trends.append(total_trend)
             base_trends_list.append(base_trends)
         data = format_as_table(
-            *results, trends=total_trends, base_trends=base_trends_list
+            *results,
+            column_names=["30 days", "90 days", "365 days"],
+            trends=total_trends,
+            base_trends=base_trends_list,
         )
         yield {"title": title, "data": data}
 
