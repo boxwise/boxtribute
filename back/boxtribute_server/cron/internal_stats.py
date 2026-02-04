@@ -1,7 +1,7 @@
 import json
 import os
 import urllib.request
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from flask import current_app
 
@@ -72,6 +72,8 @@ def compute_with_trend(func, end_date, duration, *args):
 
 
 TITLES = [
+    "All time created boxes",
+    "All time registered beneficiaries",
     "Newly created boxes",
     "Newly registered beneficiaries",
     "Reached beneficiaries",
@@ -79,11 +81,16 @@ TITLES = [
     "Unique active users",
 ]
 
+# About the earliest date that data was first created in Boxtribute
+START = datetime(2015, 1, 1)
+
 
 def get_internal_data():
     now = utcnow()
 
     funcs = [
+        number_of_boxes_created_between,
+        number_of_beneficiaries_registered_between,
         number_of_boxes_created_between,
         number_of_beneficiaries_registered_between,
         number_of_beneficiaries_reached_between,
@@ -93,9 +100,16 @@ def get_internal_data():
     # Some computations need data which is expensive to collect. Fetch this data only
     # once and provide it via a look-up
     data_collections = {
-        TITLES[4]: get_data_for_number_of_active_users(),
+        TITLES[6]: get_data_for_number_of_active_users(),
     }
-    for title, func in zip(TITLES, funcs):
+
+    # All-time computations without trends
+    for title, func in zip(TITLES[:2], funcs[:2]):
+        result = func(START, now)
+        data = format_as_table(result, column_names=["all time"])
+        yield {"title": title, "data": data}
+
+    for title, func in zip(TITLES[2:], funcs[2:]):
         results = []
         total_trends = []
         base_trends_list = []
