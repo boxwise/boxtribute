@@ -2,24 +2,24 @@ from boxtribute_server.models.definitions.history import DbChangeHistory
 from utils import assert_bad_user_input, assert_successful_request
 
 
-def test_qr_exists_query(read_only_client, default_qr_code):
+def test_qr_exists_query(client, default_qr_code):
     # Test case 8.1.33
     code = default_qr_code["code"]
     query = f"""query CheckQrExistence {{
                 qrExists(code: "{code}")
             }}"""
-    qr_exists = assert_successful_request(read_only_client, query)
+    qr_exists = assert_successful_request(client, query)
     assert qr_exists
 
     # Test case 8.1.34
     query = """query CheckQrExistence {
                 qrExists(code: "000")
             }"""
-    qr_exists = assert_successful_request(read_only_client, query)
+    qr_exists = assert_successful_request(client, query)
     assert not qr_exists
 
 
-def test_qr_code_query(read_only_client, default_box, default_qr_code):
+def test_qr_code_query(client, default_box, default_qr_code):
     # Test case 8.1.30
     code = default_qr_code["code"]
     query = f"""query {{
@@ -30,7 +30,7 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
                     createdOn
                 }} }}
             }}"""
-    queried_code = assert_successful_request(read_only_client, query)
+    queried_code = assert_successful_request(client, query)
     assert queried_code == {
         "id": str(default_qr_code["id"]),
         "code": code,
@@ -39,12 +39,12 @@ def test_qr_code_query(read_only_client, default_box, default_qr_code):
     }
 
 
-def test_code_not_associated_with_box(read_only_client, qr_code_without_box):
+def test_code_not_associated_with_box(client, qr_code_without_box):
     # Test case 8.1.2a
     code = qr_code_without_box["code"]
     query = f"""query {{ qrCode(code: "{code}") {{
         ...on QrCode {{ box {{ ...on Box {{ id }} }} }} }} }}"""
-    qr_code = assert_successful_request(read_only_client, query)
+    qr_code = assert_successful_request(client, query)
     assert qr_code == {"box": None}
 
 

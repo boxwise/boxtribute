@@ -70,11 +70,11 @@ def test_base_specific_permissions(client, mocker):
     assert "errors" not in response.json
 
 
-def test_invalid_pagination_input(read_only_client):
+def test_invalid_pagination_input(client):
     query = """query { beneficiaries(paginationInput: {last: 2}) {
         elements { id }
     } }"""
-    assert_bad_user_input(read_only_client, query, none_data=True)
+    assert_bad_user_input(client, query, none_data=True)
 
 
 @pytest.mark.parametrize(
@@ -98,26 +98,26 @@ def test_invalid_pagination_input(read_only_client):
         "organisation",
     ],
 )
-def test_query_non_existent_resource(read_only_client, resource):
+def test_query_non_existent_resource(client, resource):
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
-    response = assert_bad_user_input(read_only_client, query, field=resource)
+    response = assert_bad_user_input(client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
-def test_query_non_existent_box(read_only_client):
+def test_query_non_existent_box(client):
     # Test case 8.1.2
     query = """query { box(labelIdentifier: "000") { id } }"""
-    response = assert_bad_user_input(read_only_client, query)
+    response = assert_bad_user_input(client, query)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
 @pytest.mark.parametrize("resource", ["base", "organisation", "user"])
-def test_query_non_existent_resource_for_god_user(read_only_client, mocker, resource):
+def test_query_non_existent_resource_for_god_user(client, mocker, resource):
     # Test case 99.1.3, 10.1.3
     # Non-god users would not be authorized to access resource ID 0
     mock_user_for_request(mocker, is_god=True)
     query = f"query {{ {resource}(id: 0) {{ id }} }}"
-    response = assert_bad_user_input(read_only_client, query, field=resource)
+    response = assert_bad_user_input(client, query, field=resource)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
@@ -134,9 +134,9 @@ def test_query_non_existent_resource_for_god_user(read_only_client, mocker, reso
         }""",
     ],
 )
-def test_beta_level_check(read_only_client, mocker, mutation):
+def test_beta_level_check(client, mocker, mutation):
     mock_user_for_request(mocker, max_beta_level=4)
-    response = assert_bad_request(read_only_client, mutation, expect_errors=True)
+    response = assert_bad_request(client, mutation, expect_errors=True)
     assert response.json["errors"][0]["message"] == "Insufficient beta-level"
 
 
@@ -153,10 +153,10 @@ def test_beta_level_check(read_only_client, mocker, mutation):
         "deactivateBeneficiary",
     ],
 )
-def test_mutation_non_existent_resource(read_only_client, operation):
+def test_mutation_non_existent_resource(client, operation):
     # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b, 9.2.23
     mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
-    response = assert_bad_user_input(read_only_client, mutation, field=operation)
+    response = assert_bad_user_input(client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
@@ -220,11 +220,9 @@ def test_mutation_non_existent_resource(read_only_client, operation):
         ],
     ],
 )
-def test_update_non_existent_resource(
-    read_only_client, operation, mutation_input, field
-):
+def test_update_non_existent_resource(client, operation, mutation_input, field):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
-    response = assert_bad_user_input(read_only_client, mutation, field=operation)
+    response = assert_bad_user_input(client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
 
 
@@ -405,10 +403,10 @@ def test_update_non_existent_resource(
     ],
 )
 def test_mutate_resource_does_not_exist(
-    read_only_client, operation, mutation_input, field, response
+    client, operation, mutation_input, field, response
 ):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
-    actual_response = assert_successful_request(read_only_client, mutation)
+    actual_response = assert_successful_request(client, mutation)
     assert actual_response == response
 
 
@@ -431,20 +429,18 @@ def test_mutate_resource_does_not_exist(
         ],
     ],
 )
-def test_query_resource_does_not_exist(
-    read_only_client, operation, query_input, field, response
-):
+def test_query_resource_does_not_exist(client, operation, query_input, field, response):
     query = f"query {{ {operation}({query_input}) {{ {field} }} }}"
-    actual_response = assert_successful_request(read_only_client, query)
+    actual_response = assert_successful_request(client, query)
     assert actual_response == response
 
 
-def test_mutation_arbitrary_database_error(read_only_client, mocker):
+def test_mutation_arbitrary_database_error(client, mocker):
     mocker.patch(
         "boxtribute_server.business_logic.warehouse.qr_code.mutations.create_qr_code"
     ).side_effect = peewee.PeeweeException
     mutation = "mutation { createQrCode { id } }"
-    assert_internal_server_error(read_only_client, mutation, field="createQrCode")
+    assert_internal_server_error(client, mutation, field="createQrCode")
 
 
 @pytest.mark.parametrize(
@@ -460,11 +456,11 @@ def test_mutation_arbitrary_database_error(read_only_client, mocker):
         "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
     ],
 )
-def test_cors_preflight_request(read_only_client, origin):
+def test_cors_preflight_request(client, origin):
     # Simulate CORS preflight request
     request_methods = "POST"
     request_headers = "Authorization"
-    response = read_only_client.options(
+    response = client.options(
         "/graphql",
         headers=[
             ("origin", origin),
@@ -483,7 +479,7 @@ def test_cors_preflight_request(read_only_client, origin):
         assert response.headers.get("Access-Control-Allow-Methods") == request_methods
 
 
-def test_introspect_schema(read_only_client, monkeypatch):
+def test_introspect_schema(client, monkeypatch):
     query = """\
 query IntrospectionQuery {
   __schema {
@@ -493,10 +489,10 @@ query IntrospectionQuery {
   }
 }
 """
-    assert_successful_request(read_only_client, query)
+    assert_successful_request(client, query)
 
 
-def test_gcloud_logging(read_only_client, mocker):
+def test_gcloud_logging(client, mocker):
     mocked_loggers = mocker.patch("boxtribute_server.logging.request_loggers")
     # If __getitem__() is not explicitly mocked, then the calls to obtain dict values
     # via request_loggers[WEBAPP_CONTEXT] and request_loggers[API_CONTEXT] will return
@@ -508,7 +504,7 @@ def test_gcloud_logging(read_only_client, mocker):
     query = "query { bases { id } }"
 
     # Send request to /graphql endpoint of webapp blueprint
-    bases = assert_successful_request(read_only_client, query)
+    bases = assert_successful_request(client, query)
 
     # Expect one call to webapp logger including execution time
     mocked_log_struct = mocked_loggers[WEBAPP_CONTEXT].log_struct
@@ -523,7 +519,7 @@ def test_gcloud_logging(read_only_client, mocker):
 
     mocked_loggers[WEBAPP_CONTEXT].reset_mock()
     # Send request to / endpoint of query-API blueprint
-    bases = assert_successful_request(read_only_client, query, endpoint="")
+    bases = assert_successful_request(client, query, endpoint="")
 
     # Expect one call to api logger including execution time
     mocked_log_struct = mocked_loggers[API_CONTEXT].log_struct
@@ -539,7 +535,7 @@ def test_gcloud_logging(read_only_client, mocker):
     mocked_loggers[API_CONTEXT].reset_mock()
     # Send request to /public endpoint of shared blueprint
     query = 'query { resolveLink(code: "abc") { __typename } }'
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
 
     # Expect one call to shared logger without execution time
     mocked_log_struct = mocked_loggers[SHARED_CONTEXT].log_struct
@@ -551,10 +547,10 @@ def test_gcloud_logging(read_only_client, mocker):
     mocked_loggers[API_CONTEXT].log_struct.assert_not_called()
 
 
-def test_replica_usage(read_only_client, mocker):
+def test_replica_usage(client, mocker):
     from boxtribute_server.db import db
 
     db.replica = mocker.MagicMock()
     query = 'query { resolveLink(code: "abc") { __typename } }'
-    assert_successful_request(read_only_client, query, endpoint="public")
+    assert_successful_request(client, query, endpoint="public")
     db.replica.bind_ctx.assert_called_once()  # in use_db_replica()

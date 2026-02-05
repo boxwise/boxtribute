@@ -3,9 +3,7 @@ from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
-def test_distribution_event_tracking_group_query(
-    read_only_client, default_tracking_group
-):
+def test_distribution_event_tracking_group_query(client, default_tracking_group):
     test_id = str(default_tracking_group["id"])
     query = f"""query {{ distributionEventsTrackingGroup(id: {test_id}) {{
                     id
@@ -15,7 +13,7 @@ def test_distribution_event_tracking_group_query(
                     createdOn
                 }}
             }}"""
-    tracking_group = assert_successful_request(read_only_client, query)
+    tracking_group = assert_successful_request(client, query)
     assert tracking_group == {
         "id": test_id,
         "state": default_tracking_group["state"].name,

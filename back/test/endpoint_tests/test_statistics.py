@@ -12,12 +12,12 @@ from utils import assert_forbidden_request, assert_successful_request
 
 
 def test_query_beneficiary_demographics(
-    read_only_client, tags, default_beneficiary, another_male_beneficiary
+    client, tags, default_beneficiary, another_male_beneficiary
 ):
     query = """query { beneficiaryDemographics(baseId: 1) {
         facts { gender age createdOn deletedOn count tagIds }
         dimensions { tag { id name color } } } }"""
-    response = assert_successful_request(read_only_client, query, endpoint="graphql")
+    response = assert_successful_request(client, query, endpoint="graphql")
     age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
@@ -70,7 +70,7 @@ def test_query_beneficiary_demographics(
 
 
 def test_query_created_boxes(
-    read_only_client, base1_undeleted_products, product_categories, tags
+    client, base1_undeleted_products, product_categories, tags
 ):
     query = """query { createdBoxes(baseId: 1) {
         facts {
@@ -81,7 +81,7 @@ def test_query_created_boxes(
             category { id name }
             tag { id }
     } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     # Sanity check
     nr_created_boxes = Box.select().join(Location).where(Location.base == 1).count()
     assert nr_created_boxes == sum(f["boxesCount"] for f in data["facts"])
@@ -162,7 +162,7 @@ def test_query_created_boxes(
 
 
 def test_query_top_products(
-    read_only_client,
+    client,
     default_product,
     products,
     default_transaction,
@@ -175,7 +175,7 @@ def test_query_top_products(
     query = """query { topProductsCheckedOut(baseId: 1) {
         facts { checkedOutOn productId categoryId rank itemsCount }
         dimensions { product { id name } } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     assert data == {
         "facts": [
             {
@@ -210,7 +210,7 @@ def test_query_top_products(
     query = """query { topProductsDonated(baseId: 1) {
         facts { createdOn donatedOn sizeId productId categoryId rank itemsCount }
         dimensions { product { id name } size { id name } } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     assert data == {
         "facts": [
             {
@@ -255,7 +255,7 @@ def test_query_top_products(
 
 
 def test_query_moved_boxes(
-    read_only_client,
+    client,
     default_location,
     default_base,
     another_base,
@@ -269,7 +269,7 @@ def test_query_moved_boxes(
         }
         dimensions { target { id name type } }
         } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     location_name = default_location["name"]
     base_name = another_base["name"]
     org_name = another_organisation["name"]
@@ -407,13 +407,13 @@ def test_query_moved_boxes(
     }
 
 
-def test_query_stock_overview(read_only_client, default_product, default_location):
+def test_query_stock_overview(client, default_product, default_location):
     query = """query { stockOverview(baseId: 1) {
         facts { categoryId productName gender sizeId locationId boxState tagIds
             absoluteMeasureValue dimensionId itemsCount boxesCount }
         dimensions { location { id name } dimension { id name } }
     } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     product_name = default_product["name"].strip().lower()
     assert data["dimensions"] == {
         "location": [{"id": default_location["id"], "name": default_location["name"]}],
@@ -579,12 +579,12 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
     ]
 
 
-def test_authorization(read_only_client, mocker):
+def test_authorization(client, mocker):
     # Test case 11.1.4
     # Current user is from base 1 of organisation 1.
     # Hence the user is not allowed to access base 2 from organisation 1
     query = "query { createdBoxes(baseId: 2) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # Test case 11.1.2
     # An accepted agreement exists between orgs 1 and 2 for bases 1+2 and 3.
@@ -595,14 +595,14 @@ def test_authorization(read_only_client, mocker):
         "query { movedBoxes(baseId: 3) { facts { categoryId } } }",
         "query { stockOverview(baseId: 3) { facts { categoryId } } }",
     ]:
-        assert_successful_request(read_only_client, query)
+        assert_successful_request(client, query)
     # Test case 11.1.3
     # ...but not beneficiary-related data
     for query in [
         "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
         "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
     ]:
-        assert_forbidden_request(read_only_client, query)
+        assert_forbidden_request(client, query)
 
     # Test case 11.1.4
     # There's no agreement that involves base 1 and base 4
@@ -615,31 +615,31 @@ def test_authorization(read_only_client, mocker):
         "query { movedBoxes(baseId: 4) { facts { categoryId } } }",
         "query { stockOverview(baseId: 4) { facts { categoryId } } }",
     ]:
-        assert_forbidden_request(read_only_client, query)
+        assert_forbidden_request(client, query)
 
     # Test case 11.1.5
     # Base 99 does not exist
     query = "query { createdBoxes(baseId: 99) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # Test case 11.1.6
     # User lacks 'product_category:read' permission
     mock_user_for_request(mocker, permissions=[])
     query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # User lacks 'stock:read' permission
     mock_user_for_request(mocker, permissions=["product_category:read"])
     query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     query = "query { createdBoxes(baseId: 3) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # User lacks 'beneficiary:read' permission
     mock_user_for_request(mocker, permissions=["tag_relation:read"])
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
 
 def test_statistics_after_create_box_from_box(

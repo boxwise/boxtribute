@@ -8,7 +8,7 @@ today = date.today().isoformat()
 
 
 def test_standard_product_query(
-    read_only_client,
+    client,
     default_standard_product,
     another_standard_product,
     measure_standard_product,
@@ -30,7 +30,7 @@ def test_standard_product_query(
                     deprecatedBy {{ id }}
                     deprecatedOn
                 }} }} }}"""
-    product = assert_successful_request(read_only_client, query)
+    product = assert_successful_request(client, query)
     assert product == {
         "id": str(default_standard_product["id"]),
         "name": default_standard_product["name"],
@@ -52,7 +52,7 @@ def test_standard_product_query(
                     }}
                     gender
                 }} }} }}"""
-    product = assert_successful_request(read_only_client, query)
+    product = assert_successful_request(client, query)
     assert product == {
         "gender": ProductGender(measure_standard_product["gender"]).name,
         "sizeRange": {
@@ -65,7 +65,7 @@ def test_standard_product_query(
                 ... on StandardProduct {{
                     instantiation {{ id }}
                 }} }} }}"""
-    product = assert_successful_request(read_only_client, query)
+    product = assert_successful_request(client, query)
     assert product == {"instantiation": None}
 
     mock_user_for_request(mocker, is_god=True)
@@ -74,12 +74,12 @@ def test_standard_product_query(
                 ... on StandardProduct {{
                     instantiation {{ id }}
                 }} }} }}"""
-    product = assert_successful_request(read_only_client, query)
+    product = assert_successful_request(client, query)
     assert product == {"instantiation": None}
 
 
 def test_standard_products_query(
-    read_only_client,
+    client,
     default_standard_product,
     newest_standard_product,
     superceding_measure_standard_product,
@@ -92,7 +92,7 @@ def test_standard_products_query(
                     name
                     instantiation { id }
                 } } } }"""
-    std_products = assert_successful_request(read_only_client, query)["elements"]
+    std_products = assert_successful_request(client, query)["elements"]
     assert std_products == [
         {"name": str(newest_standard_product["name"]), "instantiation": None},
         {
@@ -107,7 +107,7 @@ def test_standard_products_query(
                     id
                     instantiation { id }
                 } } } }"""
-    std_products = assert_successful_request(read_only_client, query)["elements"]
+    std_products = assert_successful_request(client, query)["elements"]
     assert std_products == [
         {
             "id": str(default_standard_product["id"]),
@@ -123,7 +123,7 @@ def test_standard_products_query(
                     id
                     instantiation { id }
                 } } } }"""
-    std_products = assert_successful_request(read_only_client, query)["elements"]
+    std_products = assert_successful_request(client, query)["elements"]
     assert std_products == [
         {"id": str(newest_standard_product["id"]), "instantiation": None},
         {"id": str(superceding_measure_standard_product["id"]), "instantiation": None},
@@ -131,7 +131,7 @@ def test_standard_products_query(
 
 
 def test_public_standard_products_query(
-    read_only_client, standard_products, product_categories, size_ranges
+    client, standard_products, product_categories, size_ranges
 ):
     query = """query { standardProducts {
                     id
@@ -141,7 +141,7 @@ def test_public_standard_products_query(
                     gender
                     version
                 } }"""
-    std_products = assert_successful_request(read_only_client, query, endpoint="public")
+    std_products = assert_successful_request(client, query, endpoint="public")
     assert std_products == [
         {
             "id": str(p["id"]),
