@@ -193,12 +193,16 @@ describe("BoxCreateView", () => {
 
     // Fill in the form
     await selectOptionInSelectField(user, /product/i, "Snow trousers (Boy)", "Create New Box");
+    expect(await screen.findByText("Snow trousers (Boy)")).toBeInTheDocument();
     await selectOptionInSelectField(user, /size/i, "S", "Create New Box");
+    expect(await screen.findByText("S")).toBeInTheDocument();
     await selectOptionInSelectField(user, /location/i, "Warehouse", "Create New Box");
+    expect(await screen.findByText("Warehouse")).toBeInTheDocument();
 
     const numberOfItemsInput = screen.getByRole("spinbutton");
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
+    await waitFor(() => expect(numberOfItemsInput).toHaveValue("5"));
 
     //added new Tags
     await user.type(screen.getByLabelText(/Tags/), "epic");
