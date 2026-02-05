@@ -143,7 +143,12 @@ describe("TagsView", () => {
     });
 
     expect(await screen.findByRole("heading", { name: /manage tags/i })).toBeInTheDocument();
-
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     // Wait for buttons to load (they're inside Suspense)
     expect(await screen.findByRole("button", { name: /create tag/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /delete tags/i })).toBeInTheDocument();
@@ -158,7 +163,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
-
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     // Wait for table to load
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
@@ -186,6 +196,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -205,9 +221,13 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
-
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     const createButton = await screen.findByRole("button", { name: /create tag/i });
-
     // Verify the create button is in the document
     expect(createButton).toBeInTheDocument();
   });
@@ -222,6 +242,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -243,6 +269,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -266,6 +298,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -294,6 +332,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -321,6 +365,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -351,7 +401,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
-
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     // Should still show action buttons (wait for them to load from Suspense)
     expect(await screen.findByRole("button", { name: /create tag/i })).toBeInTheDocument();
   });
@@ -392,6 +447,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -418,6 +479,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -438,6 +505,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -456,6 +529,12 @@ describe("TagsView", () => {
     });
 
     await screen.findByRole("heading", { name: /manage tags/i });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await waitFor(() => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
@@ -502,11 +581,18 @@ describe("TagsView", () => {
       addTypename: true,
     });
 
+    // Wait for heading and for skeleton loader to disappear
     await screen.findByRole("heading", { name: /manage tags/i });
-    await waitFor(() => {
-      expect(screen.getByText("Priority")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        // TableSkeleton should not be in the document anymore
+        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
+    // Now check for Priority tag
+    expect(screen.getByText("Priority")).toBeInTheDocument();
     // Deleted tag should not appear
     expect(screen.queryByText("Deleted Tag")).not.toBeInTheDocument();
   });
