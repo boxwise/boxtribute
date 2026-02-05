@@ -104,11 +104,6 @@ def populate_database(database):
         database.close()
 
 
-@pytest.fixture
-def read_only_client(client):
-    yield client
-
-
 @pytest.fixture(scope="session")
 def setup_testing_database(mysql_testing_database):
     populate_database(mysql_testing_database)

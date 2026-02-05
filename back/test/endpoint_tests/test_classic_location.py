@@ -8,7 +8,7 @@ from utils import assert_successful_request
 
 
 def test_location_query(
-    read_only_client,
+    client,
     default_boxes,
     default_location,
     default_location_boxes,
@@ -33,7 +33,7 @@ def test_location_query(
                     lastModifiedBy {{ id }}
                 }}
             }}"""
-    queried_location = assert_successful_request(read_only_client, query)
+    queried_location = assert_successful_request(client, query)
     assert queried_location == {
         "id": str(default_location["id"]),
         "base": {"id": str(default_location["base"])},
@@ -50,14 +50,14 @@ def test_location_query(
     }
 
     query = f"""query {{ location(id: "{distribution_spot['id']}") {{ id }} }}"""
-    queried_location = assert_successful_request(read_only_client, query)
+    queried_location = assert_successful_request(client, query)
     assert queried_location is None
 
 
-def test_locations_query(read_only_client, base1_classic_locations):
+def test_locations_query(client, base1_classic_locations):
     # Test case 8.1.13
     query = """query { locations { name } }"""
-    locations = assert_successful_request(read_only_client, query)
+    locations = assert_successful_request(client, query)
     assert locations == [{"name": loc["name"]} for loc in base1_classic_locations]
 
 

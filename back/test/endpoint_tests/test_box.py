@@ -21,7 +21,7 @@ today = date.today().isoformat()
 
 
 def test_box_query_by_label_identifier(
-    read_only_client,
+    client,
     default_box,
     tags,
     in_transit_box,
@@ -55,7 +55,7 @@ def test_box_query_by_label_identifier(
                     history {{ id changes }}
                 }}
             }}"""
-    queried_box = assert_successful_request(read_only_client, query)
+    queried_box = assert_successful_request(client, query)
     assert queried_box == {
         "id": str(default_box["id"]),
         "labelIdentifier": label_identifier,
@@ -97,7 +97,7 @@ def test_box_query_by_label_identifier(
                 box(labelIdentifier: "{label_identifier}") {{
                     shipmentDetail {{ id }}
                 }} }}"""
-    queried_box = assert_successful_request(read_only_client, query)
+    queried_box = assert_successful_request(client, query)
     assert queried_box == {"shipmentDetail": {"id": str(default_shipment_detail["id"])}}
 
     label_identifier = measure_product_box["label_identifier"]
@@ -108,7 +108,7 @@ def test_box_query_by_label_identifier(
                     displayUnit {{ id }}
                     measureValue
                 }} }}"""
-    box = assert_successful_request(read_only_client, query)
+    box = assert_successful_request(client, query)
     assert box == {
         "product": {"id": str(measure_product_box["product"])},
         "size": None,
@@ -117,35 +117,35 @@ def test_box_query_by_label_identifier(
     }
 
 
-def test_box_query_by_qr_code(read_only_client, default_box, default_qr_code):
+def test_box_query_by_qr_code(client, default_box, default_qr_code):
     # Test case 8.1.5
     query = f"""query {{
                 qrCode(code: "{default_qr_code['code']}") {{
                     ...on QrCode {{ box {{ ...on Box {{ labelIdentifier }} }} }} }}
             }}"""
-    queried_box = assert_successful_request(read_only_client, query)["box"]
+    queried_box = assert_successful_request(client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
-def test_boxes_query(read_only_client, default_location_boxes):
+def test_boxes_query(client, default_location_boxes):
     base_id = 1
     query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
-    boxes = assert_successful_request(read_only_client, query)
+    boxes = assert_successful_request(client, query)
     assert boxes == {"totalCount": len(default_location_boxes)}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{productGender: Men}})
                         {{ totalCount }} }}"""
-    boxes = assert_successful_request(read_only_client, query)
+    boxes = assert_successful_request(client, query)
     assert boxes == {"totalCount": 0}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2]}})
                         {{ totalCount }} }}"""
-    boxes = assert_successful_request(read_only_client, query)
+    boxes = assert_successful_request(client, query)
     assert boxes == {"totalCount": 1}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2, 3]}})
                         {{ totalCount }} }}"""
-    boxes = assert_successful_request(read_only_client, query)
+    boxes = assert_successful_request(client, query)
     assert boxes == {"totalCount": 3}
 
 
@@ -1561,13 +1561,13 @@ def _format(parameter):
     ],
     ids=_format,
 )
-def test_boxes_query_filter(read_only_client, default_location, filters, number):
+def test_boxes_query_filter(client, default_location, filters, number):
     filter_input = ", ".join(f"{k}: {v}" for f in filters for k, v in f.items())
     query = f"""query {{ location(id: {default_location['id']}) {{
                 boxes(filterInput: {{ {filter_input} }}) {{
                     elements {{ id state }}
                 }} }} }}"""
-    location = assert_successful_request(read_only_client, query)
+    location = assert_successful_request(client, query)
     boxes = location["boxes"]["elements"]
     assert len(boxes) == number
 
@@ -1669,7 +1669,7 @@ def test_box_label_identifier_generation(
     ],
 )
 def test_mutate_box_with_non_existing_resource(
-    read_only_client,
+    client,
     default_box,
     product_id,
     size_id,
@@ -1688,7 +1688,7 @@ def test_mutate_box_with_non_existing_resource(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Box QR code cannot be updated, hence no errors possible
     if qr_code == "000" or measure_value == 100:
@@ -1703,11 +1703,11 @@ def test_mutate_box_with_non_existing_resource(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 def test_mutate_box_with_invalid_input(
-    read_only_client,
+    client,
     default_box,
     measure_product_box,
     default_product,
@@ -1731,7 +1731,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.10a
     creation_input = f"""{{
@@ -1740,7 +1740,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.10b
     creation_input = f"""{{ {mandatory_input}
@@ -1749,7 +1749,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     creation_input = f"""{{ {mandatory_input}
                     sizeId: {size_id}
@@ -1757,7 +1757,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     creation_input = f"""{{ {mandatory_input}
                     sizeId: {size_id}
@@ -1766,7 +1766,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.10c
     creation_input = f"""{{ {mandatory_input}
@@ -1774,14 +1774,14 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     creation_input = f"""{{ {mandatory_input}
                     measureValue: {measure_value}
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.10d - mismatch of product size range and unit dimension
     creation_input = f"""{{ {mandatory_input}
@@ -1790,7 +1790,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.10e
     creation_input = f"""{{ {mandatory_input}
@@ -1799,7 +1799,7 @@ def test_mutate_box_with_invalid_input(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19
     label_identifier = default_box["label_identifier"]
@@ -1809,7 +1809,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19a
     update_input = f"""{{ {mandatory_input}
@@ -1817,14 +1817,14 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ {mandatory_input}
                 measureValue: 100
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19b
     size_product_id = str(products[2]["id"])
@@ -1834,7 +1834,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ {mandatory_input}
                 productId: {size_product_id}
@@ -1842,7 +1842,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Switch from size product to measure product
     # Test case 8.2.19g
@@ -1853,7 +1853,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19h
     update_input = f"""{{ {mandatory_input}
@@ -1861,7 +1861,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ {mandatory_input}
                 productId: {measure_product_id}
@@ -1869,7 +1869,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19i
     update_input = f"""{{ {mandatory_input}
@@ -1879,7 +1879,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19j
     liter_unit_id = str(liter_unit["id"])
@@ -1890,7 +1890,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Operations on measure-product boxes
     # Test case 8.2.19c
@@ -1901,7 +1901,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19d
     update_input = f"""{{ {mandatory_input}
@@ -1909,7 +1909,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Mismatch of product size range (mass) and unit dimension (volume)
     # Test case 8.2.19e
@@ -1918,7 +1918,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19c
     another_measure_product_id = str(products[8]["id"])
@@ -1928,7 +1928,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19d
     update_input = f"""{{ {mandatory_input}
@@ -1937,7 +1937,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19f
     update_input = f"""{{ {mandatory_input}
@@ -1945,7 +1945,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19k
     update_input = f"""{{ {mandatory_input}
@@ -1953,7 +1953,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19m
     update_input = f"""{{ {mandatory_input}
@@ -1963,7 +1963,7 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ {mandatory_input}
                 productId: {size_product_id}
@@ -1972,11 +1972,11 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 def test_create_box_with_used_qr_code(
-    read_only_client, default_qr_code, default_size, default_location, default_product
+    client, default_qr_code, default_size, default_location, default_product
 ):
     size_id = str(default_size["id"])
     location_id = str(default_location["id"])
@@ -1990,11 +1990,11 @@ def test_create_box_with_used_qr_code(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 def test_access_in_transit_or_not_delivered_box(
-    read_only_client,
+    client,
     mocker,
     in_transit_box,
     not_delivered_box,
@@ -2021,27 +2021,27 @@ def test_access_in_transit_or_not_delivered_box(
 
     # Default user is in the shipment source base (ID 1) and able to view the box
     for box_id, query in queries.items():
-        box = assert_successful_request(read_only_client, query)
+        box = assert_successful_request(client, query)
         assert box == {"id": box_id}
     for box_id, query in qr_queries.items():
-        qr_code = assert_successful_request(read_only_client, query)
+        qr_code = assert_successful_request(client, query)
         assert qr_code == {"box": {"id": box_id}}
 
     # user is in the shipment target base (ID 3) and able to view the box
     mock_user_for_request(mocker, base_ids=[3], organisation_id=2, user_id=2)
     for box_id, query in queries.items():
-        box = assert_successful_request(read_only_client, query)
+        box = assert_successful_request(client, query)
         assert box == {"id": box_id}
     for box_id, query in qr_queries.items():
-        qr_code = assert_successful_request(read_only_client, query)
+        qr_code = assert_successful_request(client, query)
         assert qr_code == {"box": {"id": box_id}}
 
     # user is in unrelated base (ID 2) and NOT permitted to view the box
     mock_user_for_request(mocker, base_ids=[2], organisation_id=2, user_id=3)
     for query in queries.values():
-        assert_forbidden_request(read_only_client, query)
+        assert_forbidden_request(client, query)
     for query in qr_queries.values():
-        assert_forbidden_request(read_only_client, query, value={"box": None})
+        assert_forbidden_request(client, query, value={"box": None})
 
 
 def test_box_with_large_history(
@@ -2068,7 +2068,7 @@ def test_box_with_large_history(
 
 
 def test_mutate_box_with_invalid_location_or_product(
-    read_only_client,
+    client,
     mocker,
     default_product,
     default_box,
@@ -2090,7 +2090,7 @@ def test_mutate_box_with_invalid_location_or_product(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     creation_input = f"""{{
                     productId: {another_product["id"]},
@@ -2100,7 +2100,7 @@ def test_mutate_box_with_invalid_location_or_product(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.10g
     creation_input = f"""{{
@@ -2112,7 +2112,7 @@ def test_mutate_box_with_invalid_location_or_product(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     creation_input = f"""{{
                     productId: {default_product["id"]},
@@ -2123,7 +2123,7 @@ def test_mutate_box_with_invalid_location_or_product(
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.11n, 8.2.11o
     label_identifier = default_box["label_identifier"]
@@ -2131,34 +2131,34 @@ def test_mutate_box_with_invalid_location_or_product(
                          locationId: {another_location["id"]} }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
                          productId: {another_product["id"]} }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
                          locationId: {default_location["id"]}
                          productId: {another_product["id"]} }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
                          locationId: {another_location["id"]}
                          productId: {default_product["id"]} }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
                          locationId: {another_location["id"]}
                          productId: {another_product["id"]} }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19p
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
@@ -2166,14 +2166,14 @@ def test_mutate_box_with_invalid_location_or_product(
                 }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     update_input = f"""{{ labelIdentifier: "{label_identifier}"
                     tagIds: [{tags[5]["id"]}, {tags[6]["id"]}]
                 }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ labelIdentifier }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 def test_create_boxes(
