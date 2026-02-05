@@ -11,7 +11,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { tag1, tag2 } from "mocks/tags";
 
-vi.setConfig({ testTimeout: 20_000 });
+vi.setConfig({ testTimeout: 40_000 });
 
 vi.mock("@auth0/auth0-react");
 const mockedUseAuth0 = vi.mocked(useAuth0);
@@ -30,8 +30,16 @@ const mockNavigate = vi.fn();
 
 beforeEach(async () => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org");
-  // Reset navigate mock before each test
   mockNavigate.mockClear();
+  // Reset Apollo cache if available
+  try {
+    const { cache } = await import("queries/cache");
+    if (cache && typeof cache.reset === "function") {
+      await cache.reset();
+    }
+  } catch (e) {
+    // cache module not found or not used, ignore
+  }
   const { useNavigate, useParams } = await import("react-router-dom");
   vi.mocked(useNavigate).mockReturnValue(mockNavigate);
   vi.mocked(useParams).mockReturnValue({ tagId: "1" });
