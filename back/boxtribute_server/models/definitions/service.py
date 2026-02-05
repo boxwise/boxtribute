@@ -1,12 +1,12 @@
 from peewee import CharField, DateTimeField, IntegerField, TextField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .base import Base
 from .user import User
 
 
-class Service(db.Model):  # type: ignore
+class Service(Model):
     name = CharField(column_name="label")
     description = TextField()
     base = UIntForeignKeyField(

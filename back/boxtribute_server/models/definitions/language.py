@@ -1,9 +1,9 @@
 from peewee import SQL, CharField, IntegerField
 
-from ...db import db
+from . import Model
 
 
-class Language(db.Model):  # type: ignore
+class Language(Model):
     code = CharField(null=True)
     locale = CharField(null=True)
     name = CharField(null=True)

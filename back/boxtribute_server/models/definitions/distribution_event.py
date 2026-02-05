@@ -1,14 +1,14 @@
 from peewee import CharField, DateTimeField
 
-from ...db import db
 from ...enums import DistributionEventState
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .distribution_events_tracking_group import DistributionEventsTrackingGroup
 from .location import Location
 from .user import User
 
 
-class DistributionEvent(db.Model):  # type: ignore
+class DistributionEvent(Model):
     name = CharField(null=True)
     planned_start_date_time = DateTimeField()
     planned_end_date_time = DateTimeField()

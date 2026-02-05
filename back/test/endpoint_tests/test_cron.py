@@ -97,7 +97,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
     # Verify successful execution
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
-    assert response.json == {"message": "posted 5 stats, 0 failure(s)"}
+    assert response.json == {"message": "posted 7 stats, 0 failure(s)"}
     header = "Organisation "
     for call_args_list, title in zip(mocked_urlopen.call_args_list, TITLES):
         part = json.loads(call_args_list.args[0].data.decode())
@@ -111,7 +111,7 @@ def test_reseed_db(cron_client, monkeypatch, mocker, default_users):
 
     response = cron_client.get(internal_stats_path, headers=headers)
     assert response.status_code == 500
-    assert response.json == {"message": "posted 0 stats, 5 failure(s)"}
+    assert response.json == {"message": "posted 0 stats, 7 failure(s)"}
 
     # Reseed-DB tests
     monkeypatch.setenv("MYSQL_DB", "dropapp_dev")

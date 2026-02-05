@@ -1,14 +1,14 @@
 from peewee import DateTimeField, IntegerField
 
-from ...db import db
 from ...enums import DistributionEventTrackingFlowDirection
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .distribution_events_tracking_group import DistributionEventsTrackingGroup
 from .product import Product
 from .size import Size
 
 
-class DistributionEventTrackingLogEntry(db.Model):  # type: ignore
+class DistributionEventTrackingLogEntry(Model):
     distro_event_tracking_group = UIntForeignKeyField(
         column_name="distro_event_tracking_group_id",
         field="id",

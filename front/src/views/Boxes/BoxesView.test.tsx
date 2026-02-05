@@ -665,21 +665,16 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
       await user.click(moveBoxesButton);
 
-      expect(
-        await screen.findByRole(
-          "menuitem",
-          {
-            name: /wh1/i,
-          },
-          { timeout: 10000 },
-        ),
-      ).toBeInTheDocument();
-
-      await user.click(
-        screen.getByRole("menuitem", {
+      // There may be multiple menuitems with the name 'WH1', so use findAllByRole
+      const wh1MenuItems = await screen.findAllByRole(
+        "menuitem",
+        {
           name: /wh1/i,
-        }),
+        },
+        { timeout: 10000 },
       );
+      expect(wh1MenuItems.length).toBeGreaterThan(0);
+      await user.click(wh1MenuItems[0]);
 
       // Wait for the UI to update after the action
       await waitFor(

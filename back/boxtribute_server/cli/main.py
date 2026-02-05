@@ -169,7 +169,7 @@ def main(args=None):
         SERVICE_LOGGER.setLevel(logging.DEBUG)
 
     # The following patches the `database` attribute of the DatabaseManager which is
-    # necessary for using the `db.Model` inheritance in all peewee model classes.
+    # necessary for using the `Model` inheritance in all peewee model classes.
     # NOTE: if importing model definitions in a sibling file, do so ONLY inside of the
     # function that uses the model, otherwise the "database" patch is ineffective, and
     # the "Cannot use uninitialized Proxy" error occurs.

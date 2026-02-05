@@ -1,6 +1,5 @@
 from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
 
-from ...db import db
 from ...enums import HumanGender
 from ..fields import (
     EnumCharField,
@@ -8,6 +7,7 @@ from ..fields import (
     ZeroDateField,
     ZeroDateTimeField,
 )
+from . import Model
 from .base import Base
 from .user import User
 
@@ -33,7 +33,7 @@ class HumanGenderField(EnumCharField):
         return self.enum_class(name)
 
 
-class Beneficiary(db.Model):  # type: ignore
+class Beneficiary(Model):
     signed = IntegerField(column_name="approvalsigned", constraints=[SQL("DEFAULT 0")])
     bicycle_ban = DateField(column_name="bicycleban", null=True)
     bicycle_ban_comment = TextField(

@@ -1,9 +1,9 @@
 from peewee import CharField, DateTimeField, TextField
 
-from ...db import db
+from . import Model
 
 
-class Log(db.Model):  # type: ignore
+class Log(Model):
     content = TextField()
     ip = CharField(null=True)
     date = DateTimeField(column_name="logdate", null=True)

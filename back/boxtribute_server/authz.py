@@ -197,7 +197,7 @@ def authorize_for_accessing_box(box, *, action="read") -> None:
             ShipmentDetail.select(Shipment)
             .join(Shipment)
             .where(
-                ShipmentDetail.box_id == box.id,
+                ShipmentDetail.box == box.id,
                 ShipmentDetail.removed_on.is_null(),
                 ShipmentDetail.received_on.is_null(),
             )
@@ -240,7 +240,7 @@ def authorize_cross_organisation_access(
     # Validate input: it's possible that the specified base does not exist in the
     # database. Still the user is told they're trying to access something they're not
     # permitted to
-    base = Base.select(Base.organisation_id).where(Base.id == base_id).get_or_none()
+    base = Base.select(Base.organisation).where(Base.id == base_id).get_or_none()
     if base is None:
         raise Forbidden(resource="base", value=base_id)
 
