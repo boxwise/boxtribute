@@ -202,7 +202,7 @@ describe("BoxCreateView", () => {
     const numberOfItemsInput = screen.getByRole("spinbutton");
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
-    await waitFor(() => expect(numberOfItemsInput).toHaveValue(5));
+    await waitFor(() => expect(numberOfItemsInput).toHaveValue("5"));
 
     //added new Tags
     await user.type(screen.getByLabelText(/Tags/), "epic");
