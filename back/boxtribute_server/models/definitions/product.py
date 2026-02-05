@@ -1,7 +1,7 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField, ZeroDateTimeField
+from . import Model
 from .base import Base
 from .product_category import ProductCategory
 from .product_gender import ProductGender
@@ -10,7 +10,7 @@ from .standard_product import StandardProduct
 from .user import User
 
 
-class Product(db.Model):  # type: ignore
+class Product(Model):
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",

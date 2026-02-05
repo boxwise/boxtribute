@@ -79,7 +79,7 @@ def test_metrics_query_for_god_user(
         ('"2020-01-01"', '"2020-07-01"', 30, 1),
         ('"2021-07-01"', "null", "null", 3),
         ('"2022-01-01"', "null", 30, 2),
-        ("null", "null", 30, 1),
+        ("null", "null", 32, 1),
     ],
 )
 def test_public_beneficiary_numbers(read_only_client, start, end, duration, result):
