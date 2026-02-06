@@ -5,6 +5,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger as OrigPopoverTrigger,
+  Portal,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { FC, ReactNode, useMemo } from "react";
@@ -49,22 +50,26 @@ export function SelectColumnFilterUI({
           data-testid={`filter-${id}`}
         />
       </PopoverTrigger>
-      <PopoverContent>
-        <PopoverArrow />
-        <PopoverBody textStyle="h1">
-          <Select
-            size="sm"
-            // filterValue is an array of IDs; display the matching options
-            value={options.filter((o) => filterValue?.includes(o.value))}
-            placeholder="All"
-            onChange={(selectedOptions) => {
-              setFilter(selectedOptions.map((selectedOption) => selectedOption.value) || undefined);
-            }}
-            options={options}
-            isMulti
-          />
-        </PopoverBody>
-      </PopoverContent>
+      <Portal>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverBody textStyle="h1">
+            <Select
+              size="sm"
+              // filterValue is an array of IDs; display the matching options
+              value={options.filter((o) => filterValue?.includes(o.value))}
+              placeholder="All"
+              onChange={(selectedOptions) => {
+                setFilter(
+                  selectedOptions.map((selectedOption) => selectedOption.value) || undefined,
+                );
+              }}
+              options={options}
+              isMulti
+            />
+          </PopoverBody>
+        </PopoverContent>
+      </Portal>
     </Popover>
   );
 }

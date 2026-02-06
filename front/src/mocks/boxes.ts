@@ -103,6 +103,7 @@ export const instockBox1 = {
       id: "11",
       name: "new",
       type: "All",
+      deletedOn: null,
     },
   ],
   createdOn: "2021-10-29T15:02:40+00:00",
@@ -215,6 +216,7 @@ export const instockBox2 = {
       id: "10",
       name: "company X",
       type: "Box",
+      deletedOn: null,
     },
     {
       __typename: "Tag",
@@ -223,6 +225,7 @@ export const instockBox2 = {
       id: "11",
       name: "new",
       type: "All",
+      deletedOn: null,
     },
     {
       __typename: "Tag",
@@ -231,6 +234,7 @@ export const instockBox2 = {
       id: "12",
       name: "emergency",
       type: "Box",
+      deletedOn: null,
     },
   ],
   createdOn: "2021-10-29T15:02:40+00:00",
