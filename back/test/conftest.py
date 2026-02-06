@@ -118,16 +118,15 @@ def app(setup_testing_database):
 
 
 @pytest.fixture
-def client(app):
+def client(app, setup_testing_database):
     """Function fixture for any tests that include arbitrary operations on the database.
     Use for testing GraphQL mutations, and data model insertions/updates.
     The fixture creates a web app on top of the given database fixture, and returns an
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    database_interface = app.config["DATABASE"]
-    with database_interface.bind_ctx(MODELS, False, False):
-        with database_interface.atomic() as txn:
+    with setup_testing_database.bind_ctx(MODELS, False, False):
+        with setup_testing_database.atomic() as txn:
             yield app.test_client()
             txn.rollback()
 
