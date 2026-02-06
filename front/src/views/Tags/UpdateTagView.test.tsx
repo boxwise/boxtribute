@@ -208,6 +208,14 @@ describe("UpdateTagView", () => {
       { timeout: 5000 },
     );
     // Wait for form to load
+    // Wait for skeletons to disappear before querying for the input value
+    await waitFor(
+      () => {
+        // Wait until no skeletons are present
+        expect(screen.queryByTestId("chakra-skeleton")).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
     await screen.findByDisplayValue("Existing Tag");
 
     // Update the form fields
