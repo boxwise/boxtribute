@@ -85,79 +85,93 @@ def test_query_created_boxes(
     # Sanity check
     nr_created_boxes = Box.select().join(Location).where(Location.base == 1).count()
     assert nr_created_boxes == sum(f["boxesCount"] for f in data["facts"])
-    assert data == {
-        "facts": [
-            {
-                "boxesCount": 1,
-                "itemsCount": 5,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 1,
-                "tagIds": [2, 3],
-            },
-            {
-                "boxesCount": 2,
-                "itemsCount": 20,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 1,
-                "tagIds": [3],
-            },
-            {
-                "boxesCount": 7,
-                "itemsCount": 70,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 1,
-                "tagIds": [],
-            },
-            {
-                "boxesCount": 1,
-                "itemsCount": 12,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 3,
-                "tagIds": [],
-            },
-            {
-                "boxesCount": 2,
-                "itemsCount": 22,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 12,
-                "gender": "Boy",
-                "productId": 5,
-                "tagIds": [],
-            },
-            {
-                "boxesCount": 1,
-                "itemsCount": 10,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 8,
-                "tagIds": [],
-            },
-        ],
-        "dimensions": {
-            "product": [
-                {
-                    "id": p["id"],
-                    "name": p["name"],
-                    "gender": ProductGender(p["gender"]).name,
-                }
-                # last product is not present in any box
-                for p in base1_undeleted_products[:-1]
-            ],
-            "category": [
-                {"id": c["id"], "name": c["name"]}
-                for c in sorted(product_categories, key=lambda c: c["id"])
-            ],
-            "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
+    expected_facts = [
+        {
+            "boxesCount": 1,
+            "itemsCount": 5,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 1,
+            "tagIds": [2, 3],
         },
+        {
+            "boxesCount": 2,
+            "itemsCount": 20,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 1,
+            "tagIds": [3],
+        },
+        {
+            "boxesCount": 7,
+            "itemsCount": 70,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxesCount": 1,
+            "itemsCount": 12,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 3,
+            "tagIds": [],
+        },
+        {
+            "boxesCount": 2,
+            "itemsCount": 22,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 12,
+            "gender": "Boy",
+            "productId": 5,
+            "tagIds": [],
+        },
+        {
+            "boxesCount": 1,
+            "itemsCount": 10,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 8,
+            "tagIds": [],
+        },
+    ]
+    assert len(data["facts"]) == len(expected_facts)
+
+    def _fact_sort_key(fact):
+        return (
+            fact["createdOn"],
+            fact["categoryId"],
+            fact["productId"],
+            fact["gender"],
+            tuple(fact["tagIds"]),
+            fact["boxesCount"],
+            fact["itemsCount"],
+        )
+
+    assert sorted(data["facts"], key=_fact_sort_key) == sorted(
+        expected_facts, key=_fact_sort_key
+    )
+    assert data["dimensions"] == {
+        "product": [
+            {
+                "id": p["id"],
+                "name": p["name"],
+                "gender": ProductGender(p["gender"]).name,
+            }
+            # last product is not present in any box
+            for p in base1_undeleted_products[:-1]
+        ],
+        "category": [
+            {"id": c["id"], "name": c["name"]}
+            for c in sorted(product_categories, key=lambda c: c["id"])
+        ],
+        "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
     }
 
 
