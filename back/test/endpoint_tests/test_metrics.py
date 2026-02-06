@@ -24,9 +24,9 @@ from utils import assert_successful_request
         ["""(after: "2022-01-01", before: "2023-01-01")""", 0],
     ],
 )
-def test_metrics_query_number_of_families_served(read_only_client, filters, number):
+def test_metrics_query_number_of_families_served(client, filters, number):
     query = f"query {{ metrics {{ numberOfFamiliesServed{filters} }} }}"
-    response = assert_successful_request(read_only_client, query, field="metrics")
+    response = assert_successful_request(client, query, field="metrics")
     assert response == {"numberOfFamiliesServed": number}
 
 
@@ -43,11 +43,9 @@ def test_metrics_query_number_of_families_served(read_only_client, filters, numb
         ["""(after: "2022-01-01", before: "2023-01-01")""", 0],
     ],
 )
-def test_metrics_query_number_of_sales(
-    read_only_client, default_transaction, filters, number
-):
+def test_metrics_query_number_of_sales(client, default_transaction, filters, number):
     query = f"query {{ metrics {{ numberOfSales{filters} }} }}"
-    response = assert_successful_request(read_only_client, query, field="metrics")
+    response = assert_successful_request(client, query, field="metrics")
     assert response == {"numberOfSales": number}
 
 
@@ -55,7 +53,7 @@ def test_metrics_query_number_of_sales(
     "organisation_id,number_of_families_served,number_of_sales", [[1, 2, 16], [2, 0, 0]]
 )
 def test_metrics_query_for_god_user(
-    read_only_client,
+    client,
     mocker,
     organisation_id,
     number_of_families_served,
@@ -64,7 +62,7 @@ def test_metrics_query_for_god_user(
     mock_user_for_request(mocker, is_god=True)
     query = f"""query {{ metrics(organisationId: {organisation_id}) {{
                 numberOfFamiliesServed numberOfSales }} }}"""
-    response = assert_successful_request(read_only_client, query, field="metrics")
+    response = assert_successful_request(client, query, field="metrics")
     assert response == {
         "numberOfFamiliesServed": number_of_families_served,
         "numberOfSales": number_of_sales,
@@ -82,13 +80,13 @@ def test_metrics_query_for_god_user(
         ("null", "null", 32, 1),
     ],
 )
-def test_public_beneficiary_numbers(read_only_client, start, end, duration, result):
+def test_public_beneficiary_numbers(client, start, end, duration, result):
     query = f"""query {{ newlyRegisteredBeneficiaryNumbers(
             start: {start}
             end: {end}
             duration: {duration}
             ) }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     assert response == result
 
 
@@ -103,14 +101,14 @@ def test_public_beneficiary_numbers(read_only_client, start, end, duration, resu
         ("null", "null", 30, 0),
     ],
 )
-def test_public_box_number(read_only_client, start, end, duration, result):
+def test_public_box_number(client, start, end, duration, result):
     query = f"""query {{ newlyCreatedBoxNumbers(
             start: {start}
             end: {end}
             duration: {duration}
             ) }}"""
 
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     assert response == result
 
 
@@ -131,13 +129,13 @@ def test_public_box_number(read_only_client, start, end, duration, result):
         ('"2023-01-01"', "null", 14, 1),
     ],
 )
-def test_reached_beneficiaries_numbers(read_only_client, start, end, duration, result):
+def test_reached_beneficiaries_numbers(client, start, end, duration, result):
     query = f"""query {{ reachedBeneficiariesNumbers(
             start: {start}
             end: {end}
             duration: {duration}
             ) }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     assert response == result
 
 
@@ -150,19 +148,17 @@ def test_reached_beneficiaries_numbers(read_only_client, start, end, duration, r
         ["reachedBeneficiariesNumbers", 2],
     ],
 )
-def test_exclude_test_organisation_in_production(
-    read_only_client, monkeypatch, stat, count
-):
+def test_exclude_test_organisation_in_production(client, monkeypatch, stat, count):
     # Data from organisation 1 is excluded
     monkeypatch.setenv("ENVIRONMENT", "production")
     query = f"""query {{ {stat}(start: "2020-01-01") }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     assert response == count
 
 
 def test_number_of_active_users_between(
     monkeypatch,
-    read_only_client,
+    client,
     default_organisation,
     another_organisation,
     default_bases,

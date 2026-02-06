@@ -57,13 +57,6 @@ def _create_database(database_name):
 
 
 @pytest.fixture(scope="session")
-def mysql_testing_database_read_only():
-    """Session fixture providing a database interface for read-only operations."""
-    with _create_database("testingreadonly") as database:
-        yield database
-
-
-@pytest.fixture(scope="session")
 def mysql_testing_database():
     """Session fixture providing a database interface for arbitrary operations."""
     with _create_database("testing") as database:
@@ -91,54 +84,56 @@ def _create_app(database_interface, *blueprints):
     """
     app = create_app()
     app.debug = True
+    # Reset handlers before registering in db.init_app(). This is crucial to enable the
+    # usage of transaction rollbacks in the client fixture. The connect_db/close_db
+    # methods are registered as before/after_request handlers in the Flask app. Usually
+    # they open/close the database connection but since this cannot happen during the
+    # transaction in the client fixture, they are rendered ineffective.
+    db.connect_db = lambda: None
+    db.close_db = lambda exc: None
     configure_app(app, *blueprints, database_interface=database_interface)
+    with app.app_context():
+        yield app
 
-    with db.database.bind_ctx(MODELS):
-        db.database.drop_tables(MODELS)
-        db.database.create_tables(MODELS)
+
+def populate_database(database):
+    with database.bind_ctx(MODELS):
+        database.drop_tables(MODELS)
+        database.create_tables(MODELS)
         setup_models()
-        db.database.close()
-        with app.app_context():
-            yield app
-
-    db.database.close()
+        database.close()
 
 
 @pytest.fixture(scope="session")
-def read_only_app(mysql_testing_database_read_only):
+def setup_testing_database(mysql_testing_database):
+    populate_database(mysql_testing_database)
+    yield mysql_testing_database
+
+
+@pytest.fixture
+def app(setup_testing_database):
     """The fixture creates a web app on top of the given database fixture."""
-    with _create_app(
-        mysql_testing_database_read_only, api_bp, app_bp, shared_bp
-    ) as app:
+    with _create_app(setup_testing_database, api_bp, app_bp, shared_bp) as app:
         yield app
 
 
 @pytest.fixture
-def read_only_client(read_only_app):
-    """Function fixture for any tests that include read-only operations on the database.
-    Use for testing GraphQL queries, and data model selections.
-    The fixture returns an app client that simulates sending requests to the app.
-    The client's authentication and authorization may be separately defined or patched.
-    """
-    database_interface = read_only_app.config["DATABASE"]
-    with database_interface.bind_ctx(MODELS, False, False):
-        yield read_only_app.test_client()
-
-
-@pytest.fixture
-def client(mysql_testing_database):
+def client(app, setup_testing_database):
     """Function fixture for any tests that include arbitrary operations on the database.
     Use for testing GraphQL mutations, and data model insertions/updates.
     The fixture creates a web app on top of the given database fixture, and returns an
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with _create_app(mysql_testing_database, api_bp, app_bp, shared_bp) as app:
-        yield app.test_client()
+    with setup_testing_database.bind_ctx(MODELS, False, False):
+        with setup_testing_database.atomic() as txn:
+            yield app.test_client()
+            txn.rollback()
 
 
 @pytest.fixture
 def cron_client(mysql_cron_database):
+    populate_database(mysql_cron_database)
     with _create_app(mysql_cron_database, app_bp) as app:
         app.debug = False  # for having the app handle errors as if in production
         yield app.test_client()
@@ -167,6 +162,7 @@ def mysql_dev_database(monkeypatch):
     yield app
     db.database.close()
     db.replica.close()
+    db.replica = None
 
 
 @pytest.fixture

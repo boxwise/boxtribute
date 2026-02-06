@@ -2,7 +2,7 @@ from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
-def test_user_query(read_only_client, default_user, another_user, default_organisation):
+def test_user_query(client, default_user, another_user, default_organisation):
     # Test case 10.1.2
     user_id = another_user["id"]
     query = f"""query {{
@@ -18,7 +18,7 @@ def test_user_query(read_only_client, default_user, another_user, default_organi
                     lastAction
                 }}
             }}"""
-    queried_user = assert_successful_request(read_only_client, query)
+    queried_user = assert_successful_request(client, query)
     assert queried_user == {
         "id": str(user_id),
         "name": another_user["name"],
@@ -37,25 +37,25 @@ def test_user_query(read_only_client, default_user, another_user, default_organi
                     id
                     bases {{ id }}
                     organisation {{ id }} }} }}"""
-    queried_user = assert_successful_request(read_only_client, query)
+    queried_user = assert_successful_request(client, query)
     assert queried_user == {"id": str(user_id), "organisation": None, "bases": None}
 
 
-def test_user_query_for_god_user(read_only_client, default_bases, mocker, god_user):
+def test_user_query_for_god_user(client, default_bases, mocker, god_user):
     user_id = god_user["id"]
     mock_user_for_request(mocker, is_god=True, user_id=user_id)
     query = f"""query {{ user (id: {user_id}) {{
                 organisation {{ id }}
                 bases {{ id }}
             }} }}"""
-    user = assert_successful_request(read_only_client, query)
+    user = assert_successful_request(client, query)
     assert user == {
         "organisation": None,
         "bases": [{"id": str(b["id"])} for b in default_bases],
     }
 
 
-def test_users_query(read_only_client):
+def test_users_query(client):
     # Test case 10.1.1
     query = """query { users { id name } }"""
-    assert assert_successful_request(read_only_client, query) == []
+    assert assert_successful_request(client, query) == []

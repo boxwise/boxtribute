@@ -2,9 +2,7 @@ from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
-def test_bases_query(
-    read_only_client, default_base, deleted_base, default_beneficiaries, mocker
-):
+def test_bases_query(client, default_base, deleted_base, default_beneficiaries, mocker):
     # Test case 99.1.1
     query = """query {
                 bases {
@@ -16,7 +14,7 @@ def test_bases_query(
                 }
             }"""
 
-    bases = assert_successful_request(read_only_client, query)
+    bases = assert_successful_request(client, query)
     assert len(bases[0]["beneficiaries"].pop("elements")) == len(default_beneficiaries)
     assert bases == [
         {
@@ -31,15 +29,15 @@ def test_bases_query(
     # Test case 99.1.1a
     mock_user_for_request(mocker, base_ids=[deleted_base["id"]])
     query = """query { bases(filterInput: {includeDeleted: false}) { id } }"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == []
 
     query = """query { bases { id } }"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == []
 
     query = """query { bases(filterInput: {includeDeleted: true}) { id deletedOn } }"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == [
         {
             "id": str(deleted_base["id"]),
@@ -49,7 +47,7 @@ def test_bases_query(
 
 
 def test_base_query(
-    read_only_client,
+    client,
     default_base,
     default_tracking_group,
     distribution_spot,
@@ -80,7 +78,7 @@ def test_base_query(
                 }}
             }}"""
 
-    base = assert_successful_request(read_only_client, query)
+    base = assert_successful_request(client, query)
     assert base == {
         "id": test_id,
         "name": default_base["name"],
