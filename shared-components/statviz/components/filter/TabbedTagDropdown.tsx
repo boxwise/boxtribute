@@ -61,7 +61,7 @@ export default function TabbedTagDropdown({
     const allSelected = [...includedTags, ...excludedTags];
     if (allSelected.length === 0) {
       return (
-        <Text color="gray.500" fontSize="sm">
+        <Text color="gray.500" fontSize="m">
           {placeholder}
         </Text>
       );

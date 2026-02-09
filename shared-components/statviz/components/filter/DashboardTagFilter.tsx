@@ -86,7 +86,7 @@ export default function DashboardTagFilter() {
         onIncludedChange={onIncludedFilterChange}
         onExcludedChange={onExcludedFilterChange}
         onClearAll={onClearAll}
-        placeholder="Filter by tags"
+        placeholder="Select"
       />
     </Box>
   );
