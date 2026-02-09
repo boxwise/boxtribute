@@ -57,8 +57,8 @@ export default function useTagFilterDashboard<T>(
     }
   }, [searchParams, excludedFilterId, excludedValues]);
 
-  const onIncludedFilterChange = (event) => {
-    const selected = event as (IFilterValue & T)[];
+  const onIncludedFilterChange = (event: (IFilterValue & T)[]) => {
+    const selected = event;
     const newParams = new URLSearchParams(searchParams);
 
     if (selected.length === 0) {
@@ -71,8 +71,8 @@ export default function useTagFilterDashboard<T>(
     setSearchParams(newParams);
   };
 
-  const onExcludedFilterChange = (event) => {
-    const selected = event as (IFilterValue & T)[];
+  const onExcludedFilterChange = (event: (IFilterValue & T)[]) => {
+    const selected = event;
     const newParams = new URLSearchParams(searchParams);
 
     if (selected.length === 0) {
