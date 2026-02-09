@@ -85,10 +85,18 @@ export default function useTagFilterDashboard<T>(
     setSearchParams(newParams);
   };
 
+  const onClearAll = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete(includedFilterId);
+    newParams.delete(excludedFilterId);
+    setSearchParams(newParams);
+  };
+
   return {
     includedFilterValue,
     excludedFilterValue,
     onIncludedFilterChange,
     onExcludedFilterChange,
+    onClearAll,
   };
 }

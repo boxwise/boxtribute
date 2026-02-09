@@ -45,10 +45,10 @@ export default function MultiSelectList({
               _hover={{ bg: "gray.100" }}
               onClick={() => handleToggle(tag)}
             >
-              <Text as="span" color={tag.color}>
+              <Text as="span" color="black">
                 {tag.label}
               </Text>
-              {isSelected && <CheckIcon color={tag.color} boxSize="16px" />}
+              {isSelected && <CheckIcon color="black" boxSize="16px" />}
             </Flex>
           );
         })

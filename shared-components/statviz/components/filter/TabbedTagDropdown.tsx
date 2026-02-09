@@ -26,6 +26,7 @@ interface ITabbedTagDropdownProps {
   excludedTags: ITagFilterValue[];
   onIncludedChange: (tags: ITagFilterValue[]) => void;
   onExcludedChange: (tags: ITagFilterValue[]) => void;
+  onClearAll?: () => void;
   placeholder?: string;
 }
 
@@ -40,14 +41,20 @@ export default function TabbedTagDropdown({
   excludedTags,
   onIncludedChange,
   onExcludedChange,
+  onClearAll,
   placeholder = "Filter by tags",
 }: ITabbedTagDropdownProps) {
   const hasSelections = includedTags.length > 0 || excludedTags.length > 0;
 
   const handleClearAll = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onIncludedChange([]);
-    onExcludedChange([]);
+    if (onClearAll) {
+      onClearAll();
+    } else {
+      // Fallback: clear both separately
+      onIncludedChange([]);
+      onExcludedChange([]);
+    }
   };
 
   const renderSelectedTags = () => {

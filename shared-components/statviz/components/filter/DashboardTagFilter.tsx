@@ -66,6 +66,7 @@ export default function DashboardTagFilter() {
     excludedFilterValue,
     onIncludedFilterChange,
     onExcludedFilterChange,
+    onClearAll,
   } = useTagFilterDashboard<ITagFilterValue>(
     includedValues,
     excludedValues,
@@ -84,6 +85,7 @@ export default function DashboardTagFilter() {
         excludedTags={excludedFilterValue}
         onIncludedChange={onIncludedFilterChange}
         onExcludedChange={onExcludedFilterChange}
+        onClearAll={onClearAll}
         placeholder="Filter by tags"
       />
     </Box>
