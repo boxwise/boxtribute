@@ -24,6 +24,12 @@ import {
   tagFilterValuesVar,
   categoryFilterValuesVar,
 } from "../../../state/filter";
+import {
+  tagFilterIncludedValuesVar,
+  tagFilterExcludedValuesVar,
+} from "../../../state/tagFilterDashboard";
+import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
+import { filterByTags } from "../../../utils/filterByTags";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 
@@ -56,6 +62,13 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   const { filterValue: filterCategories } = useMultiSelectFilter(
     categoryFilterValues,
     categoryFilterId,
+  );
+
+  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
+    includedValues,
+    excludedValues,
   );
 
   // fill target filter with data
@@ -117,11 +130,21 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
       );
     }
 
+    let filtered = movedBoxesFacts;
     if (filters.length > 0) {
       // @ts-expect-error
-      return tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
+      filtered = tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
-    return movedBoxesFacts satisfies MovedBoxesResult[];
+
+    // Apply Dashboard tag filter (included/excluded)
+    filtered = filterByTags(
+      filtered,
+      includedFilterValue,
+      excludedFilterValue,
+      (fact) => fact.tagIds,
+    );
+
+    return filtered;
   }, [
     excludedTargets,
     filteredTags,
@@ -129,6 +152,8 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     movedBoxesFacts,
     productsFilter,
     filterCategories,
+    includedFilterValue,
+    excludedFilterValue,
   ]);
 
   const filteredMovedBoxesCube = {
