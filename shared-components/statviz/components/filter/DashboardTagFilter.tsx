@@ -74,7 +74,7 @@ export default function DashboardTagFilter() {
   );
 
   return (
-    <Box maxW="350px" w="100%">
+    <Box maxW="250px" w="100%">
       <FormLabel htmlFor="dashboard-tag-filter" mb={2}>
         tags
       </FormLabel>

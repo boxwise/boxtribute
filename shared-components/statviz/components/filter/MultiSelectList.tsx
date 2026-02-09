@@ -1,22 +1,21 @@
-import { Box, Checkbox, Stack, Text } from "@chakra-ui/react";
+import { Stack, Text, Flex } from "@chakra-ui/react";
+import { CheckIcon } from "@chakra-ui/icons";
 import { ITagFilterValue } from "../../state/tagFilterDashboard";
 
 interface IMultiSelectListProps {
   values: ITagFilterValue[];
   selectedValues: ITagFilterValue[];
   onChange: (selected: ITagFilterValue[]) => void;
-  prefix?: string;
 }
 
 /**
  * Reusable multi-select list component for tag filtering.
- * Displays a list of checkboxes with tag colors.
+ * Displays a list with CheckIcon on the right for selected items.
  */
 export default function MultiSelectList({
   values,
   selectedValues,
   onChange,
-  prefix = "",
 }: IMultiSelectListProps) {
   const handleToggle = (tag: ITagFilterValue) => {
     const isSelected = selectedValues.some((v) => v.id === tag.id);
@@ -27,7 +26,7 @@ export default function MultiSelectList({
   };
 
   return (
-    <Stack spacing={2} maxH="300px" overflowY="auto" p={2}>
+    <Stack spacing={0} maxH="300px" overflowY="auto" p={2}>
       {values.length === 0 ? (
         <Text color="gray.500" fontSize="sm" p={2}>
           No tags available
@@ -36,31 +35,21 @@ export default function MultiSelectList({
         values.map((tag) => {
           const isSelected = selectedValues.some((v) => v.id === tag.id);
           return (
-            <Box key={tag.id}>
-              <Checkbox
-                isChecked={isSelected}
-                onChange={() => handleToggle(tag)}
-                colorScheme="blue"
-              >
-                <Box display="inline-flex" alignItems="center">
-                  <Box
-                    as="span"
-                    display="inline-block"
-                    w="12px"
-                    h="12px"
-                    borderRadius="full"
-                    bg={tag.color}
-                    mr={2}
-                    border="1px solid"
-                    borderColor="gray.300"
-                  />
-                  <Text as="span">
-                    {prefix}
-                    {tag.label}
-                  </Text>
-                </Box>
-              </Checkbox>
-            </Box>
+            <Flex
+              key={tag.id}
+              align="center"
+              justify="space-between"
+              px={2}
+              py={1.5}
+              cursor="pointer"
+              _hover={{ bg: "gray.100" }}
+              onClick={() => handleToggle(tag)}
+            >
+              <Text as="span" color={tag.color}>
+                {tag.label}
+              </Text>
+              {isSelected && <CheckIcon color={tag.color} boxSize="16px" />}
+            </Flex>
           );
         })
       )}

@@ -14,8 +14,9 @@ import {
   Text,
   Flex,
   CloseButton,
+  IconButton,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, CloseIcon } from "@chakra-ui/icons";
 import { ITagFilterValue } from "../../state/tagFilterDashboard";
 import MultiSelectList from "./MultiSelectList";
 
@@ -30,7 +31,7 @@ interface ITabbedTagDropdownProps {
 
 /**
  * Tabbed dropdown component for selecting included and excluded tags.
- * Features two tabs: "Including" for tags to include and "Excluding" for tags to exclude.
+ * Features two tabs: "Include" for tags to include and "Exclude" for tags to exclude.
  * The dropdown remains open after selecting tags and only closes when clicking outside.
  */
 export default function TabbedTagDropdown({
@@ -41,6 +42,14 @@ export default function TabbedTagDropdown({
   onExcludedChange,
   placeholder = "Filter by tags",
 }: ITabbedTagDropdownProps) {
+  const hasSelections = includedTags.length > 0 || excludedTags.length > 0;
+
+  const handleClearAll = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onIncludedChange([]);
+    onExcludedChange([]);
+  };
+
   const renderSelectedTags = () => {
     const allSelected = [...includedTags, ...excludedTags];
     if (allSelected.length === 0) {
@@ -92,7 +101,7 @@ export default function TabbedTagDropdown({
               variant="outline"
               width="100%"
               justifyContent="space-between"
-              rightIcon={<ChevronDownIcon />}
+              rightIcon={hasSelections ? undefined : <ChevronDownIcon />}
               borderColor="black"
               borderWidth="2px"
               borderRadius="0"
@@ -104,14 +113,26 @@ export default function TabbedTagDropdown({
               <Box flex="1" textAlign="left" overflow="hidden">
                 {renderSelectedTags()}
               </Box>
+              {hasSelections && (
+                <Flex gap={1} ml={2}>
+                  <IconButton
+                    aria-label="Clear all filters"
+                    icon={<CloseIcon />}
+                    size="xs"
+                    variant="ghost"
+                    onClick={handleClearAll}
+                  />
+                  <ChevronDownIcon boxSize={5} />
+                </Flex>
+              )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent width="350px" borderRadius="0" borderColor="black" borderWidth="2px">
+          <PopoverContent width="250px" borderRadius="0" borderColor="black" borderWidth="2px">
             <PopoverBody p={0}>
               <Tabs>
                 <TabList>
-                  <Tab flex="1">Including</Tab>
-                  <Tab flex="1">Excluding</Tab>
+                  <Tab flex="1">Include</Tab>
+                  <Tab flex="1">Exclude</Tab>
                 </TabList>
                 <TabPanels>
                   <TabPanel p={2}>
@@ -126,7 +147,6 @@ export default function TabbedTagDropdown({
                       values={availableTags}
                       selectedValues={excludedTags}
                       onChange={onExcludedChange}
-                      prefix="not:"
                     />
                   </TabPanel>
                 </TabPanels>

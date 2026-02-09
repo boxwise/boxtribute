@@ -70,7 +70,7 @@ export default function Dashboard() {
             <GenderProductFilter />
           </Center>
         </WrapItem>
-        <WrapItem w="350">
+        <WrapItem w="250">
           <Center>
             <DashboardTagFilter />
           </Center>
