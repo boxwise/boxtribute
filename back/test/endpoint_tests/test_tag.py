@@ -17,7 +17,7 @@ from utils import (
 today = date.today().isoformat()
 
 
-def test_tag_query(read_only_client, tags):
+def test_tag_query(client, tags):
     # Test case 4.1.2
     tag = tags[0]
     tag_id = str(tag["id"])
@@ -28,7 +28,7 @@ def test_tag_query(read_only_client, tags):
             lastModifiedOn
             lastModifiedBy {{ id }}
         }} }}"""
-    queried_tag = assert_successful_request(read_only_client, query)
+    queried_tag = assert_successful_request(client, query)
     assert queried_tag == {
         "id": tag_id,
         "name": tag["name"],
@@ -41,7 +41,7 @@ def test_tag_query(read_only_client, tags):
 
 
 def test_tags_query(
-    read_only_client,
+    client,
     tags,
     default_beneficiary,
     another_male_beneficiary,
@@ -59,7 +59,7 @@ def test_tags_query(
                     ...on Beneficiary { id }
                     ...on Box { id }
                 } } }"""
-    queried_tags = assert_successful_request(read_only_client, query)
+    queried_tags = assert_successful_request(client, query)
     assert queried_tags == [
         {
             "id": str(tags[0]["id"]),
@@ -371,7 +371,7 @@ def test_update_tag_type(client, tag_id, tag_type, tagged_resource_ids, typename
     }
 
 
-def test_assign_tag_with_invalid_base(read_only_client, tags):
+def test_assign_tag_with_invalid_base(client, tags):
     tag_id = tags[3]["id"]
     # Test case 4.2.39
     assignment_input = f"""{{
@@ -382,17 +382,17 @@ def test_assign_tag_with_invalid_base(read_only_client, tags):
     mutation = f"""mutation {{
             assignTag( assignmentInput: {assignment_input} ) {{
                 ...on Box {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
     # Test case 4.2.40
     mutation = f"""mutation {{
             unassignTag( unassignmentInput: {assignment_input} ) {{
                 ...on Box {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_assign_tag_with_invalid_resource_type(
-    read_only_client, tags, another_beneficiary, default_box
+    client, tags, another_beneficiary, default_box
 ):
     # Test case 4.2.23
     box_tag_id = tags[1]["id"]
@@ -405,7 +405,7 @@ def test_assign_tag_with_invalid_resource_type(
                 }} ) {{
                     ...on Beneficiary {{ tags {{ id }} }}
                 }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
     # Test case 4.2.24
     beneficiary_tag_id = tags[0]["id"]
@@ -418,7 +418,7 @@ def test_assign_tag_with_invalid_resource_type(
                 }} ) {{
                     ...on Box {{ tags {{ id }} }}
                 }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 @pytest.mark.parametrize(
@@ -429,13 +429,13 @@ def test_assign_tag_with_invalid_resource_type(
         ["(resourceType: Beneficiary)", ["1", "3", "6"]],
     ],
 )
-def test_base_tags_query(read_only_client, filter_input, tag_ids):
+def test_base_tags_query(client, filter_input, tag_ids):
     query = f"""query {{ base(id: 1) {{ tags{filter_input} {{ id }} }} }}"""
-    tags = assert_successful_request(read_only_client, query)["tags"]
+    tags = assert_successful_request(client, query)["tags"]
     assert tags == [{"id": i} for i in tag_ids]
 
 
-def test_create_tag_with_invalid_color(read_only_client):
+def test_create_tag_with_invalid_color(client):
     # Test case 4.2.41
     creation_input = """{
         name: "Invalid Color Tag",
@@ -450,12 +450,12 @@ def test_create_tag_with_invalid_color(read_only_client):
                 ...on InvalidColorError {{ color }}
             }}
         }}"""
-    result = assert_successful_request(read_only_client, mutation)
+    result = assert_successful_request(client, mutation)
     assert result["__typename"] == "InvalidColorError"
     assert result["color"] == "not-a-color"
 
 
-def test_update_tag_with_invalid_color(read_only_client, tags):
+def test_update_tag_with_invalid_color(client, tags):
     # Test case 4.2.42
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ updateTag(
@@ -464,12 +464,12 @@ def test_update_tag_with_invalid_color(read_only_client, tags):
                 ...on Tag {{ id }}
                 ...on InvalidColorError {{ color }}
             }} }}"""
-    result = assert_successful_request(read_only_client, mutation)
+    result = assert_successful_request(client, mutation)
     assert result["__typename"] == "InvalidColorError"
     assert result["color"] == "invalid"
 
 
-def test_update_tag_with_empty_name(read_only_client, tags):
+def test_update_tag_with_empty_name(client, tags):
     # Test case 4.2.43
     tag_id = tags[0]["id"]
     mutation = f"""mutation {{ updateTag(
@@ -478,11 +478,11 @@ def test_update_tag_with_empty_name(read_only_client, tags):
                 ...on Tag {{ id }}
                 ...on EmptyNameError {{ __typename }}
             }} }}"""
-    result = assert_successful_request(read_only_client, mutation)
+    result = assert_successful_request(client, mutation)
     assert result["__typename"] == "EmptyNameError"
 
 
-def test_update_deleted_tag(read_only_client, tags):
+def test_update_deleted_tag(client, tags):
     # Test case 4.2.44
     tag_id = tags[4]["id"]  # Deleted tag in test data
     mutation = f"""mutation {{ updateTag(
@@ -491,7 +491,7 @@ def test_update_deleted_tag(read_only_client, tags):
                 ...on Tag {{ id }}
                 ...on DeletedTagError {{ name }}
             }} }}"""
-    result = assert_successful_request(read_only_client, mutation)
+    result = assert_successful_request(client, mutation)
     assert result["__typename"] == "DeletedTagError"
     assert result["name"] == tags[4]["name"]
 

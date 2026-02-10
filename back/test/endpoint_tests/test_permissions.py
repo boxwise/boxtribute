@@ -30,7 +30,7 @@ from utils import assert_forbidden_request, assert_successful_request
         "user",
     ],
 )
-def test_invalid_read_permissions(unauthorized, read_only_client, resource):
+def test_invalid_read_permissions(unauthorized, client, resource):
     """Verify missing resource:read permission when executing query."""
     # Build plural form
     resources = f"{resource}s"
@@ -42,13 +42,13 @@ def test_invalid_read_permissions(unauthorized, read_only_client, resource):
         query = "query { beneficiaries { elements { id } } }"
     elif resources == "products":
         query = "query { products { elements { id } } }"
-    assert_forbidden_request(read_only_client, query, none_data=True)
+    assert_forbidden_request(client, query, none_data=True)
 
     if resource == "sizeRange":
         return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
 
 def operation_name(operation):
@@ -68,9 +68,9 @@ def operation_name(operation):
     ],
     ids=operation_name,
 )
-def test_invalid_permission(unauthorized, read_only_client, query):
+def test_invalid_permission(unauthorized, client, query):
     """Verify missing resource:read permission."""
-    assert_forbidden_request(read_only_client, f"query {{ {query} }}")
+    assert_forbidden_request(client, f"query {{ {query} }}")
 
 
 @pytest.mark.parametrize(
@@ -94,11 +94,11 @@ def test_invalid_permission(unauthorized, read_only_client, query):
     ],
     ids=operation_name,
 )
-def test_invalid_permission_for_given_resource_id(read_only_client, query):
+def test_invalid_permission_for_given_resource_id(client, query):
     """Verify missing resource:read permission, or missing permission to access
     specified resource (i.e. base).
     """
-    assert_forbidden_request(read_only_client, f"query {{ {query} }}")
+    assert_forbidden_request(client, f"query {{ {query} }}")
 
 
 @pytest.mark.parametrize(
@@ -189,10 +189,10 @@ def test_invalid_permission_for_given_resource_id(read_only_client, query):
     ],
     ids=operation_name,
 )
-def test_invalid_write_permission(unauthorized, read_only_client, mutation):
+def test_invalid_write_permission(unauthorized, client, mutation):
     """Verify missing resource:write permission when executing mutation."""
     assert_forbidden_request(
-        read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
+        client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
     )
 
 
@@ -271,13 +271,13 @@ def test_invalid_write_permission(unauthorized, read_only_client, mutation):
     ],
     ids=operation_name,
 )
-def test_invalid_permission_when_mutating_box(read_only_client, mutation):
+def test_invalid_permission_when_mutating_box(client, mutation):
     assert_forbidden_request(
-        read_only_client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
+        client, f"mutation {{ {mutation} }}", field=operation_name(mutation)
     )
 
 
-def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker):
+def test_invalid_permission_when_creating_box_with_tags(client, mocker):
     # Test case 8.2.11
     # Verify missing tag_relation:assign permission
     mock_user_for_request(
@@ -290,19 +290,19 @@ def test_invalid_permission_when_creating_box_with_tags(read_only_client, mocker
                 sizeId: 1,
                 tagIds: [2]
             }) { id } }"""
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
-def test_invalid_permission_for_location_boxes(read_only_client, mocker):
+def test_invalid_permission_for_location_boxes(client, mocker):
     # Test case 8.1.8
     # verify missing stock:read permission
     mock_user_for_request(mocker, permissions=["location:read"])
     query = "query { location(id: 1) { boxes { elements { id } } } }"
-    assert_forbidden_request(read_only_client, query, value={"boxes": None})
+    assert_forbidden_request(client, query, value={"boxes": None})
 
 
 def test_invalid_permission_for_qr_code_box(
-    read_only_client,
+    client,
     mocker,
     default_qr_code,
     another_qr_code_with_box,
@@ -317,7 +317,7 @@ def test_invalid_permission_for_qr_code_box(
         ...on QrCode {{
             box {{ ...on InsufficientPermissionError {{ name }} }}
         }} }} }}"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == {"box": {"name": "stock:read"}}
 
     # Test case 8.1.11
@@ -343,7 +343,7 @@ def test_invalid_permission_for_qr_code_box(
                 ...on Box {{
                     tags {{ taggedResources {{ ...on Beneficiary {{ id }} }} }}
             }} }} }} }} }}"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == {
         "box": {
             "id": "3",
@@ -354,100 +354,96 @@ def test_invalid_permission_for_qr_code_box(
 
 
 def test_invalid_permission_for_organisation_bases(
-    read_only_client, mocker, default_organisation
+    client, mocker, default_organisation
 ):
     # verify missing base:read permission
     mock_user_for_request(mocker, permissions=["organisation:read"])
     org_id = default_organisation["id"]
     query = f"""query {{ organisation(id: "{org_id}") {{ bases {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, query, value={"bases": None})
+    assert_forbidden_request(client, query, value={"bases": None})
 
 
-def test_invalid_permission_for_beneficiary_fields(
-    read_only_client, mocker, default_beneficiary
-):
+def test_invalid_permission_for_beneficiary_fields(client, mocker, default_beneficiary):
     # verify missing tag:read/transaction:read permission
     mock_user_for_request(mocker, permissions=["beneficiary:read"])
     id = default_beneficiary["id"]
     query = f"query {{ beneficiary(id: {id}) {{ tokens }} }}"
-    assert_forbidden_request(read_only_client, query, value={"tokens": None})
+    assert_forbidden_request(client, query, value={"tokens": None})
 
     # Test case 4.1.8
     query = f"query {{ beneficiary(id: {id}) {{ tags {{ id }} }} }}"
-    assert_forbidden_request(read_only_client, query, value={"tags": None})
+    assert_forbidden_request(client, query, value={"tags": None})
 
 
-def test_invalid_permission_for_base_locations(read_only_client, mocker):
+def test_invalid_permission_for_base_locations(client, mocker):
     # verify missing location:read permission
     mock_user_for_request(mocker, permissions=["base:read"])
     query = "query { base(id: 1) { locations { id } } }"
-    assert_forbidden_request(read_only_client, query, value=None)
+    assert_forbidden_request(client, query, value=None)
 
 
-def test_invalid_permission_for_tag_resources(read_only_client, mocker, tags):
+def test_invalid_permission_for_tag_resources(client, mocker, tags):
     # Test case 4.1.7
     # verify missing tag_relation:read permission
     mock_user_for_request(mocker, permissions=["tag:read"])
     id = tags[0]["id"]
     query = f"query {{ tag(id: {id}) {{ taggedResources {{ ...on Box {{ id }} }} }} }}"
-    assert_forbidden_request(read_only_client, query, value={"taggedResources": None})
+    assert_forbidden_request(client, query, value={"taggedResources": None})
 
 
 @pytest.mark.parametrize("field", ["sourceBases", "targetBases"])
-def test_invalid_permission_for_agreement_bases(read_only_client, mocker, field):
+def test_invalid_permission_for_agreement_bases(client, mocker, field):
     # verify missing base:read permission
     mock_user_for_request(mocker, permissions=["transfer_agreement:read"])
     query = f"query {{ transferAgreement(id: 1) {{ {field} {{ id }} }} }}"
-    assert_forbidden_request(read_only_client, query, value={field: None})
+    assert_forbidden_request(client, query, value={field: None})
 
 
 @pytest.mark.parametrize("field", ["sourceBase", "targetBase"])
-def test_invalid_permission_for_shipment_base(read_only_client, mocker, field):
+def test_invalid_permission_for_shipment_base(client, mocker, field):
     # verify missing base:read permission
     mock_user_for_request(mocker, permissions=["shipment:read"])
     query = f"query {{ shipment(id: 1) {{ {field} {{ id }} }} }}"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
 
 @pytest.mark.parametrize("field", ["qrCode", "tags", "size"])
-def test_invalid_permission_for_box_field(read_only_client, mocker, default_box, field):
+def test_invalid_permission_for_box_field(client, mocker, default_box, field):
     # Test case 8.1.9
     # verify missing field:read permission
     mock_user_for_request(mocker, permissions=["stock:read"])
     query = f"""query {{ box(labelIdentifier: "{default_box["label_identifier"]}")
                 {{ {field} {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, query, value={field: None})
+    assert_forbidden_request(client, query, value={field: None})
 
 
 @pytest.mark.parametrize(
     "field", ["sourceLocation", "targetLocation", "sourceProduct", "targetProduct"]
 )
 def test_invalid_permission_for_shipment_details_field(
-    read_only_client, mocker, default_box, field
+    client, mocker, default_box, field
 ):
     # verify missing field:read permission
     mock_user_for_request(mocker, permissions=["shipment:read", "shipment_detail:read"])
     query = f"""query {{ shipment(id: 1) {{ details
                 {{ {field} {{ id }} }} }} }}"""
-    assert_forbidden_request(
-        read_only_client, query, value={"details": [{field: None}]}
-    )
+    assert_forbidden_request(client, query, value={"details": [{field: None}]})
 
 
 @pytest.mark.parametrize("resource", ["location", "product", "beneficiary"])
 def test_invalid_permission_for_resource_base(
-    read_only_client, mocker, default_product, resource
+    client, mocker, default_product, resource
 ):
     # verify missing base:read permission
     mock_user_for_request(mocker, permissions=[f"{resource}:read"])
     query = f"""query {{ {resource}(id: 1)
                 {{ base {{ id }} }} }}"""
-    assert_forbidden_request(read_only_client, query, value={"base": None})
+    assert_forbidden_request(client, query, value={"base": None})
 
 
-def test_invalid_permission_for_metrics(read_only_client, mocker):
+def test_invalid_permission_for_metrics(client, mocker):
     query = "query { metrics(organisationId: 2) { numberOfSales } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
 
 @pytest.mark.parametrize(
@@ -461,15 +457,15 @@ def test_invalid_permission_for_metrics(read_only_client, mocker):
         "delete-implies-read",
     ],
 )
-def test_permission_scope(read_only_client, mocker, method):
+def test_permission_scope(client, mocker, method):
     mock_user_for_request(mocker, permissions=[f"base:{method}"])
     query = "query { bases { id } }"
-    bases = assert_successful_request(read_only_client, query)
+    bases = assert_successful_request(client, query)
     assert bases == [{"id": "1"}]
 
 
 def test_permission_for_god_user(
-    read_only_client,
+    client,
     mocker,
     default_users,
     products,
@@ -479,29 +475,27 @@ def test_permission_for_god_user(
     mock_user_for_request(mocker, is_god=True)
     # Test case 10.1.1
     query = "query { users { id } }"
-    users = assert_successful_request(read_only_client, query)
+    users = assert_successful_request(client, query)
     assert len(users) == len(default_users)
 
     query = "query { products { totalCount } }"
-    nr_products = assert_successful_request(read_only_client, query)["totalCount"]
+    nr_products = assert_successful_request(client, query)["totalCount"]
     assert nr_products == len(products)
 
     query = "query { shipments { id } }"
-    nr_shipments = len(assert_successful_request(read_only_client, query))
+    nr_shipments = len(assert_successful_request(client, query))
     assert nr_shipments == len(shipments)
 
     query = "query { transferAgreements { id } }"
-    agreements = assert_successful_request(read_only_client, query)
+    agreements = assert_successful_request(client, query)
     assert len(agreements) == len(transfer_agreements)
 
 
-def test_invalid_permission_for_user_read(
-    read_only_client, default_product, default_user
-):
+def test_invalid_permission_for_user_read(client, default_product, default_user):
     product_id = default_product["id"]
     query = f"query {{ product(id: {product_id}) {{ createdBy {{ name email }} }} }}"
     assert_forbidden_request(
-        read_only_client,
+        client,
         query,
         value={"createdBy": {"email": None, "name": default_user["name"]}},
     )
@@ -648,10 +642,10 @@ def test_invalid_permission_for_user_read(
     ],
 )
 def test_mutate_insufficient_permission(
-    unauthorized, read_only_client, operation, mutation_input, field, response
+    unauthorized, client, operation, mutation_input, field, response
 ):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
-    actual_response = assert_successful_request(read_only_client, mutation)
+    actual_response = assert_successful_request(client, mutation)
     assert actual_response == response
 
 
@@ -789,10 +783,10 @@ def test_mutate_insufficient_permission(
     ],
 )
 def test_mutate_unauthorized_for_base(
-    read_only_client, operation, mutation_input, field, response
+    client, operation, mutation_input, field, response
 ):
     mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
-    actual_response = assert_successful_request(read_only_client, mutation)
+    actual_response = assert_successful_request(client, mutation)
     assert actual_response == response
 
 
@@ -823,12 +817,12 @@ def test_mutate_unauthorized_for_base(
     ],
 )
 def test_query_insufficient_permission(
-    unauthorized, read_only_client, operation, query_input, field, response
+    unauthorized, client, operation, query_input, field, response
 ):
     if query_input:
         query_input = f"({query_input})"
     query = f"query {{ {operation}{query_input} {{ {field} }} }}"
-    actual_response = assert_successful_request(read_only_client, query)
+    actual_response = assert_successful_request(client, query)
     assert actual_response == response
 
 
@@ -844,9 +838,7 @@ def test_query_insufficient_permission(
         ],
     ],
 )
-def test_query_unauthorized_for_base(
-    read_only_client, operation, query_input, field, response
-):
+def test_query_unauthorized_for_base(client, operation, query_input, field, response):
     query = f"query {{ {operation}({query_input}) {{ {field} }} }}"
-    actual_response = assert_successful_request(read_only_client, query)
+    actual_response = assert_successful_request(client, query)
     assert actual_response == response

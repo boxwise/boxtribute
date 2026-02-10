@@ -5,10 +5,10 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.10.0",
+    "@auth0/auth0-react": "^2.13.0",
     "@boxtribute/shared-components": "workspace:*",
     "@yudiel/react-qr-scanner": "2.5.1",
-    "jotai": "^2.16.1",
+    "jotai": "^2.17.1",
     "react-big-calendar": "^1.19.4",
     "react-csv": "^2.2.2",
     "react-icons": "^5.5.0",
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@types/react-big-calendar": "^1.16.3",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.12.7",
+    "msw": "^2.12.9",
     "mutationobserver-shim": "^0.3.7",
     "vite-plugin-static-copy": "^3.2.0"
   },
